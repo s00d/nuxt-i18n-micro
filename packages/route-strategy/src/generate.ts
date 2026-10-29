@@ -22,6 +22,8 @@ export interface RouteI18nMeta {
   name: string
   /** Locales this record serves. */
   locales: string[]
+  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
+  noMeta?: boolean | string[]
 }
 
 export interface GenerateOptions {
@@ -41,6 +43,7 @@ interface PageInfo {
   key: string
   rule: Rule | undefined
   allowed: string[] | undefined
+  noMeta: boolean | string[] | undefined
 }
 
 interface Variant {
@@ -70,7 +73,13 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     let found = infos.get(page)
     if (!found) {
       const original = top ? absolute(page.path ?? '') : joinChild(parentOriginal, page.path ?? '')
-      found = { original, key: routeKey(original), rule: rules.get(original, page.name), allowed: rules.allowedLocales(original, page.name) }
+      found = {
+        original,
+        key: routeKey(original),
+        rule: rules.get(original, page.name),
+        allowed: rules.allowedLocales(original, page.name),
+        noMeta: rules.disableMeta(original, page.name),
+      }
       infos.set(page, found)
     }
     return found
@@ -114,7 +123,8 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const route: NuxtPage = { ...page, path: routePath }
     if (page.name) {
       route.name = rename ? `${namePrefix}${page.name}${suffix}` : page.name
-      route.meta = { ...page.meta, i18n: { name: page.name, locales: codes } satisfies RouteI18nMeta }
+      const noMeta = infos.get(page)?.noMeta
+      route.meta = { ...page.meta, i18n: { name: page.name, locales: codes, ...(noMeta === undefined ? {} : { noMeta }) } satisfies RouteI18nMeta }
     }
     if (page.children) route.children = v.children.map((child) => emit(child, codes, suffix, rename, prefixed, false))
     if (top) {

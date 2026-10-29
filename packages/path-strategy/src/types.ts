@@ -34,6 +34,8 @@ export interface RouteI18nMeta {
   name: string
   /** Locales the record serves. */
   locales: string[]
+  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
+  noMeta?: boolean | string[]
 }
 
 export interface RouterAdapter {
@@ -52,6 +54,16 @@ export interface PathStrategyContext {
   hashMode?: boolean
   /** All pages use the global translations only. */
   disablePageLocales?: boolean
+  /** Pattern of locale-like first segments (`customRegexMatcher`): one that is no known locale is a 404. */
+  customRegexMatcher?: string
+}
+
+export interface ClientRedirectOptions {
+  /**
+   * `autoDetectPath: '*'`: a URL already in another locale moves to the preferred one too
+   * (the same page in that locale), not only unprefixed URLs.
+   */
+  switchPrefixed?: boolean
 }
 
 export interface SwitchLocaleOptions {

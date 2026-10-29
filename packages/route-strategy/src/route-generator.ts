@@ -13,6 +13,8 @@ export interface RouteGeneratorOptions {
   /** Custom paths by page path or route name, `$defineI18nRoute` ones merged in (config wins). */
   globalLocaleRoutes: GlobalLocaleRoutes
   routeLocales?: Record<string, string[]>
+  /** `$defineI18nRoute({ disableMeta })` by page path: baked into `meta.i18n.noMeta`. */
+  routeDisableMeta?: Record<string, boolean | string[]>
   noPrefixRedirect: boolean
   excludePatterns?: (string | RegExp)[]
   localizedRouteNamePrefix?: string
@@ -43,7 +45,7 @@ export class RouteGenerator {
     this.defaultLocale = resolved.defaultLocale
     this.strategy = options.strategy
     this.routeLocales = options.routeLocales ?? {}
-    this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales)
+    this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales, options.routeDisableMeta)
     this.options = options
   }
 

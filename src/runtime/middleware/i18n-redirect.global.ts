@@ -1,6 +1,7 @@
 /**
- * Client-side locale redirect middleware.
- * Replaces setTimeout-based afterEach redirects from the legacy redirect plugin.
+ * Client-side locale redirects (SPA navigations). The decision is the strategy's
+ * (`getClientRedirect`); preferences are read from the locale state and the cookie the main
+ * plugin keeps, without creating cookie refs per navigation.
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
@@ -8,12 +9,14 @@ import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
-import type { RouteLocationNormalized } from 'vue-router'
-import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
-import { useI18nLocale } from '../composables/useI18nLocale'
+import { getHashCookieName, getLocaleCookieName } from '@i18n-micro/utils/cookie'
+import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
-function redirectTo(path: string, to: RouteLocationNormalized) {
-  return navigateTo({ path, query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })
+function readCookie(name: string | null): string | null {
+  if (!name || typeof document === 'undefined') return null
+  const prefix = `${encodeURIComponent(name)}=`
+  const entry = document.cookie.split('; ').find((part) => part.startsWith(prefix))
+  return entry ? decodeURIComponent(entry.slice(prefix.length)) : null
 }
 
 export default defineNuxtRouteMiddleware((to, from) => {
@@ -22,51 +25,31 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const nuxtApp = useNuxtApp()
   const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
   const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy?: PathStrategy }).$i18nStrategy
-
   if (typeof getRuntimeConfig !== 'function' || !i18nStrategy) return
 
   const i18nConfig = getRuntimeConfig()
-  if (i18nConfig.redirects === false) return
-  if (to.path === from.path) return
-  if (isInternalPath(to.path, i18nConfig.excludePatterns)) return
+  if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns)) return
 
-  const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
   const defaultLocale = i18nConfig.defaultLocale || 'en'
   const autoDetectPath = i18nConfig.autoDetectPath || '/'
-
-  const { getPreferredLocale } = useI18nLocale()
-  const routeLocale = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, getPreferredLocale())
-  let preferredLocale = routeLocale || getPreferredLocale() || defaultLocale
-
+  const anyPath = autoDetectPath === '*'
   const path = to.path || '/'
-  const pathSegments = path.replace(/^\//, '').split('/').filter(Boolean)
-  const firstSegment = pathSegments[0]
-  const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
-  const allowPreferenceRedirect = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix })
+  const urlLocale = i18nStrategy.getLocaleFromPath(path)
 
-  // Cookie / Accept-Language preference is gated by autoDetectPath (#242).
-  // Unprefixed deep links still canonicalize with the default locale (localeRoutes aliases).
-  if (!hasLocalePrefix && !allowPreferenceRedirect) {
-    preferredLocale = defaultLocale
-  }
+  const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
+  const stored =
+    useState<string | null>('i18n-locale', () => null).value ??
+    readCookie(i18nConfig.hashMode ? getHashCookieName(i18nConfig) : getLocaleCookieName(i18nConfig))
+  const preference = stored && validLocales.includes(stored) ? stored : null
 
-  if (autoDetectPath === '*' && !hasLocalePrefix) {
-    preferredLocale = defaultLocale
-  }
+  // Cookie / Accept-Language preference is gated by autoDetectPath (#242); unprefixed deep links
+  // still canonicalize with the default locale (localeRoutes aliases).
+  const allowed = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix: urlLocale !== null })
+  const preferred =
+    !urlLocale && (anyPath || !allowed)
+      ? defaultLocale
+      : i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference) || preference || defaultLocale
 
-  if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
-    const rest = pathSegments.slice(1).join('/')
-    let targetPath: string
-    if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
-      targetPath = rest ? `/${rest}` : '/'
-    } else {
-      targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
-    }
-    return redirectTo(targetPath, to)
-  }
-
-  const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
-  if (redirectPath) {
-    return redirectTo(redirectPath, to)
-  }
+  const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
+  if (target) return navigateTo({ path: target, query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })
 })

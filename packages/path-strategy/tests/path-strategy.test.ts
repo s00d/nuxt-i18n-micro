@@ -63,7 +63,11 @@ function setup(
   strategy: Strategies,
   ctx: Partial<PathStrategyContext> = {},
   locales: Locale[] = LOCALES,
-  { pages: source = PAGES, routeLocales = {} }: { pages?: NuxtPage[]; routeLocales?: Record<string, string[]> } = {},
+  {
+    pages: source = PAGES,
+    routeLocales = {},
+    routeDisableMeta,
+  }: { pages?: NuxtPage[]; routeLocales?: Record<string, string[]>; routeDisableMeta?: Record<string, boolean | string[]> } = {},
 ): Setup {
   const pages = structuredClone(source)
   new RouteGenerator({
@@ -72,6 +76,7 @@ function setup(
     strategy,
     globalLocaleRoutes: RULES,
     routeLocales: { 'de-only': ['de'], ...routeLocales },
+    routeDisableMeta,
     noPrefixRedirect: false,
   }).extendPages(pages)
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
@@ -148,12 +153,14 @@ describe('switchLocaleRoute', () => {
     expect(i18n.switchLocaleRoute('en', 'de', admin)).toBe(admin)
   })
 
-  test('a page not served in the target locale falls back to the default locale, then to any', () => {
+  test("a page not served in the target locale leads to that locale's home, never another locale's page", () => {
     const { i18n, at, url } = setup('prefix_except_default')
-    expect(url(i18n.switchLocaleRoute('de', 'fr', at('/de/de-only')))).toBe('/de/de-only')
-    // served in de and en only: fr gets the record shared by de and en, with the default locale
+    expect(url(i18n.switchLocaleRoute('de', 'fr', at('/de/de-only')))).toBe('/fr')
+    expect(url(i18n.switchLocaleRoute('de', 'en', at('/de/de-only')))).toBe('/')
     const prefix = setup('prefix', {}, LOCALES, { routeLocales: { 'blog/[slug]': ['de', 'en'] } })
-    expect(prefix.url(prefix.i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'x' } }))).toBe('/en/blog/x')
+    expect(prefix.url(prefix.i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'x' } }))).toBe('/fr')
+    expect(prefix.url(prefix.i18n.localeRoute('fr', '/de/artikel/x'))).toBe('/fr')
+    expect(prefix.url(prefix.i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' } }))).toBe('/de/artikel/x')
   })
 
   test('an unmatched URL (a 404 page) switches to the same URL in the target locale', () => {
@@ -213,16 +220,13 @@ describe('reading a URL', () => {
     expect(setup('prefix', { disablePageLocales: true }).i18n.getPluginRouteName(at('/de/ueber-uns'), 'de')).toBe('index')
   })
 
-  test('getLocaleFromPath / resolveLocaleFromPath / formatPathForResolve', () => {
+  test('getLocaleFromPath / resolveLocaleFromPath', () => {
     const pxd = setup('prefix_except_default').i18n
     expect(pxd.getLocaleFromPath('/de/x?y=1')).toBe('de')
     expect(pxd.getLocaleFromPath('/xx/x')).toBeNull()
     expect(pxd.resolveLocaleFromPath('/x')).toBe('en')
     expect(setup('prefix').i18n.resolveLocaleFromPath('/x')).toBeNull()
     expect(setup('no_prefix').i18n.resolveLocaleFromPath('/de/x')).toBeNull()
-    expect(pxd.formatPathForResolve('/about', 'de', 'en')).toBe('/de/about')
-    expect(pxd.formatPathForResolve('/about', 'en', 'de')).toBe('/about')
-    expect(pxd.formatPathForResolve('/fr/about', 'de', 'en')).toBe('/fr/about')
   })
 })
 
@@ -268,4 +272,62 @@ test('setRouter rebuilds the index for the new routes', () => {
   const b = setup('prefix_except_default')
   a.i18n.setRouter({ hasRoute: (n) => b.router.hasRoute(n), resolve: b.at, getRoutes: () => b.router.getRoutes() })
   expect(a.url(a.i18n.localeRoute('de', { name: 'about' }))).toBe('/de/ueber-uns')
+})
+
+describe('page facts from meta.i18n', () => {
+  test('pageLocales: every locale the page is served in, from any of its records', () => {
+    const { i18n, at } = setup('prefix_except_default')
+    expect(i18n.pageLocales(at('/de/ueber-uns'))?.sort()).toEqual(['de', 'en', 'fr'])
+    expect(i18n.pageLocales(at('/de/de-only'))).toEqual(['de'])
+    expect(i18n.pageLocales({ path: '/de/ueber-uns' })?.sort()).toEqual(['de', 'en', 'fr'])
+    expect(i18n.pageLocales({ name: 'admin' })).toBeNull()
+  })
+
+  test('isMetaDisabled: disableMeta reaches every record, custom paths included', () => {
+    const { i18n, at } = setup('prefix_except_default', {}, LOCALES, { routeDisableMeta: { '/about': true, '/': ['de'] } })
+    expect(i18n.isMetaDisabled(at('/about-us'), 'en')).toBe(true)
+    expect(i18n.isMetaDisabled(at('/de/ueber-uns'), 'de')).toBe(true)
+    expect(i18n.isMetaDisabled(at('/de'), 'de')).toBe(true)
+    expect(i18n.isMetaDisabled(at('/'), 'en')).toBe(false)
+  })
+})
+
+describe('redirects', () => {
+  test('switchPrefixed (autoDetectPath "*") moves a prefixed URL to the same page in the preferred locale', () => {
+    const { i18n } = setup('prefix_except_default')
+    expect(i18n.getClientRedirect('/de/ueber-uns', 'fr', { switchPrefixed: true })).toBe('/fr/about')
+    expect(i18n.getClientRedirect('/de/ueber-uns', 'en', { switchPrefixed: true })).toBe('/about-us')
+    expect(i18n.getClientRedirect('/de/ueber-uns', 'fr')).toBeNull()
+    // a page the preferred locale does not serve stays
+    expect(i18n.getClientRedirect('/de/de-only', 'fr', { switchPrefixed: true })).toBeNull()
+  })
+
+  test('an unprefixed page the preferred locale does not serve is not redirected to a 404', () => {
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { routeLocales: { about: ['en'] } })
+    expect(i18n.getClientRedirect('/about-us', 'de')).toBeNull()
+  })
+
+  test('customRegexMatcher: a locale-like first segment that is no locale is a 404', () => {
+    const { i18n } = setup('prefix', { customRegexMatcher: '[a-z]{2}' })
+    expect(i18n.shouldReturn404('/xx/about')).toBe('Unknown locale')
+    expect(i18n.shouldReturn404('/de/ueber-uns')).toBeNull()
+    expect(i18n.shouldReturn404('/about-long')).toBeNull()
+  })
+})
+
+describe('shared route table', () => {
+  test('strategies over the same routes (one per SSR request) share the index and the URL caches', () => {
+    const first = setup('prefix_except_default')
+    const { router } = first
+    const adapter = {
+      hasRoute: (name: string) => router.hasRoute(name),
+      resolve: first.at as (to: unknown) => ResolvedRouteLike,
+      getRoutes: () => router.getRoutes(),
+    }
+    const second = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    first.i18n.localeRoute('de', '/about-us')
+    const resolve = vi.spyOn(router, 'resolve')
+    expect(second.localeRoute('de', '/about-us').fullPath).toBe('/de/ueber-uns')
+    expect(resolve).not.toHaveBeenCalled()
+  })
 })

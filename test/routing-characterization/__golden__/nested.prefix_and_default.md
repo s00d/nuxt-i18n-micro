@@ -92,138 +92,138 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en | null |
-| /account | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | /en/account | null |
-| /account/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders | null |
-| /account/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42 | null |
-| /account/settings | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings | null |
-| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /de | null |
-| /de/konto | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | /de/konto | null |
-| /de/konto/bestellungen | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | /de/konto/bestellungen | null |
-| /de/konto/bestellungen/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /de/konto/bestellungen/42 | null |
-| /de/konto/einstellungen | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | /de/konto/einstellungen | null |
-| /de/laden | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | /de/laden | null |
-| /de/laden/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /de/laden/shoes | null |
-| /de/laden/shoes/artikel/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /de/laden/shoes/artikel/red-boot | null |
-| /en | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en | null |
-| /en/account | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | /en/account | null |
-| /en/account/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders | null |
-| /en/account/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42 | null |
-| /en/account/settings | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings | null |
-| /en/store | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | /en/store | null |
-| /en/store/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes | null |
-| /en/store/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot | null |
-| /fr | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /fr | null |
-| /fr/compte | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | /fr/compte | null |
-| /fr/compte/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | /fr/compte/orders | null |
-| /fr/compte/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /fr/compte/orders/42 | null |
-| /fr/compte/parametres | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | /fr/compte/parametres | null |
-| /fr/shop | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | /fr/shop | null |
-| /fr/shop/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /fr/shop/shoes | null |
-| /fr/shop/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /fr/shop/shoes/red-boot | null |
-| /store | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | /en/store | null |
-| /store/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes | null |
-| /store/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot | null |
-| /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en/ | null |
-| /de/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /de/ | null |
-| /about/ | /en/about/?q=1#top [—] |  | /en/about/?q=1#top [null] | /en/about/?q=1#top [null] | /en/about/ | null |
-| /de/about/ | /en/about/?q=1#top [—] |  | /en/about/?q=1#top [null] | /en/about/?q=1#top [null] | /de/about/ | null |
-| /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /account | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | null | null | en,de,fr |
+| /account/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | null | null | en,de,fr |
+| /account/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | null | null | en,de,fr |
+| /account/settings | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | null | null | en,de,fr |
+| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /de/konto | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | null | /en/account | en,de,fr |
+| /de/konto/bestellungen | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | null | /en/account/orders | en,de,fr |
+| /de/konto/bestellungen/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | null | /en/account/orders/42 | en,de,fr |
+| /de/konto/einstellungen | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | null | /en/account/settings | en,de,fr |
+| /de/laden | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | null | /en/store | en,fr,de |
+| /de/laden/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | null | /en/store/shoes | en,fr,de |
+| /de/laden/shoes/artikel/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | null | /en/store/shoes/red-boot | en,de,fr |
+| /en | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /en/account | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | null | null | en,de,fr |
+| /en/account/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | null | null | en,de,fr |
+| /en/account/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | null | null | en,de,fr |
+| /en/account/settings | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | null | null | en,de,fr |
+| /en/store | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | null | null | en,fr,de |
+| /en/store/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | null | null | en,fr,de |
+| /en/store/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | null | null | en,de,fr |
+| /fr | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /fr/compte | /en/account?q=1#top [localized-account] |  | /en/account?q=1#top [localized-account] | /en/account?q=1#top [localized-account] | null | /en/account | en,de,fr |
+| /fr/compte/orders | /en/account/orders?q=1#top [localized-account-orders] |  | /en/account/orders?q=1#top [localized-account-orders] | /en/account/orders?q=1#top [localized-account-orders] | null | /en/account/orders | en,de,fr |
+| /fr/compte/orders/42 | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42-en?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | /en/account/orders/42?q=1#top [localized-account-orders-id] | null | /en/account/orders/42 | en,de,fr |
+| /fr/compte/parametres | /en/account/settings?q=1#top [localized-account-settings] |  | /en/account/settings?q=1#top [localized-account-settings] | /en/account/settings?q=1#top [localized-account-settings] | null | /en/account/settings | en,de,fr |
+| /fr/shop | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | null | /en/store | en,fr,de |
+| /fr/shop/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | null | /en/store/shoes | en,fr,de |
+| /fr/shop/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | null | /en/store/shoes/red-boot | en,de,fr |
+| /store | /en/store?q=1#top [localized-shop-en] |  | /en/store?q=1#top [localized-shop-en] | /en/store?q=1#top [localized-shop-en] | null | null | en,fr,de |
+| /store/shoes | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes-en?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | /en/store/shoes?q=1#top [localized-shop-category-en] | null | null | en,fr,de |
+| /store/shoes/red-boot | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /en/store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | null | null | en,de,fr |
+| /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /de/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /about/ | /en/about/?q=1#top [—] |  | /en/about/?q=1#top [null] | /en/about/?q=1#top [null] | null | null | null |
+| /de/about/ | /en/about/?q=1#top [—] |  | /en/about/?q=1#top [null] | /en/about/?q=1#top [null] | null | /en/about | null |
+| /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
+| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | /en/missing | null |
+| /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | null | /en/de/about | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en | null |
-| /account | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | /en/account | null |
-| /account/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /en/account/orders | null |
-| /account/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /en/account/orders/42 | null |
-| /account/settings | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /en/account/settings | null |
-| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de | null |
-| /de/konto | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | /de/konto | null |
-| /de/konto/bestellungen | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen | null |
-| /de/konto/bestellungen/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42 | null |
-| /de/konto/einstellungen | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen | null |
-| /de/laden | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | /de/laden | null |
-| /de/laden/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes | null |
-| /de/laden/shoes/artikel/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot | null |
-| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en | null |
-| /en/account | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | /en/account | null |
-| /en/account/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /en/account/orders | null |
-| /en/account/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /en/account/orders/42 | null |
-| /en/account/settings | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /en/account/settings | null |
-| /en/store | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | /en/store | null |
-| /en/store/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /en/store/shoes | null |
-| /en/store/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /en/store/shoes/red-boot | null |
-| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /fr | null |
-| /fr/compte | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | /fr/compte | null |
-| /fr/compte/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /fr/compte/orders | null |
-| /fr/compte/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /fr/compte/orders/42 | null |
-| /fr/compte/parametres | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /fr/compte/parametres | null |
-| /fr/shop | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | /fr/shop | null |
-| /fr/shop/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /fr/shop/shoes | null |
-| /fr/shop/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /fr/shop/shoes/red-boot | null |
-| /store | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | /en/store | null |
-| /store/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /en/store/shoes | null |
-| /store/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /en/store/shoes/red-boot | null |
-| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en/ | null |
-| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de/ | null |
-| /about/ | /de/about/?q=1#top [—] |  | /de/about/?q=1#top [null] | /de/about/?q=1#top [null] | /en/about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /de/about/?q=1#top [null] | /de/about/?q=1#top [null] | /de/about/ | null |
-| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /account | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | null | null | en,de,fr |
+| /account/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | null | null | en,de,fr |
+| /account/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | null | null | en,de,fr |
+| /account/settings | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | null | null | en,de,fr |
+| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /de/konto | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | null | null | en,de,fr |
+| /de/konto/bestellungen | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | null | null | en,de,fr |
+| /de/konto/bestellungen/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | null | null | en,de,fr |
+| /de/konto/einstellungen | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | null | null | en,de,fr |
+| /de/laden | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | null | null | en,fr,de |
+| /de/laden/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | null | null | en,fr,de |
+| /de/laden/shoes/artikel/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | null | null | en,de,fr |
+| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /en/account | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | null | /de/konto | en,de,fr |
+| /en/account/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | null | /de/konto/bestellungen | en,de,fr |
+| /en/account/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | null | /de/konto/bestellungen/42 | en,de,fr |
+| /en/account/settings | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | null | /de/konto/einstellungen | en,de,fr |
+| /en/store | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | null | /de/laden | en,fr,de |
+| /en/store/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | null | /de/laden/shoes | en,fr,de |
+| /en/store/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | null | /de/laden/shoes/artikel/red-boot | en,de,fr |
+| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /fr/compte | /de/konto?q=1#top [localized-account-de] |  | /de/konto?q=1#top [localized-account-de] | /de/konto?q=1#top [localized-account-de] | null | /de/konto | en,de,fr |
+| /fr/compte/orders | /de/konto/bestellungen?q=1#top [localized-account-orders-de] |  | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | /de/konto/bestellungen?q=1#top [localized-account-orders-de] | null | /de/konto/bestellungen | en,de,fr |
+| /fr/compte/orders/42 | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42-de?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | /de/konto/bestellungen/42?q=1#top [localized-account-orders-id-de] | null | /de/konto/bestellungen/42 | en,de,fr |
+| /fr/compte/parametres | /de/konto/einstellungen?q=1#top [localized-account-settings-de] |  | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | /de/konto/einstellungen?q=1#top [localized-account-settings-de] | null | /de/konto/einstellungen | en,de,fr |
+| /fr/shop | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | null | /de/laden | en,fr,de |
+| /fr/shop/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | null | /de/laden/shoes | en,fr,de |
+| /fr/shop/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | null | /de/laden/shoes/artikel/red-boot | en,de,fr |
+| /store | /de/laden?q=1#top [localized-shop-de] |  | /de/laden?q=1#top [localized-shop-de] | /de/laden?q=1#top [localized-shop-de] | null | null | en,fr,de |
+| /store/shoes | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes-de?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | /de/laden/shoes?q=1#top [localized-shop-category-de] | null | null | en,fr,de |
+| /store/shoes/red-boot | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /de/laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | null | null | en,de,fr |
+| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /about/ | /de/about/?q=1#top [—] |  | /de/about/?q=1#top [null] | /de/about/?q=1#top [null] | null | null | null |
+| /de/about/ | /de/about/?q=1#top [—] |  | /de/about/?q=1#top [null] | /de/about/?q=1#top [null] | null | null | null |
+| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
+| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | null | null | null |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en | null |
-| /account | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | /en/account | null |
-| /account/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /en/account/orders | null |
-| /account/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /en/account/orders/42 | null |
-| /account/settings | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /en/account/settings | null |
-| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de | null |
-| /de/konto | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | /de/konto | null |
-| /de/konto/bestellungen | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /de/konto/bestellungen | null |
-| /de/konto/bestellungen/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /de/konto/bestellungen/42 | null |
-| /de/konto/einstellungen | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /de/konto/einstellungen | null |
-| /de/laden | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | /de/laden | null |
-| /de/laden/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /de/laden/shoes | null |
-| /de/laden/shoes/artikel/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /de/laden/shoes/artikel/red-boot | null |
-| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en | null |
-| /en/account | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | /en/account | null |
-| /en/account/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /en/account/orders | null |
-| /en/account/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /en/account/orders/42 | null |
-| /en/account/settings | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /en/account/settings | null |
-| /en/store | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | /en/store | null |
-| /en/store/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /en/store/shoes | null |
-| /en/store/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /en/store/shoes/red-boot | null |
-| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | null |
-| /fr/compte | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | /fr/compte | null |
-| /fr/compte/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders | null |
-| /fr/compte/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42 | null |
-| /fr/compte/parametres | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres | null |
-| /fr/shop | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | /fr/shop | null |
-| /fr/shop/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes | null |
-| /fr/shop/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot | null |
-| /store | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | /en/store | null |
-| /store/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /en/store/shoes | null |
-| /store/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /en/store/shoes/red-boot | null |
-| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en/ | null |
-| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de/ | null |
-| /about/ | /fr/about/?q=1#top [—] |  | /fr/about/?q=1#top [null] | /fr/about/?q=1#top [null] | /en/about/ | null |
-| /de/about/ | /fr/about/?q=1#top [—] |  | /fr/about/?q=1#top [null] | /fr/about/?q=1#top [null] | /de/about/ | null |
-| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
+| /account | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | null | null | en,de,fr |
+| /account/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | null | null | en,de,fr |
+| /account/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | null | null | en,de,fr |
+| /account/settings | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | null | null | en,de,fr |
+| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/konto | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | null | /fr/compte | en,de,fr |
+| /de/konto/bestellungen | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | null | /fr/compte/orders | en,de,fr |
+| /de/konto/bestellungen/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | null | /fr/compte/orders/42 | en,de,fr |
+| /de/konto/einstellungen | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | null | /fr/compte/parametres | en,de,fr |
+| /de/laden | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | null | /fr/shop | en,fr,de |
+| /de/laden/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | null | /fr/shop/shoes | en,fr,de |
+| /de/laden/shoes/artikel/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | null | /fr/shop/shoes/red-boot | en,de,fr |
+| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /en/account | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | null | /fr/compte | en,de,fr |
+| /en/account/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | null | /fr/compte/orders | en,de,fr |
+| /en/account/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | null | /fr/compte/orders/42 | en,de,fr |
+| /en/account/settings | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | null | /fr/compte/parametres | en,de,fr |
+| /en/store | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | null | /fr/shop | en,fr,de |
+| /en/store/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | null | /fr/shop/shoes | en,fr,de |
+| /en/store/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | null | /fr/shop/shoes/red-boot | en,de,fr |
+| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
+| /fr/compte | /fr/compte?q=1#top [localized-account-fr] |  | /fr/compte?q=1#top [localized-account-fr] | /fr/compte?q=1#top [localized-account-fr] | null | null | en,de,fr |
+| /fr/compte/orders | /fr/compte/orders?q=1#top [localized-account-orders-fr] |  | /fr/compte/orders?q=1#top [localized-account-orders-fr] | /fr/compte/orders?q=1#top [localized-account-orders-fr] | null | null | en,de,fr |
+| /fr/compte/orders/42 | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42-fr?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | /fr/compte/orders/42?q=1#top [localized-account-orders-id-fr] | null | null | en,de,fr |
+| /fr/compte/parametres | /fr/compte/parametres?q=1#top [localized-account-settings-fr] |  | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | /fr/compte/parametres?q=1#top [localized-account-settings-fr] | null | null | en,de,fr |
+| /fr/shop | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | null | null | en,fr,de |
+| /fr/shop/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | null | null | en,fr,de |
+| /fr/shop/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | null | null | en,de,fr |
+| /store | /fr/shop?q=1#top [localized-shop] |  | /fr/shop?q=1#top [localized-shop] | /fr/shop?q=1#top [localized-shop] | null | null | en,fr,de |
+| /store/shoes | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes-fr?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | /fr/shop/shoes?q=1#top [localized-shop-category] | null | null | en,fr,de |
+| /store/shoes/red-boot | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes-fr/red-boot-fr?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | /fr/shop/shoes/red-boot?q=1#top [localized-shop-category-item] | null | null | en,de,fr |
+| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /about/ | /fr/about/?q=1#top [—] |  | /fr/about/?q=1#top [null] | /fr/about/?q=1#top [null] | null | null | null |
+| /de/about/ | /fr/about/?q=1#top [—] |  | /fr/about/?q=1#top [null] | /fr/about/?q=1#top [null] | null | /fr/about | null |
+| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | /fr/missing | null |
+| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | /fr/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

@@ -40,66 +40,66 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en-us
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | null |
-| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | /api-docs | null |
-| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en-us?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | null |
-| /sobre | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /sobre | null |
-| /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /ueber-uns | null |
-| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us | null |
-| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us/ | null |
-| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br | null |
-| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br/ | null |
-| /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /pt-br/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /pt-br/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /pt-br/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en-us,pt-br,de |
+| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | null | null | null |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en-us?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en-us,pt-br,de |
+| /sobre | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en-us,pt-br,de |
+| /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en-us,pt-br,de |
+| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en-us,pt-br,de |
+| /pt-br/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en-us,pt-br,de |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | null | null | null |
 
 ## To pt-br
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /about | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | /about | null |
-| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | /api-docs | null |
-| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-pt-br?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | null |
-| /sobre | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | /sobre | null |
-| /ueber-uns | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | /ueber-uns | null |
-| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us | null |
-| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us/ | null |
-| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br | null |
-| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br/ | null |
-| /about/ | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | /about/ | null |
-| /pt-br/about/ | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | /pt-br/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /pt-br/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
+| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | null | null | null |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-pt-br?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en-us,pt-br,de |
+| /sobre | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
+| /ueber-uns | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
+| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about/ | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
+| /pt-br/about/ | /sobre?q=1#top [i18n-about-pt-br] |  | /sobre?q=1#top [i18n-about-pt-br] | /sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | null | null | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /about | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | /about | null |
-| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | /api-docs | null |
-| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-de?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | null |
-| /sobre | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | /sobre | null |
-| /ueber-uns | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns | null |
-| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us | null |
-| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us/ | null |
-| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br | null |
-| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br/ | null |
-| /about/ | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | /about/ | null |
-| /pt-br/about/ | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | /pt-br/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /pt-br/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | null | null | en-us,pt-br,de |
+| /api-docs | /api-docs?q=1#top [api-docs] |  | /api-docs?q=1#top [api-docs] | /api-docs?q=1#top [api-docs] | null | null | null |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-de?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en-us,pt-br,de |
+| /sobre | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | null | null | en-us,pt-br,de |
+| /ueber-uns | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | null | null | en-us,pt-br,de |
+| /en-us | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en-us,pt-br,de |
+| /about/ | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | null | null | en-us,pt-br,de |
+| /pt-br/about/ | /ueber-uns?q=1#top [i18n-about-de] |  | /ueber-uns?q=1#top [i18n-about-de] | /ueber-uns?q=1#top [i18n-about-de] | null | null | en-us,pt-br,de |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 

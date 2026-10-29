@@ -1,6 +1,6 @@
+import type { PathStrategy, RouteLike } from '@i18n-micro/path-strategy'
 import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
-import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { computed, watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
@@ -70,7 +70,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Keep page-defined i18n head out when the route disables meta — matching the
     // previous plugin short-circuit that suppressed all head output for that route.
-    if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, i18nConfig.localizedRouteNamePrefix || 'localized-')) {
+    const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy: PathStrategy }).$i18nStrategy
+    if (i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) {
       return { htmlAttrs: {}, link: [], meta: [] }
     }
 
@@ -87,12 +88,10 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const refreshMeta = () => updateMeta()
 
-  if (import.meta.server) {
-    nuxtApp.hook('app:rendered', refreshMeta)
-  } else {
-    refreshMeta()
-    nuxtApp.hook('page:finish', refreshMeta)
-  }
+  // Client navigations are covered by the route / locale / pageHead watchers below: a
+  // `page:finish` hook as well ran every update twice.
+  if (import.meta.server) nuxtApp.hook('app:rendered', refreshMeta)
+  else refreshMeta()
 
   watch(() => i18nRouteParams.value, refreshMeta, { deep: true, flush: 'post' })
 

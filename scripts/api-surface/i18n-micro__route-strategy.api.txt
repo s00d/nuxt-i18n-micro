@@ -34,17 +34,22 @@ member RouteGeneratorOptions.globalLocaleRoutes: GlobalLocaleRoutes
 member RouteGeneratorOptions.locales: Locale[]
 member RouteGeneratorOptions.localizedRouteNamePrefix?: string | undefined
 member RouteGeneratorOptions.noPrefixRedirect: boolean
+member RouteGeneratorOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member RouteGeneratorOptions.routeLocales?: Record<string, string[]> | undefined
 member RouteGeneratorOptions.strategy: Strategies
 interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
+member RouteI18nMeta.noMeta?: boolean | string[] | undefined
 class Rules
 member Rules.allowedLocales: (fullPath: string, name: string | undefined) => string[] | undefined
 member Rules.byName: private Map<string, Rule>
 member Rules.customPath: (fullPath: string, locale: string) => string | undefined
+member Rules.disableMeta: (fullPath: string, name: string | undefined) => NoMeta | undefined
 member Rules.get: (fullPath: string, name: string | undefined) => Rule | undefined
+member Rules.noMeta: private Map<string, NoMeta>
+member Rules.noMetaByName: private Map<string, NoMeta>
 member Rules.restrictions: private Map<string, string[]>
 member Rules.restrictionsByName: private Map<string, string[]>
 member Rules.rules: private Map<string, Rule>
-member Rules.new: (globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[]): Rules
+member Rules.new: (globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[], routeDisableMeta?: Record<string, NoMeta>): Rules

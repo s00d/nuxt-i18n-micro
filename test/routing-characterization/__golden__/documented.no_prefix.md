@@ -61,96 +61,96 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /activity | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | /activity | null |
-| /activity/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /activity/hiking | null |
-| /activity/skiing | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /activity/skiing | null |
-| /change-activity | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | /change-activity | null |
-| /change-activity/book-activity/skiing | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing | null |
-| /change-activity/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking | null |
-| /change-buchen | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | /change-buchen | null |
-| /change-buchen/aktivitaet-buchen/ski-fahren | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-buchen/aktivitaet-buchen/ski-fahren | null |
-| /change-buchen/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-buchen/hiking | null |
-| /page | /page?q=1#top [page] |  | /page?q=1#top [page] | — [—] | /page | null |
-| /page/42 | /page/42?q=1#top [localized-page-en] | /page/42-en?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | /page/42 | null |
-| /product/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world | null |
-| /produkte/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /produkte/hello-world | null |
-| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | /same | null |
-| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | /unlocalized | null |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /activity | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | null | null | fr,en,de |
+| /activity/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | null | null | fr,en,de |
+| /activity/skiing | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | null | null | en,de,fr |
+| /change-activity | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | null | null | fr,en,de |
+| /change-activity/book-activity/skiing | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | null | null | en,de,fr |
+| /change-activity/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | null | null | fr,en,de |
+| /change-buchen | /change-activity?q=1#top [localized-activity-en] |  | /change-activity?q=1#top [localized-activity-en] | /change-activity?q=1#top [localized-activity-en] | null | null | fr,en,de |
+| /change-buchen/aktivitaet-buchen/ski-fahren | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] |  | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | /change-activity/book-activity/skiing?q=1#top [localized-activity-skiing-en] | null | null | en,de,fr |
+| /change-buchen/hiking | /change-activity/hiking?q=1#top [localized-activity-hiking-en] |  | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | /change-activity/hiking?q=1#top [localized-activity-hiking-en] | null | null | fr,en,de |
+| /page | / [index] |  | / [index] | / [index] | null | null | en,de,fr |
+| /page/42 | /page/42?q=1#top [localized-page-en] | /page/42-en?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | null | null | en,de,fr |
+| /product/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | null | null | en,fr,de |
+| /produkte/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | null | null | en,fr,de |
+| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | null | null | en,de,fr |
+| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | null | null | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /activity | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | /activity | null |
-| /activity/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /activity/hiking | null |
-| /activity/skiing | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /activity/skiing | null |
-| /change-activity | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | /change-activity | null |
-| /change-activity/book-activity/skiing | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-activity/book-activity/skiing | null |
-| /change-activity/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-activity/hiking | null |
-| /change-buchen | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | /change-buchen | null |
-| /change-buchen/aktivitaet-buchen/ski-fahren | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren | null |
-| /change-buchen/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking | null |
-| /page | /page?q=1#top [page] |  | /page?q=1#top [page] | — [—] | /page | null |
-| /page/42 | /page/42?q=1#top [localized-page-de] | /page/42-de?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | /page/42 | null |
-| /product/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /product/hello-world | null |
-| /produkte/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world | null |
-| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | /same | null |
-| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | /unlocalized | null |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /activity | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | null | null | fr,en,de |
+| /activity/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | null | null | fr,en,de |
+| /activity/skiing | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | null | null | en,de,fr |
+| /change-activity | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | null | null | fr,en,de |
+| /change-activity/book-activity/skiing | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | null | null | en,de,fr |
+| /change-activity/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | null | null | fr,en,de |
+| /change-buchen | /change-buchen?q=1#top [localized-activity-de] |  | /change-buchen?q=1#top [localized-activity-de] | /change-buchen?q=1#top [localized-activity-de] | null | null | fr,en,de |
+| /change-buchen/aktivitaet-buchen/ski-fahren | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | null | null | en,de,fr |
+| /change-buchen/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | null | null | fr,en,de |
+| /page | / [index] |  | / [index] | / [index] | null | null | en,de,fr |
+| /page/42 | /page/42?q=1#top [localized-page-de] | /page/42-de?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | null | null | en,de,fr |
+| /product/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | null | null | en,fr,de |
+| /produkte/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | null | null | en,fr,de |
+| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | null | null | en,de,fr |
+| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | null | null | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /activity | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | /activity | null |
-| /activity/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking | null |
-| /activity/skiing | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing | null |
-| /change-activity | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | /change-activity | null |
-| /change-activity/book-activity/skiing | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | /change-activity/book-activity/skiing | null |
-| /change-activity/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | /change-activity/hiking | null |
-| /change-buchen | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | /change-buchen | null |
-| /change-buchen/aktivitaet-buchen/ski-fahren | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | /change-buchen/aktivitaet-buchen/ski-fahren | null |
-| /change-buchen/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | /change-buchen/hiking | null |
-| /page | /page?q=1#top [page] |  | /page?q=1#top [page] | /page?q=1#top [page] | /page | null |
-| /page/42 | /page?q=1#top [page] | /page?q=1#top [page] | /page?q=1#top [page] | /page?q=1#top [page] | /page/42 | null |
-| /product/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world | null |
-| /produkte/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /produkte/hello-world | null |
-| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | /same | null |
-| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | /unlocalized | null |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /activity | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | null | null | fr,en,de |
+| /activity/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | null | null | fr,en,de |
+| /activity/skiing | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | null | null | en,de,fr |
+| /change-activity | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | null | null | fr,en,de |
+| /change-activity/book-activity/skiing | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | null | null | en,de,fr |
+| /change-activity/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | null | null | fr,en,de |
+| /change-buchen | /activity?q=1#top [activity] |  | /activity?q=1#top [activity] | /activity?q=1#top [activity] | null | null | fr,en,de |
+| /change-buchen/aktivitaet-buchen/ski-fahren | /activity/skiing?q=1#top [activity-skiing] |  | /activity/skiing?q=1#top [activity-skiing] | /activity/skiing?q=1#top [activity-skiing] | null | null | en,de,fr |
+| /change-buchen/hiking | /activity/hiking?q=1#top [activity-hiking] |  | /activity/hiking?q=1#top [activity-hiking] | /activity/hiking?q=1#top [activity-hiking] | null | null | fr,en,de |
+| /page | /page?q=1#top [page] |  | /page?q=1#top [page] | /page?q=1#top [page] | null | null | en,de,fr |
+| /page/42 | /page?q=1#top [page] | /page?q=1#top [page] | /page?q=1#top [page] | /page?q=1#top [page] | null | null | en,de,fr |
+| /product/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | null | null | en,fr,de |
+| /produkte/hello-world | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | /product/hello-world?q=1#top [product-slug] | null | null | en,fr,de |
+| /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | null | null | en,de,fr |
+| /unlocalized | /unlocalized?q=1#top [unlocalized] |  | /unlocalized?q=1#top [unlocalized] | /unlocalized?q=1#top [unlocalized] | null | null | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | null | null | null |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 
@@ -169,4 +169,4 @@ params: the PARAMS keys the route's records use.
 
 ## Invariant breaks (1)
 
-- /page/42 → fr → en: round trip ends on /page?q=1#top, not /page/42?q=1#top
+- /page/42 → fr → en: round trip ends on /, not /page/42?q=1#top

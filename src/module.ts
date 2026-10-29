@@ -51,6 +51,7 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
+import { createLocalizedPathResolver } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
@@ -243,31 +244,17 @@ const __fullConfig = ${fullConfigJson}
 
 export function getI18nConfig() { return __fullConfig }
 
+// vue-router's Router is the adapter as is: no wrapper copying every resolve result
 export function createI18nStrategy(router) {
-  const routerAdapter = {
-    hasRoute(name) { return router.hasRoute(name) },
-    resolve(to) {
-      const r = router.resolve(to)
-      return {
-        name: r.name != null ? String(r.name) : null,
-        path: r.path,
-        fullPath: r.fullPath,
-        params: r.params || {},
-        query: r.query || {},
-        hash: r.hash || '',
-      }
-    },
-    getRoutes() { return router.getRoutes() },
-  }
-
   return new Strategy({
     strategy: __fullConfig.strategy,
     defaultLocale: __fullConfig.defaultLocale,
     locales: __fullConfig.locales,
     localizedRouteNamePrefix: __fullConfig.localizedRouteNamePrefix,
-    router: routerAdapter,
+    router,
     hashMode: __fullConfig.hashMode,
     disablePageLocales: __fullConfig.disablePageLocales,
+    customRegexMatcher: __fullConfig.customRegexMatcher,
   })
 }
 `
@@ -513,6 +500,7 @@ export default defineNuxtModule<ModuleOptions>({
       strategy: options.strategy!,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
       routeLocales,
+      routeDisableMeta,
       noPrefixRedirect: options.noPrefixRedirect!,
       excludePatterns: options.excludePatterns,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
@@ -691,13 +679,10 @@ export {}
       getContents: () => {
         return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
+import type { Router } from 'vue-router'
 
-/** What createI18nStrategy reads from the app's vue-router. */
-interface I18nStrategyRouter {
-  hasRoute: (name: string) => boolean
-  resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }
-  getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[]
-}
+/** The app's vue-router: createI18nStrategy reads hasRoute, resolve and getRoutes from it. */
+type I18nStrategyRouter = Pick<Router, 'hasRoute' | 'resolve' | 'getRoutes'>
 
 declare module '#build/i18n.plural.mjs' {
   export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
@@ -728,6 +713,17 @@ declare module '#i18n-internal/payload-source' {
       },
     })
 
+    /** The localized pages, as the app's router will hold them: prerender asks the runtime strategy about them. */
+    let generatedPages: NuxtPage[] = []
+    const createBuildStrategy = () =>
+      createLocalizedPathResolver(generatedPages, {
+        strategy: options.strategy!,
+        defaultLocale,
+        locales: routeGenerator.locales,
+        localizedRouteNamePrefix: options.localizedRouteNamePrefix,
+        customRegexMatcher: fullConfig.customRegexMatcher as string | undefined,
+      })
+
     const addDataRoutes = (pages: NuxtPage[] = []) => {
       if (!translationPayloads.prerenderRoutes) return
 
@@ -747,6 +743,7 @@ declare module '#i18n-internal/payload-source' {
 
       addDataRoutes(pages)
       routeGenerator.extendPages(pages)
+      generatedPages = pages
     })
 
     if (options.disablePageLocales) {
@@ -892,65 +889,34 @@ declare module '#i18n-internal/payload-source' {
       const routesSet = prerenderRoutes.routes
       const routeRules = nuxt.options.routeRules || {}
       const additionalRoutes = new Set<string>()
-      const localeCodes = new Set(routeGenerator.locales.map((locale) => locale.code))
+      // the same router and strategy the app runs: custom paths, `false` pages and routeLocales as generated
+      const localize = await createBuildStrategy()
+      const prerendered = (route: string) => routeRules[route]?.prerender !== false
 
       // Static generation needs an entry point the crawler can actually follow.
       // With `prefix`, `/` only answers with a redirect to `/<defaultLocale>`:
       // Nitro writes the redirect stub but never enqueues its target, so nothing
       // beyond the explicitly listed routes is prerendered. Seed the localized
-      // roots instead (never `/` itself — prerendering that would shadow the SSR
-      // handler with a static redirect).
+      // roots instead (never `/` itself in an SSR build — prerendering that would
+      // shadow the dynamic handler with a static redirect).
       if (isSSG) {
-        // `/` itself is kept so a static host still answers the bare root (it
-        // renders as the redirect stub to the default locale). Only for SSG:
-        // prerendering it in an SSR build would shadow the dynamic handler.
-        if (routeRules['/']?.prerender !== false) {
-          routesSet.add('/')
-        }
+        // `/` itself is kept so a static host still answers the bare root (the redirect stub).
+        if (prerendered('/')) routesSet.add('/')
         for (const locale of routeGenerator.locales) {
-          // Same allowed-locale guard as the localization loop below: a locale
-          // excluded from the index route has no root to prerender, and asking
-          // for one yields a 404/fallback page.
-          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, '/', locale.code)) {
-            continue
-          }
-          const localizedRoot = routeGenerator.resolveLocalizedPath('/', locale.code)
-          if (localizedRoot && localizedRoot !== '/' && routeRules[localizedRoot]?.prerender !== false) {
-            routesSet.add(localizedRoot)
-          }
+          const localizedRoot = localize.path('/', locale.code)
+          if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)
         }
       }
 
       for (const route of routesSet) {
-        if (isInternalPath(route, options.excludePatterns)) {
-          routesSet.delete(route)
-        }
+        if (isInternalPath(route, options.excludePatterns)) routesSet.delete(route)
       }
 
       for (const route of routesSet) {
-        if (/\.[a-z0-9]+$/i.test(route)) {
-          continue
-        }
-        if (routeRules[route]?.prerender === false) {
-          continue
-        }
-        const firstSegment = route.replace(/^\//, '').split('/')[0]
-        if (firstSegment && localeCodes.has(firstSegment)) {
-          continue
-        }
-
+        if (/\.[a-z0-9]+$/i.test(route) || !prerendered(route) || localize.localeOf(route)) continue
         for (const locale of routeGenerator.locales) {
-          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, route, locale.code)) {
-            continue
-          }
-          const localizedRoute = routeGenerator.resolveLocalizedPath(route, locale.code)
-          if (localizedRoute === route) {
-            continue
-          }
-          if (routeRules[localizedRoute]?.prerender === false) {
-            continue
-          }
-          additionalRoutes.add(localizedRoute)
+          const localizedRoute = localize.path(route, locale.code)
+          if (localizedRoute && prerendered(localizedRoute)) additionalRoutes.add(localizedRoute)
         }
       }
 
@@ -965,12 +931,10 @@ declare module '#i18n-internal/payload-source' {
       if (withPrefixStrategy(options.strategy!)) {
         const deleted: string[] = []
         for (const route of routesSet) {
-          if (route === '/' || route === '') continue
-          const firstSegment = route.replace(/^\//, '').split('/')[0]
-          if (firstSegment && !localeCodes.has(firstSegment)) {
-            routesSet.delete(route)
-            deleted.push(route)
-          }
+          // `/` (the redirect stub) and unlocalized pages are served without a prefix
+          if (route === '/' || route === '' || localize.localeOf(route) || localize.isUnlocalized(route)) continue
+          routesSet.delete(route)
+          deleted.push(route)
         }
         if (deleted.length > 0) {
           logger.info(`[i18n prerender:routes] removed from prerender list (no locale prefix): ${deleted.join(', ')}`)

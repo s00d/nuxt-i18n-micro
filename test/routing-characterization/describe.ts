@@ -261,8 +261,9 @@ export function describeApp(app: App, strategy: Strategies): string {
         i18nRouteParams ? cell(() => landing(router, i18n.switchLocaleRoute(from, target, route, { i18nRouteParams }))) : '',
         cell(() => routeResult(i18n.localeRoute(target, route, route))),
         cell(() => routeResult(i18n.localeRoute(target, `${url}?q=1#top`, route))),
-        cell(() => show(i18n.formatPathForResolve(url, from, target))),
         cell(() => show(i18n.getClientRedirect(url, target))),
+        cell(() => show(i18n.getClientRedirect(url, target, { switchPrefixed: true }))),
+        cell(() => show(i18n.pageLocales(route))),
       ]
     })
     sections.push(
@@ -273,8 +274,9 @@ export function describeApp(app: App, strategy: Strategies): string {
           'switch + i18nRouteParams',
           'localeRoute(route)',
           'localeRoute(url)',
-          'formatPathForResolve',
           'getClientRedirect',
+          "getClientRedirect('*')",
+          'pageLocales',
         ],
         rows,
       )}`,

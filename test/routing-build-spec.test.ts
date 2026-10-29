@@ -9,6 +9,8 @@
  */
 import { describe, expect, test } from 'vitest'
 import {
+  aliasPathFor,
+  ALIAS_SHAPES,
   createAppRouter,
   DEFAULT_LOCALE,
   duplicateNames,
@@ -80,6 +82,43 @@ describe('route-strategy build matches the documented semantics', () => {
             const expected = specPath(shape, rules, DEFAULT_LOCALE)
             const actual = router.hasRoute('about-team') ? router.resolve({ name: 'about-team' }).path : 'no route'
             if (actual !== expected) problems.push(`${id} | unprefixed default: ${actual}, expected ${expected}`)
+          }
+        }
+      }
+      expect(problems.slice(0, 20)).toEqual([])
+    })
+  }
+})
+
+/** Locale prefix of the URL `locale` is served at, or '' (unprefixed). */
+const prefixOf = (strategy: Strategy, locale: string) => (prefixed(strategy, locale, '/') === '/' ? '' : `/${locale}`)
+
+describe('route-strategy aliases are vue-router aliases of the localized routes', () => {
+  for (const strategy of STRATEGIES) {
+    test(`${strategy}: ${configs.length * Object.keys(ALIAS_SHAPES).length} configs`, () => {
+      const problems: string[] = []
+      for (const shape of Object.keys(ALIAS_SHAPES)) {
+        for (const { label, rules } of configs) {
+          const id = `${shape} | ${label}`
+          const pages = generate(strategy, shape, rules, ALIAS_SHAPES)
+          const duplicates = duplicateNames(pages)
+          if (duplicates.length) problems.push(`${id}: duplicate route names ${duplicates.join(', ')}`)
+          const router = createAppRouter(pages)
+          // no_prefix keeps aliases on the base route only (as Nuxt registers them)
+          for (const locale of strategy === 'no_prefix' ? [DEFAULT_LOCALE] : LOCALE_CODES) {
+            // no_prefix: the alias sits on the base page, so it extends the base URLs
+            const base = (name: string) => (router.hasRoute(name) ? router.resolve({ name }).path : undefined)
+            const mainUrl = strategy === 'no_prefix' ? base('about-team') : routerUrl(strategy, locale, router)
+            const parentUrl = (strategy === 'no_prefix' ? base('about') : routerUrl(strategy, locale, router, 'about')) ?? ''
+            if (!mainUrl) continue
+            const prefix = prefixOf(strategy, locale)
+            const aliasUrl = prefix + aliasPathFor(shape, mainUrl.slice(prefix.length), parentUrl.slice(prefix.length))
+            // the alias URL must reach the very record its main URL reaches (vue-router aliases)
+            const viaAlias = router.resolve(aliasUrl).matched.at(-1)?.name
+            // no_prefix has no locale in the URL: an alias can only reach the base page record
+            const viaMain = strategy === 'no_prefix' ? 'about-team' : router.resolve(mainUrl).matched.at(-1)?.name
+            if (!viaAlias || viaAlias !== viaMain)
+              problems.push(`${id} | ${locale}: ${aliasUrl} matches ${String(viaAlias)}, ${mainUrl} matches ${String(viaMain)}`)
           }
         }
       }

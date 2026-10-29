@@ -11,6 +11,8 @@ import { createPathStrategy, type PathStrategyContext, type RouteLike, type Rout
 import type { Router } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  aliasPathFor,
+  ALIAS_SHAPES,
   createAppRouter,
   DEFAULT_LOCALE,
   generate,
@@ -97,6 +99,53 @@ describe('path-strategy runtime matches the generated routes', () => {
               const actual = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
               if (actual !== expected) problems.push(`${id} | switch from ${from}: ${actual}, expected ${expected}`)
               if (warnings.length) problems.push(`${id} | switch from ${from}: ${warnings[0]}`)
+            }
+          }
+        }
+      }
+      expect(problems.slice(0, 20)).toEqual([])
+    })
+  }
+})
+
+describe('path-strategy from a page opened through its alias URL', () => {
+  let warnings: string[]
+  beforeEach(() => {
+    warnings = []
+    vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      warnings.push(args.map(String).join(' '))
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  // no_prefix: locale is not in the URL, so an alias page cannot tell which locale it is in
+  for (const strategy of STRATEGIES.filter((s) => s !== 'no_prefix')) {
+    test(`${strategy}: ${configs.length * Object.keys(ALIAS_SHAPES).length} configs`, async () => {
+      const problems: string[] = []
+      for (const shape of Object.keys(ALIAS_SHAPES)) {
+        for (const { label, rules } of configs) {
+          const router = createAppRouter(generate(strategy, shape, rules, ALIAS_SHAPES))
+          const i18n = strategyFor(strategy, router, rules)
+          for (const from of LOCALE_CODES) {
+            const mainUrl = routerUrl(strategy, from, router)
+            const parentUrl = routerUrl(strategy, from, router, 'about') ?? ''
+            if (!mainUrl) continue
+            const prefix = mainUrl.startsWith(`/${from}/`) || mainUrl === `/${from}` ? `/${from}` : ''
+            const aliasUrl = prefix + aliasPathFor(shape, mainUrl.slice(prefix.length), parentUrl.slice(prefix.length))
+            await router.push(aliasUrl)
+            for (const to of LOCALE_CODES.filter((l) => l !== from)) {
+              const expected = routerUrl(strategy, to, router)
+              if (!expected) continue
+              const id = `${shape} | ${label} | ${from} alias ${aliasUrl} -> ${to}`
+              warnings.length = 0
+              const switched = i18n.switchLocaleRoute(from, to, router.currentRoute.value as never, {})
+              const viaSwitch = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
+              const viaLocaleRoute = pathOf(i18n.localeRoute(to, { name: 'about-team' }))
+              // the switch may stay on the alias of the target locale; both must reach the target's record
+              const record = (url: string) => router.resolve(url).matched.at(-1)?.name
+              if (record(viaSwitch) !== record(expected)) problems.push(`${id} | switch: ${viaSwitch}, expected the record of ${expected}`)
+              if (viaLocaleRoute !== expected) problems.push(`${id} | localeRoute: ${viaLocaleRoute}, expected ${expected}`)
+              if (warnings.length) problems.push(`${id}: ${warnings[0]}`)
             }
           }
         }

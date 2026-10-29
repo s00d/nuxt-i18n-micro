@@ -130,7 +130,7 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
 })
 
 describe('Critical: Alias handling', () => {
-  test('alias routes are separate entries with localized path (prefix strategy)', () => {
+  test('aliases are vue-router aliases of each localized route, prefixed like its path (prefix strategy)', () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
@@ -149,16 +149,14 @@ describe('Critical: Alias handling', () => {
     generator.extendPages(pages)
 
     const aboutMain = pages.filter((p) => p.name === 'localized-about' || p.name?.toString().startsWith('localized-about-'))
-    expect(aboutMain.length).toBeGreaterThan(0)
-    const aliasRoutes = pages.filter((p) => p.path?.includes('about-us') || p.path?.includes('company'))
-    expect(aliasRoutes.length).toBeGreaterThan(0)
-    aliasRoutes.forEach((r) => {
-      expect(r.path).toMatch(/^\/:locale\(|^\/[deru]+\//)
-    })
+    expect(aboutMain).toHaveLength(1)
+    expect(aboutMain[0]!.alias).toEqual(['/:locale(en|de|ru)/about-us', '/:locale(en|de|ru)/company'])
+    // no separate alias records (they duplicated the route name)
+    expect(pages.filter((p) => p.path?.includes('about-us') || p.path?.includes('company'))).toEqual([])
     expect(pages).toMatchSnapshot()
   })
 
-  test('main localized route has alias undefined when alias routes are generated as separate', () => {
+  test('prefix_except_default: the default route keeps unprefixed aliases, localized routes get prefixed ones', () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
@@ -176,16 +174,13 @@ describe('Critical: Alias handling', () => {
     ]
     generator.extendPages(pages)
 
-    const prefixedMain = pages.find((p) => p.name === 'localized-about' && p.path?.includes(':locale'))
-    if (prefixedMain) {
-      expect(prefixedMain.alias === undefined || (Array.isArray(prefixedMain.alias) && prefixedMain.alias.length === 0)).toBe(true)
-    }
-    const aliasEntry = pages.find((p) => p.path?.includes('about-us'))
-    expect(aliasEntry).toBeDefined()
+    expect(pages.find((p) => p.name === 'about')!.alias).toEqual(['/about-us'])
+    expect(pages.find((p) => p.name === 'localized-about')!.alias).toEqual(['/:locale(de|ru)/about-us'])
+    expect(pages.some((p) => p.path?.includes('about-us'))).toBe(false)
     expect(pages).toMatchSnapshot()
   })
 
-  test('nested page with alias — alias routes exist and are prefixed', () => {
+  test('nested page with alias — children inherit the alias, names stay unique', () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
@@ -204,8 +199,17 @@ describe('Critical: Alias handling', () => {
     ]
     generator.extendPages(pages)
 
-    const hasParentAlias = pages.some((p) => p.path?.includes('parent-alias'))
-    expect(hasParentAlias).toBe(true)
+    expect(pages.find((p) => p.name === 'localized-parent')!.alias).toEqual(['/:locale(de|ru)/parent-alias'])
+    expect(pages.find((p) => p.name === 'parent')!.alias).toEqual(['/parent-alias'])
+    // children are not copied into alias records: vue-router applies a record's aliases to its children
+    const names: string[] = []
+    const walk = (list: NuxtPage[]) =>
+      list.forEach((p) => {
+        if (p.name) names.push(p.name)
+        if (p.children) walk(p.children)
+      })
+    walk(pages)
+    expect(new Set(names).size).toBe(names.length)
     expect(pages).toMatchSnapshot()
   })
 

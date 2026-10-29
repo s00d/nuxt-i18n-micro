@@ -1,5 +1,4 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { generateAliasRoutes } from '../core/alias'
 import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { buildFullPathNoPrefix, buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath, removeLeadingSlash } from '../utils'
@@ -66,7 +65,7 @@ export class NoPrefixStrategy extends BaseStrategy {
       )
     }
 
-    result.push(...generateAliasRoutes(page, allowedLocales, context.customRegex, context.localizedRouteNamePrefix))
+    // Aliases stay on the base page (unprefixed, as Nuxt registers them): no extra alias routes.
     return result
   }
 

@@ -1,5 +1,4 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { generateAliasRoutes } from '../core/alias'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath } from '../utils'
@@ -24,7 +23,9 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
       const children = originalChildren.length
         ? this.localizeChildPathsKeepNames(originalChildren, defaultPath, originalPath, defaultLocaleCode, context)
         : undefined
-      result.push(defaultCustomPath || children ? createRoute(page, { path: defaultPath, children }) : page)
+      const aliases = this.routeAliases(page, defaultPath, null, context)
+      const aliasFields = aliases.length ? { alias: aliases, meta: { alias: aliases } } : {}
+      result.push(defaultCustomPath || children ? createRoute(page, { path: defaultPath, children, ...aliasFields }) : page)
     } else {
       result.push(page)
     }
@@ -105,11 +106,6 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
       }
     }
 
-    const aliasRoutes = generateAliasRoutes(page, allowedLocales, context.customRegex, context.localizedRouteNamePrefix)
-    if (aliasRoutes.length) {
-      result.push(...aliasRoutes)
-    }
-
     return result
   }
 
@@ -168,12 +164,13 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
         ? this.localizeChildren(originalChildren, routePath, parentPathForChildren, firstLocale, context, addPrefix)
         : this.localizeChildrenAllLocales(originalChildren, routePath, parentPathForChildren, localeCodes, context)
 
+    const aliases = this.routeAliases(page, routePath, localeCodes, context)
     return createRoute(page, {
       path: routePath,
       name: routeName,
       children,
-      alias: [],
-      meta: { alias: [] },
+      alias: aliases,
+      meta: { alias: aliases },
     })
   }
 }

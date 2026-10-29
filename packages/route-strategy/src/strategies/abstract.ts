@@ -3,7 +3,16 @@ import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import { isLocalizationDisabledForPage } from '../core/localization-disabled'
-import { buildFullPath, buildRouteNameFromRoute, cloneArray, isInternalPath, isPageRedirectOnly, normalizePath, removeLeadingSlash } from '../utils'
+import {
+  buildEncodedPathAliases,
+  buildFullPath,
+  buildRouteNameFromRoute,
+  cloneArray,
+  isInternalPath,
+  isPageRedirectOnly,
+  normalizePath,
+  removeLeadingSlash,
+} from '../utils'
 import type { RouteStrategy } from './types'
 
 export abstract class BaseStrategy implements RouteStrategy {
@@ -130,6 +139,22 @@ export abstract class BaseStrategy implements RouteStrategy {
         children: localizedChildren,
       }),
     ]
+  }
+
+  /**
+   * vue-router record aliases of a generated route: the page's own aliases (`alias` /
+   * `definePageMeta({ alias })`) localized like the route path — under the route's `:locale(...)`
+   * param (`localeCodes`), or as written for an unprefixed route (`null`) — plus percent-encoded
+   * variants of non-ASCII paths. vue-router applies record aliases to the children and an alias
+   * shares the record's name, so alias URLs follow the localized child tree and names stay
+   * unique (separate alias routes duplicated both).
+   */
+  protected routeAliases(page: NuxtPage, routePath: string, localeCodes: string[] | null, context: GeneratorContext): string[] {
+    const declared = (page as NuxtPage & { alias?: string[] }).alias ?? (page.meta?.alias as string[] | undefined)
+    const own = (Array.isArray(declared) ? declared : []).map((alias) =>
+      localeCodes ? buildFullPath(localeCodes, alias, context.customRegex) : normalizePath(alias),
+    )
+    return [...new Set([...buildEncodedPathAliases(routePath), ...own.flatMap((alias) => [alias, ...buildEncodedPathAliases(alias)])])]
   }
 
   /**

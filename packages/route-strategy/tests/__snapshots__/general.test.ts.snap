@@ -85,33 +85,29 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 22. should co
       "/company",
     ],
     "children": [],
+    "meta": {
+      "alias": [
+        "/about-us",
+        "/company",
+      ],
+    },
     "name": "about",
     "path": "/about",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de|ru)/about-us",
+      "/:locale(de|ru)/company",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de|ru)/about-us",
+        "/:locale(de|ru)/company",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(de|ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/company",
   },
 ]
 `;

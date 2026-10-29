@@ -2,13 +2,8 @@ import type { NuxtPage } from '@nuxt/schema'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { isLocalizationDisabledForPage } from '../core/localization-disabled'
-import { buildEncodedPathAliases, buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
+import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
-
-function getAliasRoutes(page: NuxtPage): string[] {
-  const alias = (page as NuxtPage & { alias?: string[] }).alias ?? page.meta?.alias
-  return Array.isArray(alias) ? alias : []
-}
 
 export class PrefixStrategy extends BaseStrategy {
   protected generateVariants(page: NuxtPage, context: GeneratorContext): NuxtPage[] {
@@ -25,7 +20,7 @@ export class PrefixStrategy extends BaseStrategy {
       const plainLocales = allowedLocales.filter((locale) => !customPaths[locale])
       if (plainLocales.length) {
         const routePath = buildFullPath(plainLocales, originalPath, context.customRegex)
-        const aliases = buildEncodedPathAliases(routePath)
+        const aliases = this.routeAliases(page, routePath, plainLocales, context)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -44,7 +39,7 @@ export class PrefixStrategy extends BaseStrategy {
         const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
         const parentLocalizedPath = customPath ?? originalPath
         const children = this.localizeChildren(originalChildren, parentLocalizedPath, originalPath, locale, context, true)
-        const aliases = buildEncodedPathAliases(routePath)
+        const aliases = this.routeAliases(page, routePath, [locale], context)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -59,30 +54,16 @@ export class PrefixStrategy extends BaseStrategy {
       const routePath = buildFullPath(allowedLocales, originalPath, context.customRegex)
       const routeName = buildRouteName(pageName, allowedLocales[0]!, false, context.localizedRouteNamePrefix)
       const children = this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, allowedLocales, context)
+      const aliases = this.routeAliases(page, routePath, allowedLocales, context)
       result.push(
         createRoute(page, {
           path: routePath,
           name: routeName,
           children,
-          alias: [],
-          meta: { alias: [] },
+          alias: aliases,
+          meta: { alias: aliases },
         }),
       )
-    }
-
-    const aliasRoutes = getAliasRoutes(page)
-    if (aliasRoutes.length) {
-      for (const aliasPath of aliasRoutes) {
-        const localizedAliasPath = buildFullPath(allowedLocales, aliasPath, context.customRegex)
-        result.push(
-          createRoute(page, {
-            path: localizedAliasPath,
-            name: `${context.localizedRouteNamePrefix}${page.name ?? ''}`,
-            alias: undefined,
-            meta: { alias: undefined },
-          }),
-        )
-      }
     }
 
     return result

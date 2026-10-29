@@ -37,6 +37,27 @@ export const SHAPES: Record<string, () => NuxtPage[]> = {
   ],
 }
 
+/** Same shapes with an alias on the page that owns `about-team` (on its parent for the child shape). */
+export const ALIAS_SHAPES: Record<string, () => NuxtPage[]> = {
+  sibling: () => [
+    { path: '/about', name: 'about', file: 'pages/about.vue' },
+    { path: '/about-team', name: 'about-team', file: 'pages/about-team.vue', alias: ['/team-info'] },
+  ],
+  child: () => [
+    {
+      path: '/about',
+      name: 'about',
+      file: 'pages/about.vue',
+      alias: ['/info'],
+      children: [{ path: 'team', name: 'about-team', file: 'pages/about/team.vue' }],
+    },
+  ],
+}
+/** Alias URL (without locale prefix) under which `about-team` is served, given its main URL without prefix. */
+export function aliasPathFor(shape: string, mainPath: string, parentPath: string): string {
+  return shape === 'sibling' ? '/team-info' : `/info${mainPath.slice(parentPath.length)}`
+}
+
 const KEYS = ['about-team', '/about-team', 'about/team', '/about/team']
 // `tag` keeps two rules of one config distinguishable in the URLs they produce.
 const VALUE_KINDS: Record<string, (loc: string, tag: string) => string | undefined> = {
@@ -93,8 +114,8 @@ export function matrixConfigs(): MatrixConfig[] {
   return configs
 }
 
-export function generate(strategy: Strategy, shape: string, rules: Rules): NuxtPage[] {
-  const pages = SHAPES[shape]!()
+export function generate(strategy: Strategy, shape: string, rules: Rules, shapes: Record<string, () => NuxtPage[]> = SHAPES): NuxtPage[] {
+  const pages = shapes[shape]!()
   new RouteGenerator({
     locales: LOCALES,
     defaultLocaleCode: DEFAULT_LOCALE,

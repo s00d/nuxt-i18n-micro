@@ -1,5 +1,4 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { generateAliasRoutes } from '../core/alias'
 import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
@@ -42,11 +41,13 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         context,
       )
 
+      const defaultAliases = this.routeAliases(page, defaultRoutePath, null, context)
       result.push(
         createRoute(page, {
           path: defaultRoutePath,
           name: page.name,
           children: defaultChildren,
+          ...(defaultAliases.length ? { alias: defaultAliases, meta: { alias: defaultAliases } } : {}),
         }),
       )
     }
@@ -107,12 +108,6 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         )
         if (newRoute) result.push(newRoute)
       }
-    }
-
-    // 3. Aliases: same behavior as legacy code — for all allowed locales (including default)
-    const aliasRoutes = generateAliasRoutes(page, allowedLocales, context.customRegex, context.localizedRouteNamePrefix)
-    if (aliasRoutes.length) {
-      result.push(...aliasRoutes)
     }
 
     return result
@@ -305,6 +300,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
       context.localizedRouteNamePrefix,
     )
 
+    const aliases = this.routeAliases(page, routePath, localeCodes, context)
     return createRoute(page, {
       path: routePath,
       name: routeName,
@@ -318,8 +314,8 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         { [firstLocale]: customPath },
         context,
       ),
-      alias: [],
-      meta: { alias: [] },
+      alias: aliases,
+      meta: { alias: aliases },
     })
   }
 

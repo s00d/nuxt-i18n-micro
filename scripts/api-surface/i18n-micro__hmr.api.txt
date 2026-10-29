@@ -3,9 +3,8 @@ const SERVER_CC_KEY: typeof SERVER_CC_KEY
 const STORAGE_CC_KEY: typeof STORAGE_CC_KEY
 
 # ./generate-plugin (src/generate-plugin.ts)
-function generateHmrPlugin: (files: string[], options?: GenerateHmrPluginOptions) => string
-interface GenerateHmrPluginOptions
-member GenerateHmrPluginOptions.additionalRootFiles?: string[] | undefined
+function generateHmrPlugin: () => string
+const TRANSLATIONS_HMR_EVENT: "i18n-micro:update"
 
 # ./watcher (src/watcher.ts)
 function createTranslationDirReader: (translationsRoot: string | string[], additionalRoots?: string[]) => (relativeFilePath: string) => Record<string, unknown>
@@ -29,3 +28,4 @@ class TranslationContentTracker
 member TranslationContentTracker.forget: (filePath: string) => void
 member TranslationContentTracker.hashes: private Map<string, string>
 member TranslationContentTracker.shouldProcess: (filePath: string) => boolean
+function translationRelativePath: (filePath: string, dirs: { translationRoots: string[]; additionalRoots: string[]; }) => string | null

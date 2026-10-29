@@ -1,7 +1,7 @@
 export function resolveTranslationPayloadPage(routeName: string | undefined, routesLocaleLinks?: Record<string, string>): string {
   const name = routeName || 'index'
   // own keys only: the name comes from the request URL (`constructor`, `__proto__`)
-  const linked = routesLocaleLinks && Object.hasOwn(routesLocaleLinks, name) ? routesLocaleLinks[name] : undefined
+  const linked = routesLocaleLinks && Object.prototype.hasOwnProperty.call(routesLocaleLinks, name) ? routesLocaleLinks[name] : undefined
   return typeof linked === 'string' ? linked : name
 }
 

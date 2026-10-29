@@ -119,6 +119,17 @@ describe('check-versions', () => {
     expect(exitCode).toBeNull()
   })
 
+  it('still requires a bump when npm answers with an empty body', async () => {
+    listWorkspacePackages.mockReturnValue([pkg('core', '1.0.2')])
+    changedFiles.mockReturnValue(['packages/core/src/index.ts'])
+    baselineVersions({ core: '1.0.2' })
+    runCapture.mockReturnValue({ ok: true, stdout: '', stderr: '' })
+
+    const { report, exitCode } = await run()
+    expect(entry(report.results, 'core').status).toBe('NEEDS BUMP')
+    expect(exitCode).toBe(1)
+  })
+
   it('still requires a bump when npm cannot be reached', async () => {
     listWorkspacePackages.mockReturnValue([pkg('core', '1.0.2')])
     changedFiles.mockReturnValue(['packages/core/src/index.ts'])

@@ -60,10 +60,11 @@ function isNpmError(value: NpmViewVersions): value is NpmViewError {
  *
  * `npm view` reports both cases with a non-zero exit, so the JSON body decides:
  * E404 means the package does not exist, anything else means the lookup failed.
+ * An empty body is not an answer either: only a validated E404 yields `[]`.
  */
 export function publishedVersions(name: string): string[] | null {
   const { ok, stdout } = runCapture('npm', ['view', name, 'versions', '--json'])
-  if (ok && !stdout) return []
+  if (!stdout) return null
 
   let parsed: NpmViewVersions
   try {

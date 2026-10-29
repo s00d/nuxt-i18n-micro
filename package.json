@@ -138,7 +138,8 @@
     "budget:payload:update": "pnpm -C scripts cli payload-budget --update",
     "preflight": "pnpm -C scripts cli preflight",
     "docs:generate": "pnpm -C scripts cli docs-generate",
-    "docs:generate:check": "pnpm -C scripts cli docs-generate --check"
+    "docs:generate:check": "pnpm -C scripts cli docs-generate --check",
+    "test:mutation": "stryker run stryker.config.mjs"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
@@ -164,6 +165,8 @@
     "@nuxt/schema": "catalog:",
     "@nuxt/test-utils": "catalog:",
     "@playwright/test": "catalog:",
+    "@stryker-mutator/core": "catalog:",
+    "@stryker-mutator/vitest-runner": "catalog:",
     "@types/node": "catalog:",
     "@untestutils/nuxt": "catalog:",
     "@untestutils/perf": "catalog:",

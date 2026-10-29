@@ -77,6 +77,8 @@ catalog:
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
   untestutils: ^0.8.0
+  '@stryker-mutator/core': ^10.1.1
+  '@stryker-mutator/vitest-runner': ^10.1.1
   '@untestutils/nuxt': ^0.8.0
   '@untestutils/perf': ^0.8.0
   # Exact only (no ^/~). Vue peer is `typescript: "*"`; caret/`npm i` pollution → TS7, then `pnpm i` "restores" 6.

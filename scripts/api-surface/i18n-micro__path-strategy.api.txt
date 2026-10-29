@@ -74,8 +74,8 @@ member RouteLike.path?: string | undefined
 member RouteLike.query?: Record<string, unknown> | undefined
 interface RouterAdapter
 member RouterAdapter.getRoutes: () => RouteRecordLike[]
-member RouterAdapter.hasRoute: (name: string) => boolean
-member RouterAdapter.resolve: (to: any) => ResolvedRouteLike
+member RouterAdapter.hasRoute: (name: string | symbol) => boolean
+member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
 interface RouteRecordLike
 member RouteRecordLike.aliasOf?: unknown
 member RouteRecordLike.meta?: Record<string, unknown> | undefined
@@ -159,8 +159,8 @@ member RouteLike.path?: string | undefined
 member RouteLike.query?: Record<string, unknown> | undefined
 interface RouterAdapter
 member RouterAdapter.getRoutes: () => RouteRecordLike[]
-member RouterAdapter.hasRoute: (name: string) => boolean
-member RouterAdapter.resolve: (to: any) => ResolvedRouteLike
+member RouterAdapter.hasRoute: (name: string | symbol) => boolean
+member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
 interface RouteRecordLike
 member RouteRecordLike.aliasOf?: unknown
 member RouteRecordLike.meta?: Record<string, unknown> | undefined

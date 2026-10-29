@@ -149,7 +149,7 @@ Absolute numbers move with hardware load; ranking is stable across short/mid/ful
 
 Route generation and runtime path logic share one route model:
 
-- **`@i18n-micro/route-strategy`** — Build time: extends Nuxt pages with the localized routes and marks every localized record with `meta.i18n` (the page, the locales it serves, its `disableMeta`). Nothing about the rules is shipped to the browser.
+- **`@i18n-micro/route-strategy`** — Build time: extends Nuxt pages with the localized routes and marks every localized record with `meta.i18n` (the page, the locales it serves, its `disableMeta`). The rules themselves stay at build time; these few fields ship with the route records the router already has, and the runtime reads them there.
 - **`@i18n-micro/path-strategy`** — Runtime (~3 KB gzip): reads those records once into an index (page → locale → record) and answers every lookup from it plus one `router.resolve`. The index and its URL caches belong to the route table, so every SSR request after the first starts warm.
 
 Links are returned with `name` and `params`, so `NuxtLink` and `router.push` resolve them by name instead of matching the path against every record.

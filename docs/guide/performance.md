@@ -147,12 +147,12 @@ Absolute numbers move with hardware load; ranking is stable across short/mid/ful
 
 ### 🚦 Efficient Routing
 
-In v3, route generation and runtime path logic are split into dedicated packages for optimal tree-shaking:
+Route generation and runtime path logic share one route model:
 
-- **`@i18n-micro/route-strategy`** — Build-time route generation: extends Nuxt pages with localized routes. Only the selected strategy (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) is included.
-- **`@i18n-micro/path-strategy`** — Runtime path resolution, redirects, and link generation. Uses pure functions and pre-computed context flags to minimize allocations on hot paths. Subpath exports (`/prefix`, `/no-prefix`, etc.) ensure only the chosen implementation is bundled.
+- **`@i18n-micro/route-strategy`** — Build time: extends Nuxt pages with the localized routes and marks every localized record with `meta.i18n` (the page, the locales it serves, its `disableMeta`). Nothing about the rules is shipped to the browser.
+- **`@i18n-micro/path-strategy`** — Runtime (~3 KB gzip): reads those records once into an index (page → locale → record) and answers every lookup from it plus one `router.resolve`. The index and its URL caches belong to the route table, so every SSR request after the first starts warm.
 
-This approach keeps the routing configuration lightweight and ensures fast route resolution regardless of the number of locales.
+Links are returned with `name` and `params`, so `NuxtLink` and `router.push` resolve them by name instead of matching the path against every record.
 
 ### 📂 Streamlined Translation Loading
 

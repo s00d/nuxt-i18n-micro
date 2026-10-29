@@ -2,7 +2,8 @@ import type { I18nRouteParams, Locale, Strategies } from '@i18n-micro/types'
 
 /** Route-like shape (compatible with vue-router). */
 export interface RouteLike {
-  name?: string | null
+  /** vue-router names may be symbols (`RouteRecordNameGeneric`). */
+  name?: string | symbol | null
   path?: string
   params?: Record<string, unknown>
   query?: Record<string, unknown>
@@ -14,7 +15,7 @@ export interface RouteLike {
 
 /** Resolved route (path and fullPath required). */
 export interface ResolvedRouteLike extends RouteLike {
-  name: string | null
+  name: string | symbol | null | undefined
   path: string
   fullPath: string
   /** Matched records (vue-router routes have them): an unnamed route that matched is not a 404. */
@@ -42,7 +43,8 @@ export interface RouteI18nMeta {
 
 export interface RouterAdapter {
   hasRoute: (name: string) => boolean
-  resolve: (to: RouteLike | string) => ResolvedRouteLike
+  // biome-ignore lint: vue-router's `resolve` takes its own location type
+  resolve: (to: any) => ResolvedRouteLike
   getRoutes: () => RouteRecordLike[]
 }
 

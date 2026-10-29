@@ -52,8 +52,9 @@ jobs:
           cache: pnpm
       - uses: actions/cache@v6
         with:
+          # builds only: the run registry and locks (test/.untestutils/run) are per run
           path: |
-            test/.untestutils
+            test/.untestutils/builds
           # Source-only globs: broad test/fixtures/** also matches .output-shared
           # after e2e and hashFiles fails when saving the cache at job end.
           key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}

@@ -1,7 +1,7 @@
 import os from 'node:os'
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
-import { untestutils } from 'untestutils/vitest/plugin'
+import { RetryReporter, untestutils } from 'untestutils/vitest/plugin'
 import { recipes } from './test/recipes.ts'
 
 const parallelism =
@@ -18,6 +18,11 @@ export default defineConfig({
       recipes,
       browsers: ['chromium'],
       artifactsRoot: fileURLToPath(new URL('./test/.untestutils', import.meta.url)),
+      // fixture builds start together, and a build has its own budget (not the test's timeout)
+      prewarmConcurrency: maxForks,
+      buildTimeout: 600_000,
+      // CI retries only infrastructure failures (port, boot, build); a failing assertion fails
+      retryInfra: process.env.CI ? 1 : 0,
     }),
   ],
   test: {
@@ -25,11 +30,11 @@ export default defineConfig({
     include: ['test/**/*.spec.ts'],
     testTimeout: 120_000,
     hookTimeout: 300_000,
-    retry: process.env.CI ? 1 : 0,
     fileParallelism: true,
     pool: 'forks',
     maxWorkers: maxForks,
     isolate: true,
     sequence: { groupOrder: 2 },
+    reporters: ['default', new RetryReporter({ outputFile: 'test-results/retried.json' })],
   },
 })

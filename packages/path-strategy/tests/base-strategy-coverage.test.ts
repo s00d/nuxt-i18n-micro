@@ -172,15 +172,7 @@ describe('switchLocaleRoute - route name fallback logic', () => {
 
 describe('PrefixExceptDefaultPathStrategy - default locale handling', () => {
   test('resolves base route for default locale with params', () => {
-    const router = makeRouterAdapter(['articles-id', 'localized-articles-id'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'articles-id') {
-        return { ...r, path: '/articles/1', fullPath: '/articles/1' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ 'articles-id': '/articles/:id', 'localized-articles-id': '/:locale(de|fr)/articles/:id' })
 
     const strategy = new PrefixExceptDefaultPathStrategy(makeCtx('prefix_except_default', { router }))
     const currentRoute: ResolvedRouteLike = {
@@ -301,15 +293,7 @@ describe('applyBaseUrl - external URL handling', () => {
         { code: 'fr', iso: 'fr-FR', baseUrl: 'https://fr.example.com' },
       ],
     })
-    const router = makeRouterAdapter(['page', 'localized-page-fr'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'localized-page-fr') {
-        return { ...r, path: '/page', fullPath: '/page' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ page: '/page', 'localized-page-fr': '/page' })
     ctx.router = router
 
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)
@@ -406,16 +390,7 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
 
 describe('BasePathStrategy - tryResolveByLocalizedNameWithParams edge cases', () => {
   test('uses localizedNameWithoutSuffix when nameWithSuffix not found (line 256, 267)', () => {
-    const router = makeRouterAdapter(['localized-articles-id'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'localized-articles-id') {
-        const params = (to as RouteLike).params
-        return { ...r, path: `/de/articles/${params?.id}`, fullPath: `/de/articles/${params?.id}` }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ 'localized-articles-id': '/:locale(en|de)/articles/:id' })
 
     const ctx = makeCtx('prefix', { router })
     const strategy = new PrefixPathStrategy(ctx)

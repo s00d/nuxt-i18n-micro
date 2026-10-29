@@ -78,6 +78,7 @@ exports[`localeRoute: preserve query and hash from input > prefix > when input h
   "name": "localized-news-id-en",
   "params": {
     "id": "2",
+    "locale": "en",
   },
   "path": "/news/2",
   "query": {
@@ -115,6 +116,7 @@ exports[`localeRoute: preserve query and hash from input > prefix_and_default > 
   "name": "localized-news-id-en",
   "params": {
     "id": "2",
+    "locale": "en",
   },
   "path": "/en/news/2",
   "query": {

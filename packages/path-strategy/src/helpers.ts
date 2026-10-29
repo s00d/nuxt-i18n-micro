@@ -5,7 +5,7 @@
  */
 import type { Locale } from '@i18n-micro/types'
 import { buildUrl, cleanDoubleSlashes, getCleanPath, hasKeys, isSamePath, normalizePathForCompare, withoutLeadingSlash } from './path'
-import { getRouteBaseName } from './resolver'
+import { getRouteBaseName, isIndexRouteName } from './resolver'
 import type { GlobalLocaleRoutes, PathStrategyContext, ResolvedRouteLike, RouteLike, RouterAdapter } from './types'
 
 // ---------------------------------------------------------------------------
@@ -15,17 +15,23 @@ import type { GlobalLocaleRoutes, PathStrategyContext, ResolvedRouteLike, RouteL
 /**
  * Finds the localized route name that the router recognises.
  * Tries "{prefix}{routeName}-{locale}" first, then "{prefix}{routeName}".
+ *
+ * A suffixed route (custom path, e.g. `/:locale(de)/ueber-uns`) still has the `:locale` param
+ * in every prefixed strategy: without an explicit value vue-router fills it from the current
+ * route and returns `/en/ueber-uns`. `no_prefix` routes (suffixed or not) have no `:locale`
+ * param, and passing one there makes vue-router warn about a discarded param — hence `localeParam`.
  */
 export function findLocalizedRouteName(
   router: RouterAdapter,
   prefix: string,
   routeName: string,
   targetLocale: string,
+  localeParam = true,
 ): { name: string; needsLocaleParam: boolean } | null {
   const withSuffix = `${prefix}${routeName}-${targetLocale}`
-  if (router.hasRoute(withSuffix)) return { name: withSuffix, needsLocaleParam: false }
+  if (router.hasRoute(withSuffix)) return { name: withSuffix, needsLocaleParam: localeParam }
   const withoutSuffix = `${prefix}${routeName}`
-  if (router.hasRoute(withoutSuffix)) return { name: withoutSuffix, needsLocaleParam: true }
+  if (router.hasRoute(withoutSuffix)) return { name: withoutSuffix, needsLocaleParam: localeParam }
   return null
 }
 
@@ -43,6 +49,7 @@ function resolveLocalizedRoute(
 ): RouteLike | null {
   const resolveParams = { ...params }
   if (needsLocaleParam) resolveParams.locale = targetLocale
+  else delete resolveParams.locale
 
   let resolved: ReturnType<RouterAdapter['resolve']>
   try {
@@ -76,8 +83,9 @@ export function tryResolveByLocalizedName(
   routeName: string,
   targetLocale: string,
   sourceRoute?: RouteLike,
+  localeParam = true,
 ): RouteLike | null {
-  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale)
+  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale, localeParam)
   if (!found) return null
   return resolveLocalizedRoute(router, found.name, found.needsLocaleParam, targetLocale, { ...sourceRoute?.params }, sourceRoute, false)
 }
@@ -93,10 +101,28 @@ export function tryResolveByLocalizedNameWithParams(
   targetLocale: string,
   params: Record<string, unknown>,
   sourceRoute?: RouteLike,
+  localeParam = true,
 ): RouteLike | null {
-  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale)
+  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale, localeParam)
   if (!found) return null
   return resolveLocalizedRoute(router, found.name, found.needsLocaleParam, targetLocale, params, sourceRoute, true)
+}
+
+/**
+ * Whether a route the router resolved for `baseName` can be trusted over globalLocaleRoutes
+ * heuristics. A `/` answer for a non-index route is not: adapters that cannot resolve names
+ * (other frameworks, test doubles) answer `/` for anything.
+ */
+export function isTrustedRouterRoute(
+  host: { getPathWithoutLocale(path: string): { pathWithoutLocale: string } },
+  route: RouteLike,
+  baseName: string,
+): boolean {
+  const path = route.path ?? '/'
+  // Fast path: two or more segments can never be a (locale-prefixed) root.
+  const second = path.indexOf('/', 1)
+  if (second !== -1 && second < path.length - 1) return true
+  return host.getPathWithoutLocale(getCleanPath(path)).pathWithoutLocale !== '/' || isIndexRouteName(baseName)
 }
 
 /**

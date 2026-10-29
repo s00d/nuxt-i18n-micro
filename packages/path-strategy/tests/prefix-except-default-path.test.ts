@@ -22,7 +22,7 @@ const makeCtx = (extra?: Partial<PathStrategyContext>): PathStrategyContext => m
 
 describe('PrefixExceptDefaultPathStrategy - switchLocaleRoute', () => {
   test('should build localized route when exact localized name exists', () => {
-    const router = makeRouterAdapter(['localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-de': '/:locale(de)/about' })
     const ctx = makeCtx({ router })
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)
 

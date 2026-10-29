@@ -34,7 +34,7 @@ const route: ResolvedRouteLike = {
 
 describe('switchLocaleRoute - no_prefix', () => {
   test('returns route with localized name when router has it', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-en': '/about', 'localized-about-de': '/ueber-uns' })
     const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix', { router }))
     const result = strategy.switchLocaleRoute('en', 'de', route, { i18nRouteParams: { de: { locale: 'de' } } })
     expect(typeof result).toBe('object')
@@ -43,7 +43,7 @@ describe('switchLocaleRoute - no_prefix', () => {
   })
 
   test('when router does not have localized name, falls back to base name if present', () => {
-    const router = makeRouterAdapter(['about', 'localized-about-de'])
+    const router = makeRouterAdapter({ about: '/about', 'localized-about-de': '/ueber-uns' })
     const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix', { router }))
     const result = strategy.switchLocaleRoute('en', 'de', route, {})
     expect(typeof result).toBe('object')
@@ -54,7 +54,7 @@ describe('switchLocaleRoute - no_prefix', () => {
 
 describe('switchLocaleRoute - prefix', () => {
   test('returns route with localized-{base}-{locale} when router has it', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-en': '/:locale(en)/about', 'localized-about-de': '/:locale(de)/about' })
     const strategy = new PrefixPathStrategy(makeCtx('prefix', { router }))
     const result = strategy.switchLocaleRoute('en', 'de', route, {})
     expect(typeof result).toBe('object')
@@ -72,7 +72,11 @@ describe('switchLocaleRoute - prefix', () => {
 
 describe('switchLocaleRoute - prefix_and_default', () => {
   test('returns route with localized-{base}-{locale}', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de', 'localized-about-ru'])
+    const router = makeRouterAdapter({
+      'localized-about-en': '/:locale(en)/about',
+      'localized-about-de': '/:locale(de)/about',
+      'localized-about-ru': '/:locale(ru)/about',
+    })
     const strategy = new PrefixAndDefaultPathStrategy(makeCtx('prefix_and_default', { router }))
     const result = strategy.switchLocaleRoute('en', 'de', route, {})
     expect(typeof result).toBe('object')
@@ -90,25 +94,25 @@ describe('switchLocaleRoute - prefix_and_default', () => {
 
 describe('switchLocaleRoute - via createPathStrategy', () => {
   test('no_prefix', () => {
-    const router = makeRouterAdapter(['localized-about-de'])
+    const router = makeRouterAdapter({ about: '/about', 'localized-about-de': '/ueber-uns' })
     const strategy = createPathStrategy(makeCtx('no_prefix', { router }))
     expect(strategy.switchLocaleRoute('en', 'de', route, {})).toMatchSnapshot()
   })
 
   test('prefix', () => {
-    const router = makeRouterAdapter(['localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-de': '/:locale(de)/about' })
     const strategy = createPathStrategy(makeCtx('prefix', { router }))
     expect(strategy.switchLocaleRoute('en', 'de', route, {})).toMatchSnapshot()
   })
 
   test('prefix_except_default', () => {
-    const router = makeRouterAdapter(['localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-de': '/:locale(de)/about' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     expect(strategy.switchLocaleRoute('en', 'de', route, {})).toMatchSnapshot()
   })
 
   test('prefix_and_default', () => {
-    const router = makeRouterAdapter(['localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-de': '/:locale(de)/about' })
     const strategy = createPathStrategy(makeCtx('prefix_and_default', { router }))
     expect(strategy.switchLocaleRoute('en', 'de', route, {})).toMatchSnapshot()
   })
@@ -116,7 +120,7 @@ describe('switchLocaleRoute - via createPathStrategy', () => {
 
 describe('snapshots (documentation: how switchLocaleRoute works)', () => {
   test('switchLocaleRoute: result per strategy en→de', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-en': '/:locale(en)/about', 'localized-about-de': '/:locale(de)/about' })
     const strategies = ['no_prefix', 'prefix', 'prefix_except_default', 'prefix_and_default'] as const
     const out: Record<string, RouteLike | string> = {}
     for (const s of strategies) {
@@ -127,7 +131,7 @@ describe('snapshots (documentation: how switchLocaleRoute works)', () => {
   })
 
   test('switchLocaleRoute with i18nRouteParams: full result object', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de'])
+    const router = makeRouterAdapter({ 'localized-about-en': '/:locale(en)/about', 'localized-about-de': '/:locale(de)/about' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     const result = strategy.switchLocaleRoute('en', 'de', route, {
       i18nRouteParams: { de: { locale: 'de', tab: 'info' } },

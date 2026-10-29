@@ -42,7 +42,7 @@ describe('localeRoute - no_prefix', () => {
   })
 
   test('{ name: "index" } returns root path /', () => {
-    const router = makeRouterAdapter(['index', 'page', 'localized-page-de'])
+    const router = makeRouterAdapter({ index: '/', page: '/page', 'localized-page-de': '/seite' })
     const strategy = createPathStrategy(makeCtx('no_prefix', { router }))
     const result = { en: strategy.localeRoute('en', { name: 'index' }), de: strategy.localeRoute('de', { name: 'index' }) }
     expect(result.en.path).toBe('/')
@@ -51,7 +51,7 @@ describe('localeRoute - no_prefix', () => {
   })
 
   test('object with name: returns route with localized name when router has it', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de', 'localized-about-ru'])
+    const router = makeRouterAdapter({ 'localized-about-en': '/about', 'localized-about-de': '/ueber-uns', 'localized-about-ru': '/o-nas' })
     const strategy = createPathStrategy(makeCtx('no_prefix', { router }))
     const result = strategy.localeRoute('de', { name: 'localized-about-en', path: '/about' }, currentRoute)
     expect(result.name).toBe('localized-about-de')
@@ -69,16 +69,7 @@ describe('localeRoute - prefix', () => {
   })
 
   test('{ name: "index" } returns localized root path', () => {
-    const router = makeRouterAdapter(['index', 'localized-index', 'localized-index-de'])
-    // Override resolve to return correct path for localized-index-de
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if (r.name === 'localized-index-de') {
-        return { ...r, path: '/de', fullPath: '/de' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ 'localized-index': '/:locale(en|ru)', 'localized-index-de': '/:locale(de)' })
     const strategy = createPathStrategy(makeCtx('prefix', { router }))
     const result = strategy.localeRoute('de', { name: 'index' })
     expect(result.path).toBe('/de')
@@ -88,7 +79,11 @@ describe('localeRoute - prefix', () => {
   })
 
   test('object with name: returns route with correct name', () => {
-    const router = makeRouterAdapter(['about', 'localized-about-en', 'localized-about-de', 'localized-about-ru'])
+    const router = makeRouterAdapter({
+      'localized-about-en': '/:locale(en)/about',
+      'localized-about-de': '/:locale(de)/about',
+      'localized-about-ru': '/:locale(ru)/about',
+    })
     const strategy = createPathStrategy(makeCtx('prefix', { router }))
     const result = {
       en: strategy.localeRoute('en', { name: 'localized-about-de', path: '/de/about' }, currentRoute),
@@ -122,7 +117,7 @@ describe('localeRoute - prefix_except_default', () => {
   })
 
   test('{ name: "index" } returns root path for target locale (not current page path)', () => {
-    const router = makeRouterAdapter(['index', 'page', 'localized-page-de'])
+    const router = makeRouterAdapter({ index: '/', page: '/page', 'localized-index': '/:locale(de|ru)', 'localized-page-de': '/:locale(de)/seite' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     const currentOnPage: ResolvedRouteLike = {
       name: 'localized-page-de',
@@ -137,7 +132,7 @@ describe('localeRoute - prefix_except_default', () => {
   })
 
   test('{ name: "index" } default locale returns / (no prefix)', () => {
-    const router = makeRouterAdapter(['index', 'page', 'localized-page-de'])
+    const router = makeRouterAdapter({ index: '/', page: '/page', 'localized-index': '/:locale(de|ru)', 'localized-page-de': '/:locale(de)/seite' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     const result = strategy.localeRoute('en', { name: 'index' })
     expect(result.path).toBe('/')
@@ -157,7 +152,7 @@ describe('localeRoute - prefix_except_default', () => {
   })
 
   test('object with name: returns route with correct name', () => {
-    const router = makeRouterAdapter(['about', 'localized-about-de', 'localized-about-ru'])
+    const router = makeRouterAdapter({ about: '/about', 'localized-about-de': '/:locale(de)/about', 'localized-about-ru': '/:locale(ru)/about' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     const result = {
       en: strategy.localeRoute('en', { name: 'localized-about-de', path: '/de/about' }, currentRoute),
@@ -179,14 +174,25 @@ describe('localeRoute - prefix_and_default', () => {
   })
 
   test('{ name: "index" } returns localized root path for each locale', () => {
-    const router = makeRouterAdapter(['index', 'page', 'localized-page-de'])
+    const router = makeRouterAdapter({
+      index: '/',
+      page: '/page',
+      'localized-index': '/:locale(en|de|ru)',
+      'localized-page': '/:locale(en|ru)/page',
+      'localized-page-de': '/:locale(de)/seite',
+    })
     const strategy = createPathStrategy(makeCtx('prefix_and_default', { router }))
     const result = { en: strategy.localeRoute('en', { name: 'index' }), de: strategy.localeRoute('de', { name: 'index' }) }
     expect(result).toMatchSnapshot()
   })
 
   test('object with name: returns route with correct name', () => {
-    const router = makeRouterAdapter(['about', 'localized-about-en', 'localized-about-de', 'localized-about-ru'])
+    const router = makeRouterAdapter({
+      about: '/about',
+      'localized-about-en': '/:locale(en)/about',
+      'localized-about-de': '/:locale(de)/about',
+      'localized-about-ru': '/:locale(ru)/about',
+    })
     const strategy = createPathStrategy(makeCtx('prefix_and_default', { router }))
     const result = {
       en: strategy.localeRoute('en', { name: 'localized-about-de', path: '/de/about' }, currentRoute),
@@ -236,7 +242,7 @@ describe('snapshots (documentation: how localeRoute works per strategy)', () => 
   })
 
   test('localeRoute: object with name and path returns RouteLike with path/fullPath', () => {
-    const router = makeRouterAdapter(['localized-about-en', 'localized-about-de'])
+    const router = makeRouterAdapter({ about: '/about', 'localized-about-de': '/:locale(de)/about' })
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { router }))
     const currentRoute: ResolvedRouteLike = {
       name: 'localized-about-en',

@@ -1,5 +1,6 @@
 import {
   findLocalizedRouteName,
+  isTrustedRouterRoute,
   isUnlocalizedRoute,
   joinWithLocalePrefix,
   prefixRedirect,
@@ -64,7 +65,7 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
       return this.applyBaseUrl(targetLocale, joinWithLocalePrefix(resolvedPath, targetLocale))
     }
 
-    const { inputName, sourceRoute, resolved } = normalized
+    const { inputName, sourceRoute } = normalized
     const prefix = this.getLocalizedRouteNamePrefix()
 
     if (inputName) {
@@ -87,6 +88,23 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
     }
 
     const hasGR = this.ctx._hasGR === true
+
+    // The router holds every localized route with its build-time path: ask it before the
+    // input route is resolved and before the globalLocaleRoutes heuristics (an untrusted
+    // answer is still used after them, as before).
+    let routeByLocalizedName: RouteLike | null = null
+    if (inputName && !hasParams) {
+      const nameBase = this.getRouteBaseName({ name: inputName }) ?? inputName
+      routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, inputName, targetLocale, sourceRoute)
+      if (routeByLocalizedName === null && nameBase !== inputName && inputName.startsWith(prefix)) {
+        routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, nameBase, targetLocale, sourceRoute)
+      }
+      if (routeByLocalizedName !== null && (!hasGR || isTrustedRouterRoute(this, routeByLocalizedName, nameBase))) {
+        return this.applyBaseUrl(targetLocale, this.rewriteWithLocalePrefix(routeByLocalizedName, targetLocale))
+      }
+    }
+
+    const resolved = normalized.resolved
     const baseName = this.getRouteBaseName(resolved) ?? inputName ?? resolved.name?.toString() ?? null
 
     if (hasGR) {
@@ -108,14 +126,8 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
       }
     }
 
-    if (inputName && !hasParams) {
-      let routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, inputName, targetLocale, sourceRoute)
-      if (routeByLocalizedName === null && baseName !== null && baseName !== undefined && baseName !== inputName && inputName.startsWith(prefix)) {
-        routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, baseName, targetLocale, sourceRoute)
-      }
-      if (routeByLocalizedName !== null) {
-        return this.applyBaseUrl(targetLocale, this.rewriteWithLocalePrefix(routeByLocalizedName, targetLocale))
-      }
+    if (routeByLocalizedName !== null) {
+      return this.applyBaseUrl(targetLocale, this.rewriteWithLocalePrefix(routeByLocalizedName, targetLocale))
     }
 
     if (!hasGR && resolved.path && resolved.path !== '/' && resolved.name) {

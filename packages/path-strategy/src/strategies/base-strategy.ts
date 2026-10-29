@@ -40,6 +40,40 @@ import type {
   SwitchLocaleOptions,
 } from '../types'
 
+/**
+ * Route input whose `resolved` is computed on first access: router.resolve is the costly
+ * part of localeRoute, and strategies that answer from the router by localized name never
+ * need the input route resolved. A class (getter on the prototype) allocates no closures.
+ */
+class LazyRouteInput {
+  readonly kind = 'route' as const
+  private _resolved: ResolvedRouteLike | undefined
+
+  constructor(
+    private readonly router: RouterAdapter,
+    readonly sourceRoute: RouteLike,
+    readonly inputName: string | null,
+  ) {}
+
+  get resolved(): ResolvedRouteLike {
+    if (this._resolved) return this._resolved
+    const sourceRoute = this.sourceRoute
+    try {
+      this._resolved = this.router.resolve(sourceRoute)
+    } catch {
+      this._resolved = {
+        name: this.inputName,
+        path: sourceRoute.path ?? '/',
+        fullPath: sourceRoute.fullPath ?? sourceRoute.path ?? '/',
+        params: sourceRoute.params ?? {},
+        query: sourceRoute.query ?? {},
+        hash: sourceRoute.hash ?? '',
+      } as ResolvedRouteLike
+    }
+    return this._resolved
+  }
+}
+
 export abstract class BasePathStrategy implements PathStrategy {
   readonly ctx: PathStrategyContext
 
@@ -227,20 +261,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     }
     const sourceRoute = routeOrPath
     const inputName = sourceRoute.name?.toString() ?? null
-    let resolved: ResolvedRouteLike
-    try {
-      resolved = this.ctx.router.resolve(routeOrPath)
-    } catch {
-      resolved = {
-        name: inputName,
-        path: sourceRoute.path ?? '/',
-        fullPath: sourceRoute.fullPath ?? sourceRoute.path ?? '/',
-        params: sourceRoute.params ?? {},
-        query: sourceRoute.query ?? {},
-        hash: sourceRoute.hash ?? '',
-      } as ResolvedRouteLike
-    }
-    return { kind: 'route', inputName, sourceRoute, resolved }
+    return new LazyRouteInput(this.ctx.router, routeOrPath, inputName)
   }
 
   // --- Delegated to standalone helpers ---

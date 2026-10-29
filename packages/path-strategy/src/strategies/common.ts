@@ -5,7 +5,13 @@
  * Resolver is now pure functions from ../resolver.
  */
 
-import { findLocalizedRouteName, preserveQueryAndHash, tryResolveByLocalizedName, tryResolveByLocalizedNameWithParams } from '../helpers'
+import {
+  findLocalizedRouteName,
+  isTrustedRouterRoute,
+  preserveQueryAndHash,
+  tryResolveByLocalizedName,
+  tryResolveByLocalizedNameWithParams,
+} from '../helpers'
 import {
   getPathSegments,
   hasKeys,
@@ -41,6 +47,11 @@ export interface DefaultImplHost {
   getSwitchLocaleFallbackWhenNoRoute(route: ResolvedRouteLike, targetName: string): RouteLike | string
 }
 
+/** Localized routes carry a `:locale` param in every strategy except `no_prefix`. */
+function hasLocaleParam(s: DefaultImplHost): boolean {
+  return s.ctx.strategy !== 'no_prefix'
+}
+
 export function defaultSwitchLocaleRoute(
   s: DefaultImplHost,
   fromLocale: string,
@@ -52,7 +63,7 @@ export function defaultSwitchLocaleRoute(
   if (!baseName) return route
 
   const prefix = s.getLocalizedRouteNamePrefix()
-  const found = findLocalizedRouteName(s.ctx.router, prefix, baseName, toLocale)
+  const found = findLocalizedRouteName(s.ctx.router, prefix, baseName, toLocale, hasLocaleParam(s))
   let targetName: string
   let needsLocaleParam = false
 
@@ -114,10 +125,10 @@ export function defaultResolveLocaleRoute(
     return s.applyBaseUrl(targetLocale, finalPath)
   }
 
-  const { inputName, sourceRoute: src, resolved } = normalized
+  const { inputName, sourceRoute: src } = normalized
   const hasParams = hasKeys(src.params as Record<string, unknown>)
-  const baseName = s.getRouteBaseName(resolved) ?? inputName ?? resolved.name?.toString() ?? null
-  const resolvedNameStr = resolved.name?.toString()
+  // Base name from the input name alone: the router lookups below run before `resolved` is needed.
+  const nameBase = inputName ? (s.getRouteBaseName({ name: inputName }) ?? inputName) : null
   const prefix = s.getLocalizedRouteNamePrefix()
   const router = s.ctx.router
   const gr = s.ctx.globalLocaleRoutes
@@ -129,17 +140,32 @@ export function defaultResolveLocaleRoute(
   }
 
   if (inputName && hasParams) {
-    const routeWithParams = tryResolveByLocalizedNameWithParams(router, prefix, inputName, targetLocale, src.params ?? {}, src)
+    const routeWithParams = tryResolveByLocalizedNameWithParams(router, prefix, inputName, targetLocale, src.params ?? {}, src, hasLocaleParam(s))
     if (routeWithParams !== null) return preserveQueryAndHash(s.applyBaseUrl(targetLocale, routeWithParams), src)
   }
 
   if (inputName && !hasParams) {
-    let routeByLocalizedName = tryResolveByLocalizedName(router, prefix, inputName, targetLocale, src)
-    if (routeByLocalizedName === null && baseName !== null && baseName !== undefined && baseName !== inputName && inputName.startsWith(prefix)) {
-      routeByLocalizedName = tryResolveByLocalizedName(router, prefix, baseName, targetLocale, src)
+    let routeByLocalizedName = tryResolveByLocalizedName(router, prefix, inputName, targetLocale, src, hasLocaleParam(s))
+    if (routeByLocalizedName === null && nameBase !== null && nameBase !== inputName && inputName.startsWith(prefix)) {
+      routeByLocalizedName = tryResolveByLocalizedName(router, prefix, nameBase, targetLocale, src, hasLocaleParam(s))
     }
     if (routeByLocalizedName !== null) return preserveQueryAndHash(s.applyBaseUrl(targetLocale, routeByLocalizedName), src)
   }
+
+  // no_prefix: a locale without its own custom path uses the base route, which the router
+  // resolves to the build-time path — ask it before the globalLocaleRoutes heuristics.
+  if (hasGR && s.ctx.strategy === 'no_prefix' && nameBase && router.hasRoute(nameBase)) {
+    try {
+      const res = router.resolve({ name: nameBase, params: src.params, query: src.query, hash: src.hash })
+      if (res?.path && isTrustedRouterRoute(s, res, nameBase)) return preserveQueryAndHash(s.applyBaseUrl(targetLocale, res.path), src)
+    } catch {
+      // fall through to the heuristics
+    }
+  }
+
+  const resolved = normalized.resolved
+  const baseName = s.getRouteBaseName(resolved) ?? inputName ?? resolved.name?.toString() ?? null
+  const resolvedNameStr = resolved.name?.toString()
 
   if (hasGR) {
     const analysis = analyzeRoute(s.ctx, resolved)

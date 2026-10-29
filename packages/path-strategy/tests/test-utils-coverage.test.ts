@@ -8,25 +8,26 @@ import { describe, expect, test } from 'vitest'
 
 describe('makeRouterAdapter', () => {
   describe('resolve with string input', () => {
-    test('resolves string to route object', () => {
-      const router = makeRouterAdapter(['test-route'])
-      const result = router.resolve('test-route')
+    test('resolves a string as a path and matches the route table', () => {
+      const router = makeRouterAdapter({ 'test-route': '/test-route' })
+      const result = router.resolve('/test-route')
 
       expect(result.name).toBe('test-route')
-      expect(result.path).toBe('test-route')
-      expect(result.fullPath).toBe('test-route')
+      expect(result.path).toBe('/test-route')
+      expect(result.fullPath).toBe('/test-route')
     })
 
-    test('throws when string route name not found and throwOnUnknownName is true', () => {
+    test('extracts params from a matched path, honouring regex params', () => {
+      const router = makeRouterAdapter({ 'localized-news-id-de': '/:locale(de)/nachrichten/:id' })
+
+      expect(router.resolve('/de/nachrichten/7')).toMatchObject({ name: 'localized-news-id-de', params: { locale: 'de', id: '7' } })
+      expect(router.resolve('/en/nachrichten/7').name).toBeNull()
+    })
+
+    test('an unmatched string path resolves to no route instead of throwing', () => {
       const router = makeRouterAdapter(['known-route'], { throwOnUnknownName: true })
 
-      expect(() => router.resolve('unknown-route')).toThrow('Unknown route name: unknown-route')
-    })
-
-    test('does not throw for unknown string when throwOnUnknownName is false', () => {
-      const router = makeRouterAdapter(['known-route'])
-
-      expect(() => router.resolve('unknown-route')).not.toThrow()
+      expect(router.resolve('/unknown-route')).toMatchObject({ name: null, path: '/unknown-route' })
     })
   })
 
@@ -71,14 +72,26 @@ describe('makeRouterAdapter', () => {
       expect(result.path).toBe('/original-path')
     })
 
-    test('pathFromName returns null, uses default path', () => {
+    test('a name without a known path throws instead of answering /', () => {
       const router = makeRouterAdapter(['page'], {
         pathFromName: () => null,
       })
 
-      const result = router.resolve({ name: 'page', params: { id: '1' } })
+      expect(() => router.resolve({ name: 'page', params: { id: '1' } })).toThrow('no path registered for route "page"')
+    })
 
-      expect(result.path).toBe('/')
+    test('fills the path template from params', () => {
+      const router = makeRouterAdapter({ 'localized-products-id': '/:locale(en|de)/products/:id', slug: '/blog/:slug(.*)*' })
+
+      expect(router.resolve({ name: 'localized-products-id', params: { locale: 'de', id: '5' } }).path).toBe('/de/products/5')
+      expect(router.resolve({ name: 'slug', params: { slug: ['a', 'b'] } }).path).toBe('/blog/a/b')
+      expect(router.resolve({ name: 'slug', params: {} }).path).toBe('/blog')
+    })
+
+    test('throws on a missing required param, like vue-router', () => {
+      const router = makeRouterAdapter({ 'localized-about-de': '/:locale(de)/about' })
+
+      expect(() => router.resolve({ name: 'localized-about-de' })).toThrow('Missing required param "locale"')
     })
 
     test('handles route without name', () => {

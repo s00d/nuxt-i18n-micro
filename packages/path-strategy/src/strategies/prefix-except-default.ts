@@ -2,6 +2,7 @@ import {
   buildCanonicalFromSegment,
   buildPrefixedPath,
   findLocalizedRouteName,
+  isTrustedRouterRoute,
   isUnlocalizedRoute,
   preserveQueryAndHash,
   tryResolveByLocalizedName,
@@ -106,16 +107,26 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       return this.applyBaseUrl(targetLocale, joinUrl(targetLocale, path))
     }
 
-    const { inputName, sourceRoute, resolved } = normalized
+    const { inputName, sourceRoute } = normalized
     const needsPrefix = this.shouldHavePrefix(targetLocale)
     const hasGR = this.ctx._hasGR === true
     const hasParams = sourceRoute.params !== null && sourceRoute.params !== undefined && hasKeys(sourceRoute.params as Record<string, unknown>)
 
     if (!hasGR) {
-      return this.resolveLocaleRouteSimple(targetLocale, inputName, sourceRoute, resolved, needsPrefix, hasParams, currentRoute)
+      return this.resolveLocaleRouteSimple(targetLocale, inputName, sourceRoute, normalized.resolved, needsPrefix, hasParams, currentRoute)
     }
 
-    return this.resolveLocaleRouteFull(targetLocale, inputName, sourceRoute, resolved, needsPrefix, hasParams, currentRoute)
+    if (inputName) {
+      const unlocalizedByName = getPathForUnlocalizedRouteByName(this.ctx, inputName)
+      if (unlocalizedByName !== null) return preserveQueryAndHash(unlocalizedByName, sourceRoute)
+
+      // The router holds every localized route with its build-time path: ask it first, before
+      // the input route is even resolved. The globalLocaleRoutes heuristics run only when it has no such route.
+      const viaRouter = this.resolveViaRouter(inputName, targetLocale, needsPrefix, sourceRoute, hasParams)
+      if (viaRouter !== null) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, viaRouter), sourceRoute)
+    }
+
+    return this.resolveLocaleRouteFull(targetLocale, inputName, sourceRoute, normalized.resolved, needsPrefix, hasParams, currentRoute)
   }
 
   private resolveLocaleRouteSimple(
@@ -214,9 +225,6 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     const prefix = this.getLocalizedRouteNamePrefix()
 
     if (inputName) {
-      const unlocalizedByName = getPathForUnlocalizedRouteByName(this.ctx, inputName)
-      if (unlocalizedByName !== null) return preserveQueryAndHash(unlocalizedByName, sourceRoute)
-
       const pathForNesting = resolved?.path && resolved.path !== '/' ? analyzeRoute(this.ctx, resolved).pathWithoutLocale : null
 
       // Prefer the real router path for top-level dashed pages so we never look up
@@ -393,6 +401,42 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     }
 
     return this.resolveLocaleRouteFallback(targetLocale, resolved, sourceRoute, needsPrefix, currentRoute)
+  }
+
+  /** Route `inputName` resolves to in `targetLocale` according to the router (when trusted), or null. */
+  private resolveViaRouter(
+    inputName: string,
+    targetLocale: string,
+    needsPrefix: boolean,
+    sourceRoute: RouteLike,
+    hasParams: boolean,
+  ): RouteLike | null {
+    const router = this.ctx.router
+    const baseName = this.getRouteBaseName({ name: inputName }) ?? inputName
+    let route: RouteLike | null = null
+    if (needsPrefix) {
+      const prefix = this.getLocalizedRouteNamePrefix()
+      route = hasParams
+        ? tryResolveByLocalizedNameWithParams(router, prefix, baseName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
+        : tryResolveByLocalizedName(router, prefix, baseName, targetLocale, sourceRoute)
+    } else if (router.hasRoute(baseName)) {
+      try {
+        const res = router.resolve({ name: baseName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
+        if (res?.path) {
+          route = {
+            name: baseName,
+            path: res.path,
+            fullPath: res.fullPath,
+            params: res.params,
+            query: res.query ?? sourceRoute.query,
+            hash: res.hash ?? sourceRoute.hash,
+          }
+        }
+      } catch {
+        route = null
+      }
+    }
+    return route !== null && isTrustedRouterRoute(this, route, baseName) ? route : null
   }
 
   private resolveLocaleRouteFallback(

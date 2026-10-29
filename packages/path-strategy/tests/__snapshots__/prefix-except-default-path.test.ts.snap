@@ -2,13 +2,13 @@
 
 exports[`PrefixExceptDefaultPathStrategy - switchLocaleRoute > should build localized route when exact localized name exists 1`] = `
 {
-  "fullPath": "/",
+  "fullPath": "/de/about",
   "hash": "",
   "name": "localized-about-de",
   "params": {
     "locale": "de",
   },
-  "path": "/",
+  "path": "/de/about",
   "query": {},
 }
 `;

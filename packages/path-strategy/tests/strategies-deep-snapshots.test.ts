@@ -40,18 +40,70 @@ const routesLocaleLinks: Record<string, string> = {
   'blog-slug': 'blog',
 }
 
-const routeNames = [
-  'index',
-  'about',
-  'localized-about-en',
-  'localized-about-de',
-  'localized-about-ru',
-  'localized-products-id-en',
-  'localized-products-id-de',
-  'localized-parent-child-en',
-  'localized-parent-child-de',
-  'localized-blog-slug-en',
-]
+// Route records as RouteGenerator builds them for the config above (vue-router keeps the last
+// record when a name repeats, as prefix_and_default does for the default locale).
+const routeTables: Record<StrategyName, Record<string, string>> = {
+  no_prefix: {
+    index: '/',
+    about: '/about',
+    'localized-about-en': '/about-us',
+    'localized-about-de': '/ueber-uns',
+    'localized-about-ru': '/o-nas',
+    'products-id': '/products/:id',
+    'localized-products-id-de': '/produkte/:id',
+    'parent-child': '/parent/child',
+    'localized-parent-child-en': '/parent-en/child',
+    'localized-parent-child-de': '/eltern/kind',
+    'localized-parent-child-ru': '/roditel/rebenok',
+    'blog-slug': '/blog/:slug',
+    unlocalized: '/unlocalized',
+  },
+  prefix: {
+    'localized-index': '/:locale(en|de|ru|fr)',
+    'localized-about-en': '/:locale(en)/about-us',
+    'localized-about-de': '/:locale(de)/ueber-uns',
+    'localized-about-ru': '/:locale(ru)/o-nas',
+    'localized-products-id-en': '/:locale(en)/products/:id',
+    'localized-products-id-de': '/:locale(de)/produkte/:id',
+    'localized-parent-child-en': '/:locale(en)/parent-en/child',
+    'localized-parent-child-de': '/:locale(de)/eltern/kind',
+    'localized-parent-child-ru': '/:locale(ru)/roditel/rebenok',
+    'localized-blog-slug': '/:locale(en)/blog/:slug',
+    unlocalized: '/unlocalized',
+  },
+  prefix_except_default: {
+    index: '/',
+    about: '/about-us',
+    'products-id': '/products/:id',
+    'parent-child': '/parent-en/child',
+    'blog-slug': '/blog/:slug',
+    unlocalized: '/unlocalized',
+    'localized-index': '/:locale(de|ru|fr)',
+    'localized-about-de': '/:locale(de)/ueber-uns',
+    'localized-about-ru': '/:locale(ru)/o-nas',
+    'localized-products-id-de': '/:locale(de)/produkte/:id',
+    'localized-parent-child-de': '/:locale(de)/eltern/kind',
+    'localized-parent-child-ru': '/:locale(ru)/roditel/rebenok',
+  },
+  prefix_and_default: {
+    index: '/',
+    about: '/about',
+    'products-id': '/products/:id',
+    'parent-child': '/parent/child',
+    'blog-slug': '/blog/:slug',
+    unlocalized: '/unlocalized',
+    'localized-index': '/:locale(en|de|ru|fr)',
+    'localized-about-en': '/:locale(en)/about-us',
+    'localized-about-de': '/:locale(de)/ueber-uns',
+    'localized-about-ru': '/:locale(ru)/o-nas',
+    'localized-products-id-en': '/:locale(en)/products/:id',
+    'localized-products-id-de': '/:locale(de)/produkte/:id',
+    'localized-parent-child-en': '/:locale(en)/parent-en/child',
+    'localized-parent-child-de': '/:locale(de)/eltern/kind',
+    'localized-parent-child-ru': '/:locale(ru)/roditel/rebenok',
+    'localized-blog-slug': '/:locale(en)/blog/:slug',
+  },
+}
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',
@@ -70,7 +122,7 @@ function buildDeepContext(strategy: StrategyName): PathStrategyContext {
     globalLocaleRoutes,
     routeLocales,
     routesLocaleLinks,
-    router: makeRouterAdapter(routeNames),
+    router: makeRouterAdapter(routeTables[strategy]),
   })
 }
 
@@ -196,7 +248,7 @@ describe('strategies deep snapshots — no_prefix with noPrefixRedirect: false',
       globalLocaleRoutes,
       routeLocales,
       routesLocaleLinks,
-      router: makeRouterAdapter(routeNames),
+      router: makeRouterAdapter(routeTables.no_prefix),
       noPrefixRedirect: false,
     })
     const strategy = createPathStrategy(ctx)
@@ -227,7 +279,7 @@ describe('strategies deep snapshots — defaultLocale and two locales only', () 
     const ctx = makePathStrategyContext(minimalConfig, 'prefix_except_default', {
       locales: minimalLocales as PathStrategyContext['locales'],
       globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns' } },
-      router: makeRouterAdapter(['localized-about-en', 'localized-about-de']),
+      router: makeRouterAdapter({ about: '/about-us', 'localized-about-de': '/:locale(de)/ueber-uns' }),
     })
     const strategy = createPathStrategy(ctx)
     const resolveFromPath: Record<string, string | null> = {}

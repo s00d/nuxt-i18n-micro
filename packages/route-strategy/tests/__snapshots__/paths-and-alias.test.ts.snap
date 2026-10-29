@@ -168,11 +168,11 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "products-category-item",
-            "path": "products/category/item",
+            "path": "item",
           },
         ],
         "name": "products-category",
-        "path": "products/category",
+        "path": "category",
       },
     ],
     "name": "products",
@@ -186,11 +186,11 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "localized-products-category-item-de",
-            "path": "item",
+            "path": "artikel",
           },
         ],
         "name": "localized-products-category-de",
-        "path": "produkte/kategorie",
+        "path": "kategorie",
       },
     ],
     "meta": {
@@ -207,7 +207,7 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "localized-products-category-item-ru",
-            "path": "products/category/item",
+            "path": "item",
           },
         ],
         "name": "localized-products-category-ru",
@@ -405,15 +405,6 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle prefix_and_de
 [
   {
     "name": "test",
-    "path": "/test",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-test-en",
     "path": "/test-en",
   },
   {

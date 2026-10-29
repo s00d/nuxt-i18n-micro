@@ -65,16 +65,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
       "alias": [],
     },
     "name": "localized-a",
-    "path": "/:locale(de)/a",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-a",
-    "path": "/:locale(ru)/a",
+    "path": "/:locale(de|ru)/a",
   },
   {
     "alias": [],
@@ -116,16 +107,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
       "alias": [],
     },
     "name": "localized-contact",
-    "path": "/:locale(de)/contact",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-contact",
-    "path": "/:locale(ru)/contact",
+    "path": "/:locale(de|ru)/contact",
   },
 ]
 `;
@@ -266,15 +248,6 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 [
   {
     "name": "pricing",
-    "path": "/pricing",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-pricing-en",
     "path": "/pricing",
   },
   {

@@ -15,6 +15,22 @@ export function resolveChildPath(parentPath: string, childSegment: string): stri
   return normalizePath(path.posix.join(parentPath || '', segment))
 }
 
+/** Strips a leading `/:locale(...)` segment: parents of shared all-locale routes carry it. */
+const withoutLocaleParam = (routePath: string): string => routePath.replace(/^\/?:locale\([^)]*\)/, '') || '/'
+
+/**
+ * Route path segment of a child from its custom value. Child values are relative to the
+ * parent (`book-activity/skiing` under `/activity`); a value that already starts with the
+ * parent's localized path is a full URL and is taken from there (`/bereich/kategorie` under
+ * `/bereich` is `kategorie`) — the same rule the runtime applies (joinNestedCustomPath).
+ */
+export function childSegment(parentLocalizedPath: string, customValue: string): string {
+  const value = normalizePath(`/${customValue.replace(/^\/+/, '')}`)
+  const parent = normalizePath(`/${withoutLocaleParam(parentLocalizedPath).replace(/^\/+/, '')}`)
+  if (parent !== '/' && parent !== '' && value.startsWith(`${parent}/`)) return value.slice(parent.length + 1)
+  return value.replace(/^\/+/, '')
+}
+
 export interface CreateRouteOptions {
   path: string
   name?: string

@@ -119,7 +119,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 22. should co
 exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should handle deep nesting with custom paths at different levels 1`] = `
 [
   {
-    "alias": undefined,
+    "alias": [],
     "children": [
       {
         "children": [
@@ -129,18 +129,24 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
             "name": "localized-parent-child-grandchild-en",
             "path": "grandchild",
           },
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
         ],
         "file": "/pages/parent/child.vue",
-        "name": "localized-parent-child-en",
+        "name": "localized-parent-child",
         "path": "child",
       },
     ],
     "file": "/pages/parent.vue",
     "meta": {
-      "alias": undefined,
+      "alias": [],
     },
     "name": "localized-parent",
-    "path": "/:locale(en)/parent",
+    "path": "/:locale(en|ru)/parent",
   },
   {
     "alias": undefined,
@@ -165,30 +171,6 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
     },
     "name": "localized-parent-de",
     "path": "/:locale(de)/eltern",
-  },
-  {
-    "alias": undefined,
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "file": "/pages/parent/child/grandchild.vue",
-            "name": "localized-parent-child-grandchild-ru",
-            "path": "grandchild",
-          },
-        ],
-        "file": "/pages/parent/child.vue",
-        "name": "localized-parent-child-ru",
-        "path": "child",
-      },
-    ],
-    "file": "/pages/parent.vue",
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-parent",
-    "path": "/:locale(ru)/parent",
   },
 ]
 `;
@@ -412,7 +394,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 30. should ha
         ],
         "file": "/pages/parent/child.vue",
         "name": "localized-parent-child-de",
-        "path": "eltern/kind",
+        "path": "kind",
       },
     ],
     "file": "/pages/parent.vue",

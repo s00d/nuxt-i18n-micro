@@ -1,5 +1,5 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { createRoute, resolveChildPath } from '../core/builder'
+import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import { isLocalizationDisabledForPage } from '../core/localization-disabled'
@@ -75,16 +75,12 @@ export abstract class BaseStrategy implements RouteStrategy {
       return [child]
     }
     const fullPath = resolveChildPath(parentPath, child.path ?? '')
-    const lookupKey = pathKeyForLocalizedPaths(fullPath)
-    const customLocalePaths = context.localizedPaths[lookupKey]
+    // Rules are keyed by the page's original path; parentPath is the localized (:locale) one.
+    const customLocalePaths = context.localizedPaths[pathKeyForLocalizedPaths(childOriginalPath)]
 
     if (customLocalePaths) {
-      return localeCodes.flatMap((locale) => {
-        const parentLocalizedPath = customLocalePaths[locale] ?? resolveChildPath(parentPath, child.path ?? '')
-        // For Context lookups we always use the original parent path,
-        // so that childOriginalPath is computed as parentOriginalPath + child.path.
-        return this.localizeChild(child, parentLocalizedPath, parentOriginalPath, locale, context, true)
-      })
+      // One child per locale under the shared parent; lookups always use the original parent path.
+      return localeCodes.flatMap((locale) => this.localizeChild(child, parentPath, parentOriginalPath, locale, context, true))
     }
     const routePath = normalizePath(child.path ?? '')
     const finalPathForRoute = removeLeadingSlash(routePath)
@@ -113,9 +109,9 @@ export abstract class BaseStrategy implements RouteStrategy {
       return [child]
     }
     const customPath = context.getCustomPath(childOriginalPath, locale)
-    const finalPathForRoute = customPath ? removeLeadingSlash(normalizePath(customPath)) : removeLeadingSlash(normalizePath(child.path ?? ''))
+    const finalPathForRoute = customPath ? childSegment(parentLocalizedPath, customPath) : removeLeadingSlash(normalizePath(child.path ?? ''))
 
-    const nextParentPath = customPath ?? resolveChildPath(parentLocalizedPath, child.path ?? '')
+    const nextParentPath = resolveChildPath(parentLocalizedPath, finalPathForRoute)
     const localizedChildren = this.localizeChildren(cloneArray(child.children ?? []), nextParentPath, childOriginalPath, locale, context, addPrefix)
     const baseName = buildRouteNameFromRoute(child.name, child.path)
     const routeName = `${context.localizedRouteNamePrefix}${baseName}-${locale}`

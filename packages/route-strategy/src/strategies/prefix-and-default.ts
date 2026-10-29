@@ -2,7 +2,7 @@ import type { NuxtPage } from '@nuxt/schema'
 import { generateAliasRoutes } from '../core/alias'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
-import { buildRouteName, buildRouteNameFromRoute, cloneArray } from '../utils'
+import { buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
 
 export class PrefixAndDefaultStrategy extends BaseStrategy {
@@ -15,8 +15,10 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
     const result: NuxtPage[] = []
     const defaultLocaleCode = context.defaultLocale.code
 
-    // prefix_and_default: isPrefixStrategy returns false — original pages are not removed in postProcess
-    result.push(page)
+    // prefix_and_default: isPrefixStrategy returns false — original pages are not removed in postProcess.
+    // The default locale is also served without a prefix, at its custom path when it has one.
+    const defaultCustomPath = allowedLocales.includes(defaultLocaleCode) ? customPaths?.[defaultLocaleCode] : undefined
+    result.push(defaultCustomPath ? createRoute(page, { path: normalizePath(defaultCustomPath) }) : page)
 
     const localesToGenerate = context.locales.filter((locale) => allowedLocales.includes(locale.code))
 
@@ -26,19 +28,8 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
           const customPath = customPaths[locale.code]
           if (customPath) {
             if (locale.code === defaultLocaleCode) {
-              const nonPrefixedRoute = this.createLocalizedRoute(
-                page,
-                [locale.code],
-                originalChildren,
-                true,
-                customPath,
-                context.customRegex,
-                false,
-                locale.code,
-                originalPath,
-                context,
-              )
-              if (nonPrefixedRoute) result.push(nonPrefixedRoute)
+              // Only the prefixed route: an unprefixed one would share the name
+              // `localized-<name>-<default>`, and vue-router keeps just the last record.
               const prefixedRoute = this.createLocalizedRoute(
                 page,
                 [locale.code],
@@ -67,21 +58,25 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
               )
               if (newRoute) result.push(newRoute)
             }
-          } else {
-            const newRoute = this.createLocalizedRoute(
-              page,
-              [locale.code],
-              originalChildren,
-              false,
-              '',
-              context.customRegex,
-              false,
-              locale.code,
-              originalPath,
-              context,
-            )
-            if (newRoute) result.push(newRoute)
           }
+        }
+        // Locales without their own custom path share one :locale(a|b) route, so that
+        // `localized-<name>` stays unique (vue-router drops all but the last duplicate name).
+        const plainLocales = localesToGenerate.filter((locale) => !customPaths[locale.code]).map((l) => l.code)
+        if (plainLocales.length) {
+          const newRoute = this.createLocalizedRoute(
+            page,
+            plainLocales,
+            originalChildren,
+            false,
+            '',
+            context.customRegex,
+            false,
+            plainLocales.length === 1 ? plainLocales[0]! : true,
+            originalPath,
+            context,
+          )
+          if (newRoute) result.push(newRoute)
         }
       } else {
         const localeCodes = localesToGenerate.map((l) => l.code)

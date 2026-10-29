@@ -112,7 +112,15 @@ export class GeneratorContext {
    */
   getCustomPathsForPage(originalPath: string, pageName: string): Record<string, string> | undefined {
     const key = pathKeyForLocalizedPaths(originalPath)
-    return this.localizedPaths[key] ?? this.localizedPaths[pageName]
+    const paths = this.localizedPaths[key] ?? this.localizedPaths[pageName]
+    if (!paths) return undefined
+    // A top-level route path must be absolute: vue-router rejects `about-us` at startup.
+    const absolute: Record<string, string> = {}
+    for (const locale in paths) {
+      const value = paths[locale]!
+      absolute[locale] = value.startsWith('/') ? value : `/${value}`
+    }
+    return absolute
   }
 
   hasLocaleRestrictions(pagePath: string, pageName: string): boolean {

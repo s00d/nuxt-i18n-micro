@@ -1,6 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { generateAliasRoutes } from '../core/alias'
-import { createRoute, resolveChildPath } from '../core/builder'
+import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import {
@@ -58,35 +58,38 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
       if (customPaths) {
         for (const locale of nonDefaultLocales) {
           const customPath = customPaths[locale.code]
-          if (customPath) {
-            const newRoute = this.createLocalizedRoute(
-              page,
-              [locale.code],
-              originalChildren,
-              true,
-              customPath,
-              context.customRegex,
-              false,
-              locale.code,
-              originalPath,
-              context,
-            )
-            if (newRoute) result.push(newRoute)
-          } else {
-            const newRoute = this.createLocalizedRoute(
-              page,
-              [locale.code],
-              originalChildren,
-              false,
-              '',
-              context.customRegex,
-              false,
-              locale.code,
-              originalPath,
-              context,
-            )
-            if (newRoute) result.push(newRoute)
-          }
+          if (!customPath) continue
+          const newRoute = this.createLocalizedRoute(
+            page,
+            [locale.code],
+            originalChildren,
+            true,
+            customPath,
+            context.customRegex,
+            false,
+            locale.code,
+            originalPath,
+            context,
+          )
+          if (newRoute) result.push(newRoute)
+        }
+        // Locales without their own custom path share one :locale(a|b) route, so that
+        // `localized-<name>` stays unique (vue-router drops all but the last duplicate name).
+        const plainLocales = nonDefaultLocales.filter((locale) => !customPaths[locale.code]).map((l) => l.code)
+        if (plainLocales.length) {
+          const newRoute = this.createLocalizedRoute(
+            page,
+            plainLocales,
+            originalChildren,
+            false,
+            '',
+            context.customRegex,
+            false,
+            plainLocales.length === 1 ? plainLocales[0]! : true,
+            originalPath,
+            context,
+          )
+          if (newRoute) result.push(newRoute)
         }
       } else {
         const localeCodes = nonDefaultLocales.map((l) => l.code)
@@ -178,6 +181,11 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
 
     if (!isCustomLocalized) {
       const finalPathForRoute = removeLeadingSlash(routePath)
+      // Grandchildren resolve full-URL custom values against this child's localized path.
+      const nextLocalizedParentPaths: Record<string, string> = {}
+      for (const locale in localizedParentPaths) {
+        nextLocalizedParentPaths[locale] = resolveChildPath(localizedParentPaths[locale]!, finalPathForRoute)
+      }
 
       const localizedChildren = this.createLocalizedChildren(
         cloneArray(route.children ?? []),
@@ -186,7 +194,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         modifyName,
         addLocalePrefix,
         parentLocale,
-        localizedParentPaths,
+        nextLocalizedParentPaths,
         context,
       )
 
@@ -204,20 +212,12 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     }
 
     for (const locale of localeCodes) {
-      const parentLocalizedPath = localizedParentPaths?.[locale]
-      const hasParentLocalized = !!parentLocalizedPath
+      const parentLocalizedPath = localizedParentPaths?.[locale] || parentPath
 
       const customPath = customLocalePaths?.[locale]
 
-      let basePath = customPath ? normalizePath(customPath) : normalizePath(route.path ?? '')
-
-      if (hasParentLocalized && parentLocalizedPath) {
-        if (customPath) {
-          basePath = normalizePath(customPath)
-        } else {
-          basePath = resolveChildPath(parentLocalizedPath, route.path ?? '')
-        }
-      }
+      // Child paths are relative to the (already localized) parent route.
+      const basePath = customPath ? childSegment(parentLocalizedPath, customPath) : normalizePath(route.path ?? '')
 
       const finalRoutePath = shouldAddLocalePrefix(locale, context.defaultLocale, addLocalePrefix)
         ? buildFullPath(locale, basePath, context.customRegex)
@@ -225,15 +225,12 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
 
       const finalPathForRoute = removeLeadingSlash(finalRoutePath)
 
-      const nextParentPath = customPath
-        ? normalizePath(customPath)
-        : hasParentLocalized
-          ? parentLocalizedPath
-          : resolveChildPath(parentPath, route.path ?? '')
+      const nextParentPath = resolveChildPath(parentLocalizedPath, removeLeadingSlash(basePath))
 
       const localizedChildren = this.createLocalizedChildren(
         cloneArray(route.children ?? []),
-        nextParentPath,
+        // lookups use the original path; the localized one travels in localizedParentPaths
+        resolveChildPath(parentPath, route.path ?? ''),
         [locale],
         modifyName,
         addLocalePrefix,

@@ -213,7 +213,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > child with absolu
       {
         "children": [],
         "name": "parent-child",
-        "path": "parent/child",
+        "path": "child",
       },
     ],
     "name": "parent",
@@ -259,7 +259,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent an
       {
         "children": [],
         "name": "parent-child",
-        "path": "parent/child",
+        "path": "child",
       },
     ],
     "name": "parent",
@@ -271,7 +271,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent an
       {
         "children": [],
         "name": "localized-parent-child-de",
-        "path": "eltern/kind",
+        "path": "kind",
       },
     ],
     "meta": {

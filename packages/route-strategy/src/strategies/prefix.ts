@@ -20,9 +20,24 @@ export class PrefixStrategy extends BaseStrategy {
     const result: NuxtPage[] = []
 
     if (customPaths) {
+      // Locales without their own custom path share one :locale(a|b) route, so that
+      // `localized-<name>` stays unique (vue-router drops all but the last duplicate name).
+      const plainLocales = allowedLocales.filter((locale) => !customPaths[locale])
+      if (plainLocales.length) {
+        result.push(
+          createRoute(page, {
+            path: buildFullPath(plainLocales, originalPath, context.customRegex),
+            name: buildRouteName(pageName, plainLocales[0]!, false, context.localizedRouteNamePrefix),
+            children: this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, plainLocales, context),
+            alias: [],
+            meta: { alias: [] },
+          }),
+        )
+      }
       for (const locale of allowedLocales) {
         const customPath = customPaths[locale]
-        const basePath = customPath ? normalizePath(customPath) : originalPath
+        if (!customPath) continue
+        const basePath = normalizePath(customPath)
         const routePath = buildFullPath(locale, basePath, context.customRegex)
         const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
         const parentLocalizedPath = customPath ?? originalPath

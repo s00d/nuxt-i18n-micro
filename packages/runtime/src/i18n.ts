@@ -1,6 +1,12 @@
-import { BaseI18n, createReactiveI18nStore, type ReactiveI18nStore, type TranslationStorage } from '@i18n-micro/core'
+import {
+  BaseI18n,
+  createReactiveI18nStore,
+  type DateTimeFormatsConfig,
+  type NumberFormatsConfig,
+  type ReactiveI18nStore,
+  type TranslationStorage,
+} from '@i18n-micro/core'
 import type { PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
-import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
 import { fetchJsonTranslations, type LoadFromUrlEntry, type LoadFromUrlOptions } from './loader'
 
 export interface I18nOptions {
@@ -13,6 +19,10 @@ export interface I18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  /** Named number formats per locale (`tn(n, 'currency')`). */
+  numberFormats?: NumberFormatsConfig
+  /** Named datetime formats per locale (`td(d, 'short')`). */
+  datetimeFormats?: DateTimeFormatsConfig
 }
 
 export class I18n extends BaseI18n {
@@ -29,6 +39,8 @@ export class I18n extends BaseI18n {
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
     })
 
     this.storage = storage
@@ -83,40 +95,20 @@ export class I18n extends BaseI18n {
   }
 
   /**
-   * Load root and optional route-scoped translation maps into the instance.
-   * Route layers are merged with the current root (`index`) for that locale.
+   * Load root and optional route-scoped translation maps into the instance. A route chunk holds
+   * the route's own keys; root keys resolve from the root chunk (also ones added later).
    */
   public loadMessages(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>): void {
-    if (messages) {
-      for (const [locale, translations] of Object.entries(messages)) {
-        this.addTranslations(locale, translations)
-      }
-    }
-
-    if (routeMessages) {
-      for (const [routeName, locales] of Object.entries(routeMessages)) {
-        for (const [locale, translations] of Object.entries(locales)) {
-          const base = this.helper.getCache(locale, 'index')
-          this.helper.loadPageTranslations(locale, routeName, mergeRouteTranslationsWithRoot(base, translations))
-        }
-      }
-      this.store.notify()
-    }
+    for (const [locale, translations] of Object.entries(messages ?? {})) this.helper.mergeTranslation(locale, 'index', translations)
+    for (const [routeName, locales] of Object.entries(routeMessages ?? {}))
+      for (const [locale, translations] of Object.entries(locales)) this.helper.mergeTranslation(locale, routeName, translations)
+    this.onTranslationsChanged()
   }
 
   public async loadFromUrl(url: string, options: LoadFromUrlOptions = {}): Promise<void> {
     const locale = options.locale ?? this.getLocale()
     const translations = await fetchJsonTranslations(url, options.init)
-    const routeName = options.routeName
-
-    if (routeName && routeName !== 'index') {
-      const base = this.helper.getCache(locale, 'index')
-      this.helper.loadPageTranslations(locale, routeName, mergeRouteTranslationsWithRoot(base, translations))
-      this.store.notify()
-      return
-    }
-
-    this.addTranslations(locale, translations)
+    this.addRouteTranslations(locale, options.routeName || 'index', translations)
   }
 
   public async loadFromUrls(entries: LoadFromUrlEntry[]): Promise<void> {
@@ -128,13 +120,11 @@ export class I18n extends BaseI18n {
   }
 
   public addTranslations(locale: string, translations: Translations, merge = true): void {
-    super.loadTranslationsCore(locale, translations, merge)
-    this.store.notify()
+    this.loadTranslationsCore(locale, translations, merge)
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-    this.store.notify()
+    this.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
 
   public hasTranslation(key: TranslationKey): boolean {
@@ -144,11 +134,6 @@ export class I18n extends BaseI18n {
 
   public clear(): void {
     this.clearCache()
-  }
-
-  public override clearCache(): void {
-    super.clearCache()
-    this.store.notify()
   }
 
   protected override onTranslationsChanged(): void {

@@ -41,8 +41,8 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 56 members |
-| `SolidI18nOptions` | interface | 6 members |
+| `SolidI18n` | class | 61 members |
+| `SolidI18nOptions` | interface | 8 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | function | `(options?: UseI18nOptions) => { instance: import("./i18n").SolidI18n; locale: import("solid-js").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: string \| { path?: string; }, localeCode?: string) => string \| { path?: string; }; localePath: (to: string \| { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; setRoute: (val: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; clearCache: () => void; }` |
@@ -86,16 +86,19 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 56 members</summary>
+<summary><code>SolidI18n</code> — 61 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `_fallbackSignal` | `private Accessor<string>` |
 | `_localeSignal` | `private Accessor<string>` |
+| `_revision` | `private Accessor<number>` |
 | `_routeSignal` | `private Accessor<string>` |
 | `_setLocaleSignal` | `private (v: string) => void` |
+| `_setRevision` | `private (v: number) => void` |
 | `_setRouteSignal` | `private (v: string) => void` |
 | `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
@@ -103,6 +106,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../solid/src").SolidI18n & M>) => import("../../solid/src").SolidI18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `fallbackRootKey` | `private any` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -113,12 +117,12 @@ import { /* … */ } from '@i18n-micro/solid'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
-| `layered` | `private any` |
 | `listeners` | `private Set<() => void>` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
+| `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: SolidI18nOptions): SolidI18n` |
@@ -146,19 +150,22 @@ import { /* … */ } from '@i18n-micro/solid'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 
 <details>
-<summary><code>SolidI18nOptions</code> — 6 members</summary>
+<summary><code>SolidI18nOptions</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 
 </details>

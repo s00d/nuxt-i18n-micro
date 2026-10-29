@@ -1,9 +1,11 @@
 # . (src/index.ts)
 class BaseI18n
 member BaseI18n.activeKey: private ChunkKey
+member BaseI18n.activeRootKey: private ChunkKey
 member BaseI18n.clearCache: () => void
 member BaseI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M
 member BaseI18n.fallbackKey: private ChunkKey
+member BaseI18n.fallbackRootKey: private ChunkKey
 member BaseI18n.formatArgs: private <O extends object>(kind: "number" | "datetime", [keyOrOptions, localeOrOverrides, overrides]: FormatArgs<O>) => [string, O | undefined]
 member BaseI18n.formatter: FormatService
 member BaseI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -13,9 +15,9 @@ member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { local
 member BaseI18n.getRoute: () => string
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
-member BaseI18n.layered: private [lower: object, upper: object, tree: Translations] | null
-member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, _merge: boolean) => void
+member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
 member BaseI18n.onTranslationsChanged: protected () => void
@@ -36,6 +38,7 @@ member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member BaseI18n.write: private (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -98,6 +101,7 @@ interface ReactiveI18nStoreOptions
 member ReactiveI18nStoreOptions.fallbackLocale?: string | undefined
 member ReactiveI18nStoreOptions.locale: string
 member ReactiveI18nStoreOptions.route?: string | undefined
+function resolveCachedTranslation: (tree: Tree | null | undefined, key: string) => unknown | null
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 function translationCacheKey: (locale: string, routeName?: string) => string
@@ -152,3 +156,22 @@ member I18nDevtoolsStateSnapshot.locales: { code: string; displayName?: string; 
 member I18nDevtoolsStateSnapshot.routeName: string
 member I18nDevtoolsStateSnapshot.strategy?: string | undefined
 function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }
+
+# ./helpers (src/helpers.ts)
+function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string) => void
+const defaultPlural: PluralFunc
+function getByPath: (obj: Tree | null | undefined, path: string) => unknown
+function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
+function interpolate: (template: string, params: Params) => string
+const isNoPrefixStrategy: (strategy: Strategies) => boolean
+const isPrefixAndDefaultStrategy: (strategy: Strategies) => boolean
+const isPrefixExceptDefaultStrategy: (strategy: Strategies) => boolean
+const isPrefixStrategy: (strategy: Strategies) => boolean
+function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
+interface MergeTranslationChunkOptions
+member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
+function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
+function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
+function translationCacheKey: (locale: string, routeName?: string) => string
+const withPrefixStrategy: (strategy: Strategies) => boolean

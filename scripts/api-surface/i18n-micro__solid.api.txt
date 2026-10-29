@@ -115,10 +115,13 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class SolidI18n
 member SolidI18n._fallbackSignal: private Accessor<string>
 member SolidI18n._localeSignal: private Accessor<string>
+member SolidI18n._revision: private Accessor<number>
 member SolidI18n._routeSignal: private Accessor<string>
 member SolidI18n._setLocaleSignal: private (v: string) => void
+member SolidI18n._setRevision: private (v: number) => void
 member SolidI18n._setRouteSignal: private (v: string) => void
 member SolidI18n.activeKey: private any
+member SolidI18n.activeRootKey: private any
 member SolidI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.clearCache: () => void
@@ -126,6 +129,7 @@ member SolidI18n.currentRoute: string
 member SolidI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../solid/src").SolidI18n & M>) => import("../../solid/src").SolidI18n & M
 member SolidI18n.fallbackKey: private any
 member SolidI18n.fallbackLocale: string
+member SolidI18n.fallbackRootKey: private any
 member SolidI18n.formatArgs: private any
 member SolidI18n.formatter: FormatService
 member SolidI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -136,12 +140,12 @@ member SolidI18n.getRoute: () => string
 member SolidI18n.getSnapshot: () => string
 member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.helper: TranslationHelper
-member SolidI18n.layered: private any
 member SolidI18n.listeners: private Set<() => void>
-member SolidI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, _merge: boolean) => void
+member SolidI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member SolidI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member SolidI18n.locale: string
 member SolidI18n.localeAccessor: Accessor<string>
+member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.notifyListeners: private () => void
@@ -168,13 +172,16 @@ member SolidI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member SolidI18n.warnDev: protected (message: string) => void
 member SolidI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member SolidI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member SolidI18n.write: private any
 member SolidI18n.new: (options: SolidI18nOptions): SolidI18n
 interface SolidI18nOptions
+member SolidI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member SolidI18nOptions.fallbackLocale?: string | undefined
 member SolidI18nOptions.locale: string
 member SolidI18nOptions.messages?: Record<string, Translations> | undefined
 member SolidI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18nOptions.missingWarn?: boolean | undefined
+member SolidI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member SolidI18nOptions.plural?: PluralFunc | undefined
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface Translations

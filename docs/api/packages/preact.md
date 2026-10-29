@@ -46,8 +46,8 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 52 members |
-| `PreactI18nOptions` | interface | 7 members |
+| `PreactI18n` | class | 55 members |
+| `PreactI18nOptions` | interface | 9 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
@@ -1409,11 +1409,12 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 52 members</summary>
+<summary><code>PreactI18n</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
@@ -1422,6 +1423,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `fallbackRootKey` | `private any` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -1433,13 +1435,13 @@ import { /* … */ } from '@i18n-micro/preact'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
-| `layered` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): PreactI18n` |
@@ -1465,19 +1467,22 @@ import { /* … */ } from '@i18n-micro/preact'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 
 <details>
-<summary><code>PreactI18nOptions</code> — 7 members</summary>
+<summary><code>PreactI18nOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 

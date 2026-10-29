@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
-import { mergeRouteTranslationsWithRoot, storeLoadedTranslationFile, type TranslationFileBuckets } from '@i18n-micro/utils/parse-path'
+import { storeLoadedTranslationFile, type TranslationFileBuckets } from '@i18n-micro/utils/parse-path'
 
 /**
  * WARNING: Node.js-only functions
@@ -100,7 +100,7 @@ export function loadTranslationsIntoI18n(
 
   for (const [routeName, routeTranslations] of Object.entries(routes)) {
     for (const [locale, translations] of Object.entries(routeTranslations)) {
-      i18n.addRouteTranslations(locale, routeName, mergeRouteTranslationsWithRoot(root[locale], translations), false)
+      i18n.addRouteTranslations(locale, routeName, translations, false)
     }
   }
 }

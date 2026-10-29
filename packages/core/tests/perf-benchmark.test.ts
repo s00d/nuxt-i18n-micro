@@ -21,7 +21,7 @@ import {
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
   withPrefixStrategy,
-} from '../src/helpers-entry'
+} from '../src/helpers'
 import { useTranslationHelper } from '../src/storage'
 import { afterAll, describe, expect, test } from 'vitest'
 

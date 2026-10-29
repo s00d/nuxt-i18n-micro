@@ -42,8 +42,8 @@ import { /* … */ } from '@i18n-micro/vue'
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue").Ref<{ htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }, MetaObject \| { htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 54 members |
-| `VueI18nOptions` | interface | 6 members |
+| `VueI18n` | class | 57 members |
+| `VueI18nOptions` | interface | 8 members |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 
@@ -69,7 +69,7 @@ import { /* … */ } from '@i18n-micro/vue'
 </details>
 
 <details>
-<summary><code>VueI18n</code> — 54 members</summary>
+<summary><code>VueI18n</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -78,6 +78,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `_locale` | `private Ref<string, string>` |
 | `_revision` | `private Ref<number, number>` |
 | `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
@@ -85,6 +86,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../vue/src").VueI18n & M>) => import("../../vue/src").VueI18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `Ref<string, string>` |
+| `fallbackRootKey` | `private any` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -96,11 +98,11 @@ import { /* … */ } from '@i18n-micro/vue'
 | `getStorage` | `() => TranslationStorage` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
-| `layered` | `private any` |
 | `listeners` | `private Set<() => void>` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `Ref<string, string>` |
+| `lookupLocale` | `private any` |
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
@@ -127,10 +129,11 @@ import { /* … */ } from '@i18n-micro/vue'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 
-<code>VueI18nOptions</code> — 6 members, identical to [`SolidI18nOptions`](/api/packages/solid).
+<code>VueI18nOptions</code> — 8 members, identical to [`SolidI18nOptions`](/api/packages/solid).
 ## `@i18n-micro/vue/router`
 
 ```ts

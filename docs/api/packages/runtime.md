@@ -23,8 +23,8 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 52 members |
-| `I18nOptions` | interface | 7 members |
+| `I18n` | class | 55 members |
+| `I18nOptions` | interface | 9 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
 | `LoadFromUrlOptions` | interface | 3 members |
@@ -38,11 +38,12 @@ import { /* … */ } from '@i18n-micro/runtime'
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 52 members</summary>
+<summary><code>I18n</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
@@ -51,6 +52,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `fallbackRootKey` | `private any` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -62,13 +64,13 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
-| `layered` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
@@ -94,10 +96,11 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 
-<code>I18nOptions</code> — 7 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+<code>I18nOptions</code> — 9 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 
 <details>
 <summary><code>LoadFromUrlEntry</code> — 4 members</summary>

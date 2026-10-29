@@ -45,6 +45,11 @@ function isProduction(): boolean {
   }
 }
 
+/** Layered dumps by their layers: stored trees are never mutated, so identity is enough. */
+const LAYERED = new WeakMap<object, WeakMap<object, Translations>>()
+
+const isRootRoute = (route: string): boolean => route === 'index' || route === ''
+
 type FormatArgs<O> = [keyOrOptions?: string | O, localeOrOverrides?: string | O, overrides?: O]
 
 /**
@@ -61,9 +66,9 @@ export abstract class BaseI18n {
   public getCustomMissingHandler?: () => MissingHandler | null
 
   private activeKey = new ChunkKey()
+  private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()
-  /** Last {@link resolveTranslationTree} result: stored trees are never mutated, so identity is enough. */
-  private layered: [lower: object, upper: object, tree: Translations] | null = null
+  private fallbackRootKey = new ChunkKey()
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = new TranslationHelper(options.storage)
@@ -88,45 +93,57 @@ export abstract class BaseI18n {
     return typeof routeContext === 'string' ? routeContext : this.getRoute()
   }
 
-  /** Value of `key` in the active locale, then the fallback locale; `null` when neither has it. */
+  /**
+   * Value of `key`, `null` when nothing has it. Layers, first hit wins: the route's chunk, the
+   * locale's root (`index`) chunk, then the same two in the fallback locale. A route chunk holds
+   * only its own keys: root keys are read from the root chunk, never copied into every route.
+   */
   protected resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
     const locale = this.getLocale()
     const route = this.resolveRouteName(routeContext)
     const name = String(key)
-    const value = this.helper.lookup(this.activeKey.of(locale, route), name)
-    const fallback = value === null ? this.getFallbackLocale() : locale
-    return fallback === locale ? value : this.helper.lookup(this.fallbackKey.of(fallback, route), name)
+    const own = this.lookupLocale(locale, route, name, this.activeKey, this.activeRootKey)
+    if (own !== null) return own
+    const fallback = this.getFallbackLocale()
+    return fallback === locale ? null : this.lookupLocale(fallback, route, name, this.fallbackKey, this.fallbackRootKey)
   }
 
-  /** Whether the active locale itself (not the fallback) defines `key`. */
+  private lookupLocale(locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey): unknown | null {
+    const value = this.helper.lookup(page.of(locale, route), name)
+    return value !== null || isRootRoute(route) ? value : this.helper.lookup(root.of(locale, 'index'), name)
+  }
+
+  /** Whether the active locale itself (its route or root chunk, not the fallback) defines `key`. */
   protected resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
-    return this.helper.lookup(this.activeKey.of(this.getLocale(), this.resolveRouteName(routeContext)), String(key)) !== null
+    return this.lookupLocale(this.getLocale(), this.resolveRouteName(routeContext), String(key), this.activeKey, this.activeRootKey) !== null
   }
 
-  /** Two live layers as one tree, via {@link mergeTranslationLayers}; reused while both layers are the same objects. */
+  /** Two live layers as one tree, via {@link mergeTranslationLayers}; reused while both are the same objects. */
   protected resolveTranslationTree(lower: Record<string, unknown>, upper: Record<string, unknown>): Translations {
-    const last = this.layered
-    if (last && last[0] === lower && last[1] === upper) return last[2]
-    const tree = mergeTranslationLayers(lower, upper) as Translations
-    this.layered = [lower, upper, tree]
+    let byUpper = LAYERED.get(lower)
+    if (!byUpper) LAYERED.set(lower, (byUpper = new WeakMap()))
+    let tree = byUpper.get(upper)
+    if (!tree) byUpper.set(upper, (tree = mergeTranslationLayers(lower, upper) as Translations))
     return tree
   }
 
-  /**
-   * Everything `t()` can resolve right now for the active locale and route: the live chunk
-   * (read-only) or, with a fallback locale loaded, both layers merged.
-   */
+  /** Everything `t()` can resolve right now for the active locale and route: its layers as one tree (read-only). */
   public resolveTranslations(routeContext?: unknown): Translations {
     this.touch()
     const locale = this.getLocale()
     const route = this.resolveRouteName(routeContext)
-    const active = (this.helper.getCache(locale, route) ?? {}) as Tree
-    const fallbackLocale = this.getFallbackLocale()
-    const fallback = fallbackLocale === locale ? undefined : (this.helper.getCache(fallbackLocale, route) as Tree | undefined)
-    return fallback ? this.resolveTranslationTree(fallback, active) : (active as Translations)
+    const fallback = this.getFallbackLocale()
+    const locales = fallback === locale ? [locale] : [fallback, locale]
+    const layers = locales
+      .flatMap((code) =>
+        isRootRoute(route) ? [this.helper.getCache(code, 'index')] : [this.helper.getCache(code, 'index'), this.helper.getCache(code, route)],
+      )
+      .filter((tree): tree is Translations => tree !== undefined)
+    if (layers.length === 0) return {} as Translations
+    return layers.reduce((lower, upper) => this.resolveTranslationTree(lower as Tree, upper as Tree))
   }
 
-  /** Called after {@link setTranslation}; adapters bump their reactivity here. */
+  /** Called after every write (load, merge, set, clear): the one place adapters bump their reactivity. */
   protected onTranslationsChanged(): void {}
 
   protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
@@ -227,18 +244,23 @@ export abstract class BaseI18n {
   public clearCache(): void {
     this.helper.clearCache()
     this.formatter.clearCache()
-    this.layered = null
+    this.onTranslationsChanged()
   }
 
   /** Load root translations: deep-merge, or replace the chunk when `merge` is false. */
   public loadTranslationsCore(locale: string, translations: Translations, merge: boolean, routeName = 'index'): void {
-    if (merge) this.helper.mergeTranslation(locale, routeName, translations)
-    else this.helper.setTranslations(locale, translations, routeName)
+    this.write(locale, routeName, translations, merge)
   }
 
-  /** Load route translations (always merged into an existing non-empty chunk). */
-  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, _merge: boolean): void {
-    this.helper.mergeTranslation(locale, routeName, translations)
+  /** Load a route's own translations (root keys come from the root chunk): deep-merge, or replace when `merge` is false. */
+  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, merge: boolean): void {
+    this.write(locale, routeName, translations, merge)
+  }
+
+  private write(locale: string, routeName: string, translations: Translations, merge: boolean): void {
+    if (merge) this.helper.mergeTranslation(locale, routeName, translations)
+    else this.helper.setTranslations(locale, translations, routeName)
+    this.onTranslationsChanged()
   }
 
   /** Attach framework-specific helpers onto this instance (`localizePath`, …). */

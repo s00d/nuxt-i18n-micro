@@ -83,6 +83,7 @@ member MergeSourceTranslationsInput.readLocaleFile: (relativePath: string) => Re
 function mergeTranslationsFromFallbackChain: (chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown>, relativePathForLocale: (localeCode: string) => string) => Record<string, unknown>
 function mergeTranslationsFromFallbackChainAsync: (chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>
 function normalizeConfiguredLocales: (locales: Array<string | Locale> | undefined) => SourceLocaleInfo[]
+const PREMERGED_ROOT_PAGE: "__root"
 function resolveSourcePageName: (pageName: string, disablePageLocales?: boolean) => string
 interface SourceLocaleInfo
 member SourceLocaleInfo.code: string

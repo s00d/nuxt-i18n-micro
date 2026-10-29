@@ -25,6 +25,7 @@ member FormatService.new: (options?: FormatServiceOptions | undefined): FormatSe
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 class I18n
 member I18n.activeKey: private any
+member I18n.activeRootKey: private any
 member I18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member I18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member I18n.clear: () => void
@@ -33,6 +34,7 @@ member I18n.currentRoute: string
 member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M
 member I18n.fallbackKey: private any
 member I18n.fallbackLocale: string
+member I18n.fallbackRootKey: private any
 member I18n.formatArgs: private any
 member I18n.formatter: FormatService
 member I18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -44,13 +46,13 @@ member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: TranslationHelper
-member I18n.layered: private any
 member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member I18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, _merge: boolean) => void
+member I18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member I18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member I18n.locale: string
+member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected () => void
@@ -75,13 +77,16 @@ member I18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, ro
 member I18n.warnDev: protected (message: string) => void
 member I18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member I18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member I18n.write: private any
 member I18n.new: (options: I18nOptions): I18n
 interface I18nOptions
+member I18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
 member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 function interpolate: (template: string, params: Params) => string

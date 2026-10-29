@@ -85,7 +85,7 @@ describe('ReactI18n reactive store', () => {
     i18n.setRoute('about')
     expect(i18n.t('title')).toBe('About us')
     // Global messages remain available on route-scoped pages (key fallback when missing on route)
-    expect(i18n.t('greeting')).toBe('greeting')
+    expect(i18n.t('greeting')).toBe('Hello')
   })
 
   test('clearCache notifies subscribers', () => {

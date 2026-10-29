@@ -54,15 +54,7 @@ export class TranslationHelper {
   /** Lookup by a ready chunk key (hot path: callers reuse the key string). */
   lookup(chunkKey: string, key: string): unknown | null {
     const tree = this.translations.get(chunkKey)
-    if (tree === undefined) return null
-    const leaves = this.leavesOf(tree)
-    const cached = leaves.get(key)
-    if (cached !== undefined) return cached
-    const value = resolveTranslation(tree as Tree, key)
-    if (value === null) return null
-    if (leaves.size >= LEAF_LIMIT) leaves.clear()
-    leaves.set(key, value)
-    return value
+    return tree === undefined ? null : resolveIn(this.leavesOf(tree), tree as Tree, key)
   }
 
   private leavesOf(tree: Translations): Map<string, unknown> {
@@ -114,6 +106,27 @@ export class TranslationHelper {
     this.lastTree = undefined
     this.lastLeaves = new Map()
   }
+}
+
+function resolveIn(leaves: Map<string, unknown>, tree: Tree, key: string): unknown | null {
+  const cached = leaves.get(key)
+  if (cached !== undefined) return cached
+  const value = resolveTranslation(tree, key)
+  if (value === null) return null
+  if (leaves.size >= LEAF_LIMIT) leaves.clear()
+  leaves.set(key, value)
+  return value
+}
+
+/**
+ * `resolveTranslation` with the same per-tree leaf cache the helper uses, for adapters that keep
+ * their own trees (Nuxt's active dictionary). The tree must never be mutated after it is read.
+ */
+export function resolveCachedTranslation(tree: Tree | null | undefined, key: string): unknown | null {
+  if (!tree) return null
+  let leaves = LEAVES.get(tree)
+  if (leaves === undefined) LEAVES.set(tree, (leaves = new Map()))
+  return resolveIn(leaves, tree, key)
 }
 
 export function useTranslationHelper(storage?: TranslationStorage): TranslationHelper {

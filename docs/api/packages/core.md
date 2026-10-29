@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-39 exports across 2 entry points.
+56 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 37 members |
+| `BaseI18n` | class | 40 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
@@ -39,6 +39,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `ReactiveI18nStoreOptions` | interface | 3 members |
+| `resolveCachedTranslation` | function | `(tree: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
@@ -48,14 +49,16 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
 
 <details>
-<summary><code>BaseI18n</code> — 37 members</summary>
+<summary><code>BaseI18n</code> — 40 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private ChunkKey` |
+| `activeRootKey` | `private ChunkKey` |
 | `clearCache` | `() => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M` |
 | `fallbackKey` | `private ChunkKey` |
+| `fallbackRootKey` | `private ChunkKey` |
 | `formatArgs` | `private <O extends object>(kind: "number" \| "datetime", [keyOrOptions, localeOrOverrides, overrides]: FormatArgs<O>) => [string, O \| undefined]` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -65,9 +68,9 @@ import { /* … */ } from '@i18n-micro/core'
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
-| `layered` | `private [lower: object, upper: object, tree: Translations] \| null` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
+| `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
@@ -89,6 +92,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private (locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 
 </details>
 
@@ -273,5 +277,31 @@ import { /* … */ } from '@i18n-micro/core/devtools'
 | `strategy?` | `string \| undefined` |
 
 </details>
+## `@i18n-micro/core/helpers`
+
+```ts
+import { /* … */ } from '@i18n-micro/core/helpers'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string) => void` |
+| `defaultPlural` | const | `PluralFunc` |
+| `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
+| `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
+| `interpolate` | function | `(template: string, params: Params) => string` |
+| `isNoPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
+| `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
+| `isPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
+| `MergeTranslationChunkOptions` | interface | 1 members |
+| `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
+| `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
+| `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
+| `withPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+
+<code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

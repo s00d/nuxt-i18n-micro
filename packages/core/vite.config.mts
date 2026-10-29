@@ -23,7 +23,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
-        helpers: resolve(import.meta.dirname, 'src/helpers-entry.ts'),
+        helpers: resolve(import.meta.dirname, 'src/helpers.ts'),
         devtools: resolve(import.meta.dirname, 'src/devtools-entry.ts'),
       },
       formats: ['cjs', 'es'],

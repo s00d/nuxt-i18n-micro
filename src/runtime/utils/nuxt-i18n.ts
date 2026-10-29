@@ -2,7 +2,7 @@ import {
   BaseI18n,
   isNoPrefixStrategy,
   mergeTranslationChunk,
-  resolveTranslation,
+  resolveCachedTranslation,
   setTranslationAtKey,
   translationCacheKey,
   type BaseI18nOptions,
@@ -321,10 +321,11 @@ export class NuxtI18n extends BaseI18n {
           })()
         : this.cachedTranslations
 
-    const value = resolveTranslation(translations, String(key))
+    // every dictionary here is replaced, never edited: the per-tree leaf cache stays valid
+    const value = resolveCachedTranslation(translations, String(key))
     if (value !== null || translations !== this.cachedTranslations) return value
 
-    return this.outgoingTranslations === null ? null : resolveTranslation(this.outgoingTranslations, String(key))
+    return this.outgoingTranslations === null ? null : resolveCachedTranslation(this.outgoingTranslations, String(key))
   }
 
   protected override resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
@@ -579,6 +580,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     clearCache: () => {
       translationStorage.clear()
       i18n.clearCache()
+      // reload the page's dictionary: an emptied one renders raw keys until the next navigation
+      void loader.switchContext(i18n.getCurrentLocale(), i18n.getCurrentRouteName() || undefined)
     },
     switchLocalePath: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike

@@ -8,7 +8,7 @@
 
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
-import { normalizeConfiguredLocales, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
+import { normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
@@ -73,7 +73,9 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
         },
       )
     } else {
-      data = toTranslations(await readPayload(toPremergedStorageKey(resolvedPage, locale)))
+      // a page payload always carries the root keys: an empty one means the page has no folder
+      const page = toTranslations(await readPayload(toPremergedStorageKey(resolvedPage, locale)))
+      data = Object.keys(page).length ? page : toTranslations(await readPayload(toPremergedStorageKey(PREMERGED_ROOT_PAGE, locale)))
     }
   }
 

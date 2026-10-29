@@ -1,4 +1,11 @@
-import { BaseI18n, createReactiveI18nStore, type ReactiveI18nStore, type TranslationStorage } from '@i18n-micro/core'
+import {
+  BaseI18n,
+  createReactiveI18nStore,
+  type DateTimeFormatsConfig,
+  type NumberFormatsConfig,
+  type ReactiveI18nStore,
+  type TranslationStorage,
+} from '@i18n-micro/core'
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 import { createSignal, type Accessor } from 'solid-js'
 
@@ -9,6 +16,10 @@ export interface SolidI18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  /** Named number formats per locale (`tn(n, 'currency')`). */
+  numberFormats?: NumberFormatsConfig
+  /** Named datetime formats per locale (`td(d, 'short')`). */
+  datetimeFormats?: DateTimeFormatsConfig
 }
 
 export class SolidI18n extends BaseI18n {
@@ -18,6 +29,8 @@ export class SolidI18n extends BaseI18n {
   private readonly _routeSignal: Accessor<string>
   private readonly _setRouteSignal: (v: string) => void
   private readonly _fallbackSignal: Accessor<string>
+  private readonly _revision: Accessor<number>
+  private readonly _setRevision: (v: number) => void
 
   public readonly storage: TranslationStorage
 
@@ -31,6 +44,8 @@ export class SolidI18n extends BaseI18n {
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
     })
 
     this.storage = storage
@@ -42,6 +57,9 @@ export class SolidI18n extends BaseI18n {
     const [locale, setLocale] = createSignal(options.locale)
     const [fallback] = createSignal(options.fallbackLocale || options.locale)
     const [route, setRoute] = createSignal('index')
+    const [revision, setRevision] = createSignal(0)
+    this._revision = revision
+    this._setRevision = setRevision
 
     this._localeSignal = locale
     this._setLocaleSignal = setLocale
@@ -106,24 +124,22 @@ export class SolidI18n extends BaseI18n {
   }
 
   public addTranslations(locale: string, translations: Translations, merge = true): void {
-    super.loadTranslationsCore(locale, translations, merge)
-    this.store.notify()
-    this.notifyListeners()
+    this.loadTranslationsCore(locale, translations, merge)
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-    this.store.notify()
-    this.notifyListeners()
+    this.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
 
-  public override clearCache(): void {
-    super.clearCache()
-    this.store.notify()
-    this.notifyListeners()
+  /** Reads track locale, route and the translation revision, so effects calling `t()` re-run. */
+  protected override touch(): void {
+    this._localeSignal()
+    this._routeSignal()
+    this._revision()
   }
 
   protected override onTranslationsChanged(): void {
+    this._setRevision(this._revision() + 1)
     this.store.notify()
     this.notifyListeners()
   }

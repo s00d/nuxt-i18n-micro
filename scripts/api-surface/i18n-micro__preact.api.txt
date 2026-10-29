@@ -1387,6 +1387,7 @@ type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class PreactI18n
 member PreactI18n.activeKey: private any
+member PreactI18n.activeRootKey: private any
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.clear: () => void
@@ -1395,6 +1396,7 @@ member PreactI18n.currentRoute: string
 member PreactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M
 member PreactI18n.fallbackKey: private any
 member PreactI18n.fallbackLocale: string
+member PreactI18n.fallbackRootKey: private any
 member PreactI18n.formatArgs: private any
 member PreactI18n.formatter: FormatService
 member PreactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -1406,13 +1408,13 @@ member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.hasTranslation: (key: TranslationKey) => boolean
 member PreactI18n.helper: TranslationHelper
-member PreactI18n.layered: private any
 member PreactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member PreactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, _merge: boolean) => void
+member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
+member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected () => void
@@ -1437,13 +1439,16 @@ member PreactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: stri
 member PreactI18n.warnDev: protected (message: string) => void
 member PreactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member PreactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member PreactI18n.write: private any
 member PreactI18n.new: (options: I18nOptions): PreactI18n
 interface PreactI18nOptions
+member PreactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member PreactI18nOptions.fallbackLocale?: string | undefined
 member PreactI18nOptions.locale: string
 member PreactI18nOptions.messages?: Record<string, Translations> | undefined
 member PreactI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18nOptions.missingWarn?: boolean | undefined
+member PreactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member PreactI18nOptions.plural?: PluralFunc | undefined
 member PreactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})

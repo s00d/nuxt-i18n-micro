@@ -13,7 +13,7 @@ import {
   collectTranslationPaths,
   translationCacheKey,
   withPrefixStrategy,
-} from '../src/helpers-entry'
+} from '../src/helpers'
 import { describe, expect, test } from 'vitest'
 
 describe('Helpers', () => {

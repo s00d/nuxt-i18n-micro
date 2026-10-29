@@ -4,6 +4,7 @@ member AstroI18n._currentRoute: private string
 member AstroI18n._fallbackLocale: private string
 member AstroI18n._locale: private string
 member AstroI18n.activeKey: private any
+member AstroI18n.activeRootKey: private any
 member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.clearCache: () => void
@@ -11,6 +12,7 @@ member AstroI18n.clone: (newLocale?: string) => AstroI18n
 member AstroI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../astro/src").AstroI18n & M>) => import("../../astro/src").AstroI18n & M
 member AstroI18n.fallbackKey: private any
 member AstroI18n.fallbackLocale: string
+member AstroI18n.fallbackRootKey: private any
 member AstroI18n.formatArgs: private any
 member AstroI18n.formatter: FormatService
 member AstroI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -22,10 +24,10 @@ member AstroI18n.getRouteTranslations: (locale: string, routeName: string) => Tr
 member AstroI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member AstroI18n.helper: TranslationHelper
 member AstroI18n.initialMessages: private Record<string, Translations>
-member AstroI18n.layered: private any
-member AstroI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, _merge: boolean) => void
+member AstroI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member AstroI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member AstroI18n.locale: string
+member AstroI18n.lookupLocale: private any
 member AstroI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member AstroI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member AstroI18n.missingWarn: boolean
@@ -49,6 +51,7 @@ member AstroI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member AstroI18n.warnDev: protected (message: string) => void
 member AstroI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member AstroI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member AstroI18n.write: private any
 member AstroI18n.new: (options: AstroI18nOptions): AstroI18n
 interface AstroI18nOptions
 member AstroI18nOptions._storage?: TranslationStorage | undefined

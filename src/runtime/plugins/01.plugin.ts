@@ -22,6 +22,7 @@ import type {
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
+import { appPageTransition } from '#build/nuxt.config.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
@@ -80,8 +81,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   })
 
-  nuxtApp.hook('page:transition:finish', () => {
-    i18n.finishTransition()
+  // The leaving page's keys stay resolvable until it is gone: the end of its page transition,
+  // or — when the route has none — as soon as the new page has rendered.
+  nuxtApp.hook('page:transition:finish', () => i18n.finishTransition())
+  nuxtApp.hook('page:finish', () => {
+    const transition = router.currentRoute.value.meta.pageTransition ?? appPageTransition
+    if (!transition) i18n.finishTransition()
   })
 
   const loadOptions = {

@@ -1,5 +1,5 @@
 import type { Locale, PluralFunc, Translations } from '@i18n-micro/types'
-import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
+
 import { createI18n as createVueI18n, type I18nPlugin } from '@i18n-micro/vue'
 import type { App, Ref } from 'vue'
 import { createVitePressRouterAdapter, type PathMethods, type VitePressRouterAdapter, type VitePressRouterLike } from '../router/adapter'
@@ -55,7 +55,7 @@ function applyRouteMessages(
   if (!routeMessages) return
   for (const [routeName, byLocale] of Object.entries(routeMessages)) {
     for (const [locale, translations] of Object.entries(byLocale)) {
-      plugin.global.addRouteTranslations(locale, routeName, mergeRouteTranslationsWithRoot(root?.[locale], translations), false)
+      plugin.global.addRouteTranslations(locale, routeName, translations, false)
     }
   }
 }
@@ -139,6 +139,7 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
       if (plugin.global.getLocale() !== nextLocale) {
         plugin.global.locale = nextLocale
       }
+      // the route is a page's name only when it has a dictionary (root keys resolve either way)
       const derived = adapter.routeNameFromPath(path)
       plugin.global.setRoute(pageRouteNames.has(derived) ? derived : 'index')
     }

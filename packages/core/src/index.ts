@@ -1,5 +1,5 @@
 export { BaseI18n, type BaseI18nOptions } from './base'
 export { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-export * from './helpers-entry'
+export * from './helpers'
 export { createReactiveI18nStore, type ReactiveI18nStore, type ReactiveI18nStoreOptions } from './reactive-store'
-export { TranslationHelper, type TranslationStorage, useTranslationHelper } from './storage'
+export { resolveCachedTranslation, TranslationHelper, type TranslationStorage, useTranslationHelper } from './storage'

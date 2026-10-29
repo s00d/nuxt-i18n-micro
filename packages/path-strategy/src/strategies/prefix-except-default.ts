@@ -412,31 +412,39 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     hasParams: boolean,
   ): RouteLike | null {
     const router = this.ctx.router
-    const baseName = this.getRouteBaseName({ name: inputName }) ?? inputName
-    let route: RouteLike | null = null
+    const strippedName = this.getRouteBaseName({ name: inputName }) ?? inputName
+    // A page may itself be named `localized-x`: try the input name as the base first, the
+    // name with the localized prefix/suffix stripped only as a fallback.
+    const candidates = strippedName === inputName ? [inputName] : [inputName, strippedName]
     if (needsPrefix) {
       const prefix = this.getLocalizedRouteNamePrefix()
-      route = hasParams
-        ? tryResolveByLocalizedNameWithParams(router, prefix, baseName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
-        : tryResolveByLocalizedName(router, prefix, baseName, targetLocale, sourceRoute)
-    } else if (router.hasRoute(baseName)) {
-      try {
-        const res = router.resolve({ name: baseName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
-        if (res?.path) {
-          route = {
-            name: baseName,
-            path: res.path,
-            fullPath: res.fullPath,
-            params: res.params,
-            query: res.query ?? sourceRoute.query,
-            hash: res.hash ?? sourceRoute.hash,
-          }
-        }
-      } catch {
-        route = null
+      for (const baseName of candidates) {
+        const route = hasParams
+          ? tryResolveByLocalizedNameWithParams(router, prefix, baseName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
+          : tryResolveByLocalizedName(router, prefix, baseName, targetLocale, sourceRoute)
+        if (route !== null) return isTrustedRouterRoute(this, route, baseName) ? route : null
       }
+      return null
     }
-    return route !== null && isTrustedRouterRoute(this, route, baseName) ? route : null
+    // Default locale: the base route. A localized input name (`localized-about-de`) is
+    // another locale's route, so its stripped base name wins when that route exists.
+    const baseName = router.hasRoute(strippedName) ? strippedName : router.hasRoute(inputName) ? inputName : null
+    if (baseName === null) return null
+    try {
+      const res = router.resolve({ name: baseName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
+      if (!res?.path) return null
+      const route: RouteLike = {
+        name: baseName,
+        path: res.path,
+        fullPath: res.fullPath,
+        params: res.params,
+        query: res.query ?? sourceRoute.query,
+        hash: res.hash ?? sourceRoute.hash,
+      }
+      return isTrustedRouterRoute(this, route, baseName) ? route : null
+    } catch {
+      return null
+    }
   }
 
   private resolveLocaleRouteFallback(

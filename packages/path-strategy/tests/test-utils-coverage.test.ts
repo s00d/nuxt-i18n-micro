@@ -24,6 +24,13 @@ describe('makeRouterAdapter', () => {
       expect(router.resolve('/en/nachrichten/7').name).toBeNull()
     })
 
+    test('picks the most specific matching route, not the first declared', () => {
+      const router = makeRouterAdapter({ 'products-id': '/products/:id', 'products-new': '/products/new' })
+
+      expect(router.resolve('/products/new').name).toBe('products-new')
+      expect(router.resolve('/products/5')).toMatchObject({ name: 'products-id', params: { id: '5' } })
+    })
+
     test('an unmatched string path resolves to no route instead of throwing', () => {
       const router = makeRouterAdapter(['known-route'], { throwOnUnknownName: true })
 

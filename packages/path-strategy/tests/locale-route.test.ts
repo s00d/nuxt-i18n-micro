@@ -164,6 +164,15 @@ describe('localeRoute - prefix_except_default', () => {
   })
 })
 
+describe('localeRoute - prefix_except_default, page named like a localized route', () => {
+  test('a page literally named localized-product resolves through its own localized route', () => {
+    const router = makeRouterAdapter({ 'localized-product': '/product-en', 'localized-localized-product-de': '/:locale(de)/produkt' })
+    const strategy = createPathStrategy(makeCtx('prefix_except_default', { router, globalLocaleRoutes: { other: { de: '/x' } } }))
+    expect(strategy.localeRoute('de', { name: 'localized-product' }).path).toBe('/de/produkt')
+    expect(strategy.localeRoute('en', { name: 'localized-product' }).path).toBe('/product-en')
+  })
+})
+
 describe('localeRoute - prefix_and_default', () => {
   test('string path: all locales get prefix', () => {
     const strategy = createPathStrategy(makeCtx('prefix_and_default'))

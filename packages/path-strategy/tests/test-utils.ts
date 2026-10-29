@@ -48,6 +48,23 @@ function matchTemplate(template: string, path: string): Record<string, string> |
   return params
 }
 
+/** Per-segment specificity, vue-router style: static > param with regex > param > optional / catch-all. */
+function rankTemplate(template: string): number[] {
+  return template
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => {
+      if (!segment.includes(':')) return 4
+      if (/[?*]$|\(\)/.test(segment)) return 1
+      return /\([^)]+\)/.test(segment) ? 3 : 2
+    })
+}
+
+function compareRank(a: number[], b: number[]): number {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i]! - b[i]!
+  return a.length - b.length
+}
+
 /**
  * Router double that behaves like vue-router for the parts strategies use:
  * - `resolve({ name, params })` fills the route's path template and throws on a missing
@@ -62,11 +79,17 @@ export const makeRouterAdapter = (routes: RouteTable = [], options: MakeRouterAd
   const names = Object.keys(table)
 
   const byPath = (path: string, route?: RouteLike) => {
+    // Like vue-router, the most specific matching record wins, not the first declared.
+    let best: { name: string; params: Record<string, string>; rank: number[] } | null = null
     for (const name of names) {
       const template = table[name]
       const params = template ? matchTemplate(template, path) : null
-      if (params) return { name, path, fullPath: route?.fullPath ?? path, params, query: route?.query ?? {}, hash: route?.hash ?? '' }
+      if (!params) continue
+      const rank = rankTemplate(template!)
+      if (!best || compareRank(rank, best.rank) > 0) best = { name, params, rank }
     }
+    if (best)
+      return { name: best.name, path, fullPath: route?.fullPath ?? path, params: best.params, query: route?.query ?? {}, hash: route?.hash ?? '' }
     return { name: null, path, fullPath: route?.fullPath ?? path, params: route?.params ?? {}, query: route?.query ?? {}, hash: route?.hash ?? '' }
   }
 

@@ -1,476 +1,116 @@
 /**
- * Performance benchmark tests for path utilities and strategies.
- *
- * - Results are saved to tests/__perf__/baseline.json after each run.
- * - On subsequent runs the current results are compared against the saved baseline.
- * - If any metric drops by more than REGRESSION_THRESHOLD (default 15 %),
- *   the test emits a console.warn AND the individual test fails.
- * - To reset the baseline (e.g. after intentional changes), delete the file
- *   or run with env: PERF_UPDATE_BASELINE=1
+ * Cost of every runtime call on a real vue-router serving a 300-page, 5-locale app built by
+ * route-strategy. `pnpm test:perf` prints µs per call; the budgets are ~10x the measured cost on
+ * a laptop, so only a real regression (an extra path match, a loop over the routes) fails.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import {
-  buildUrl,
-  getCleanPath,
-  getParentPath,
-  getPathSegments,
-  joinUrl,
-  lastPathSegment,
-  nameKeyFirstSlash,
-  nameKeyLastSlash,
-  normalizePath,
-  normalizePathForCompare,
-  parentKeyFromSlashKey,
-  transformNameKeyToPath,
-} from '../src/path'
-import { createPathStrategy } from '../src/strategies/factory'
-import type { PathStrategyContext, ResolvedRouteLike } from '../src/types'
-import { afterAll, describe, expect, test } from 'vitest'
+import { RouteGenerator } from '@i18n-micro/route-strategy'
+import type { Strategies } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
+import { describe, expect, test } from 'vitest'
+import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
+import { createPathStrategy, type ResolvedRouteLike } from '../src'
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
-const ITERATIONS = 50_000
-const WARMUP = 10_000
-const ROUNDS = 9
-const REGRESSION_THRESHOLD = 0.15 // 15 % base — adjusted dynamically for ultra-fast functions
-const BASELINE_DIR = resolve(__dirname, '__perf__')
-const BASELINE_PATH = resolve(BASELINE_DIR, 'baseline.json')
-const UPDATE_BASELINE = process.env.PERF_UPDATE_BASELINE === '1'
-
-// ---------------------------------------------------------------------------
-// Baseline I/O
-// ---------------------------------------------------------------------------
-interface BaselineEntry {
-  opsPerMs: number
-  totalMs: number
-}
-type Baseline = Record<string, BaselineEntry>
-
-function loadBaseline(): Baseline | null {
-  if (!existsSync(BASELINE_PATH)) return null
-  try {
-    return JSON.parse(readFileSync(BASELINE_PATH, 'utf-8')) as Baseline
-  } catch {
-    return null
-  }
+const locales = ['en', 'de', 'fr', 'es', 'it'].map((code) => ({ code }))
+const rules: Record<string, Record<string, string>> = {}
+const pages: NuxtPage[] = [
+  { path: '/', name: 'index', file: 'index.vue' },
+  { path: '/:slug(.*)*', name: 'slug', file: '[...slug].vue' },
+]
+for (let i = 0; i < 100; i++) {
+  pages.push({ path: `/s${i}`, name: `s${i}`, file: `s${i}/index.vue` })
+  pages.push({ path: `/s${i}/:id()`, name: `s${i}-id`, file: `s${i}/[id].vue` })
+  pages.push({ path: `/s${i}/about`, name: `s${i}-about`, file: `s${i}/about.vue` })
+  if (i % 3 === 0) rules[`s${i}/about`] = { de: `/s${i}/ueber`, fr: `/s${i}/a-propos` }
+  if (i % 5 === 0) rules[`s${i}/[id]`] = { de: `/s${i}/eintrag/[id]` }
 }
 
-function saveBaseline(data: Baseline): void {
-  if (!existsSync(BASELINE_DIR)) mkdirSync(BASELINE_DIR, { recursive: true })
-  writeFileSync(BASELINE_PATH, `${JSON.stringify(data, null, 2)}\n`)
-}
+const toRecord = (page: NuxtPage): RouteRecordRaw =>
+  ({
+    path: page.path,
+    name: page.name,
+    meta: page.meta,
+    ...(page.redirect ? { redirect: page.redirect } : { component: {} }),
+    ...(page.alias?.length ? { alias: page.alias } : {}),
+    ...(page.children?.length ? { children: page.children.map(toRecord) } : {}),
+  }) as RouteRecordRaw
 
-// ---------------------------------------------------------------------------
-// Bench helper
-// ---------------------------------------------------------------------------
-interface BenchResult {
-  name: string
-  opsPerMs: number
-  totalMs: number
-}
-
-function bench(name: string, fn: () => void): BenchResult {
-  for (let i = 0; i < WARMUP; i++) fn()
-
-  const samples: number[] = []
-  for (let r = 0; r < ROUNDS; r++) {
+/** Median µs per call over 5 rounds, after a warmup. */
+function measure(n: number, fn: (i: number) => unknown): number {
+  for (let i = 0; i < Math.min(n, 2000); i++) fn(i)
+  const rounds: number[] = []
+  for (let r = 0; r < 5; r++) {
     const start = performance.now()
-    for (let i = 0; i < ITERATIONS; i++) fn()
-    samples.push(performance.now() - start)
+    for (let i = 0; i < n; i++) fn(i)
+    rounds.push(((performance.now() - start) / n) * 1000)
   }
-
-  samples.sort((a, b) => a - b)
-  // Use trimmed mean of the best half — stable against system load spikes
-  const half = Math.max(1, Math.floor(samples.length / 2))
-  let sum = 0
-  for (let i = 0; i < half; i++) sum += samples[i]!
-  const bestHalfMean = sum / half
-  return { name, opsPerMs: ITERATIONS / bestHalfMean, totalMs: bestHalfMean }
+  return rounds.sort((a, b) => a - b)[2]!
 }
 
-// ---------------------------------------------------------------------------
-// Regression checker
-// ---------------------------------------------------------------------------
-const allResults: Baseline = {}
-const regressions: string[] = []
-
-function getThreshold(opsPerMs: number): number {
-  // Ultra-fast functions (>10k ops/ms) have high relative variance from system noise
-  if (opsPerMs > 10_000) return 0.3
-  if (opsPerMs > 5_000) return 0.25
-  return REGRESSION_THRESHOLD
-}
-
-function checkRegression(result: BenchResult, baseline: Baseline | null): void {
-  allResults[result.name] = { opsPerMs: result.opsPerMs, totalMs: result.totalMs }
-
-  if (!baseline || !baseline[result.name]) return
-  const prev = baseline[result.name]!
-  const ratio = result.opsPerMs / prev.opsPerMs
-  const dropPct = (1 - ratio) * 100
-  const threshold = getThreshold(prev.opsPerMs)
-
-  if (ratio < 1 - threshold) {
-    const msg = `⚠ REGRESSION: "${result.name}" — ${result.opsPerMs.toFixed(1)} ops/ms vs baseline ${prev.opsPerMs.toFixed(1)} ops/ms (−${dropPct.toFixed(1)}%)`
-    regressions.push(msg)
-    console.warn(msg)
+function setup(strategy: Strategies) {
+  const generator = new RouteGenerator({ locales, defaultLocaleCode: 'en', strategy, globalLocaleRoutes: rules, noPrefixRedirect: false })
+  const build = () => {
+    const list = structuredClone(pages)
+    generator.extendPages(list)
+    return list
   }
-}
-
-// ---------------------------------------------------------------------------
-// Report printer (single console.log to avoid jest line-by-line annotations)
-// ---------------------------------------------------------------------------
-function pad(s: string, w: number): string {
-  return s.length >= w ? s.slice(0, w) : s + ' '.repeat(w - s.length)
-}
-
-function padL(s: string, w: number): string {
-  return s.length >= w ? s.slice(0, w) : ' '.repeat(w - s.length) + s
-}
-
-function row(inner: string, W: number): string {
-  return `\u2551 ${pad(inner, W - 4)} \u2551`
-}
-
-function printReport(title: string, results: BenchResult[], baseline: Baseline | null): void {
-  const hasBaseline = baseline !== null
-  const lines: string[] = []
-
-  const maxName = results.reduce((m, r) => Math.max(m, r.name.length), 8)
-  const NW = maxName + 2
-  const CW = 10
-  const W = NW + CW * 3 + 3 + 4
-
-  lines.push('')
-  lines.push(`\u2554${'\u2550'.repeat(W - 2)}\u2557`)
-  lines.push(row(title, W))
-  lines.push(`\u2560${'\u2550'.repeat(W - 2)}\u2563`)
-
-  if (hasBaseline) {
-    lines.push(row(`${pad('Function', NW)}${padL('ops/ms', CW)}${padL('prev', CW)}${padL('delta', CW)}   `, W))
-  } else {
-    lines.push(row(`${pad('Function', NW)}${padL('ops/ms', CW)}${padL('ms', CW)}${' '.repeat(CW + 3)}`, W))
-  }
-  lines.push(`\u2551${'\u2500'.repeat(W - 2)}\u2551`)
-
-  for (const r of results) {
-    const prev = baseline?.[r.name]
-    if (hasBaseline && prev) {
-      const pct = (r.opsPerMs / prev.opsPerMs - 1) * 100
-      const sign = pct >= 0 ? '+' : ''
-      const threshold = getThreshold(prev.opsPerMs)
-      const flag = pct < -threshold * 100 ? '!!' : pct > 10 ? '^^' : '  '
-      const delta = `${sign}${pct.toFixed(1)}%`
-      lines.push(row(`${pad(r.name, NW)}${padL(r.opsPerMs.toFixed(1), CW)}${padL(prev.opsPerMs.toFixed(1), CW)}${padL(delta, CW)} ${flag}`, W))
-    } else {
-      lines.push(row(`${pad(r.name, NW)}${padL(r.opsPerMs.toFixed(1), CW)}${padL(r.totalMs.toFixed(2), CW)}${' '.repeat(CW + 3)}`, W))
+  const router: Router = createRouter({ history: createMemoryHistory(), routes: build().map(toRecord) })
+  const resolve = (to: unknown): ResolvedRouteLike => {
+    const r = router.resolve(to as Parameters<Router['resolve']>[0])
+    return {
+      name: r.name === null || r.name === undefined ? null : String(r.name),
+      path: r.path,
+      fullPath: r.fullPath,
+      params: r.params,
+      query: r.query,
+      hash: r.hash,
     }
   }
-
-  lines.push(`\u255A${'\u2550'.repeat(W - 2)}\u255D`)
-  if (hasBaseline) {
-    lines.push(`  !! = regression (>15-30% drop, adaptive)  ^^ = improvement (>10% gain)`)
-  }
-  console.log(lines.join('\n'))
-}
-
-// ---------------------------------------------------------------------------
-// Load baseline once
-// ---------------------------------------------------------------------------
-const baseline: Baseline | null = UPDATE_BASELINE ? null : loadBaseline()
-
-// ---------------------------------------------------------------------------
-// Path utilities benchmarks
-// ---------------------------------------------------------------------------
-describe('Performance: path utilities', () => {
-  const results: BenchResult[] = []
-
-  afterAll(() => printReport('Path Utilities Performance', results, baseline))
-
-  const cases: [string, () => void][] = [
-    [
-      'normalizePath',
-      () => {
-        normalizePath('//foo///bar/')
-        normalizePath('/simple')
-        normalizePath('')
-        normalizePath('/')
-      },
-    ],
-    [
-      'normalizePathForCompare',
-      () => {
-        normalizePathForCompare('/foo/bar/')
-        normalizePathForCompare('/')
-        normalizePathForCompare('')
-      },
-    ],
-    [
-      'joinUrl',
-      () => {
-        joinUrl('/en', '/about')
-        joinUrl('/', 'de', 'contact')
-        joinUrl('https://example.com', '/path')
-      },
-    ],
-    [
-      'getCleanPath',
-      () => {
-        getCleanPath('/news?id=1#top')
-        getCleanPath('/simple')
-        getCleanPath(null)
-      },
-    ],
-    [
-      'buildUrl',
-      () => {
-        buildUrl('/path', { q: 'search', page: '2' }, '#section')
-        buildUrl('/simple')
-        buildUrl('/test', { arr: ['a', 'b'] })
-      },
-    ],
-    [
-      'getPathSegments',
-      () => {
-        getPathSegments('/a/b/c/d')
-        getPathSegments('foo-bar')
-        getPathSegments('/')
-      },
-    ],
-    [
-      'getParentPath',
-      () => {
-        getParentPath('/a/b/c')
-        getParentPath('/a')
-        getParentPath('/')
-      },
-    ],
-    [
-      'transformNameKeyToPath',
-      () => {
-        transformNameKeyToPath('activity-skiing-locale')
-        transformNameKeyToPath('simple')
-        transformNameKeyToPath('')
-      },
-    ],
-    [
-      'nameKeyFirstSlash',
-      () => {
-        nameKeyFirstSlash('activity-locale-hiking')
-        nameKeyFirstSlash('single')
-      },
-    ],
-    [
-      'nameKeyLastSlash',
-      () => {
-        nameKeyLastSlash('activity-locale-hiking')
-        nameKeyLastSlash('single')
-      },
-    ],
-    [
-      'lastPathSegment',
-      () => {
-        lastPathSegment('/change-activity/hiking')
-        lastPathSegment('/')
-      },
-    ],
-    [
-      'parentKeyFromSlashKey',
-      () => {
-        parentKeyFromSlashKey('activity-locale/hiking')
-        parentKeyFromSlashKey('a/b/c')
-      },
-    ],
-  ]
-
-  for (const [name, fn] of cases) {
-    test(name, () => {
-      const r = bench(name, fn)
-      results.push(r)
-      checkRegression(r, baseline)
-
-      const prev = baseline?.[name]
-      if (prev) {
-        const ratio = r.opsPerMs / prev.opsPerMs
-        const threshold = getThreshold(prev.opsPerMs)
-        if (ratio <= 1 - threshold) {
-          throw new Error(`"${name}" regressed by ${((1 - ratio) * 100).toFixed(1)}% vs baseline (threshold ${(threshold * 100).toFixed(0)}%)`)
-        }
-      } else {
-        expect(r.opsPerMs).toBeGreaterThan(1)
-      }
-    })
-  }
-})
-
-// ---------------------------------------------------------------------------
-// Strategy benchmarks
-// ---------------------------------------------------------------------------
-// Custom paths incl. Nuxt name collisions (about-team: top-level vs about/team: nested).
-const GLOBAL_LOCALE_ROUTES: Record<string, Record<string, string>> = {
-  about: { en: '/about', de: '/ueber-uns', fr: '/a-propos' },
-  'about-team': { en: '/about-team', de: '/team-seite', fr: '/equipe' },
-  team: { en: '/team', de: '/mannschaft', fr: '/equipe-page' },
-  'team/members': { en: 'members', de: 'mitglieder', fr: 'membres' },
-  'docs-intro': { en: '/docs/intro', de: '/dokumente/einfuehrung', fr: '/docs/introduction' },
-  'blog-id': { en: '/blog/:id', de: '/artikel/:id', fr: '/article/:id' },
-}
-for (let i = 0; i < 40; i++) GLOBAL_LOCALE_ROUTES[`page-${i}`] = { en: `/page-${i}`, de: `/seite-${i}`, fr: `/page-fr-${i}` }
-
-function makeCtx(strategy: string, globalLocaleRoutes?: PathStrategyContext['globalLocaleRoutes']): PathStrategyContext {
-  const locales = [
-    { code: 'en', iso: 'en-US' },
-    { code: 'de', iso: 'de-DE' },
-    { code: 'fr', iso: 'fr-FR' },
-  ]
-  const routes = [
-    { name: 'index', path: '/' },
-    { name: 'about', path: '/about' },
-    { name: 'contact', path: '/contact' },
-    { name: 'blog-id', path: '/blog/:id' },
-    { name: 'products-category', path: '/products/:category' },
-    { name: 'about-team', path: '/about-team' },
-    { name: 'team-members', path: '/team/members' },
-    { name: 'docs-intro', path: '/docs/intro' },
-  ]
-  const routeMap = new Map(routes.map((r) => [r.name, r]))
-
-  return {
-    strategy: strategy as PathStrategyContext['strategy'],
+  const i18n = createPathStrategy({
+    strategy,
     defaultLocale: 'en',
     locales,
-    localeCodes: locales.map((l) => l.code),
-    localizedRouteNamePrefix: 'localized-',
-    globalLocaleRoutes,
-    router: {
-      resolve: (to: any) => {
-        const name = typeof to === 'string' ? to : to?.name
-        const route = routeMap.get(name as string)
-        return {
-          name: route?.name ?? name ?? null,
-          path: route?.path ?? (typeof to === 'string' ? to : (to?.path ?? '/')),
-          fullPath: route?.path ?? '/',
-          params: typeof to === 'object' ? (to?.params ?? {}) : {},
-          query: typeof to === 'object' ? (to?.query ?? {}) : {},
-          hash: '',
-        }
-      },
-      hasRoute: (name: string) => {
-        return routeMap.has(name) || routeMap.has(name.replace(/^localized-/, '').replace(/-(?:en|de|fr)$/, ''))
-      },
-    },
-  }
+    router: { hasRoute: (n) => router.hasRoute(n), resolve, getRoutes: () => router.getRoutes() },
+  })
+  return { build, i18n, resolve }
 }
 
-const strategies = ['no_prefix', 'prefix', 'prefix_except_default', 'prefix_and_default'] as const
+/** µs budget per call. */
+const BUDGET: Record<string, number> = {
+  'build: extendPages (300 pages)': 20_000,
+  'localeRoute({ name, params })': 10,
+  'localeRoute(path string)': 10,
+  switchLocaleRoute: 10,
+  getCurrentLocale: 1,
+  getPluginRouteName: 1,
+  getRouteBaseName: 1,
+  shouldReturn404: 2,
+  getClientRedirect: 10,
+}
 
-describe('Performance: strategies', () => {
-  const results: BenchResult[] = []
-
-  afterAll(() => printReport('Strategy Performance', results, baseline))
-
-  for (const strategyName of strategies) {
-    describe(strategyName, () => {
-      const ctx = makeCtx(strategyName)
-      const strategy = createPathStrategy(ctx)
-
-      const currentRoute: ResolvedRouteLike = {
-        name: 'about',
-        path: strategyName === 'no_prefix' ? '/about' : '/en/about',
-        fullPath: strategyName === 'no_prefix' ? '/about' : '/en/about',
-        params: {},
-        query: {},
-        hash: '',
-      }
-
-      const strategyGR = createPathStrategy(makeCtx(strategyName, GLOBAL_LOCALE_ROUTES))
-      const dashedRoute: ResolvedRouteLike = { name: 'about-team', path: '/about-team', fullPath: '/about-team', params: {}, query: {}, hash: '' }
-
-      const cases: [string, () => void][] = [
-        [`${strategyName}: GR localeRoute(name) custom`, () => strategyGR.localeRoute('de', { name: 'about' }, currentRoute)],
-        [`${strategyName}: GR localeRoute(name) dashed sibling`, () => strategyGR.localeRoute('de', { name: 'about-team' }, currentRoute)],
-        [`${strategyName}: GR localeRoute(name) nested child`, () => strategyGR.localeRoute('de', { name: 'team-members' }, currentRoute)],
-        [`${strategyName}: GR localeRoute(name) dashed flat`, () => strategyGR.localeRoute('de', { name: 'docs-intro' }, currentRoute)],
-        [`${strategyName}: GR localeRoute(name) params`, () => strategyGR.localeRoute('de', { name: 'blog-id', params: { id: '5' } }, currentRoute)],
-        [`${strategyName}: GR localeRoute(path) dashed`, () => strategyGR.localeRoute('de', '/about-team', currentRoute)],
-        [`${strategyName}: GR getCanonicalPath dashed`, () => strategyGR.getCanonicalPath(dashedRoute, 'de')],
-        [
-          `${strategyName}: localeRoute(name)`,
-          () => {
-            strategy.localeRoute('de', { name: 'about' }, currentRoute)
-          },
-        ],
-        [
-          `${strategyName}: localeRoute(path)`,
-          () => {
-            strategy.localeRoute('de', '/contact', currentRoute)
-          },
-        ],
-        [
-          `${strategyName}: switchLocaleRoute`,
-          () => {
-            strategy.switchLocaleRoute('en', 'de', currentRoute, {})
-          },
-        ],
-        [
-          `${strategyName}: getRedirect`,
-          () => {
-            strategy.getRedirect(strategyName === 'no_prefix' ? '/about' : '/en/about', 'en')
-          },
-        ],
-        [
-          `${strategyName}: resolveLocaleFromPath`,
-          () => {
-            strategy.resolveLocaleFromPath(strategyName === 'no_prefix' ? '/about' : '/en/about')
-          },
-        ],
-      ]
-
-      for (const [name, fn] of cases) {
-        test(name.split(': ')[1]!, () => {
-          const r = bench(name, fn)
-          results.push(r)
-          checkRegression(r, baseline)
-
-          const prev = baseline?.[name]
-          if (prev) {
-            const ratio = r.opsPerMs / prev.opsPerMs
-            const threshold = getThreshold(prev.opsPerMs)
-            if (ratio <= 1 - threshold) {
-              throw new Error(`"${name}" regressed by ${((1 - ratio) * 100).toFixed(1)}% vs baseline (threshold ${(threshold * 100).toFixed(0)}%)`)
-            }
-          } else {
-            expect(r.opsPerMs).toBeGreaterThan(0.5)
-          }
-        })
-      }
-    })
-  }
-})
-
-// ---------------------------------------------------------------------------
-// Save baseline + final summary (runs after ALL suites)
-// ---------------------------------------------------------------------------
-afterAll(() => {
-  saveBaseline(allResults)
-
-  const summary: string[] = ['']
-  if (baseline) {
-    summary.push(`  Baseline: ${Object.keys(baseline).length} entries | Threshold: -${REGRESSION_THRESHOLD * 100}%`)
-  } else {
-    summary.push('  No previous baseline — saved current results as new baseline.')
-  }
-
-  if (regressions.length > 0) {
-    summary.push(`  ${regressions.length} REGRESSION(S):`)
-    for (const msg of regressions) summary.push(`    ${msg}`)
-  } else {
-    summary.push('  No regressions.')
-  }
-
-  summary.push(`  Saved to: ${BASELINE_PATH}`)
-  summary.push('')
-  console.log(summary.join('\n'))
+describe.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)('%s', (strategy) => {
+  test('every call stays within budget', () => {
+    const { build, i18n, resolve } = setup(strategy)
+    const prefix = strategy === 'no_prefix' ? '' : '/de'
+    const urls = Array.from({ length: 100 }, (_, i) => `${prefix}/s${i}/${i % 3 === 0 && prefix ? 'ueber' : 'about'}`)
+    const routes = urls.map((url) => resolve(`${url}?q=1`))
+    const targets = ['en', 'fr', 'es', 'it']
+    const results: Record<string, number> = {
+      'build: extendPages (300 pages)': measure(10, build),
+      'localeRoute({ name, params })': measure(20_000, (i) =>
+        i18n.localeRoute(targets[i % 4]!, { name: `s${i % 100}-id`, params: { id: '42' } }, routes[i % 100]),
+      ),
+      'localeRoute(path string)': measure(20_000, (i) => i18n.localeRoute(targets[i % 4]!, `/s${i % 100}/about?x=1`, routes[i % 100])),
+      switchLocaleRoute: measure(20_000, (i) => i18n.switchLocaleRoute('de', targets[i % 4]!, routes[i % 100]!, {})),
+      getCurrentLocale: measure(100_000, (i) => i18n.getCurrentLocale(routes[i % 100]!)),
+      getPluginRouteName: measure(100_000, (i) => i18n.getPluginRouteName(routes[i % 100]!, 'de')),
+      getRouteBaseName: measure(100_000, (i) => i18n.getRouteBaseName(routes[i % 100]!)),
+      shouldReturn404: measure(20_000, (i) => i18n.shouldReturn404(urls[i % 100]!)),
+      getClientRedirect: measure(20_000, (i) => i18n.getClientRedirect(`/s${i % 100}/about`, targets[i % 4]!)),
+    }
+    // vitest keeps console output of passing tests to itself: write the report straight to stdout
+    const lines = Object.entries(results).map(([label, us]) => `  ${label.padEnd(32)} ${us.toFixed(3).padStart(10)} µs  (budget ${BUDGET[label]})`)
+    process.stdout.write(`\n${strategy}\n${lines.join('\n')}\n`)
+    const over = Object.entries(results).filter(([label, us]) => us >= BUDGET[label]!)
+    expect(over).toEqual([])
+  })
 })

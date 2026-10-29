@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/route-strategy`
 
-18 exports across 1 entry point.
+10 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,71 +18,81 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `buildEncodedPathAliases` | function | `(routePath: string) => string[]` |
-| `buildFullPath` | function | `(locale: string \| string[], basePath: string, customRegex?: string \| RegExp) => string` |
-| `buildFullPathNoPrefix` | function | `(basePath: string) => string` |
-| `buildRouteName` | const | `(baseName: string, localeCode: string, isCustom: boolean, prefix?: string) => string` |
-| `cloneArray` | const | `<T extends object>(array: T[]) => T[]` |
-| `extractLocalizedPaths` | function | `(pages: NuxtPage[], globalLocaleRoutes: LocaleRoutesConfig, filesLocaleRoutes: LocaleRoutesConfig, parentPath?: string) => LocalizedPathsMap` |
+| `GenerateOptions` | interface | 8 members |
+| `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[]) => boolean` |
-| `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], unlocalizedPath: string, localeCode: string) => boolean` |
-| `isLocaleDefault` | const | `(locale: string \| Locale, defaultLocale: Locale) => boolean` |
-| `isLocalizationDisabledForPage` | function | `(globalLocaleRoutes: LocaleRoutesConfig, originalPath: string, pageName: string) => boolean` |
-| `isPageRedirectOnly` | const | `(page: NuxtPage) => boolean` |
-| `LocalizedPathsMap` | type | `Record<string, Record<string, string>>` |
-| `normalizePath` | const | `(routePath: string) => string` |
+| `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
+| `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
-| `removeLeadingSlash` | const | `(routePath: string) => string` |
-| `RouteGenerator` | class | 23 members |
-| `RouteGeneratorOptions` | interface | 11 members |
-| `shouldAddLocalePrefix` | const | `(locale: string, defaultLocale: Locale, addLocalePrefix: boolean) => boolean` |
+| `RouteGenerator` | class | 12 members |
+| `RouteGeneratorOptions` | interface | 9 members |
+| `RouteI18nMeta` | interface | 2 members |
+| `Rules` | class | 8 members |
 
 <details>
-<summary><code>RouteGenerator</code> — 23 members</summary>
+<summary><code>GenerateOptions</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `activeLocaleCodes` | `string[]` |
-| `collectPageNames` | `private (pages: NuxtPage[]) => string[]` |
-| `computeActiveLocaleCodes` | `private () => string[]` |
-| `customRegex` | `string \| RegExp \| undefined` |
-| `defaultLocale` | `Locale` |
-| `ensureFileExists` | `private (filePath: string) => void` |
-| `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
-| `excludePatterns` | `(string \| RegExp)[] \| undefined` |
-| `extendPages` | `(pages: NuxtPage[]) => void` |
-| `extractLocalizedPaths` | `(pages: NuxtPage[], parentPath?: string) => { [key: string]: { [locale: string]: string; }; }` |
-| `fallbackRedirectComponentPath` | `string \| undefined` |
-| `filesLocaleRoutes` | `LocaleRoutesConfig` |
-| `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
-| `globalLocaleRoutes` | `LocaleRoutesConfig` |
-| `locales` | `Locale[]` |
-| `localizedPaths` | `LocalizedPathsMap` |
-| `localizedRouteNamePrefix` | `string` |
-| `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
+| `customRegex?` | `string \| RegExp \| undefined` |
+| `defaultLocale` | `string` |
+| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
+| `locales` | `string[]` |
+| `namePrefix` | `string` |
 | `noPrefixRedirect` | `boolean` |
-| `rawGlobalLocaleRoutes` | `GlobalLocaleRoutes` |
-| `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |
-| `routeLocales` | `Record<string, string[]>` |
+| `rules` | `Rules` |
 | `strategy` | `Strategies` |
 
 </details>
 <details>
-<summary><code>RouteGeneratorOptions</code> — 11 members</summary>
+<summary><code>RouteGenerator</code> — 12 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `defaultLocale` | `Locale` |
+| `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
+| `extendPages` | `(pages: NuxtPage[]) => void` |
+| `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
+| `locales` | `Locale[]` |
+| `localizedPaths` | `private LocalizedPaths` |
+| `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
+| `options` | `private RouteGeneratorOptions` |
+| `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |
+| `routeLocales` | `Record<string, string[]>` |
+| `rules` | `private Rules` |
+| `strategy` | `Strategies` |
+
+</details>
+<details>
+<summary><code>RouteGeneratorOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `customRegexMatcher?` | `string \| RegExp \| undefined` |
 | `defaultLocaleCode` | `string` |
 | `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
-| `fallbackRedirectComponentPath?` | `string \| undefined` |
-| `filesLocaleRoutes?` | `GlobalLocaleRoutes` |
 | `globalLocaleRoutes` | `GlobalLocaleRoutes` |
 | `locales` | `Locale[]` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `noPrefixRedirect` | `boolean` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `strategy` | `Strategies` |
+
+</details>
+<code>RouteI18nMeta</code> — 2 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+<details>
+<summary><code>Rules</code> — 8 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `allowedLocales` | `(fullPath: string, name: string \| undefined) => string[] \| undefined` |
+| `byName` | `private Map<string, Rule>` |
+| `customPath` | `(fullPath: string, locale: string) => string \| undefined` |
+| `get` | `(fullPath: string, name: string \| undefined) => Rule \| undefined` |
+| `new` | `(globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[]): Rules` |
+| `restrictions` | `private Map<string, string[]>` |
+| `restrictionsByName` | `private Map<string, string[]>` |
+| `rules` | `private Map<string, Rule>` |
 
 </details>
 

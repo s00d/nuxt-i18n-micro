@@ -23,10 +23,10 @@ or CI failing.
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 25 |
 | [`@i18n-micro/hmr`](/api/packages/hmr) | `@i18n-micro/hmr/cache-keys`, `@i18n-micro/hmr/generate-plugin`, `@i18n-micro/hmr/watcher` | 9 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |
-| [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/no-prefix`, `@i18n-micro/path-strategy/prefix`, `@i18n-micro/path-strategy/prefix-and-default`, `@i18n-micro/path-strategy/prefix-except-default`, `@i18n-micro/path-strategy/types` | 38 |
+| [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 17 |
 | [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact` | 39 |
 | [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react` | 38 |
-| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 18 |
+| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 10 |
 | [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 16 |
 | [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid` | 33 |
 | [`@i18n-micro/test-utils`](/api/packages/test-utils) | `@i18n-micro/test-utils`, `@i18n-micro/test-utils/publish-smoke` | 60 |

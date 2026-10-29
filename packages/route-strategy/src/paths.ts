@@ -1,0 +1,74 @@
+import path from 'node:path'
+
+/** `a//b/` -> `a/b`; `''` and `.` -> `''`. */
+export function normalizePath(routePath: string): string {
+  if (!routePath) return ''
+  const normalized = path.posix.normalize(routePath).replace(/\/+$/, '')
+  return normalized === '.' ? '' : normalized
+}
+
+export const removeLeadingSlash = (routePath: string): string => (routePath.startsWith('/') ? routePath.slice(1) : routePath)
+
+/** Absolute form of a path: `about` -> `/about`, `` -> `/`. */
+export const absolute = (routePath: string): string => normalizePath(`/${removeLeadingSlash(routePath)}`) || '/'
+
+/** Full path of a child route: an absolute child path stands alone, a relative one is joined. */
+export function joinChild(parentFullPath: string, childPath: string): string {
+  return childPath.startsWith('/') ? absolute(childPath) : absolute(path.posix.join(parentFullPath, childPath))
+}
+
+/**
+ * File-path and Nuxt forms of a route path to the vue-router form rules are keyed and written in:
+ * `[...slug]` -> `:slug(.*)*`, `[[page]]` -> `:page?`, `[id]` -> `:id`, `:id()` -> `:id`
+ * (non-empty matchers such as `:id(\d+)` stay).
+ */
+export function normalizeRouteKey(key: string): string {
+  return key
+    .split('/')
+    .map((segment) =>
+      segment
+        .replace(/^\[\.\.\.(\w+)\]$/, ':$1(.*)*')
+        .replace(/\[\[(\w+)\]\]/g, ':$1?')
+        .replace(/\[(\w+)\]/g, ':$1')
+        .replace(/:(\w+)\(\)/g, ':$1'),
+    )
+    .join('/')
+}
+
+const routeKeys = new Map<string, string>()
+/** Lookup key of a route path or name: normalized, without the leading slash (`/` for the root). */
+export function routeKey(routePathOrName: string): string {
+  let key = routeKeys.get(routePathOrName)
+  if (key === undefined) routeKeys.set(routePathOrName, (key = removeLeadingSlash(normalizePath(normalizeRouteKey(routePathOrName))) || '/'))
+  return key
+}
+
+/**
+ * Route path segment of a child from its custom value, relative to the parent's localized path.
+ * A relative value is kept as written. An absolute value is a full URL: when it starts with the
+ * parent's localized path the rest is the segment (`/konto/bestellungen` under `/konto`), the
+ * parent path itself is the empty segment, and any other value keeps what follows the segments it
+ * shares with the parent (`/bereich/artikel` under `/bereich/kategorie` is `artikel`).
+ */
+export function childSegment(parentLocalizedPath: string, customValue: string): string {
+  if (!customValue.startsWith('/')) return removeLeadingSlash(normalizePath(customValue))
+  const value = absolute(customValue)
+  const parent = absolute(parentLocalizedPath)
+  if (parent === '/') return removeLeadingSlash(value)
+  if (value === parent) return ''
+  if (value.startsWith(`${parent}/`)) return value.slice(parent.length + 1)
+  const valueSegments = value.split('/').filter(Boolean)
+  const parentSegments = parent.split('/').filter(Boolean)
+  let shared = 0
+  while (shared < valueSegments.length && valueSegments[shared] === parentSegments[shared]) shared++
+  return valueSegments.slice(shared).join('/')
+}
+
+/** Percent-encoded variant of a path with non-ASCII static segments (vue-router matches either). */
+export function encodedVariant(routePath: string): string | undefined {
+  if (!/[\u0080-￿]/.test(routePath)) return undefined
+  return routePath
+    .split('/')
+    .map((segment) => (segment.startsWith(':') || !/[\u0080-￿]/.test(segment) ? segment : encodeURI(segment)))
+    .join('/')
+}

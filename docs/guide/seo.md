@@ -260,7 +260,7 @@ const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
 const { data: article } = await useFetch(`/api/articles/${slug}`)
 
 $defineI18nRoute({
-  localeRoutes: { en: '/blog/[slug]', de: '/de/blog/[slug]' },
+  localeRoutes: { en: '/blog/[slug]', de: '/artikel/[slug]' },
 })
 
 $setI18nRouteParams({

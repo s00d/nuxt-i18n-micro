@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/route-strategy",
-  "version": "1.1.30",
+  "version": "2.0.0",
   "description": "Locale-aware route generator for Nuxt i18n micro",
   "keywords": [
     "i18n",
@@ -70,7 +70,6 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:^",
     "@i18n-micro/types": "workspace:^",
     "@i18n-micro/utils": "workspace:^",
     "@nuxt/schema": "catalog:"

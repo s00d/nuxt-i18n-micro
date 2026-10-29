@@ -17,7 +17,8 @@
     "**/.cache/**",
     "**/.git/**",
     "**/.astro/**",
-    "**/.fixture-builds/**"
+    "**/.fixture-builds/**",
+    "**/__golden__/**"
   ],
   "overrides": [
     {

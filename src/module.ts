@@ -64,16 +64,9 @@ export {
   shouldRegisterNitroServerAssets,
 } from '@i18n-micro/utils/payload-config'
 
-const strategyFiles: Record<Strategies, string> = {
-  no_prefix: 'no-prefix-strategy.mjs',
-  prefix: 'prefix-strategy.mjs',
-  prefix_except_default: 'prefix-except-default-strategy.mjs',
-  prefix_and_default: 'prefix-and-default-strategy.mjs',
-}
-
-async function resolveStrategyPath(strategy: Strategies): Promise<string> {
-  const strategyFile = strategyFiles[strategy] ?? strategyFiles.prefix_except_default
-  const specifier = `@i18n-micro/path-strategy/dist/${strategyFile}`
+/** Absolute path of the path-strategy entry the generated `i18n.strategy.mjs` imports. */
+async function resolveStrategyPath(): Promise<string> {
+  const specifier = '@i18n-micro/path-strategy'
   let absoluteStrategyPath: string
   try {
     // Resolve relative to this module first, so pnpm layouts that nest
@@ -147,23 +140,10 @@ function buildFullConfig(params: {
   translationPayloadMode: TranslationPayloadMode
   routeLocales: Record<string, string[]>
   routeDisableMeta: Record<string, boolean | string[]>
-  mergedGlobalLocaleRoutes: GlobalLocaleRoutes
   locales: ModuleOptionsExtend['locales']
   translationsHash: string | null
 }) {
-  const {
-    options,
-    nuxt,
-    defaultLocale,
-    isSSG,
-    apiConfig,
-    translationPayloadMode,
-    routeLocales,
-    routeDisableMeta,
-    mergedGlobalLocaleRoutes,
-    locales,
-    translationsHash,
-  } = params
+  const { options, nuxt, defaultLocale, isSSG, apiConfig, translationPayloadMode, routeLocales, routeDisableMeta, locales, translationsHash } = params
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -191,7 +171,6 @@ function buildFullConfig(params: {
     excludePatterns: options.excludePatterns ?? [],
     routeLocales,
     routeDisableMeta,
-    globalLocaleRoutes: mergedGlobalLocaleRoutes,
     missingWarn: options.missingWarn ?? true,
     redirects: options.redirects !== false,
     hooks: options.hooks !== false,
@@ -278,6 +257,7 @@ export function createI18nStrategy(router) {
         hash: r.hash || '',
       }
     },
+    getRoutes() { return router.getRoutes() },
   }
 
   return new Strategy({
@@ -285,11 +265,6 @@ export function createI18nStrategy(router) {
     defaultLocale: __fullConfig.defaultLocale,
     locales: __fullConfig.locales,
     localizedRouteNamePrefix: __fullConfig.localizedRouteNamePrefix,
-    globalLocaleRoutes: __fullConfig.globalLocaleRoutes,
-    routeLocales: __fullConfig.routeLocales,
-    routesLocaleLinks: __fullConfig.routesLocaleLinks,
-    noPrefixRedirect: __fullConfig.noPrefixRedirect,
-    debug: __fullConfig.debug,
     router: routerAdapter,
     hashMode: __fullConfig.hashMode,
     disablePageLocales: __fullConfig.disablePageLocales,
@@ -512,7 +487,7 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    const resolvedStrategyPath = await resolveStrategyPath(options.strategy!)
+    const resolvedStrategyPath = await resolveStrategyPath()
     const resolvedHelpersPath = await resolveHelpersPath()
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
@@ -537,7 +512,6 @@ export default defineNuxtModule<ModuleOptions>({
       defaultLocaleCode: defaultLocale,
       strategy: options.strategy!,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
-      filesLocaleRoutes: globalLocaleRoutes,
       routeLocales,
       noPrefixRedirect: options.noPrefixRedirect!,
       excludePatterns: options.excludePatterns,
@@ -554,7 +528,6 @@ export default defineNuxtModule<ModuleOptions>({
       translationPayloadMode: translationPayloads.mode,
       routeLocales,
       routeDisableMeta,
-      mergedGlobalLocaleRoutes,
       locales: routeGenerator.locales ?? [],
       translationsHash,
     })
@@ -725,7 +698,7 @@ declare module '#build/i18n.plural.mjs' {
 
 declare module '#build/i18n.strategy.mjs' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string } }): PathStrategy
+  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }, getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[] }): PathStrategy
 }
 
 declare module '#i18n-internal/config' {
@@ -734,7 +707,7 @@ declare module '#i18n-internal/config' {
 
 declare module '#i18n-internal/strategy' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string } }): PathStrategy
+  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }, getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[] }): PathStrategy
 }
 
 declare module '#i18n-internal/plural' {

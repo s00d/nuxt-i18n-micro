@@ -1,6 +1,0 @@
-export { BasePathStrategy } from './base-strategy'
-export { createPathStrategy } from './factory'
-export { NoPrefixPathStrategy } from './no-prefix'
-export { PrefixPathStrategy } from './prefix'
-export { PrefixAndDefaultPathStrategy } from './prefix-and-default'
-export { PrefixExceptDefaultPathStrategy } from './prefix-except-default'

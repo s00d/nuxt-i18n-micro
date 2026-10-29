@@ -151,4 +151,19 @@ describe('switchLocaleRoute - URL shared by several locales', () => {
     const current: ResolvedRouteLike = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {}, query: {}, hash: '' }
     expect((strategy.switchLocaleRoute('de', 'ru', current, {}) as RouteLike).name).toBe('localized-about-ru')
   })
+
+  test('a page named like a locale suffix (about-en) keeps its own name', () => {
+    // shared route of page `about-en`; there is no page `about`
+    const router = makeRouterAdapter({ 'localized-about-en': '/:locale(en|ru)/about-en', 'localized-about-en-de': '/:locale(de)/ueber-en' })
+    const strategy = new PrefixPathStrategy(makeCtx('prefix', { router }))
+    const current: ResolvedRouteLike = {
+      name: 'localized-about-en',
+      path: '/ru/about-en',
+      fullPath: '/ru/about-en',
+      params: { locale: 'ru' },
+      query: {},
+      hash: '',
+    }
+    expect((strategy.switchLocaleRoute('ru', 'de', current, {}) as RouteLike).name).toBe('localized-about-en-de')
+  })
 })

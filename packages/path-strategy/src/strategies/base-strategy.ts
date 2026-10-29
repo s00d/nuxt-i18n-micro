@@ -124,11 +124,16 @@ export abstract class BasePathStrategy implements PathStrategy {
   getBaseRouteName(route: RouteLike, locale: string): string | null {
     const base = this.getRouteBaseName(route, locale)
     // A URL several locales share can match another locale's localized route
-    // (`localized-x-en` while on the de page): strip whichever locale suffix it carries.
+    // (`localized-x-en` while on the de page): strip whichever locale suffix it carries —
+    // but only when the router knows that base, since a page may itself be named `about-en`.
     const prefix = this.getLocalizedRouteNamePrefix()
     const name = route.name?.toString() ?? ''
-    if (base !== null && name.startsWith(prefix) && base === name.slice(prefix.length)) return this.getRouteBaseName(route) ?? base
-    return base
+    if (base === null || !name.startsWith(prefix) || base !== name.slice(prefix.length)) return base
+    const stripped = this.getRouteBaseName(route)
+    if (!stripped || stripped === base) return base
+    const router = this.ctx.router
+    const known = router.hasRoute(`${prefix}${stripped}-${locale}`) || router.hasRoute(`${prefix}${stripped}`) || router.hasRoute(stripped)
+    return known ? stripped : base
   }
 
   buildLocalizedName(baseName: string, locale: string): string {

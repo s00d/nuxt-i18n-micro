@@ -35,15 +35,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog | localized-blog | fr | blog | blog | Français | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | Français | fr | fr | null |
 | /fr/contact | localized-contact | fr | contact | contact | Français | fr | fr | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | about | English | null | null | null |
+| /about/ | null | en | about | about | English | null | null | null |
 | /de/about/ | localized-about | de | about | about | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | null | null |
-| /de/de/about | null | de |  | about | Deutsch | de | de | null |
+| /de/de/about | null | de | about | about | Deutsch | de | de | null |
 
 ## To en
 

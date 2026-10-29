@@ -68,8 +68,8 @@ Every URL is resolved with `?q=1#top`.
 | /store | shop | en | shop | shop | English | null | en | null |
 | /store/shoes | shop-category | en | shop-category | shop-category | English | null | en | null |
 | /store/shoes/red-boot | shop-category-item | en | shop-category-item | shop-category-item | English | null | en | null |
-| /en | null | en |  | index | English | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | English | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | English | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | English | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | null | en |  | null | English | null | en | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |

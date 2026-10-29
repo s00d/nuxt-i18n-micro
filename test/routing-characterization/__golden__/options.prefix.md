@@ -37,15 +37,15 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/blog/hello-world | i18n-blog-slug | pt-br | blog-slug | blog-slug | null | pt-br | pt-br | null |
 | /pt-br/sobre | i18n-about-pt-br | pt-br | about | about | null | pt-br | pt-br | null |
 | /pt-br/ueber-uns | i18n-about-de | pt-br | about | about | null | pt-br | pt-br | null |
-| / | null | en-us |  | index | null | null | null | null |
+| / | null | en-us | index | index | null | null | null | null |
 | /en-us/ | i18n-index | en-us | index | index | null | en-us | en-us | null |
 | /pt-br/ | i18n-index | pt-br | index | index | null | pt-br | pt-br | null |
-| /about/ | null | en-us |  | about | null | null | null | null |
+| /about/ | null | en-us | about | about | null | null | null | null |
 | /pt-br/about/ | i18n-about | pt-br | about | about | null | pt-br | pt-br | null |
 | /missing | null | en-us |  | null | null | null | null | null |
 | /pt-br/missing | null | pt-br |  | null | null | pt-br | pt-br | null |
 | /xx/about | i18n-about | en-us | about | about | null | null | null | null |
-| /pt-br/pt-br/about | null | pt-br |  | about | null | pt-br | pt-br | null |
+| /pt-br/pt-br/about | null | pt-br | about | about | null | pt-br | pt-br | null |
 
 ## To en-us
 

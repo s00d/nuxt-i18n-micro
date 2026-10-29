@@ -120,6 +120,7 @@ describe('localeRoute', () => {
     expect(i18n.localeRoute('de', '/admin').fullPath).toBe('/admin')
     expect(i18n.localeRoute('de', '/en/about-us').fullPath).toBe('/de/ueber-uns')
     expect(i18n.localeRoute('fr', '/blog/x?tag=a&tag=b').query).toEqual({ tag: ['a', 'b'] })
+    expect({ ...i18n.localeRoute('fr', '/blog/x?constructor=c&__proto__=p').query }).toEqual({ constructor: 'c', __proto__: 'p' })
   })
 
   test('vue-router never warns about discarded params', () => {
@@ -162,6 +163,9 @@ describe('switchLocaleRoute', () => {
     const pxd = setup('prefix_except_default', {}, LOCALES, { pages })
     expect(pxd.i18n.switchLocaleRoute('en', 'en', pxd.at('/en')).fullPath).toBe('/')
     expect(pxd.i18n.switchLocaleRoute('en', 'de', pxd.at('/en/about-us')).fullPath).toBe('/de/ueber-uns')
+    // an unnamed route that matched records (a vue-router route) is not a 404: it stays
+    const matched = { ...pxd.at('/en'), matched: [{}] }
+    expect(pxd.i18n.switchLocaleRoute('en', 'de', matched)).toBe(matched)
     // no record serves it, but the server plugin still moves it to the preferred locale (pages: false relies on it)
     expect(pxd.i18n.getClientRedirect('/no/page', 'de')).toBe('/de/no/page')
     expect(pxd.i18n.getClientRedirect('/no/page', 'en')).toBeNull()
@@ -204,6 +208,8 @@ describe('reading a URL', () => {
     expect(i18n.getRouteBaseName(at('/admin'))).toBe('admin')
     expect(i18n.getPluginRouteName(at('/de/ueber-uns'), 'de')).toBe('about')
     expect(i18n.getPluginRouteName({ name: 'localized-gone-de', path: '/x', fullPath: '/x' }, 'de')).toBe('gone')
+    // an unnamed route: the same page lookup getRouteBaseName does
+    expect(i18n.getPluginRouteName({ name: null, path: '/fr/about', fullPath: '/fr/about' }, 'fr')).toBe('about')
     expect(setup('prefix', { disablePageLocales: true }).i18n.getPluginRouteName(at('/de/ueber-uns'), 'de')).toBe('index')
   })
 
@@ -229,6 +235,8 @@ describe('server redirects and 404', () => {
     expect(pxd.shouldReturn404('/fr/de-only')).toBe('Locale not allowed for this route')
     expect(pxd.shouldReturn404('/de/ueber-uns?x=1')).toBeNull()
     expect(pxd.shouldReturn404('/fr/missing')).toBeNull()
+    // the rest is read as written: `/de/de-only` is not the de-only page in fr
+    expect(pxd.shouldReturn404('/fr/de/de-only')).toBeNull()
     expect(setup('prefix').i18n.shouldReturn404('/en/admin')).toBe('Unlocalized route cannot have locale prefix')
     expect(setup('no_prefix').i18n.shouldReturn404('/de/admin')).toBeNull()
   })

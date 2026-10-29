@@ -47,11 +47,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr/à-propos | localized-über-uns-fr | fr | über-uns | über-uns | Français | fr | fr | null |
 | /post-42 | post-id | en | post-id | post-id | English | null | en | null |
 | /über-uns | über-uns | en | über-uns | über-uns | English | null | en | null |
-| /en | null | en |  | index | English | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | English | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | English | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | English | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | über-uns | en | über-uns | über-uns | English | null | en | null |
-| /de/about/ | null | de |  | über-uns | Deutsch | de | de | null |
+| /de/about/ | null | de | über-uns | über-uns | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | en | null |

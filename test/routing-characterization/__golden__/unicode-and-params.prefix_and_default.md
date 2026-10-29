@@ -54,7 +54,7 @@ Every URL is resolved with `?q=1#top`.
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | über-uns | en | über-uns | über-uns | English | null | null | null |
-| /de/about/ | null | de |  | über-uns | Deutsch | de | de | null |
+| /de/about/ | null | de | über-uns | über-uns | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | null | null |

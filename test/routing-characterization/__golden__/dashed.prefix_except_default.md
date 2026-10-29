@@ -61,11 +61,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr/team/members | localized-team-members | fr | team-members | team-members | Français | fr | fr | null |
 | /team | team | en | team | team | English | null | en | null |
 | /team/members | team-members | en | team-members | team-members | English | null | en | null |
-| /en | null | en |  | index | English | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | English | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | English | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | English | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | about | en | about | about | English | null | en | null |
-| /de/about/ | null | de |  | about | Deutsch | de | de | null |
+| /de/about/ | null | de | about | about | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | en | null |

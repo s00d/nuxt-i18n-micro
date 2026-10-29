@@ -27,12 +27,12 @@ Every URL is resolved with `?q=1#top`.
 | /blog/hello-world | blog-slug | en-us | blog-slug | blog-slug | null | null | null | null |
 | /sobre | i18n-about-pt-br | en-us | about | about | null | null | null | null |
 | /ueber-uns | i18n-about-de | en-us | about | about | null | null | null | null |
-| /en-us | null | en-us |  | index | null | en-us | null | null |
-| /en-us/ | null | en-us |  | index | null | en-us | null | null |
-| /pt-br | null | en-us |  | index | null | pt-br | null | null |
-| /pt-br/ | null | en-us |  | index | null | pt-br | null | null |
+| /en-us | null | en-us | index | index | null | en-us | null | null |
+| /en-us/ | null | en-us | index | index | null | en-us | null | null |
+| /pt-br | null | en-us | index | index | null | pt-br | null | null |
+| /pt-br/ | null | en-us | index | index | null | pt-br | null | null |
 | /about/ | about | en-us | about | about | null | null | null | null |
-| /pt-br/about/ | null | en-us |  | about | null | pt-br | null | null |
+| /pt-br/about/ | null | en-us | about | about | null | pt-br | null | null |
 | /missing | null | en-us |  | null | null | null | null | null |
 | /pt-br/missing | null | en-us |  | null | null | pt-br | null | null |
 | /xx/about | null | en-us |  | null | null | null | null | null |

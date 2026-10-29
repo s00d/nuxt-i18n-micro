@@ -31,11 +31,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr | localized-index | fr | index | index | null | fr | fr | null |
 | /fr/a-propos | localized-about-fr | fr | about | about | null | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
-| /en | null | en |  | index | null | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | null | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | null | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | null | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | en | null |
-| /de/about/ | null | de |  | about | null | de | de | null |
+| /de/about/ | null | de | about | about | null | de | de | null |
 | /missing | null | en |  | null | null | null | en | null |
 | /de/missing | null | de |  | null | null | de | de | null |
 | /xx/about | null | en |  | null | null | null | en | null |

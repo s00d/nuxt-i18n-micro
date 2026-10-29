@@ -41,7 +41,8 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   const rest = hashAt === -1 ? url : url.slice(0, hashAt)
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }
-  const query: Record<string, unknown> = {}
+  // no prototype: `?constructor=x` and `?__proto__=x` are plain keys
+  const query: Record<string, unknown> = Object.create(null)
   for (const [key, value] of new URLSearchParams(rest.slice(queryAt + 1))) {
     const seen = query[key]
     // `?tag=a&tag=b` -> { tag: ['a', 'b'] }, as vue-router parses it
@@ -152,7 +153,8 @@ export class I18nPathStrategy {
     const { records, unlocalized } = this.index
     const forms = [path]
     const locale = this.getLocaleFromPath(path)
-    if (locale) forms.push(path.slice(locale.length + 1) || '/') // a prefix this URL should not have (`/en/...`, no_prefix)
+    // a prefix this URL should not have (`/en/...`, any prefix under no_prefix)
+    if (locale) forms.push(path.slice(locale.length + 1) || '/')
     else if (this.ctx.strategy !== 'no_prefix') for (const code of this.codes) forms.push(`/${code}${path === '/' ? '' : path}`)
     let catchAll: Page | null = null
     for (const form of forms) {
@@ -230,7 +232,8 @@ export class I18nPathStrategy {
     const base = name ? this.baseOf(name) : null
     if (!base) {
       // an unlocalized page stays; an unmatched URL (a 404 page) becomes that URL in `toLocale`'s form
-      if (name) return route
+      // a URL no record matches: a route with a name, or matched records (an unnamed parent), stays
+      if (name || route.matched?.length) return route
       const target = this.localeRoute(toLocale, route.fullPath || route.path)
       return target.path && /^https?:\/\//.test(target.path) ? target.path : target
     }
@@ -271,7 +274,8 @@ export class I18nPathStrategy {
   /** Translation key of the route: its base name (`index` when page translations are off). */
   getPluginRouteName(route: ResolvedRouteLike, locale: string): string {
     if (this.ctx.disablePageLocales) return 'index'
-    const name = String(route.name ?? '')
+    if (!route.name) return this.getRouteBaseName(route) ?? ''
+    const name = String(route.name)
     const base = this.baseOf(name)
     if (base) return base
     // a localized name the router does not know: strip prefix and locale suffix
@@ -331,7 +335,10 @@ export class I18nPathStrategy {
     const name = this.probe(path)?.name
     const entry = name ? this.index.records.get(name) : undefined
     if (entry && !entry.catchAll) return null
-    const page = this.findPage(path.slice(locale.length + 1) || '/')
+    // a second prefix (`/de/de/about`) is no page at all: leave it to the router
+    const rest = path.slice(locale.length + 1) || '/'
+    if (this.getLocaleFromPath(rest)) return null
+    const page = this.findPage(rest)
     if (page === UNLOCALIZED) return 'Unlocalized route cannot have locale prefix'
     if (page && !page.catchAll && !this.index.pages.get(page.base)?.has(locale)) return 'Locale not allowed for this route'
     return null

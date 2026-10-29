@@ -35,12 +35,12 @@ Every URL is resolved with `?q=1#top`.
 | /post-42 | post-id | en | post-id | post-id | English | null | null | null |
 | /à-propos | localized-über-uns-fr | en | über-uns | über-uns | English | null | null | null |
 | /über-uns | über-uns | en | über-uns | über-uns | English | null | null | null |
-| /en | null | en |  | index | English | en | null | null |
-| /en/ | null | en |  | index | English | en | null | null |
-| /de | null | en |  | index | English | de | null | null |
-| /de/ | null | en |  | index | English | de | null | null |
+| /en | null | en | index | index | English | en | null | null |
+| /en/ | null | en | index | index | English | en | null | null |
+| /de | null | en | index | index | English | de | null | null |
+| /de/ | null | en | index | index | English | de | null | null |
 | /about/ | localized-über-uns-en | en | über-uns | über-uns | English | null | null | null |
-| /de/about/ | null | en |  | über-uns | English | de | null | null |
+| /de/about/ | null | en | über-uns | über-uns | English | de | null | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | en |  | null | English | de | null | null |
 | /xx/about | null | en |  | null | English | null | null | null |

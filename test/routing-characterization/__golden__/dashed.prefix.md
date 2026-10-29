@@ -55,10 +55,10 @@ Every URL is resolved with `?q=1#top`.
 | /fr/foo-bar/baz | localized-foo-bar-baz | fr | foo-bar-baz | foo-bar-baz | Français | fr | fr | null |
 | /fr/team | localized-team | fr | team | team | Français | fr | fr | null |
 | /fr/team/members | localized-team-members | fr | team-members | team-members | Français | fr | fr | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | about | English | null | null | null |
+| /about/ | null | en | about | about | English | null | null | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |

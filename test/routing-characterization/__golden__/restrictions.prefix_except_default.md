@@ -44,15 +44,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog | localized-blog | fr | blog | blog | Français | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | Français | fr | fr | null |
 | /landing | landing | en | landing | landing | English | null | en | null |
-| /en | null | en |  | index | English | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | English | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | English | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | English | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | about | en | about | about | English | null | en | null |
-| /de/about/ | null | de |  | about | Deutsch | de | de | Locale not allowed for this route |
+| /de/about/ | null | de | about | about | Deutsch | de | de | Locale not allowed for this route |
 | /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | en | null |
-| /de/de/about | null | de |  | null | Deutsch | de | de | Locale not allowed for this route |
+| /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en
 

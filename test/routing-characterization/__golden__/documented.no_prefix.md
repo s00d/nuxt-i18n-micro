@@ -48,10 +48,10 @@ Every URL is resolved with `?q=1#top`.
 | /produkte/hello-world | localized-product-slug-de | en | product-slug | product-slug | English | null | null | null |
 | /same | same | en | same | same | English | null | null | null |
 | /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | null | null |
-| /en | null | en |  | index | English | en | null | null |
-| /en/ | null | en |  | index | English | en | null | null |
-| /de | null | en |  | index | English | de | null | null |
-| /de/ | null | en |  | index | English | de | null | null |
+| /en | null | en | index | index | English | en | null | null |
+| /en/ | null | en | index | index | English | en | null | null |
+| /de | null | en | index | index | English | de | null | null |
+| /de/ | null | en | index | index | English | de | null | null |
 | /about/ | null | en |  | null | English | null | null | null |
 | /de/about/ | null | en |  | null | English | de | null | null |
 | /missing | null | en |  | null | English | null | null | null |

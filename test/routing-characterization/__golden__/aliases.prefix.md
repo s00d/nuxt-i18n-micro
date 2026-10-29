@@ -63,10 +63,10 @@ Every URL is resolved with `?q=1#top`.
 | /fr/news/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | Français | fr | fr | null |
 | /fr/support | localized-help | fr | help | help | Français | fr | fr | null |
 | /fr/über | localized-about | fr | about | about | Français | fr | fr | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | about | English | null | null | null |
+| /about/ | null | en | about | about | English | null | null | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |

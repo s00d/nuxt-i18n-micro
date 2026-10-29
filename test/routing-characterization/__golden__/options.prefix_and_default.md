@@ -50,7 +50,7 @@ Every URL is resolved with `?q=1#top`.
 | /missing | null | en-us |  | null | null | null | null | null |
 | /pt-br/missing | null | pt-br |  | null | null | pt-br | pt-br | null |
 | /xx/about | i18n-about | en-us | about | about | null | null | null | null |
-| /pt-br/pt-br/about | null | pt-br |  | about | null | pt-br | pt-br | null |
+| /pt-br/pt-br/about | null | pt-br | about | about | null | pt-br | pt-br | null |
 
 ## To en-us
 

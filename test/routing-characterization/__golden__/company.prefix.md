@@ -61,14 +61,14 @@ Every URL is resolved with `?q=1#top`.
 | /fr/products | localized-products | fr | products | products | Français | fr | fr | null |
 | /fr/produits/42 | localized-products-id-fr | fr | products-id | products-id | Français | fr | fr | null |
 | /legal/imprint | legal-imprint | en | legal-imprint | legal-imprint | English | null | null | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | redirect-about | en | about | about | English | null | null | null |
 | /de/about/ | localized-slug | de | slug | slug | Deutsch | de | de | null |
-| /missing | null | en |  | slug | English | null | null | null |
+| /missing | null | en | slug | slug | English | null | null | null |
 | /de/missing | localized-slug | de | slug | slug | Deutsch | de | de | null |
-| /xx/about | null | en |  | slug | English | null | null | null |
+| /xx/about | null | en | slug | slug | English | null | null | null |
 | /de/de/about | localized-slug | de | slug | slug | Deutsch | de | de | null |
 
 ## To en

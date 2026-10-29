@@ -60,8 +60,8 @@ Every URL is resolved with `?q=1#top`.
 | /product/hello-world | product-slug | en | product-slug | product-slug | English | null | en | null |
 | /same | same | en | same | same | English | null | en | null |
 | /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | en | null |
-| /en | null | en |  | index | English | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | index | English | en | en | Default locale should not have prefix |
+| /en | null | en | index | index | English | en | en | Default locale should not have prefix |
+| /en/ | null | en | index | index | English | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | null | en |  | null | English | null | en | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |

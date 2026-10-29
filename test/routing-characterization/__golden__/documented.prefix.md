@@ -55,7 +55,7 @@ Every URL is resolved with `?q=1#top`.
 | /fr/product/hello-world | localized-product-slug | fr | product-slug | product-slug | Français | fr | fr | null |
 | /fr/same | localized-same | fr | same | same | Français | fr | fr | null |
 | /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | null | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | null | en |  | null | English | null | null | null |

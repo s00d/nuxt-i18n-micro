@@ -62,10 +62,10 @@ Every URL is resolved with `?q=1#top`.
 | /store | localized-shop-en | en | shop | shop | English | null | null | null |
 | /store/shoes | localized-shop-category-en | en | shop-category | shop-category | English | null | null | null |
 | /store/shoes/red-boot | localized-shop-category-item-en | en | shop-category-item | shop-category-item | English | null | null | null |
-| /en | null | en |  | index | English | en | null | null |
-| /en/ | null | en |  | index | English | en | null | null |
-| /de | null | en |  | index | English | de | null | null |
-| /de/ | null | en |  | index | English | de | null | null |
+| /en | null | en | index | index | English | en | null | null |
+| /en/ | null | en | index | index | English | en | null | null |
+| /de | null | en | index | index | English | de | null | null |
+| /de/ | null | en | index | index | English | de | null | null |
 | /about/ | null | en |  | null | English | null | null | null |
 | /de/about/ | null | en |  | null | English | de | null | null |
 | /missing | null | en |  | null | English | null | null | null |

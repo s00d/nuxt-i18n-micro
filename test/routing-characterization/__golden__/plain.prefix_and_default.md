@@ -52,7 +52,7 @@ Every URL is resolved with `?q=1#top`.
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | null | null |
-| /de/de/about | null | de |  | about | Deutsch | de | de | null |
+| /de/de/about | null | de | about | about | Deutsch | de | de | null |
 
 ## To en
 

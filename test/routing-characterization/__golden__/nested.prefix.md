@@ -65,7 +65,7 @@ Every URL is resolved with `?q=1#top`.
 | /fr/shop | localized-shop | fr | shop | shop | Français | fr | fr | null |
 | /fr/shop/shoes | localized-shop-category | fr | shop-category | shop-category | Français | fr | fr | null |
 | /fr/shop/shoes/red-boot | localized-shop-category-item | fr | shop-category-item | shop-category-item | Français | fr | fr | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | null | en |  | null | English | null | null | null |

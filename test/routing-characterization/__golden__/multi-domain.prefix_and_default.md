@@ -38,7 +38,7 @@ Every URL is resolved with `?q=1#top`.
 | /en/ | localized-index | en | index | index | null | en | en | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | null | null |
-| /de/about/ | null | de |  | about | null | de | de | null |
+| /de/about/ | null | de | about | about | null | de | de | null |
 | /missing | null | en |  | null | null | null | null | null |
 | /de/missing | null | de |  | null | null | de | de | null |
 | /xx/about | null | en |  | null | null | null | null | null |

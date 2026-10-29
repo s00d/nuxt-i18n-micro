@@ -15,6 +15,8 @@ export interface ResolvedRouteLike extends RouteLike {
   name: string | null
   path: string
   fullPath: string
+  /** Matched records (vue-router routes have them): an unnamed route that matched is not a 404. */
+  matched?: unknown[]
 }
 
 /** What path-strategy reads from a vue-router record (`router.getRoutes()`). */

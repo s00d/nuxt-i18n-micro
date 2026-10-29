@@ -29,10 +29,10 @@ Every URL is resolved with `?q=1#top`.
 | /fr | localized-index | fr | index | index | null | fr | fr | null |
 | /fr/a-propos | localized-about-fr | fr | about | about | null | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
-| / | null | en |  | index | null | null | null | null |
+| / | null | en | index | index | null | null | null | null |
 | /en/ | localized-index | en | index | index | null | en | en | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
-| /about/ | null | en |  | about | null | null | null | null |
+| /about/ | null | en | about | about | null | null | null | null |
 | /de/about/ | null | de |  | null | null | de | de | null |
 | /missing | null | en |  | null | null | null | null | null |
 | /de/missing | null | de |  | null | null | de | de | null |

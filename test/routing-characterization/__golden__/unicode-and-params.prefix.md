@@ -42,10 +42,10 @@ Every URL is resolved with `?q=1#top`.
 | /fr/documentation/2 | localized-docs-page-fr | fr | docs-page | docs-page | Français | fr | fr | null |
 | /fr/post-42 | localized-post-id | fr | post-id | post-id | Français | fr | fr | null |
 | /fr/à-propos | localized-über-uns-fr | fr | über-uns | über-uns | Français | fr | fr | null |
-| / | null | en |  | index | English | null | null | null |
+| / | null | en | index | index | English | null | null | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | über-uns | English | null | null | null |
+| /about/ | null | en | über-uns | über-uns | English | null | null | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |

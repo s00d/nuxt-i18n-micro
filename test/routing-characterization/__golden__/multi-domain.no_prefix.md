@@ -25,12 +25,12 @@ Every URL is resolved with `?q=1#top`.
 | /about | about | en | about | about | null | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | null | null | null | null |
 | /ueber-uns | localized-about-de | en | about | about | null | null | null | null |
-| /en | null | en |  | index | null | en | null | null |
-| /en/ | null | en |  | index | null | en | null | null |
-| /de | null | en |  | index | null | de | null | null |
-| /de/ | null | en |  | index | null | de | null | null |
+| /en | null | en | index | index | null | en | null | null |
+| /en/ | null | en | index | index | null | en | null | null |
+| /de | null | en | index | index | null | de | null | null |
+| /de/ | null | en | index | index | null | de | null | null |
 | /about/ | about | en | about | about | null | null | null | null |
-| /de/about/ | null | en |  | about | null | de | null | null |
+| /de/about/ | null | en | about | about | null | de | null | null |
 | /missing | null | en |  | null | null | null | null | null |
 | /de/missing | null | en |  | null | null | de | null | null |
 | /xx/about | null | en |  | null | null | null | null | null |

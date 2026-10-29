@@ -53,11 +53,11 @@ Every URL is resolved with `?q=1#top`.
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
 | /about/ | about | en | about | about | English | null | null | null |
-| /de/about/ | null | de |  | about | Deutsch | de | de | Locale not allowed for this route |
+| /de/about/ | null | de | about | about | Deutsch | de | de | Locale not allowed for this route |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
 | /xx/about | null | en |  | null | English | null | null | null |
-| /de/de/about | null | de |  | null | Deutsch | de | de | Locale not allowed for this route |
+| /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en
 

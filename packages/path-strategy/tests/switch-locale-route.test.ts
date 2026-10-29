@@ -142,3 +142,13 @@ describe('snapshots (documentation: how switchLocaleRoute works)', () => {
     expect(result).toMatchSnapshot()
   })
 })
+
+describe('switchLocaleRoute - URL shared by several locales', () => {
+  test("the current route may be another locale's localized route: its suffix is stripped too", () => {
+    // en and de both map about to /about; the router matched the en record while on the de page
+    const router = makeRouterAdapter({ 'localized-about-en': '/about', 'localized-about-de': '/about', 'localized-about-ru': '/o-nas' })
+    const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix', { router }))
+    const current: ResolvedRouteLike = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {}, query: {}, hash: '' }
+    expect((strategy.switchLocaleRoute('de', 'ru', current, {}) as RouteLike).name).toBe('localized-about-ru')
+  })
+})

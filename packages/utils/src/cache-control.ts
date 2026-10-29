@@ -1,5 +1,8 @@
 /**
- * CacheControl — O(1) LRU cache with optional sliding TTL.
+ * CacheControl — O(1) LRU cache with an optional TTL.
+ *
+ * TTL counts from when an entry was stored, not from its last read: a hot entry still expires,
+ * so data behind it (a remote `apiBaseServerHost`) is refreshed at least every `ttl` seconds.
  *
  * Map is created internally — no external references, no desync risk.
  *
@@ -46,7 +49,6 @@ export class CacheControl<T> {
         this.delete(key)
         return undefined
       }
-      this.expiry.set(key, Date.now() + this.ttlMs)
     }
 
     // Recency only decides who gets evicted. Without a size limit nothing is ever

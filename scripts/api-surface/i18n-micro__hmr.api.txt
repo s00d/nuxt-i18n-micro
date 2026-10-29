@@ -19,10 +19,7 @@ member DevTranslationMergeInput.readLocaleFile: (relativePath: string) => Record
 function handleTranslationWatchChange: (input: HandleTranslationWatchChangeInput) => Promise<"page" | "root" | "ignored">
 interface HandleTranslationWatchChangeInput
 member HandleTranslationWatchChangeInput.configuredLocales: Set<string>
-member HandleTranslationWatchChangeInput.listPageNames: () => string[]
-member HandleTranslationWatchChangeInput.mergeInput: Omit<DevTranslationMergeInput, "locale" | "pageName">
 member HandleTranslationWatchChangeInput.relativePath: string
-member HandleTranslationWatchChangeInput.routesLocaleLinks?: Record<string, string> | undefined
 member HandleTranslationWatchChangeInput.serverCache: TranslationWatchCache
 member HandleTranslationWatchChangeInput.storageCache?: TranslationWatchCache | null | undefined
 function mergeDevTranslations: (input: DevTranslationMergeInput) => Promise<Record<string, unknown>>

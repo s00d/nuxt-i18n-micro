@@ -6,14 +6,9 @@ import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 
+/** A cache the watcher drops on change (the server cache, the SSR storage cache). */
 interface TranslationWatchCache {
-  set(key: string, value: TranslationWatchCacheEntry): void
-  delete(key: string): boolean
-}
-
-interface TranslationWatchCacheEntry {
-  data: Record<string, unknown>
-  json: string
+  clear(): void
 }
 
 export interface DevTranslationMergeInput {
@@ -25,45 +20,30 @@ export interface DevTranslationMergeInput {
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
 }
 
-interface ApplyTranslationWatchCacheUpdateInput {
-  serverCache: TranslationWatchCache
-  storageCache?: TranslationWatchCache | null
-  routesLocaleLinks?: Record<string, string>
-  locale: string
-  pageName: string
-  merged: Record<string, unknown>
-}
-
 export interface HandleTranslationWatchChangeInput {
   relativePath: string
   configuredLocales: Set<string>
-  listPageNames: () => string[]
   serverCache: TranslationWatchCache
   storageCache?: TranslationWatchCache | null
-  routesLocaleLinks?: Record<string, string>
-  mergeInput: Omit<DevTranslationMergeInput, 'locale' | 'pageName'>
-}
-
-function buildTranslationWatchCacheEntry(data: Record<string, unknown>): TranslationWatchCacheEntry {
-  const json = JSON.stringify(data).replace(/</g, '\\u003c')
-  return { data, json }
 }
 
 /**
- * One translation file, or `{}` when it does not exist.
- *
- * Throws when the file exists but cannot be read or parsed, and that is the point: a
- * `change` event can arrive while the write is still in flight, and treating the
- * half-written file as an empty one merges a chunk that is missing every key the file
- * holds — then caches it as the truth. The cached chunk stays wrong until the file changes
- * again, so the page serves raw keys indefinitely. Failing here leaves the last good entry
- * in place instead.
+ * A locale file as an object: `{}` when missing; broken JSON warns with the path and is `{}`,
+ * like `readTranslationJsonFile` in the build (not imported: that module pulls in globby).
  */
 export function readTranslationFile(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {}
-  const contents = readFileSync(filePath, 'utf-8')
-  return JSON.parse(contents) as Record<string, unknown>
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
+  } catch (error) {
+    if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${(error as Error).message}`)
+    WARNED.add(filePath)
+    return {}
+  }
 }
+
+/** Broken files already reported: once per path, not once per read. */
+const WARNED = new Set<string>()
 
 /**
  * Absolute translation + additional roots for live/HMR reads.
@@ -126,59 +106,18 @@ export async function mergeDevTranslations(input: DevTranslationMergeInput): Pro
   })
 }
 
-function applyTranslationWatchCacheUpdate(input: ApplyTranslationWatchCacheUpdateInput): void {
-  const entry = buildTranslationWatchCacheEntry(input.merged)
-  const cacheKey = `${input.locale}:${input.pageName}`
-
-  input.serverCache.set(cacheKey, entry)
-  input.storageCache?.delete(cacheKey)
-
-  const aliases = Object.keys(input.routesLocaleLinks ?? {}).filter((alias) => input.routesLocaleLinks?.[alias] === input.pageName)
-  for (const alias of aliases) {
-    const aliasKey = `${input.locale}:${alias}`
-    input.serverCache.set(aliasKey, entry)
-    input.storageCache?.delete(aliasKey)
-  }
-}
-
+/**
+ * A translation file changed: drop every cached dictionary. A root file feeds every page, and
+ * through fallback chains other locales too, so any narrower invalidation leaves stale chunks
+ * (pages it did not list, `disablePageLocales` keys, fallback locales). Dev reads are live
+ * merges, so the next request rebuilds only what is asked for.
+ */
 export async function handleTranslationWatchChange(input: HandleTranslationWatchChangeInput): Promise<'page' | 'root' | 'ignored'> {
   const parsed = parseTranslationRelativePath(input.relativePath)
-  if (parsed.type === 'ignore') {
-    return 'ignored'
-  }
-
-  const mergePage = async (locale: string, pageName: string) => {
-    const merged = await mergeDevTranslations({
-      ...input.mergeInput,
-      locale,
-      pageName,
-    })
-    applyTranslationWatchCacheUpdate({
-      serverCache: input.serverCache,
-      storageCache: input.storageCache,
-      routesLocaleLinks: input.routesLocaleLinks,
-      locale,
-      pageName,
-      merged,
-    })
-  }
-
-  if (parsed.type === 'page') {
-    await mergePage(parsed.locale, parsed.pageName)
-    return 'page'
-  }
-
-  if (!input.configuredLocales.has(parsed.locale)) {
-    return 'ignored'
-  }
-
-  // A root locale file feeds every page, so all of them have to be re-merged. The
-  // merges are independent — each reads its own files and writes its own cache key
-  // (`locale:pageName`, plus aliases that belong to that page alone) — so there is
-  // nothing to serialize them for.
-  const pageNames = [...input.listPageNames(), 'index']
-  await Promise.all(pageNames.map((pageName) => mergePage(parsed.locale, pageName)))
-  return 'root'
+  if (parsed.type === 'ignore' || (parsed.type === 'root' && !input.configuredLocales.has(parsed.locale))) return 'ignored'
+  input.serverCache.clear()
+  input.storageCache?.clear()
+  return parsed.type
 }
 
 /**

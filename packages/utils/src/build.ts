@@ -1,8 +1,8 @@
 import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { globby } from 'globby'
-import { deepMergeTranslations, deepMergeTranslationsRecursive } from './deep-merge'
-import { PREMERGED_ROOT_PAGE } from './merge-source'
+import { deepMergeTranslationsRecursive } from './deep-merge'
+import { mergeSourceTranslations, PREMERGED_ROOT_PAGE } from './merge-source'
 
 export interface PreMergeLocaleInfo {
   code: string
@@ -24,13 +24,7 @@ export function mergeAdditionalRootLocaleFiles(
   let content: Record<string, unknown> = {}
   for (const dirName of additionalDirNames) {
     for (const rootDir of rootDirs) {
-      const filePath = join(rootDir, dirName, `${locale}.json`)
-      if (!existsSync(filePath)) continue
-      try {
-        content = deepMergeTranslationsRecursive(content, JSON.parse(readFileSync(filePath, 'utf-8')))
-      } catch {
-        /* skip broken JSON */
-      }
+      content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(rootDir, dirName, `${locale}.json`)))
     }
   }
 
@@ -52,19 +46,6 @@ export function listAdditionalRootLocales(rootDirs: string[], additionalDirNames
     }
   }
   return [...locales]
-}
-
-function applyAdditionalRootsToMap(
-  rootDirs: string[],
-  additionalDirNames: string[] | undefined,
-  rootMap: Map<string, Record<string, unknown>>,
-): void {
-  if (!additionalDirNames?.length) return
-
-  const locales = new Set<string>([...rootMap.keys(), ...listAdditionalRootLocales(rootDirs, additionalDirNames)])
-  for (const locale of locales) {
-    rootMap.set(locale, mergeAdditionalRootLocaleFiles(rootDirs, additionalDirNames, locale, rootMap.get(locale) ?? {}))
-  }
 }
 
 /**
@@ -92,91 +73,54 @@ export async function preMergeLocales(
     files.forEach((f) => allFiles.add(f))
   }
 
+  // every file with its layers merged (later layers win), additional root dirs under the root files
   const merged = new Map<string, Record<string, unknown>>()
   for (const file of allFiles) {
     let content: Record<string, unknown> = {}
-    for (const lp of layerPaths) {
-      const fp = join(lp, file)
-      if (existsSync(fp)) {
-        try {
-          content = deepMergeTranslationsRecursive(content, JSON.parse(readFileSync(fp, 'utf-8')))
-        } catch {
-          /* skip */
-        }
-      }
-    }
+    for (const lp of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(lp, file)))
     merged.set(file, content)
   }
+  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs ?? []))
+    if (!merged.has(`${locale}.json`)) merged.set(`${locale}.json`, {})
+  for (const file of [...merged.keys()].filter((f) => dirname(f) === '.'))
+    merged.set(file, mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs ?? [], file.slice(0, -'.json'.length), merged.get(file)))
 
-  const rootMap = new Map<string, Record<string, unknown>>()
-  const pageMap = new Map<string, Map<string, Record<string, unknown>>>()
-
-  for (const [file, content] of merged) {
-    const dir = dirname(file)
-    const locale = file.slice(file.lastIndexOf('/') + 1).replace('.json', '')
-
-    if (dir === '.') {
-      rootMap.set(locale, content)
-    } else {
-      if (!pageMap.has(dir)) pageMap.set(dir, new Map())
-      pageMap.get(dir)!.set(locale, content)
-    }
-  }
-
-  applyAdditionalRootsToMap(rootDirs, additionalTranslationDirs, rootMap)
-
-  const knownCodes = new Set(locales.map((l) => l.code))
-
-  const applyFallback = (map: Map<string, Record<string, unknown>>) => {
+  // the same read source mode and dev do (fallback chain, root under page): one model, three modes
+  const pages = new Set([...merged.keys()].filter((f) => f.startsWith('pages/')).map((f) => dirname(f).slice('pages/'.length)))
+  const targets = disablePageLocales || pages.size === 0 ? ['index'] : [...pages, ...(pages.has('index') ? [] : ['index'])]
+  for (const page of [...targets, PREMERGED_ROOT_PAGE])
     for (const locale of locales) {
-      const chain = [globalFallbackLocale, locale.fallbackLocale, locale.code]
-        .filter((l): l is string => !!l && knownCodes.has(l))
-        .filter((v, i, arr) => arr.indexOf(v) === i)
-      if (chain.length <= 1) continue
-
-      let result: Record<string, unknown> = {}
-      for (const code of chain) {
-        const data = map.get(code)
-        if (data) result = deepMergeTranslationsRecursive(result, data)
-      }
-      map.set(locale.code, result)
-    }
-  }
-
-  applyFallback(rootMap)
-  for (const localeMap of pageMap.values()) {
-    applyFallback(localeMap)
-  }
-
-  if (disablePageLocales || pageMap.size === 0) {
-    const indexMap = new Map<string, Record<string, unknown>>()
-    for (const [locale, data] of rootMap) {
-      indexMap.set(locale, { ...data })
-    }
-    pageMap.set('pages/index', indexMap)
-  } else {
-    for (const [, localeMap] of pageMap) {
-      for (const [locale, rootData] of rootMap) {
-        const pageData = localeMap.get(locale)
-        localeMap.set(locale, pageData ? deepMergeTranslations(rootData, pageData) : { ...rootData })
-      }
-    }
-  }
-
-  // Root alone, for pages without their own folder (premerged has no file for them otherwise).
-  pageMap.set(`pages/${PREMERGED_ROOT_PAGE}`, new Map([...rootMap].map(([locale, data]) => [locale, { ...data }])))
-
-  for (const [context, localeMap] of pageMap) {
-    // Source dirs are `pages/{page}`; emit client URL layout `{page}/{locale}/data.json`.
-    const page = context.replace(/^pages\/?/, '') || 'index'
-    for (const [locale, data] of localeMap) {
-      if (!knownCodes.has(locale)) continue
-      const targetPath = join(outputDir, page, locale, 'data.json')
+      const data = await mergeSourceTranslations({
+        locale: locale.code,
+        pageName: page,
+        locales,
+        globalFallbackLocale,
+        disablePageLocales,
+        readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
+      })
+      const targetPath = join(outputDir, page, locale.code, 'data.json')
       mkdirSync(dirname(targetPath), { recursive: true })
       writeFileSync(targetPath, JSON.stringify(data))
     }
+}
+
+/**
+ * A locale JSON file as an object: missing is `{}`; broken JSON warns with the path and is `{}`
+ * (one bad file must not silently empty a dictionary, nor crash dev).
+ */
+export function readTranslationJsonFile(filePath: string): Record<string, unknown> {
+  if (!existsSync(filePath)) return {}
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
+  } catch (error) {
+    if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${(error as Error).message}`)
+    WARNED.add(filePath)
+    return {}
   }
 }
+
+/** Broken files already reported: once per path, not once per read. */
+const WARNED = new Set<string>()
 
 /**
  * Merge translation layers at build time but keep the source directory shape.
@@ -207,16 +151,7 @@ export async function buildTranslationSourceLayers(
 
   for (const file of allFiles) {
     let content: Record<string, unknown> = {}
-    for (const layerPath of layerPaths) {
-      const filePath = join(layerPath, file)
-      if (existsSync(filePath)) {
-        try {
-          content = deepMergeTranslationsRecursive(content, JSON.parse(readFileSync(filePath, 'utf-8')))
-        } catch {
-          /* skip */
-        }
-      }
-    }
+    for (const layerPath of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(layerPath, file)))
 
     if (dirname(file) === '.') {
       const locale = file.slice(0, -'.json'.length)

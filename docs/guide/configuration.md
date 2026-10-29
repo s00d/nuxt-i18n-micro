@@ -68,8 +68,8 @@ The sections below explain how they work together; the
 | [`routeDisableMeta`](/api/module-options) | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted from `defineI18nRoute()` calls. |
 | [`missingWarn`](/api/module-options) | `boolean` | `true` | Show console warnings when a translation key is missing. |
 | [`hmr`](/api/module-options) | `boolean` | `true` | Enable Hot Module Replacement for translation files in development. |
-| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation cache. |
-| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) for cached translation entries. |
+| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation caches (least recently used go first). |
+| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) for cached translation entries, counted from when an entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that often. |
 | [`numberFormats`](/api/module-options) | `Record<string, Record<string, Intl.NumberFormatOptions>>` | — | Named number formats per locale (Vue I18n-compatible). |
 | [`datetimeFormats`](/api/module-options) | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). |
 | [`httpCacheDuration`](/api/module-options) | `number` | `31536000` | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. |
@@ -1349,8 +1349,9 @@ export default defineNuxtConfig({
 
 **Type** `number` · **Default** `0`
 
-Maximum number of entries in the in-memory translation cache.
-`0` means no limit.
+Maximum number of entries in the in-memory translation caches (least recently used go first).
+`0` means no limit in the browser; the server keeps at most 1000 entries then, so request
+URLs naming made-up pages cannot grow its memory.
 
 <!-- /generated:option:cacheMaxSize -->
 
@@ -1360,8 +1361,9 @@ Maximum number of entries in the in-memory translation cache.
 
 **Type** `number` · **Default** `0`
 
-Time-to-live (in seconds) for cached translation entries.
-`0` means entries never expire.
+Time-to-live (in seconds) for cached translation entries, counted from when an entry was
+stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that
+often. `0` means entries never expire.
 
 <!-- /generated:option:cacheTtl -->
 

@@ -52,7 +52,7 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | `createTranslationDirReader` | function | `(translationsRoot: string \| string[], additionalRoots?: string[]) => (relativeFilePath: string) => Record<string, unknown>` |
 | `DevTranslationMergeInput` | interface | 6 members |
 | `handleTranslationWatchChange` | function | `(input: HandleTranslationWatchChangeInput) => Promise<"page" \| "root" \| "ignored">` |
-| `HandleTranslationWatchChangeInput` | interface | 7 members |
+| `HandleTranslationWatchChangeInput` | interface | 4 members |
 | `mergeDevTranslations` | function | `(input: DevTranslationMergeInput) => Promise<Record<string, unknown>>` |
 | `readTranslationFile` | function | `(filePath: string) => Record<string, unknown>` |
 | `resolveLiveTranslationDirs` | function | `(input: { rootDirs: string[]; translationDir: string; additionalTranslationDirs?: string[]; }) => { translationRoots: string[]; additionalRoots: string[]; }` |
@@ -73,15 +73,12 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 </details>
 
 <details>
-<summary><code>HandleTranslationWatchChangeInput</code> — 7 members</summary>
+<summary><code>HandleTranslationWatchChangeInput</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `configuredLocales` | `Set<string>` |
-| `listPageNames` | `() => string[]` |
-| `mergeInput` | `Omit<DevTranslationMergeInput, "locale" \| "pageName">` |
 | `relativePath` | `string` |
-| `routesLocaleLinks?` | `Record<string, string> \| undefined` |
 | `serverCache` | `TranslationWatchCache` |
 | `storageCache?` | `TranslationWatchCache \| null \| undefined` |
 

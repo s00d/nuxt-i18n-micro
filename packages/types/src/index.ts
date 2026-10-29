@@ -489,15 +489,17 @@ export interface ModuleOptions {
   hmr?: boolean
 
   /**
-   * Maximum number of entries in the in-memory translation cache.
-   * `0` means no limit.
+   * Maximum number of entries in the in-memory translation caches (least recently used go first).
+   * `0` means no limit in the browser; the server keeps at most 1000 entries then, so request
+   * URLs naming made-up pages cannot grow its memory.
    * @default 0
    */
   cacheMaxSize?: number
 
   /**
-   * Time-to-live (in seconds) for cached translation entries.
-   * `0` means entries never expire.
+   * Time-to-live (in seconds) for cached translation entries, counted from when an entry was
+   * stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that
+   * often. `0` means entries never expire.
    * @default 0
    */
   cacheTtl?: number

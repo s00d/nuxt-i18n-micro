@@ -8,9 +8,9 @@
 
 ## en · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
-- source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
-- dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
+- source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
+- dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"about-y"}},"onlyEn":"E","list":["en"],"layer":"L","title":"About","layerTitle":"Layer about"}
 
 ## en · contact — modes agree
 
@@ -30,65 +30,65 @@
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","nested":"nested page"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","nested":"nested page"}
 
-## de · index — MODES DIFFER
+## de · index — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
 ## de · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"z":"about-z"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
-- source: {"extra":"X","a":{"b":{"z":"about-z"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
-- dev: {"extra":"X","a":{"b":{"z":"about-z"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
 
-## de · contact — MODES DIFFER
-
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-
-## de · user-profile — MODES DIFFER
+## de · contact — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
 
-## de · user/profile — MODES DIFFER
+## de · user-profile — modes agree
+
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+
+## de · user/profile — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
 
-## fr · index — MODES DIFFER
+## fr · index — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · about — MODES DIFFER
+## fr · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"z":"about-z"}},"shared":{"deep":{"y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
-- source: {"a":{"b":{"z":"about-z"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de","title":"Über"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e","z":"about-z"}},"shared":{"deep":{"x":"de-x","y":"about-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","title":"Über","layerTitle":"Layer about"}
 
-## fr · contact — MODES DIFFER
-
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
-
-## fr · user-profile — MODES DIFFER
+## fr · contact — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
 
-## fr · user/profile — MODES DIFFER
+## fr · user-profile — modes agree
+
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
+
+## fr · user/profile — modes agree
 
 - premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","nested":"nested page"}
 
 ## es · index — modes agree
 
@@ -120,4 +120,4 @@
 - source: {}
 - dev: {}
 
-warnings: 0
+warnings: 2

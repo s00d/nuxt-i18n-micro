@@ -1,94 +1,94 @@
 # disablePageLocales: true
 
-## en · index — MODES DIFFER
+## en · index — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 
-## en · about — MODES DIFFER
+## en · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 
-## en · contact — MODES DIFFER
+## en · contact — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 
-## en · user-profile — MODES DIFFER
+## en · user-profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 
-## en · user/profile — MODES DIFFER
+## en · user/profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L"}
+- premerged: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - source: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 - dev: {"extra":"X","a":{"b":{"c":"en-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"en-x","y":"en-y"}},"onlyEn":"E","list":["en"],"layer":"L","home":"Home"}
 
-## de · index — MODES DIFFER
+## de · index — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## de · about — MODES DIFFER
+## de · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## de · contact — MODES DIFFER
+## de · contact — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## de · user-profile — MODES DIFFER
+## de · user-profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## de · user/profile — MODES DIFFER
+## de · user/profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
-- dev: {"extra":"X","a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · index — MODES DIFFER
+## fr · index — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · about — MODES DIFFER
+## fr · about — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · contact — MODES DIFFER
+## fr · contact — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · user-profile — MODES DIFFER
+## fr · user-profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
-## fr · user/profile — MODES DIFFER
+## fr · user/profile — modes agree
 
-- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de"}
-- source: {"a":{"b":{"c":"de-c"}},"shared":{"deep":{"x":"de-x"}},"list":["de"],"layer":"L-de"}
-- dev: throws SyntaxError
+- premerged: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- source: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
+- dev: {"extra":"X","a":{"b":{"c":"de-c","d":"en-d","e":"layer-e"}},"shared":{"deep":{"x":"de-x","y":"en-y"}},"onlyEn":"E","list":["de"],"layer":"L-de","home":"Home"}
 
 ## es · index — modes agree
 

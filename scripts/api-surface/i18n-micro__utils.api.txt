@@ -25,6 +25,7 @@ interface PreMergeLocaleInfo
 member PreMergeLocaleInfo.code: string
 member PreMergeLocaleInfo.fallbackLocale?: string | undefined
 function preMergeLocales: (rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean, additionalTranslationDirs?: string[]) => Promise<void>
+function readTranslationJsonFile: (filePath: string) => Record<string, unknown>
 
 # ./cache-control (src/cache-control.ts)
 class CacheControl: <T>

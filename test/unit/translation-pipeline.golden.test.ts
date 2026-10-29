@@ -68,7 +68,11 @@ async function source(disablePageLocales: boolean) {
 }
 
 function dev(disablePageLocales: boolean) {
-  const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({ rootDirs, translationDir: 'locales', additionalTranslationDirs: ['extra'] })
+  const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({
+    rootDirs,
+    translationDir: 'locales',
+    additionalTranslationDirs: ['extra'],
+  })
   const readLocaleFile = createTranslationDirReader(translationRoots, additionalRoots)
   return (locale: string, page: string) => mergeDevTranslations({ locale, pageName: page, locales: LOCALES, disablePageLocales, readLocaleFile })
 }

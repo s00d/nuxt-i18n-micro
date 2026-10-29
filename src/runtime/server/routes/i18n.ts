@@ -7,6 +7,8 @@ import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 import { loadTranslationsFromServer } from '../utils/server-loader'
 
+const MAX_PAGE_NAME = 200
+
 /**
  * API Route: /_locales/:page/:locale/data.json
  * Returns translations with fallback locales.
@@ -18,6 +20,10 @@ export default defineEventHandler(async (event) => {
 
   if (!locale || !page) {
     throw createError({ statusCode: 400, statusMessage: 'Missing locale or page' })
+  }
+  // route names are short; a page param this long is no page
+  if (page.length > MAX_PAGE_NAME) {
+    throw createError({ statusCode: 404, statusMessage: 'Page not found' })
   }
 
   const config = resolveI18nConfigWithRuntimeOverrides(

@@ -12,9 +12,9 @@ describe('deepMergeTranslations', () => {
     expect(deepMergeTranslations({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })
   })
 
-  it('replaces below the first level — use the recursive variant for real locale trees', () => {
+  it('merges at every depth (premerged, source and dev agree on deep trees)', () => {
     expect(deepMergeTranslations({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' } } })).toEqual({
-      page: { index: { extra: 'E' } },
+      page: { index: { title: 'T', sub: 'S', extra: 'E' } },
     })
   })
 

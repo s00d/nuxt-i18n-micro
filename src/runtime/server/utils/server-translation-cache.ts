@@ -24,10 +24,16 @@ function isServerTranslationCache(value: unknown): value is CacheControl<ServerT
   )
 }
 
+/**
+ * Entries the server keeps when `cacheMaxSize` is not set. Never unbounded: every distinct
+ * `locale:page` a request names would otherwise stay in memory for the life of the process.
+ */
+export const DEFAULT_SERVER_CACHE_SIZE = 1000
+
 function resolveLimits(limits?: { maxSize: number; ttl: number }): { maxSize: number; ttl: number } {
   if (limits) return limits
   const cfg = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
-  return { maxSize: cfg.cacheMaxSize ?? 0, ttl: cfg.cacheTtl ?? 0 }
+  return { maxSize: cfg.cacheMaxSize || DEFAULT_SERVER_CACHE_SIZE, ttl: cfg.cacheTtl ?? 0 }
 }
 
 /** Get or create the process-wide server translation cache (limits applied once at create). */

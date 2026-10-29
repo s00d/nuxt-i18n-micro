@@ -70,16 +70,21 @@ export function storeLoadedTranslationFile<T extends Record<string, unknown>>(
 ): void {
   const parsed = classifyTranslationRelativePath(relativePath, disablePageLocales)
 
+  // merged, never replaced: under disablePageLocales page files land in the root bucket next to
+  // the root file, and either may be read first
   if (parsed.type === 'page') {
     const routeBucket = buckets.routes[parsed.pageName] ?? (buckets.routes[parsed.pageName] = {} as Record<string, T>)
-    routeBucket[parsed.locale] = translations
+    routeBucket[parsed.locale] = mergeInto(routeBucket[parsed.locale], translations)
     return
   }
 
   if (parsed.type === 'root') {
-    buckets.root[parsed.locale] = translations
+    buckets.root[parsed.locale] = mergeInto(buckets.root[parsed.locale], translations)
   }
 }
+
+const mergeInto = <T extends Record<string, unknown>>(existing: T | undefined, incoming: T): T =>
+  existing ? (deepMergeTranslations(existing, incoming) as T) : incoming
 
 /**
  * Merge route-specific translations on top of root translations.

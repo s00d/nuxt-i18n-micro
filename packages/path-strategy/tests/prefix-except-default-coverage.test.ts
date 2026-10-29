@@ -252,18 +252,7 @@ describe('PrefixExceptDefaultPathStrategy - formatPathForResolve', () => {
 
 describe('PrefixExceptDefaultPathStrategy - switchLocaleRoute to default', () => {
   test('handles switch from non-default to default locale (lines 49, 60)', () => {
-    const router = makeRouterAdapter(['page', 'localized-page', 'localized-page-de'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'page') {
-        return { ...r, path: '/page', fullPath: '/page' }
-      }
-      if ((to as RouteLike).name === 'localized-page-de') {
-        return { ...r, path: '/de/page', fullPath: '/de/page' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ page: '/page', 'localized-page': '/:locale(fr)/page', 'localized-page-de': '/:locale(de)/page' })
 
     const ctx = makeCtx({ router })
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)
@@ -402,15 +391,7 @@ describe('PrefixExceptDefaultPathStrategy - switchLocaleRoute', () => {
         { code: 'fr', iso: 'fr-FR', baseUrl: 'https://fr.example.com' },
       ],
     })
-    const router = makeRouterAdapter(['page', 'localized-page-fr'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'localized-page-fr') {
-        return { ...r, path: '/page', fullPath: '/page' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ page: '/page', 'localized-page-fr': '/page' })
     ctx.router = router
 
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)
@@ -427,15 +408,7 @@ describe('PrefixExceptDefaultPathStrategy - switchLocaleRoute', () => {
   })
 
   test('handles switch with query and hash preserved', () => {
-    const router = makeRouterAdapter(['page', 'localized-page-de'])
-    const originalResolve = router.resolve.bind(router)
-    router.resolve = (to: RouteLike | string) => {
-      const r = originalResolve(to) as ResolvedRouteLike
-      if ((to as RouteLike).name === 'localized-page-de') {
-        return { ...r, path: '/de/page', fullPath: '/de/page' }
-      }
-      return r
-    }
+    const router = makeRouterAdapter({ page: '/page', 'localized-page-de': '/:locale(de)/page' })
 
     const strategy = new PrefixExceptDefaultPathStrategy(makeCtx({ router }))
     const route: ResolvedRouteLike = {

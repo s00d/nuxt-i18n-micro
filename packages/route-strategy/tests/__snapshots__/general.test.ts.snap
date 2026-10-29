@@ -85,33 +85,29 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 22. should co
       "/company",
     ],
     "children": [],
+    "meta": {
+      "alias": [
+        "/about-us",
+        "/company",
+      ],
+    },
     "name": "about",
     "path": "/about",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de|ru)/about-us",
+      "/:locale(de|ru)/company",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de|ru)/about-us",
+        "/:locale(de|ru)/company",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(de|ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/company",
   },
 ]
 `;
@@ -126,12 +122,12 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
           {
             "children": [],
             "file": "/pages/parent/child/grandchild.vue",
-            "name": "localized-parent-child-grandchild-en",
+            "name": "localized-parent-child-grandchild",
             "path": "grandchild",
           },
         ],
         "file": "/pages/parent/child.vue",
-        "name": "localized-parent-child-en",
+        "name": "localized-parent-child",
         "path": "child",
       },
     ],
@@ -140,7 +136,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
       "alias": undefined,
     },
     "name": "localized-parent",
-    "path": "/:locale(en)/parent",
+    "path": "/:locale(en|ru)/parent",
   },
   {
     "alias": undefined,
@@ -165,30 +161,6 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
     },
     "name": "localized-parent-de",
     "path": "/:locale(de)/eltern",
-  },
-  {
-    "alias": undefined,
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "file": "/pages/parent/child/grandchild.vue",
-            "name": "localized-parent-child-grandchild-ru",
-            "path": "grandchild",
-          },
-        ],
-        "file": "/pages/parent/child.vue",
-        "name": "localized-parent-child-ru",
-        "path": "child",
-      },
-    ],
-    "file": "/pages/parent.vue",
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-parent",
-    "path": "/:locale(ru)/parent",
   },
 ]
 `;
@@ -412,7 +384,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 30. should ha
         ],
         "file": "/pages/parent/child.vue",
         "name": "localized-parent-child-de",
-        "path": "eltern/kind",
+        "path": "kind",
       },
     ],
     "file": "/pages/parent.vue",

@@ -124,24 +124,24 @@ exports[`strategies deep snapshots (large configs, full state) > no_prefix: full
   ],
   "localeRouteByName": {
     "de": {
-      "fullPath": "https://de.example.com",
-      "path": "https://de.example.com",
+      "fullPath": "https://de.example.com/ueber-uns",
+      "path": "https://de.example.com/ueber-uns",
     },
     "en": {
-      "fullPath": "/",
+      "fullPath": "/about-us",
       "hash": "",
       "name": "localized-about-en",
       "params": {},
-      "path": "/",
+      "path": "/about-us",
       "query": {},
     },
     "fr": {
-      "fullPath": "/a-propos",
-      "path": "/a-propos",
+      "fullPath": "/about",
+      "path": "/about",
     },
     "ru": {
-      "fullPath": "https://ru.example.com",
-      "path": "https://ru.example.com",
+      "fullPath": "https://ru.example.com/o-nas",
+      "path": "https://ru.example.com/o-nas",
     },
   },
   "localeRouteByPath": {
@@ -343,15 +343,17 @@ exports[`strategies deep snapshots (large configs, full state) > prefix: full st
   ],
   "localeRouteByName": {
     "de": {
-      "fullPath": "https://de.example.com",
-      "path": "https://de.example.com",
+      "fullPath": "https://de.example.com/de/ueber-uns",
+      "path": "https://de.example.com/de/ueber-uns",
     },
     "en": {
-      "fullPath": "/",
+      "fullPath": "/en/about-us",
       "hash": "",
       "name": "localized-about-en",
-      "params": {},
-      "path": "/",
+      "params": {
+        "locale": "en",
+      },
+      "path": "/en/about-us",
       "query": {},
     },
     "fr": {
@@ -359,8 +361,8 @@ exports[`strategies deep snapshots (large configs, full state) > prefix: full st
       "path": "/fr/a-propos",
     },
     "ru": {
-      "fullPath": "https://ru.example.com",
-      "path": "https://ru.example.com",
+      "fullPath": "https://ru.example.com/ru/o-nas",
+      "path": "https://ru.example.com/ru/o-nas",
     },
   },
   "localeRouteByPath": {
@@ -567,7 +569,13 @@ exports[`strategies deep snapshots (large configs, full state) > prefix_and_defa
     },
     "en": {
       "fullPath": "/en/about-us",
+      "hash": "",
+      "name": "localized-about-en",
+      "params": {
+        "locale": "en",
+      },
       "path": "/en/about-us",
+      "query": {},
     },
     "fr": {
       "fullPath": "/fr/a-propos",
@@ -782,7 +790,11 @@ exports[`strategies deep snapshots (large configs, full state) > prefix_except_d
     },
     "en": {
       "fullPath": "/about-us",
+      "hash": "",
+      "name": "about",
+      "params": {},
       "path": "/about-us",
+      "query": {},
     },
     "fr": {
       "fullPath": "/fr/a-propos",
@@ -863,8 +875,8 @@ exports[`strategies deep snapshots (large configs, full state) > prefix_except_d
     "/products/1": "en",
     "/ru/o-nas": "ru",
   },
-  "switchFromEnToDe": "https://de.example.com",
-  "switchWithParams": "https://de.example.com",
+  "switchFromEnToDe": "https://de.example.com/de/ueber-uns",
+  "switchWithParams": "https://de.example.com/de/produkte/2",
 }
 `;
 

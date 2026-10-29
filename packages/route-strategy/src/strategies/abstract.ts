@@ -1,9 +1,18 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { createRoute, resolveChildPath } from '../core/builder'
+import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import { isLocalizationDisabledForPage } from '../core/localization-disabled'
-import { buildFullPath, buildRouteNameFromRoute, cloneArray, isInternalPath, isPageRedirectOnly, normalizePath, removeLeadingSlash } from '../utils'
+import {
+  buildEncodedPathAliases,
+  buildFullPath,
+  buildRouteNameFromRoute,
+  cloneArray,
+  isInternalPath,
+  isPageRedirectOnly,
+  normalizePath,
+  removeLeadingSlash,
+} from '../utils'
 import type { RouteStrategy } from './types'
 
 export abstract class BaseStrategy implements RouteStrategy {
@@ -68,6 +77,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     parentOriginalPath: string,
     localeCodes: string[],
     context: GeneratorContext,
+    applyCustomPaths = true,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
     const childName = buildRouteNameFromRoute(child.name, child.path)
@@ -75,16 +85,19 @@ export abstract class BaseStrategy implements RouteStrategy {
       return [child]
     }
     const fullPath = resolveChildPath(parentPath, child.path ?? '')
-    const lookupKey = pathKeyForLocalizedPaths(fullPath)
-    const customLocalePaths = context.localizedPaths[lookupKey]
+    // Rules are keyed by the page's original path; parentPath is the localized (:locale) one.
+    const customLocalePaths = context.localizedPaths[pathKeyForLocalizedPaths(childOriginalPath)]
 
-    if (customLocalePaths) {
-      return localeCodes.flatMap((locale) => {
-        const parentLocalizedPath = customLocalePaths[locale] ?? resolveChildPath(parentPath, child.path ?? '')
-        // For Context lookups we always use the original parent path,
-        // so that childOriginalPath is computed as parentOriginalPath + child.path.
-        return this.localizeChild(child, parentLocalizedPath, parentOriginalPath, locale, context, true)
-      })
+    if (customLocalePaths && applyCustomPaths) {
+      // Under the shared parent, locales without their own value share one plain child (listed
+      // first, so a URL several locales share matches it); only custom locales get their own.
+      // Lookups always use the original parent path.
+      const plainLocales = localeCodes.filter((locale) => !customLocalePaths[locale])
+      const customLocales = localeCodes.filter((locale) => customLocalePaths[locale])
+      const plain = plainLocales.length
+        ? this.localizeChildAllLocales({ ...child }, parentPath, parentOriginalPath, plainLocales, context, false)
+        : []
+      return [...plain, ...customLocales.flatMap((locale) => this.localizeChild(child, parentPath, parentOriginalPath, locale, context, true))]
     }
     const routePath = normalizePath(child.path ?? '')
     const finalPathForRoute = removeLeadingSlash(routePath)
@@ -113,9 +126,9 @@ export abstract class BaseStrategy implements RouteStrategy {
       return [child]
     }
     const customPath = context.getCustomPath(childOriginalPath, locale)
-    const finalPathForRoute = customPath ? removeLeadingSlash(normalizePath(customPath)) : removeLeadingSlash(normalizePath(child.path ?? ''))
+    const finalPathForRoute = customPath ? childSegment(parentLocalizedPath, customPath) : removeLeadingSlash(normalizePath(child.path ?? ''))
 
-    const nextParentPath = customPath ?? resolveChildPath(parentLocalizedPath, child.path ?? '')
+    const nextParentPath = resolveChildPath(parentLocalizedPath, finalPathForRoute)
     const localizedChildren = this.localizeChildren(cloneArray(child.children ?? []), nextParentPath, childOriginalPath, locale, context, addPrefix)
     const baseName = buildRouteNameFromRoute(child.name, child.path)
     const routeName = `${context.localizedRouteNamePrefix}${baseName}-${locale}`
@@ -126,6 +139,52 @@ export abstract class BaseStrategy implements RouteStrategy {
         children: localizedChildren,
       }),
     ]
+  }
+
+  /**
+   * vue-router record aliases of a generated route: the page's own aliases (`alias` /
+   * `definePageMeta({ alias })`) localized like the route path — under the route's `:locale(...)`
+   * param (`localeCodes`), or as written for an unprefixed route (`null`) — plus percent-encoded
+   * variants of non-ASCII paths. vue-router applies record aliases to the children and an alias
+   * shares the record's name, so alias URLs follow the localized child tree and names stay
+   * unique (separate alias routes duplicated both).
+   */
+  /** The page's declared aliases as a list: vue-router accepts a single string as well. */
+  protected declaredAliases(page: NuxtPage): string[] {
+    const declared = (page as NuxtPage & { alias?: unknown }).alias ?? page.meta?.alias
+    if (typeof declared === 'string') return [declared]
+    return Array.isArray(declared) ? declared.filter((alias): alias is string => typeof alias === 'string') : []
+  }
+
+  protected routeAliases(page: NuxtPage, routePath: string, localeCodes: string[] | null, context: GeneratorContext): string[] {
+    const own = this.declaredAliases(page).map((alias) =>
+      localeCodes ? buildFullPath(localeCodes, alias, context.customRegex) : normalizePath(alias),
+    )
+    return [...new Set([...buildEncodedPathAliases(routePath), ...own.flatMap((alias) => [alias, ...buildEncodedPathAliases(alias)])])]
+  }
+
+  /**
+   * Children of an unprefixed route with `locale`'s custom paths applied, keeping their own
+   * names (the localized names belong to the prefixed variant). Unchanged when no descendant
+   * has a custom path.
+   */
+  protected localizeChildPathsKeepNames(
+    children: NuxtPage[],
+    parentLocalizedPath: string,
+    parentOriginalPath: string,
+    locale: string,
+    context: GeneratorContext,
+  ): NuxtPage[] {
+    return children.map((child) => {
+      const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+      if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, buildRouteNameFromRoute(child.name, child.path))) return child
+      const customPath = context.getCustomPath(childOriginalPath, locale)
+      const segment = customPath ? childSegment(parentLocalizedPath, customPath) : (child.path ?? '')
+      const grandChildren = child.children?.length
+        ? this.localizeChildPathsKeepNames(child.children, resolveChildPath(parentLocalizedPath, segment), childOriginalPath, locale, context)
+        : child.children
+      return customPath || grandChildren !== child.children ? createRoute(child, { path: segment, children: grandChildren }) : child
+    })
   }
 
   /**

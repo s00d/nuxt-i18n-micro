@@ -328,7 +328,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
     expect(pages).toMatchSnapshot()
   })
 
-  test('should handle alias with custom path (globalLocaleRoutes): alias routes get prefixed path', () => {
+  test('should handle alias with custom path (globalLocaleRoutes): each localized route carries the prefixed alias', () => {
     const globalLocaleRoutes = {
       '/about': { en: '/about', de: '/ueber-uns' },
     }
@@ -356,8 +356,9 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
     const deMain = pages.find((p) => p.name === 'localized-about-de')
     expect(deMain).toBeDefined()
     expect(deMain!.path).toMatch(/ueber-uns/)
-    const aliasRoute = pages.find((p) => p.path?.includes('about-us'))
-    expect(aliasRoute).toBeDefined()
+    expect(defaultRoute!.alias).toEqual(['/about-us'])
+    expect(deMain!.alias).toEqual(['/:locale(de)/about-us'])
+    expect(pages.some((p) => p.path?.includes('about-us'))).toBe(false)
     expect(pages).toMatchSnapshot()
   })
 

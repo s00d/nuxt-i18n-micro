@@ -308,7 +308,18 @@ describe('Performance: path utilities', () => {
 // ---------------------------------------------------------------------------
 // Strategy benchmarks
 // ---------------------------------------------------------------------------
-function makeCtx(strategy: string): PathStrategyContext {
+// Custom paths incl. Nuxt name collisions (about-team: top-level vs about/team: nested).
+const GLOBAL_LOCALE_ROUTES: Record<string, Record<string, string>> = {
+  about: { en: '/about', de: '/ueber-uns', fr: '/a-propos' },
+  'about-team': { en: '/about-team', de: '/team-seite', fr: '/equipe' },
+  team: { en: '/team', de: '/mannschaft', fr: '/equipe-page' },
+  'team/members': { en: 'members', de: 'mitglieder', fr: 'membres' },
+  'docs-intro': { en: '/docs/intro', de: '/dokumente/einfuehrung', fr: '/docs/introduction' },
+  'blog-id': { en: '/blog/:id', de: '/artikel/:id', fr: '/article/:id' },
+}
+for (let i = 0; i < 40; i++) GLOBAL_LOCALE_ROUTES[`page-${i}`] = { en: `/page-${i}`, de: `/seite-${i}`, fr: `/page-fr-${i}` }
+
+function makeCtx(strategy: string, globalLocaleRoutes?: PathStrategyContext['globalLocaleRoutes']): PathStrategyContext {
   const locales = [
     { code: 'en', iso: 'en-US' },
     { code: 'de', iso: 'de-DE' },
@@ -320,6 +331,9 @@ function makeCtx(strategy: string): PathStrategyContext {
     { name: 'contact', path: '/contact' },
     { name: 'blog-id', path: '/blog/:id' },
     { name: 'products-category', path: '/products/:category' },
+    { name: 'about-team', path: '/about-team' },
+    { name: 'team-members', path: '/team/members' },
+    { name: 'docs-intro', path: '/docs/intro' },
   ]
   const routeMap = new Map(routes.map((r) => [r.name, r]))
 
@@ -329,6 +343,7 @@ function makeCtx(strategy: string): PathStrategyContext {
     locales,
     localeCodes: locales.map((l) => l.code),
     localizedRouteNamePrefix: 'localized-',
+    globalLocaleRoutes,
     router: {
       resolve: (to: any) => {
         const name = typeof to === 'string' ? to : to?.name
@@ -370,7 +385,17 @@ describe('Performance: strategies', () => {
         hash: '',
       }
 
+      const strategyGR = createPathStrategy(makeCtx(strategyName, GLOBAL_LOCALE_ROUTES))
+      const dashedRoute: ResolvedRouteLike = { name: 'about-team', path: '/about-team', fullPath: '/about-team', params: {}, query: {}, hash: '' }
+
       const cases: [string, () => void][] = [
+        [`${strategyName}: GR localeRoute(name) custom`, () => strategyGR.localeRoute('de', { name: 'about' }, currentRoute)],
+        [`${strategyName}: GR localeRoute(name) dashed sibling`, () => strategyGR.localeRoute('de', { name: 'about-team' }, currentRoute)],
+        [`${strategyName}: GR localeRoute(name) nested child`, () => strategyGR.localeRoute('de', { name: 'team-members' }, currentRoute)],
+        [`${strategyName}: GR localeRoute(name) dashed flat`, () => strategyGR.localeRoute('de', { name: 'docs-intro' }, currentRoute)],
+        [`${strategyName}: GR localeRoute(name) params`, () => strategyGR.localeRoute('de', { name: 'blog-id', params: { id: '5' } }, currentRoute)],
+        [`${strategyName}: GR localeRoute(path) dashed`, () => strategyGR.localeRoute('de', '/about-team', currentRoute)],
+        [`${strategyName}: GR getCanonicalPath dashed`, () => strategyGR.getCanonicalPath(dashedRoute, 'de')],
         [
           `${strategyName}: localeRoute(name)`,
           () => {

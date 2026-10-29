@@ -2,6 +2,7 @@ import {
   buildCanonicalFromSegment,
   buildPrefixedPath,
   findLocalizedRouteName,
+  isTrustedRouterRoute,
   isUnlocalizedRoute,
   preserveQueryAndHash,
   tryResolveByLocalizedName,
@@ -20,11 +21,22 @@ import {
   normalizePath,
   normalizePathForCompare,
   parentKeyFromSlashKey,
-  isTopLevelDashedPagePath,
   joinNestedCustomPath,
   transformNameKeyToPath,
 } from '../path'
-import { analyzeRoute, getPathForUnlocalizedRoute, getPathForUnlocalizedRouteByName, isIndexRouteName, resolveCustomPath } from '../resolver'
+import {
+  analyzeRoute,
+  findCustomRule,
+  findRouterPathRule,
+  getPathForUnlocalizedRoute,
+  getPathForUnlocalizedRouteByName,
+  isIndexRouteName,
+  isDashedNamePath,
+  isRuleValueForPath,
+  isTopLevelDashedRoute,
+  resolveCustomPath,
+  resolvePathWithParams,
+} from '../resolver'
 import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../types'
 import { BasePathStrategy } from './base-strategy'
 
@@ -95,16 +107,26 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       return this.applyBaseUrl(targetLocale, joinUrl(targetLocale, path))
     }
 
-    const { inputName, sourceRoute, resolved } = normalized
+    const { inputName, sourceRoute } = normalized
     const needsPrefix = this.shouldHavePrefix(targetLocale)
     const hasGR = this.ctx._hasGR === true
     const hasParams = sourceRoute.params !== null && sourceRoute.params !== undefined && hasKeys(sourceRoute.params as Record<string, unknown>)
 
     if (!hasGR) {
-      return this.resolveLocaleRouteSimple(targetLocale, inputName, sourceRoute, resolved, needsPrefix, hasParams, currentRoute)
+      return this.resolveLocaleRouteSimple(targetLocale, inputName, sourceRoute, normalized.resolved, needsPrefix, hasParams, currentRoute)
     }
 
-    return this.resolveLocaleRouteFull(targetLocale, inputName, sourceRoute, resolved, needsPrefix, hasParams, currentRoute)
+    if (inputName) {
+      const unlocalizedByName = getPathForUnlocalizedRouteByName(this.ctx, inputName)
+      if (unlocalizedByName !== null) return preserveQueryAndHash(unlocalizedByName, sourceRoute)
+
+      // The router holds every localized route with its build-time path: ask it first, before
+      // the input route is even resolved. The globalLocaleRoutes heuristics run only when it has no such route.
+      const viaRouter = this.resolveViaRouter(inputName, targetLocale, needsPrefix, sourceRoute, hasParams)
+      if (viaRouter !== null) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, viaRouter), sourceRoute)
+    }
+
+    return this.resolveLocaleRouteFull(targetLocale, inputName, sourceRoute, normalized.resolved, needsPrefix, hasParams, currentRoute)
   }
 
   private resolveLocaleRouteSimple(
@@ -203,23 +225,29 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     const prefix = this.getLocalizedRouteNamePrefix()
 
     if (inputName) {
-      const unlocalizedByName = getPathForUnlocalizedRouteByName(this.ctx, inputName)
-      if (unlocalizedByName !== null) return preserveQueryAndHash(unlocalizedByName, sourceRoute)
-
       const pathForNesting = resolved?.path && resolved.path !== '/' ? analyzeRoute(this.ctx, resolved).pathWithoutLocale : null
 
       // Prefer the real router path for top-level dashed pages so we never look up
       // nested file-path keys (about/team) via a synthetic /about/team path.
-      if (isTopLevelDashedPagePath(inputName, pathForNesting)) {
+      if (isTopLevelDashedRoute(this.ctx, inputName, pathForNesting)) {
         const topLevelResolved: ResolvedRouteLike = {
           name: inputName,
           path: pathForNesting!,
           fullPath: pathForNesting!,
           params: sourceRoute.params ?? {},
         }
-        const customTopLevel = resolveCustomPath(this.ctx, topLevelResolved, targetLocale)
-        if (customTopLevel !== null) {
-          return this.buildNestedCustomResult(customTopLevel, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
+        const rule = findCustomRule(this.ctx, topLevelResolved, targetLocale)
+        if (rule !== null) {
+          return this.buildNestedCustomResult(
+            rule,
+            topLevelResolved.params,
+            inputName,
+            targetLocale,
+            needsPrefix,
+            sourceRoute,
+            currentRoute,
+            pathForNesting,
+          )
         }
       } else {
         const keyLastSlash = nameKeyLastSlash(inputName)
@@ -229,9 +257,41 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           fullPath: `/${keyLastSlash}`,
           params: sourceRoute.params ?? {},
         }
-        const customBySynthetic = resolveCustomPath(this.ctx, syntheticResolved, targetLocale)
-        if (customBySynthetic !== null) {
-          return this.buildNestedCustomResult(customBySynthetic, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
+        let rule = findCustomRule(this.ctx, syntheticResolved, targetLocale)
+        // One dashed name can match several rules (about/team and about-team). Prefer the rule
+        // the router path was built from; the synthetic /about/team probe is the fallback.
+        // Same path means same lookup keys, so only a differing router path can find another rule.
+        let isRouterRule = false
+        if (rule !== null && pathForNesting && pathForNesting !== syntheticResolved.path) {
+          isRouterRule = this.isRouterPathRule(rule, inputName, pathForNesting, syntheticResolved.params)
+          if (!isRouterRule) {
+            const routerRule = findRouterPathRule(
+              this.ctx,
+              inputName,
+              pathForNesting,
+              syntheticResolved.path!,
+              this.getRouteOwnLocale(inputName),
+              targetLocale,
+              syntheticResolved.params,
+            )
+            if (routerRule !== null) {
+              rule = routerRule
+              isRouterRule = true
+            }
+          }
+        }
+        if (rule !== null) {
+          return this.buildNestedCustomResult(
+            rule,
+            syntheticResolved.params,
+            inputName,
+            targetLocale,
+            needsPrefix,
+            sourceRoute,
+            currentRoute,
+            pathForNesting,
+            isRouterRule,
+          )
         }
       }
     }
@@ -270,11 +330,12 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       const unlocalizedPath = getPathForUnlocalizedRoute(this.ctx, resolved, analysis)
       if (unlocalizedPath !== null) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, unlocalizedPath), sourceRoute)
 
-      const customSegment = resolveCustomPath(this.ctx, resolved, targetLocale, analysis)
-      if (customSegment !== null) {
+      const rule = findCustomRule(this.ctx, resolved, targetLocale, analysis)
+      if (rule !== null) {
         const routeName = resolved.name?.toString() ?? inputName ?? ''
         return this.buildNestedCustomResult(
-          customSegment,
+          rule,
+          resolved.params,
           routeName,
           targetLocale,
           needsPrefix,
@@ -340,6 +401,50 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     }
 
     return this.resolveLocaleRouteFallback(targetLocale, resolved, sourceRoute, needsPrefix, currentRoute)
+  }
+
+  /** Route `inputName` resolves to in `targetLocale` according to the router (when trusted), or null. */
+  private resolveViaRouter(
+    inputName: string,
+    targetLocale: string,
+    needsPrefix: boolean,
+    sourceRoute: RouteLike,
+    hasParams: boolean,
+  ): RouteLike | null {
+    const router = this.ctx.router
+    const strippedName = this.getRouteBaseName({ name: inputName }) ?? inputName
+    // A page may itself be named `localized-x`: try the input name as the base first, the
+    // name with the localized prefix/suffix stripped only as a fallback.
+    const candidates = strippedName === inputName ? [inputName] : [inputName, strippedName]
+    if (needsPrefix) {
+      const prefix = this.getLocalizedRouteNamePrefix()
+      for (const baseName of candidates) {
+        const route = hasParams
+          ? tryResolveByLocalizedNameWithParams(router, prefix, baseName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
+          : tryResolveByLocalizedName(router, prefix, baseName, targetLocale, sourceRoute)
+        if (route !== null) return isTrustedRouterRoute(this, route, baseName) ? route : null
+      }
+      return null
+    }
+    // Default locale: the base route. A localized input name (`localized-about-de`) is
+    // another locale's route, so its stripped base name wins when that route exists.
+    const baseName = router.hasRoute(strippedName) ? strippedName : router.hasRoute(inputName) ? inputName : null
+    if (baseName === null) return null
+    try {
+      const res = router.resolve({ name: baseName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
+      if (!res?.path) return null
+      const route: RouteLike = {
+        name: baseName,
+        path: res.path,
+        fullPath: res.fullPath,
+        params: res.params,
+        query: res.query ?? sourceRoute.query,
+        hash: res.hash ?? sourceRoute.hash,
+      }
+      return isTrustedRouterRoute(this, route, baseName) ? route : null
+    } catch {
+      return null
+    }
   }
 
   private resolveLocaleRouteFallback(
@@ -429,7 +534,8 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     if (!gr) return null
     // Resolved path wins over slash-key inference: /about-team is never a child of about,
     // even when globalLocaleRoutes also has an about/team rule for a nested page.
-    if (isTopLevelDashedPagePath(baseRouteName, pathWithoutLocale)) {
+    // The nested-rule claim only steers which rule is used; without a rule the URL decides.
+    if (isDashedNamePath(baseRouteName, pathWithoutLocale)) {
       return null
     }
     const keyLast = nameKeyLastSlash(baseRouteName)
@@ -452,20 +558,41 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     return null
   }
 
+  /** Locale whose rule value the router path of `routeName` was built from. */
+  private getRouteOwnLocale(routeName: string): string {
+    const prefix = this.getLocalizedRouteNamePrefix()
+    return (routeName.startsWith(prefix) && this.detectLocaleFromName(routeName)) || this.ctx.defaultLocale
+  }
+
+  private isRouterPathRule(rule: Record<string, string> | null, routeName: string, routerPath: string, params?: Record<string, unknown>): boolean {
+    return rule !== null && isRuleValueForPath(rule[this.getRouteOwnLocale(routeName)], routerPath, params)
+  }
+
   private buildNestedCustomResult(
-    customPath: string,
+    rule: Record<string, string>,
+    ruleParams: Record<string, unknown> | undefined,
     routeName: string,
     targetLocale: string,
     needsPrefix: boolean,
     sourceRoute: RouteLike,
     currentRoute?: ResolvedRouteLike,
     pathWithoutLocale?: string | null,
+    /** Caller already proved that the rule's own-locale value is the router path. */
+    isRouterRule = false,
   ): RouteLike | string {
-    // Absolute paths keyed by route name are complete paths (no parent join).
-    // Relative rules still need the parent for real nested pages — but not when
-    // the resolved path is a top-level dashed sibling (pages/about-team.vue).
-    const hasAbsoluteNameRule = customPath.startsWith('/') && (this.isLocaleRules(routeName) || this.isLocaleRules(`/${routeName}`))
-    const nestedInfo = hasAbsoluteNameRule ? null : this.getNestedRouteInfo(routeName, pathWithoutLocale)
+    // The router path of this route is built from the rule value of the route's own locale.
+    // When that value is the router path itself, the rule holds complete paths (flat or
+    // top-level page): no parent join. Otherwise its values are relative to the parent
+    // (Nuxt child route), whatever key form matched (about/team or about-team).
+    // Without a resolved path or an own-locale value, fall back to: absolute rule keyed by name = complete.
+    const customPath = resolvePathWithParams(rule[targetLocale]!, ruleParams ?? {})
+    const ownValue = pathWithoutLocale ? rule[this.getRouteOwnLocale(routeName)] : undefined
+    const isCompletePath =
+      isRouterRule ||
+      (ownValue !== undefined
+        ? isRuleValueForPath(ownValue, pathWithoutLocale!, ruleParams)
+        : customPath.startsWith('/') && (this.isLocaleRules(routeName) || this.isLocaleRules(`/${routeName}`)))
+    const nestedInfo = isCompletePath ? null : this.getNestedRouteInfo(routeName, pathWithoutLocale)
     let pathNorm: string
     if (nestedInfo) {
       const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)

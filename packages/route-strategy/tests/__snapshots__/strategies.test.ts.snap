@@ -264,6 +264,16 @@ exports[`RouteGenerator - Strategy: prefix > 12. should apply custom paths to al
     "meta": {
       "alias": undefined,
     },
+    "name": "localized-about",
+    "path": "/:locale(ru)/about",
+  },
+  {
+    "alias": undefined,
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": undefined,
+    },
     "name": "localized-about-en",
     "path": "/:locale(en)/about-us",
   },
@@ -276,16 +286,6 @@ exports[`RouteGenerator - Strategy: prefix > 12. should apply custom paths to al
     },
     "name": "localized-about-de",
     "path": "/:locale(de)/ueber-uns",
-  },
-  {
-    "alias": undefined,
-    "children": [],
-    "file": "/pages/about.vue",
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(ru)/about",
   },
   {
     "alias": [],
@@ -308,7 +308,7 @@ exports[`RouteGenerator - Strategy: prefix > 12. should apply custom paths to al
     "path": "/:locale(en|de|ru)/:slug(.*)*",
   },
   {
-    "name": "redirect--about",
+    "name": "redirect-/about",
     "path": "/about",
     "redirect": "/en/about-us",
   },
@@ -473,7 +473,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default > 16. should apply a cust
   {
     "file": "/pages/about.vue",
     "name": "about",
-    "path": "/about",
+    "path": "/about-us",
   },
   {
     "file": "/pages/users/[id].vue",
@@ -503,16 +503,6 @@ exports[`RouteGenerator - Strategy: prefix_and_default > 16. should apply a cust
       "alias": [],
     },
     "name": "localized-about-en",
-    "path": "/about-us",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "file": "/pages/about.vue",
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-about-en",
     "path": "/:locale(en)/about-us",
   },
   {
@@ -523,17 +513,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default > 16. should apply a cust
       "alias": [],
     },
     "name": "localized-about",
-    "path": "/:locale(de)/about",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "file": "/pages/about.vue",
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-about",
-    "path": "/:locale(ru)/about",
+    "path": "/:locale(de|ru)/about",
   },
   {
     "alias": [],

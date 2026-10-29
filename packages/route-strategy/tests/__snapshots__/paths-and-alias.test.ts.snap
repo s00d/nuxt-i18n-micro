@@ -50,33 +50,29 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle alias routes 
       "/company",
     ],
     "children": [],
+    "meta": {
+      "alias": [
+        "/about-us",
+        "/company",
+      ],
+    },
     "name": "about",
     "path": "/about",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de|ru)/about-us",
+      "/:locale(de|ru)/company",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de|ru)/about-us",
+        "/:locale(de|ru)/company",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(de|ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/company",
   },
 ]
 `;
@@ -89,72 +85,73 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle alias routes 
       "/company",
     ],
     "children": [],
+    "meta": {
+      "alias": [
+        "/about-us",
+        "/company",
+      ],
+    },
     "name": "about",
     "path": "/about",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de)/about-us",
+      "/:locale(de)/company",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de)/about-us",
+        "/:locale(de)/company",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(de)/about",
   },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de)/about-us",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de)/company",
-  },
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases > should handle alias with custom path (globalLocaleRoutes): alias routes get prefixed path 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle alias with custom path (globalLocaleRoutes): each localized route carries the prefixed alias 1`] = `
 [
   {
     "alias": [
       "/about-us",
     ],
     "children": [],
+    "meta": {
+      "alias": [
+        "/about-us",
+      ],
+    },
     "name": "about",
     "path": "/about",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de)/about-us",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de)/about-us",
+      ],
     },
     "name": "localized-about-de",
     "path": "/:locale(de)/ueber-uns",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(ru)/about-us",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(ru)/about-us",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
   },
 ]
 `;
@@ -168,11 +165,11 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "products-category-item",
-            "path": "products/category/item",
+            "path": "item",
           },
         ],
         "name": "products-category",
-        "path": "products/category",
+        "path": "category",
       },
     ],
     "name": "products",
@@ -186,11 +183,11 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "localized-products-category-item-de",
-            "path": "item",
+            "path": "artikel",
           },
         ],
         "name": "localized-products-category-de",
-        "path": "produkte/kategorie",
+        "path": "kategorie",
       },
     ],
     "meta": {
@@ -207,7 +204,7 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle complex neste
           {
             "children": [],
             "name": "localized-products-category-item-ru",
-            "path": "products/category/item",
+            "path": "item",
           },
         ],
         "name": "localized-products-category-ru",
@@ -405,15 +402,6 @@ exports[`RouteGenerator - Paths, alias, edge cases > should handle prefix_and_de
 [
   {
     "name": "test",
-    "path": "/test",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-test-en",
     "path": "/test-en",
   },
   {

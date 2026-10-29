@@ -40,6 +40,40 @@ import type {
   SwitchLocaleOptions,
 } from '../types'
 
+/**
+ * Route input whose `resolved` is computed on first access: router.resolve is the costly
+ * part of localeRoute, and strategies that answer from the router by localized name never
+ * need the input route resolved. A class (getter on the prototype) allocates no closures.
+ */
+class LazyRouteInput {
+  readonly kind = 'route' as const
+  private _resolved: ResolvedRouteLike | undefined
+
+  constructor(
+    private readonly router: RouterAdapter,
+    readonly sourceRoute: RouteLike,
+    readonly inputName: string | null,
+  ) {}
+
+  get resolved(): ResolvedRouteLike {
+    if (this._resolved) return this._resolved
+    const sourceRoute = this.sourceRoute
+    try {
+      this._resolved = this.router.resolve(sourceRoute)
+    } catch {
+      this._resolved = {
+        name: this.inputName,
+        path: sourceRoute.path ?? '/',
+        fullPath: sourceRoute.fullPath ?? sourceRoute.path ?? '/',
+        params: sourceRoute.params ?? {},
+        query: sourceRoute.query ?? {},
+        hash: sourceRoute.hash ?? '',
+      } as ResolvedRouteLike
+    }
+    return this._resolved
+  }
+}
+
 export abstract class BasePathStrategy implements PathStrategy {
   readonly ctx: PathStrategyContext
 
@@ -88,7 +122,18 @@ export abstract class BasePathStrategy implements PathStrategy {
   }
 
   getBaseRouteName(route: RouteLike, locale: string): string | null {
-    return this.getRouteBaseName(route, locale)
+    const base = this.getRouteBaseName(route, locale)
+    // A URL several locales share can match another locale's localized route
+    // (`localized-x-en` while on the de page): strip whichever locale suffix it carries —
+    // but only when the router knows that base, since a page may itself be named `about-en`.
+    const prefix = this.getLocalizedRouteNamePrefix()
+    const name = route.name?.toString() ?? ''
+    if (base === null || !name.startsWith(prefix) || base !== name.slice(prefix.length)) return base
+    const stripped = this.getRouteBaseName(route)
+    if (!stripped || stripped === base) return base
+    const router = this.ctx.router
+    const known = router.hasRoute(`${prefix}${stripped}-${locale}`) || router.hasRoute(`${prefix}${stripped}`) || router.hasRoute(stripped)
+    return known ? stripped : base
   }
 
   buildLocalizedName(baseName: string, locale: string): string {
@@ -227,20 +272,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     }
     const sourceRoute = routeOrPath
     const inputName = sourceRoute.name?.toString() ?? null
-    let resolved: ResolvedRouteLike
-    try {
-      resolved = this.ctx.router.resolve(routeOrPath)
-    } catch {
-      resolved = {
-        name: inputName,
-        path: sourceRoute.path ?? '/',
-        fullPath: sourceRoute.fullPath ?? sourceRoute.path ?? '/',
-        params: sourceRoute.params ?? {},
-        query: sourceRoute.query ?? {},
-        hash: sourceRoute.hash ?? '',
-      } as ResolvedRouteLike
-    }
-    return { kind: 'route', inputName, sourceRoute, resolved }
+    return new LazyRouteInput(this.ctx.router, routeOrPath, inputName)
   }
 
   // --- Delegated to standalone helpers ---

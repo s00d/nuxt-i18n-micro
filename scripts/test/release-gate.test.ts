@@ -32,9 +32,11 @@ describe('publishedVersions', () => {
     expect(publishedVersions('@i18n-micro/brand-new')).toEqual([])
   })
 
-  it('reports an empty response as no versions', () => {
+  it('reports an empty response as a failed lookup, not as no versions', () => {
+    // `npm view <pkg> versions --json` always prints a list or an error body; an empty
+    // answer proves nothing, so only a validated E404 may mean "never published".
     npmSays('')
-    expect(publishedVersions('never-published')).toEqual([])
+    expect(publishedVersions('never-published')).toBeNull()
   })
 
   it('reports a failed lookup as null so the gate can fail closed', () => {

@@ -1,6 +1,5 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { generateAliasRoutes } from '../core/alias'
-import { createRoute, resolveChildPath } from '../core/builder'
+import { childSegment, createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { buildFullPathNoPrefix, buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath, removeLeadingSlash } from '../utils'
 import { BaseStrategy } from './abstract'
@@ -14,7 +13,15 @@ export class NoPrefixStrategy extends BaseStrategy {
     const originalChildren = cloneArray(page.children ?? [])
     const result: NuxtPage[] = []
 
+    // The base page serves the default URL: give it its aliases plus the encoded variants of a
+    // non-ASCII path (in place: noPrefixRedirect below sets `redirect` on this same object).
+    const baseAliases = this.routeAliases(page, normalizePath(originalPath), null, context)
+    if (baseAliases.length && baseAliases.join('\n') !== this.declaredAliases(page).join('\n')) {
+      page.alias = baseAliases
+      page.meta = { ...page.meta, alias: baseAliases }
+    }
     result.push(page)
+    const localizedLocales = new Set<string>()
 
     if (customPaths) {
       for (const locale of allowedLocales) {
@@ -28,10 +35,11 @@ export class NoPrefixStrategy extends BaseStrategy {
         if (normalizedCustomPath === normalizedOriginalPath) {
           continue
         }
+        localizedLocales.add(locale)
 
         const routePath = buildFullPathNoPrefix(customPath)
         const routeName = buildRouteName(pageName, locale, true)
-        const children = this.localizeChildrenForNoPrefix(originalChildren, normalizedCustomPath, originalPath, originalPath, locale, context, 1)
+        const children = this.localizeChildrenForNoPrefix(originalChildren, normalizedCustomPath, originalPath, locale, context)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -48,56 +56,61 @@ export class NoPrefixStrategy extends BaseStrategy {
       }
     }
 
-    result.push(...generateAliasRoutes(page, allowedLocales, context.customRegex, context.localizedRouteNamePrefix))
+    // A locale without its own parent path still needs localized children when a descendant
+    // has a different custom path for it: a copy of the parent at its own path carries them.
+    for (const locale of allowedLocales) {
+      if (localizedLocales.has(locale)) continue
+      if (!this.hasChangedChildPath(originalChildren, originalPath, locale, context)) continue
+      result.push(
+        createRoute(page, {
+          path: buildFullPathNoPrefix(originalPath),
+          name: buildRouteName(pageName, locale, true),
+          children: this.localizeChildrenForNoPrefix(originalChildren, normalizePath(originalPath), originalPath, locale, context),
+          alias: [],
+          meta: { alias: [] },
+        }),
+      )
+    }
+
+    // Aliases stay on the base page (unprefixed, as Nuxt registers them): no extra alias routes.
     return result
   }
 
+  /** Whether a descendant has a custom path for `locale` that differs from its own path. */
+  private hasChangedChildPath(children: NuxtPage[], parentOriginalPath: string, locale: string, context: GeneratorContext): boolean {
+    return children.some((child) => {
+      const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+      const customPath = context.getCustomPath(childOriginalPath, locale)
+      if (customPath && childSegment(parentOriginalPath, customPath) !== removeLeadingSlash(normalizePath(child.path ?? ''))) return true
+      return this.hasChangedChildPath(child.children ?? [], childOriginalPath, locale, context)
+    })
+  }
+
   /**
-   * Localizes the children tree for the no_prefix strategy.
-   * Mirrors the behavior of the legacy RouteGenerator:
-   * - on the first level, custom paths (globalLocaleRoutes/filesLocaleRoutes) are applied;
-   * - on deeper levels, path stays as a segment (item, detail, etc.).
+   * Localizes the children tree for the no_prefix strategy: custom paths
+   * (globalLocaleRoutes/filesLocaleRoutes) apply at every level.
    */
   private localizeChildrenForNoPrefix(
     children: NuxtPage[],
     parentLocalizedPath: string,
     parentOriginalPath: string,
-    rootOriginalPath: string,
     locale: string,
     context: GeneratorContext,
-    level: number,
   ): NuxtPage[] {
     return children.map((child) => {
       const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
 
-      let finalPathForRoute: string
-      let nextParentLocalizedPath: string
-
-      if (level === 1) {
-        const customPath = context.getCustomPath(childOriginalPath, locale)
-        if (customPath) {
-          const normalized = normalizePath(customPath)
-          finalPathForRoute = removeLeadingSlash(normalized)
-          nextParentLocalizedPath = normalized
-        } else {
-          const normalizedSegment = normalizePath(child.path ?? '')
-          finalPathForRoute = removeLeadingSlash(normalizedSegment)
-          nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')
-        }
-      } else {
-        const normalizedSegment = normalizePath(child.path ?? '')
-        finalPathForRoute = removeLeadingSlash(normalizedSegment)
-        nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')
-      }
+      // Custom paths apply at every level, relative to the localized parent (or as a full URL).
+      const customPath = context.getCustomPath(childOriginalPath, locale)
+      const finalPathForRoute = customPath ? childSegment(parentLocalizedPath, customPath) : removeLeadingSlash(normalizePath(child.path ?? ''))
+      const nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, finalPathForRoute)
 
       const localizedChildren = this.localizeChildrenForNoPrefix(
         cloneArray(child.children ?? []),
         nextParentLocalizedPath,
         childOriginalPath,
-        rootOriginalPath,
         locale,
         context,
-        level + 1,
       )
 
       const baseName = buildRouteNameFromRoute(child.name, child.path)

@@ -1,31 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Critical: Alias handling > alias routes are separate entries with localized path (prefix strategy) 1`] = `
+exports[`Critical: Alias handling > aliases are vue-router aliases of each localized route, prefixed like its path (prefix strategy) 1`] = `
 [
   {
-    "alias": [],
+    "alias": [
+      "/:locale(en|de|ru)/about-us",
+      "/:locale(en|de|ru)/company",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(en|de|ru)/about-us",
+        "/:locale(en|de|ru)/company",
+      ],
     },
     "name": "localized-about",
     "path": "/:locale(en|de|ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/company",
   },
 ]
 `;
@@ -39,35 +29,23 @@ exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix
     "name": "x",
     "path": "/x",
   },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-x",
-    "path": "/:locale(en|de|ru)/y",
-  },
 ]
 `;
 
 exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix, prefix_and_default 2`] = `
 [
   {
-    "alias": [],
+    "alias": [
+      "/:locale(en|de|ru)/y",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(en|de|ru)/y",
+      ],
     },
     "name": "localized-x",
     "path": "/:locale(en|de|ru)/x",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-x",
-    "path": "/:locale(en|de|ru)/y",
   },
 ]
 `;
@@ -82,56 +60,22 @@ exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix
     "path": "/x",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(en|de|ru)/y",
+    ],
     "children": [],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(en|de|ru)/y",
+      ],
     },
     "name": "localized-x",
     "path": "/:locale(en|de|ru)/x",
   },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-x",
-    "path": "/:locale(en|de|ru)/y",
-  },
 ]
 `;
 
-exports[`Critical: Alias handling > main localized route has alias undefined when alias routes are generated as separate 1`] = `
-[
-  {
-    "alias": [
-      "/about-us",
-    ],
-    "children": [],
-    "name": "about",
-    "path": "/about",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-about",
-    "path": "/:locale(de|ru)/about",
-  },
-  {
-    "alias": undefined,
-    "meta": {
-      "alias": undefined,
-    },
-    "name": "localized-about",
-    "path": "/:locale(en|de|ru)/about-us",
-  },
-]
-`;
-
-exports[`Critical: Alias handling > nested page with alias — alias routes exist and are prefixed 1`] = `
+exports[`Critical: Alias handling > nested page with alias — children inherit the alias, names stay unique 1`] = `
 [
   {
     "alias": [
@@ -144,11 +88,18 @@ exports[`Critical: Alias handling > nested page with alias — alias routes exis
         "path": "child",
       },
     ],
+    "meta": {
+      "alias": [
+        "/parent-alias",
+      ],
+    },
     "name": "parent",
     "path": "/parent",
   },
   {
-    "alias": [],
+    "alias": [
+      "/:locale(de|ru)/parent-alias",
+    ],
     "children": [
       {
         "children": [],
@@ -157,24 +108,43 @@ exports[`Critical: Alias handling > nested page with alias — alias routes exis
       },
     ],
     "meta": {
-      "alias": [],
+      "alias": [
+        "/:locale(de|ru)/parent-alias",
+      ],
     },
     "name": "localized-parent",
     "path": "/:locale(de|ru)/parent",
   },
+]
+`;
+
+exports[`Critical: Alias handling > prefix_except_default: the default route keeps unprefixed aliases, localized routes get prefixed ones 1`] = `
+[
   {
-    "alias": undefined,
-    "children": [
-      {
-        "name": "parent-child",
-        "path": "child",
-      },
+    "alias": [
+      "/about-us",
     ],
+    "children": [],
     "meta": {
-      "alias": undefined,
+      "alias": [
+        "/about-us",
+      ],
     },
-    "name": "localized-parent",
-    "path": "/:locale(en|de|ru)/parent-alias",
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [
+      "/:locale(de|ru)/about-us",
+    ],
+    "children": [],
+    "meta": {
+      "alias": [
+        "/:locale(de|ru)/about-us",
+      ],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
   },
 ]
 `;
@@ -213,7 +183,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > child with absolu
       {
         "children": [],
         "name": "parent-child",
-        "path": "parent/child",
+        "path": "child",
       },
     ],
     "name": "parent",
@@ -259,7 +229,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent an
       {
         "children": [],
         "name": "parent-child",
-        "path": "parent/child",
+        "path": "child",
       },
     ],
     "name": "parent",
@@ -271,7 +241,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent an
       {
         "children": [],
         "name": "localized-parent-child-de",
-        "path": "eltern/kind",
+        "path": "kind",
       },
     ],
     "meta": {

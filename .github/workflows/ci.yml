@@ -124,7 +124,8 @@ jobs:
 
       # Packages in packages/* are versioned by hand and `pnpm publish -r` silently
       # skips a version that already exists on npm — so a forgotten bump ships a
-      # stale package. Fail here instead. Cheap (git only), so it runs early.
+      # stale package. Fail here instead. Cheap (git, plus one npm lookup only for a
+      # changed package whose version was not bumped), so it runs early.
       - name: Check versions
         id: versions
         continue-on-error: true

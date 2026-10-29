@@ -15,11 +15,11 @@ exports[`localeRoute - no_prefix > { name: "index" } returns root path / 1`] = `
 
 exports[`localeRoute - no_prefix > object with name: returns route with localized name when router has it 1`] = `
 {
-  "fullPath": "/",
+  "fullPath": "/ueber-uns",
   "hash": "",
   "name": "localized-about-de",
   "params": {},
-  "path": "/",
+  "path": "/ueber-uns",
   "query": {},
 }
 `;
@@ -42,7 +42,9 @@ exports[`localeRoute - prefix > { name: "index" } returns localized root path 1`
   "fullPath": "/de",
   "hash": "",
   "name": "localized-index-de",
-  "params": {},
+  "params": {
+    "locale": "de",
+  },
   "path": "/de",
   "query": {},
 }
@@ -51,19 +53,23 @@ exports[`localeRoute - prefix > { name: "index" } returns localized root path 1`
 exports[`localeRoute - prefix > object with name: returns route with correct name 1`] = `
 {
   "de": {
-    "fullPath": "/",
+    "fullPath": "/de/about",
     "hash": "",
     "name": "localized-about-de",
-    "params": {},
-    "path": "/",
+    "params": {
+      "locale": "de",
+    },
+    "path": "/de/about",
     "query": {},
   },
   "en": {
-    "fullPath": "/",
+    "fullPath": "/en/about",
     "hash": "",
     "name": "localized-about-en",
-    "params": {},
-    "path": "/",
+    "params": {
+      "locale": "en",
+    },
+    "path": "/en/about",
     "query": {},
   },
 }
@@ -100,16 +106,20 @@ exports[`localeRoute - prefix_and_default > { name: "index" } returns localized 
   "de": {
     "fullPath": "/de",
     "hash": "",
-    "name": "localized-index-de",
-    "params": {},
+    "name": "localized-index",
+    "params": {
+      "locale": "de",
+    },
     "path": "/de",
     "query": {},
   },
   "en": {
     "fullPath": "/en",
     "hash": "",
-    "name": "localized-index-en",
-    "params": {},
+    "name": "localized-index",
+    "params": {
+      "locale": "en",
+    },
     "path": "/en",
     "query": {},
   },
@@ -119,19 +129,23 @@ exports[`localeRoute - prefix_and_default > { name: "index" } returns localized 
 exports[`localeRoute - prefix_and_default > object with name: returns route with correct name 1`] = `
 {
   "de": {
-    "fullPath": "/de",
+    "fullPath": "/de/about",
     "hash": "",
     "name": "localized-about-de",
-    "params": {},
-    "path": "/de",
+    "params": {
+      "locale": "de",
+    },
+    "path": "/de/about",
     "query": {},
   },
   "en": {
-    "fullPath": "/en",
+    "fullPath": "/en/about",
     "hash": "",
     "name": "localized-about-en",
-    "params": {},
-    "path": "/en",
+    "params": {
+      "locale": "en",
+    },
+    "path": "/en/about",
     "query": {},
   },
 }
@@ -185,8 +199,10 @@ exports[`localeRoute - prefix_except_default > { name: "index" } returns root pa
 {
   "fullPath": "/de",
   "hash": "",
-  "name": "localized-index-de",
-  "params": {},
+  "name": "localized-index",
+  "params": {
+    "locale": "de",
+  },
   "path": "/de",
   "query": {},
 }

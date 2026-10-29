@@ -48,7 +48,8 @@ describe('applyBaseUrl edge cases', () => {
         { code: 'fr', iso: 'fr-FR', baseUrl: 'https://fr.example.com' },
       ],
     })
-    const router = makeRouterAdapter(['localized-page-fr'])
+    // multi-domain fr (baseUrl): the fr route has no locale prefix
+    const router = makeRouterAdapter({ page: '/page', 'localized-page-fr': '/page' })
     ctx.router = router
 
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)

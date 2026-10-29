@@ -2,13 +2,8 @@ import type { NuxtPage } from '@nuxt/schema'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { isLocalizationDisabledForPage } from '../core/localization-disabled'
-import { buildEncodedPathAliases, buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
+import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
-
-function getAliasRoutes(page: NuxtPage): string[] {
-  const alias = (page as NuxtPage & { alias?: string[] }).alias ?? page.meta?.alias
-  return Array.isArray(alias) ? alias : []
-}
 
 export class PrefixStrategy extends BaseStrategy {
   protected generateVariants(page: NuxtPage, context: GeneratorContext): NuxtPage[] {
@@ -20,14 +15,31 @@ export class PrefixStrategy extends BaseStrategy {
     const result: NuxtPage[] = []
 
     if (customPaths) {
+      // Locales without their own custom path share one :locale(a|b) route, so that
+      // `localized-<name>` stays unique (vue-router drops all but the last duplicate name).
+      const plainLocales = allowedLocales.filter((locale) => !customPaths[locale])
+      if (plainLocales.length) {
+        const routePath = buildFullPath(plainLocales, originalPath, context.customRegex)
+        const aliases = this.routeAliases(page, routePath, plainLocales, context)
+        result.push(
+          createRoute(page, {
+            path: routePath,
+            name: buildRouteName(pageName, plainLocales[0]!, false, context.localizedRouteNamePrefix),
+            children: this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, plainLocales, context),
+            alias: aliases.length ? aliases : undefined,
+            meta: { alias: aliases.length ? aliases : [] },
+          }),
+        )
+      }
       for (const locale of allowedLocales) {
         const customPath = customPaths[locale]
-        const basePath = customPath ? normalizePath(customPath) : originalPath
+        if (!customPath) continue
+        const basePath = normalizePath(customPath)
         const routePath = buildFullPath(locale, basePath, context.customRegex)
         const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
         const parentLocalizedPath = customPath ?? originalPath
         const children = this.localizeChildren(originalChildren, parentLocalizedPath, originalPath, locale, context, true)
-        const aliases = buildEncodedPathAliases(routePath)
+        const aliases = this.routeAliases(page, routePath, [locale], context)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -42,30 +54,16 @@ export class PrefixStrategy extends BaseStrategy {
       const routePath = buildFullPath(allowedLocales, originalPath, context.customRegex)
       const routeName = buildRouteName(pageName, allowedLocales[0]!, false, context.localizedRouteNamePrefix)
       const children = this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, allowedLocales, context)
+      const aliases = this.routeAliases(page, routePath, allowedLocales, context)
       result.push(
         createRoute(page, {
           path: routePath,
           name: routeName,
           children,
-          alias: [],
-          meta: { alias: [] },
+          alias: aliases,
+          meta: { alias: aliases },
         }),
       )
-    }
-
-    const aliasRoutes = getAliasRoutes(page)
-    if (aliasRoutes.length) {
-      for (const aliasPath of aliasRoutes) {
-        const localizedAliasPath = buildFullPath(allowedLocales, aliasPath, context.customRegex)
-        result.push(
-          createRoute(page, {
-            path: localizedAliasPath,
-            name: `${context.localizedRouteNamePrefix}${page.name ?? ''}`,
-            alias: undefined,
-            meta: { alias: undefined },
-          }),
-        )
-      }
     }
 
     return result
@@ -101,7 +99,8 @@ export class PrefixStrategy extends BaseStrategy {
       if (originalPath !== targetPath) {
         filtered.push({
           path: originalPath,
-          name: `redirect-${routeKey.replace(/\//g, '-')}`,
+          // the raw key keeps `about-team` and `about/team` apart (dashes would collide)
+          name: `redirect-${routeKey}`,
           redirect: targetPath,
         } as NuxtPage)
       }

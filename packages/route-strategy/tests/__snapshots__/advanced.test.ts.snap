@@ -83,16 +83,7 @@ exports[`RouteGenerator - Advanced Scenarios > 34. should prioritize globalLocal
       "alias": [],
     },
     "name": "localized-about",
-    "path": "/:locale(de)/about",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-about",
-    "path": "/:locale(ru)/about",
+    "path": "/:locale(de|ru)/about",
   },
 ]
 `;

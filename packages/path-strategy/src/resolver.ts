@@ -7,7 +7,6 @@ import {
   getPathWithoutLocale,
   hasKeys,
   joinUrl,
-  isTopLevelDashedPagePath,
   nameKeyFirstSlash,
   nameKeyLastSlash,
   normalizePath,
@@ -129,6 +128,66 @@ export function analyzeRoute(ctx: PathStrategyContext, route: ResolvedRouteLike)
   return { pathWithoutLocale, baseRouteName }
 }
 
+type LocaleRules = Record<string, string>
+
+function asLocaleRules(v: unknown): LocaleRules | null {
+  return v && typeof v === 'object' && !Array.isArray(v) ? (v as LocaleRules) : null
+}
+
+/** True when rule value `value` (params substituted) is exactly `pathWithoutLocale`. */
+export function isRuleValueForPath(value: string | undefined, pathWithoutLocale: string, params?: Record<string, unknown>): boolean {
+  if (typeof value !== 'string') return false
+  const target = normalizePath(pathWithoutLocale)
+  if (normalizePath(value) === target) return true
+  return (
+    params !== undefined &&
+    hasKeys(params) &&
+    (value.includes(':') || value.includes('[')) &&
+    normalizePath(resolvePathWithParams(value, params)) === target
+  )
+}
+
+/**
+ * URLs that nested (slash-keyed, e.g. about/team) rules map their page to: the normalized
+ * default-locale value, which is what the unprefixed router path is built from. Values of
+ * other locales and relative values (they sit under the parent) never claim a root URL.
+ * globalLocaleRoutes is static after build, so this is computed once per context.
+ */
+function getNestedRulePaths(ctx: PathStrategyContext): Set<string> {
+  if (ctx._nestedRulePaths) return ctx._nestedRulePaths
+  const paths = new Set<string>()
+  const gr = ctx.globalLocaleRoutes
+  if (gr) {
+    for (const key in gr) {
+      const rule = key.indexOf('/', 1) === -1 ? null : asLocaleRules(gr[key])
+      const v = rule?.[ctx.defaultLocale]
+      if (typeof v === 'string' && v.charCodeAt(0) === 47) paths.add(normalizePath(v))
+    }
+  }
+  ctx._nestedRulePaths = paths
+  return paths
+}
+
+/** `/about-team` for `about-team`: the URL Nuxt gives pages/about-team.vue (pages/about/team.vue gets /about/team). */
+export function isDashedNamePath(routeName: string, pathWithoutLocale: string | null | undefined): boolean {
+  if (!pathWithoutLocale || !routeName.includes('-')) return false
+  const path = normalizePath(pathWithoutLocale)
+  return path.length === routeName.length + 1 && path === `/${routeName}`
+}
+
+/**
+ * Top-level dashed page (pages/about-team.vue at /about-team), not the nested
+ * pages/about/team.vue that Nuxt names the same. A nested rule that maps the
+ * default locale to this very path means the nested file was moved here — unless
+ * the page has its own rule under its name, which then wins.
+ */
+export function isTopLevelDashedRoute(ctx: PathStrategyContext, routeName: string, pathWithoutLocale: string | null | undefined): boolean {
+  if (!isDashedNamePath(routeName, pathWithoutLocale)) return false
+  if (!getNestedRulePaths(ctx).has(normalizePath(pathWithoutLocale!))) return true
+  const gr = ctx.globalLocaleRoutes!
+  return asLocaleRules(gr[routeName]) !== null || asLocaleRules(gr[`/${routeName}`]) !== null
+}
+
 function getLookupKeys(pathWithoutLocale: string, baseRouteName: string | null): string[] {
   const keys: string[] = []
 
@@ -144,7 +203,7 @@ function getLookupKeys(pathWithoutLocale: string, baseRouteName: string | null):
 
     // Top-level dashed pages must not consume nested file-path keys (about/team)
     // that share the same Nuxt route name (about-team).
-    if (isTopLevelDashedPagePath(baseRouteName, pathWithoutLocale)) {
+    if (isDashedNamePath(baseRouteName, pathWithoutLocale)) {
       return keys
     }
 
@@ -162,6 +221,53 @@ function getLookupKeys(pathWithoutLocale: string, baseRouteName: string | null):
 }
 
 /**
+ * globalLocaleRoutes rule that defines targetLocale for this route (first lookup key wins).
+ */
+export function findCustomRule(
+  ctx: PathStrategyContext,
+  route: ResolvedRouteLike,
+  targetLocale: string,
+  precomputed?: RouteAnalysis,
+): LocaleRules | null {
+  const gr = ctx.globalLocaleRoutes
+  if (!gr || !(ctx._hasGR ?? hasKeys(gr as Record<string, unknown>))) return null
+
+  const { pathWithoutLocale, baseRouteName } = precomputed ?? analyzeRoute(ctx, route)
+  const keys = getLookupKeys(pathWithoutLocale, baseRouteName)
+
+  for (const key of keys) {
+    const rule = asLocaleRules(gr[key])
+    if (rule && typeof rule[targetLocale] === 'string') return rule
+  }
+
+  return null
+}
+
+/**
+ * Among the rules `routeName` can match via either path, the one whose `ownLocale` value is
+ * `routerPath` itself — i.e. the rule the router path was generated from.
+ */
+export function findRouterPathRule(
+  ctx: PathStrategyContext,
+  routeName: string,
+  routerPath: string,
+  otherPath: string,
+  ownLocale: string,
+  targetLocale: string,
+  params?: Record<string, unknown>,
+): LocaleRules | null {
+  const gr = ctx.globalLocaleRoutes
+  if (!gr) return null
+  for (const path of [routerPath, otherPath]) {
+    for (const key of getLookupKeys(path, routeName)) {
+      const rule = asLocaleRules(gr[key])
+      if (rule && typeof rule[targetLocale] === 'string' && isRuleValueForPath(rule[ownLocale], routerPath, params)) return rule
+    }
+  }
+  return null
+}
+
+/**
  * Resolves custom path for targetLocale from globalLocaleRoutes.
  */
 export function resolveCustomPath(
@@ -170,23 +276,8 @@ export function resolveCustomPath(
   targetLocale: string,
   precomputed?: RouteAnalysis,
 ): string | null {
-  const gr = ctx.globalLocaleRoutes
-  if (!gr || !(ctx._hasGR ?? hasKeys(gr as Record<string, unknown>))) return null
-
-  const { pathWithoutLocale, baseRouteName } = precomputed ?? analyzeRoute(ctx, route)
-  const keys = getLookupKeys(pathWithoutLocale, baseRouteName)
-
-  for (const key of keys) {
-    const rule = gr[key]
-    if (rule && typeof rule === 'object' && !Array.isArray(rule)) {
-      const customPath = (rule as Record<string, string>)[targetLocale]
-      if (typeof customPath === 'string') {
-        return resolvePathWithParams(customPath, route.params ?? {})
-      }
-    }
-  }
-
-  return null
+  const rule = findCustomRule(ctx, route, targetLocale, precomputed)
+  return rule ? resolvePathWithParams(rule[targetLocale]!, route.params ?? {}) : null
 }
 
 /**

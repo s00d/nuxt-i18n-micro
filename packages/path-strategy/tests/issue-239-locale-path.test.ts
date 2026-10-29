@@ -114,7 +114,8 @@ describe('localeRoute — param constraints in globalLocaleRoutes (#239 B)', () 
       'archive-year': { es: '/archivo/:year(2024|2025)' },
     }
 
-    const router = makeRouterAdapter(['archive-year', 'localized-archive-year-es'])
+    // No localized route in the router: exercises the globalLocaleRoutes fallback.
+    const router = makeRouterAdapter(['archive-year'])
     const resolveOriginal = router.resolve.bind(router)
     router.resolve = (to: RouteLike | string) => {
       const r = resolveOriginal(to) as ResolvedRouteLike & {

@@ -15,6 +15,33 @@ export function resolveChildPath(parentPath: string, childSegment: string): stri
   return normalizePath(path.posix.join(parentPath || '', segment))
 }
 
+/** Strips a leading `/:locale(...)` segment: parents of shared all-locale routes carry it. */
+const withoutLocaleParam = (routePath: string): string => routePath.replace(/^\/?:locale\([^)]*\)/, '') || '/'
+
+/**
+ * Route path segment of a child from its custom value. Child values are relative to the
+ * parent (`book-activity/skiing` under `/activity`); a value that already starts with the
+ * parent's localized path is a full URL and is taken from there (`/bereich/kategorie` under
+ * `/bereich` is `kategorie`, `/bereich` itself is the parent's own path) — the same rule the
+ * runtime applies (joinNestedCustomPath). A full URL that leaves the parent's path below a
+ * shared ancestor cannot be nested; what follows the shared part is kept instead of
+ * doubling it (`/bereich/artikel` under `/bereich/kategorie` is `artikel`). Only absolute
+ * values can be full URLs: a relative value (`bereich/artikel`) is always kept as written.
+ */
+export function childSegment(parentLocalizedPath: string, customValue: string): string {
+  if (!customValue.startsWith('/')) return normalizePath(customValue).replace(/^\/+/, '')
+  const value = normalizePath(`/${customValue.replace(/^\/+/, '')}`)
+  const parent = normalizePath(`/${withoutLocaleParam(parentLocalizedPath).replace(/^\/+/, '')}`)
+  if (parent === '/' || parent === '') return value.replace(/^\/+/, '')
+  if (value === parent) return ''
+  if (value.startsWith(`${parent}/`)) return value.slice(parent.length + 1)
+  const valueSegments = value.split('/').filter(Boolean)
+  const parentSegments = parent.split('/').filter(Boolean)
+  let shared = 0
+  while (shared < valueSegments.length && shared < parentSegments.length && valueSegments[shared] === parentSegments[shared]) shared++
+  return valueSegments.slice(shared).join('/')
+}
+
 export interface CreateRouteOptions {
   path: string
   name?: string

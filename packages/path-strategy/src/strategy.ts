@@ -115,9 +115,11 @@ export class I18nPathStrategy {
   // ponytail: read once per router; routes added later with router.addRoute need setRouter() to be seen
   private get shared(): Shared {
     if (this.shared_) return this.shared_
-    const records = this.ctx.router.getRoutes().filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
-    // name, path and meta.i18n: a dev reload that only changes a page's locales or disableMeta is another table
-    const signature = `${this.ctx.strategy}\0${records.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')}`
+    const all = this.ctx.router.getRoutes()
+    // every record, aliases included (the URL caches see them through router.resolve); name, path
+    // and meta.i18n: a dev reload that only changes a page's locales or disableMeta is another table
+    const signature = `${this.ctx.strategy}\0${all.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')}`
+    const records = all.filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
     let shared = SHARED.get(signature)
     if (!shared) {
       shared = { index: buildIndex(records), pages: new Map(), notFound: new Map(), targets: new Map() }
@@ -209,7 +211,8 @@ export class I18nPathStrategy {
   /** Whether `$defineI18nRoute({ disableMeta })` turns the SEO tags of this page off in `locale`. */
   isMetaDisabled(route: RouteLike, locale: string): boolean {
     const base = this.pageBase(route)
-    const noMeta = base ? this.index.noMeta.get(base) : undefined
+    // an unlocalized page carries its disableMeta on its own record
+    const noMeta = base ? this.index.noMeta.get(base) : (route.meta?.i18nNoMeta as boolean | string[] | undefined)
     return noMeta === true || (Array.isArray(noMeta) && noMeta.includes(locale))
   }
 

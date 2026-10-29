@@ -523,11 +523,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
-    // a path: the page it shows, in `toLocale` (any locale's form of it is understood)
-    const switchedRoute =
-      typeof to === 'string'
-        ? i18nStrategy.localeRoute(toLocale, to)
-        : i18nStrategy.switchLocaleRoute(fromLocale, toLocale, (to ?? currentRoute) as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
+    // a path is read as the page it shows (any locale's form of it), then switched like a route,
+    // so per-locale params (`i18nRouteParams`) apply to it too
+    const from = typeof to === 'string' ? i18nStrategy.localeRoute(fromLocale, to) : (to ?? currentRoute)
+    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
 
     const url = switchedPath(switchedRoute)
     if (/^https?:\/\//.test(url)) return navigateTo(url, { redirectCode: 200, external: true })

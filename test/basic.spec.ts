@@ -26,6 +26,14 @@ describe('basic', () => {
     await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
   })
 
+  test('i18n-link applies activeStyle only to the link of the current localized page', async ({ page, goto }) => {
+    for (const url of ['/', '/de']) {
+      await goto(url, { waitUntil: 'hydration' })
+      await expect(page.locator('#home-link')).toHaveCSS('color', 'rgb(255, 0, 0)')
+      await expect(page.locator('#page-link-styled')).not.toHaveCSS('color', 'rgb(255, 0, 0)')
+    }
+  })
+
   test('redirect from /old-product to /products', async ({ page, goto }) => {
     await goto('/old-product', { waitUntil: 'hydration' })
 

@@ -931,8 +931,8 @@ declare module '#i18n-internal/payload-source' {
       if (withPrefixStrategy(options.strategy!)) {
         const deleted: string[] = []
         for (const route of routesSet) {
-          // `/` (the redirect stub) and unlocalized pages are served without a prefix
-          if (route === '/' || route === '' || localize.localeOf(route) || localize.isUnlocalized(route)) continue
+          // `/` (the redirect stub), unlocalized pages and non-page routes (API, files) are served without a prefix
+          if (route === '/' || route === '' || localize.localeOf(route) || localize.isUnlocalized(route) || !localize.isPage(route)) continue
           routesSet.delete(route)
           deleted.push(route)
         }

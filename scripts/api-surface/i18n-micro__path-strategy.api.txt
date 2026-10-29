@@ -55,6 +55,7 @@ interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
 member ResolvedRouteLike.matched?: unknown[] | undefined
+member ResolvedRouteLike.meta?: Record<string, unknown> | undefined
 member ResolvedRouteLike.name: string | null
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
 member ResolvedRouteLike.path: string
@@ -66,6 +67,7 @@ member RouteI18nMeta.noMeta?: boolean | string[] | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined
+member RouteLike.meta?: Record<string, unknown> | undefined
 member RouteLike.name?: string | null | undefined
 member RouteLike.params?: Record<string, unknown> | undefined
 member RouteLike.path?: string | undefined
@@ -138,6 +140,7 @@ interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
 member ResolvedRouteLike.matched?: unknown[] | undefined
+member ResolvedRouteLike.meta?: Record<string, unknown> | undefined
 member ResolvedRouteLike.name: string | null
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
 member ResolvedRouteLike.path: string
@@ -149,6 +152,7 @@ member RouteI18nMeta.noMeta?: boolean | string[] | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined
+member RouteLike.meta?: Record<string, unknown> | undefined
 member RouteLike.name?: string | null | undefined
 member RouteLike.params?: Record<string, unknown> | undefined
 member RouteLike.path?: string | undefined

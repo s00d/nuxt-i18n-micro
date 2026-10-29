@@ -290,6 +290,12 @@ describe('page facts from meta.i18n', () => {
     expect(i18n.isMetaDisabled(at('/de'), 'de')).toBe(true)
     expect(i18n.isMetaDisabled(at('/'), 'en')).toBe(false)
   })
+
+  test('isMetaDisabled: an unlocalized page reads it from its own record (meta.i18nNoMeta)', () => {
+    const { i18n } = setup('prefix')
+    expect(i18n.isMetaDisabled({ name: 'admin', meta: { i18nNoMeta: true } }, 'de')).toBe(true)
+    expect(i18n.isMetaDisabled({ name: 'admin', meta: {} }, 'de')).toBe(false)
+  })
 })
 
 describe('redirects', () => {

@@ -8,6 +8,8 @@ export interface RouteLike {
   query?: Record<string, unknown>
   hash?: string
   fullPath?: string
+  /** Route meta (vue-router merges the matched records'): `i18nNoMeta` marks an unlocalized page's disableMeta. */
+  meta?: Record<string, unknown>
 }
 
 /** Resolved route (path and fullPath required). */

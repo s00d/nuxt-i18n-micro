@@ -92,7 +92,8 @@ export default defineNuxtPlugin({
     // left — the same signal Nuxt's head waits on. No transition: the new page has rendered.
     nuxtApp.hook('page:finish', () => {
       const leaving = (nuxtApp as { '~transitionPromise'?: Promise<void> })['~transitionPromise']
-      if (leaving) void leaving.finally(() => i18n.finishTransition())
+      const outgoing = i18n.outgoing
+      if (leaving) void leaving.finally(() => i18n.finishTransition(outgoing))
       else i18n.finishTransition()
     })
 

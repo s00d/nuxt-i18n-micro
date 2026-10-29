@@ -149,9 +149,15 @@ export abstract class BaseStrategy implements RouteStrategy {
    * shares the record's name, so alias URLs follow the localized child tree and names stay
    * unique (separate alias routes duplicated both).
    */
+  /** The page's declared aliases as a list: vue-router accepts a single string as well. */
+  protected declaredAliases(page: NuxtPage): string[] {
+    const declared = (page as NuxtPage & { alias?: unknown }).alias ?? page.meta?.alias
+    if (typeof declared === 'string') return [declared]
+    return Array.isArray(declared) ? declared.filter((alias): alias is string => typeof alias === 'string') : []
+  }
+
   protected routeAliases(page: NuxtPage, routePath: string, localeCodes: string[] | null, context: GeneratorContext): string[] {
-    const declared = (page as NuxtPage & { alias?: string[] }).alias ?? (page.meta?.alias as string[] | undefined)
-    const own = (Array.isArray(declared) ? declared : []).map((alias) =>
+    const own = this.declaredAliases(page).map((alias) =>
       localeCodes ? buildFullPath(localeCodes, alias, context.customRegex) : normalizePath(alias),
     )
     return [...new Set([...buildEncodedPathAliases(routePath), ...own.flatMap((alias) => [alias, ...buildEncodedPathAliases(alias)])])]

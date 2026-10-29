@@ -125,4 +125,18 @@ describe('child custom paths', () => {
       expect(base.alias).toContain(encodeURI('/тест'))
     },
   )
+
+  test.each(['prefix', 'prefix_except_default', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: a single-string alias is kept and localized',
+    (strategy) => {
+      const pages = [{ path: '/about', name: 'about', alias: '/info' }] as unknown as NuxtPage[]
+      expect(() =>
+        new RouteGenerator({ locales, defaultLocaleCode, strategy, globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false }).extendPages(
+          pages,
+        ),
+      ).not.toThrow()
+      const aliases = pages.flatMap((p) => (Array.isArray(p.alias) ? p.alias : p.alias ? [p.alias] : []))
+      expect(aliases.some((a) => a === '/info' || a.endsWith(')/info'))).toBe(true)
+    },
+  )
 })

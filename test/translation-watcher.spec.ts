@@ -31,6 +31,22 @@ describe('translation watcher dev HMR (premerged)', () => {
     await expect(page.locator('#about-title')).toHaveText('About EN HMR')
   })
 
+  test('applies a page locale edit in place, without reloading the page', async ({ page, goto }) => {
+    await goto('/en/about', { waitUntil: 'hydration' })
+    await expect(page.locator('#about-title')).toHaveText(/About EN/)
+    await page.evaluate(() => {
+      ;(window as { __noReload?: boolean }).__noReload = true
+    })
+
+    files.patchFile('pages/about/en.json', (current) => ({
+      ...current,
+      aboutTitle: 'About EN live',
+    }))
+
+    await expect(page.locator('#about-title')).toHaveText('About EN live')
+    expect(await page.evaluate(() => (window as { __noReload?: boolean }).__noReload)).toBe(true)
+  })
+
   test('updates root translations on index and about after a root locale file change', async ({ page, goto, baseURL }) => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page.locator('#shared-root')).toHaveText('Shared EN')

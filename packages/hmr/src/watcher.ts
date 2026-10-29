@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
@@ -71,6 +71,27 @@ export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translat
     }
   }
   return { translationRoots, additionalRoots }
+}
+
+/**
+ * The path of a live translation file relative to its root, or null when the file is not one:
+ * any `.json` under a `translationDir` root, a top-level `{locale}.json` in an additional root
+ * (only those take part in the global merge).
+ */
+export function translationRelativePath(filePath: string, dirs: { translationRoots: string[]; additionalRoots: string[] }): string | null {
+  const inside = (root: string): string | null => {
+    const rel = relative(root, filePath)
+    return rel.startsWith('..') || isAbsolute(rel) ? null : rel.replace(/\\/g, '/')
+  }
+  for (const root of dirs.translationRoots) {
+    const rel = inside(root)
+    if (rel?.endsWith('.json')) return rel
+  }
+  for (const root of dirs.additionalRoots) {
+    const rel = inside(root)
+    if (rel && !rel.includes('/') && rel.endsWith('.json')) return rel
+  }
+  return null
 }
 
 /**

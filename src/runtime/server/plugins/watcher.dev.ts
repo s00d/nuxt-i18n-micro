@@ -1,9 +1,8 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
 import { existsSync } from 'node:fs'
-import path from 'node:path'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
-import { handleTranslationWatchChange, resolveLiveTranslationDirs, TranslationContentTracker } from '@i18n-micro/hmr/watcher'
+import { handleTranslationWatchChange, resolveLiveTranslationDirs, TranslationContentTracker, translationRelativePath } from '@i18n-micro/hmr/watcher'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
@@ -63,25 +62,8 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   // A write event says nothing about the content having changed.
   const contentTracker = new TranslationContentTracker()
 
-  const toWatchRelativePath = (filePath: string): string | null => {
-    for (const translationsRoot of translationRoots) {
-      const fromPrimary = path.relative(translationsRoot, filePath)
-      if (!fromPrimary.startsWith('..') && !path.isAbsolute(fromPrimary)) {
-        return fromPrimary.replace(/\\/g, '/')
-      }
-    }
-    // Additional dir: only top-level `{locale}.json` participates in the global merge.
-    for (const extraRoot of additionalRoots) {
-      const fromExtra = path.relative(extraRoot, filePath)
-      if (fromExtra.startsWith('..') || path.isAbsolute(fromExtra)) continue
-      const normalized = fromExtra.replace(/\\/g, '/')
-      if (!normalized.includes('/') && normalized.endsWith('.json')) return normalized
-    }
-    return null
-  }
-
   const invalidateAndRefresh = async (filePath: string, event: 'add' | 'change' | 'unlink') => {
-    const relativePath = toWatchRelativePath(filePath)
+    const relativePath = translationRelativePath(filePath, { translationRoots, additionalRoots })
     if (!relativePath) return
 
     if (event === 'unlink') {

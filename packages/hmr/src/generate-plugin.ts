@@ -1,29 +1,23 @@
-export interface GenerateHmrPluginOptions {
-  /** Absolute paths of top-level additional `{locale}.json` files: watched like the primary ones. */
-  additionalRootFiles?: string[]
-}
+/** The custom HMR event the module's Vite plugin sends when a translation file changes. */
+export const TRANSLATIONS_HMR_EVENT = 'i18n-micro:update'
 
 /**
  * Generates the client HMR plugin for translation files.
  *
- * Any accepted change reloads the current page's dictionary from the dev server, which merges
- * the live files the same way the build does. Patching the client chunk in place could not:
- * a root file feeds every page (and other locales through fallbacks), and a merge never drops
- * a key that was deleted from the file.
+ * The module's Vite plugin swallows the update of a translation file (no page reload) and sends
+ * {@link TRANSLATIONS_HMR_EVENT}; this plugin then reloads the dictionaries from the dev server,
+ * which merges the live files the way the build does. `import.meta.hot.accept` on the JSON files
+ * cannot do it: nothing imports them, so Vite fell back to a full reload on every edit.
  */
-export function generateHmrPlugin(files: string[], options: GenerateHmrPluginOptions = {}): string {
-  const watched = [...new Set([...files, ...(options.additionalRootFiles ?? [])].map((f) => f.replace(/\\/g, '/')))]
-  if (watched.length === 0) return `import { defineNuxtPlugin } from '#imports'\nexport default defineNuxtPlugin(() => {})`
-
-  // JSON.stringify: a path with quotes or backslashes stays a valid string literal
+export function generateHmrPlugin(): string {
   return `
-import { defineNuxtPlugin, useNuxtApp } from '#imports'
+import { defineNuxtPlugin } from '#imports'
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
   if (!import.meta.hot) return
-  import.meta.hot.accept(${JSON.stringify(watched)}, () => {
+  import.meta.hot.on(${JSON.stringify(TRANSLATIONS_HMR_EVENT)}, () => {
     try {
-      useNuxtApp().$clearCache()
+      nuxtApp.$clearCache()
       console.log('[i18n HMR] Translations reloaded')
     }
     catch (e) {

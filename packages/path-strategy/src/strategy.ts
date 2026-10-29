@@ -125,7 +125,10 @@ export class I18nPathStrategy {
     if (this.shared_) return this.shared_
     // the caches answer for this config too: the same routes under another default locale are another table
     const { strategy, defaultLocale, customRegexMatcher = '' } = this.ctx
-    const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}`
+    // strict / sensitive change what router.resolve answers, and the caches keep those answers
+    const options = (this.ctx.router as { options?: { strict?: boolean; sensitive?: boolean } }).options
+    const matching = `${options?.strict ? 1 : 0}${options?.sensitive ? 1 : 0}`
+    const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}\0${matching}`
     // vue-router keeps the route array it was created with: every SSR request's router has the
     // same one, so it keys the table without walking the records (a router without it: a signature)
     // (the record count guards a router that later called addRoute on the same array). A fresh
@@ -136,8 +139,7 @@ export class I18nPathStrategy {
     const tableKey = `${config}\0${all.length}`
     let shared = tables?.get(tableKey)
     if (!shared) {
-      const options = (this.ctx.router as { options?: { strict?: boolean; sensitive?: boolean } }).options
-      const signature = `${config}\0${options?.strict ? 1 : 0}${options?.sensitive ? 1 : 0}\0${signatureOf(all)}`
+      const signature = `${config}\0${signatureOf(all)}`
       shared = SIGNED.get(signature)
       if (!shared) {
         const records = all.filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)

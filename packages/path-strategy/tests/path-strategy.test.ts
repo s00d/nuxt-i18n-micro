@@ -386,6 +386,16 @@ describe('stability', () => {
     expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
   })
 
+  test('routers over one route array with different strict options keep their own answers', () => {
+    const { router } = setup('prefix_except_default')
+    const routes = router.options.routes as RouteRecordRaw[]
+    const loose = createRouter({ history: createMemoryHistory(), routes })
+    const strict = createRouter({ history: createMemoryHistory(), routes, strict: true })
+    const of = (r: Router) => createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: r })
+    expect(of(loose).getRouteBaseName({ path: '/about-us/' })).toBe('about')
+    expect(of(strict).getRouteBaseName({ path: '/about-us/' })).not.toBe('about')
+  })
+
   test('a route with neither name nor path is returned as it is', () => {
     const { i18n } = setup('prefix')
     const route = { name: null, path: '', fullPath: '', query: { a: '1' } }

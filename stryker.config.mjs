@@ -17,10 +17,14 @@ export default {
   reporters: ['clear-text', 'progress', 'json'],
   jsonReporter: { fileName: `test-results/mutation/${pkg}.json` },
   tempDirName: 'test-results/.stryker-tmp',
-  // the sandbox needs only this package (siblings resolve through node_modules, unmutated)
-  ignorePatterns: ['/*', '!/packages', '/packages/*', `!/packages/${pkg}`, `/packages/${pkg}/dist`, '!/tsconfig*.json', '!/package.json'],
+  // the sandbox needs this package plus the siblings' sources (framework packages alias them to
+  // src in their vitest config); siblings are copied unmutated, their dist resolves via node_modules
+  ignorePatterns: ['/*', '!/packages', '/packages/*/*', '!/packages/*/src', '!/packages/*/package.json', `!/packages/${pkg}/**`, `/packages/${pkg}/dist`, '**/node_modules', `/packages/${pkg}/playground`, '!/tsconfig*.json', '!/package.json', '!/.nuxt', '/.nuxt/*', '!/.nuxt/tsconfig*.json'],
   incremental: true,
   incrementalFile: `test-results/mutation/${pkg}.incremental.json`,
+  // MUTATE_ALL_KILLERS=1: run every covering test (not just until one kills), so the report says
+  // which tests catch each mutant — a test whose mutants others all catch too adds nothing
+  ...(process.env.MUTATE_ALL_KILLERS ? { disableBail: true, incremental: false } : {}),
   concurrency: 4,
   timeoutMS: 30_000,
   thresholds: { high: 90, low: 75, break: null },

@@ -6,12 +6,6 @@ describe('resolveOgLocale', () => {
     expect(resolveOgLocale({ code: 'en', iso: 'en-US', og: 'en_GB' })).toBe('en_GB')
   })
 
-  it('converts BCP 47 iso with region to OG format', () => {
-    expect(resolveOgLocale({ code: 'en', iso: 'en-US' })).toBe('en_US')
-    expect(resolveOgLocale({ code: 'ar', iso: 'ar-AE' })).toBe('ar_AE')
-    expect(resolveOgLocale({ code: 'de', iso: 'de-DE' })).toBe('de_DE')
-  })
-
   it('normalizes legacy underscore iso values', () => {
     expect(resolveOgLocale({ code: 'en', iso: 'en_EN' })).toBe('en_EN')
     expect(resolveOgLocale({ code: 'de', iso: 'de_DE' })).toBe('de_DE')

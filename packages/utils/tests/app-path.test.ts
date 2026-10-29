@@ -32,17 +32,6 @@ describe('isStaticAssetPathname', () => {
     expect(isStaticAssetPathname('/releases/1.0.0')).toBe(false)
     expect(isStaticAssetPathname('/en/about.html')).toBe(false)
   })
-
-  it('recognizes last-segment static extensions', () => {
-    expect(isStaticAssetPathname('/favicon.ico')).toBe(true)
-    expect(isStaticAssetPathname('/en/sitemap.xml')).toBe(true)
-    expect(isStaticAssetPathname('/assets/app.js')).toBe(true)
-    expect(isStaticAssetPathname('/logo.PNG')).toBe(true)
-    expect(isStaticAssetPathname('/logo.webp')).toBe(true)
-    expect(isStaticAssetPathname('/hero.avif')).toBe(true)
-    expect(isStaticAssetPathname('/bundle.js.map')).toBe(true)
-    expect(isStaticAssetPathname('/static/app.css/')).toBe(true)
-  })
 })
 
 describe('isInternalPath', () => {

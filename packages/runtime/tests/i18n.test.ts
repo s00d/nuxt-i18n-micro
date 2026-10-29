@@ -28,22 +28,9 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.t('greeting', { name: 'John' })).toBe('Hello, John!')
   })
 
-  test('locale switch updates t()', () => {
-    const i18n = createI18n({ locale: 'en', messages })
-    i18n.locale = 'de'
-    expect(i18n.t('welcome')).toBe('Willkommen')
-  })
-
   test('falls back to fallbackLocale', () => {
     const i18n = createI18n({ locale: 'de', fallbackLocale: 'en', messages })
     expect(i18n.t('nested.message')).toBe('Nested EN')
-  })
-
-  test('tc() pluralization', () => {
-    const i18n = createI18n({ locale: 'en', messages })
-    expect(i18n.tc('apples', 0)).toBe('no apples')
-    expect(i18n.tc('apples', 1)).toBe('one apple')
-    expect(i18n.tc('apples', 5)).toBe('5 apples')
   })
 
   test('routeMessages and setRoute', () => {
@@ -61,17 +48,6 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.t('welcome')).toBe('Welcome')
   })
 
-  test('subscribe notifies on locale change', () => {
-    const i18n = createI18n({ locale: 'en', messages })
-    const listener = vi.fn()
-    const unsubscribe = i18n.subscribe(listener)
-    i18n.locale = 'de'
-    expect(listener).toHaveBeenCalledTimes(1)
-    unsubscribe()
-    i18n.locale = 'en'
-    expect(listener).toHaveBeenCalledTimes(1)
-  })
-
   test('subscribe notifies on addTranslations', () => {
     const i18n = createI18n({ locale: 'en' })
     const listener = vi.fn()
@@ -79,30 +55,6 @@ describe('@i18n-micro/runtime', () => {
     i18n.addTranslations('en', { hello: 'Hi' })
     expect(listener).toHaveBeenCalled()
     expect(i18n.t('hello')).toBe('Hi')
-  })
-
-  test('loadMessages merges additional maps', () => {
-    const i18n = createI18n({ locale: 'en' })
-    i18n.loadMessages({ en: { a: 'A' } })
-    i18n.loadMessages({ en: { b: 'B' } }, { about: { en: { title: 'About' } } })
-    expect(i18n.t('a')).toBe('A')
-    expect(i18n.t('b')).toBe('B')
-    expect(i18n.t('title', undefined, undefined, 'about')).toBe('About')
-  })
-
-  test('loadFromUrl uses fetch', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => ({
-        ok: true,
-        json: async () => ({ hello: 'Bonjour' }),
-      })),
-    )
-
-    const i18n = createI18n({ locale: 'fr' })
-    await i18n.loadFromUrl('/locales/fr.json', { locale: 'fr' })
-    expect(i18n.t('hello')).toBe('Bonjour')
-    expect(fetch).toHaveBeenCalledWith('/locales/fr.json', undefined)
   })
 
   test('loadFromUrl with routeName', async () => {
@@ -172,14 +124,6 @@ describe('@i18n-micro/runtime', () => {
     )
 
     await expect(fetchJsonTranslations('/missing.json')).rejects.toThrow(/404/)
-  })
-
-  test('hasTranslation scans all routes for the active locale', () => {
-    const i18n = createI18n({ locale: 'en', messages: { en: { welcome: 'Welcome' } } })
-    i18n.addRouteTranslations('en', 'home', { onlyHome: 'Home only' })
-    expect(i18n.hasTranslation('welcome')).toBe(true)
-    expect(i18n.hasTranslation('onlyHome')).toBe(true)
-    expect(i18n.has('onlyHome')).toBe(false)
   })
 
   test('hasTranslation and clear', () => {

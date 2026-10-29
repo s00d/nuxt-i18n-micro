@@ -68,6 +68,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     parentOriginalPath: string,
     localeCodes: string[],
     context: GeneratorContext,
+    applyCustomPaths = true,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
     const childName = buildRouteNameFromRoute(child.name, child.path)
@@ -78,9 +79,16 @@ export abstract class BaseStrategy implements RouteStrategy {
     // Rules are keyed by the page's original path; parentPath is the localized (:locale) one.
     const customLocalePaths = context.localizedPaths[pathKeyForLocalizedPaths(childOriginalPath)]
 
-    if (customLocalePaths) {
-      // One child per locale under the shared parent; lookups always use the original parent path.
-      return localeCodes.flatMap((locale) => this.localizeChild(child, parentPath, parentOriginalPath, locale, context, true))
+    if (customLocalePaths && applyCustomPaths) {
+      // Under the shared parent, locales without their own value share one plain child (listed
+      // first, so a URL several locales share matches it); only custom locales get their own.
+      // Lookups always use the original parent path.
+      const plainLocales = localeCodes.filter((locale) => !customLocalePaths[locale])
+      const customLocales = localeCodes.filter((locale) => customLocalePaths[locale])
+      const plain = plainLocales.length
+        ? this.localizeChildAllLocales({ ...child }, parentPath, parentOriginalPath, plainLocales, context, false)
+        : []
+      return [...plain, ...customLocales.flatMap((locale) => this.localizeChild(child, parentPath, parentOriginalPath, locale, context, true))]
     }
     const routePath = normalizePath(child.path ?? '')
     const finalPathForRoute = removeLeadingSlash(routePath)

@@ -126,13 +126,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
           {
             "children": [],
             "file": "/pages/parent/child/grandchild.vue",
-            "name": "localized-parent-child-grandchild-en",
-            "path": "grandchild",
-          },
-          {
-            "children": [],
-            "file": "/pages/parent/child/grandchild.vue",
-            "name": "localized-parent-child-grandchild-ru",
+            "name": "localized-parent-child-grandchild",
             "path": "grandchild",
           },
         ],

@@ -308,7 +308,7 @@ exports[`RouteGenerator - Strategy: prefix > 12. should apply custom paths to al
     "path": "/:locale(en|de|ru)/:slug(.*)*",
   },
   {
-    "name": "redirect--about",
+    "name": "redirect-/about",
     "path": "/about",
     "redirect": "/en/about-us",
   },

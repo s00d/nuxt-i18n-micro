@@ -25,9 +25,11 @@ const withoutLocaleParam = (routePath: string): string => routePath.replace(/^\/
  * `/bereich` is `kategorie`, `/bereich` itself is the parent's own path) — the same rule the
  * runtime applies (joinNestedCustomPath). A full URL that leaves the parent's path below a
  * shared ancestor cannot be nested; what follows the shared part is kept instead of
- * doubling it (`/bereich/artikel` under `/bereich/kategorie` is `artikel`).
+ * doubling it (`/bereich/artikel` under `/bereich/kategorie` is `artikel`). Only absolute
+ * values can be full URLs: a relative value (`bereich/artikel`) is always kept as written.
  */
 export function childSegment(parentLocalizedPath: string, customValue: string): string {
+  if (!customValue.startsWith('/')) return normalizePath(customValue).replace(/^\/+/, '')
   const value = normalizePath(`/${customValue.replace(/^\/+/, '')}`)
   const parent = normalizePath(`/${withoutLocaleParam(parentLocalizedPath).replace(/^\/+/, '')}`)
   if (parent === '/' || parent === '') return value.replace(/^\/+/, '')

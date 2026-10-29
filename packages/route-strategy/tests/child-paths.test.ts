@@ -22,6 +22,8 @@ describe('childSegment', () => {
     ['/bereich', '/bereich', ''],
     ['/:locale(de)/bereich', '/bereich/kategorie', 'kategorie'],
     ['/bereich/kategorie', '/bereich/artikel', 'artikel'],
+    ['/bereich/kategorie', 'bereich/artikel', 'bereich/artikel'],
+    ['/bereich', 'bereich/kategorie', 'bereich/kategorie'],
     ['/', '/team', 'team'],
   ])('under %s, %s is %s', (parent, value, expected) => {
     expect(childSegment(parent, value)).toBe(expected)
@@ -80,5 +82,35 @@ describe('child custom paths', () => {
     const shared = pages.find((p) => p.name === 'localized-ueber')!
     expect(shared.path).toBe('/:locale(en|ru)/über')
     expect(shared.alias).toEqual([encodeURI('/:locale(en|ru)/über').replace(encodeURI(':locale(en|ru)'), ':locale(en|ru)')])
+  })
+
+  test('prefix: under a shared parent, locales without a child value share one plain child listed first', () => {
+    const pages: NuxtPage[] = [{ path: '/about', name: 'about', children: [{ path: 'team', name: 'about-team' }] }]
+    new RouteGenerator({
+      locales: [...locales, { code: 'fr', iso: 'fr-FR' }],
+      defaultLocaleCode,
+      strategy: 'prefix',
+      globalLocaleRoutes: { 'about-team': { en: '/a-en', de: '/about/team' } },
+      routeLocales: {},
+      noPrefixRedirect: false,
+    }).extendPages(pages)
+    const children = pages.find((p) => p.name === 'localized-about')!.children!.map((c) => `${c.name} ${c.path}`)
+    expect(children[0]).toBe('localized-about-team team')
+    expect(children).toContain('localized-about-team-en a-en')
+    expect(children).not.toContain('localized-about-team-fr team')
+  })
+
+  test('prefix: redirect routes for `about-team` and `about/team` keys get distinct names', () => {
+    const pages: NuxtPage[] = [{ path: '/about-team', name: 'about-team' }]
+    new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix',
+      globalLocaleRoutes: { 'about-team': { en: '/a-en' }, 'about/team': { en: '/b-en' } },
+      routeLocales: {},
+      noPrefixRedirect: false,
+    }).extendPages(pages)
+    const redirects = pages.filter((p) => p.redirect).map((p) => p.name)
+    expect(new Set(redirects).size).toBe(redirects.length)
   })
 })

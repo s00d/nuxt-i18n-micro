@@ -118,7 +118,8 @@ export class PrefixStrategy extends BaseStrategy {
       if (originalPath !== targetPath) {
         filtered.push({
           path: originalPath,
-          name: `redirect-${routeKey.replace(/\//g, '-')}`,
+          // the raw key keeps `about-team` and `about/team` apart (dashes would collide)
+          name: `redirect-${routeKey}`,
           redirect: targetPath,
         } as NuxtPage)
       }

@@ -1,7 +1,7 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { loadTranslationBuckets } from '../src/plugin/load-messages'
 
 const dirs: string[] = []
@@ -37,8 +37,11 @@ describe('loadTranslationBuckets (plugin-internal)', () => {
     writeFileSync(join(tmp, 'en.json'), JSON.stringify(['nope']))
     writeFileSync(join(tmp, 'fr.json'), JSON.stringify({ ok: true }))
 
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const buckets = loadTranslationBuckets({ translationDir: tmp })
     expect(buckets.root).toEqual({ fr: { ok: true } })
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('Skipping en.json'))
+    error.mockRestore()
   })
 
   it('loads page-scoped routes', () => {

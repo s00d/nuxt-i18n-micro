@@ -74,6 +74,19 @@ describe('basic', () => {
     expect(resp.status()).toBe(200)
   })
 
+  test('SSR preloads the first chunk at the very URL the client fetches while hydrating', async ({ page, goto }) => {
+    const fetched: string[] = []
+    page.on('request', (r) => {
+      if (r.url().includes('/_locales/')) fetched.push(new URL(r.url()).pathname + new URL(r.url()).search)
+    })
+    await goto('/', { waitUntil: 'hydration' })
+    const preload = page.locator('link[rel="preload"][as="fetch"]')
+    await expect(preload).toHaveAttribute('crossorigin', 'anonymous')
+    const href = await preload.getAttribute('href')
+    expect(href).toBe('/_locales/index/en/data.json?v=12345')
+    expect(fetched).toContain(href)
+  })
+
   test('test routes', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 

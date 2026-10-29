@@ -23,7 +23,7 @@ import { shallowRef } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
-import { createError, defineNuxtPlugin, navigateTo, useRouter, useRuntimeConfig } from '#imports'
+import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
@@ -104,6 +104,7 @@ export default defineNuxtPlugin({
       apiBaseClientHost: i18nConfig.apiBaseClientHost,
       dateBuild: i18nConfig.dateBuild,
       routesLocaleLinks: i18nConfig.routesLocaleLinks,
+      serverLoad: import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.load : undefined,
     }
 
     // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
@@ -139,6 +140,13 @@ export default defineNuxtPlugin({
     } catch (e) {
       if (isDev) console.error('[i18n] Initial load error:', e)
       throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
+    }
+
+    // The client fetches this chunk while hydrating (dictionaries stay off the payload): let the
+    // browser start it with the HTML instead of after the scripts. `crossorigin`: fetch()'s mode.
+    if (import.meta.server) {
+      const href = translationStorage.clientUrl(initialLocale, initialRouteName, loadOptions)
+      useHead({ link: [{ key: 'i18n-preload', rel: 'preload', as: 'fetch', crossorigin: 'anonymous', href }] })
     }
 
     const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {

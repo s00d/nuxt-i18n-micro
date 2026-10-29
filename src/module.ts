@@ -653,6 +653,8 @@ declare module 'h3' {
     i18n?: {
       locale: string
       translations: Translations
+      /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
+      load?: (locale: string, routeName: string) => Promise<Translations>
     }
   }
 }

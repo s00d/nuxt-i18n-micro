@@ -26,6 +26,11 @@ interface Entry {
 }
 
 interface Index {
+  /**
+   * Locales an unprefixed URL is tried in: one per distinct `/:locale(a|b)` record set (any of
+   * its codes matches the same record) and every locale with records of its own (custom paths).
+   */
+  probeCodes: string[]
   records: Map<string, Entry>
   /** base -> locale -> record name */
   pages: Map<string, Map<string, string>>
@@ -115,15 +120,19 @@ export class I18nPathStrategy {
   // ponytail: read once per router; routes added later with router.addRoute need setRouter() to be seen
   private get shared(): Shared {
     if (this.shared_) return this.shared_
-    const all = this.ctx.router.getRoutes()
-    // every record, aliases included (the URL caches see them through router.resolve); name, path
-    // and meta.i18n: a dev reload that only changes a page's locales or disableMeta is another table
-    const signature = `${this.ctx.strategy}\0${all.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')}`
-    const records = all.filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
-    let shared = SHARED.get(signature)
+    // the caches answer for this config too: the same routes under another default locale are another table
+    const { strategy, defaultLocale, customRegexMatcher = '' } = this.ctx
+    const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}`
+    // vue-router keeps the route array it was created with: every SSR request's router has the
+    // same one, so it keys the table without walking the records (a router without it: a signature)
+    const routes = (this.ctx.router as { options?: { routes?: unknown } }).options?.routes
+    const byConfig = routes && typeof routes === 'object' ? tablesOf(routes as object) : SIGNED
+    const key = byConfig === SIGNED ? `${config}\0${signatureOf(this.ctx.router.getRoutes())}` : config
+    let shared = byConfig.get(key)
     if (!shared) {
+      const records = this.ctx.router.getRoutes().filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
       shared = { index: buildIndex(records), pages: new Map(), notFound: new Map(), targets: new Map() }
-      remember(SHARED, signature, shared, SHARED_SIZE)
+      remember(byConfig, key, shared, SHARED_SIZE)
     }
     return (this.shared_ = shared)
   }
@@ -172,16 +181,17 @@ export class I18nPathStrategy {
     const locale = this.getLocaleFromPath(path)
     // a prefix this URL should not have (`/en/...`, any prefix under no_prefix)
     if (locale) forms.push(path.slice(locale.length + 1) || '/')
-    else if (this.ctx.strategy !== 'no_prefix') for (const code of this.codes) forms.push(`/${code}${path === '/' ? '' : path}`)
+    else if (this.ctx.strategy !== 'no_prefix') for (const code of this.index.probeCodes) forms.push(`/${code}${path === '/' ? '' : path}`)
     let catchAll: Page | null = null
     for (const form of forms) {
       const route = this.probe(form)
-      const name = route?.name
+      // records are indexed by their names as strings (vue-router names may be symbols)
+      const name = route?.name ? String(route.name) : ''
       if (!name) continue
       if (form === path && unlocalized.has(name)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
-      const { locale: _locale, ...params } = route.params ?? {}
+      const { locale: _locale, ...params } = route!.params ?? {}
       const page = { base: entry.base, params, catchAll: entry.catchAll }
       if (!entry.catchAll) return page
       catchAll ??= page
@@ -238,8 +248,8 @@ export class I18nPathStrategy {
       target = route ? { name, params: route.params, path: route.path, fullPath: route.fullPath, query: route.query, hash: route.hash } : null
       if (complete) remember(cache, cacheKey, target)
     }
-    // callers may add fields (the plugin sets `force`): never hand out the cached object
-    return target && { ...target }
+    // the cache is process-wide (shared by SSR requests): callers get their own params / query
+    return target && { ...target, params: { ...target.params }, query: target.query && { ...target.query } }
   }
 
   /** A route in `locale` on that locale's own domain (`baseUrl`), as an absolute URL. */
@@ -271,8 +281,9 @@ export class I18nPathStrategy {
     if (!base) {
       // an unlocalized page stays; an unmatched URL (a 404 page) becomes that URL in `toLocale`'s form
       // a URL no record matches: a route with a name, or matched records (an unnamed parent), stays
-      if (name || route.matched?.length) return route
-      const target = this.localeRoute(toLocale, route.fullPath || route.path)
+      const url = route.fullPath || route.path
+      if (name || route.matched?.length || !url) return route
+      const target = this.localeRoute(toLocale, url)
       return target.path && /^https?:\/\//.test(target.path) ? target.path : target
     }
     const params = { ...route.params, ...options.i18nRouteParams?.[toLocale] }
@@ -376,7 +387,7 @@ export class I18nPathStrategy {
     if (!locale) return null
     if (this.ctx.strategy === 'prefix_except_default' && locale === this.ctx.defaultLocale) return 'Default locale should not have prefix'
     const name = this.probe(path)?.name
-    const entry = name ? this.index.records.get(name) : undefined
+    const entry = name ? this.index.records.get(String(name)) : undefined
     if (entry && !entry.catchAll) return null
     // a second prefix (`/de/de/about`) is no page at all: leave it to the router
     const rest = path.slice(locale.length + 1) || '/'
@@ -419,7 +430,9 @@ export class I18nPathStrategy {
 }
 
 function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>): Index {
-  const index: Index = { records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set() }
+  const index: Index = { probeCodes: [], records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set() }
+  const probe = new Set<string>()
+  const sharedSets = new Set<string>()
   for (const record of records) {
     const name = String(record.name)
     const i18n = record.meta?.i18n as RouteI18nMeta | undefined
@@ -429,18 +442,38 @@ function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>): Index {
     }
     const keys = Array.from(record.path.matchAll(/:(\w+)/g), (m) => m[1]!)
     index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)') })
+    const set = i18n.locales.join('|')
+    if (keys.includes('locale') && !sharedSets.has(set) && i18n.locales[0]) {
+      sharedSets.add(set)
+      probe.add(i18n.locales[0])
+    }
+    for (const code of i18n.locales) if (record.path === `/${code}` || record.path.startsWith(`/${code}/`)) probe.add(code)
     if (i18n.noMeta !== undefined) index.noMeta.set(i18n.name, i18n.noMeta)
     let byLocale = index.pages.get(i18n.name)
     if (!byLocale) index.pages.set(i18n.name, (byLocale = new Map()))
     // prefix_and_default serves the default locale twice: links use the prefixed record
     for (const locale of i18n.locales) if (!byLocale.has(locale) || keys.includes('locale')) byLocale.set(locale, name)
   }
+  index.probeCodes = [...probe]
   return index
 }
 
-/** Route tables seen in this process (one per app; dev reloads add more). */
-const SHARED = new Map<string, Shared>()
+/** Route tables seen in this process, by their route array and config (one per app; dev reloads add more). */
+const TABLES = new WeakMap<object, Map<string, Shared>>()
+/** Routers without `options.routes`: by a signature of their records. */
+const SIGNED = new Map<string, Shared>()
 const SHARED_SIZE = 4
+
+function tablesOf(routes: object): Map<string, Shared> {
+  let tables = TABLES.get(routes)
+  if (!tables) TABLES.set(routes, (tables = new Map()))
+  return tables
+}
+
+/** Every record, aliases included (the URL caches see them through router.resolve), and its meta.i18n. */
+function signatureOf(records: ReturnType<RouterAdapter['getRoutes']>): string {
+  return records.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')
+}
 
 // ponytail: dropped wholesale when full; an LRU only pays off for apps with more distinct URLs than this
 const CACHE_SIZE = 1000

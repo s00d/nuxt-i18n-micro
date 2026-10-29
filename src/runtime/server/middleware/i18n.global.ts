@@ -31,17 +31,18 @@ export default defineEventHandler(async (event) => {
   const defaultLocale = config.defaultLocale || 'en'
 
   const firstSegment = path.split('/').filter(Boolean)[0]
+  const queryLocale = getQuery(event).locale ? String(getQuery(event).locale) : null
   // The URL decides wherever the router does: a prefix, or the default locale for an unprefixed
-  // URL under prefix_except_default (a cookie must not render `de` on the `en` page).
+  // URL under prefix_except_default (a cookie must not render `de` on the `en` page). An explicit
+  // `?locale=` still wins, for server routes that read event.context.i18n.
   const urlLocale =
     firstSegment && validLocales.includes(firstSegment)
       ? firstSegment
-      : config.strategy === 'prefix_except_default' && !config.hashMode
+      : config.strategy === 'prefix_except_default' && !config.hashMode && !queryLocale
         ? defaultLocale
         : null
 
   const cookieName = getLocaleCookieName(config)
-  const queryLocale = getQuery(event).locale ? String(getQuery(event).locale) : null
   const cookieLocale = cookieName ? getCookie(event, cookieName) : null
 
   const locale = resolveServerLocale({

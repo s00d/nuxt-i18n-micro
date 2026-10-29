@@ -111,7 +111,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `hash?` | `string \| undefined` |
 | `matched?` | `unknown[] \| undefined` |
 | `meta?` | `Record<string, unknown> \| undefined` |
-| `name` | `string \| null` |
+| `name` | `string \| symbol \| null \| undefined` |
 | `params?` | `Record<string, unknown> \| undefined` |
 | `path` | `string` |
 | `query?` | `Record<string, unknown> \| undefined` |
@@ -137,7 +137,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `fullPath?` | `string \| undefined` |
 | `hash?` | `string \| undefined` |
 | `meta?` | `Record<string, unknown> \| undefined` |
-| `name?` | `string \| null \| undefined` |
+| `name?` | `string \| symbol \| null \| undefined` |
 | `params?` | `Record<string, unknown> \| undefined` |
 | `path?` | `string \| undefined` |
 | `query?` | `Record<string, unknown> \| undefined` |
@@ -151,7 +151,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- |
 | `getRoutes` | `() => RouteRecordLike[]` |
 | `hasRoute` | `(name: string) => boolean` |
-| `resolve` | `(to: RouteLike \| string) => ResolvedRouteLike` |
+| `resolve` | `(to: any) => ResolvedRouteLike` |
 
 </details>
 

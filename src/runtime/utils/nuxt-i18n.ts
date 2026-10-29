@@ -37,7 +37,7 @@ import { applyTrailingSlash } from './trailing-slash'
 export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
 
 interface LocaleRouteResult {
-  name?: string | null
+  name?: string | symbol | null
   params?: Record<string, unknown>
   path?: string
   fullPath?: string

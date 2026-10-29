@@ -337,3 +337,35 @@ describe('shared route table', () => {
     expect(resolve).not.toHaveBeenCalled()
   })
 })
+
+describe('stability', () => {
+  test('a cached result never shares params / query with another caller (the cache is process-wide)', () => {
+    const { i18n } = setup('prefix_except_default')
+    const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
+    ;(first.params as Record<string, unknown>).slug = 'LEAKED'
+    ;(first.query as Record<string, unknown>).ref = 'LEAKED'
+    const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
+    expect(second.params).toEqual({ locale: 'de', slug: 'x' })
+    expect(second.query).toEqual({ ref: 'a' })
+  })
+
+  test('a route with neither name nor path is returned as it is', () => {
+    const { i18n } = setup('prefix')
+    const route = { name: null, path: '', fullPath: '', query: { a: '1' } }
+    expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
+  })
+
+  test('one route table under two configs keeps two sets of answers', () => {
+    const { router } = setup('prefix_except_default')
+    const adapter = {
+      hasRoute: (name: string) => router.hasRoute(name),
+      resolve: (to: unknown) => router.resolve(to as never),
+      getRoutes: () => router.getRoutes(),
+      options: router.options,
+    }
+    const en = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    const de = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'de', locales: LOCALES, router: adapter })
+    expect(en.shouldReturn404('/en/about-us')).toBe('Default locale should not have prefix')
+    expect(de.shouldReturn404('/en/about-us')).not.toBe('Default locale should not have prefix')
+  })
+})

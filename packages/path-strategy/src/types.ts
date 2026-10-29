@@ -42,7 +42,7 @@ export interface RouteI18nMeta {
 }
 
 export interface RouterAdapter {
-  hasRoute(name: string): boolean
+  hasRoute(name: string | symbol): boolean
   resolve(to: RouteLike | string): ResolvedRouteLike
   getRoutes(): RouteRecordLike[]
 }

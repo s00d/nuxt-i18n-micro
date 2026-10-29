@@ -375,6 +375,20 @@ describe('stability', () => {
     expect(after.getRouteBaseName({ path: '/added' })).toBe('added')
   })
 
+  test("a symbol-named route is the app's own route: resolved by its symbol, no base name, never localized", () => {
+    const { router } = setup('prefix')
+    const app = Symbol('app')
+    router.addRoute({ path: '/app-only', name: app, component: {} })
+    const i18n = createPathStrategy({ strategy: 'prefix', defaultLocale: 'en', locales: LOCALES, router })
+    const result = i18n.localeRoute('de', { name: app })
+    expect(result.name).toBe(app)
+    expect(result.fullPath).toBe('/app-only')
+    const route = router.resolve('/app-only')
+    expect(i18n.getRouteBaseName(route)).toBeNull()
+    expect(i18n.getPluginRouteName(route, 'de')).toBe('')
+    expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
+  })
+
   test('a route with neither name nor path is returned as it is', () => {
     const { i18n } = setup('prefix')
     const route = { name: null, path: '', fullPath: '', query: { a: '1' } }

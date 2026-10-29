@@ -136,7 +136,8 @@ export class I18nPathStrategy {
     const tableKey = `${config}\0${all.length}`
     let shared = tables?.get(tableKey)
     if (!shared) {
-      const signature = `${config}\0${signatureOf(all)}`
+      const options = (this.ctx.router as { options?: { strict?: boolean; sensitive?: boolean } }).options
+      const signature = `${config}\0${options?.strict ? 1 : 0}${options?.sensitive ? 1 : 0}\0${signatureOf(all)}`
       shared = SIGNED.get(signature)
       if (!shared) {
         const records = all.filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
@@ -196,8 +197,7 @@ export class I18nPathStrategy {
     let catchAll: Page | null = null
     for (const form of forms) {
       const route = this.probe(form)
-      // records are indexed by their names as strings (vue-router names may be symbols)
-      const name = route?.name ? String(route.name) : ''
+      const name = named(route?.name) ?? ''
       if (!name) continue
       if (form === path && unlocalized.has(name)) return UNLOCALIZED
       const entry = records.get(name)
@@ -218,7 +218,8 @@ export class I18nPathStrategy {
 
   /** Base name of the page a route shows, or null (unlocalized, unknown). */
   private pageBase(route: RouteLike): string | null {
-    if (route.name) return this.baseOf(String(route.name))
+    const name = named(route.name)
+    if (route.name) return name && this.baseOf(name)
     const page = route.path ? this.findPage(splitUrl(route.path).path) : null
     return page && page !== UNLOCALIZED ? page.base : null
   }
@@ -287,13 +288,13 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
-    const name = route.name ? String(route.name) : null
+    const name = named(route.name)
     const base = name ? this.baseOf(name) : null
     if (!base) {
       // an unlocalized page stays; an unmatched URL (a 404 page) becomes that URL in `toLocale`'s form
       // a URL no record matches: a route with a name, or matched records (an unnamed parent), stays
       const url = route.fullPath || route.path
-      if (name || route.matched?.length || !url) return route
+      if (route.name || route.matched?.length || !url) return route
       const target = this.localeRoute(toLocale, url)
       return target.path && /^https?:\/\//.test(target.path) ? target.path : target
     }
@@ -315,9 +316,10 @@ export class I18nPathStrategy {
     const name = typeof routeOrPath === 'string' ? null : routeOrPath.name
     let target: Target | null = null
     if (name) {
-      const base = this.baseOf(String(name))
+      const key = named(name)
+      const base = key && this.baseOf(key)
       if (base) target = this.routeTo(targetLocale, base, input.params ?? {}, input.query, input.hash) ?? this.home(targetLocale)
-      else if (this.ctx.router.hasRoute(String(name))) target = this.resolve(routeOrPath)
+      else if (this.ctx.router.hasRoute(name)) target = this.resolve(routeOrPath)
     } else if (input.path !== undefined) {
       const page = this.findPage(input.path)
       if (page && page !== UNLOCALIZED)
@@ -333,7 +335,9 @@ export class I18nPathStrategy {
   }
 
   getRouteBaseName(route: RouteLike, _locale?: string): string | null {
-    if (route.name) return this.baseOf(String(route.name)) ?? String(route.name)
+    // a symbol name is never a localized page (generated records are named by strings) and has no base name
+    const name = named(route.name)
+    if (route.name) return name && (this.baseOf(name) ?? name)
     if (!route.path) return null
     const page = this.findPage(splitUrl(route.path).path)
     return page && page !== UNLOCALIZED ? page.base : null
@@ -343,7 +347,8 @@ export class I18nPathStrategy {
   getPluginRouteName(route: ResolvedRouteLike, locale: string): string {
     if (this.ctx.disablePageLocales) return 'index'
     if (!route.name) return this.getRouteBaseName(route) ?? ''
-    const name = String(route.name)
+    const name = named(route.name)
+    if (!name) return ''
     const base = this.baseOf(name)
     if (base) return base
     // a localized name the router does not know: strip prefix and locale suffix
@@ -398,7 +403,8 @@ export class I18nPathStrategy {
     if (!locale) return null
     if (this.ctx.strategy === 'prefix_except_default' && locale === this.ctx.defaultLocale) return 'Default locale should not have prefix'
     const name = this.probe(path)?.name
-    const entry = name ? this.index.records.get(String(name)) : undefined
+    const key = named(name)
+    const entry = key ? this.index.records.get(key) : undefined
     if (entry && !entry.catchAll) return null
     // a second prefix (`/de/de/about`) is no page at all: leave it to the router
     const rest = path.slice(locale.length + 1) || '/'
@@ -440,6 +446,11 @@ export class I18nPathStrategy {
   }
 }
 
+/** A route name as an index key: generated records are named by strings; a symbol name is the app's own route. */
+function named(name: unknown): string | null {
+  return typeof name === 'string' && name ? name : null
+}
+
 /** One level of params / query with array values copied (repeatable params, repeated query keys). */
 function copyValues(values: Record<string, unknown> | undefined): Record<string, unknown> {
   const copy: Record<string, unknown> = {}
@@ -453,7 +464,8 @@ function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>, codes: stri
   const memberships = new Map<string, string[]>(codes.map((code) => [code, []]))
   const ownRecords = new Set<string>()
   for (const record of records) {
-    const name = String(record.name)
+    const name = named(record.name)
+    if (!name) continue
     const i18n = record.meta?.i18n as RouteI18nMeta | undefined
     if (!i18n) {
       if (!record.redirect) index.unlocalized.add(name)
@@ -497,7 +509,9 @@ function tablesOf(routes: object): Map<string, Shared> {
 
 /** Every record, aliases included (the URL caches see them through router.resolve), and its meta.i18n. */
 function signatureOf(records: ReturnType<RouterAdapter['getRoutes']>): string {
-  return records.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')
+  return records
+    .map((record) => `${String(record.name)}\0${record.path}\0${record.redirect ? 1 : 0}\0${JSON.stringify(record.meta?.i18n ?? null)}`)
+    .join('\0')
 }
 
 // ponytail: dropped wholesale when full; an LRU only pays off for apps with more distinct URLs than this

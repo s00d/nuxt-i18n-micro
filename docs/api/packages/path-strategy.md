@@ -150,8 +150,8 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | Member | Type |
 | --- | --- |
 | `getRoutes` | `() => RouteRecordLike[]` |
-| `hasRoute` | `(name: string) => boolean` |
-| `resolve` | `(to: any) => ResolvedRouteLike` |
+| `hasRoute` | `(name: string \| symbol) => boolean` |
+| `resolve` | `(to: RouteLike \| string) => ResolvedRouteLike` |
 
 </details>
 

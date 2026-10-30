@@ -34,10 +34,11 @@
     "LICENSE"
   ],
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/src/index.d.ts",
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"

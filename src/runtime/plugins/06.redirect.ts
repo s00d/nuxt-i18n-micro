@@ -8,10 +8,9 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
-import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { getLocaleCookieName, getLocaleCookieOptions, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
-import { resolveLocale } from '@i18n-micro/utils/resolve-locale'
-import { getCookie, getHeader, getRequestURL, setCookie, type H3Event } from 'h3'
+import { redirectLocale } from '@i18n-micro/utils/resolve-locale'
+import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRuntimeConfig, useState } from '#imports'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
@@ -55,16 +54,20 @@ export default defineNuxtPlugin({
     if (urlLocale && !(redirects && anyPath)) writeCookie(urlLocale)
     if (!redirects) return
 
-    const preferred = preferredLocale(event, {
+    // Cookie / Accept-Language only count where `autoDetectPath` allows them (#242). No `query`:
+    // under prefix strategies the URL decides (D1), and no_prefix never redirects.
+    const preferenceCookie = getPreferenceCookieName(i18nConfig)
+    const preferred = redirectLocale({
       path,
       urlLocale,
       autoDetectPath,
       defaultLocale,
       validLocales: getEnabledLocaleCodes(i18nConfig.locales),
       autoDetectLanguage: i18nConfig.autoDetectLanguage,
-      cookieName: getPreferenceCookieName(i18nConfig),
+      cookie: preferenceCookie ? getCookie(event, preferenceCookie) : null,
+      acceptLanguage: getHeader(event, 'accept-language'),
       // a state differing from what the URL resolved to was set by the app (a plugin): a choice
-      stateLocale: anyPath ? null : chosenState(useState<string | null>('i18n-locale', () => null).value, event.context.i18n?.locale),
+      state: anyPath ? null : chosenState(useState<string | null>('i18n-locale', () => null).value, event.context.i18n?.locale),
     })
     const target: string | null = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
     if (!target) return
@@ -74,39 +77,7 @@ export default defineNuxtPlugin({
   },
 })
 
-interface PreferenceInput {
-  path: string
-  urlLocale: string | null
-  autoDetectPath: string
-  defaultLocale: string
-  validLocales: string[]
-  autoDetectLanguage?: boolean
-  cookieName: string | null
-  stateLocale: string | null
-}
-
 /** The locale state as a preference: only when the app set it, not when it mirrors the URL's locale. */
 function chosenState(state: string | null, urlLocale: string | undefined): string | null {
   return state && state !== urlLocale ? state : null
-}
-
-/**
- * The locale a redirect aims at: a locale the app chose (state), the cookie, then Accept-Language.
- * Cookie / Accept-Language only count where `autoDetectPath`
- * allows them (#242); an unprefixed URL otherwise canonicalizes to the default locale, which
- * keeps custom `localeRoutes` aliases (`/product` → `/our-products`) working.
- */
-function preferredLocale(event: H3Event, input: PreferenceInput): string {
-  const anyPath = input.autoDetectPath === '*'
-  const allowed = shouldAttemptLocaleRedirect(input.path, { autoDetectPath: input.autoDetectPath, hasLocalePrefix: input.urlLocale !== null })
-  if (!input.urlLocale && (anyPath || !allowed)) return input.defaultLocale
-  // no `query`: under prefix strategies the URL decides (D1), and no_prefix never redirects
-  return resolveLocale({
-    defaultLocale: input.defaultLocale,
-    validLocales: input.validLocales,
-    autoDetectLanguage: input.autoDetectLanguage,
-    state: anyPath ? null : input.stateLocale,
-    cookie: input.cookieName ? getCookie(event, input.cookieName) : null,
-    acceptLanguage: getHeader(event, 'accept-language'),
-  })
 }

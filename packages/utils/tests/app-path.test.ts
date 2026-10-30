@@ -53,6 +53,7 @@ describe('isInternalPath', () => {
   it('treats wildcard excludePatterns metacharacters as literals', () => {
     expect(isInternalPath('/blog/[slug]/extra', ['/blog/[slug]*'])).toBe(true)
     expect(isInternalPath('/blog/other', ['/blog/[slug]*'])).toBe(false)
+    expect(isInternalPath('/en/post/edit/', ['/en/*/edit'])).toBe(true)
   })
 
   it('resets lastIndex on global excludePatterns regexes', () => {

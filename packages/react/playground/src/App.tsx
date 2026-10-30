@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-import { createI18n, createReactRouterAdapter, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/react'
+import { createI18n, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 import type { Locale } from '@i18n-micro/types'
 import type React from 'react'
 import { useEffect } from 'react'

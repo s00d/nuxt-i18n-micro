@@ -1,10 +1,12 @@
 // @ts-nocheck — React 19 + RTL JSX typing noise; behaviour is what these tests pin
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
+import { createRequire } from 'node:module'
 import { stderr } from 'node:process'
 import React from 'react'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
-import { createI18n, createReactRouterAdapter, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, ReactI18n, useI18n } from '../src'
+import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, ReactI18n, useI18n } from '../src'
+import { createReactRouterAdapter } from '../src/router'
 
 // Same shape as packages/react/playground: three locales, English default, locale files loaded later.
 const locales = [
@@ -61,6 +63,21 @@ describe('React app over @i18n-micro/react', () => {
       stderr.write = write
       consoleSpy.mockRestore()
     }
+  })
+
+  test('renderToString works: the hook has a server snapshot', () => {
+    // react-dom is a peer of @testing-library/react, not a dependency of this package
+    const require = createRequire(createRequire(import.meta.url).resolve('@testing-library/react'))
+    const { renderToString } = require('react-dom/server')
+    const i18n = createI18n({ locale: 'en', messages: { en } })
+    const Page = () => <p>{useI18n().t('welcome')}</p>
+    expect(
+      renderToString(
+        <I18nProvider i18n={i18n}>
+          <Page />
+        </I18nProvider>,
+      ),
+    ).toBe('<p>Welcome</p>')
   })
 
   test('page without a router: messages arrive late, locale switches, routes scope keys, links fall back to plain hrefs', () => {
@@ -714,5 +731,11 @@ describe('React app over @i18n-micro/react', () => {
     fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
     expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
     expect(view.container.querySelector('.switcher-locale-de').style.backgroundColor).toBe('transparent')
+    // the active link's own border does not cost the inactive links their reset
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    view.rerender(shorthand({}, { border: '1px solid red' }))
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
+    expect(view.container.querySelector('.switcher-locale-en').style.border).toBe('1px solid red')
   })
 })

@@ -39,10 +39,10 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /change-activity | activity | en | activity | activity | English | null | null | null |
-| /change-activity/book-activity/skiing | activity-skiing | en | activity-skiing | activity-skiing | English | null | null | null |
-| /change-activity/hiking | activity-hiking | en | activity-hiking | activity-hiking | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /change-activity | activity | en | activity | activity | English | null | en | null |
+| /change-activity/book-activity/skiing | activity-skiing | en | activity-skiing | activity-skiing | English | null | en | null |
+| /change-activity/hiking | activity-hiking | en | activity-hiking | activity-hiking | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/change-buchen | localized-activity-de | de | activity | activity | Deutsch | de | de | null |
 | /de/change-buchen/aktivitaet-buchen/ski-fahren | localized-activity-skiing-de | de | activity-skiing | activity-skiing | Deutsch | de | de | null |
@@ -64,17 +64,17 @@ Every URL is resolved with `?q=1#top`.
 | /fr/page | localized-page | fr | page | page | Français | fr | fr | null |
 | /fr/product/hello-world | localized-product-slug | fr | product-slug | product-slug | Français | fr | fr | null |
 | /fr/same | localized-same | fr | same | same | Français | fr | fr | null |
-| /page/42 | page | en | page | page | English | null | null | null |
-| /product/hello-world | product-slug | en | product-slug | product-slug | English | null | null | null |
-| /same | same | en | same | same | English | null | null | null |
-| /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | null | null |
+| /page/42 | page | en | page | page | English | null | en | null |
+| /product/hello-world | product-slug | en | product-slug | product-slug | English | null | en | null |
+| /same | same | en | same | same | English | null | en | null |
+| /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | null | English | null | null | null |
+| /about/ | null | en |  | null | English | null | en | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

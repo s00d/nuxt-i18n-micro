@@ -26,12 +26,14 @@ export function createReactiveI18nStore(options: ReactiveI18nStoreOptions): Reac
   let revision = 0
   const listeners = new Set<() => void>()
 
-  // Over a copy: a listener that resubscribes runs once per notify, and one that throws
-  // does not stop the rest (the first error is rethrown after all have run).
+  // Over a copy: a listener that resubscribes runs once per notify, one removed by an earlier
+  // listener does not run, and one that throws does not stop the rest (the first error is
+  // rethrown after all have run).
   const notify = () => {
     revision++
     let failure: { error: unknown } | undefined
     for (const listener of [...listeners]) {
+      if (!listeners.has(listener)) continue
       try {
         listener()
       } catch (error) {

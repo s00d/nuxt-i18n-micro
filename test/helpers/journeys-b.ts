@@ -116,4 +116,14 @@ export async function directRoutes(baseURL: string, strategy: StrategyName) {
     expect(res.status, path).toBe(200)
     expect(contentOf(res.html), path).toBe(content)
   }
+  const { unprefixedDefault } = CASES[strategy]
+  if (unprefixedDefault) {
+    // the unprefixed URL is the default locale's: Accept-Language must not render another one on it
+    expect((await ssr(baseURL, unprefixedDefault, { 'Accept-Language': 'de' })).html).toMatch(/<html[^>]+lang="en_EN"/)
+  }
+  if (strategy === 'no_prefix') return
+  // a locale state set by a plugin, valid or not, must not load another chunk for the URL's locale
+  for (const forced of ['de', 'xx']) {
+    expect((await ssr(baseURL, '/ru/contact', { 'x-test-force-locale': forced })).html).toContain('_locales/contact/ru/data.json')
+  }
 }

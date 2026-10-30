@@ -222,7 +222,8 @@ For applications with routing (using @solidjs/router):
 ```typescript
 import { render } from 'solid-js/web'
 import { Router, Route, useNavigate, useLocation } from '@solidjs/router'
-import { createI18n, I18nProvider, createSolidRouterAdapter } from '@i18n-micro/solid'
+import { createI18n, I18nProvider } from '@i18n-micro/solid'
+import { createSolidRouterAdapter } from '@i18n-micro/solid/router'
 import type { Component } from 'solid-js'
 import type { Locale } from '@i18n-micro/types'
 
@@ -345,10 +346,10 @@ interface I18nRoutingStrategy {
 
 ### Using the Built-in Router Adapter
 
-The package exports `createSolidRouterAdapter` for @solidjs/router integration:
+`@i18n-micro/solid/router` exports `createSolidRouterAdapter` for @solidjs/router integration (the main entry never imports the optional `@solidjs/router` peer):
 
 ```typescript
-import { createSolidRouterAdapter } from '@i18n-micro/solid'
+import { createSolidRouterAdapter } from '@i18n-micro/solid/router'
 
 // In your RouterRoot component
 function RouterRoot({ children }: { children?: unknown }) {
@@ -364,7 +365,7 @@ function RouterRoot({ children }: { children?: unknown }) {
 
 1. **Must be called inside a component**: `createSolidRouterAdapter` uses `createSignal` and `createEffect`, which require a reactive context. **Always call it inside a component function**, not at module level.
 
-2. **Exported from package**: The `createSolidRouterAdapter` is now exported directly from `@i18n-micro/solid`, so you don't need to create a separate router adapter file for basic use cases. However, you can still create custom adapters if needed (see "Creating Custom Router Adapters" section below).
+2. **Exported from `@i18n-micro/solid/router`**: import `createSolidRouterAdapter` from the `/router` subpath, so you don't need to create a separate router adapter file for basic use cases. However, you can still create custom adapters if needed (see "Creating Custom Router Adapters" section below).
 
 3. **Reactivity**: The built-in adapter automatically provides `getCurrentPathAccessor()` for proper reactivity in SolidJS components.
 
@@ -653,7 +654,7 @@ export function createMinimalAdapter(): I18nRoutingStrategy {
 You can extend the built-in adapter and override specific methods:
 
 ```typescript
-import { createSolidRouterAdapter } from '@i18n-micro/solid'
+import { createSolidRouterAdapter } from '@i18n-micro/solid/router'
 
 export function createExtendedAdapter(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) {
   const baseAdapter = createSolidRouterAdapter(locales, defaultLocale, navigate, location)

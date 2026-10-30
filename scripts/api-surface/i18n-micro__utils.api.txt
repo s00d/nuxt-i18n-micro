@@ -135,6 +135,17 @@ member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefin
 function explicitLocale: (input: Omit<ResolveLocaleInput, "defaultLocale">) => string | null
 function firstQueryValue: (value: unknown) => string | null
 function localeFromPath: (path: string, validLocales: readonly string[]) => string | null
+function redirectLocale: (input: RedirectLocaleInput) => string
+interface RedirectLocaleInput
+member RedirectLocaleInput.acceptLanguage?: string | null | undefined
+member RedirectLocaleInput.autoDetectLanguage?: boolean | undefined
+member RedirectLocaleInput.autoDetectPath?: string | undefined
+member RedirectLocaleInput.cookie?: string | null | undefined
+member RedirectLocaleInput.defaultLocale: string
+member RedirectLocaleInput.path: string
+member RedirectLocaleInput.state?: string | null | undefined
+member RedirectLocaleInput.urlLocale: string | null
+member RedirectLocaleInput.validLocales: readonly string[]
 function resolveLocale: (input: ResolveLocaleInput) => string
 interface ResolveLocaleInput
 member ResolveLocaleInput.acceptLanguage?: string | null | undefined

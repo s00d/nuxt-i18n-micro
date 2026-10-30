@@ -24,10 +24,10 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en-us | index | index | null | null | null | null |
-| /about | about | en-us | about | about | null | null | null | null |
-| /api-docs | api-docs | en-us | api-docs | api-docs | null | null | null | null |
-| /blog/hello-world | blog-slug | en-us | blog-slug | blog-slug | null | null | null | null |
+| / | index | en-us | index | index | null | null | en-us | null |
+| /about | about | en-us | about | about | null | null | en-us | null |
+| /api-docs | api-docs | en-us | api-docs | api-docs | null | null | en-us | null |
+| /blog/hello-world | blog-slug | en-us | blog-slug | blog-slug | null | null | en-us | null |
 | /de | i18n-index | de | index | index | null | de | de | null |
 | /de/about | i18n-about | de | about | about | null | de | de | null |
 | /de/blog/hello-world | i18n-blog-slug | de | blog-slug | blog-slug | null | de | de | null |
@@ -45,11 +45,11 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/ueber-uns | i18n-about-de | pt-br | about | about | null | pt-br | pt-br | null |
 | /en-us/ | i18n-index | en-us | index | index | null | en-us | en-us | null |
 | /pt-br/ | i18n-index | pt-br | index | index | null | pt-br | pt-br | null |
-| /about/ | about | en-us | about | about | null | null | null | null |
+| /about/ | about | en-us | about | about | null | null | en-us | null |
 | /pt-br/about/ | i18n-about | pt-br | about | about | null | pt-br | pt-br | null |
-| /missing | null | en-us |  | null | null | null | null | null |
+| /missing | null | en-us |  | null | null | null | en-us | null |
 | /pt-br/missing | null | pt-br |  | null | null | pt-br | pt-br | null |
-| /xx/about | i18n-about | en-us | about | about | null | null | null | null |
+| /xx/about | i18n-about | en-us | about | about | null | null | en-us | null |
 | /pt-br/pt-br/about | null | pt-br | about | about | null | pt-br | pt-br | null |
 
 ## To en-us

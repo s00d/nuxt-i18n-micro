@@ -80,11 +80,29 @@ export interface MergeTranslationChunkOptions {
  */
 export function mergeTranslationChunk(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions): Tree {
   // a copy: the result is a stored tree from now on, and the caller still owns `incoming`
-  if (Object.keys(existing).length === 0) return { ...incoming }
+  if (Object.keys(existing).length === 0) return copyWithoutProto(incoming)
   const owned = new WeakSet<object>()
   const root = own(existing, owned)
   mergeInto(root, incoming, owned, options?.preserveExisting === true)
   return root
+}
+
+/**
+ * What `mergeInto` does to the keys of an empty target, at every level: `JSON.parse` makes
+ * `__proto__` an own key, a merge never keeps it. Aliased nodes stay aliased, a cycle stays a cycle.
+ * ponytail: copies every node of a chunk once on load (O(keys)), never on `t()`.
+ */
+function copyWithoutProto(tree: Tree, copies = new WeakMap<object, Tree>()): Tree {
+  const known = copies.get(tree)
+  if (known) return known
+  const copy: Tree = {}
+  copies.set(tree, copy)
+  for (const key of Object.keys(tree)) {
+    if (key === '__proto__') continue
+    const value = tree[key]
+    copy[key] = isTree(value) ? copyWithoutProto(value, copies) : value
+  }
+  return copy
 }
 
 /** `node` if this merge already copied it, otherwise its copy (now owned). */
@@ -120,6 +138,10 @@ function mergeValue(target: Tree, key: string, incoming: unknown, owned: WeakSet
 export function mergeTranslationLayers(lower: Tree, upper: Tree): Tree {
   const shadowed: Tree = {}
   const merged = layer(lower, upper, '', shadowed, new Set())
+  // a flat key wins in `getByPath`: a lower one must not hide what `upper` answers through its nesting
+  for (const key of Object.keys(lower)) {
+    if (key.includes('.') && !hasOwn(upper, key) && hasTranslationValue(upper, key)) delete merged[key]
+  }
   return Object.keys(shadowed).length === 0 ? merged : { ...merged, ...shadowed }
 }
 

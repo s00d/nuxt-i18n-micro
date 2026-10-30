@@ -29,16 +29,42 @@ export default defineConfig({
         { code: 'en', iso: 'en-US', displayName: 'English' },
         { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
       ],
-      messages: {
-        en: { greeting: 'Hello, {name}!' },
-        fr: { greeting: 'Bonjour, {name}!' },
-      },
     }),
   ],
 })
 ```
 
-### 2. Use in Pages
+The integration publishes these serializable options as `virtual:i18n-micro/config`. Everything else
+(`messages`, `plural`, `missingHandler`, `routingStrategy`) belongs to the runtime: pass it in the middleware.
+
+### 2. Create the Middleware
+
+```ts
+// src/middleware.ts
+import { config } from 'virtual:i18n-micro/config'
+import { createI18n, createI18nMiddleware } from '@i18n-micro/astro'
+
+const i18n = createI18n({
+  locale: config.defaultLocale,
+  fallbackLocale: config.fallbackLocale,
+  messages: {
+    en: { greeting: 'Hello, {name}!' },
+    fr: { greeting: 'Bonjour, {name}!' },
+  },
+})
+
+export const onRequest = createI18nMiddleware({
+  i18n,
+  defaultLocale: config.defaultLocale,
+  locales: config.localeCodes,
+  localeObjects: config.locales,
+  autoDetect: config.autoDetect,
+  redirectToDefault: config.redirectToDefault,
+  localeCookie: config.localeCookie,
+})
+```
+
+### 3. Use in Pages
 
 ```astro
 ---
@@ -58,7 +84,7 @@ const { t, locale } = useI18n(Astro)
 </html>
 ```
 
-### 3. Locale-prefixed URLs (`/[locale]/*`)
+### 4. Locale-prefixed URLs (`/[locale]/*`)
 
 When using `createAstroRouterAdapter`, add rewrite stubs under `src/pages/[locale]/`:
 

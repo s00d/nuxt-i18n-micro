@@ -156,9 +156,10 @@ export const payloadBudgetCommand = defineCommand({
     description: [
       'Build an app and fail when its hydration payload grows past an agreed budget.',
       '',
-      'The SSR payload carries the translation chunks a page loaded, so its size follows',
-      'what the app asks for. Nothing else notices when that changes: a payload that',
-      'doubled renders correctly and passes every test, it is just heavier. Hence a budget.',
+      'Dictionaries stay off the HTML: the client fetches its chunks from the translations',
+      'route, so `__NUXT_DATA__` holds a few hundred bytes of state. Nothing else notices when',
+      'a dictionary leaks back in: the page renders correctly and passes every test, it is',
+      'just heavier. Hence a budget.',
       '',
       'The playground is the default target because its dictionary is deliberately huge, so',
       'a change in what the payload carries is unmissable rather than marginal. The numbers',

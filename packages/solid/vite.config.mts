@@ -1,11 +1,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import solidPlugin from 'vite-plugin-solid'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
-  if (!filePath.endsWith('index.d.ts')) {
+  // only the entry declarations at the top of the output dir (index.d.ts, router.d.ts)
+  const entry = ['index.d.ts', 'router.d.ts'].includes(basename(filePath))
+  if (!entry || resolve(dirname(filePath)) !== resolve(import.meta.dirname, 'dist')) {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -33,10 +35,13 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        router: resolve(import.meta.dirname, 'src/router/index.ts'),
+      },
       name: 'I18nMicroSolid',
       formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
       external: ['solid-js', 'solid-js/web', 'solid-js/store', '@solidjs/router', '@i18n-micro/core', '@i18n-micro/types'],

@@ -19,12 +19,16 @@ const UNITS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> = [
 
 /**
  * Stable cache key of an options object: key order does not matter, `{}` equals none.
- * Intl options are flat primitives, so `name=value` pairs are enough (no JSON).
+ * Intl options are flat primitives, so typed `name=value` pairs are enough (no JSON):
+ * `false` and `'false'` are different options (`useGrouping`).
  */
 function optionsKey(options: object | undefined): string {
   if (!options) return ''
   let key = ''
-  for (const name of Object.keys(options).sort()) key += `${name}=${String((options as Record<string, unknown>)[name])}\u0001`
+  for (const name of Object.keys(options).sort()) {
+    const value = (options as Record<string, unknown>)[name]
+    key += `${name}=${typeof value}:${String(value)}\u0001`
+  }
   return key
 }
 

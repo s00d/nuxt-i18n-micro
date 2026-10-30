@@ -46,6 +46,15 @@ export interface CreateBridgeOptions {
   locales?: Locale[]
   defaultLocale?: string
   translationDir?: string
+  /** The dev server's API base, the plugin's `base` option (default `'/__i18n_api'`). */
+  base?: string
+}
+
+/** A chunk with saves in flight: they run one by one, so `committed` is what the disk holds. */
+interface ChunkSaves {
+  committed: TranslationContent | undefined
+  latest: number
+  tail: Promise<void>
 }
 
 /** A static host (preview build) answers a POST to a missing endpoint with one of these. */
@@ -62,10 +71,10 @@ function saveLocally(filePath: string, content: TranslationContent, reason: unkn
  * POST the file to the dev server's save endpoint. Only an unreachable server or a missing endpoint
  * falls back to localStorage; an error the endpoint reports (rejected path, write failure) is thrown.
  */
-async function saveToDisk(realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
+async function saveToDisk(base: string, realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
   let response: Response
   try {
-    response = await fetch('/__i18n_api/save', {
+    response = await fetch(`${base}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file: realFilePath, content }),
@@ -78,7 +87,7 @@ async function saveToDisk(realFilePath: string, content: TranslationContent, fil
     return
   }
   const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-  const error = new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
+  const error = new Error(errorData?.error || `Network response was not ok: ${response.statusText}`)
   if (NO_ENDPOINT.has(response.status)) return saveLocally(filePath, content, error)
   throw error
 }
@@ -89,6 +98,9 @@ async function saveToDisk(realFilePath: string, content: TranslationContent, fil
  */
 export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
   const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales' } = options
+  // no trailing slash: `/` + `/save` would be `//save`, a protocol-relative URL
+  const base = (options.base ?? '/__i18n_api').replace(/\/+$/, '')
+  const chunkSaves = new Map<string, ChunkSaves>()
 
   // Helper function to build locale data from cache
   const buildLocaleData = (): LocaleData => {
@@ -130,6 +142,38 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
     return null
   }
 
+  /**
+   * Hot-updates the chunk, then saves after the chunk's earlier saves. Only the newest edit of a
+   * failed run rolls back, to the last save that reached the disk; an older failure leaves it alone.
+   */
+  const applyAndSave = async (
+    write: NonNullable<ReturnType<typeof hotWriter>>,
+    content: TranslationContent,
+    persist: () => Promise<void>,
+  ): Promise<void> => {
+    const chunk = chunkSaves.get(write.cacheKey) ?? { committed: adapter.getRouteCache()[write.cacheKey], latest: 0, tail: Promise.resolve() }
+    chunkSaves.set(write.cacheKey, chunk)
+    const save = ++chunk.latest
+    write.apply(content)
+
+    const saved = chunk.tail.then(persist)
+    chunk.tail = saved
+      .then(
+        () => {
+          chunk.committed = content
+        },
+        () => {
+          if (chunk.latest === save) write.apply(chunk.committed ?? {})
+        },
+      )
+      .then(() => {
+        // idle again: the next edit starts from the live cache, which HMR may have changed
+        if (chunk.latest === save) chunkSaves.delete(write.cacheKey)
+      })
+    await chunk.tail
+    await saved
+  }
+
   return {
     async getLocalesAndTranslations(): Promise<LocaleData> {
       return buildLocaleData()
@@ -151,18 +195,9 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
         const write = hotWriter(normalizedPath)
         if (!write) throw new Error(`Unknown file path format: ${filePath}`)
 
-        // 1. Hot update in memory, keeping what was there so a failed disk save can put it back
-        const previous = adapter.getRouteCache()[write.cacheKey]
-        write.apply(content)
-
-        // 2. Save to disk; the app must not keep an edit that is neither on disk nor in localStorage
+        // The app must not keep an edit that is neither on disk nor in localStorage
         const realFilePath = translationDir ? `${translationDir}/${normalizedPath}` : normalizedPath
-        try {
-          await saveToDisk(realFilePath, content, filePath)
-        } catch (error) {
-          write.apply(previous ?? {})
-          throw error
-        }
+        await applyAndSave(write, content, () => saveToDisk(base, realFilePath, content, filePath))
       } catch (error) {
         throw new Error(`Failed to save: ${error instanceof Error ? error.message : String(error)}`)
       }

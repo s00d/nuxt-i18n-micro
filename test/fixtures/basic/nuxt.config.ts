@@ -5,7 +5,7 @@ import n3Routes from './n3/locales/pages'
 
 // One fixture, several builds (test/recipes.ts). BASIC_VARIANT picks the variant below; the default is basic.
 // The `basic-layer` recipe builds ./layer, which extends this dir.
-type Variant = 'basic' | 'pages-false' | 'serverless' | 'n3'
+type Variant = 'basic' | 'pages-false' | 'no-plugin' | 'serverless' | 'n3'
 
 const routeRules = {
   '/client': { ssr: false },
@@ -17,6 +17,16 @@ const routeRules = {
 
 // pages: false — no router; app.pages-false.vue is the whole app. STRATEGY=no_prefix for the second recipe.
 const pagesFalseStrategy = process.env.STRATEGY === 'no_prefix' ? 'no_prefix' : 'prefix_except_default'
+
+/** `pages: false`: `file` is the whole app. */
+const appOnly = (file: string) => ({
+  pages: false,
+  hooks: {
+    'app:resolve'(app: { mainComponent?: string }) {
+      app.mainComponent = fileURLToPath(new URL(file, import.meta.url))
+    },
+  },
+})
 
 const variants: Record<Variant, Record<string, unknown>> = {
   basic: {
@@ -35,6 +45,7 @@ const variants: Record<Variant, Record<string, unknown>> = {
       defaultLocale: 'en',
       translationDir: 'locales',
       autoDetectLanguage: false,
+      routeDisableMeta: { 'disable-meta-config': true },
       // storage-cwd.e2e.test.ts: payloads served by the handler only, never prerendered
       ...(process.env.PRERENDER_PAYLOADS === '0' ? { translationPayloads: { prerenderRoutes: false } } : {}),
       routesLocaleLinks: {
@@ -52,12 +63,7 @@ const variants: Record<Variant, Record<string, unknown>> = {
     },
   },
   'pages-false': {
-    pages: false,
-    hooks: {
-      'app:resolve'(app: { mainComponent?: string }) {
-        app.mainComponent = fileURLToPath(new URL('app.pages-false.vue', import.meta.url))
-      },
-    },
+    ...appOnly('app.pages-false.vue'),
     i18n: {
       strategy: pagesFalseStrategy,
       defaultLocale: 'en',
@@ -70,6 +76,16 @@ const variants: Record<Variant, Record<string, unknown>> = {
       autoDetectLanguage: false,
       localeCookie: 'user-locale',
       redirects: pagesFalseStrategy === 'prefix_except_default',
+    },
+  },
+  // `plugin: false` with the default hooks and meta: the module's other plugins must stay out
+  'no-plugin': {
+    ...appOnly('app.no-plugin.vue'),
+    i18n: {
+      plugin: false,
+      locales: [{ code: 'en', iso: 'en_EN' }],
+      defaultLocale: 'en',
+      translationDir: 'locales',
     },
   },
   // global fallbackLocale en, fr falls back to de (/fallback); route-cached payloads in memory storage (/cache)

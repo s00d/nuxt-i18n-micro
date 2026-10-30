@@ -5,7 +5,7 @@
  * - `'/'` (default) — only `/`
  * - `'no_prefix'` — any path without a locale prefix
  * - `'*'` — every path (also enables aggressive prefixed-URL rewrites in the plugin)
- * - any other string — exact path match
+ * - any other string — that path, trailing slashes ignored
  *
  * Does not gate strategy / `localeRoutes` canonicalization: when preference is denied on an
  * unprefixed path, the plugin still runs `getClientRedirect` with the default locale.

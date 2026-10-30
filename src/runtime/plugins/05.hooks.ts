@@ -24,10 +24,9 @@ export default defineNuxtPlugin({
       const mergeTasks: Promise<void>[] = []
 
       await nuxtApp.callHook(
-        // @ts-expect-error i18n:register is custom hook
         'i18n:register',
-        (translations: Translations, selectedLocale?: string) => {
-          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true))
+        (translations: unknown, selectedLocale?: string) => {
+          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations, true))
         },
         locale,
       )

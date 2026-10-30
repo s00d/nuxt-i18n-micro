@@ -28,7 +28,7 @@ The sections below explain how they work together; the
 | [`define`](/api/module-options) | `boolean` | `true` | Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls. |
 | [`redirects`](/api/module-options) | `boolean` | `true` | Enable automatic locale-based redirects. |
 | [`plugin`](/api/module-options) | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers. |
-| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch` app-level hooks. |
+| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on navigation so plugins can add translations. |
 | [`components`](/api/module-options) | `boolean` | `true` | Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`). |
 | [`serverTranslationPreload`](/api/module-options) | `boolean` | `false` | Preload index-page translations in Nitro global middleware (server-only, private config). |
 | [`defaultLocale`](/api/module-options) | `string` | `'en'` | The locale to use when no locale can be determined from URL or user preferences. |
@@ -47,7 +47,7 @@ The sections below explain how they work together; the
 | [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
 | [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
 | [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. |
-| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — exact path match (e.g. `'/welcome'`) Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated. |
+| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`) Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated. |
 | [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
 | [`types`](/api/module-options) | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files. |
 | [`routesLocaleLinks`](/api/module-options) | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. |
@@ -644,8 +644,8 @@ plugin: false
 
 **Type** `boolean` · **Default** `true`
 
-Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
-/ `i18n:afterLocaleSwitch` app-level hooks.
+Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
+navigation so plugins can add translations.
 
 <!-- /generated:option:hooks -->
 
@@ -701,7 +701,7 @@ Where cookie / Accept-Language preference redirects may run (when `redirects` is
 - `'*'` — every path, including rewriting an explicit locale prefix
   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
 
-- any other string — exact path match (e.g. `'/welcome'`)
+- any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
 
 Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
 

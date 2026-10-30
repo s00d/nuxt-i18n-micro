@@ -1,7 +1,6 @@
 # . (src/index.ts)
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
 function createI18n: (options: ReactI18nOptions) => ReactI18n
-function createReactRouterAdapter: (locales: Locale[], defaultLocale: string, location: ReturnType<typeof useLocation>, navigate: ReturnType<typeof useNavigate>) => I18nRoutingStrategy
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
@@ -1364,3 +1363,13 @@ member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.Relativ
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
 member UseI18nReturn.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
 const useI18nRouter: () => I18nRoutingStrategy | null
+
+# ./router (src/router/index.ts)
+function createReactRouterAdapter: (locales: Locale[], defaultLocale: string, location: ReturnType<typeof useLocation>, navigate: ReturnType<typeof useNavigate>) => I18nRoutingStrategy
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | React.ComponentType<{ [key: string]: unknown; href: string; children?: React.ReactNode; style?: React.CSSProperties; className?: string; }> | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined

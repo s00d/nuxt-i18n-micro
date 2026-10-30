@@ -26,6 +26,8 @@ interface StrategyCase {
   absent?: string[]
   /** `prefix` prerenders `/` as a redirect page to the default locale. */
   rootRedirect?: string
+  /** An unprefixed URL that belongs to the default locale, whatever the visitor prefers. */
+  unprefixedDefault?: string
 }
 
 const SETTINGS = (prefix: string) => [`${prefix}settings/profile`, `${prefix}settings/team`]
@@ -39,6 +41,7 @@ export const CASES: Record<StrategyName, StrategyCase> = {
   prefix_except_default: {
     routes: { '/': 'en', '/ru': 'ru', '/de': 'de', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
     pages: ['about', 'contact', 'de/a-propos', 'ru/about', ...SETTINGS(''), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    unprefixedDefault: '/contact',
   },
   prefix: {
     routes: { '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
@@ -48,6 +51,7 @@ export const CASES: Record<StrategyName, StrategyCase> = {
   prefix_and_default: {
     routes: { '/': 'en', '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
     pages: ['en/about', 'de/a-propos', 'ru/about', ...SETTINGS('en/'), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    unprefixedDefault: '/contact',
   },
 }
 

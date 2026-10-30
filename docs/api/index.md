@@ -8,7 +8,7 @@ description: 'Runtime methods, events, translation cache, and server middleware.
 ## Runtime API
 
 - [Methods](./methods.md) — `$t`, `$ts`, `$_t`, `$_ts`, locale switching, routing helpers
-- [Events](./events.md) — `i18n:register`, `i18n:beforeLocaleSwitch`, `i18n:afterLocaleSwitch`
+- [Events](./events.md) — `i18n:register`
 - [Translations and Cache](./i18n-cache-api.md) — `TranslationStorage`, payload loading, `$clearCache`
 
 ## Server middleware

@@ -81,6 +81,8 @@ test('the pure island core: translate / hasTranslation over the props', () => {
   expect(translate(state, 'title', { x: 1 })).toBe('Über')
   expect(translate(state, 'nested', { x: 1 })).toEqual({ deep: 'Tief' })
   expect(translate({ ...state, translations: {} }, 'title')).toBe('title')
+  const falsy = { ...state, translations: { [state.currentRoute]: { zero: 0, no: false, empty: '' } } } as typeof state
+  expect([translate(falsy, 'zero'), translate(falsy, 'no'), translate(falsy, 'empty')]).toEqual([0, false, ''])
   expect(hasTranslation({ ...state, translations: {} }, 'title')).toBe(false)
 })
 

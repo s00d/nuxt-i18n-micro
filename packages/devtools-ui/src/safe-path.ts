@@ -62,3 +62,28 @@ export function safeResolvePath(projectRoot: string, filePath: string): string {
 
   return resolvedPath
 }
+
+/** Whether `target` lies inside `base` (not `base` itself, not above it). */
+function isInside(base: string, target: string): boolean {
+  const relative = path.relative(base, target)
+  return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
+}
+
+/**
+ * The real path of an existing `.json` file inside both `<projectRoot>/<translationDir>` and
+ * `projectRoot`, or null. `file` is relative to that dir (a leading `<translationDir>/` is dropped);
+ * `../`, absolute paths and symlinks out of either are refused, and the real target must be a
+ * regular `.json` file — the same rule as the Nuxt module's devtools save.
+ */
+export function resolveTranslationFile(projectRoot: string, translationDir: string, file: string): string | null {
+  const localesDir = path.resolve(projectRoot, translationDir)
+  const prefix = `${translationDir.replace(/\/+$/, '')}/`
+  const relative = file.startsWith(prefix) ? file.slice(prefix.length) : file
+  if (path.isAbsolute(relative) || !relative.endsWith('.json')) return null
+  const candidate = path.resolve(localesDir, relative)
+  if (!fs.existsSync(localesDir) || !fs.existsSync(candidate)) return null
+  const real = fs.realpathSync(candidate)
+  // the name only says what the link is called: `alias.json` may lead to any file, `x.json` may be a directory
+  if (!real.endsWith('.json') || !fs.statSync(real).isFile()) return null
+  return isInside(fs.realpathSync(projectRoot), real) && isInside(fs.realpathSync(localesDir), real) ? real : null
+}

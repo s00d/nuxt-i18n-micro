@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | --- | --- | --- |
 | `BridgeAdapter` | interface | 6 members |
 | `createBridge` | function | `(options: CreateBridgeOptions) => I18nDevToolsBridge` |
-| `CreateBridgeOptions` | interface | 4 members |
+| `CreateBridgeOptions` | interface | 5 members |
 | `createRpcClient` | function | `() => I18nDevToolsBridge` |
 | `I18nDevToolsBridge` | interface | 4 members |
 | `I18nDevToolsElement` | const | `import("vue").VueElementConstructor<any>` |
@@ -49,11 +49,12 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 </details>
 
 <details>
-<summary><code>CreateBridgeOptions</code> — 4 members</summary>
+<summary><code>CreateBridgeOptions</code> — 5 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `adapter` | `BridgeAdapter` |
+| `base?` | `string \| undefined` |
 | `defaultLocale?` | `string \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `translationDir?` | `string \| undefined` |
@@ -154,11 +155,11 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge/create'
 | --- | --- | --- |
 | `BridgeAdapter` | interface | 6 members |
 | `createBridge` | function | `(options: CreateBridgeOptions) => I18nDevToolsBridge` |
-| `CreateBridgeOptions` | interface | 4 members |
+| `CreateBridgeOptions` | interface | 5 members |
 
 <code>BridgeAdapter</code> — 6 members, identical to `BridgeAdapter` above.
 
-<code>CreateBridgeOptions</code> — 4 members, identical to `CreateBridgeOptions` above.
+<code>CreateBridgeOptions</code> — 5 members, identical to `CreateBridgeOptions` above.
 ## `@i18n-micro/devtools-ui/vite`
 
 ```ts
@@ -167,15 +168,17 @@ import { /* … */ } from '@i18n-micro/devtools-ui/vite'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `DevToolsPluginOptions` | interface | 3 members |
+| `DevToolsPluginOptions` | interface | 5 members |
 | `i18nDevToolsPlugin` | function | `(options?: DevToolsPluginOptions) => PluginOption` |
 
 <details>
-<summary><code>DevToolsPluginOptions</code> — 3 members</summary>
+<summary><code>DevToolsPluginOptions</code> — 5 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `base?` | `string \| undefined` |
+| `defaultLocale?` | `string \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
 | `injectButton?` | `boolean \| undefined` |
 | `translationDir?` | `string \| undefined` |
 

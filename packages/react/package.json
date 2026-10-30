@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/react",
-  "version": "1.3.18",
+  "version": "1.3.19",
   "description": "React bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -38,6 +38,17 @@
         "default": "./dist/react/index.cjs"
       },
       "default": "./dist/react/index.mjs"
+    },
+    "./router": {
+      "import": {
+        "types": "./dist/react/router.d.ts",
+        "default": "./dist/react/router.mjs"
+      },
+      "require": {
+        "types": "./dist/react/router.d.cts",
+        "default": "./dist/react/router.cjs"
+      },
+      "default": "./dist/react/router.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -81,6 +92,6 @@
     }
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

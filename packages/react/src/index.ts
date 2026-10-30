@@ -27,6 +27,6 @@ export {
   useI18nLocales,
   useI18nRouter,
 } from './injection'
-export { createReactRouterAdapter } from './router/adapter'
+// Router adapter: `@i18n-micro/react/router` (keeps the optional router peer out of this entry)
 // Router abstraction
 export type { I18nRoutingStrategy } from './router/types'

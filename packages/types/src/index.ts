@@ -235,8 +235,8 @@ export interface ModuleOptions {
   plugin?: boolean
 
   /**
-   * Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
-   * / `i18n:afterLocaleSwitch` app-level hooks.
+   * Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
+   * navigation so plugins can add translations.
    * @default true
    */
   hooks?: boolean
@@ -328,7 +328,7 @@ export interface ModuleOptions {
    * - `'no_prefix'` — only paths without a locale prefix
    * - `'*'` — every path, including rewriting an explicit locale prefix
    *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
-   * - any other string — exact path match (e.g. `'/welcome'`)
+   * - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
    *
    * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
    * @default '/'

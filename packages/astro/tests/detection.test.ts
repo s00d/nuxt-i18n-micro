@@ -47,6 +47,30 @@ describe('createI18nMiddleware (F10, D5)', () => {
     expect(vary.last).toBeNull()
   })
 
+  test('redirectToDefault: the home page without a preference redirects to the default locale', async () => {
+    await run('/', {}, { redirectToDefault: true, routingStrategy: { resolvePath: () => '/en' } })
+    expect(vary.location).toBe('/en')
+    await run('/', { headers: { 'accept-language': 'de' } }, { redirectToDefault: true })
+    expect(vary.location).toBe('/de')
+    await run('/', {}, { redirectToDefault: true, autoDetect: false, routingStrategy: { resolvePath: () => '/en' } })
+    expect(vary.location).toBe('/en')
+    // no strategy resolves a home: `/` is the default locale's page, a `/en` would be a 404
+    expect(await run('/', {}, { redirectToDefault: true })).toEqual({ locale: 'en', route: 'index' })
+    expect(vary.location).toBeNull()
+    await run('/', {}, { redirectToDefault: true, autoDetect: false })
+    expect(vary.location).toBeNull()
+    // no redirect loop where the default locale's home is the root, and never on a prerendered page
+    await run('/', {}, { redirectToDefault: true, routingStrategy: { resolvePath: () => '/' } })
+    expect(vary.location).toBeNull()
+    // resolvePath may answer with a route object: its path is the home
+    await run('/', {}, { redirectToDefault: true, routingStrategy: { resolvePath: () => ({ path: '/home-en' }) } })
+    expect(vary.location).toBe('/home-en')
+    await run('/', { isPrerendered: true }, { redirectToDefault: true })
+    expect(vary.location).toBeNull()
+    await run('/', {}, {})
+    expect(vary.location).toBeNull()
+  })
+
   test('autoDetect: the home page redirects to the preferred locale (cookie, then q-aware header)', async () => {
     await run('/', { cookies: { 'i18n-locale': 'fr' }, headers: { 'accept-language': 'de' } }, { routingStrategy })
     expect(vary.location).toBe('/fr')

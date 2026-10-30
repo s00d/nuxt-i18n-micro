@@ -9,7 +9,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       () => null,
     )
 
-  // @ts-expect-error
   nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
     const translations = await loadTranslations(locale)
     if (translations) register(translations, locale)

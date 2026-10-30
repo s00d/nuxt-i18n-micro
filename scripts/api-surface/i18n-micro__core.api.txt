@@ -124,6 +124,7 @@ member TranslationHelper.translations: Map<string, Translations>
 member TranslationHelper.new: (storage?: TranslationStorage | undefined): TranslationHelper
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
+type Tree: Record<string, unknown>
 function useTranslationHelper: (storage?: TranslationStorage) => TranslationHelper
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
@@ -174,4 +175,5 @@ function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 function translationCacheKey: (locale: string, routeName?: string) => string
+type Tree: Record<string, unknown>
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"

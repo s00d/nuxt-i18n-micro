@@ -43,6 +43,7 @@ export const recipes = defineRecipes(
     'basic-n3': app('basic-n3', 'basic', { BASIC_VARIANT: 'n3' }),
     'basic-pages-false': app('basic-pages-false', 'basic', { BASIC_VARIANT: 'pages-false' }),
     'basic-pages-false-no-prefix': app('basic-pages-false-no-prefix', 'basic', { BASIC_VARIANT: 'pages-false', STRATEGY: 'no_prefix' }),
+    'basic-no-plugin': app('basic-no-plugin', 'basic', { BASIC_VARIANT: 'no-plugin' }),
     'basic-serverless': app('basic-serverless', 'basic', { BASIC_VARIANT: 'serverless' }),
     // @nuxt/content and @nuxtjs/seo in one app
     integrations: app('integrations'),
@@ -79,6 +80,7 @@ export const recipes = defineRecipes(
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
     }),
     // detection on every path ('*') with a whole-segment exclude: a deep link would be rewritten, so not on pec
     'strategy-redirect': app('strategy-redirect', 'strategy', {

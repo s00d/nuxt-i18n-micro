@@ -176,7 +176,10 @@ describe('reading a URL', () => {
     expect(i18n.getCurrentLocale(at('/de/ueber-uns'))).toBe('de')
     expect(i18n.getCurrentLocale(at('/about-us'))).toBe('en')
     expect(i18n.getCurrentLocaleName(at('/fr'))).toBe('Français')
-    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/'), 'fr')).toBe('fr')
+    // an unprefixed URL is the default locale's page, as the server renders it: a stored locale does not move it
+    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/'), 'fr')).toBe('en')
+    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/about-us'), 'fr')).toBe('en')
+    expect(setup('prefix_and_default').i18n.resolveLocaleFromPath('/x')).toBe('en')
     expect(setup('no_prefix').i18n.getCurrentLocale(setup('no_prefix').at('/ueber-uns'), 'de')).toBe('de')
     expect(setup('prefix', { hashMode: true }).i18n.getCurrentLocale(setup('prefix').at('/de'), null)).toBe('en')
   })
@@ -244,6 +247,13 @@ describe('server redirects and 404', () => {
     const disabled = setup('prefix_except_default', { locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)) }).i18n
     expect(disabled.shouldReturn404('/fr/about-us')).toBe('Locale disabled')
     expect(disabled.shouldReturn404('/fr')).toBe('Locale disabled')
+    // the client agrees: no redirect to `/en/fr/...` around the 404
+    expect(disabled.getClientRedirect('/fr/about-us', 'de')).toBeNull()
+    const matcher = setup('prefix', {
+      locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)),
+      customRegexMatcher: '[a-z]{2}',
+    }).i18n
+    expect(matcher.shouldReturn404('/fr/about-us')).toBe('Locale disabled')
     expect(disabled.shouldReturn404('/de/ueber-uns')).toBeNull()
     expect(setup('prefix_except_default').i18n.shouldReturn404('/fr/about-us')).toBeNull()
   })

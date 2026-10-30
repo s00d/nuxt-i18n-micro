@@ -20,11 +20,21 @@
       <i18n-t keypath="page.items" :plural="3" />
     </p>
 
+    <p id="use-i18n-t">
+      {{ t('page.title') }}
+    </p>
+    <p id="use-i18n-helper">
+      {{ typeof helper.mergeTranslation }}
+    </p>
+
     <p id="number-tn">
       {{ $tn(1234567.89) }}
     </p>
     <p id="number-tn-component">
       <i18n-t keypath="page.number" :number="1234567.89" />
+    </p>
+    <p id="number-params">
+      <i18n-t keypath="page.distance" :number="5" :params="{ unit: 'km' }" />
     </p>
 
     <div id="date-td">
@@ -55,9 +65,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useNuxtApp } from '#imports'
+import { useI18n, useNuxtApp } from '#imports'
 
 const { $defineI18nRoute, $tn, $td, $tdr } = useNuxtApp()
+// the bare aliases: same functions as the `$` names
+const { t, helper } = useI18n()
 
 // Calculate date approximately 1 year ago (13-14 months to ensure it's always >= 1 year)
 const oneYearAgo = computed(() => {
@@ -79,6 +91,7 @@ $defineI18nRoute({
         items: 'Nothing|You have {count} item|You have {count} items',
         htmlContent: '<strong>Bold Text</strong> with HTML content.',
         number: 'The number is: {number}',
+        distance: 'Distance: {number} {unit}',
         date: 'The date is: {date}',
         relativeDate: 'The relative date is: {relativeDate}',
       },
@@ -91,6 +104,7 @@ $defineI18nRoute({
         items: 'Nichts|Sie haben {count} Artikel|Sie haben {count} Artikel',
         htmlContent: '<strong>Fetter Text</strong> mit HTML-Inhalt.',
         number: 'Die Zahl ist: {number}',
+        distance: 'Entfernung: {number} {unit}',
         date: 'Das Datum ist: {date}',
         relativeDate: 'Das relative Datum ist: {relativeDate}',
       },
@@ -103,6 +117,7 @@ $defineI18nRoute({
         items: 'Ничего нет|У вас {count} предмет|У вас {count} предмета',
         htmlContent: '<strong>Жирный текст</strong> с HTML-содержимым.',
         number: 'Число: {number}',
+        distance: 'Расстояние: {number} {unit}',
         date: 'Дата: {date}',
         relativeDate: 'Относительная дата: {relativeDate}',
       },

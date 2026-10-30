@@ -38,9 +38,9 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /about | about | en | about | about | English | null | null | null |
-| /about-team | about-team | en | about-team | about-team | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /about | about | en | about | about | English | null | en | null |
+| /about-team | about-team | en | about-team | about-team | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/docs | localized-docs | de | docs | docs | Deutsch | de | de | null |
 | /de/dokumente/einstieg | localized-docs-getting-started-de | de | docs-getting-started | docs-getting-started | Deutsch | de | de | null |
@@ -49,8 +49,8 @@ Every URL is resolved with `?q=1#top`.
 | /de/mannschaft/mitglieder | localized-team-members-de | de | team-members | team-members | Deutsch | de | de | null |
 | /de/team-seite | localized-about-team-de | de | about-team | about-team | Deutsch | de | de | null |
 | /de/ueber-uns | localized-about-de | de | about | about | Deutsch | de | de | null |
-| /docs | docs | en | docs | docs | English | null | null | null |
-| /docs/start | docs-getting-started | en | docs-getting-started | docs-getting-started | English | null | null | null |
+| /docs | docs | en | docs | docs | English | null | en | null |
+| /docs/start | docs-getting-started | en | docs-getting-started | docs-getting-started | English | null | en | null |
 | /en | localized-index | en | index | index | English | en | en | null |
 | /en/about | localized-about | en | about | about | English | en | en | null |
 | /en/about-team | localized-about-team | en | about-team | about-team | English | en | en | null |
@@ -59,7 +59,7 @@ Every URL is resolved with `?q=1#top`.
 | /en/foo-bar/baz | localized-foo-bar-baz | en | foo-bar-baz | foo-bar-baz | English | en | en | null |
 | /en/team | localized-team | en | team | team | English | en | en | null |
 | /en/team/members | localized-team-members | en | team-members | team-members | English | en | en | null |
-| /foo-bar/baz | foo-bar-baz | en | foo-bar-baz | foo-bar-baz | English | null | null | null |
+| /foo-bar/baz | foo-bar-baz | en | foo-bar-baz | foo-bar-baz | English | null | en | null |
 | /fr | localized-index | fr | index | index | Français | fr | fr | null |
 | /fr/about | localized-about | fr | about | about | Français | fr | fr | null |
 | /fr/docs | localized-docs | fr | docs | docs | Français | fr | fr | null |
@@ -68,15 +68,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr/foo-bar/baz | localized-foo-bar-baz | fr | foo-bar-baz | foo-bar-baz | Français | fr | fr | null |
 | /fr/team | localized-team | fr | team | team | Français | fr | fr | null |
 | /fr/team/members | localized-team-members | fr | team-members | team-members | Français | fr | fr | null |
-| /team | team | en | team | team | English | null | null | null |
-| /team/members | team-members | en | team-members | team-members | English | null | null | null |
+| /team | team | en | team | team | English | null | en | null |
+| /team/members | team-members | en | team-members | team-members | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | about | en | about | about | English | null | null | null |
+| /about/ | about | en | about | about | English | null | en | null |
 | /de/about/ | null | de | about | about | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

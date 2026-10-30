@@ -30,11 +30,11 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /%C3%BCber | about | en | about | about | English | null | null | null |
-| /about | about | en | about | about | English | null | null | null |
-| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
-| /company | about | en | about | about | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /%C3%BCber | about | en | about | about | English | null | en | null |
+| /about | about | en | about | about | English | null | en | null |
+| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | en | null |
+| /company | about | en | about | about | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/%C3%BCber | localized-about-de | de | about | about | Deutsch | de | de | null |
 | /de/blog/hello-world | localized-blog-slug | de | blog-slug | blog-slug | Deutsch | de | de | null |
@@ -48,10 +48,10 @@ Every URL is resolved with `?q=1#top`.
 | /de/support | localized-help | de | help | help | Deutsch | de | de | null |
 | /de/ueber-uns | localized-about-de | de | about | about | Deutsch | de | de | null |
 | /de/über | localized-about-de | de | about | about | Deutsch | de | de | null |
-| /docs | docs | en | docs | docs | English | null | null | null |
-| /docs/intro | docs-intro | en | docs-intro | docs-intro | English | null | null | null |
-| /documentation | docs | en | docs | docs | English | null | null | null |
-| /documentation/intro | docs-intro | en | docs-intro | docs-intro | English | null | null | null |
+| /docs | docs | en | docs | docs | English | null | en | null |
+| /docs/intro | docs-intro | en | docs-intro | docs-intro | English | null | en | null |
+| /documentation | docs | en | docs | docs | English | null | en | null |
+| /documentation/intro | docs-intro | en | docs-intro | docs-intro | English | null | en | null |
 | /en | localized-index | en | index | index | English | en | en | null |
 | /en/%C3%BCber | localized-about | en | about | about | English | en | en | null |
 | /en/about | localized-about | en | about | about | English | en | en | null |
@@ -78,17 +78,17 @@ Every URL is resolved with `?q=1#top`.
 | /fr/news/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | Français | fr | fr | null |
 | /fr/support | localized-help | fr | help | help | Français | fr | fr | null |
 | /fr/über | localized-about | fr | about | about | Français | fr | fr | null |
-| /help | help | en | help | help | English | null | null | null |
-| /news/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
-| /support | help | en | help | help | English | null | null | null |
-| /über | about | en | about | about | English | null | null | null |
+| /help | help | en | help | help | English | null | en | null |
+| /news/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | en | null |
+| /support | help | en | help | help | English | null | en | null |
+| /über | about | en | about | about | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | about | en | about | about | English | null | null | null |
+| /about/ | about | en | about | about | English | null | en | null |
 | /de/about/ | null | de | about | about | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

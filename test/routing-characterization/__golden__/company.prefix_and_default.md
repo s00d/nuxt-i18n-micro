@@ -42,12 +42,12 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /about-us | about | en | about | about | English | null | null | null |
-| /blog | blog | en | blog | blog | English | null | null | null |
-| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
-| /careers | careers | en | careers | careers | English | null | null | null |
-| /contact | contact | en | contact | contact | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /about-us | about | en | about | about | English | null | en | null |
+| /blog | blog | en | blog | blog | English | null | en | null |
+| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | en | null |
+| /careers | careers | en | careers | careers | English | null | en | null |
+| /contact | contact | en | contact | contact | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/artikel/hello-world | localized-blog-slug-de | de | blog-slug | blog-slug | Deutsch | de | de | null |
 | /de/blog | localized-blog | de | blog | blog | Deutsch | de | de | null |
@@ -74,17 +74,17 @@ Every URL is resolved with `?q=1#top`.
 | /fr/hello-world | localized-slug | fr | slug | slug | Français | fr | fr | null |
 | /fr/products | localized-products | fr | products | products | Français | fr | fr | null |
 | /fr/produits/42 | localized-products-id-fr | fr | products-id | products-id | Français | fr | fr | null |
-| /hello-world | slug | en | slug | slug | English | null | null | null |
-| /legal/imprint | legal-imprint | en | legal-imprint | legal-imprint | English | null | null | null |
-| /products | products | en | products | products | English | null | null | null |
-| /products/42 | products-id | en | products-id | products-id | English | null | null | null |
+| /hello-world | slug | en | slug | slug | English | null | en | null |
+| /legal/imprint | legal-imprint | en | legal-imprint | legal-imprint | English | null | en | null |
+| /products | products | en | products | products | English | null | en | null |
+| /products/42 | products-id | en | products-id | products-id | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | slug | en | slug | slug | English | null | null | null |
+| /about/ | slug | en | slug | slug | English | null | en | null |
 | /de/about/ | localized-slug | de | slug | slug | Deutsch | de | de | null |
-| /missing | slug | en | slug | slug | English | null | null | null |
+| /missing | slug | en | slug | slug | English | null | en | null |
 | /de/missing | localized-slug | de | slug | slug | Deutsch | de | de | null |
-| /xx/about | slug | en | slug | slug | English | null | null | null |
+| /xx/about | slug | en | slug | slug | English | null | en | null |
 | /de/de/about | localized-slug | de | slug | slug | Deutsch | de | de | null |
 
 ## To en

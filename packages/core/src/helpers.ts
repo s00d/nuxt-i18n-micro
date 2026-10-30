@@ -16,4 +16,5 @@ export {
   resolveTranslation,
   setTranslationAtKey,
   type MergeTranslationChunkOptions,
+  type Tree,
 } from './tree'

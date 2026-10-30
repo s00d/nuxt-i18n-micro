@@ -86,15 +86,15 @@ export default defineComponent({
 
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
-        return renderText(String($t(props.keypath, { number: $tn(numberValue) }) ?? ''))
+        return renderText(String($t(props.keypath, { ...props.params, number: $tn(numberValue) }) ?? ''))
       }
 
       if (props.date !== undefined) {
-        return renderText(String($t(props.keypath, { date: $td(props.date) }) ?? ''))
+        return renderText(String($t(props.keypath, { ...props.params, date: $td(props.date) }) ?? ''))
       }
 
       if (props.relativeDate !== undefined) {
-        return renderText(String($t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) ?? ''))
+        return renderText(String($t(props.keypath, { ...props.params, relativeDate: $tdr(props.relativeDate) }) ?? ''))
       }
 
       if (props.plural !== undefined) {

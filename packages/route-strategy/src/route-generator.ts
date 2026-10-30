@@ -17,14 +17,19 @@ export interface RouteGeneratorOptions {
   routeDisableMeta?: Record<string, boolean | string[]>
   noPrefixRedirect: boolean
   excludePatterns?: (string | RegExp)[]
+  /** The translations route (`_locales` by default): pages under it stay unlocalized. */
+  apiBaseUrl?: string
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string | RegExp
 }
 
-/** Merges locales by code (later entries override) and drops disabled ones. */
+/**
+ * Merges locales by code and drops disabled ones. Nuxt concatenates a project's and its layers'
+ * `locales` project first, so earlier entries win: a layer only fills the fields left unset.
+ */
 function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; defaultLocale: Locale } {
   const byCode = new Map<string, Locale>()
-  for (const locale of locales) byCode.set(locale.code, { ...byCode.get(locale.code), ...locale })
+  for (const locale of locales) byCode.set(locale.code, { ...locale, ...byCode.get(locale.code) })
   const active = [...byCode.values()].filter((locale) => !locale.disabled)
   return { locales: active, defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode } }
 }
@@ -62,6 +67,7 @@ export class RouteGenerator {
         namePrefix: this.options.localizedRouteNamePrefix ?? 'localized-',
         customRegex: this.options.customRegexMatcher,
         excludePatterns: this.options.excludePatterns,
+        apiBaseUrl: this.options.apiBaseUrl,
         noPrefixRedirect: this.options.noPrefixRedirect,
       },
       this.localizedPaths,

@@ -29,12 +29,12 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /about | about | en | about | about | English | null | null | null |
-| /admin | admin | en | admin | admin | English | null | null | null |
-| /admin/users | admin-users | en | admin-users | admin-users | English | null | null | null |
-| /blog | blog | en | blog | blog | English | null | null | null |
-| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /about | about | en | about | about | English | null | en | null |
+| /admin | admin | en | admin | admin | English | null | en | null |
+| /admin/users | admin-users | en | admin-users | admin-users | English | null | en | null |
+| /blog | blog | en | blog | blog | English | null | en | null |
+| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/blog | localized-blog | de | blog | blog | Deutsch | de | de | null |
 | /de/blog/hello-world | localized-blog-slug | de | blog-slug | blog-slug | Deutsch | de | de | null |
@@ -49,14 +49,14 @@ Every URL is resolved with `?q=1#top`.
 | /fr/about | localized-about | fr | about | about | Français | fr | fr | null |
 | /fr/blog | localized-blog | fr | blog | blog | Français | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | Français | fr | fr | null |
-| /landing | landing | en | landing | landing | English | null | null | null |
+| /landing | landing | en | landing | landing | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | about | en | about | about | English | null | null | null |
+| /about/ | about | en | about | about | English | null | en | null |
 | /de/about/ | null | de | about | about | Deutsch | de | de | Locale not allowed for this route |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

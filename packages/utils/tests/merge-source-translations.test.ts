@@ -39,4 +39,22 @@ describe('mergeSourceTranslations', () => {
     expect(readLocaleFile).not.toHaveBeenCalledWith('pages/index/en.json')
     expect(readLocaleFile).not.toHaveBeenCalledWith('pages/contact/en.json')
   })
+
+  it('the active locale wins over every fallback layer: root beats the fallback page, page beats root', async () => {
+    const files: Record<string, Record<string, unknown>> = {
+      'en.json': { rootOnly: 'en root', title: 'en root', shared: 'en root' },
+      'pages/about/en.json': { title: 'en page', shared: 'en page', pageOnly: 'en page' },
+      'de.json': { title: 'de root', shared: 'de root' },
+      'pages/about/de.json': { shared: 'de page' },
+    }
+
+    const data = await mergeSourceTranslations({
+      locale: 'de',
+      pageName: 'about',
+      locales: [{ code: 'en' }, { code: 'de', fallbackLocale: 'en' }],
+      readLocaleFile: (file) => files[file] ?? {},
+    })
+
+    expect(data).toEqual({ rootOnly: 'en root', title: 'de root', shared: 'de page', pageOnly: 'en page' })
+  })
 })

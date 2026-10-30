@@ -9,6 +9,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
@@ -68,6 +69,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
@@ -75,6 +77,8 @@ member CreateBridgeOptions.translationDir?: string | undefined
 # ./vite (vite/plugin.ts)
 interface DevToolsPluginOptions
 member DevToolsPluginOptions.base?: string | undefined
+member DevToolsPluginOptions.defaultLocale?: string | undefined
+member DevToolsPluginOptions.fallbackLocale?: string | undefined
 member DevToolsPluginOptions.injectButton?: boolean | undefined
 member DevToolsPluginOptions.translationDir?: string | undefined
 function i18nDevToolsPlugin: (options?: DevToolsPluginOptions) => PluginOption

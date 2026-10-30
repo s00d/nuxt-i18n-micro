@@ -33,6 +33,13 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
     expect(config.locales?.find((locale) => locale.code === 'fr')?.disabled).toBeFalsy()
   })
 
+  it('no override: locales all disabled at build are no override to warn about', () => {
+    const warn = vi.fn()
+    const base = { ...createBaseConfig(), locales: [] }
+    resolveI18nConfigWithRuntimeOverrides(base, {}, warn)
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('would disable all locales'))
+  })
+
   it('ignores strategy override and warns', () => {
     const warn = vi.fn()
     const config = resolveI18nConfigWithRuntimeOverrides(createBaseConfig(), { i18nRuntime: { strategy: 'no_prefix' } }, warn)

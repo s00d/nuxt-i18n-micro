@@ -27,6 +27,10 @@ describe('devtools save path guard', () => {
     expect(resolveTranslationFile(dir, '../secret.json')).toBeNull()
     expect(resolveTranslationFile(dir, 'link.json')).toBeNull()
     expect(resolveTranslationFile(dir, 'missing.json')).toBeNull()
+    // a `.json` link to another kind of file inside the dir
+    writeFileSync(join(dir, 'config.txt'), 'x')
+    symlinkSync(join(dir, 'config.txt'), join(dir, 'alias.json'))
+    expect(resolveTranslationFile(dir, 'alias.json')).toBeNull()
     expect(resolveTranslationFile(dir, '../locales')).toBeNull()
   })
 })

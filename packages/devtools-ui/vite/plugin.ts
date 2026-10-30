@@ -2,12 +2,16 @@ import * as fs from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
-import { safeResolvePath } from '../src/safe-path'
+import { resolveTranslationFile, safeResolvePath } from '../src/safe-path'
 import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
   base?: string
   translationDir?: string
+  /** Reported by `/config`. Default: the first locale file in `translationDir`. */
+  defaultLocale?: string
+  /** Reported by `/config`. Default: `defaultLocale`. */
+  fallbackLocale?: string
   injectButton?: boolean
 }
 
@@ -190,7 +194,8 @@ const BUTTON_INJECTION_SCRIPT = `
 `
 
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
-  const apiBase = options.base || '/__i18n_api'
+  // no trailing slash: `/` + `/files` would be `//files`, a protocol-relative URL
+  const apiBase = (options.base || '/__i18n_api').replace(/\/+$/, '')
   const translationDir = options.translationDir || 'src/locales'
   const injectButton = options.injectButton !== false // Default is true
 
@@ -289,16 +294,17 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     // Register custom element
     register();
 
-    // Create bridge via API
+    // Create bridge via API (the plugin's base option)
+    const API = ${JSON.stringify(apiBase)};
     const bridge = {
       async getLocalesAndTranslations() {
         try {
-          const response = await fetch('/__i18n_api/files');
+          const response = await fetch(API + '/files');
           const data = await response.json();
           const result = {};
           for (const file of data.files || []) {
             try {
-              const fileResponse = await fetch('/__i18n_api/file?path=' + encodeURIComponent(file));
+              const fileResponse = await fetch(API + '/file?path=' + encodeURIComponent(file));
               const fileData = await fileResponse.json();
               if (fileData.success && fileData.content) {
                 result[file] = fileData.content;
@@ -316,20 +322,20 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
       async getConfigs() {
         try {
-          const response = await fetch('/__i18n_api/config');
+          const response = await fetch(API + '/config');
           return await response.json();
         } catch (e) {
           return {
             defaultLocale: 'en',
             fallbackLocale: 'en',
             locales: [],
-            translationDir: '${translationDir}',
+            translationDir: ${JSON.stringify(translationDir)},
           };
         }
       },
 
       async saveTranslation(filePath, content) {
-        const response = await fetch('/__i18n_api/save', {
+        const response = await fetch(API + '/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ file: filePath, content }),
@@ -382,13 +388,22 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         }
 
         try {
+          // A root file is one locale: `<translationDir>/<code>.json`
+          const localesPath = path.resolve(projectRoot, translationDir)
+          const entries = fs.existsSync(localesPath) ? fs.readdirSync(localesPath, { withFileTypes: true }) : []
+          const codes = entries
+            .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+            .map((entry) => entry.name.slice(0, -'.json'.length))
+            .sort()
+          const defaultLocale = options.defaultLocale || codes[0] || 'en'
+
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(
             JSON.stringify({
-              defaultLocale: 'en',
-              fallbackLocale: 'en',
-              locales: [],
+              defaultLocale,
+              fallbackLocale: options.fallbackLocale || defaultLocale,
+              locales: codes.map((code) => ({ code })),
               translationDir,
             }),
           )
@@ -474,19 +489,12 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Path parameter is required')
           }
 
-          // Resolve path relative to translationDir
-          const fullPath = path.join(translationDir, filePath)
-          const resolvedPath = safeResolvePath(projectRoot, fullPath)
-
-          if (!fs.existsSync(resolvedPath)) {
+          const resolvedPath = resolveTranslationFile(projectRoot, translationDir, filePath)
+          if (!resolvedPath) {
             res.statusCode = 404
             res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, error: 'File not found' }))
+            res.end(JSON.stringify({ success: false, error: 'File not found in the translation directory' }))
             return
-          }
-
-          if (!resolvedPath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
           }
 
           const content = fs.readFileSync(resolvedPath, 'utf-8')
@@ -533,19 +541,13 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Invalid data: file and content are required')
           }
 
-          // Resolve path relative to translationDir if path is not absolute
-          const fullPath = file.startsWith(translationDir) ? file : path.join(translationDir, file)
-          const filePath = safeResolvePath(projectRoot, fullPath)
-
-          // Check extension
-          if (!filePath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
-          }
-
-          // Create directory if it doesn't exist
-          const dir = path.dirname(filePath)
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true })
+          // Only an existing translation file inside translationDir can be written
+          const filePath = typeof file === 'string' ? resolveTranslationFile(projectRoot, translationDir, file) : null
+          if (!filePath) {
+            res.statusCode = 403
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ success: false, error: `Not a translation file: ${String(file)}` }))
+            return
           }
 
           // Write file

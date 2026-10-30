@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "SolidJS bindings for i18n-micro — primitives, context, and UI components.",
   "keywords": [
     "i18n",
@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md",
     "LICENSE"
   ],
@@ -30,6 +31,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "solid": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
@@ -39,6 +41,18 @@
         "default": "./dist/index.cjs"
       },
       "default": "./dist/index.mjs"
+    },
+    "./router": {
+      "solid": "./src/router/index.ts",
+      "import": {
+        "types": "./dist/router.d.ts",
+        "default": "./dist/router.mjs"
+      },
+      "require": {
+        "types": "./dist/router.d.cts",
+        "default": "./dist/router.cjs"
+      },
+      "default": "./dist/router.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -79,6 +93,6 @@
     }
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

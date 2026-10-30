@@ -23,16 +23,16 @@ export function useI18n(options?: UseI18nOptions) {
     throw new Error('[i18n-micro] useI18n() must be called after app.use(i18n). Make sure i18n plugin is installed.')
   }
 
-  if (!injectedLocales) {
+  const locales = options?.locales || injectedLocales
+  const defaultLocale = options?.defaultLocale || injectedDefaultLocale
+
+  if (!locales) {
     throw new Error('[i18n-micro] I18nLocalesKey not provided. Make sure app.provide(I18nLocalesKey, locales) is called.')
   }
 
-  if (!injectedDefaultLocale) {
+  if (!defaultLocale) {
     throw new Error('[i18n-micro] I18nDefaultLocaleKey not provided. Make sure app.provide(I18nDefaultLocaleKey, defaultLocale) is called.')
   }
-
-  const locales = options?.locales || injectedLocales
-  const defaultLocale = options?.defaultLocale || injectedDefaultLocale
 
   const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
     if (!router?.resolvePath) {

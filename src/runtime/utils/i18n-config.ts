@@ -31,13 +31,28 @@ function overridesOf(config: ModuleOptionsExtend): Shipped {
   }
 }
 
+/**
+ * What the browser has to be told, or null when the server resolved what the build says. By value:
+ * Nitro and the app bundle each hold their own copy of the build config, so `config !== base` is always true.
+ */
+export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOptionsExtend): Shipped | null {
+  const shipped = overridesOf(config)
+  const built = overridesOf(base)
+  const same =
+    shipped.defaultLocale === built.defaultLocale &&
+    shipped.fallbackLocale === built.fallbackLocale &&
+    shipped.domain === built.domain &&
+    String(shipped.disabledLocales) === String(built.disabledLocales)
+  return same ? null : shipped
+}
+
 function resolve(nuxtApp: NuxtApp): ModuleOptionsExtend {
   const base = getI18nConfig() as ModuleOptionsExtend
   const shipped = useState<Shipped | null>('i18n-runtime-overrides', () => null)
   if (import.meta.server) {
     // the Nitro middleware resolved it for this request (runtimeConfig and env); env reads stay server-side
     const config = nuxtApp.ssrContext?.event?.context?.i18n?.config ?? resolveOnServer!(base, nuxtApp.$config.public as Record<string, unknown>)
-    if (config !== base) shipped.value = overridesOf(config)
+    shipped.value = shippedOverrides(config, base)
     return config
   }
   // a server-rendered page: exactly what the server applied (it already warned); a client-only one resolves itself

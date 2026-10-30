@@ -78,7 +78,7 @@ describe('redirect stubs', () => {
 })
 
 describe('installRedirects', () => {
-  const setup = (href: string, previous?: () => unknown) => {
+  const setup = (href: string, previous?: (to: string) => unknown) => {
     const router = { go: vi.fn(async () => {}), onBeforeRouteChange: previous }
     const location = { href, replace: vi.fn() }
     installRedirects(router, '/base/', location)
@@ -103,7 +103,7 @@ describe('installRedirects', () => {
   })
 
   it('keeps the hook it replaced: a cancel there wins', async () => {
-    const previous = vi.fn(() => false)
+    const previous = vi.fn((_to: string) => false)
     const { router } = setup('https://x.dev/base/', previous)
     await expect(router.onBeforeRouteChange!('/base/guide/v3-upgrade')).resolves.toBe(false)
     expect(previous).toHaveBeenCalledWith('/base/guide/v3-upgrade')

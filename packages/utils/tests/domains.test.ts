@@ -50,9 +50,15 @@ describe('configForHost', () => {
     expect(configForHost(off, 'example.com').defaultLocale).toBe('fr')
   })
 
-  test('a host with nothing left to serve is unknown; a broken baseUrl is no host', () => {
-    const none = { locales: [{ code: 'de', baseUrl: 'https://example.de', disabled: true }], defaultLocale: 'de' } as ModuleOptionsExtend
-    expect(configForHost(none, 'example.de')).toBe(none)
+  test('a host with nothing left to serve serves nothing, not other domains; a broken baseUrl is no host', () => {
+    const none = {
+      locales: [{ code: 'de', baseUrl: 'https://example.de', disabled: true }, { code: 'en', baseUrl: 'https://example.com' }],
+      defaultLocale: 'de',
+    } as ModuleOptionsExtend
+    const hosted = configForHost(none, 'example.de')
+    expect(hosted.domain).toBe('example.de')
+    expect(codes(hosted)).toEqual(['de'])
+    expect(hosted.locales!.every((l) => l.disabled)).toBe(true)
     const broken = { locales: [{ code: 'de', baseUrl: 'example.de' }], defaultLocale: 'de' } as ModuleOptionsExtend
     expect(configForHost(broken, 'example.de')).toBe(broken)
   })

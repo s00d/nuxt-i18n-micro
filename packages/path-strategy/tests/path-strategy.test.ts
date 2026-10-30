@@ -239,6 +239,26 @@ describe('a host of a domain build', () => {
     expect(i18n.shouldReturn404('/en/about-us')).toBe('Locale on another domain')
   })
 
+  test('no_prefix: a page whose only local locale is disabled is a 404', () => {
+    const open: Locale[] = [locales[0]!, locales[1]!, { code: 'ru' }]
+    const { i18n } = setup(
+      'no_prefix',
+      { defaultLocale: 'de', locales: [open[1]!, { code: 'ru', disabled: true }], linkLocales: open, domain: 'b.test' },
+      open,
+      { routeLocales: { '/en-ru': ['en', 'ru'] }, pages: [...PAGES, { path: '/en-ru', name: 'en-ru', file: 'pages/en-ru.vue' }] },
+    )
+    expect(i18n.shouldReturn404('/en-ru')).not.toBeNull()
+  })
+
+  test('a host with no locale left answers 404 everywhere', () => {
+    const hostLocales = [{ ...locales[1]!, disabled: true }]
+    for (const strategy of ['no_prefix', 'prefix', 'prefix_except_default'] as const) {
+      const { i18n } = setup(strategy, { defaultLocale: 'de', locales: hostLocales, linkLocales: locales, domain: 'b.test' }, locales)
+      expect(i18n.shouldReturn404('/')).not.toBeNull()
+      expect(i18n.shouldReturn404('/about-us')).not.toBeNull()
+    }
+  })
+
   test('a redirect never targets a locale the host does not serve', () => {
     const onA = (strategy: Strategies) =>
       setup(strategy, { locales: locales.filter((l) => l.code !== 'de'), linkLocales: locales, domain: 'a.test' }, locales)

@@ -621,12 +621,16 @@ export class DomainPathStrategy extends I18nPathStrategy {
 
   protected override notFoundReason(path: string): string | null {
     const { strategy, defaultLocale } = this.ctx
+    if (this.ctx.domain && !this.codes.size) return 'Locale disabled'
     if (this.foreign.has(path.split('/')[1] ?? '') && strategy !== 'no_prefix' && !this.isOwnPage(path)) return 'Locale on another domain'
     const reason = super.notFoundReason(path)
     if (reason || this.getLocaleFromPath(path)) return reason
     const entry = this.index.records.get(named(this.probe(path)?.name) ?? '')
     if (!entry?.locales.length) return null
-    if (strategy === 'no_prefix') return entry.locales.every((code) => this.foreign.has(code)) ? 'Locale on another domain' : null
+    if (strategy === 'no_prefix') {
+      if (entry.locales.some((code) => this.codes.has(code))) return null
+      return entry.locales.every((code) => this.foreign.has(code)) ? 'Locale on another domain' : 'Locale disabled'
+    }
     // an unprefixed record of another host's default; under prefix_except_default a page this host's default also has moves to its URL
     const movable = strategy === 'prefix_except_default' && this.index.pages.get(entry.base)?.has(defaultLocale)
     return !entry.keys.includes('locale') && !entry.locales.includes(defaultLocale) && !movable ? 'Locale not allowed for this route' : null

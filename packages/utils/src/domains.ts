@@ -58,15 +58,13 @@ function buildHostConfigs(config: ModuleOptionsExtend): Map<string, ModuleOption
   const locales = (config.locales ?? []).map((locale) => (pinned && locale.baseDefault && locale.disabled ? { ...locale, disabled: false } : locale))
   for (const [host, own] of localesByHost(locales)) {
     const served = servedOn(host, locales)
-    const defaultLocale = hostDefault(own, served, config.defaultLocale)
-    // every locale the host could answer with is disabled: it stays an unknown host
-    if (!defaultLocale) continue
     configs.set(host, {
       ...config,
       domain: host,
       locales: served,
       linkLocales: locales,
-      defaultLocale,
+      // every locale of the host disabled: it serves nothing, and still not another domain's
+      defaultLocale: hostDefault(own, served, config.defaultLocale) ?? config.defaultLocale,
       // the configured origin, never the request's
       metaBaseUrl: own[0]!.baseUrl!.replace(/\/+$/, ''),
     })

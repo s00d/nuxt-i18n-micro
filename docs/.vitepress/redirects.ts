@@ -20,11 +20,11 @@ export const redirects: Record<string, string> = {
   '/guide/v3-upgrade': '/guide/upgrade',
 
   // Merged into another page.
-  '/guide/using': '/guide/getting-started#using-translations-in-components',
+  '/guide/using': '/guide/getting-started#use-t-on-a-page',
   '/guide/configuration': '/api/module-options',
   '/guide/multi-domain-locales': '/guide/layers#multiple-domains',
   '/guide/firebase': '/guide/deployment#firebase',
-  '/guide/preset-local-testing': '/contributing/release-smoke#preset-local-testing',
+  '/guide/preset-local-testing': '/contributing/release-smoke#serverless-presets-locally',
   '/integrations/preact-package': '/integrations/react-package#preact',
 
   // Contributor pages left the user guide.
@@ -46,4 +46,28 @@ export function redirectTarget(href: string, base = '/'): string | undefined {
   const target = redirects[path] ?? redirects[path.replace(/(.)\/$/, '$1')] ?? redirects[`${path}/`]
   if (target === undefined) return undefined
   return `${base.replace(/\/$/, '')}${target}${target.includes('#') ? '' : url.hash}`
+}
+
+/** The part of the VitePress router the redirects touch. */
+interface RedirectRouter {
+  go(to: string): Promise<void>
+  onBeforeRouteChange?: (to: string) => unknown
+}
+
+/**
+ * Old URLs in the SPA: a stub page redirects in production; this covers the dev server's 404
+ * and links inside the SPA (news entries keep their original links).
+ */
+export function installRedirects(router: RedirectRouter, base: string, location: Pick<Location, 'href' | 'replace'>): void {
+  const initial = redirectTarget(location.href, base)
+  if (initial) location.replace(initial)
+
+  const previous = router.onBeforeRouteChange
+  router.onBeforeRouteChange = async (to) => {
+    if ((await previous?.(to)) === false) return false
+    const target = redirectTarget(to, base)
+    if (!target) return
+    await router.go(target)
+    return false
+  }
 }

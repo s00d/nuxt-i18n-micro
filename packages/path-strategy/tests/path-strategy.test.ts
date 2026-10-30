@@ -242,8 +242,8 @@ describe('a host of a domain build', () => {
   test('a redirect never targets a locale the host does not serve', () => {
     const onA = (strategy: Strategies) =>
       setup(strategy, { locales: locales.filter((l) => l.code !== 'de'), linkLocales: locales, domain: 'a.test' }, locales)
-    // under prefix a page only another domain serves stays: a 404 of the router, not a hop to one
-    expect(onA('prefix').i18n.getClientRedirect('/de-only', 'en')).toBeNull()
+    // under prefix a page the preferred locale lacks moves to a locale of this host, not to the first it has
+    expect(onB('prefix').i18n.getClientRedirect('/en-ru', 'de')).toBe('/ru/en-ru')
     // a locale of another domain is no target, as a disabled one is not
     expect(onA('prefix_except_default').i18n.getClientRedirect('/about-us', 'de')).toBeNull()
     expect(onB('prefix').i18n.getClientRedirect('/de-only', 'de')).toBe('/de/de-only')

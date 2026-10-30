@@ -45,9 +45,7 @@ export const recipes = defineRecipes(
     'basic-pages-false-no-prefix': app('basic-pages-false-no-prefix', 'basic', { BASIC_VARIANT: 'pages-false', STRATEGY: 'no_prefix' }),
     'basic-serverless': app('basic-serverless', 'basic', { BASIC_VARIANT: 'serverless' }),
     content: app('content'),
-    'custom-regex': app('custom-regex'),
     'nuxt-seo': app('nuxt-seo'),
-    redirect: app('redirect'),
     seo: app('seo'),
     'use-i18n-head': app('use-i18n-head'),
     'seo-trailing-slash': app('seo-trailing-slash', 'seo', undefined, { i18n: { trailingSlash: 'append' } }),
@@ -81,6 +79,16 @@ export const recipes = defineRecipes(
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',
     }),
+    // detection on every path ('*') with a whole-segment exclude: a deep link would be rewritten, so not on pec
+    'strategy-redirect': app('strategy-redirect', 'strategy', {
+      STRATEGY: 'prefix_except_default',
+      LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
+      AUTO_DETECT_PATH: '*',
+      EXCLUDE_PATTERNS: '/admin',
+    }),
+    // locale codes en-us / de-de / ru-ru behind customRegexMatcher
+    'strategy-region-codes': app('strategy-region-codes', 'strategy', { STRATEGY: 'prefix_except_default', REGION_CODES: '1' }),
     // global URL shapes: each would break every other journey's URLs, so each is its own build
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),

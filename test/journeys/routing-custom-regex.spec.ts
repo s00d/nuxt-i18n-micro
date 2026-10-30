@@ -1,21 +1,29 @@
 import { describe, expect, test } from 'untestutils/vitest'
 
-// J4 custom-regex: pec with codes en-us / de-de / ru-ru and customRegexMatcher.
-// Only the steps that depend on the regex codes; the rest is pinned on `basic`.
+// strategy fixture, pec, REGION_CODES=1: codes en-us / de-de / ru-ru and customRegexMatcher '[a-z]{2}-[a-z]{2}'.
+// Only the steps that depend on the regex codes; the rest is pinned on `basic` and the other strategy recipes.
 describe('journey: routing variants — customRegexMatcher', () => {
-  test.override({ harness: 'custom-regex' })
+  test.override({ harness: 'strategy-region-codes' })
 
-  test('regex locale codes: 404, index, head, links, /page switch', async ({ page, goto, request, baseURL }) => {
+  test('regex locale codes: 404, index, head, switch', async ({ page, goto, request, baseURL }) => {
     const base = baseURL.replace(/\/$/, '')
 
     // step 1: GET /un-kn (does not match the regex) → 404
     // was: custom-regex › test 404 on unknown locale
     expect((await request.get('/un-kn')).status()).toBe(404)
 
-    // step 2: open / → en
-    // was: custom-regex › test index
+    // step 2: open / → en text, the full code from $getLocale, every code in $getLocales
+    // was: custom-regex › test index; › test plugin methods output on page (#locale, #locales, #translation)
     await goto('/', { waitUntil: 'hydration' })
-    await expect(page.locator('#locale')).toHaveText('en')
+    await expect(page.locator('#content')).toHaveText('en')
+    await expect(page.locator('#locale')).toHaveText('en-us')
+    // the page file of the code (locales/pages/index/en-us.json) beats the root key
+    await expect(page.locator('.page-welcome')).toHaveText('Welcome en-us')
+    expect(await page.locator('[data-locale]').evaluateAll((els) => els.map((el) => el.getAttribute('data-locale')))).toEqual([
+      'en-us',
+      'de-de',
+      'ru-ru',
+    ])
 
     // step 3: head on / → og en_EN, canonical and alternates use /de-de, /ru-ru
     // was: custom-regex › test head (the /ru-ru round is the same pattern and is dropped)
@@ -29,7 +37,8 @@ describe('journey: routing variants — customRegexMatcher', () => {
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${base}/ru-ru`)
 
     await goto('/de-de', { waitUntil: 'hydration' })
-    await expect(page.locator('#locale')).toHaveText('de')
+    await expect(page.locator('#content')).toHaveText('de')
+    await expect(page.locator('.page-welcome')).toHaveText('Willkommen de-de')
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${base}/de-de`)
     await expect(page.locator('meta#i18n-og-alt-en_EN')).toHaveAttribute('content', 'en_EN')
@@ -39,80 +48,47 @@ describe('journey: routing variants — customRegexMatcher', () => {
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${base}/de-de`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${base}/ru-ru`)
 
-    // step 4: /dir1/test and /de-de/dir1/test → link text per locale
-    // was: custom-regex › test links
-    await goto('/dir1/test', { waitUntil: 'hydration' })
-    await expect(page.locator('#test_link')).toHaveText('link in en')
-    await goto('/de-de/dir1/test', { waitUntil: 'hydration' })
-    await expect(page.locator('#test_link')).toHaveText('link in de')
-
-    // step 5: /page → en-us label, locale list, localized route; #link-de → /de-de/page; #link-en → /page
-    // was: custom-regex › test plugin methods output on page, › test locale switching on page, › test locale switching via links
-    await goto('/page', { waitUntil: 'hydration' })
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en-us')
-    await expect(page.locator('#locales')).toHaveText('en-us, de-de, ru-ru')
-    await expect(page.locator('#translation')).toHaveText('Page example in en')
-    await expect(page.locator('#localized-route')).toHaveText('/de-de/page')
-    await page.click('#link-de')
-    await expect(page).toHaveURL('/de-de/page')
-    await expect(page.locator('#locale')).toHaveText('Current Locale: de-de')
-    await expect(page.locator('#translation')).toHaveText('Page example in de')
-    await expect(page.locator('#plural')).toHaveText('2 Äpfel')
-    await expect(page.locator('#localized-route')).toHaveText('/de-de/page')
-    await page.click('#link-en')
-    await expect(page).toHaveURL('/page')
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en-us')
+    // step 4: the switcher on / → en-us goes back to /, de-de to /de-de with de content
+    // was: custom-regex › test locale switching on page, › test locale switching via links
+    await goto('/', { waitUntil: 'hydration' })
+    await page.click('#locale-switcher button')
+    await expect(page.locator('.switcher-locale-de-de')).toHaveAttribute('href', '/de-de')
+    await page.click('.switcher-locale-de-de')
+    await expect(page).toHaveURL('/de-de')
+    await expect(page.locator('#locale')).toHaveText('de-de')
+    await expect(page.locator('#content')).toHaveText('de')
+    await page.click('#locale-switcher button')
+    await page.click('.switcher-locale-en-us')
+    await expect(page).toHaveURL('/')
+    await expect(page.locator('#locale')).toHaveText('en-us')
   })
 
-  test('regex locale codes: page-level routes, global routes, news and articles', async ({ page, goto, request }) => {
-    // step 1: /locale-test #link-de href → click → /de-de/locale-page-modify, de content
-    // was: custom-regex › test locale switching on locale-test page
-    await goto('/locale-test', { waitUntil: 'hydration' })
-    await expect(page.locator('h1')).toHaveText('Locale Test Page')
-    await expect(page.locator('#link-de')).toHaveAttribute('href', '/de-de/locale-page-modify')
-    await page.click('#link-de')
-    await expect(page).toHaveURL('/de-de/locale-page-modify')
-    await expect(page.locator('h1')).toHaveText('Sprachtestseite')
-    await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
-    await expect(page.locator('#username')).toHaveText('Hallo, John!')
-    await expect(page.locator('#plural')).toHaveText('Sie haben 2 Artikel.')
-    await expect(page.locator('#html-content')).toHaveText('Fetter Text mit HTML-Inhalt.')
+  test('regex locale codes: page-level routes, global routes, dynamic params', async ({ page, goto, request }) => {
+    // step 1: /contact → $defineI18nRoute path for de-de in the switcher → click → /de-de/kontakt
+    // was: custom-regex › test locale switching on locale-test page; › … content on locale-conf page
+    await goto('/contact', { waitUntil: 'hydration' })
+    await page.click('#locale-switcher button')
+    await expect(page.locator('.switcher-locale-de-de')).toHaveAttribute('href', '/de-de/kontakt')
+    await page.click('.switcher-locale-de-de')
+    await expect(page).toHaveURL('/de-de/kontakt')
+    await expect(page.locator('.locale-value')).toHaveText('de-de')
 
-    // step 2: globalLocaleRoutes with regex prefixes; /unlocalized stays; GET /de-de/unlocalized → 404
+    // step 2: globalLocaleRoutes with regex prefixes; page-b (false) stays; GET /de-de/page-b → 404
     // was: custom-regex › Test globalLocaleRoutes for page2 and unlocalized
-    for (const url of ['/custom-page2-en', '/de-de/custom-page2-de', '/ru-ru/custom-page2-ru', '/unlocalized']) {
+    for (const url of ['/custom-a-en', '/de-de/custom-a-de', '/ru-ru/custom-a-ru', '/page-b']) {
       await goto(url, { waitUntil: 'hydration' })
       await expect(page).toHaveURL(url)
     }
-    expect((await request.get('/de-de/unlocalized')).status()).toBe(404)
+    expect((await request.get('/de-de/page-b')).status()).toBe(404)
 
-    // step 3: news and articles locale links → /ru-ru/…, /de-de/…
+    // step 3: a dynamic page keeps its param through $switchLocale → /ru-ru/test-4, /de-de/test-4, /test-4
     // was: custom-regex › test navigation and locale switching on news page, › … on articles page
-    await goto('/news/4', { waitUntil: 'hydration' })
-    await page.click('.locale-en')
-    await expect(page).toHaveURL('/news/4')
-    await page.click('.locale-ru')
-    await expect(page).toHaveURL('/ru-ru/news/4')
-    await page.click('.locale-de')
-    await expect(page).toHaveURL('/de-de/news/4')
-    await goto('/articles/1', { waitUntil: 'hydration' })
-    await expect(page.locator('.article-id')).toHaveText('id: 1')
-    await page.click('.locale-ru')
-    await expect(page).toHaveURL('/ru-ru/articles/1')
-    await page.click('.locale-de')
-    await expect(page).toHaveURL('/de-de/articles/1')
-
-    // step 4: /locale-conf #locale-de → /de-de/locale-conf-modify, de content
-    // was: custom-regex › test locale switching and content on locale-conf page
-    await goto('/locale-conf', { waitUntil: 'hydration' })
-    await expect(page.locator('h1')).toHaveText('Locale Test Page')
-    await expect(page.locator('#locale-en')).toHaveAttribute('href', '/locale-conf')
-    await expect(page.locator('#locale-de')).toHaveAttribute('href', '/de-de/locale-conf-modify')
-    await page.click('#locale-de')
-    await expect(page).toHaveURL('/de-de/locale-conf-modify')
-    await expect(page.locator('h1')).toHaveText('Sprachtestseite')
-    await expect(page.locator('#username')).toHaveText('Hallo, John!')
-    await expect(page.locator('#html-content')).toContainText('Fetter Text mit HTML-Inhalt.')
-    await expect(page.locator('#locale-de')).toHaveAttribute('href', '/de-de/locale-conf-modify')
+    await goto('/test-4', { waitUntil: 'hydration' })
+    await page.click('[data-locale="ru-ru"]')
+    await expect(page).toHaveURL('/ru-ru/test-4')
+    await page.click('[data-locale="de-de"]')
+    await expect(page).toHaveURL('/de-de/test-4')
+    await page.click('[data-locale="en-us"]')
+    await expect(page).toHaveURL('/test-4')
   })
 })

@@ -5,10 +5,16 @@ import { expect, test } from 'vitest'
 function scanned(dir: string): string[] {
   const root = new URL(`../../src/runtime/${dir}/`, import.meta.url)
   return readdirSync(root)
-    .flatMap((file) => [...readFileSync(new URL(file, root), 'utf8').matchAll(/^export (?:async )?(?:const|function|class) (\w+)/gm)].map(([, name]) => name!))
+    .flatMap((file) =>
+      [...readFileSync(new URL(file, root), 'utf8').matchAll(/^export (?:async )?(?:const|function|class) (\w+)/gm)].map(([, name]) => name!),
+    )
     .sort()
 }
 
 test('the public composables, and nothing else', () => {
   expect(scanned('composables')).toEqual(['useI18n', 'useI18nHead', 'useI18nLocale', 'useLocaleHead'])
+})
+
+test('toEntry is no server auto-import: a user `toEntry` would print a duplicate warning on every build', () => {
+  expect(scanned('server/utils')).not.toContain('toEntry')
 })

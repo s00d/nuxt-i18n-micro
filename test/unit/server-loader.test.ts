@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { toEntry } from '../../src/runtime/server/utils/server-loader'
+import { toEntry } from '../../src/runtime/utils/translation-entry'
 
 test('a chunk is serialized only when the /_locales route asks, once, safe to inline', () => {
   const stringify = vi.spyOn(JSON, 'stringify')

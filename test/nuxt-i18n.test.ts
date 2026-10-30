@@ -287,7 +287,8 @@ describe('formatterFor: one FormatService per resolved config on the server', ()
 })
 
 describe('$i18n', () => {
-  const aliased = (t: () => string) => withDollarAliases({ t, getLocale: () => 'en' }) as { t: () => string; $t: () => string; getLocale: () => string }
+  const aliased = (t: () => string) =>
+    withDollarAliases({ t, getLocale: () => 'en' }) as { t: () => string; $t: () => string; getLocale: () => string }
 
   test('both spellings are the same function, per object', () => {
     const first = aliased(() => 'first')

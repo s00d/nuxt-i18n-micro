@@ -76,6 +76,9 @@
 - `innerHTML attr`
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
+- `dangerouslySetInnerHTML attr`
+  - vue → <span dangerouslysetinnerhtml="[object Object]">Hello</span>
+  - nuxt → <span dangerouslysetinnerhtml="[object Object]">Hello</span>
 - `textContent attr`
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>

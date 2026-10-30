@@ -1,0 +1,67 @@
+- `plain` → <span>Hello</span>
+- `missing` → <span>nope</span>
+- `missing + defaultValue` → <span>dv</span>
+- `nested` → <span>Deep 1</span>
+- `object value` → <span>[object Object]</span>
+- `number value` → <span>7</span>
+- `tag + attrs` → <p id="x" class="c">Hello</p>
+- `params` → <span>Hello, Z!</span>
+- `param missing` → <span>Hello, {name}!</span>
+- `param looks like a slot` → <span components="[object Object]">{b} then {b}</span>
+- `param and slot same name` → <span components="[object Object]">P then {b}</span>
+- `slots in order` → <span components="[object Object]">{a} then {b}</span>
+- `slots reordered` → <span components="[object Object]">{b} then {a}</span>
+- `slots repeated` → <span components="[object Object]">{a} and {a}</span>
+- `slots at the edges` → <span components="[object Object]">{a}{b}</span>
+- `unknown slot` → <span components="[object Object]">{a} then {b}</span>
+- `default slot` → <span>Hello, Z!</span>
+- `unicode names, params` → <span>И F</span>
+- `unicode names, slots` → <span components="[object Object]">{имя} {first-name}</span>
+- `proto, no params` → <span>{__proto__} {constructor} {toString}</span>
+- `proto, slots object has no such slot` → <span components="[object Object]">{__proto__} {constructor} {toString}</span>
+- `html` → <span><b>3</b> new</span>
+- `html, hostile param` → <span>Hello, <img src="x" onerror="alert(1)">!</span>
+- `text, hostile param` → <span>Hello, &lt;img src=x&gt;!</span>
+- `html ignores slots` → <span components="[object Object]">{a} then {b}</span>
+- `innerHTML attr` → <span><i>x</i>Hello</span>
+- `dangerouslySetInnerHTML attr` → <span><i>x</i></span>
+- `textContent attr` → <span>xHello</span>
+- `hideIfEmpty blank` → (nothing)
+- `hideIfEmpty blank + default` → dv
+- `hideIfEmpty empty` → (nothing)
+- `hideIfEmpty number` → <span>   </span>
+- `hideIfEmpty plural` → <span></span>
+- `blank shown` → <span>   </span>
+- `plural 0` → <span>no apples</span>
+- `plural 1` → <span>one apple</span>
+- `plural 5` → <span>5 apples</span>
+- `plural "2"` → <span>2 apples</span>
+- `plural 1.5` → <span>one apple</span>
+- `plural "abc"` → <span>NaN apples</span>
+- `plural null` → throws TypeError: Cannot read properties of null (reading 'toString')
+- `plural + slot` → <span components="[object Object]">2 items in {link}</span>
+- `plural + html` → <span><b><i></i></b><i> new</i></span>
+- `plural missing + default` → <span>dv</span>
+- `plural ru 1` → <span>яблоко</span>
+- `plural ru 2` → <span>яблока</span>
+- `plural ru 5` → <span>яблок</span>
+- `plural ru 21` → <span>яблоко</span>
+- `plural ru zero-first 0` → <span>нет яблок</span>
+- `plural ru zero-first 1` → <span>одно яблоко</span>
+- `plural ru zero-first 21` → <span>21 яблок</span>
+- `customPluralRule` → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
+- `customPluralRule null` → <span></span>
+- `customPluralRule miss` → <span>en:4:nope:{}</span>
+- `customPluralRule fraction` → <span>en:1:no apples | one apple | {count} apples:{}</span>
+- `customPluralRule html` → <span><b>x</b></span>
+- `number` → <span>n=1,500</span>
+- `number string` → <span>n=1,500</span>
+- `number null` → <span>Hello</span>
+- `number + same-name param` → <span>n=PARAM</span>
+- `number + slot` → <span components="[object Object]">n=5 {link}</span>
+- `date` → <span>d=1/15/2024</span>
+- `date null` → <span>Hello</span>
+- `date + same-name param` → <span>d=PARAM</span>
+- `relativeDate` → <span>r=2 hours ago</span>
+- `relativeDate null` → <span>Hello</span>
+- `precedence number over plural` → <span>n=2</span>

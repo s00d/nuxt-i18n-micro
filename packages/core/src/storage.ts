@@ -7,7 +7,8 @@ export interface TranslationStorage {
   translations: Map<string, Translations>
 }
 
-const LEAF_LIMIT = 2000
+// ponytail: above a page's key count, or a sequential render clears the cache before any hit. Hits only, so the size stays under the tree's own node count; a tree past this limit churns, raise it then.
+const LEAF_LIMIT = 50_000
 
 /**
  * Resolved keys per stored tree (hits only: a miss is cheap to re-walk, and dynamic missing

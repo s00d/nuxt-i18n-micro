@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `Translations` | interface | 1 members |
 | `useI18n` | function | `(options?: UseI18nOptions) => { instance: VueI18n; locale: WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: I18nRouteTarget, localeCode?: string) => I18nRouteTarget; localePath: (to: I18nRouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeContext?: unknown) => boolean; resolveTranslations: (routeContext?: unknown) => Translations; setTranslation: (key: TranslationKey, value: unknown) => void; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Translations) => void; clearCache: () => void; }` |
 | `UseI18nOptions` | interface | 2 members |
-| `VirtualI18nConfig` | interface | 10 members |
+| `VirtualI18nConfig` | interface | 13 members |
 | `VitePressSiteDataLike` | interface | 1 members |
 | `VitePressUserConfigLike` | interface | 7 members |
 | `VueI18nOptions` | interface | 10 members |
@@ -97,11 +97,12 @@ import { /* … */ } from '@i18n-micro/vitepress'
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
 
 <details>
-<summary><code>VirtualI18nConfig</code> — 10 members</summary>
+<summary><code>VirtualI18nConfig</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `base?` | `string \| undefined` |
+| `datetimeFormats?` | `import("@i18n-micro/core").DateTimeFormatsConfig \| undefined` |
 | `defaultLocale` | `string` |
 | `disablePageLocales` | `boolean` |
 | `fallbackLocale` | `string` |
@@ -109,7 +110,9 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `localeKeyToCode` | `Record<string, string>` |
 | `locales` | `Locale[]` |
 | `missingWarn` | `boolean` |
+| `numberFormats?` | `import("@i18n-micro/core").NumberFormatsConfig \| undefined` |
 | `syncWithVitePress` | `boolean` |
+| `timeZone?` | `string \| undefined` |
 | `translationDir` | `string` |
 
 </details>
@@ -199,7 +202,7 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
 | `BuildVitePressLocalesOptions` | interface | 1 members |
 | `relativePathToRoutePath` | function | `(relativePath: string) => string` |
-| `VirtualI18nConfig` | interface | 10 members |
+| `VirtualI18nConfig` | interface | 13 members |
 | `VitePressHeadTuple` | type | `[string, Record<string, string>]` |
 | `VitePressLocaleEntry` | interface | 3 members |
 | `VitePressLocaleHeadObject` | interface | 2 members |
@@ -237,7 +240,7 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 
 </details>
 
-<code>VirtualI18nConfig</code> — 10 members, identical to `VirtualI18nConfig` above.
+<code>VirtualI18nConfig</code> — 13 members, identical to `VirtualI18nConfig` above.
 
 <details>
 <summary><code>VitePressLocaleEntry</code> — 3 members</summary>

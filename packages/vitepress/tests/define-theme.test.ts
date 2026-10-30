@@ -62,11 +62,11 @@ describe('createI18n', () => {
       locale: 'en',
       numberFormats: { en: { money: { style: 'currency', currency: 'USD' } } },
       datetimeFormats: { en: { y: { year: 'numeric' } } },
-      timeZone: 'Asia/Tokyo',
+      timeZone: 'America/Los_Angeles',
     })
     expect(i18n.tn(5, 'money')).toBe('$5.00')
-    expect(i18n.td(0, 'y')).toBe('1970')
-    expect(i18n.td(Date.UTC(2024, 0, 1, 23, 30))).toBe('1/2/2024')
+    expect(i18n.td(Date.UTC(2024, 5, 1), 'y')).toBe('2024')
+    expect(i18n.td(Date.UTC(2024, 0, 2, 3))).toBe('1/1/2024')
   })
 })
 
@@ -94,7 +94,7 @@ describe('defineI18nTheme', () => {
     const { config } = (await import('virtual:i18n-micro/config')) as unknown as { config: Record<string, unknown> }
     config.numberFormats = { en: { money: { style: 'currency', currency: 'USD' } } }
     config.datetimeFormats = { en: { y: { year: 'numeric' } } }
-    config.timeZone = 'Asia/Tokyo'
+    config.timeZone = 'America/Los_Angeles'
     const { defineI18nTheme } = await import('../src/runtime/define-theme')
     const app = makeApp()
     await defineI18nTheme({ Layout: {} as never } as Theme).enhanceApp!({
@@ -103,13 +103,13 @@ describe('defineI18nTheme', () => {
       siteData: {} as never,
     })
     expect(app._i18n?.tn(5, 'money')).toBe('$5.00')
-    expect(app._i18n?.td(Date.UTC(2024, 0, 1, 23, 30), 'y')).toBe('2024')
-    expect(app._i18n?.td(Date.UTC(2024, 0, 1, 23, 30))).toBe('1/2/2024')
+    expect(app._i18n?.td(Date.UTC(2024, 5, 1), 'y')).toBe('2024')
+    expect(app._i18n?.td(Date.UTC(2024, 0, 2, 3))).toBe('1/1/2024')
 
     const own = makeApp()
     const theme = defineI18nTheme({ Layout: {} as never } as Theme, { timeZone: 'UTC' })
     await theme.enhanceApp!({ app: own as never, router: makeRouter('/') as never, siteData: {} as never })
-    expect(own._i18n?.td(Date.UTC(2024, 0, 1, 23, 30))).toBe('1/1/2024')
+    expect(own._i18n?.td(Date.UTC(2024, 0, 2, 3))).toBe('1/2/2024')
     delete config.numberFormats
     delete config.datetimeFormats
     delete config.timeZone

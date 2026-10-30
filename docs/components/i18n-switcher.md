@@ -14,15 +14,15 @@ outline: [2, 3]
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `customLabels` | `Record<string, string>` | `styleProp` | Display name per locale code, overriding the `displayName` from the locale config. |
-| `customWrapperStyle` | `CSSProperties` | `styleProp` | Inline style for the outer wrapper. |
-| `customButtonStyle` | `CSSProperties` | `styleProp` | Inline style for the button that opens the dropdown. |
-| `customDropdownStyle` | `CSSProperties` | `styleProp` | Inline style for the dropdown panel. |
-| `customItemStyle` | `CSSProperties` | `styleProp` | Inline style for each item in the dropdown. |
-| `customLinkStyle` | `CSSProperties` | `styleProp` | Inline style for the link inside an item. |
-| `customActiveLinkStyle` | `CSSProperties` | `styleProp` | Inline style for the link of the currently active locale. |
-| `customDisabledLinkStyle` | `CSSProperties` | `styleProp` | Inline style for the *current* locale button when it is `disabled: true` in config. |
-| `customIconStyle` | `CSSProperties` | `styleProp` | Inline style for the caret icon on the button. |
+| `customLabels` | `Record<string, string>` | `() => ({})` | Display name per locale code, overriding the `displayName` from the locale config. |
+| `customWrapperStyle` | `CSSProperties` | `() => ({})` | Inline style for the outer wrapper. |
+| `customButtonStyle` | `CSSProperties` | `() => ({})` | Inline style for the button that opens the dropdown. |
+| `customDropdownStyle` | `CSSProperties` | `() => ({})` | Inline style for the dropdown panel. |
+| `customItemStyle` | `CSSProperties` | `() => ({})` | Inline style for each item in the dropdown. |
+| `customLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link inside an item. |
+| `customActiveLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link of the currently active locale. |
+| `customDisabledLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the *current* locale button when it is `disabled: true` in config. |
+| `customIconStyle` | `CSSProperties` | `() => ({})` | Inline style for the caret icon on the button. |
 
 ### Slots
 

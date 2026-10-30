@@ -80,7 +80,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
 
   const label = (locale: Locale): string => (customLabels && (ownValue(customLabels, locale.code) as string)) || locale.displayName || locale.code
   const href = (code: string): string => {
-    const path = router?.getCurrentPath() ?? '/'
+    const path =
+      router?.getCurrentPath() ?? (typeof window === 'undefined' ? '/' : window.location.pathname + window.location.search + window.location.hash)
     if (localeRoute) return routePath(localeRoute(path, code))
     if (!router) return '#'
     return routePath(router.resolvePath ? router.resolvePath(path, code) : path)

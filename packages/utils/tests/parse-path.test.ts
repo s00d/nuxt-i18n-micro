@@ -38,4 +38,22 @@ describe('storeLoadedTranslationFile', () => {
     expect(buckets.root.en).toEqual({ hello: 'world' })
     expect(buckets.routes.about?.en).toEqual({ title: 'About' })
   })
+
+  it('keeps pages and locales named after Object.prototype members', () => {
+    const buckets: TranslationFileBuckets<{ title?: string }> = { root: {}, routes: {} }
+
+    for (const path of ['constructor.json', 'pages/constructor/en.json', 'pages/toString/valueOf.json', '__proto__.json', 'pages/__proto__/en.json', 'pages/about/__proto__.json']) {
+      storeLoadedTranslationFile(buckets, path, { title: path })
+    }
+
+    expect(Object.hasOwn(buckets.root, 'constructor')).toBe(true)
+    expect(buckets.root.constructor).toEqual({ title: 'constructor.json' })
+    expect(Object.hasOwn(buckets.routes, 'constructor')).toBe(true)
+    expect(buckets.routes.constructor?.en).toEqual({ title: 'pages/constructor/en.json' })
+    expect(buckets.routes.toString?.valueOf).toEqual({ title: 'pages/toString/valueOf.json' })
+    expect(Object.keys(buckets.root)).toEqual(['constructor'])
+    expect(Object.getPrototypeOf(buckets.routes)).toBe(Object.prototype)
+    expect((Object as unknown as Record<string, unknown>).en).toBeUndefined()
+    expect(({} as Record<string, unknown>).en).toBeUndefined()
+  })
 })

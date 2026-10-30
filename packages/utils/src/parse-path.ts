@@ -10,6 +10,7 @@ export interface TranslationFileBuckets<T = Record<string, unknown>> {
 /**
  * Parse a translation file path relative to the locales root.
  * Examples: `en.json`, `pages/about/en.json`, `pages/user/profile/en.json`
+ * A `__proto__` page or locale is ignored: as a bucket key it would write the prototype.
  */
 export function parseTranslationRelativePath(relativePath: string): ParsedTranslationRelativePath {
   const normalizedPath = relativePath.replace(/\\/g, '/')
@@ -25,7 +26,7 @@ export function parseTranslationRelativePath(relativePath: string): ParsedTransl
     }
 
     const pageName = pagePathSegmentsToRouteName(match[1].split('/'))
-    if (!pageName) {
+    if (!pageName || pageName === '__proto__' || match[2] === '__proto__') {
       return { type: 'ignore' }
     }
 
@@ -33,7 +34,7 @@ export function parseTranslationRelativePath(relativePath: string): ParsedTransl
   }
 
   const match = normalizedPath.match(/^([^/]+)\.json$/)
-  if (!match?.[1]) {
+  if (!match?.[1] || match[1] === '__proto__') {
     return { type: 'ignore' }
   }
 
@@ -73,18 +74,21 @@ export function storeLoadedTranslationFile<T extends Record<string, unknown>>(
   // merged, never replaced: under disablePageLocales page files land in the root bucket next to
   // the root file, and either may be read first
   if (parsed.type === 'page') {
-    const routeBucket = buckets.routes[parsed.pageName] ?? (buckets.routes[parsed.pageName] = {} as Record<string, T>)
-    routeBucket[parsed.locale] = mergeInto(routeBucket[parsed.locale], translations)
+    const routeBucket = own(buckets.routes, parsed.pageName) ?? (buckets.routes[parsed.pageName] = {} as Record<string, T>)
+    routeBucket[parsed.locale] = mergeInto(own(routeBucket, parsed.locale), translations)
     return
   }
 
   if (parsed.type === 'root') {
     // a page file (folded into root by disablePageLocales) wins over the root file in either read order
     const isPageFile = relativePath.startsWith('pages/')
-    const existing = buckets.root[parsed.locale]
+    const existing = own(buckets.root, parsed.locale)
     buckets.root[parsed.locale] = isPageFile || !existing ? mergeInto(existing, translations) : mergeInto(translations, existing)
   }
 }
+
+/** A page or locale named `constructor` must not read the inherited `Object`. */
+const own = <V>(bucket: Record<string, V>, key: string): V | undefined => (Object.hasOwn(bucket, key) ? bucket[key] : undefined)
 
 const mergeInto = <T extends Record<string, unknown>>(existing: T | undefined, incoming: T): T =>
   existing ? (deepMergeTranslations(existing, incoming) as T) : incoming

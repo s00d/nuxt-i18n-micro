@@ -1,7 +1,6 @@
 # . (src/index.ts)
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
 function createI18n: (options: SolidI18nOptions) => SolidI18n
-function createSolidRouterAdapter: (locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
@@ -194,3 +193,14 @@ interface UseI18nOptions
 member UseI18nOptions.defaultLocale?: string | undefined
 member UseI18nOptions.locales?: Locale[] | undefined
 const useI18nRouter: () => I18nRoutingStrategy | undefined
+
+# ./router (src/router/index.ts)
+function createSolidRouterAdapter: (locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getCurrentPathAccessor?: (() => Accessor<string>) | undefined
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | Component<{ [key: string]: unknown; href: string; children?: JSX.Element; style?: JSX.CSSProperties; class?: string; }> | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined

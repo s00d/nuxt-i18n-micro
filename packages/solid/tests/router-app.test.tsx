@@ -5,7 +5,8 @@ import { createMemoryHistory, MemoryRouter, Route, useLocation, useNavigate } fr
 import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, expect, test } from 'vitest'
-import { createI18n, createSolidRouterAdapter, I18nLink, I18nProvider, I18nSwitcher, I18nT, useI18n } from '../src'
+import { createI18n, I18nLink, I18nProvider, I18nSwitcher, I18nT, useI18n } from '../src'
+import { createSolidRouterAdapter } from '../src/router'
 import { I18nContext, I18nDefaultLocaleContext, I18nLocalesContext, I18nRouterContext } from '../src/injection'
 import type { I18nRoutingStrategy } from '../src/router/types'
 

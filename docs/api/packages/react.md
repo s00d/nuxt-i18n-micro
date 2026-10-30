@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/react`
 
-38 exports across 1 entry point.
+39 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -20,7 +20,6 @@ import { /* … */ } from '@i18n-micro/react'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: ReactI18nOptions) => ReactI18n` |
-| `createReactRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, location: ReturnType<typeof useLocation>, navigate: ReturnType<typeof useNavigate>) => I18nRoutingStrategy` |
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
@@ -1345,5 +1344,17 @@ import { /* … */ } from '@i18n-micro/react'
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
 
 <code>UseI18nReturn</code> — 22 members, identical to [`UseI18nReturn`](/api/packages/preact).
+## `@i18n-micro/react/router`
+
+```ts
+import { /* … */ } from '@i18n-micro/react/router'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createReactRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, location: ReturnType<typeof useLocation>, navigate: ReturnType<typeof useNavigate>) => I18nRoutingStrategy` |
+| `I18nRoutingStrategy` | interface | 6 members |
+
+<code>I18nRoutingStrategy</code> — 6 members, identical to [`I18nRoutingStrategy`](/api/packages/preact).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

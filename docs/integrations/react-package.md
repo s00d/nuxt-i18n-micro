@@ -119,7 +119,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { createI18n, I18nProvider } from '@i18n-micro/react'
-import { createReactRouterAdapter } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 import App from './App'
 import type { Locale } from '@i18n-micro/types'
 
@@ -280,7 +280,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { createI18n, I18nProvider } from '@i18n-micro/react'
-import { createReactRouterAdapter } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 import App from './App'
 import type { Locale } from '@i18n-micro/types'
 
@@ -752,7 +752,8 @@ function App() {
 
 ```tsx
 import { useLocation, useNavigate } from 'react-router-dom'
-import { createI18n, I18nProvider, createReactRouterAdapter } from '@i18n-micro/react'
+import { createI18n, I18nProvider } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 
 function RouterRoot({ children }: { children?: React.ReactNode }) {
   const location = useLocation()
@@ -979,10 +980,10 @@ interface I18nRoutingStrategy {
 
 ### Using the Built-in Router Adapter
 
-The package exports `createReactRouterAdapter` for React Router integration:
+`@i18n-micro/react/router` exports `createReactRouterAdapter` for React Router integration (the main entry never imports the optional `react-router-dom` peer):
 
 ```typescript
-import { createReactRouterAdapter } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 
 // In your RouterRoot component
 function RouterRoot({ children }: { children?: React.ReactNode }) {
@@ -1355,7 +1356,7 @@ export function createMinimalAdapter(getCurrentPathFn: () => string): I18nRoutin
 You can extend the built-in adapter and override specific methods:
 
 ```typescript
-import { createReactRouterAdapter } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 
 export function createExtendedAdapter(locales: Locale[], defaultLocale: string, location: Location, navigate: NavigateFunction) {
   const baseAdapter = createReactRouterAdapter(locales, defaultLocale, location, navigate)
@@ -1767,7 +1768,8 @@ initApp()
 ```tsx
 import React, { useEffect } from 'react'
 import { Routes, Route, useParams, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { createI18n, I18nProvider, useI18n, I18nLink, I18nSwitcher, createReactRouterAdapter } from '@i18n-micro/react'
+import { createI18n, I18nProvider, useI18n, I18nLink, I18nSwitcher } from '@i18n-micro/react'
+import { createReactRouterAdapter } from '@i18n-micro/react/router'
 import type { Locale } from '@i18n-micro/types'
 import { Home } from './pages/Home'
 import { About } from './pages/About'

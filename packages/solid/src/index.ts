@@ -23,7 +23,7 @@ export {
   useI18nLocales,
   useI18nRouter,
 } from './injection'
-export { createSolidRouterAdapter } from './router/adapter'
+// Router adapter: `@i18n-micro/solid/router` (keeps the optional router peer out of this entry)
 // Router abstraction
 export type { I18nRoutingStrategy } from './router/types'
 export type { UseI18nOptions } from './use-i18n'

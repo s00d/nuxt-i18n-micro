@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { stderr } from 'node:process'
 import React from 'react'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
-import { createI18n, createReactRouterAdapter, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, ReactI18n, useI18n } from '../src'
+import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, ReactI18n, useI18n } from '../src'
+import { createReactRouterAdapter } from '../src/router'
 
 // Same shape as packages/react/playground: three locales, English default, locale files loaded later.
 const locales = [

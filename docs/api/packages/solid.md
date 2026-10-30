@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/solid`
 
-33 exports across 1 entry point.
+34 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -20,7 +20,6 @@ import { /* … */ } from '@i18n-micro/solid'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: SolidI18nOptions) => SolidI18n` |
-| `createSolidRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }` |
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
@@ -173,5 +172,17 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
 
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+## `@i18n-micro/solid/router`
+
+```ts
+import { /* … */ } from '@i18n-micro/solid/router'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createSolidRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }` |
+| `I18nRoutingStrategy` | interface | 7 members |
+
+<code>I18nRoutingStrategy</code> — 7 members, identical to `I18nRoutingStrategy` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

@@ -24,10 +24,10 @@ or CI failing.
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 20 |
 | [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact` | 39 |
-| [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react` | 38 |
+| [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/router` | 39 |
 | [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 10 |
 | [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 16 |
-| [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid` | 33 |
+| [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid`, `@i18n-micro/solid/router` | 34 |
 | [`@i18n-micro/test-utils`](/api/packages/test-utils) | `@i18n-micro/test-utils`, `@i18n-micro/test-utils/publish-smoke` | 60 |
 | [`@i18n-micro/types`](/api/packages/types) | `@i18n-micro/types` | 26 |
 | [`@i18n-micro/types-generator`](/api/packages/types-generator) | `@i18n-micro/types-generator`, `@i18n-micro/types-generator/nuxt` | 9 |

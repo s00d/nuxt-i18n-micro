@@ -1,6 +1,7 @@
 // @ts-nocheck — React 19 + RTL JSX typing noise; behaviour is what these tests pin
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
+import { createRequire } from 'node:module'
 import { stderr } from 'node:process'
 import React from 'react'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
@@ -62,6 +63,21 @@ describe('React app over @i18n-micro/react', () => {
       stderr.write = write
       consoleSpy.mockRestore()
     }
+  })
+
+  test('renderToString works: the hook has a server snapshot', () => {
+    // react-dom is a peer of @testing-library/react, not a dependency of this package
+    const require = createRequire(createRequire(import.meta.url).resolve('@testing-library/react'))
+    const { renderToString } = require('react-dom/server')
+    const i18n = createI18n({ locale: 'en', messages: { en } })
+    const Page = () => <p>{useI18n().t('welcome')}</p>
+    expect(
+      renderToString(
+        <I18nProvider i18n={i18n}>
+          <Page />
+        </I18nProvider>,
+      ),
+    ).toBe('<p>Welcome</p>')
   })
 
   test('page without a router: messages arrive late, locale switches, routes scope keys, links fall back to plain hrefs', () => {

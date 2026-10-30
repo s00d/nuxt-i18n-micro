@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { ssr } from '../helpers/journeys-b.ts'
 
 describe('J4 loading: plugin:false (basic, BASIC_VARIANT=no-plugin)', () => {

@@ -68,7 +68,8 @@ const unprefixedIsDefault = (strategy: Strategies) => strategy === 'prefix_excep
 
 function splitUrl(url: string): { path: string; query?: Record<string, unknown>; hash?: string } {
   const hashAt = url.indexOf('#')
-  const hash = hashAt === -1 ? undefined : url.slice(hashAt)
+  // a bare `#` is no hash: it must not reach fullPath
+  const hash = hashAt === -1 || hashAt === url.length - 1 ? undefined : url.slice(hashAt)
   const rest = hashAt === -1 ? url : url.slice(0, hashAt)
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }
@@ -209,11 +210,12 @@ export class I18nPathStrategy {
     for (const form of forms) {
       const route = this.probe(form)
       const name = named(route?.name) ?? ''
-      if (!name) continue
-      if (form === path && unlocalized.has(name)) return UNLOCALIZED
+      if (form === path && (unlocalized.has(name) || route?.meta?.i18nStub)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
-      const { locale: _locale, ...params } = route!.params ?? {}
+      const { locale: urlLocale, ...params } = route!.params ?? {}
+      // a custom matcher takes any segment for a locale: `/go` is a page in another form, not the home of `go`
+      if (urlLocale && !this.codes.has(String(urlLocale))) continue
       const page = { base: entry.base, params, catchAll: entry.catchAll }
       if (!entry.catchAll) return page
       catchAll ??= page
@@ -299,6 +301,8 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+    // a disabled locale is no target: the link stays on the page
+    if (this.disabledCodes.has(toLocale)) return route
     const name = named(route.name)
     const base = name ? this.baseOf(name) : null
     if (!base) {
@@ -322,8 +326,10 @@ export class I18nPathStrategy {
     return (page && page !== UNLOCALIZED && this.routeTo(locale, page.base, page.params)) || { path, fullPath: path }
   }
 
-  localeRoute(targetLocale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
-    const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(routeOrPath) : routeOrPath
+  localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+    const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
+    // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
+    const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : routeOrPath.name
     let target: Target | null = null
     if (name) {
@@ -369,7 +375,8 @@ export class I18nPathStrategy {
 
   getCurrentLocale(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string {
     const { strategy, defaultLocale } = this.ctx
-    if (this.ctx.hashMode || strategy === 'no_prefix') return defaultLocaleOverride || defaultLocale
+    if (this.ctx.hashMode) return defaultLocaleOverride || defaultLocale
+    if (strategy === 'no_prefix') return this.servedLocale(route, defaultLocaleOverride || defaultLocale)
     const path = route.path || route.fullPath || ''
     const param = route.params?.locale
     const fromParams = Array.isArray(param) ? String(param[0] ?? '') : param ? String(param) : ''
@@ -377,6 +384,19 @@ export class I18nPathStrategy {
     const fromPath = this.getLocaleFromPath(path)
     if (fromPath) return fromPath
     return unprefixedIsDefault(strategy) ? defaultLocale : defaultLocaleOverride || defaultLocale
+  }
+
+  /**
+   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locale,
+   * and a page restricted to some locales never renders in another one.
+   */
+  private servedLocale(route: ResolvedRouteLike, preferred: string): string {
+    const name = named(route.name)
+    const entry = name ? this.index.records.get(name) : undefined
+    if (!entry) return preferred
+    const own = name !== entry.base && entry.locales.length === 1
+    if (!own && this.index.pages.get(entry.base)?.has(preferred)) return preferred
+    return entry.locales[0] ?? preferred
   }
 
   getCurrentLocaleName(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null {
@@ -405,10 +425,28 @@ export class I18nPathStrategy {
     return reason
   }
 
+  /** A first segment the router took for a locale, not one of ours, on a URL that is no page in any form. */
+  private isUnknownLocale(path: string, segment: string): boolean {
+    if (!this.unknownLocale?.test(segment) || this.codes.has(segment)) return false
+    if (this.probe(path)?.params?.locale !== segment) return false
+    return !this.isOwnPage(path)
+  }
+
+  /** The prefix of a disabled locale. A page on that segment is that page, a catch-all is not. */
+  private isDisabledPrefix(path: string, segment: string): boolean {
+    return this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix' && !this.isOwnPage(path)
+  }
+
+  /** Whether a page of its own answers the URL, in any form: no catch-all. */
+  private isOwnPage(path: string): boolean {
+    const page = this.findPage(path)
+    return page === UNLOCALIZED || (page !== null && !page.catchAll)
+  }
+
   private notFoundReason(path: string): string | null {
     const segment = path.split('/')[1] ?? ''
-    if (this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix') return 'Locale disabled'
-    if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
+    if (this.isDisabledPrefix(path, segment)) return 'Locale disabled'
+    if (this.isUnknownLocale(path, segment)) return 'Unknown locale'
     if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
     if (!locale) return null
@@ -431,10 +469,10 @@ export class I18nPathStrategy {
    * or null to stay. URLs with a locale prefix are never rewritten here.
    */
   getClientRedirect(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}): string | null {
-    if (this.ctx.strategy === 'no_prefix') return null
+    if (this.ctx.strategy === 'no_prefix' || this.disabledCodes.has(preferredLocale)) return null
     const path = splitUrl(currentPath).path || '/'
     // a runtime-disabled prefix is a 404 (`shouldReturn404`), not an unprefixed URL
-    if (this.disabledCodes.has(path.split('/')[1] ?? '')) return null
+    if (this.isDisabledPrefix(path, path.split('/')[1] ?? '')) return null
     const locale = this.getLocaleFromPath(path)
     if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
     if (this.ctx.strategy === 'prefix_and_default') return null

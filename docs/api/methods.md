@@ -51,9 +51,9 @@ const { t, localePath } = useI18n()
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<void>` | Navigate to the current page in another locale. |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<boolean>` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
-| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
+| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating, or a URL string for a locale on its own `baseUrl`. |
 | [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
 | [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
 | [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
@@ -313,13 +313,15 @@ $tdr(Date.now() - 5 * 60_000) // '5 minutes ago' in en
 <!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(locale: string) => Promise<void>
+(locale: string) => Promise<boolean>
 ```
 
 Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
 locale's translations before navigating; under `no_prefix` the route is replaced in place (no
 new history entry). An unknown locale is ignored.
-The call is async: `await` it to run code after the navigation.
+The call is async: `await` it to run code after the navigation. It resolves `true` when the
+locale's dictionary is active, `false` when it is not: the chunk failed to load (the current
+dictionary stays; call it again to retry) or a newer switch won.
 
 <!-- /generated:method:$switchLocale -->
 
@@ -351,7 +353,9 @@ The path of the current page in another locale, without navigating.
 (locale: string) => RouteLocationRaw
 ```
 
-The route object for the current page in another locale, without navigating.
+The route object for the current page in another locale, without navigating, or a URL string
+for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
+follow the rule, and `router.push` or a link keep them.
 
 <!-- /generated:method:$switchLocaleRoute -->
 
@@ -381,7 +385,8 @@ $switchRoute({ name: 'about' }, 'de') // switch to de
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
 ```
 
-Resolve a path in the given locale, or the active one.
+Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`
+or `tel:` scheme comes back as is: do not pass user input as a link target unchecked.
 
 <!-- /generated:method:$localePath -->
 

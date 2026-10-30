@@ -25,7 +25,7 @@ export interface StrategyWalkRow {
  */
 export async function ssr(baseURL: string, path: string, headers: Record<string, string> = {}) {
   const res = await fetch(new URL(path, baseURL), { headers, redirect: 'manual' })
-  return { status: res.status, location: res.headers.get('location'), html: await res.text() }
+  return { status: res.status, location: res.headers.get('location'), headers: res.headers, html: await res.text() }
 }
 
 export async function walkStrategy(page: Page, goto: Goto, row: StrategyWalkRow) {
@@ -104,6 +104,27 @@ export async function pagesFalseCookieCases(page: Page, goto: Goto, baseURL: str
   await goto('/', { waitUntil: 'hydration' })
   await expect(page.locator('#locale')).toHaveText('en')
   await expect(page.locator('#greeting')).toHaveText('Hello')
+}
+
+/** `$switchLocale` on Nuxt's stub router, as `docs/guide/strategy.md` promises for `pages: false`. */
+export async function pagesFalseSwitch(page: Page, goto: Goto, targets: { link: string; path: string; url: string }) {
+  // step 1: the helpers answer without a record
+  await page.context().clearCookies()
+  await goto('/', { waitUntil: 'hydration' })
+  await expect(page.locator('#link-zh')).toHaveAttribute('href', targets.link)
+  await expect(page.locator('#path-zh')).toHaveText(targets.path)
+
+  // step 2: the click loads zh, stores it and moves the URL
+  await page.click('#switch-zh')
+  await expect(page.locator('#locale')).toHaveText('zh')
+  await expect(page.locator('#greeting')).toHaveText('你好')
+  await expect(page).toHaveURL(targets.url)
+  await expect.poll(() => getLocaleCookie(page)).toBe('zh')
+
+  // step 3: a reload stays there
+  await page.reload()
+  await expect(page.locator('#greeting')).toHaveText('你好')
+  await expect(page).toHaveURL(targets.url)
 }
 
 /**

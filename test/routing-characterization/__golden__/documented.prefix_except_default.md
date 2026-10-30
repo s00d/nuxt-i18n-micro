@@ -6,28 +6,28 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| activity | /change-activity | /activity |  |
-| · activity-hiking | hiking |  |  |
-| · activity-skiing | book-activity/skiing |  |  |
-| page | /page/:id |  |  |
-| product-slug | /product/:slug(.*)* |  |  |
-| unlocalized | /unlocalized |  |  |
-| same | /same |  |  |
-| localized-index | /:locale(de\|fr) |  |  |
-| localized-activity | /:locale(fr)/activity |  |  |
-| · localized-activity-hiking | hiking |  |  |
-| · localized-activity-skiing | skiing |  |  |
-| localized-activity-de | /:locale(de)/change-buchen |  |  |
-| · localized-activity-hiking-de | hiking |  |  |
-| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  |
-| localized-page | /:locale(fr)/page |  |  |
-| localized-page-de | /:locale(de)/page/:id |  |  |
-| localized-product-slug | /:locale(fr)/product/:slug(.*)* |  |  |
-| localized-product-slug-de | /:locale(de)/produkte/:slug(.*)* |  |  |
-| localized-same | /:locale(de\|fr)/same |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| activity | /change-activity | /activity |  | activity: en |
+| · activity-hiking | hiking |  |  | activity-hiking: en |
+| · activity-skiing | book-activity/skiing |  |  | activity-skiing: en |
+| page | /page/:id |  |  | page: en |
+| product-slug | /product/:slug(.*)* |  |  | product-slug: en |
+| unlocalized | /unlocalized |  |  |  |
+| same | /same |  |  | same: en |
+| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| localized-activity | /:locale(fr)/activity |  |  | activity: fr |
+| · localized-activity-hiking | hiking |  |  | activity-hiking: fr |
+| · localized-activity-skiing | skiing |  |  | activity-skiing: fr |
+| localized-activity-de | /:locale(de)/change-buchen |  |  | activity: de |
+| · localized-activity-hiking-de | hiking |  |  | activity-hiking: de |
+| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  | activity-skiing: de |
+| localized-page | /:locale(fr)/page |  |  | page: fr |
+| localized-page-de | /:locale(de)/page/:id |  |  | page: de |
+| localized-product-slug | /:locale(fr)/product/:slug(.*)* |  |  | product-slug: fr |
+| localized-product-slug-de | /:locale(de)/produkte/:slug(.*)* |  |  | product-slug: de |
+| localized-same | /:locale(de\|fr)/same |  |  | same: de, fr |
 
 ## Reading a URL
 

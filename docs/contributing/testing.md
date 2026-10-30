@@ -79,7 +79,16 @@ Browser e2e runs through [untestutils](https://github.com/s00d/untestutils) and 
 - One spec walks one real flow on one recipe: visit, browse, switch locale, reload, detection, head. Each step has a `// step n: action → assert` comment.
 - One harness per file: `test.override({ harness: '<recipe>' })` at the top of the `describe`. A second harness in the same file would reach the first one's server, so split it into its own file.
 - No `waitForTimeout`, no `networkidle`, no optional `if` assertions. Statuses come from `request.get(path)`, with `{ maxRedirects: 0 }` where the redirect itself is checked. Arm console collectors before the first `goto`.
+- Specs import `test` from `test/helpers/guarded-test.ts`. It fails a test on any document response >= 500, uncaught page error, console error or hydration warning, even when the assertions pass. A test that expects one calls `guard.allow(/pattern/)`; `test.override({ guardAllow: [/pattern/] })` allows a pattern for a whole `describe`.
 - Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
+
+## Routing goldens
+
+`test/routing-characterization` runs every app in `scenarios.ts` under every strategy and records what each URL reads as and where each navigation lands. The harness calls the code the module calls (`mergeDefineI18nRouteMeta`, `extractDefineI18nRouteData`, `RouteGenerator`), so do not copy module logic into it: a copy cannot fail.
+
+- Pages are not only what the file scanner makes: `modulePages` are pushed as in `pages:extend`, with or without a name, and `noPages` runs Nuxt's stub router with no records (`pages: false`).
+- Input is frozen, so a package that writes to pages or routes throws in the golden. Every page is tagged with its file, and a record that loses `meta` is listed under the invariant breaks.
+- A golden diff is either an intended fix or a bug. Read all of it before you regenerate.
 
 ## Mutation testing
 

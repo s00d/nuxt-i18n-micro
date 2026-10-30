@@ -1,5 +1,5 @@
 import { emulateDomain } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { assertI18nHeadScenario, i18nHeadScenarios, i18nHeadStaticPages } from '../helpers/i18n-head-seo'
 
 // seo fixture, SEO_VARIANT=use-i18n-head: pec, en (en-US) / fr (fr-FR); every page overrides parts of the head with useI18nHead().

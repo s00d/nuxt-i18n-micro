@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // basic: a local module (modules/hook) adds /test and an `i18n:register` plugin; an app plugin registers `hook`.
 describe('J8 translation loading: module hook', () => {

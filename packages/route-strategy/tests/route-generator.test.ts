@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
@@ -30,6 +30,162 @@ function generate(strategy: Strategies, pages: NuxtPage[], options: Partial<Rout
 }
 
 const about: NuxtPage = { path: '/about', name: 'about', file: 'pages/about.vue' }
+
+describe('unnamed pages', () => {
+  const generate = (page: NuxtPage) => {
+    const pages = [page]
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes: {},
+      noPrefixRedirect: false,
+    }).extendPages(pages)
+    return pages.map((p) => p.path)
+  }
+
+  test("Nuxt's route-rule stub stays as written, a module's page is localized", () => {
+    expect(generate({ path: '/old', file: '/nuxt/dist/pages/runtime/component-stub.js', _sync: true } as NuxtPage)).toEqual(['/old'])
+    expect(generate({ path: '/from-module', file: '/mod/page.vue' })).toEqual(['/:locale(en|de)/from-module'])
+  })
+})
+
+describe('names of unnamed pages', () => {
+  test("a module's page gets the name the scanner would give it: records are addressed by name", () => {
+    const names = (pages: NuxtPage[]) => {
+      const list = structuredClone(pages)
+      generator('prefix_except_default').extendPages(list)
+      return list.map((p) => [p.name, p.meta?.i18n])
+    }
+    expect(names([{ path: '/a/:id()/:rest(.*)*', file: 'mod.vue' }])).toEqual([
+      ['a-id-rest', { name: 'a-id-rest', locales: ['en'] }],
+      ['localized-a-id-rest', { name: 'a-id-rest', locales: ['de', 'fr'] }],
+    ])
+    expect(generate('prefix', [{ path: '/parent', file: 'p.vue', children: [{ path: 'child', file: 'c.vue' }] }])).toEqual([
+      'localized-parent /:locale(en|de|fr)/parent',
+      '  localized-parent-child child',
+    ])
+    // a parent whose index child owns the name stays unnamed; a taken name stays with its page
+    expect(generate('prefix', [{ path: '/p', file: 'p.vue', children: [{ path: '', name: 'p', file: 'i.vue' }] }])[0]).toBe('- /:locale(en|de|fr)/p')
+    expect(generate('prefix', [about, { path: '/about', file: 'mod.vue' }]).map((l) => l.split(' ')[0])).toEqual(['localized-about', '-'])
+  })
+})
+
+describe('resolveLocalizedRulePaths', () => {
+  const generator = (strategy: 'prefix' | 'no_prefix') =>
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy,
+      globalLocaleRoutes: {
+        'blog/[slug]': { de: '/artikel/[slug]' },
+        'blog/[id]': { de: '/[id]' },
+        'blog/latest': { de: '/aktuell' },
+        'blog/[...rest]': { de: '/archiv/[...rest]' },
+        about: { de: '/ueber-uns' },
+      },
+      noPrefixRedirect: false,
+    })
+
+  test('a wildcard follows the custom paths of the pages under it', () => {
+    // step 1: the prefix copy and the custom paths; a value that is only a param stays out
+    // a param page keeps its param, a static page is exact: `/de/artikel-archiv` or a sibling tree gets nothing
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual([
+      '/de/blog/**',
+      '/de/artikel/:slug',
+      '/de/aktuell',
+      '/de/archiv/**',
+    ])
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'en')).toEqual(['/en/blog/**'])
+
+    // step 2: no_prefix has no prefix, the custom path still moves
+    expect(generator('no_prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/blog/**', '/artikel/:slug', '/aktuell', '/archiv/**'])
+
+    // step 3: an exact rule is one path
+    expect(generator('prefix').resolveLocalizedRulePaths('/about', 'de')).toEqual(['/de/ueber-uns'])
+  })
+})
+
+describe('resolveLocalizedRulePaths with child pages', () => {
+  const generator = (globalLocaleRoutes: GlobalLocaleRoutes, parentPaths?: string[]) =>
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes,
+      noPrefixRedirect: false,
+      parentPaths,
+    })
+
+  test('a relative child value hangs off its parent, as the page does', () => {
+    // step 1: under a parent page
+    const child = { 'blog/[slug]': { de: 'artikel/[slug]' } }
+    expect(generator(child, ['blog']).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/blog/artikel/:slug'])
+
+    // step 2: under a parent with its own custom path; the parent's children move with it
+    const moved = { blog: { de: '/beitraege' }, ...child }
+    expect(generator(moved, ['blog']).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual([
+      '/de/blog/**',
+      '/de/beitraege/**',
+      '/de/beitraege/artikel/:slug',
+    ])
+
+    // step 3: no parent page: the value is the whole path
+    expect(generator(child).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/artikel/:slug'])
+  })
+
+  test("a custom value equal to another page's path stays that value", () => {
+    const rules = { 'blog/latest': { de: '/about' }, about: { de: '/ueber-uns' } }
+    expect(generator(rules).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/about'])
+  })
+})
+
+describe('a child path outside its parent', () => {
+  test('warns once, naming the key; the routes stay as they were', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const pages: NuxtPage[] = [
+      {
+        path: '/parent',
+        name: 'parent',
+        file: 'pages/parent.vue',
+        children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }],
+      },
+    ]
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { 'parent/child': { de: '/eltern/kind' } },
+      noPrefixRedirect: false,
+    })
+
+    // step 1: the page stays nested, the warning says where
+    generator.extendPages(pages)
+    expect(generator.resolveLocalizedPath('/parent/child', 'de')).toBe('/de/parent/eltern/kind')
+    expect(warn.mock.calls.map(([text]) => text)).toEqual([
+      '[i18n] globalLocaleRoutes["parent/child"].de = "/eltern/kind" is outside its parent "/parent": the page is served at "/parent/eltern/kind".',
+    ])
+
+    // step 2: a value under the parent is its URL: no warning
+    warn.mockClear()
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { 'parent/child': { de: '/parent/kind' } },
+      noPrefixRedirect: false,
+    }).extendPages([
+      {
+        path: '/parent',
+        name: 'parent',
+        file: 'pages/parent.vue',
+        children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }],
+      },
+    ])
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
 const account: NuxtPage = {
   path: '/account',
   file: 'pages/account.vue',
@@ -54,6 +210,35 @@ describe('strategies', () => {
       ['localized-about-de', { name: 'about', locales: ['de'] }],
     ])
   })
+
+  test.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: every record keeps the file and the meta of its page',
+    (strategy) => {
+      const pages: NuxtPage[] = [{ ...about, meta: { layout: 'wide', auth: true } }]
+      generator(strategy, { globalLocaleRoutes: { about: { de: '/ueber-uns' } } }).extendPages(pages)
+      const records = pages.filter((p) => p.file)
+      expect(records.length).toBeGreaterThan(1)
+      for (const record of records) {
+        expect({ file: record.file, ...record.meta }).toMatchObject({ file: 'pages/about.vue', layout: 'wide', auth: true })
+      }
+    },
+  )
+
+  test.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: the original page objects stay as they were (Nuxt keeps references to them)',
+    (strategy) => {
+      const freeze = (page: NuxtPage): NuxtPage => {
+        page.children?.forEach(freeze)
+        Object.freeze(page.children)
+        return Object.freeze(page)
+      }
+      const page = freeze(structuredClone({ ...account, meta: { auth: true }, alias: ['/me'] }))
+      const before = structuredClone(page)
+      // frozen: a write throws in this strict module, so a mutation anywhere fails the call too
+      generator(strategy, { globalLocaleRoutes: { account: { de: '/konto' }, 'account/orders': { de: 'bestellungen' } } }).extendPages([page])
+      expect(page).toEqual(before)
+    },
+  )
 })
 
 describe('custom paths', () => {
@@ -188,6 +373,47 @@ describe('restrictions and unlocalized pages', () => {
     ])
   })
 
+  test('a custom path for a forbidden locale creates nothing', () => {
+    const rules: GlobalLocaleRoutes = { about: { de: '/ueber-uns', fr: '/a-propos' } }
+    expect(generate('prefix_except_default', [about], { globalLocaleRoutes: rules, routeLocales: { about: ['en', 'de'] } })).toEqual([
+      'about /about',
+      'localized-about-de /:locale(de)/ueber-uns',
+    ])
+  })
+
+  test('a locale list without a known code does not restrict the page; unknown codes are dropped from a mixed one', () => {
+    const everyLocale = ['about /about', 'localized-about /:locale(de|fr)/about']
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: [] } })).toEqual(everyLocale)
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: ['xx'] } })).toEqual(everyLocale)
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: ['en', 'xx', 'de'] } })).toEqual([
+      'about /about',
+      'localized-about /:locale(de)/about',
+    ])
+    expect(isLocaleAllowedForUnlocalizedRoute({ '/about': [] }, locales, '/about', 'fr')).toBe(true)
+  })
+
+  test('a page path that starts with a locale code is a page, the prefix goes in front of it', () => {
+    const pages: NuxtPage[] = [{ path: '/de/contact', name: 'de-contact', file: 'pages/de/contact.vue' }]
+    expect(generate('prefix_except_default', pages)).toEqual(['de-contact /de/contact', 'localized-de-contact /:locale(de|fr)/de/contact'])
+    expect(generate('prefix', pages)).toEqual(['localized-de-contact /:locale(en|de|fr)/de/contact'])
+  })
+
+  test('a default locale outside the list, or disabled: a bare object, and no unprefixed record serves it', () => {
+    const noDefault: Locale[] = [{ code: 'de' }, { code: 'fr' }]
+    expect(generator('prefix_except_default', { locales: noDefault }).defaultLocale).toEqual({ code: 'en' })
+    expect(generate('prefix_except_default', [about], { locales: noDefault })).toEqual(['localized-about /:locale(de|fr)/about'])
+
+    const disabled = generator('prefix_except_default', { locales: [{ code: 'en', iso: 'en-US', disabled: true }, ...noDefault] })
+    expect(disabled.defaultLocale).toEqual({ code: 'en' })
+    expect(disabled.locales.map((l) => l.code)).toEqual(['de', 'fr'])
+    expect(disabled.disabledLocales.map((l) => l.code)).toEqual(['en'])
+  })
+
+  test('an empty locale list leaves nothing to serve', () => {
+    expect(generate('prefix_except_default', [about], { locales: [] })).toEqual([])
+    expect(generate('prefix', [about], { locales: [] })).toEqual([])
+  })
+
   test('a page under a custom apiBaseUrl is internal, like one under _locales', () => {
     const pages: NuxtPage[] = [{ name: 'x', path: '/custom/x', file: '/x.vue' }]
     expect(generate('prefix', pages, { apiBaseUrl: 'custom' })).toEqual(['x /custom/x'])
@@ -279,9 +505,32 @@ describe('nitro helpers', () => {
       '/_locales/account-orders-id/en/data.json',
     ])
     expect(g.generateDataRoutes([account], '_locales', true)).toEqual(['/_locales/index/en/data.json'])
+    // an unnamed page has no chunk to prerender, its named children do
+    const unnamed: NuxtPage[] = [{ path: '/from-module', file: 'mod.vue' }, about]
+    expect(g.generateDataRoutes(unnamed, '_locales', false)).toEqual(['/_locales/index/en/data.json', '/_locales/about/en/data.json'])
+  })
+
+  test('ensureTranslationFilesExist: a root file per active locale, page files unless disablePageLocales', () => {
+    const g = generator('prefix', { locales: [{ code: 'en' }, { code: 'de', disabled: true }, { code: 'fr' }] })
     const root = mkdtempSync(join(tmpdir(), 'route-strategy-'))
+    const has = (file: string) => existsSync(join(root, file))
+
+    // step 1: with page locales
     g.ensureTranslationFilesExist(['about'], 'locales', root)
-    expect(readFileSync(join(root, 'locales/pages/about/en.json'), 'utf-8')).toBe('{}')
+    expect(readFileSync(join(root, 'locales/en.json'), 'utf-8')).toBe('{}')
+    expect(readFileSync(join(root, 'locales/pages/about/fr.json'), 'utf-8')).toBe('{}')
+    expect(['locales/de.json', 'locales/pages/about/de.json'].filter(has)).toEqual([])
+
+    // step 2: disablePageLocales has root files only
+    const flat = mkdtempSync(join(tmpdir(), 'route-strategy-'))
+    g.ensureTranslationFilesExist(['about'], 'locales', flat, true)
+    expect(existsSync(join(flat, 'locales/fr.json'))).toBe(true)
+    expect(existsSync(join(flat, 'locales/pages'))).toBe(false)
+
+    // step 3: an existing file is left alone
+    writeFileSync(join(root, 'locales/en.json'), '{"a":"b"}')
+    g.ensureTranslationFilesExist([], 'locales', root)
+    expect(readFileSync(join(root, 'locales/en.json'), 'utf-8')).toBe('{"a":"b"}')
   })
 })
 

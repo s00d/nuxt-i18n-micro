@@ -6,7 +6,10 @@
 </template>
 
 <script setup lang="ts">
-// @ts-expect-error
+import { useNuxtApp } from '#imports'
+
+const { $defineI18nRoute } = useNuxtApp()
+
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
   disableMeta: ['en'],

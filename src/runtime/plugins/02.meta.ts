@@ -1,7 +1,8 @@
 import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
-import { defineNuxtPlugin, useHead, useRequestURL, useRoute } from '#imports'
+import { joinURL } from 'ufo'
+import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useLocaleHead } from '../composables/useLocaleHead'
 
@@ -18,7 +19,7 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
 }
 
 /**
- * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin.
+ * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin plus `app.baseURL`.
  * `useRequestURL` (and X-Forwarded-*) is only used when both configured origins
  * are missing — that fallback trusts proxy headers when the corresponding
  * `metaTrustForwarded*` flags are true (the published default).
@@ -31,7 +32,7 @@ function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | un
     xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
     xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
   })
-  return url.origin.replace(/\/+$/, '')
+  return joinURL(url.origin, useRuntimeConfig().app.baseURL).replace(/\/+$/, '')
 }
 
 export default defineNuxtPlugin((nuxtApp) => {

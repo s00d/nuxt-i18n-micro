@@ -1,23 +1,31 @@
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
-import type { Router } from 'vue-router'
+import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 
 /**
  * Issue #238: under `no_prefix` the URL does not change on locale switch, so
  * `router.push` appends a duplicate history entry. Switching must `replace`.
  */
-function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true) {
+interface MakeApiOptions {
+  trailingSlash?: 'append' | 'remove'
+  switched?: Record<string, unknown>
+  hash?: string
+  isHydrating?: () => boolean
+  onSwitch?: (route: { hash?: string; path: string; fullPath: string }) => unknown
+}
+
+function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true, options: MakeApiOptions = {}) {
   const push = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
   const replace = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
   const currentRoute = {
     path: '/',
-    fullPath: '/',
+    fullPath: `/${options.hash ?? ''}`,
     name: 'index',
     params: {},
     query: {},
-    hash: '',
+    hash: options.hash ?? '',
     matched: [],
     meta: {},
     redirectedFrom: undefined,
@@ -37,10 +45,12 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   })
   vi.spyOn(loader, 'switchContext').mockResolvedValue(switchApplies)
   const setLocale = vi.fn()
+  const navigateTo = vi.fn()
 
   const i18nStrategy = {
-    switchLocaleRoute: () => ({ path: '/', name: 'index', force: undefined }),
-    formatPathForResolve: (path: string) => path,
+    switchLocaleRoute: (_from: string, _to: string, route: { hash?: string; path: string; fullPath: string }) =>
+      options.onSwitch?.(route) ?? options.switched ?? { path: '/', name: 'index', force: undefined },
+    localeRoute: (_locale: string, to: string) => ({ path: `/de${to}`, fullPath: `/de${to}` }),
   } as unknown as PathStrategy
 
   const { provide } = createNuxtI18nPluginApi({
@@ -49,10 +59,11 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     i18nStrategy,
     i18nConfig: {
       strategy,
+      trailingSlash: options.trailingSlash,
       defaultLocale: 'en',
       locales: [
         { code: 'en', iso: 'en' },
-        { code: 'es', iso: 'es' },
+        { code: 'es', iso: 'es', baseUrl: 'https://es.example' },
       ],
     } as ModuleOptionsExtend,
     router,
@@ -63,11 +74,12 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     i18nRouteParams: { value: {} },
     setLocale,
     isValidLocale: () => true,
-    navigateTo: vi.fn(),
+    navigateTo,
     setMissingHandler: vi.fn(),
+    isHydrating: options.isHydrating ?? (() => false),
   })
 
-  return { provide, push, replace, setLocale }
+  return { provide, push, replace, setLocale, navigateTo }
 }
 
 describe('switchLocale history (#238)', () => {
@@ -92,5 +104,84 @@ describe('switchLocale history (#238)', () => {
     expect(superseded.setLocale).not.toHaveBeenCalled()
     expect(superseded.replace).not.toHaveBeenCalled()
     expect(superseded.push).not.toHaveBeenCalled()
+  })
+
+  test('the result says whether the dictionary applied', async () => {
+    // step 1: a switch that applied
+    expect(await makeApi('no_prefix').provide.switchLocale('es')).toBe(true)
+
+    // step 2: its chunk failed or a newer switch won → false, nothing changed
+    const failed = makeApi('no_prefix', false)
+    expect(await failed.provide.switchLocale('es')).toBe(false)
+    expect(failed.setLocale).not.toHaveBeenCalled()
+  })
+})
+
+describe('links from the plugin', () => {
+  test('$localePath and $localeRoute leave an external URL alone', () => {
+    const { provide } = makeApi('prefix')
+    // step 1: only an explicit scheme is a URL
+    expect(provide.localePath('https://x.com/a', 'de')).toBe('https://x.com/a')
+    expect(provide.localePath('mailto:a@x.com', 'de')).toBe('mailto:a@x.com')
+    expect(provide.localePath('tel:+1', 'de')).toBe('tel:+1')
+    // a request-shaped string or a dotted name is a path
+    expect(provide.localePath('//x.com/a', 'de')).toBe('/de//x.com/a')
+    expect(provide.localePath('about.html', 'de')).toBe('/deabout.html')
+    // step 2: the route object carries the same URL
+    expect(provide.localeRoute('https://x.com/a', 'de').fullPath).toBe('https://x.com/a')
+  })
+
+  test('$switchRoute never leaves the app for a string it was handed', async () => {
+    for (const to of ['https://evil.example', '//evil.example', 'evil.example']) {
+      const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://evil.example/x' as unknown as Record<string, unknown> })
+      await provide.switchRoute(to)
+      expect(navigateTo).not.toHaveBeenCalled()
+    }
+  })
+
+  test('$switchRoute hands mailto: and tel: to the browser', async () => {
+    for (const to of ['mailto:a@x.com', 'tel:+1']) {
+      const { provide, navigateTo, push } = makeApi('prefix')
+      await provide.switchRoute(to)
+      expect(navigateTo).toHaveBeenCalledWith(to, expect.objectContaining({ external: true }))
+      expect(push).not.toHaveBeenCalled()
+    }
+  })
+
+  test("a switch to a locale's own domain is external", async () => {
+    const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://es.example/x' as unknown as Record<string, unknown> })
+    await provide.switchLocale('es')
+    expect(navigateTo).toHaveBeenCalledWith('https://es.example/x', expect.objectContaining({ external: true }))
+  })
+
+  test('$switchLocaleRoute is a route object under a slash rule too', () => {
+    const { provide } = makeApi('prefix', true, {
+      trailingSlash: 'append',
+      switched: { name: 'about', path: '/de/about', fullPath: '/de/about?q=1' },
+    })
+    expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ name: 'about', path: '/de/about/', fullPath: '/de/about/?q=1' }))
+    expect(provide.switchLocalePath('es')).toBe('/de/about/?q=1')
+  })
+
+  test('a push of that route object keeps the slash', async () => {
+    const switched = { name: 'about', params: {}, query: { q: '1' }, hash: '', path: '/de/about', fullPath: '/de/about?q=1' }
+    const { provide } = makeApi('prefix', true, { trailingSlash: 'append', switched })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/de/about', name: 'about', component: {} }] })
+    expect(router.resolve(provide.switchLocaleRoute('es') as RouteLocationRaw).fullPath).toBe('/de/about/?q=1')
+  })
+
+  test('while hydrating, links leave out a hash the server never saw', () => {
+    const seen: (string | undefined)[] = []
+    const { provide } = makeApi('prefix', true, {
+      hash: '#h',
+      isHydrating: () => true,
+      onSwitch: (route) => {
+        seen.push(route.hash)
+        return route
+      },
+    })
+    expect(provide.switchLocalePath('es')).toBe('/')
+    provide.switchLocaleRoute('es')
+    expect(seen).toEqual(['', ''])
   })
 })

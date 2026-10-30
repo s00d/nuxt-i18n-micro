@@ -5,9 +5,11 @@
  */
 import { createPathStrategy, type PathStrategy, type ResolvedRouteLike, type RouteLike, type RouterAdapter } from '@i18n-micro/path-strategy'
 import { RouteGenerator } from '@i18n-micro/route-strategy'
-import type { GlobalLocaleRoutes, Strategies } from '@i18n-micro/types'
+import type { Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Router } from 'vue-router'
+import { mergeDefineI18nRouteMeta } from '../../src/unplugin-define-i18n-route'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../../src/utils'
 import { createAppRouter } from '../helpers/routing-matrix'
 import { pagesFromFiles } from './pages'
 import { type App, appLocales, PARAMS } from './scenarios'
@@ -17,6 +19,10 @@ interface Built {
   router: Router
   i18n: PathStrategy
   locales: string[]
+  /** Disabled locales: the strategy knows them, nothing serves them. */
+  disabled: string[]
+  /** The URL names no locale: a switch is read by its target, as under no_prefix. */
+  hashMode: boolean
   defaultLocale: string
   strategy: Strategies
 }
@@ -28,36 +34,87 @@ function applyAliases(pages: NuxtPage[], aliases: Record<string, string[]>) {
   }
 }
 
-/** Same inputs module.ts hands RouteGenerator and the i18n.strategy.mjs template. */
-export function build(app: App, strategy: Strategies): Built {
+/** Frozen all the way down: a package that writes to its input throws, and the golden shows it. */
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value)
+    Object.values(value).forEach(deepFreeze)
+  }
+  return value
+}
+
+/** Every page says which file it came from: a record that loses `meta` shows in the invariants. */
+function tagSource(pages: NuxtPage[]) {
+  for (const page of pages) {
+    page.meta = { ...page.meta, source: page.file }
+    if (page.children) tagSource(page.children)
+  }
+}
+
+/** The pages as the module sees them at `pages:resolved`: the file scanner's, a stub, a module's. */
+function inputPages(app: App): NuxtPage[] {
   const pages = pagesFromFiles(app.files)
   if (app.aliases) applyAliases(pages, app.aliases)
+  // what Nuxt adds for a `routeRules` redirect without a page: unnamed, with a stub component
+  if (app.hasStub) pages.push({ _sync: true, path: '/old', file: 'component-stub' } as NuxtPage)
+  pages.push(...structuredClone(app.modulePages ?? []))
+  tagSource(pages)
+  return pages
+}
 
-  const routeLocales: Record<string, string[]> = { ...app.routeLocales }
-  const filesLocaleRoutes: GlobalLocaleRoutes = {}
-  for (const [routePath, cfg] of Object.entries(app.pageI18n ?? {})) {
-    if (cfg.locales) routeLocales[routePath] = cfg.locales
-    if (cfg.localeRoutes) filesLocaleRoutes[routePath] = cfg.localeRoutes
+/** nuxt/dist/app/plugins/router.js `getRouteFromPath`: the `resolve` of the router `pages: false` runs on. */
+function stubResolve(to: RouteLike | string) {
+  const route = to && typeof to === 'object' ? to : {}
+  const fullPath =
+    typeof to === 'object'
+      ? `${to.path ?? ''}${new URLSearchParams(to.query as Record<string, string>).size ? `?${new URLSearchParams(to.query as Record<string, string>)}` : ''}${to.hash ?? ''}`
+      : to
+  const url = new URL(fullPath, 'http://localhost')
+  return {
+    path: url.pathname,
+    fullPath,
+    query: Object.fromEntries(url.searchParams),
+    hash: url.hash,
+    params: route.params ?? {},
+    name: undefined,
+    matched: [],
+    meta: {},
   }
-  const globalLocaleRoutes = { ...filesLocaleRoutes, ...app.globalLocaleRoutes } as GlobalLocaleRoutes
+}
+
+const stubRouter = (): Router => ({ resolve: stubResolve, getRoutes: () => [], hasRoute: () => false }) as unknown as Router
+
+/** Same inputs module.ts hands RouteGenerator and the i18n.strategy.mjs template, from the same functions. */
+export function build(app: App, strategy: Strategies): Built {
+  const config = mergeDefineI18nRouteMeta(
+    Object.entries(app.pageI18n ?? {}).map(([file, cfg]) => ({
+      routePath: pageFilePathToRoutePath(`/app/pages/${file}.vue`, '/app'),
+      config: extractDefineI18nRouteData(`<script setup>$defineI18nRoute(${JSON.stringify(cfg)})</script>`, file)!,
+    })),
+    { routeLocales: app.routeLocales, globalLocaleRoutes: app.globalLocaleRoutes },
+  )
   const localizedRouteNamePrefix = app.localizedRouteNamePrefix ?? 'localized-'
 
   const generator = new RouteGenerator({
     locales: appLocales(app),
     defaultLocaleCode: app.defaultLocale ?? 'en',
     strategy,
-    globalLocaleRoutes: structuredClone(globalLocaleRoutes),
-    routeLocales,
+    globalLocaleRoutes: config.globalLocaleRoutes,
+    routeLocales: config.routeLocales,
+    routeDisableMeta: config.routeDisableMeta,
     noPrefixRedirect: !!app.noPrefixRedirect,
     excludePatterns: app.excludePatterns,
+    apiBaseUrl: '_locales',
     localizedRouteNamePrefix: app.localizedRouteNamePrefix,
     customRegexMatcher: app.customRegexMatcher,
   })
-  generator.extendPages(pages)
+  // frozen: Nuxt keeps references to these objects
+  const pages = inputPages(app).map(deepFreeze)
+  if (!app.noPages) generator.extendPages(pages)
 
   let router: Router
   try {
-    router = createAppRouter(pages)
+    router = app.noPages ? stubRouter() : createAppRouter(pages)
   } catch (e) {
     throw Object.assign(new Error(`vue-router rejects the generated routes: ${(e as Error).message}`), { pages })
   }
@@ -69,11 +126,18 @@ export function build(app: App, strategy: Strategies): Built {
   const i18n = createPathStrategy({
     strategy,
     defaultLocale: generator.defaultLocale.code,
-    locales: generator.locales,
+    // the runtime config keeps disabled locales; only the records leave them out
+    locales: appLocales(app),
     localizedRouteNamePrefix,
     router: adapter,
+    hashMode: app.hashMode,
+    customRegexMatcher: app.customRegexMatcher,
   })
-  return { pages, router, i18n, locales: generator.locales.map((l) => l.code), defaultLocale: generator.defaultLocale.code, strategy }
+  const locales = generator.locales.map((l) => l.code)
+  const disabled = appLocales(app)
+    .filter((l) => l.disabled)
+    .map((l) => l.code)
+  return { pages, router, i18n, locales, disabled, hashMode: !!app.hashMode, defaultLocale: generator.defaultLocale.code, strategy }
 }
 
 // ---------- capture ----------
@@ -160,7 +224,7 @@ function concreteUrls(router: Router, locales: string[]): string[] {
   return [...urls].sort()
 }
 
-function edgeUrls(locales: string[], defaultLocale: string): string[] {
+function edgeUrls(locales: string[], disabled: string[], defaultLocale: string): string[] {
   const other = locales.find((l) => l !== defaultLocale)!
   return [
     '/',
@@ -174,6 +238,7 @@ function edgeUrls(locales: string[], defaultLocale: string): string[] {
     `/${other}/missing`,
     '/xx/about',
     `/${other}/${other}/about`,
+    ...disabled.flatMap((code) => [`/${code}`, `/${code}/about`]),
   ]
 }
 
@@ -184,12 +249,19 @@ function routesSection(pages: NuxtPage[]): string {
   const walk = (list: NuxtPage[], depth: number) => {
     for (const p of list) {
       const redirect = typeof p.redirect === 'string' ? p.redirect : p.redirect ? JSON.stringify(p.redirect) : ''
-      rows.push([`${'· '.repeat(depth)}${show(p.name)}`, p.path, [p.alias ?? []].flat().join(', '), redirect])
+      const i18n = p.meta?.i18n as { name: string; locales: string[] } | undefined
+      rows.push([
+        `${'· '.repeat(depth)}${show(p.name)}`,
+        p.path,
+        [p.alias ?? []].flat().join(', '),
+        redirect,
+        i18n ? `${i18n.name}: ${i18n.locales.join(', ')}` : '',
+      ])
       if (p.children) walk(p.children, depth + 1)
     }
   }
   walk(pages, 0)
-  return `## Generated routes\n\n${table(['name', 'path', 'alias', 'redirect'], rows)}`
+  return `## Generated routes\n\n${table(['name', 'path', 'alias', 'redirect', 'meta.i18n'], rows)}`
 }
 
 export function describeApp(app: App, strategy: Strategies): string {
@@ -201,10 +273,16 @@ export function describeApp(app: App, strategy: Strategies): string {
     const pages = (e as { pages?: NuxtPage[] }).pages
     return `${header}\n\n**${(e as Error).message}**\n\n${pages ? routesSection(pages) : ''}\n`
   }
-  const { pages, router, i18n, locales, defaultLocale } = built
+  const { pages, router, i18n, locales, disabled, defaultLocale } = built
   const concrete = concreteUrls(router, locales)
-  const urls = [...new Set([...concrete, ...edgeUrls(locales, defaultLocale)])]
-  const resolved = urls.map((url) => ({ url, route: adapterResolve(router, `${url}?q=1#top`) }))
+  const urls = [...new Set([...concrete, ...edgeUrls(locales, disabled, defaultLocale)])]
+  // frozen: strategy calls read the current route, they never write to it (the router shares it)
+  const resolved = urls.map((url) => {
+    const route = adapterResolve(router, `${url}?q=1#top`)
+    Object.freeze(route.params)
+    Object.freeze(route.query)
+    return { url, route: Object.freeze(route) }
+  })
 
   const readRows = resolved.map(({ url, route }) => {
     const locale = cell(() => i18n.getCurrentLocale(route))
@@ -240,7 +318,7 @@ export function describeApp(app: App, strategy: Strategies): string {
     )}`,
   ]
 
-  for (const target of locales) {
+  for (const target of [...locales, ...disabled]) {
     const rows = resolved.map(({ url, route }) => {
       const from = i18n.getCurrentLocale(route)
       const i18nRouteParams = Object.keys(route.params ?? {}).some((k) => k !== 'locale')
@@ -310,6 +388,7 @@ export function describeApp(app: App, strategy: Strategies): string {
 
   // unlocalized pages (`false` rules, excludePatterns) are served in one form only
   const unlocalized = (url: string) =>
+    (app.hasStub && url === '/old') ||
     (app.excludePatterns ?? []).some((p) => url.startsWith(p)) ||
     Object.entries(app.globalLocaleRoutes ?? {}).some(([key, rule]) => rule === false && url.replace(/^\//, '') === key)
   sections.push(
@@ -328,12 +407,16 @@ export function describeApp(app: App, strategy: Strategies): string {
  * The rewrite drives this list to empty (or explains what stays).
  */
 function invariants(
-  { router, i18n, locales, strategy }: Built,
+  { pages, router, i18n, locales, strategy, hashMode }: Built,
   served: { url: string; route: ResolvedRouteLike }[],
   homes: ResolvedRouteLike[],
   nameRows: string[][],
 ): string {
   const out: string[] = []
+  const records = (list: NuxtPage[]): NuxtPage[] => list.flatMap((p) => [p, ...records(p.children ?? [])])
+  // a generated record keeps the page's own meta, and its own file
+  for (const page of records(pages))
+    if (page.file && page.meta?.source !== page.file) out.push(`${show(page.name)} ${page.path}: lost the meta of ${page.file}`)
   const land = (result: RouteLike | string): ResolvedRouteLike | null => {
     if (typeof result === 'string' && /^https?:\/\//.test(result)) return null
     const r = harnessResolve(router, result)
@@ -377,10 +460,10 @@ function invariants(
       const to = sw.value
       if (!to) continue
       // under no_prefix the URL carries no locale: only the page itself can be checked
-      const landed = strategy === 'no_prefix' ? target : i18n.getCurrentLocale(to)
-      // a page the build serves only in other locales cannot land in `target`
+      const landed = strategy === 'no_prefix' || hashMode ? target : i18n.getCurrentLocale(to)
+      // a page `target` does not serve leads to its home by design (guide/upgrade): no round trip back
       const base = i18n.getRouteBaseName(route)
-      if (landed !== target && base && !pageLocales.get(base)?.has(target)) continue
+      if (base && !pageLocales.get(base)?.has(target)) continue
       if (landed !== target) out.push(`${url} → ${target}: switch lands on ${to.fullPath} read as ${landed}`)
       const lrLand = lr.value ? quiet(() => land(lr.value!)!.fullPath) : undefined
       if (lrLand?.error) out.push(`${url} → ${target}: localeRoute(route) gives an unknown route (${lrLand.error})`)
@@ -412,5 +495,7 @@ function adapterResolve(router: Router, to: RouteLike | string): ResolvedRouteLi
     params: r.params || {},
     query: r.query || {},
     hash: r.hash || '',
+    matched: r.matched,
+    meta: r.meta,
   }
 }

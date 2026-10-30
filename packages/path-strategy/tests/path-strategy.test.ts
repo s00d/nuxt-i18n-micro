@@ -67,16 +67,23 @@ function setup(
     pages: source = PAGES,
     routeLocales = {},
     routeDisableMeta,
-  }: { pages?: NuxtPage[]; routeLocales?: Record<string, string[]>; routeDisableMeta?: Record<string, boolean | string[]> } = {},
+    rules = {},
+  }: {
+    pages?: NuxtPage[]
+    routeLocales?: Record<string, string[]>
+    routeDisableMeta?: Record<string, boolean | string[]>
+    rules?: GlobalLocaleRoutes
+  } = {},
 ): Setup {
   const pages = structuredClone(source)
   new RouteGenerator({
     locales,
     defaultLocaleCode: 'en',
     strategy,
-    globalLocaleRoutes: RULES,
+    globalLocaleRoutes: { ...RULES, ...rules },
     routeLocales: { 'de-only': ['de'], ...routeLocales },
     routeDisableMeta,
+    customRegexMatcher: ctx.customRegexMatcher,
     noPrefixRedirect: false,
   }).extendPages(pages)
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
@@ -118,6 +125,19 @@ describe('localeRoute', () => {
     expect(i18n.localeRoute('de', '/en/about-us').fullPath).toBe('/de/ueber-uns')
     expect(i18n.localeRoute('fr', '/blog/x?tag=a&tag=b').query).toEqual({ tag: ['a', 'b'] })
     expect({ ...i18n.localeRoute('fr', '/blog/x?constructor=c&__proto__=p').query }).toEqual({ constructor: 'c', __proto__: 'p' })
+  })
+
+  test('path strings: a flag param, encoded values, a bare hash, an empty query or hash', () => {
+    const { i18n } = setup('prefix_except_default')
+    const flag = i18n.localeRoute('de', '/about-us?flag')
+    expect([flag.query, flag.fullPath]).toEqual([{ flag: '' }, '/de/ueber-uns?flag='])
+    expect(i18n.localeRoute('de', '/about-us?redirect=%2Fdashboard%3Ftab%3D1').query).toEqual({ redirect: '/dashboard?tab=1' })
+    const hash = i18n.localeRoute('de', '/about-us#frag')
+    expect([hash.path, hash.hash, hash.fullPath]).toEqual(['/de/ueber-uns', '#frag', '/de/ueber-uns#frag'])
+    // both forms of "nothing": neither reaches fullPath
+    expect(i18n.localeRoute('de', '/about-us#').fullPath).toBe('/de/ueber-uns')
+    expect(i18n.localeRoute('de', '/about-us?').fullPath).toBe('/de/ueber-uns')
+    expect(i18n.localeRoute('de', '/about-us?').query).toEqual({})
   })
 })
 
@@ -313,6 +333,61 @@ describe('redirects', () => {
   })
 })
 
+describe('an unnamed page from a module', () => {
+  test('is served under its prefix', () => {
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages: [...PAGES.slice(0, 2), { path: '/from-module', file: 'mod.vue' }] })
+    expect(i18n.shouldReturn404('/de/from-module')).toBeNull()
+  })
+
+  test('switches locale like any page, to a custom path too', () => {
+    const { i18n, at, url } = setup('prefix_except_default', {}, LOCALES, {
+      pages: [...PAGES.slice(0, 2), { path: '/custom-page', file: 'mod.vue' }],
+      rules: { 'custom-page': { de: '/eigene-seite' } },
+    })
+    expect(url(i18n.switchLocaleRoute('fr', 'de', at('/fr/custom-page?q=1')))).toBe('/de/eigene-seite?q=1')
+    expect(url(i18n.switchLocaleRoute('de', 'en', at('/de/eigene-seite')))).toBe('/custom-page')
+    expect(i18n.pageLocales(at('/de/eigene-seite'))?.sort()).toEqual(['de', 'en', 'fr'])
+  })
+})
+
+describe('a request-shaped path', () => {
+  test.each(['//evil.example', '/\\evil.example', '//evil.example/x?y=1'])('%s stays on this origin in every locale', (path) => {
+    const { i18n } = setup('prefix_except_default')
+    for (const locale of ['en', 'de']) {
+      const result = i18n.localeRoute(locale, path)
+      expect(result.fullPath ?? result.path).toMatch(/^\/[^/\\]/)
+    }
+  })
+})
+
+describe('a page on the segment of a disabled locale', () => {
+  const locales = [...LOCALES, { code: 'es', disabled: true }]
+  const pages: NuxtPage[] = [...PAGES.slice(0, 2), { path: '/es', name: 'es-page', file: 'pages/es.vue' }]
+
+  test('stays a page; the prefix without one is a 404', () => {
+    // step 1: pec serves it unprefixed
+    const pec = setup('prefix_except_default', {}, locales, { pages }).i18n
+    expect(pec.shouldReturn404('/es')).toBeNull()
+    expect(pec.shouldReturn404('/es/about')).toBe('Locale disabled')
+
+    // step 2: prefix has it under the locales, so the unprefixed URL moves there
+    const prefix = setup('prefix', {}, locales, { pages }).i18n
+    expect(prefix.shouldReturn404('/es')).toBeNull()
+    expect(prefix.getClientRedirect('/es', 'de')).toBe('/de/es')
+  })
+
+  test('is no redirect target', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales, { pages })
+    expect(i18n.getClientRedirect('/missing', 'es')).toBeNull()
+    expect(i18n.getClientRedirect('/de/missing', 'es', { switchPrefixed: true })).toBeNull()
+  })
+
+  test('a catch-all does not count as a page', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    expect(i18n.shouldReturn404('/es')).toBe('Locale disabled')
+  })
+})
+
 describe('shared route table', () => {
   test('strategies over the same routes (one per SSR request) share the index and the URL caches', () => {
     const first = setup('prefix_except_default')
@@ -330,7 +405,83 @@ describe('shared route table', () => {
   })
 })
 
+describe('a router without routes (pages: false)', () => {
+  const empty = (strategy: Strategies) => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    // no record matches anything here, so every at() is vue-router's "No match" warning
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    onTestFinished(() => warn.mockRestore())
+    return { router, i18n: createPathStrategy({ strategy, defaultLocale: 'en', locales: LOCALES, router }) }
+  }
+
+  // [strategy, from, to, expected]
+  test.each([
+    ['prefix_except_default', '/', 'de', '/de'],
+    ['prefix_except_default', '/about?q=1#h', 'de', '/de/about?q=1#h'],
+    ['prefix_except_default', '/de/about', 'en', '/about'],
+    ['prefix_except_default', '/de', 'en', '/'],
+    ['prefix', '/about', 'en', '/en/about'],
+    ['prefix', '/de/about?q=1', 'fr', '/fr/about?q=1'],
+    ['prefix_and_default', '/', 'en', '/en'],
+    ['prefix_and_default', '/de/about', 'en', '/en/about'],
+    ['no_prefix', '/about?q=1', 'de', '/about?q=1'],
+    ['no_prefix', '/', 'de', '/'],
+  ] as const)('%s: %s to %s is the same URL in that form', (strategy, from, to, expected) => {
+    const { router, i18n } = empty(strategy)
+    const route = router.resolve(from) as unknown as ResolvedRouteLike
+    expect((i18n.switchLocaleRoute(i18n.getCurrentLocale(route), to, route) as RouteLike).fullPath).toBe(expected)
+    expect(i18n.localeRoute(to, from).fullPath).toBe(expected)
+    expect(i18n.localeRoute(to, route).fullPath ?? i18n.localeRoute(to, route).path).toBe(expected)
+  })
+
+  test('nothing is a 404 and the locale still comes from the URL', () => {
+    const { router, i18n } = empty('prefix_except_default')
+    expect(i18n.shouldReturn404('/de/about')).toBeNull()
+    expect(i18n.getCurrentLocale(router.resolve('/de/about') as unknown as ResolvedRouteLike)).toBe('de')
+    expect(i18n.getClientRedirect('/', 'de')).toBe('/de')
+    expect(i18n.getClientRedirect('/', 'en')).toBeNull()
+  })
+
+  test('a name stays for the router to answer: no record to translate it to', () => {
+    const { i18n } = empty('prefix')
+    expect(i18n.localeRoute('de', { name: 'about' })).toEqual({ name: 'about' })
+  })
+})
+
 describe('stability', () => {
+  /** Frozen all the way down: a write throws in this strict module. */
+  const deepFreeze = <T>(value: T): T => {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      Object.freeze(value)
+      Object.values(value).forEach(deepFreeze)
+    }
+    return value
+  }
+
+  test.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: strategy calls never write to the caller route, the current route or the params they are given',
+    (strategy) => {
+      const { i18n, at } = setup(strategy)
+      const url = strategy === 'no_prefix' ? '/blog/hi?q=1#top' : '/de/artikel/hi?q=1#top'
+      const { matched: _matched, ...route } = { matched: [], ...at(url) }
+      const current = deepFreeze(route)
+      const source = deepFreeze({ name: 'blog-slug', params: { slug: 'x' }, query: { tab: 'info' }, hash: '#section' })
+      const options = deepFreeze({ i18nRouteParams: { fr: { slug: 'salut' } } })
+      for (const locale of ['en', 'de', 'fr']) {
+        i18n.localeRoute(locale, source, current)
+        i18n.localeRoute(locale, current, current)
+        i18n.localeRoute(locale, '/contact', current)
+        i18n.switchLocaleRoute('de', locale, current, options)
+      }
+      i18n.getRouteBaseName(current)
+      i18n.getCurrentLocale(current)
+      i18n.pageLocales(current)
+      // the frozen inputs still produced a real answer
+      expect(i18n.getRouteBaseName(current)).toBe('blog-slug')
+      expect(i18n.switchLocaleRoute('de', 'fr', current, options)).toMatchObject({ params: { slug: 'salut' } })
+    },
+  )
+
   test('a cached result never shares params / query with another caller (the cache is process-wide)', () => {
     const { i18n } = setup('prefix_except_default')
     const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
@@ -339,6 +490,8 @@ describe('stability', () => {
     const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
     expect(second.params).toEqual({ locale: 'de', slug: 'x' })
     expect(second.query).toEqual({ ref: 'a' })
+    expect(second).not.toBe(first)
+    expect(i18n.localeRoute('de', '/about-us').path).toBe('/de/ueber-uns')
   })
 
   test("a symbol-named route is the app's own route: resolved by its symbol, no base name, never localized", () => {

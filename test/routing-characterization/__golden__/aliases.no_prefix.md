@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about | /company, /über, /%C3%BCber |  |
-| help | /help | /support |  |
-| blog-slug | /blog/:slug() | /news/:slug() |  |
-| docs | /docs | /documentation |  |
-| · docs-intro | intro |  |  |
-| localized-about-de | /ueber-uns |  |  |
-| localized-docs-de | /docs |  |  |
-| · localized-docs-intro-de | einfuehrung |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about | /company, /über, /%C3%BCber |  | about: en, fr |
+| help | /help | /support |  | help: en, de, fr |
+| blog-slug | /blog/:slug() | /news/:slug() |  | blog-slug: en, de, fr |
+| docs | /docs | /documentation |  | docs: en, fr |
+| · docs-intro | intro |  |  | docs-intro: en, fr |
+| localized-about-de | /ueber-uns |  |  | about: de |
+| localized-docs-de | /docs |  |  | docs: de |
+| · localized-docs-intro-de | einfuehrung |  |  | docs-intro: de |
 
 ## Reading a URL
 
@@ -30,14 +30,14 @@ Every URL is resolved with `?q=1#top`.
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
 | /company | about | en | about | about | English | null | null | null |
 | /docs | docs | en | docs | docs | English | null | null | null |
-| /docs/einfuehrung | localized-docs-intro-de | en | docs-intro | docs-intro | English | null | null | null |
+| /docs/einfuehrung | localized-docs-intro-de | de | docs-intro | docs-intro | Deutsch | null | null | null |
 | /docs/intro | docs-intro | en | docs-intro | docs-intro | English | null | null | null |
 | /documentation | docs | en | docs | docs | English | null | null | null |
 | /documentation/intro | docs-intro | en | docs-intro | docs-intro | English | null | null | null |
 | /help | help | en | help | help | English | null | null | null |
 | /news/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
 | /support | help | en | help | help | English | null | null | null |
-| /ueber-uns | localized-about-de | en | about | about | English | null | null | null |
+| /ueber-uns | localized-about-de | de | about | about | Deutsch | null | null | null |
 | /über | about | en | about | about | English | null | null | null |
 | /en | null | en | index | index | English | en | null | null |
 | /en/ | null | en | index | index | English | en | null | null |

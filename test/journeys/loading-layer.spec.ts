@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 describe('J8 translation loading: layer', () => {
   test.override({ harness: 'basic-layer' })

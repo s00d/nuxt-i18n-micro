@@ -6,22 +6,22 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| über-uns | /about |  |  |
-| archive-year | /archive/:year() |  |  |
-| docs-page | /docs/:page? |  |  |
-| post-id | /post-:id() |  |  |
-| localized-index | /:locale(en\|de\|fr) |  |  |
-| localized-über-uns | /:locale(de)/über-uns | /:locale(de)/%C3%BCber-uns |  |
-| localized-über-uns-en | /:locale(en)/about |  |  |
-| localized-über-uns-fr | /:locale(fr)/à-propos | /:locale(fr)/%C3%A0-propos |  |
-| localized-archive-year | /:locale(en\|fr)/archive/:year() |  |  |
-| localized-archive-year-de | /:locale(de)/archiv/:year(\d+) |  |  |
-| localized-docs-page | /:locale(en\|de)/docs/:page? |  |  |
-| localized-docs-page-fr | /:locale(fr)/documentation/:page? |  |  |
-| localized-post-id | /:locale(en\|de\|fr)/post-:id() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| über-uns | /about |  |  | über-uns: en |
+| archive-year | /archive/:year() |  |  | archive-year: en |
+| docs-page | /docs/:page? |  |  | docs-page: en |
+| post-id | /post-:id() |  |  | post-id: en |
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-über-uns | /:locale(de)/über-uns | /:locale(de)/%C3%BCber-uns |  | über-uns: de |
+| localized-über-uns-en | /:locale(en)/about |  |  | über-uns: en |
+| localized-über-uns-fr | /:locale(fr)/à-propos | /:locale(fr)/%C3%A0-propos |  | über-uns: fr |
+| localized-archive-year | /:locale(en\|fr)/archive/:year() |  |  | archive-year: en, fr |
+| localized-archive-year-de | /:locale(de)/archiv/:year(\d+) |  |  | archive-year: de |
+| localized-docs-page | /:locale(en\|de)/docs/:page? |  |  | docs-page: en, de |
+| localized-docs-page-fr | /:locale(fr)/documentation/:page? |  |  | docs-page: fr |
+| localized-post-id | /:locale(en\|de\|fr)/post-:id() |  |  | post-id: en, de, fr |
 
 ## Reading a URL
 

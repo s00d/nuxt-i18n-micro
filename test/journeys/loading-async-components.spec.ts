@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `basic` fixture: /async-components is the suite home, the two test pages are ssr:false.
 describe('J8 translation loading: async components', () => {

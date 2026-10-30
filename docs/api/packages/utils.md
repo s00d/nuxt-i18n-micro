@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-87 exports across 19 entry points.
+88 exports across 19 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -340,8 +340,9 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `explicitLocale` | function | `(input: Omit<ResolveLocaleInput, "defaultLocale">) => string \| null` |
 | `firstQueryValue` | function | `(value: unknown) => string \| null` |
 | `localeFromPath` | function | `(path: string, validLocales: readonly string[]) => string \| null` |
+| `preferenceCounts` | function | `(input: Pick<RedirectLocaleInput, "path" \| "urlLocale" \| "autoDetectPath" \| "alwaysPrefixed">) => boolean` |
 | `redirectLocale` | function | `(input: RedirectLocaleInput) => string` |
-| `RedirectLocaleInput` | interface | 9 members |
+| `RedirectLocaleInput` | interface | 10 members |
 | `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
 | `ResolveLocaleInput` | interface | 9 members |
 | `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
@@ -350,11 +351,12 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `ResolveServerLocaleInput` | interface | 8 members |
 
 <details>
-<summary><code>RedirectLocaleInput</code> — 9 members</summary>
+<summary><code>RedirectLocaleInput</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `acceptLanguage?` | `string \| null \| undefined` |
+| `alwaysPrefixed?` | `boolean \| undefined` |
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cookie?` | `string \| null \| undefined` |

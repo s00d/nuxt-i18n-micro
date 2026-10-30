@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 async function switchTo(page: Page, code: string) {
   await page.click('.language-switcher')

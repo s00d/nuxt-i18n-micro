@@ -19,13 +19,13 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 20 |
 | [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact` | 39 |
 | [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/router` | 39 |
-| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 10 |
+| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 12 |
 | [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 16 |
 | [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid`, `@i18n-micro/solid/router` | 34 |
 | [`@i18n-micro/test-utils`](/api/packages/test-utils) | `@i18n-micro/test-utils`, `@i18n-micro/test-utils/publish-smoke` | 60 |
 | [`@i18n-micro/types`](/api/packages/types) | `@i18n-micro/types` | 26 |
 | [`@i18n-micro/types-generator`](/api/packages/types-generator) | `@i18n-micro/types-generator`, `@i18n-micro/types-generator/nuxt` | 9 |
-| [`@i18n-micro/utils`](/api/packages/utils) | `@i18n-micro/utils/accept-language`, `@i18n-micro/utils/active-locales`, `@i18n-micro/utils/app-path`, `@i18n-micro/utils/auto-detect-path`, `@i18n-micro/utils/cache-control`, `@i18n-micro/utils/cookie`, `@i18n-micro/utils/deep-merge`, `@i18n-micro/utils/merge-i18n-head`, `@i18n-micro/utils/merge-source`, `@i18n-micro/utils/normalize`, `@i18n-micro/utils/parse-path`, `@i18n-micro/utils/payload-fetch`, `@i18n-micro/utils/payload-url`, `@i18n-micro/utils/resolve-hreflang`, `@i18n-micro/utils/resolve-locale`, `@i18n-micro/utils/resolve-og-locale`, `@i18n-micro/utils/runtime-config`, `@i18n-micro/utils/source-loader`, `@i18n-micro/utils/split-locale-routes` | 87 |
+| [`@i18n-micro/utils`](/api/packages/utils) | `@i18n-micro/utils/accept-language`, `@i18n-micro/utils/active-locales`, `@i18n-micro/utils/app-path`, `@i18n-micro/utils/auto-detect-path`, `@i18n-micro/utils/cache-control`, `@i18n-micro/utils/cookie`, `@i18n-micro/utils/deep-merge`, `@i18n-micro/utils/merge-i18n-head`, `@i18n-micro/utils/merge-source`, `@i18n-micro/utils/normalize`, `@i18n-micro/utils/parse-path`, `@i18n-micro/utils/payload-fetch`, `@i18n-micro/utils/payload-url`, `@i18n-micro/utils/resolve-hreflang`, `@i18n-micro/utils/resolve-locale`, `@i18n-micro/utils/resolve-og-locale`, `@i18n-micro/utils/runtime-config`, `@i18n-micro/utils/source-loader`, `@i18n-micro/utils/split-locale-routes` | 88 |
 | [`@i18n-micro/vitepress`](/api/packages/vitepress) | `@i18n-micro/vitepress`, `@i18n-micro/vitepress/config`, `@i18n-micro/vitepress/node`, `@i18n-micro/vitepress/theme` | 56 |
 | [`@i18n-micro/vue`](/api/packages/vue) | `@i18n-micro/vue`, `@i18n-micro/vue/router` | 28 |
 

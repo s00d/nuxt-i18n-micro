@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| de-only | /de-only |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| admin | /admin |  |  |
-| · admin-users | users |  |  |
-| landing | /landing |  |  |
-| localized-landing-de | /start |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about: en, fr |
+| de-only | /de-only |  |  | de-only: de |
+| blog | /blog |  |  | blog: en, de, fr |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de, fr |
+| admin | /admin |  |  |  |
+| · admin-users | users |  |  |  |
+| landing | /landing |  |  | landing: en |
+| localized-landing-de | /start |  |  | landing: de |
 
 ## Reading a URL
 
@@ -30,9 +30,9 @@ Every URL is resolved with `?q=1#top`.
 | /admin/users | admin-users | en | admin-users | admin-users | English | null | null | null |
 | /blog | blog | en | blog | blog | English | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
-| /de-only | de-only | en | de-only | de-only | English | null | null | null |
+| /de-only | de-only | de | de-only | de-only | Deutsch | null | null | null |
 | /landing | landing | en | landing | landing | English | null | null | null |
-| /start | localized-landing-de | en | landing | landing | English | null | null | null |
+| /start | localized-landing-de | de | landing | landing | Deutsch | null | null | null |
 | /en | null | en | index | index | English | en | null | null |
 | /en/ | null | en | index | index | English | en | null | null |
 | /de | null | en | index | index | English | de | null | null |
@@ -131,8 +131,6 @@ params: the PARAMS keys the route's records use.
 | index | / [index] | / [index] | / [index] |
 | landing | /landing [landing] | /start [localized-landing-de] | / [index] |
 
-## Invariant breaks (3)
+## Invariant breaks (0)
 
-- /about → de → en: round trip ends on /, not /about?q=1#top
-- /landing → fr → en: round trip ends on /, not /landing?q=1#top
-- /start → fr → en: round trip ends on /, not /landing?q=1#top
+none

@@ -14,7 +14,7 @@
 import type { Strategies } from '@i18n-micro/types'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import type { NuxtPage } from '@nuxt/schema'
-import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey } from './paths'
+import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey, staysUnderParent } from './paths'
 import type { Rule, Rules } from './rules'
 
 export interface RouteI18nMeta {
@@ -60,6 +60,35 @@ const paramNames = (routePath: string): string =>
     .sort()
     .join(',')
 
+/** What Nuxt adds for a `routeRules` redirect with no page. An unnamed page of a module is a page. */
+const isRouteRuleStub = (page: NuxtPage): boolean => !page.name && /(?:^|\/)component-stub(?:\.\w+)?$/.test(page.file ?? '')
+
+/** The name Nuxt's scanner would give the path: `/a/:id()` -> `a-id`. */
+export function nameOfPath(fullPath: string): string {
+  const key = routeKey(fullPath)
+  return key === '/' ? 'index' : key.replace(/\/|:|\(.*?\)|[?*+]/g, (s) => (s === '/' ? '-' : ''))
+}
+
+/**
+ * Records are addressed by name, so a module's unnamed page gets one (or `switchLocaleRoute` and
+ * `pageLocales` cannot reach it). Not the route-rule stub, a redirect, or a parent whose index child
+ * owns the name. A name already taken stays with its page.
+ */
+function namePages(pages: NuxtPage[], taken: Set<string>, parentOriginal = '', top = true): NuxtPage[] {
+  return pages.map((page) => {
+    const original = top ? absolute(page.path ?? '') : joinChild(parentOriginal, page.path ?? '')
+    const children = page.children && namePages(page.children, taken, original, false)
+    const named = children ? { ...page, children } : page
+    if (page.name || !page.file || isRouteRuleStub(page) || page.children?.some((child) => !child.path)) return named
+    const name = nameOfPath(original)
+    if (taken.has(name)) return named
+    taken.add(name)
+    return { ...named, name }
+  })
+}
+
+const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
+
 /** Localized full paths (without prefix) by page key and locale, for nitro lookups. */
 export type LocalizedPaths = Map<string, Record<string, string>>
 
@@ -92,6 +121,13 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return noMeta === undefined ? page : { ...page, meta: { ...page.meta, i18nNoMeta: noMeta } }
   }
 
+  const warned = new Set<string>()
+  function warnNested(key: string, locale: string, custom: string, parent: string, served: string) {
+    if (warned.has(`${key}\0${locale}`)) return
+    warned.add(`${key}\0${locale}`)
+    console.warn(`[i18n] globalLocaleRoutes["${key}"].${locale} = "${custom}" is outside its parent "${parent}": the page is served at "${served}".`)
+  }
+
   function localize(
     page: NuxtPage,
     locale: string | null,
@@ -108,6 +144,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const custom = locale && rule ? rule[locale] : undefined
     const routePath = custom === undefined ? pagePath : top ? absolute(custom) : childSegment(parentLocalized, custom)
     const localized = top ? absolute(routePath) : joinChild(parentLocalized, routePath)
+    if (custom !== undefined && !top && !staysUnderParent(parentLocalized, custom)) warnNested(key, locale!, custom, parentLocalized, localized)
     if (locale) {
       const entry = localizedPaths.get(key)
       if (entry) entry[locale] = localized
@@ -185,7 +222,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
 
   const unprefixed: NuxtPage[] = []
   const localized: NuxtPage[] = []
-  for (const page of pages) {
+  for (const page of namePages(pages, new Set(pageNames(pages)))) {
     const pagePath = page.path ?? ''
     if (
       (page.redirect && !page.file) ||
@@ -193,6 +230,11 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       info(page, '', true).rule === false
     ) {
       unprefixed.push(unlocalized(page))
+      continue
+    }
+    if (isRouteRuleStub(page)) {
+      // marked: the runtime cannot tell it from a module's unnamed page by the record alone
+      unprefixed.push({ ...page, meta: { ...page.meta, i18nStub: true } })
       continue
     }
     const allowed = info(page, '', true).allowed ?? locales

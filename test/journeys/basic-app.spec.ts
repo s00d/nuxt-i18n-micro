@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { collectConsole } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { deActivity, enActivity, walkActivity } from '../helpers/journeys-a.ts'
 
 // J1 basic: prefix_except_default; en, de, ru, fr (baseUrl fr.example.com), ch (baseUrl test.example.com); dateBuild 12345.
@@ -429,16 +429,16 @@ describe('journey: basic app', () => {
     }
     expect((await request.get('/de/unlocalized')).status()).toBe(404)
 
-    // step 7: routeRules redirects → /old-product → /page, /de/old-product stays, /ru/old-product → /ru/page
+    // step 7: routeRules redirects without a page → /old-product → /page, /ru/old-product → /ru/page; the rule has no /de copy, so a 404
     // was: basic › redirect from /old-product to /products
     for (const [from, to] of [
       ['/old-product', '/page'],
-      ['/de/old-product', '/de/old-product'],
       ['/ru/old-product', '/ru/page'],
     ]) {
       await goto(from!, { waitUntil: 'hydration' })
       await expect(page).toHaveURL(to!)
     }
+    expect((await request.get('/de/old-product')).status()).toBe(404)
 
     // step 8: /fr/inventory → fr text; #link-en → /inventory en text, no flicker to the raw key, no missing-key warning
     // was: basic › repro #210: component-local $defineI18nRoute flickers to key
@@ -490,20 +490,24 @@ describe('journey: basic app', () => {
     // /disable-meta-config: the same through the routeDisableMeta option
     for (const url of ['/disable-meta-all', '/de/disable-meta-all', '/fr/disable-meta-all', '/disable-meta-config']) {
       await goto(url, { waitUntil: 'hydration' })
+      await expect(page.locator('h1')).toBeVisible()
       for (const tag of i18nTags) await expect(page.locator(tag)).not.toBeAttached()
     }
 
     // step 2: /disable-meta-locale → en none; de present; fr uses its baseUrl
     // was: basic › disable meta tags for specific locale
     await goto('/disable-meta-locale', { waitUntil: 'hydration' })
+    await expect(page.locator('h1')).toHaveText('Disable Meta Locale')
     for (const tag of i18nTags) await expect(page.locator(tag)).not.toBeAttached()
     await goto('/de/disable-meta-locale', { waitUntil: 'hydration' })
+    await expect(page.locator('h1')).toHaveText('Disable Meta Locale')
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${base}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${base}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${base}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-alternate-fr_FR')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
     await goto('/fr/disable-meta-locale', { waitUntil: 'hydration' })
+    await expect(page.locator('h1')).toHaveText('Disable Meta Locale')
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'fr_FR')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', 'https://fr.example.com/disable-meta-locale')
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')

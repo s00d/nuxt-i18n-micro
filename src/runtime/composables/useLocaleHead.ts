@@ -103,9 +103,6 @@ export const useLocaleHead = ({
   const empty = (): MetaObject => ({ htmlAttrs: {}, link: [], meta: [] })
 
   function build(): MetaObject {
-    // 404 routes must not emit SEO tags.
-    if (route.matched.length === 0) return empty()
-
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
     const { canonicalQueryWhitelist } = i18nConfig
     const strategy = i18nConfig.strategy
@@ -119,7 +116,8 @@ export const useLocaleHead = ({
     const switchLocalePath = $switchLocalePath
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
-    const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : enabledLocales
+    // an unlocalized page has one URL: alternates would all point at it
+    const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : []
 
     const currentIso = currentLocale.iso || locale
     const currentOg = resolveOgLocale(currentLocale)
@@ -154,7 +152,8 @@ export const useLocaleHead = ({
       ...(addDirAttribute ? { dir: currentDir } : {}),
     }
 
-    if (!addSeoAttributes) return { htmlAttrs, link: [], meta: [] }
+    // 404 routes keep the language, but must not emit SEO tags
+    if (!addSeoAttributes || route.matched.length === 0) return { htmlAttrs, link: [], meta: [] }
 
     // Locales included in hreflang / og:locale:alternate (omit `seo: false`)
     const localesForSeo = locales.filter((loc: Locale) => loc.seo !== false)
@@ -233,7 +232,7 @@ export const useLocaleHead = ({
     // specified languages match the user's browser settings.
     let xDefaultLink: MetaLink | null = null
     // x-default only when the page exists in the default locale (else it would point at another page)
-    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && (!pageLocales || pageLocales.includes(defaultLocale))) {
+    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && pageLocales?.includes(defaultLocale)) {
       const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
         xDefaultLink = {

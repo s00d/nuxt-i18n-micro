@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // strategy fixture, pec, REGION_CODES=1: codes en-us / de-de / ru-ru and customRegexMatcher '[a-z]{2}-[a-z]{2}'.
 // Only the steps that depend on the regex codes; the rest is pinned on `basic` and the other strategy recipes.
@@ -11,6 +11,10 @@ describe('journey: routing variants — customRegexMatcher', () => {
     // step 1: GET /un-kn (does not match the regex) → 404
     // was: custom-regex › test 404 on unknown locale
     expect((await request.get('/un-kn')).status()).toBe(404)
+
+    // step 1b: a real page shaped like a locale is that page
+    await goto('/go-on', { waitUntil: 'hydration' })
+    await expect(page.locator('#go-on')).toHaveText('go-on')
 
     // step 2: open / → en text, the full code from $getLocale, every code in $getLocales
     // was: custom-regex › test index; › test plugin methods output on page (#locale, #locales, #translation)
@@ -80,6 +84,10 @@ describe('journey: routing variants — customRegexMatcher', () => {
       await expect(page).toHaveURL(url)
     }
     expect((await request.get('/de-de/page-b')).status()).toBe(404)
+
+    // step 2b: page-a also calls $defineI18nRoute with other paths: the config wins, those URLs serve nothing
+    // was: route-strategy advanced › should prioritize globalLocaleRoutes over filesLocaleRoutes
+    for (const url of ['/from-page-a', '/de-de/von-seite-a']) expect((await request.get(url)).status(), url).toBe(404)
 
     // step 3: a dynamic page keeps its param through $switchLocale → /ru-ru/test-4, /de-de/test-4, /test-4
     // was: custom-regex › test navigation and locale switching on news page, › … on articles page

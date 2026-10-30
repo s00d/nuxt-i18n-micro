@@ -9,6 +9,7 @@ import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
 import { redirectLocale } from '@i18n-micro/utils/resolve-locale'
+import { applyTrailingSlash } from '../utils/trailing-slash'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {
@@ -26,7 +27,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const { $getI18nConfig: getRuntimeConfig, $i18nStrategy: i18nStrategy } = nuxtApp
 
   const i18nConfig = getRuntimeConfig()
-  if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
+  // the first navigation of a page no server rendered has the same `from` and still has to redirect
+  const samePage = to.path === from.path && nuxtApp.payload.serverRendered
+  if (i18nConfig.redirects === false || samePage || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
   const defaultLocale = i18nConfig.defaultLocale || 'en'
   const autoDetectPath = i18nConfig.autoDetectPath || '/'
@@ -40,6 +43,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     path,
     urlLocale,
     autoDetectPath,
+    alwaysPrefixed: i18nConfig.strategy === 'prefix',
     defaultLocale,
     validLocales: getEnabledLocaleCodes(i18nConfig.locales),
     state: useState<string | null>('i18n-locale', () => null).value,
@@ -48,5 +52,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const preferred = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference)
 
   const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
-  if (target) return navigateTo({ path: target, query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })
+  if (target)
+    return navigateTo(
+      { path: applyTrailingSlash(target, i18nConfig.trailingSlash), query: to.query, hash: to.hash },
+      { replace: true, redirectCode: 302 },
+    )
 })

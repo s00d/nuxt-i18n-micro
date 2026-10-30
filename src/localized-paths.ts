@@ -5,6 +5,7 @@
  */
 import { createPathStrategy, type PathStrategyContext } from '@i18n-micro/path-strategy'
 import type { NuxtPage } from '@nuxt/schema'
+import { joinURL } from 'ufo'
 import type { RouteRecordRaw } from 'vue-router'
 
 export interface LocalizedPathResolver {
@@ -16,6 +17,17 @@ export interface LocalizedPathResolver {
   isUnlocalized: (path: string) => boolean
   /** Whether any page matches the URL (API routes and files do not). */
   isPage: (path: string) => boolean
+  /** Whether a record serves this very URL, not only its page in another form. */
+  isServed: (path: string) => boolean
+}
+
+/** URLs of the pages without params, nested ones included. Nuxt seeds generate with one page: the crawler only finds linked ones. */
+export function staticPagePaths(pages: NuxtPage[], parent = '/'): string[] {
+  return pages.flatMap((page) => {
+    if (page.redirect || page.path.includes(':')) return []
+    const path = joinURL(parent, page.path)
+    return [path, ...staticPagePaths(page.children ?? [], path)]
+  })
 }
 
 const toRecord = (page: NuxtPage): RouteRecordRaw =>
@@ -64,5 +76,6 @@ export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<P
     localeOf: (path) => strategy.getLocaleFromPath(path),
     isUnlocalized,
     isPage,
+    isServed: (path) => matched(path).length > 0,
   }
 }

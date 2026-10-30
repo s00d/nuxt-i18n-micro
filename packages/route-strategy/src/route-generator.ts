@@ -3,7 +3,7 @@ import path from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { generateRoutes, type LocalizedPaths } from './generate'
-import { absolute, removeLeadingSlash, routeKey } from './paths'
+import { absolute, childSegment, joinChild, removeLeadingSlash, routeKey, rulePattern } from './paths'
 import { Rules } from './rules'
 
 export interface RouteGeneratorOptions {
@@ -21,37 +21,49 @@ export interface RouteGeneratorOptions {
   apiBaseUrl?: string
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string | RegExp
+  /** Paths of the pages that nest others (`blog.vue` next to `blog/`): a relative custom value of a child hangs off them. */
+  parentPaths?: string[]
 }
 
 /**
  * Merges locales by code and drops disabled ones. Nuxt concatenates a project's and its layers'
  * `locales` project first, so earlier entries win: a layer only fills the fields left unset.
  */
-function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; defaultLocale: Locale } {
+function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; disabledLocales: Locale[]; defaultLocale: Locale } {
   const byCode = new Map<string, Locale>()
   for (const locale of locales) byCode.set(locale.code, { ...locale, ...byCode.get(locale.code) })
-  const active = [...byCode.values()].filter((locale) => !locale.disabled)
-  return { locales: active, defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode } }
+  const all = [...byCode.values()]
+  const active = all.filter((locale) => !locale.disabled)
+  return {
+    locales: active,
+    disabledLocales: all.filter((locale) => locale.disabled),
+    defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode },
+  }
 }
 
 export class RouteGenerator {
   readonly locales: Locale[]
+  /** Locales switched off in the config: no routes, but the runtime must know them to answer 404. */
+  readonly disabledLocales: Locale[]
   readonly defaultLocale: Locale
   readonly strategy: Strategies
   readonly routeLocales: Record<string, string[]>
   private readonly rules: Rules
   private readonly options: RouteGeneratorOptions
+  private readonly parentKeys: string[]
   /** Localized paths of the pages seen by the last extendPages call. */
   private localizedPaths: LocalizedPaths = new Map()
 
   constructor(options: RouteGeneratorOptions) {
     const resolved = resolveLocales(options.locales, options.defaultLocaleCode)
     this.locales = resolved.locales
+    this.disabledLocales = resolved.disabledLocales
     this.defaultLocale = resolved.defaultLocale
     this.strategy = options.strategy
     this.routeLocales = options.routeLocales ?? {}
     this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales, options.routeDisableMeta)
     this.options = options
+    this.parentKeys = (options.parentPaths ?? []).map(routeKey)
   }
 
   /** Replaces `pages` (in place, as Nuxt's `pages:resolved` hook expects) with the localized routes. */
@@ -82,7 +94,10 @@ export class RouteGenerator {
    */
   resolveLocalizedPath(originalPath: string, localeCode: string): string {
     const key = routeKey(originalPath)
-    const localized = this.localizedPaths.get(key)?.[localeCode] ?? this.rules.customPath(originalPath, localeCode) ?? absolute(originalPath)
+    return this.withPrefix(this.localizedPaths.get(key)?.[localeCode] ?? this.rules.customPath(originalPath, localeCode) ?? originalPath, localeCode)
+  }
+
+  private withPrefix(localized: string, localeCode: string): string {
     const prefixed =
       this.strategy === 'prefix' ||
       this.strategy === 'prefix_and_default' ||
@@ -90,6 +105,31 @@ export class RouteGenerator {
     if (!prefixed) return absolute(localized)
     const rest = removeLeadingSlash(absolute(localized))
     return rest ? `/${localeCode}/${rest}` : `/${localeCode}`
+  }
+
+  /** A page's path in a locale without its page tree (nitro config runs first), composed as generate.ts composes it. */
+  private localizedKey(key: string, localeCode: string): string {
+    const custom = this.rules.customPath(key, localeCode)
+    const parent = this.parentKeys.filter((candidate) => key.startsWith(`${candidate}/`)).sort((a, b) => b.length - a.length)[0]
+    if (!parent) return absolute(custom ?? key)
+    const base = this.localizedKey(parent, localeCode)
+    return joinChild(base, custom === undefined ? key.slice(parent.length + 1) : childSegment(base, custom))
+  }
+
+  /**
+   * Every URL pattern a route rule covers in a locale. A wildcard (`/blog/**`) also reaches the
+   * pages under it that moved to a custom path, and only those: `/de/artikel/:slug` for `/artikel/[slug]`.
+   */
+  resolveLocalizedRulePaths(originalPath: string, localeCode: string): string[] {
+    const paths = new Set([this.resolveLocalizedPath(originalPath, localeCode)])
+    if (!originalPath.endsWith('/**')) return [...paths]
+    const base = routeKey(originalPath.slice(0, -3))
+    for (const key of this.rules.customKeysUnder(base, localeCode)) {
+      const pattern = rulePattern(this.localizedKey(key, localeCode))
+      // the root of the rule took its children along
+      if (pattern) paths.add(this.withPrefix(key === base ? `${pattern}/**` : pattern, localeCode))
+    }
+    return [...paths]
   }
 
   /** Creates the global and per-page translation JSON files that do not exist yet. */

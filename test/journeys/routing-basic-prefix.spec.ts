@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { enActivity, walkActivity } from '../helpers/journeys-a.ts'
 
 // J4 basic-prefix: the basic fixture under the prefix strategy, the default locale has a prefix too.
@@ -31,6 +31,25 @@ describe('journey: routing variants — basic under prefix', () => {
       await expect(page.locator('#name')).toHaveText(code)
       await expect(page.locator('#name-page')).toHaveText(`${code} page`)
     }
+  })
+
+  test('a routeRules redirect without a page is not localized', async ({ page, goto, request }) => {
+    // step 1: GET /old-product → the rule answers, no /en/old-product in between
+    const res = await request.get('/old-product', { maxRedirects: 0 })
+    expect(res.status()).toBeGreaterThanOrEqual(300)
+    expect(res.status()).toBeLessThan(400)
+    expect(res.headers().location).toBe('/page')
+
+    // step 2: its stub has no prefixed copies
+    expect((await request.get('/en/old-product')).status()).toBe(404)
+    expect((await request.get('/de/old-product')).status()).toBe(404)
+
+    // step 3: a client navigation keeps its URL: no /en/old-product
+    await goto('/en', { waitUntil: 'hydration' })
+    await page.evaluate(() =>
+      (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } } }).useNuxtApp().$router.push('/old-product'),
+    )
+    await expect(page).toHaveURL('/old-product')
   })
 
   test('activity slug tree under /en', async ({ page, goto }) => {

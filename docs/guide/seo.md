@@ -61,7 +61,7 @@ Absolute URLs use the first of:
 
 1. [`metaBaseUrl`](/api/module-options#metabaseurl);
 2. `site.url` from `nuxt-site-config` (installed by `@nuxtjs/seo`);
-3. the request origin.
+3. the request origin, with `app.baseURL` appended.
 
 Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto` because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links. Set both to `false` if the app is reachable directly.
 
@@ -104,7 +104,7 @@ useI18nHead(() => ({
 
 ## Trailing slash
 
-`$localePath`, `$switchLocalePath`, `<i18n-link>` and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
+`$localePath`, `$switchLocalePath`, the route object of `$switchLocaleRoute`, `<i18n-link>`, `<i18n-switcher>`, locale redirects and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
 
 ## Nuxt SEO
 

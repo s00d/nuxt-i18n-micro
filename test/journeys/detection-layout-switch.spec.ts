@@ -1,5 +1,5 @@
 import { getLocaleCookie } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // strategy fixture, pec, Accept-Language detection on / only (autoDetectPath '/'), cookie user-locale;
 // app.vue renders a translated header with one [data-locale] button per locale.

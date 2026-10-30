@@ -53,9 +53,10 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver } from './localized-paths'
+import { createLocalizedPathResolver, staticPagePaths } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
+import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
+import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
 export {
@@ -217,6 +218,7 @@ function registerI18nTemplates(
   resolvedHelpersPath: string,
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
+  disabledLocales: Locale[],
 ) {
   let runtimeFullConfig = fullConfig
 
@@ -233,6 +235,8 @@ function registerI18nTemplates(
       return `import { Strategy } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
+// disabled at build: no routes and not in the config, but routing must answer for their prefix
+const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
 export function getI18nConfig() { return __fullConfig }
 
@@ -242,7 +246,7 @@ export function createI18nStrategy(router, config = __fullConfig) {
   return new Strategy({
     strategy: config.strategy,
     defaultLocale: config.defaultLocale,
-    locales: config.locales,
+    locales: [...config.locales, ...__disabledLocales],
     localizedRouteNamePrefix: config.localizedRouteNamePrefix,
     router,
     hashMode: config.hashMode,
@@ -435,38 +439,14 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
-    const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = { ...(options.routeDisableMeta ?? {}) }
-
     const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
     const pageFiles = await globby(pageGlobs, { absolute: true })
 
-    for (const { routePath, config } of collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs)) {
-      try {
-        const { locales: extractedLocales, localeRoutes, disableMeta } = config
-
-        if (extractedLocales) {
-          if (Array.isArray(extractedLocales)) {
-            routeLocales[routePath] = extractedLocales
-          } else if (typeof extractedLocales === 'object') {
-            routeLocales[routePath] = Object.keys(extractedLocales)
-          }
-        }
-
-        if (localeRoutes) {
-          globalLocaleRoutes[routePath] = localeRoutes
-        }
-
-        if (disableMeta !== undefined) {
-          routeDisableMeta[routePath] = disableMeta
-        }
-      } catch (error) {
-        logger.debug(`Failed to parse defineI18nRoute config for ${routePath}:`, error)
-      }
-    }
-
-    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes }
+    const {
+      routeLocales,
+      routeDisableMeta,
+      globalLocaleRoutes: mergedGlobalLocaleRoutes,
+    } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
     if (options.debug) {
       logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
       logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])
@@ -505,6 +485,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
+      parentPaths: parentPagePaths(pageFiles, rootDirs),
     })
 
     const fullConfig = buildFullConfig({
@@ -521,7 +502,14 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
-    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig)
+    const templates = registerI18nTemplates(
+      options,
+      resolvedStrategyPath,
+      resolvedHelpersPath,
+      fullConfig,
+      privateConfig,
+      routeGenerator.disabledLocales,
+    )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)
@@ -715,6 +703,8 @@ declare module '#i18n-internal/payload-source' {
 
     /** The localized pages, as the app's router will hold them: prerender asks the runtime strategy about them. */
     let generatedPages: NuxtPage[] = []
+    /** The pages as written, without params: generate seeds every locale of them, linked or not. */
+    let staticPaths: string[] = []
     const createBuildStrategy = () =>
       createLocalizedPathResolver(generatedPages, {
         strategy: options.strategy!,
@@ -742,6 +732,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       addDataRoutes(pages)
+      staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages
     })
@@ -788,32 +779,18 @@ declare module '#i18n-internal/payload-source' {
       }
 
       const routeRules = nuxt.options.routeRules || {}
-      const strategy = options.strategy! as Strategies
 
-      if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (!shouldLocalizeRouteRulePath(originalPath)) continue
+      for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
+        const { redirect: _redirect, ...restRuleValue } = ruleValue
+        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath)) continue
 
-          routeGenerator.locales.forEach((localeObj) => {
-            const localeCode = localeObj.code
-            if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, localeCode)) {
-              return
-            }
-            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
-
-            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
-              return
-            }
-
-            const { redirect, ...restRuleValue } = ruleValue
-            if (!Object.keys(restRuleValue).length) return
-
-            nitroConfig.routeRules![localizedPath] = {
-              ...nitroConfig.routeRules![localizedPath],
-              ...restRuleValue,
-            }
+        for (const { code } of routeGenerator.locales) {
+          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, code)) continue
+          for (const localizedPath of routeGenerator.resolveLocalizedRulePaths(originalPath, code)) {
+            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) continue
+            nitroConfig.routeRules![localizedPath] = { ...nitroConfig.routeRules![localizedPath], ...restRuleValue }
             logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
-          })
+          }
         }
       }
 
@@ -901,6 +878,14 @@ declare module '#i18n-internal/payload-source' {
       if (isSSG) {
         // `/` itself is kept so a static host still answers the bare root (the redirect stub).
         if (prerendered('/')) routesSet.add('/')
+        // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
+        for (const path of staticPaths) {
+          if (prerendered(path) && localize.isServed(path)) routesSet.add(path)
+          for (const { code } of routeGenerator.locales) {
+            const localized = prerendered(path) ? localize.path(path, code) : null
+            if (localized && prerendered(localized)) routesSet.add(localized)
+          }
+        }
         for (const locale of routeGenerator.locales) {
           const localizedRoot = localize.path('/', locale.code)
           if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)

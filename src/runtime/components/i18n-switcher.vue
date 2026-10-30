@@ -29,7 +29,7 @@
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
-          :to="switchLocaleRoute(locale.code)"
+          :to="$switchLocalePath(locale.code)"
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
@@ -118,7 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+const { $switchLocalePath, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 // Keep `$getLocales()` complete for SEO/meta; the switcher only shows switchable locales.
 const allLocales = computed(() => $getLocales() ?? [])
 const locales = computed(() => allLocales.value.filter((locale: Locale) => !locale.disabled))
@@ -129,10 +129,6 @@ const dropdownOpen = ref(false)
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
-}
-
-const switchLocaleRoute = (code: string) => {
-  return $switchLocaleRoute(code)
 }
 
 const localeLabel = (locale: Locale) => {

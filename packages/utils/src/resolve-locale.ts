@@ -55,17 +55,24 @@ export interface RedirectLocaleInput extends Omit<ResolveLocaleInput, 'url' | 'q
   urlLocale: string | null
   /** `ModuleOptions.autoDetectPath` (default `'/'`). */
   autoDetectPath?: string
+  /** `prefix`: no page has an unprefixed URL, so such a URL always takes the preference. */
+  alwaysPrefixed?: boolean
+}
+
+/** Whether cookie, state and Accept-Language decide this URL's redirect. */
+export function preferenceCounts(input: Pick<RedirectLocaleInput, 'path' | 'urlLocale' | 'autoDetectPath' | 'alwaysPrefixed'>): boolean {
+  if (input.alwaysPrefixed && !input.urlLocale) return true
+  return shouldAttemptLocaleRedirect(input.path, { autoDetectPath: input.autoDetectPath, hasLocalePrefix: input.urlLocale !== null })
 }
 
 /**
  * The locale a locale redirect aims at: `resolveLocale` over state → cookie → Accept-Language
- * wherever `autoDetectPath` lets preference count (`'*'`: every path). Elsewhere an unprefixed URL
- * keeps the default locale, so it still canonicalizes (`localeRoutes` aliases). The URL is not a
- * source here: it is what the redirect may move.
+ * wherever `autoDetectPath` lets preference count (`'*'`: every path), and on every unprefixed URL
+ * under `prefix`. Elsewhere an unprefixed URL keeps the default locale, so it still canonicalizes
+ * (`localeRoutes` aliases). The URL is not a source here: it is what the redirect may move.
  */
 export function redirectLocale(input: RedirectLocaleInput): string {
-  const allowed = shouldAttemptLocaleRedirect(input.path, { autoDetectPath: input.autoDetectPath, hasLocalePrefix: input.urlLocale !== null })
-  if (!input.urlLocale && !allowed) return input.defaultLocale
+  if (!input.urlLocale && !preferenceCounts(input)) return input.defaultLocale
   return resolveLocale(input)
 }
 

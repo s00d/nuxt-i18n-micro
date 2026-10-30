@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // Production build of the pristine repo fixture; nothing edits it (the HMR journeys patch tmp copies).
 describe('J10 additionalTranslationDirs (prod server)', () => {

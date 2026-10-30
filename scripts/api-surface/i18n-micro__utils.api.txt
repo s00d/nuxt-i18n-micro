@@ -135,9 +135,11 @@ member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefin
 function explicitLocale: (input: Omit<ResolveLocaleInput, "defaultLocale">) => string | null
 function firstQueryValue: (value: unknown) => string | null
 function localeFromPath: (path: string, validLocales: readonly string[]) => string | null
+function preferenceCounts: (input: Pick<RedirectLocaleInput, "path" | "urlLocale" | "autoDetectPath" | "alwaysPrefixed">) => boolean
 function redirectLocale: (input: RedirectLocaleInput) => string
 interface RedirectLocaleInput
 member RedirectLocaleInput.acceptLanguage?: string | null | undefined
+member RedirectLocaleInput.alwaysPrefixed?: boolean | undefined
 member RedirectLocaleInput.autoDetectLanguage?: boolean | undefined
 member RedirectLocaleInput.autoDetectPath?: string | undefined
 member RedirectLocaleInput.cookie?: string | null | undefined

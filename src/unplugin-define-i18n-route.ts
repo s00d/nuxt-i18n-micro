@@ -1,8 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import type { DefineI18nRouteConfig } from '@i18n-micro/types'
+import { nameOfPath, routeKey } from '@i18n-micro/route-strategy'
+import type { DefineI18nRouteConfig, GlobalLocaleRoutes } from '@i18n-micro/types'
 import { createUnplugin } from 'unplugin'
-import { extractDefineI18nRouteData, pageFilePathToRoutePath } from './utils'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath, resolveRootDir } from './utils'
 
 export interface DefineI18nRouteMeta {
   routePath: string
@@ -15,9 +16,34 @@ export interface DefineI18nRoutePluginOptions {
   onMetaUpdate?: (entries: DefineI18nRouteMeta[]) => void
 }
 
-function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {
-  const sorted = [...rootDirs].sort((a, b) => b.length - a.length)
-  return sorted.find((root) => filePath.startsWith(root))
+export interface PageRouteConfig {
+  routeLocales: Record<string, string[]>
+  globalLocaleRoutes: NonNullable<GlobalLocaleRoutes>
+  routeDisableMeta: Record<string, boolean | string[]>
+}
+
+/**
+ * Adds the `$defineI18nRoute` calls of the pages to the config. A page's `locales` and `disableMeta`
+ * replace the config's; for custom paths the config entry of that page wins, as a whole.
+ */
+export function mergeDefineI18nRouteMeta(
+  entries: DefineI18nRouteMeta[],
+  config: Partial<Omit<PageRouteConfig, 'globalLocaleRoutes'>> & { globalLocaleRoutes?: GlobalLocaleRoutes },
+): PageRouteConfig {
+  const routeLocales = { ...config.routeLocales }
+  const routeDisableMeta = { ...config.routeDisableMeta }
+  const fromPages: PageRouteConfig['globalLocaleRoutes'] = {}
+  for (const { routePath, config: page } of entries) {
+    if (Array.isArray(page.locales)) routeLocales[routePath] = page.locales
+    else if (page.locales) routeLocales[routePath] = Object.keys(page.locales)
+    if (page.localeRoutes) fromPages[routePath] = page.localeRoutes
+    if (page.disableMeta !== undefined) routeDisableMeta[routePath] = page.disableMeta
+  }
+  // `blog/[slug]` (a page), `/blog/:slug` and `blog-slug` (the config: path or route name) are one page
+  const configured = config.globalLocaleRoutes ?? {}
+  const configuredKeys = new Set(Object.keys(configured).map(routeKey))
+  for (const key of Object.keys(fromPages)) if (configuredKeys.has(routeKey(key)) || configuredKeys.has(nameOfPath(key))) delete fromPages[key]
+  return { routeLocales, globalLocaleRoutes: { ...fromPages, ...configured }, routeDisableMeta }
 }
 
 export function createDefineI18nRoutePlugin(options: DefineI18nRoutePluginOptions) {

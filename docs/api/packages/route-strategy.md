@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/route-strategy`
 
-10 exports across 1 entry point.
+12 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -22,12 +22,14 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
+| `nameOfPath` | function | `(fullPath: string) => string` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
-| `RouteGenerator` | class | 12 members |
-| `RouteGeneratorOptions` | interface | 11 members |
+| `RouteGenerator` | class | 17 members |
+| `RouteGeneratorOptions` | interface | 12 members |
 | `RouteI18nMeta` | interface | 3 members |
-| `Rules` | class | 11 members |
+| `routeKey` | function | `(routePathOrName: string) => string` |
+| `Rules` | class | 12 members |
 
 <details>
 <summary><code>GenerateOptions</code> — 9 members</summary>
@@ -47,27 +49,32 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGenerator</code> — 12 members</summary>
+<summary><code>RouteGenerator</code> — 17 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `defaultLocale` | `Locale` |
+| `disabledLocales` | `Locale[]` |
 | `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
 | `extendPages` | `(pages: NuxtPage[]) => void` |
 | `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
 | `locales` | `Locale[]` |
+| `localizedKey` | `private (key: string, localeCode: string) => string` |
 | `localizedPaths` | `private LocalizedPaths` |
 | `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
 | `options` | `private RouteGeneratorOptions` |
+| `parentKeys` | `private string[]` |
 | `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |
+| `resolveLocalizedRulePaths` | `(originalPath: string, localeCode: string) => string[]` |
 | `routeLocales` | `Record<string, string[]>` |
 | `rules` | `private Rules` |
 | `strategy` | `Strategies` |
+| `withPrefix` | `private (localized: string, localeCode: string) => string` |
 
 </details>
 
 <details>
-<summary><code>RouteGeneratorOptions</code> — 11 members</summary>
+<summary><code>RouteGeneratorOptions</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -79,6 +86,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `locales` | `Locale[]` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `noPrefixRedirect` | `boolean` |
+| `parentPaths?` | `string[] \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `strategy` | `Strategies` |
@@ -88,12 +96,13 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 <code>RouteI18nMeta</code> — 3 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
 
 <details>
-<summary><code>Rules</code> — 11 members</summary>
+<summary><code>Rules</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `allowedLocales` | `(fullPath: string, name: string \| undefined) => string[] \| undefined` |
 | `byName` | `private Map<string, Rule>` |
+| `customKeysUnder` | `(base: string, locale: string) => string[]` |
 | `customPath` | `(fullPath: string, locale: string) => string \| undefined` |
 | `disableMeta` | `(fullPath: string, name: string \| undefined) => NoMeta \| undefined` |
 | `get` | `(fullPath: string, name: string \| undefined) => Rule \| undefined` |

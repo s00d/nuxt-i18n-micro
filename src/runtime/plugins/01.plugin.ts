@@ -12,6 +12,7 @@ import type {
   TranslationKey,
 } from '@i18n-micro/types'
 
+import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
 import type {
   RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
@@ -52,7 +53,15 @@ export default defineNuxtPlugin({
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 
-    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
+    const {
+      locale: localeState,
+      setLocale,
+      getPreferredLocale,
+      getEffectiveLocale,
+      resolveInitialLocale,
+      isValidLocale,
+      validLocales,
+    } = useI18nLocale()
 
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const { resetPageHead } = useI18nHead()
@@ -115,22 +124,38 @@ export default defineNuxtPlugin({
       isDev,
     })
 
+    // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
+    const shellLocale = () => {
+      const shell = i18nConfig.hashMode && i18nConfig.strategy === 'prefix' && !nuxtApp.payload.serverRendered
+      if (!shell || !i18nConfig.autoDetectLanguage || getPreferredLocale()) return undefined
+      return detectLocaleFromAcceptLanguage(navigator.languages.join(','), validLocales)
+    }
+
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
-    // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's
-    const urlLocale =
-      isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode ? null : i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-    const serverLocale = import.meta.server && !urlLocale ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
+    // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
+    const requestLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : shellLocale()
+    const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
+    const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
+    const urlLocale = i18nConfig.hashMode
+      ? null
+      : isNoPrefixStrategy(i18nConfig.strategy!)
+        ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale)
+        : i18nStrategy.getLocaleFromPath(initialRoute.path)
+    const serverLocale = urlLocale ? undefined : requestLocale
     const initialLocale = resolveInitialLocale({
       route: router.currentRoute.value,
       urlLocale,
       serverLocale,
+      preference: isNoPrefixStrategy(i18nConfig.strategy!) ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
       getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
     })
     const initialRouteName = getPluginRouteName(router.currentRoute.value as unknown as ResolvedRouteLike, initialLocale)
 
     // `serverTranslationPreload` loads index in Nitro middleware — reuse it when the
     // first page is index so we do not load the same chunk twice on SSR.
-    if (import.meta.server && initialRouteName === 'index') {
+    // Only for the locale it was detected for: under no_prefix a custom path renders another one.
+    if (import.meta.server && initialRouteName === 'index' && initialLocale === requestLocale) {
       const preloaded = nuxtApp.ssrContext?.event?.context?.i18n?.translations
       if (preloaded && typeof preloaded === 'object' && Object.keys(preloaded).length > 0) {
         translationStorage.seed(initialLocale, 'index', preloaded as Record<string, unknown>)
@@ -157,6 +182,11 @@ export default defineNuxtPlugin({
       return i18nStrategy.getRouteBaseName(selectedRoute as unknown as ResolvedRouteLike, selectedLocale) ?? ''
     }
 
+    const hydrated = shallowRef(false)
+    nuxtApp.hooks.hookOnce('app:suspense:resolve', () => {
+      hydrated.value = true
+    })
+
     const {
       helper,
       switchContext,
@@ -178,6 +208,8 @@ export default defineNuxtPlugin({
       setMissingHandler: (handler) => {
         customMissingHandler.value = handler
       },
+      // a ref: a link rendered without the hash gets it back when hydration ends
+      isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
     })
 
     if (import.meta.dev && import.meta.client) {
@@ -201,7 +233,8 @@ export default defineNuxtPlugin({
       }
 
       try {
-        const targetLocale = getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
+        const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
+        const targetLocale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
         const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
 
         let applied = true
@@ -213,7 +246,9 @@ export default defineNuxtPlugin({
           loader.invalidatePendingSwitches()
         }
 
-        if (applied && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
+        // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
+        const bound = isNoPrefixStrategy(i18nConfig.strategy!) && targetLocale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
+        if (applied && !bound && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
           setLocale(targetLocale)
         }
       } catch (e) {
@@ -221,6 +256,15 @@ export default defineNuxtPlugin({
       }
       return
     })
+
+    // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
+    // once hydrated: earlier, the client would render another locale than the server's HTML.
+    if (import.meta.client && i18nConfig.hashMode) {
+      nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
+        const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
+        if (hashLocale && hashLocale !== localeState.value) await provideApi.switchLocale(hashLocale)
+      })
+    }
 
     const provideData = {
       ...provideApi,
@@ -313,7 +357,11 @@ export interface PluginsInjections {
   $setTranslation: (key: string, value: unknown) => void
   /** Merge translations into the active locale at runtime, overriding what is loaded. */
   $mergeTranslations: (newTranslations: Translations) => void
-  /** The route object for the current page in another locale, without navigating. */
+  /**
+   * The route object for the current page in another locale, without navigating, or a URL string
+   * for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
+   * follow the rule, and `router.push` or a link keep them.
+   */
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   /** The path of the current page in another locale, without navigating. */
   $switchLocalePath: (locale: string) => string
@@ -321,9 +369,11 @@ export interface PluginsInjections {
    * Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
    * locale's translations before navigating; under `no_prefix` the route is replaced in place (no
    * new history entry). An unknown locale is ignored.
-   * The call is async: `await` it to run code after the navigation.
+   * The call is async: `await` it to run code after the navigation. It resolves `true` when the
+   * locale's dictionary is active, `false` when it is not: the chunk failed to load (the current
+   * dictionary stays; call it again to retry) or a newer switch won.
    */
-  $switchLocale: (locale: string) => Promise<void>
+  $switchLocale: (locale: string) => Promise<boolean>
   /**
    * Navigate to another route, keeping the active locale or switching to `toLocale`. Async like
    * `$switchLocale`.
@@ -331,7 +381,10 @@ export interface PluginsInjections {
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
   /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
-  /** Resolve a path in the given locale, or the active one. */
+  /**
+   * Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`
+   * or `tel:` scheme comes back as is: do not pass user input as a link target unchecked.
+   */
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   /**
    * Set per-locale params for the current route, so a dynamic segment can differ per language.

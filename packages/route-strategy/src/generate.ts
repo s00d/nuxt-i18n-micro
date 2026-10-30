@@ -60,6 +60,9 @@ const paramNames = (routePath: string): string =>
     .sort()
     .join(',')
 
+/** What Nuxt adds for a `routeRules` redirect with no page. An unnamed page of a module is a page. */
+const isRouteRuleStub = (page: NuxtPage): boolean => !page.name && /(?:^|\/)component-stub(?:\.\w+)?$/.test(page.file ?? '')
+
 /** Localized full paths (without prefix) by page key and locale, for nitro lookups. */
 export type LocalizedPaths = Map<string, Record<string, string>>
 
@@ -195,10 +198,9 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
   const localized: NuxtPage[] = []
   for (const page of pages) {
     const pagePath = page.path ?? ''
-    // Nuxt's stub of a `routeRules` redirect is an unnamed leaf; an unnamed parent has an index child
     if (
       (page.redirect && !page.file) ||
-      (!page.name && !page.children?.length) ||
+      isRouteRuleStub(page) ||
       isInternalPath(pagePath, options.excludePatterns, options.apiBaseUrl) ||
       info(page, '', true).rule === false
     ) {

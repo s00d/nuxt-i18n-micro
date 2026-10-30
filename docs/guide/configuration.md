@@ -28,7 +28,7 @@ The sections below explain how they work together; the
 | [`define`](/api/module-options) | `boolean` | `true` | Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls. |
 | [`redirects`](/api/module-options) | `boolean` | `true` | Enable automatic locale-based redirects. |
 | [`plugin`](/api/module-options) | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers. |
-| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch` app-level hooks. |
+| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on navigation so plugins can add translations. |
 | [`components`](/api/module-options) | `boolean` | `true` | Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`). |
 | [`serverTranslationPreload`](/api/module-options) | `boolean` | `false` | Preload index-page translations in Nitro global middleware (server-only, private config). |
 | [`defaultLocale`](/api/module-options) | `string` | `'en'` | The locale to use when no locale can be determined from URL or user preferences. |
@@ -644,8 +644,8 @@ plugin: false
 
 **Type** `boolean` · **Default** `true`
 
-Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
-/ `i18n:afterLocaleSwitch` app-level hooks.
+Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
+navigation so plugins can add translations.
 
 <!-- /generated:option:hooks -->
 

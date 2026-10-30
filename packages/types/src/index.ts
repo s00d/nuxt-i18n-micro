@@ -235,8 +235,8 @@ export interface ModuleOptions {
   plugin?: boolean
 
   /**
-   * Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
-   * / `i18n:afterLocaleSwitch` app-level hooks.
+   * Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
+   * navigation so plugins can add translations.
    * @default true
    */
   hooks?: boolean

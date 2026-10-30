@@ -48,7 +48,7 @@ Visitor prefers `de` (cookie or header), `defaultLocale: 'en'`, default `autoDet
 | Request | `prefix_except_default` | `prefix` | `prefix_and_default` | `no_prefix` |
 | --- | --- | --- | --- | --- |
 | `/` | → `/de` | → `/de` | `/` in `en` | `/` in `de` |
-| `/about` | `/about` in `en` | → `/en/about` | `/about` in `en` | `/about` in `de` |
+| `/about` | `/about` in `en` | → `/de/about` | `/about` in `en` | `/about` in `de` |
 | `/fr/about` | `/fr/about` | `/fr/about` | `/fr/about` | — |
 | `/en/about` | 404 | `/en/about` | `/en/about` | — |
 
@@ -93,9 +93,9 @@ Turn header detection off with `autoDetectLanguage: false`; the cookie and the s
 
 - **Off by default** for the prefix strategies (`localeCookie: null`). Redirects then work from the header alone, and the choice is not remembered across visits. Set `localeCookie: 'user-locale'` to remember it.
 - Under `no_prefix` it is `'user-locale'` unless you set another name. `localeCookie: null` turns it off there too.
-- It is written when the visitor switches (`$switchLocale`, `<i18n-switcher>`, `useI18nLocale().setLocale()`), and on a server render of a prefixed URL (`/fr/about` stores `fr`).
+- It is written when the visitor switches (`$switchLocale`, `<i18n-switcher>`, `useI18nLocale().setLocale()`), and on a server render of a page under a prefix (`/fr/about` stores `fr`). A 404 stores nothing.
 - It lasts one year (`path=/`, `SameSite=Lax`).
-- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one. The server renders that locale and never redirects; a locale in the hash (`/#/de`) wins over it and applies right after hydration.
+- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one. The server renders that locale and never redirects; a locale in the hash (`/#/de`) wins over it and applies right after hydration. Under `prefix` there is no page on `/`, so `/` is rendered in the browser, which goes to `/#/de`; any other document (`/about`, `/de`) redirects into the hash.
 
 Read and set the preference with [`useI18nLocale`](/composables/useI18nLocale), not with `useCookie` or `useState` directly.
 

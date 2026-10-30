@@ -110,7 +110,7 @@ Signatures are in [Methods](/api/methods).
 
 - [`localeCookie`](/api/module-options#localecookie) defaults to `'user-locale'` under `no_prefix`, so the choice survives a reload.
 - `$switchLocale('de')` loads the German dictionary and replaces the current history entry; the URL does not change.
-- Custom per-locale paths still work: with `globalLocaleRoutes: { about: { de: '/ueber-uns' } }`, German readers get `/ueber-uns`.
+- Custom per-locale paths still work: with `globalLocaleRoutes: { about: { de: '/ueber-uns' } }`, German readers get `/ueber-uns`. That URL always renders German, whatever the visitor prefers, and a page restricted to some locales renders in one of them.
 - [`noPrefixRedirect: true`](/api/module-options#noprefixredirect) redirects a page's original path to the default locale's custom path (`/about` → `/about-us` when `en` has `/about-us`). Pages with params are not redirected.
 
 ## Apps without `pages/`

@@ -79,9 +79,6 @@
     "vue": "catalog:",
     "vue-tsc": "catalog:"
   },
-  "engines": {
-    "node": ">=20"
-  },
   "peerDependencies": {
     "vite": ">=5.4.0"
   },
@@ -89,5 +86,8 @@
     "vite": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

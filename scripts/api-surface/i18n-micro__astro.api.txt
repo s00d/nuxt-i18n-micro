@@ -25,6 +25,7 @@ member AstroI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member AstroI18n.hasTranslation: (key: TranslationKey) => boolean
 member AstroI18n.helper: TranslationHelper
 member AstroI18n.initialMessages: private Record<string, Translations>
+member AstroI18n.initialRouteMessages: private Record<string, Record<string, Translations>>
 member AstroI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member AstroI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member AstroI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -36,7 +37,7 @@ member AstroI18n.lookupLocale: private any
 member AstroI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member AstroI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member AstroI18n.missingWarn: boolean
-member AstroI18n.onTranslationsChanged: protected () => void
+member AstroI18n.onTranslationsChanged: protected (locale?: string) => void
 member AstroI18n.ownStore: protected ReactiveI18nStore
 member AstroI18n.pluralFunc: PluralFunc
 member AstroI18n.pluralLocale: () => string
@@ -46,6 +47,7 @@ member AstroI18n.resolveLookup: protected (key: TranslationKey, routeContext?: u
 member AstroI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member AstroI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member AstroI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
+member AstroI18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member AstroI18n.setRoute: (routeName: string) => void
 member AstroI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member AstroI18n.storage: TranslationStorage
@@ -82,6 +84,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any

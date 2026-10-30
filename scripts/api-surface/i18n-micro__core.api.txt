@@ -75,7 +75,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.now: private () => number
+member FormatService.now?: private (() => number) | undefined
 member FormatService.numberCache: private Map<string, Intl.NumberFormat>
 member FormatService.numberFormats: private NumberFormatsConfig
 member FormatService.relativeCache: private Map<string, Intl.RelativeTimeFormat>

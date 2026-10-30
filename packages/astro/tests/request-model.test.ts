@@ -247,7 +247,11 @@ describe('server islands and actions', () => {
     expect([response.status, location]).toEqual([200, null])
     const cookie = await run('/_server-islands/Late', { ...island, cookie: 'de', headers: { referer: 'http://site.test/' } })
     expect(cookie.location).toBeNull()
-    const redirected = await run('/_actions/like', { ...island, routePattern: '/_actions/[...path]', method: 'POST', headers: { referer: 'http://site.test/' } }, { redirectToDefault: true, routingStrategy: { getCurrentPath: () => '/', resolvePath: () => '/en' } })
+    const redirected = await run(
+      '/_actions/like',
+      { ...island, routePattern: '/_actions/[...path]', method: 'POST', headers: { referer: 'http://site.test/' } },
+      { redirectToDefault: true, routingStrategy: { getCurrentPath: () => '/', resolvePath: () => '/en' } },
+    )
     expect(redirected.location).toBeNull()
   })
 

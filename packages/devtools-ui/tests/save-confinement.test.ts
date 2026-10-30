@@ -111,7 +111,8 @@ test('a rebinding host is refused by the plugin itself: Vite 6 runs its own chec
   }
   expect(await asHost('evil.example:4321', 'http://evil.example:4321')).toBe(403)
   expect(await asHost('evil.example:4321')).toBe(403)
-  for (const host of ['localhost:4321', 'app.localhost:4321', '127.0.0.1:4321', '[::1]:4321', '192.168.1.5:4321']) expect(await asHost(host)).toBe(200)
+  for (const host of ['localhost:4321', 'app.localhost:4321', '127.0.0.1:4321', '[::1]:4321', '192.168.1.5:4321'])
+    expect(await asHost(host)).toBe(200)
 })
 
 test('config.server.allowedHosts widens what is served', async () => {
@@ -120,11 +121,18 @@ test('config.server.allowedHosts widens what is served', async () => {
     const routes = new Map<string, Handler>()
     const server = {
       config: { root, server: { allowedHosts } },
-      watcher: { add: () => {}, on() { return this } },
+      watcher: {
+        add: () => {},
+        on() {
+          return this
+        },
+      },
       ws: { send: () => {} },
       middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) },
     }
-    ;(i18nDevToolsPlugin({ translationDir: 'locales' }) as { configureServer: (server: ViteDevServer) => void }).configureServer(server as unknown as ViteDevServer)
+    ;(i18nDevToolsPlugin({ translationDir: 'locales' }) as { configureServer: (server: ViteDevServer) => void }).configureServer(
+      server as unknown as ViteDevServer,
+    )
     let status = 0
     const res = { setHeader: () => {}, end: () => {} } as Record<string, unknown>
     Object.defineProperty(res, 'statusCode', { set: (code: number) => (status = code), get: () => status })

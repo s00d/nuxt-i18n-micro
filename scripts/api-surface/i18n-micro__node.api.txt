@@ -13,6 +13,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -60,7 +61,7 @@ member I18n.localeIso: protected Record<string, string>
 member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
-member I18n.onTranslationsChanged: protected () => void
+member I18n.onTranslationsChanged: protected (locale?: string) => void
 member I18n.ownStore: protected ReactiveI18nStore
 member I18n.pluralFunc: PluralFunc
 member I18n.pluralLocale: () => string
@@ -73,6 +74,7 @@ member I18n.resolveTranslations: (routeContext?: unknown) => Translations
 member I18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member I18n.run: <T>(locale: string, fn: (i18n: I18n) => T) => T
 member I18n.scope: private AsyncLocalStorage<I18n>
+member I18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member I18n.setRoute: (routeName: string) => void
 member I18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member I18n.storage: TranslationStorage
@@ -100,10 +102,12 @@ member I18nOptions.localeIso?: Record<string, string> | undefined
 member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.now?: (() => number) | undefined
 member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member I18nOptions.parent?: I18n | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member I18nOptions.timeZone?: string | undefined
 member I18nOptions.translationDir?: string | undefined
 function interpolate: (template: string, params: Params) => string
 interface LoadedTranslations

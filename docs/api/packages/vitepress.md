@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `CreateI18nOptions` | interface | 15 members |
 | `CreateI18nResult` | type | ``I18nPlugin & PathMethods & { /** Same as `.global` (VueI18n + path methods). */ i18n: I18nPlugin['global'] & PathMethods enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> \| VitePressSiteDataLike }) => void }`` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `getLocaleFromPath` | function | `(path: string, localeCodes: string[], defaultLocale: string, localeKeyToCode?: Record<string, string>, base?: string) => string` |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nGroup` | const | `DefineComponent<I18nGroupProps, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, false, {}, any>` |
@@ -73,7 +73,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 
 </details>
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
 <summary><code>I18nRoutingStrategy</code> — 7 members</summary>
@@ -274,8 +274,8 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
 | `BuildVitePressLocalesOptions` | interface | 1 members |
 | `createI18n` | function | `(options: CreateI18nOptions) => NodeI18n` |
-| `CreateI18nOptions` | interface | 17 members |
-| `I18nOptions` | interface | 13 members |
+| `CreateI18nOptions` | interface | 19 members |
+| `I18nOptions` | interface | 15 members |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
@@ -285,7 +285,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 <code>BuildVitePressLocalesOptions</code> — 1 members, identical to `BuildVitePressLocalesOptions` above.
 
 <details>
-<summary><code>CreateI18nOptions</code> — 17 members</summary>
+<summary><code>CreateI18nOptions</code> — 19 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -301,15 +301,17 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `parent?` | `I18n \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
 | `translationDir?` | `string \| undefined` |
 
 </details>
 
-<code>I18nOptions</code> — 13 members, identical to [`I18nOptions`](/api/packages/node).
+<code>I18nOptions</code> — 15 members, identical to [`I18nOptions`](/api/packages/node).
 
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
 

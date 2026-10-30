@@ -79,7 +79,11 @@ interface PreferenceInput {
 }
 
 /** Precedence of a visitor's preference over a routing that is already complete. */
-function preferredLocale(pathname: string, routing: Omit<I18nRouting, 'base'>, { cookies, headers, localeCookie, autoDetect }: PreferenceInput): string {
+function preferredLocale(
+  pathname: string,
+  routing: Omit<I18nRouting, 'base'>,
+  { cookies, headers, localeCookie, autoDetect }: PreferenceInput,
+): string {
   return resolveLocale({
     defaultLocale: routing.defaultLocale,
     validLocales: routing.locales,

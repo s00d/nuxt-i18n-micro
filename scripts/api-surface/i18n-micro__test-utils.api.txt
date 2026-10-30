@@ -68,7 +68,7 @@ member I18nTestContext.lookupLocale: private any
 member I18nTestContext.mergeTranslations: (newTranslations: Translations) => void
 member I18nTestContext.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nTestContext.missingWarn: boolean
-member I18nTestContext.onTranslationsChanged: protected () => void
+member I18nTestContext.onTranslationsChanged: protected (_locale?: string) => void
 member I18nTestContext.pagePath: string
 member I18nTestContext.pluralFunc: PluralFunc
 member I18nTestContext.pluralLocale: () => string
@@ -83,6 +83,7 @@ member I18nTestContext.routeName: private string
 member I18nTestContext.setDefaultLocale: (val: string | undefined) => void
 member I18nTestContext.setI18nRouteParams: (value: unknown) => unknown
 member I18nTestContext.setLocale: (val: string) => void
+member I18nTestContext.setLocaleIso: (localeIso: Record<string, string>) => void
 member I18nTestContext.setLocaleName: (val: string | null) => void
 member I18nTestContext.setLocales: (val: Locale[]) => void
 member I18nTestContext.setMissingHandler: (handler: MissingHandler | null) => void

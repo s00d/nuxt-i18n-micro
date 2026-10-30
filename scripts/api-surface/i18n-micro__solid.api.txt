@@ -14,7 +14,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.now: private any
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -1981,6 +1981,7 @@ member SolidI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisTy
 member SolidI18n.fallbackKey: private any
 member SolidI18n.fallbackLocale: string
 member SolidI18n.fallbackRootKey: private any
+member SolidI18n.fork: (locale?: string) => import("../../solid/src").SolidI18n
 member SolidI18n.formatArgs: private any
 member SolidI18n.formatter: FormatService
 member SolidI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -2004,6 +2005,7 @@ member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.onTranslationsChanged: protected (locale?: string) => void
+member SolidI18n.ownStore: protected ReactiveI18nStore
 member SolidI18n.pluralFunc: PluralFunc
 member SolidI18n.pluralLocale: () => string
 member SolidI18n.pluralTag: private any
@@ -2018,7 +2020,7 @@ member SolidI18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member SolidI18n.setRoute: (routeName: string) => void
 member SolidI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member SolidI18n.storage: TranslationStorage
-member SolidI18n.store: private any
+member SolidI18n.store: protected ReactiveI18nStore
 member SolidI18n.subscribe: (listener: () => void) => () => void
 member SolidI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member SolidI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string

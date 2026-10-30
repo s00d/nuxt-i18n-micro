@@ -158,23 +158,7 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 
-<details>
-<summary><code>VueI18nOptions</code> — 10 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `locale` | `string` |
-| `localeIso?` | `Record<string, string> \| undefined` |
-| `messages?` | `Record<string, Translations> \| undefined` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `numberFormats?` | `NumberFormatsConfig \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `timeZone?` | `string \| undefined` |
-
-</details>
+<code>VueI18nOptions</code> — 10 members, identical to [`VueI18nOptions`](/api/packages/vitepress).
 ## `@i18n-micro/vue/router`
 
 ```ts

@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/preact`
 
-39 exports across 1 entry point.
+41 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -19,46 +19,59 @@ import { /* … */ } from '@i18n-micro/preact'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
-| `createI18n` | function | `(options: PreactI18nOptions) => PreactI18n` |
-| `createPreactRouterAdapter` | const | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("preact").Context<PreactI18n \| null>` |
-| `I18nDefaultLocaleContext` | const | `import("preact").Context<string \| null>` |
-| `I18nGroup` | const | `(props: I18nGroupProps) => VNode` |
+| `I18nContext` | const | `import("preact").Context<I18nContextValue \| null>` |
+| `I18nContextValue` | interface | 5 members |
+| `I18nGroup` | const | `(props: I18nGroupProps) => HostElement` |
 | `I18nGroupProps` | interface | 308 members |
-| `I18nLink` | const | `(props: I18nLinkProps) => VNode` |
+| `I18nLink` | const | `(props: I18nLinkProps) => HostElement` |
 | `I18nLinkProps` | interface | 321 members |
-| `I18nLocalesContext` | const | `import("preact").Context<Locale[] \| null>` |
-| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact").VNode<import("preact").Attributes & { value: PreactI18n \| null; children?: ComponentChildren; }>` |
-| `I18nProviderProps` | interface | 5 members |
-| `I18nRouterContext` | const | `import("preact").Context<I18nRoutingStrategy \| null>` |
+| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement` |
+| `I18nProviderProps` | interface | 18 members |
 | `I18nRoutingStrategy` | interface | 6 members |
-| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => VNode` |
+| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => HostElement` |
 | `I18nSwitcherProps` | interface | 321 members |
-| `I18nT` | const | `(props: I18nTProps) => VNode \| null` |
-| `I18nTProps` | interface | 318 members |
+| `I18nT` | const | `(props: I18nTProps) => HostElement` |
+| `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
+| `I18nTProps` | interface | 319 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 60 members |
-| `PreactI18nOptions` | interface | 11 members |
+| `PreactI18n` | class | 61 members |
+| `PreactI18nOptions` | interface | 13 members |
+| `RouteTarget` | type | `string \| { path?: string }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
-| `useI18nContext` | const | `() => PreactI18n` |
+| `useI18nContext` | const | `() => I18n` |
 | `useI18nDefaultLocale` | const | `() => string \| null` |
 | `useI18nLocales` | const | `() => Locale[] \| null` |
 | `UseI18nOptions` | interface | 2 members |
 | `UseI18nReturn` | interface | 22 members |
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| null` |
+| `useLocaleSwitch` | function | `(load: (locale: string) => unknown) => [(locale: string) => Promise<void>, boolean]` |
+| `useT` | function | `(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string` |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+
+<details>
+<summary><code>I18nContextValue</code> — 5 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `api` | `{ snapshot: string; value: UseI18nReturn; } \| null` |
+| `defaultLocale` | `string \| null` |
+| `i18n` | `I18n` |
+| `locales` | `Locale[] \| null` |
+| `router` | `I18nRoutingStrategy \| null` |
+
+</details>
 
 <details>
 <summary><code>I18nGroupProps</code> — 308 members</summary>
@@ -127,7 +140,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `autoCorrect?` | `Signalish<string \| undefined>` |
 | `autofocus?` | `Signalish<boolean \| undefined>` |
 | `autoFocus?` | `Signalish<boolean \| undefined>` |
-| `children?` | `((props: { prefix: string; t: (key: string, params?: Record<string, string \| number \| boolean>) => string; }) => ComponentChildren) \| undefined` |
+| `children?` | `import("preact").ComponentChildren \| ((props: { prefix: string; t: (key: string, params?: Record<string, string \| number \| boolean>) => string; }) => HostNode)` |
 | `class?` | `Signalish<string \| undefined>` |
 | `className?` | `Signalish<string \| undefined>` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
@@ -384,7 +397,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `about?` | `Signalish<string \| undefined>` |
 | `accesskey?` | `Signalish<string \| undefined>` |
 | `accessKey?` | `Signalish<string \| undefined>` |
-| `activeStyle?` | `Record<string, string \| number> \| undefined` |
+| `activeStyle?` | `import("preact").CSSProperties \| undefined` |
 | `aria-activedescendant?` | `Signalish<string \| undefined>` |
 | `aria-atomic?` | `Signalish<Booleanish \| undefined>` |
 | `aria-autocomplete?` | `Signalish<"none" \| "list" \| "inline" \| "both" \| undefined>` |
@@ -482,7 +495,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `jsx?` | `boolean \| undefined` |
 | `key?` | `any` |
 | `lang?` | `Signalish<string \| undefined>` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
+| `localeRoute?` | `((to: RouteTarget, locale?: string) => RouteTarget) \| undefined` |
 | `media?` | `Signalish<string \| undefined>` |
 | `nonce?` | `Signalish<string \| undefined>` |
 | `onAbort?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
@@ -697,7 +710,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `tabIndex?` | `Signalish<number \| undefined>` |
 | `target?` | `Signalish<HTMLAttributeAnchorTarget \| undefined>` |
 | `title?` | `Signalish<string \| undefined>` |
-| `to` | `string \| { path?: string; }` |
+| `to` | `RouteTarget` |
 | `translate?` | `Signalish<boolean \| undefined>` |
 | `type?` | `Signalish<string \| undefined>` |
 | `typeof?` | `Signalish<string \| undefined>` |
@@ -706,15 +719,28 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>I18nProviderProps</code> — 5 members</summary>
+<summary><code>I18nProviderProps</code> — 18 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `children?` | `ComponentChildren` |
+| `children?` | `import("preact").ComponentChildren` |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `defaultLocale?` | `string \| undefined` |
-| `i18n` | `PreactI18n` |
+| `fallbackLocale?` | `string \| undefined` |
+| `i18n?` | `I18n \| undefined` |
+| `locale?` | `string \| undefined` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `parent?` | `I18n \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
@@ -725,10 +751,10 @@ import { /* … */ } from '@i18n-micro/preact'
 | --- | --- |
 | `getCurrentPath` | `() => string` |
 | `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
-| `linkComponent?` | `string \| React.ComponentType<{ [key: string]: unknown; href: string; children?: React.ReactNode; style?: React.CSSProperties; className?: string; }> \| undefined` |
+| `linkComponent?` | `string \| HostComponent<{ [key: string]: unknown; href: string; children?: HostNode; style?: HostStyle; className?: string; }> \| undefined` |
 | `push` | `(target: { path: string; }) => void` |
 | `replace` | `(target: { path: string; }) => void` |
-| `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
+| `resolvePath?` | `((to: RouteTarget, locale: string) => RouteTarget) \| undefined` |
 
 </details>
 
@@ -805,15 +831,15 @@ import { /* … */ } from '@i18n-micro/preact'
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `currentLocale?` | `string \| (() => string) \| undefined` |
-| `customActiveLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customButtonStyle?` | `Record<string, string \| number> \| undefined` |
-| `customDisabledLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customDropdownStyle?` | `Record<string, string \| number> \| undefined` |
-| `customIconStyle?` | `Record<string, string \| number> \| undefined` |
-| `customItemStyle?` | `Record<string, string \| number> \| undefined` |
+| `customActiveLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customButtonStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customDisabledLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customDropdownStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customIconStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customItemStyle?` | `import("preact").CSSProperties \| undefined` |
 | `customLabels?` | `Record<string, string> \| undefined` |
-| `customLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customWrapperStyle?` | `Record<string, string \| number> \| undefined` |
+| `customLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customWrapperStyle?` | `import("preact").CSSProperties \| undefined` |
 | `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
@@ -844,7 +870,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `jsx?` | `boolean \| undefined` |
 | `key?` | `any` |
 | `lang?` | `Signalish<string \| undefined>` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
+| `localeRoute?` | `((to: RouteTarget, locale?: string) => RouteTarget) \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `nonce?` | `Signalish<string \| undefined>` |
 | `onAbort?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -1062,7 +1088,7 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>I18nTProps</code> — 318 members</summary>
+<summary><code>I18nTProps</code> — 319 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1128,15 +1154,16 @@ import { /* … */ } from '@i18n-micro/preact'
 | `autoCorrect?` | `Signalish<string \| undefined>` |
 | `autofocus?` | `Signalish<boolean \| undefined>` |
 | `autoFocus?` | `Signalish<boolean \| undefined>` |
-| `children?` | `undefined` |
+| `children?` | `import("preact").ComponentChildren \| ((props: { translation: string; }) => HostNode)` |
 | `class?` | `Signalish<string \| undefined>` |
 | `className?` | `Signalish<string \| undefined>` |
+| `components?` | `Record<string, I18nTComponent> \| undefined` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `customPluralRule?` | `PluralFunc \| undefined` |
+| `customPluralRule?` | `PluralFunc \| null \| undefined` |
 | `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
-| `date?` | `string \| number \| Date \| undefined` |
+| `date?` | `string \| number \| Date \| null \| undefined` |
 | `defaultValue?` | `string \| undefined` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
 | `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
@@ -1169,7 +1196,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `keypath` | `string` |
 | `lang?` | `Signalish<string \| undefined>` |
 | `nonce?` | `Signalish<string \| undefined>` |
-| `number?` | `string \| number \| undefined` |
+| `number?` | `string \| number \| null \| undefined` |
 | `onAbort?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onAbortCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onAnimationEnd?` | `AnimationEventHandler<HTMLElement> \| undefined` |
@@ -1363,14 +1390,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onWaitingCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onWheel?` | `WheelEventHandler<HTMLElement> \| undefined` |
 | `onWheelCapture?` | `WheelEventHandler<HTMLElement> \| undefined` |
-| `params?` | `Record<string, string \| number \| boolean> \| undefined` |
+| `params?` | `Params \| undefined` |
 | `part?` | `Signalish<string \| undefined>` |
-| `plural?` | `string \| number \| undefined` |
+| `plural?` | `string \| number \| null \| undefined` |
 | `popover?` | `Signalish<boolean \| "auto" \| "hint" \| "manual" \| undefined>` |
 | `prefix?` | `Signalish<string \| undefined>` |
 | `property?` | `Signalish<string \| undefined>` |
 | `ref?` | `Ref<HTMLElement> \| undefined` |
-| `relativeDate?` | `string \| number \| Date \| undefined` |
+| `relativeDate?` | `string \| number \| Date \| null \| undefined` |
 | `resource?` | `Signalish<string \| undefined>` |
 | `results?` | `Signalish<number \| undefined>` |
 | `role?` | `Signalish<AriaRole \| undefined>` |
@@ -1379,7 +1406,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `style?` | `Signalish<string \| CSSProperties \| undefined>` |
 | `tabindex?` | `Signalish<number \| undefined>` |
 | `tabIndex?` | `Signalish<number \| undefined>` |
-| `tag?` | `keyof JSX.IntrinsicElements \| undefined` |
+| `tag?` | `keyof import("preact").JSX.IntrinsicElements \| undefined` |
 | `title?` | `Signalish<string \| undefined>` |
 | `translate?` | `Signalish<boolean \| undefined>` |
 | `typeof?` | `Signalish<string \| undefined>` |
@@ -1409,7 +1436,7 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 60 members</summary>
+<summary><code>PreactI18n</code> — 61 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1420,11 +1447,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("@i18n-micro/runtime").I18n & M>) => import("@i18n-micro/runtime").I18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
-| `fork` | `(locale?: string) => import("../../preact/src").PreactI18n` |
+| `fork` | `(locale?: string) => I18n` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -1446,8 +1473,8 @@ import { /* … */ } from '@i18n-micro/preact'
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
-| `new` | `(options: I18nOptions): PreactI18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `new` | `(options: I18nOptions): I18n` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
@@ -1457,6 +1484,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -1477,7 +1505,7 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>PreactI18nOptions</code> — 11 members</summary>
+<summary><code>PreactI18nOptions</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1488,10 +1516,12 @@ import { /* … */ } from '@i18n-micro/preact'
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `parent?` | `I18n \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
@@ -1523,11 +1553,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeName?: string) => boolean` |
 | `locale` | `string` |
-| `localePath?` | `((to: string \| { path?: string; }, locale?: string) => string) \| undefined` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
+| `localePath` | `(to: RouteTarget, locale?: string) => string` |
+| `localeRoute` | `(to: RouteTarget, locale?: string) => RouteTarget` |
 | `setLocale` | `(locale: string) => void` |
 | `setRoute` | `(routeName: string) => void` |
-| `switchLocale?` | `((locale: string) => void) \| undefined` |
+| `switchLocale` | `(locale: string) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `(value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string` |
@@ -1536,5 +1566,17 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string` |
 
 </details>
+## `@i18n-micro/preact/router`
+
+```ts
+import { /* … */ } from '@i18n-micro/preact/router'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `I18nRoutingStrategy` | interface | 6 members |
+
+<code>I18nRoutingStrategy</code> — 6 members, identical to `I18nRoutingStrategy` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

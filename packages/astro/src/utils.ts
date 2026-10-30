@@ -259,7 +259,8 @@ function warnOversizedProps(tree: Translations): void {
   if (isProduction() || warned.has(tree)) return
   warned.add(tree)
   const size = JSON.stringify(tree).length
-  if (size > PROPS_WARN_SIZE) console.warn(`[i18n-micro] getI18nProps() without keys puts ${size} bytes in every island's props: pass the keys the island uses.`)
+  if (size > PROPS_WARN_SIZE)
+    console.warn(`[i18n-micro] getI18nProps() without keys puts ${size} bytes in every island's props: pass the keys the island uses.`)
 }
 
 /**

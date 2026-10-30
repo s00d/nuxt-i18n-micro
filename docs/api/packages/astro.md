@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 63 members |
+| `AstroI18n` | class | 65 members |
 | `AstroI18nOptions` | type | `I18nOptions` |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -26,7 +26,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `createI18nMiddleware` | function | `(options: I18nMiddlewareOptions) => MiddlewareHandler` |
 | `defaultPlural` | const | `PluralFunc` |
 | `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `getDefaultLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
 | `getI18n` | function | `(astro: Pick<AstroGlobal, "locals">) => AstroI18n` |
 | `getI18nProps` | function | `(astro: Pick<AstroGlobal, "locals">, keys?: string[]) => I18nClientProps` |
@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 63 members</summary>
+<summary><code>AstroI18n</code> — 65 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -82,6 +82,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
 | `initialMessages` | `private Record<string, Translations>` |
+| `initialRouteMessages` | `private Record<string, Record<string, Translations>>` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -94,7 +95,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): AstroI18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
@@ -104,6 +105,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -124,7 +126,7 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>FormatService</code> — 20 members</summary>
+<summary><code>FormatService</code> — 21 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -140,6 +142,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
 | `new` | `(options?: FormatServiceOptions \| undefined): FormatService` |
+| `now?` | `private any` |
 | `numberCache` | `private any` |
 | `numberFormats` | `private any` |
 | `relativeCache` | `private any` |

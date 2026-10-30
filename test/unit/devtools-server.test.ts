@@ -18,7 +18,10 @@ vi.mock('@nuxt/devtools-kit', () => ({
 }))
 vi.mock('@nuxt/kit', () => ({
   addDevServerHandler: () => {},
-  useNuxt: () => ({ options: { rootDir: kit.rootDir, app: {} }, hook: (name: string, fn: (event: string, file: string) => void) => kit.hooks.set(name, fn) }),
+  useNuxt: () => ({
+    options: { rootDir: kit.rootDir, app: {} },
+    hook: (name: string, fn: (event: string, file: string) => void) => kit.hooks.set(name, fn),
+  }),
 }))
 
 beforeEach(() => {

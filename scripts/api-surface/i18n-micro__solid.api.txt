@@ -961,7 +961,7 @@ member I18nLinkProps.vocab?: string | undefined
 const I18nProvider: ParentComponent<I18nProviderProps>
 interface I18nProviderProps
 member I18nProviderProps.defaultLocale?: string | undefined
-member I18nProviderProps.i18n: SolidI18n
+member I18nProviderProps.i18n?: SolidI18n | undefined
 member I18nProviderProps.locales?: Locale[] | undefined
 member I18nProviderProps.routingStrategy?: I18nRoutingStrategy | undefined
 interface I18nRoutingStrategy
@@ -1972,6 +1972,7 @@ type RouteTarget: string | { path?: string }
 class SolidI18n
 member SolidI18n.activeKey: private any
 member SolidI18n.activeRootKey: private any
+member SolidI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member SolidI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.clear: () => void
@@ -1981,6 +1982,7 @@ member SolidI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisTy
 member SolidI18n.fallbackKey: private any
 member SolidI18n.fallbackLocale: string
 member SolidI18n.fallbackRootKey: private any
+member SolidI18n.fallbackSignal: private Accessor<string>
 member SolidI18n.fork: (locale?: string) => import("../../solid/src").SolidI18n
 member SolidI18n.formatArgs: private any
 member SolidI18n.formatter: FormatService
@@ -2001,6 +2003,7 @@ member SolidI18n.loadTranslationsCore: (locale: string, translations: Translatio
 member SolidI18n.locale: string
 member SolidI18n.localeAccessor: Accessor<string>
 member SolidI18n.localeIso: protected Record<string, string>
+member SolidI18n.localeSignal: private Accessor<string>
 member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
@@ -2016,7 +2019,7 @@ member SolidI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member SolidI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member SolidI18n.revision: private Accessor<number>
 member SolidI18n.routeAccessor: Accessor<string>
-member SolidI18n.setLocaleIso: (localeIso: Record<string, string>) => void
+member SolidI18n.routeSignal: private Accessor<string>
 member SolidI18n.setRoute: (routeName: string) => void
 member SolidI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member SolidI18n.storage: TranslationStorage

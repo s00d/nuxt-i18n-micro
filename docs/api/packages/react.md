@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/react`
 
-89 exports across 4 entry points.
+91 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -23,12 +23,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("react").Context<I18nContextValue \| null>` |
-| `I18nContextValue` | interface | 5 members |
+| `I18nConfig` | interface | 5 members |
+| `I18nConfigContext` | const | `import("react").Context<I18nConfig \| null>` |
+| `I18nContext` | const | `import("react").Context<I18n \| null>` |
 | `I18nGroup` | const | `(props: I18nGroupProps) => HostElement` |
 | `I18nGroupProps` | interface | 279 members |
 | `I18nLink` | const | `(props: I18nLinkProps) => HostElement` |
-| `I18nLinkProps` | interface | 289 members |
+| `I18nLinkProps` | type | `HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }` |
 | `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement` |
 | `I18nProviderProps` | interface | 18 members |
 | `I18nRoutingStrategy` | interface | 6 members |
@@ -60,7 +61,7 @@ import { /* … */ } from '@i18n-micro/react'
 
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
-<code>I18nContextValue</code> — 5 members, identical to [`I18nContextValue`](/api/packages/preact).
+<code>I18nConfig</code> — 5 members, identical to [`I18nConfig`](/api/packages/preact).
 
 <details>
 <summary><code>I18nGroupProps</code> — 279 members</summary>
@@ -343,303 +344,6 @@ import { /* … */ } from '@i18n-micro/react'
 | `tabIndex?` | `number \| undefined` |
 | `title?` | `string \| undefined` |
 | `translate?` | `"yes" \| "no" \| undefined` |
-| `typeof?` | `string \| undefined` |
-| `unselectable?` | `"off" \| "on" \| undefined` |
-| `vocab?` | `string \| undefined` |
-
-</details>
-
-<details>
-<summary><code>I18nLinkProps</code> — 289 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `about?` | `string \| undefined` |
-| `accessKey?` | `string \| undefined` |
-| `activeStyle?` | `import("react").CSSProperties \| undefined` |
-| `aria-activedescendant?` | `string \| undefined` |
-| `aria-atomic?` | `Booleanish \| undefined` |
-| `aria-autocomplete?` | `"none" \| "list" \| "inline" \| "both" \| undefined` |
-| `aria-braillelabel?` | `string \| undefined` |
-| `aria-brailleroledescription?` | `string \| undefined` |
-| `aria-busy?` | `Booleanish \| undefined` |
-| `aria-checked?` | `boolean \| "true" \| "false" \| "mixed" \| undefined` |
-| `aria-colcount?` | `number \| undefined` |
-| `aria-colindex?` | `number \| undefined` |
-| `aria-colindextext?` | `string \| undefined` |
-| `aria-colspan?` | `number \| undefined` |
-| `aria-controls?` | `string \| undefined` |
-| `aria-current?` | `boolean \| "true" \| "false" \| "page" \| "step" \| "location" \| "date" \| "time" \| undefined` |
-| `aria-describedby?` | `string \| undefined` |
-| `aria-description?` | `string \| undefined` |
-| `aria-details?` | `string \| undefined` |
-| `aria-disabled?` | `Booleanish \| undefined` |
-| `aria-dropeffect?` | `"none" \| "link" \| "copy" \| "execute" \| "move" \| "popup" \| undefined` |
-| `aria-errormessage?` | `string \| undefined` |
-| `aria-expanded?` | `Booleanish \| undefined` |
-| `aria-flowto?` | `string \| undefined` |
-| `aria-grabbed?` | `Booleanish \| undefined` |
-| `aria-haspopup?` | `boolean \| "true" \| "false" \| "dialog" \| "grid" \| "listbox" \| "menu" \| "tree" \| undefined` |
-| `aria-hidden?` | `Booleanish \| undefined` |
-| `aria-invalid?` | `boolean \| "true" \| "false" \| "grammar" \| "spelling" \| undefined` |
-| `aria-keyshortcuts?` | `string \| undefined` |
-| `aria-label?` | `string \| undefined` |
-| `aria-labelledby?` | `string \| undefined` |
-| `aria-level?` | `number \| undefined` |
-| `aria-live?` | `"off" \| "assertive" \| "polite" \| undefined` |
-| `aria-modal?` | `Booleanish \| undefined` |
-| `aria-multiline?` | `Booleanish \| undefined` |
-| `aria-multiselectable?` | `Booleanish \| undefined` |
-| `aria-orientation?` | `"horizontal" \| "vertical" \| undefined` |
-| `aria-owns?` | `string \| undefined` |
-| `aria-placeholder?` | `string \| undefined` |
-| `aria-posinset?` | `number \| undefined` |
-| `aria-pressed?` | `boolean \| "true" \| "false" \| "mixed" \| undefined` |
-| `aria-readonly?` | `Booleanish \| undefined` |
-| `aria-relevant?` | `"text" \| "additions" \| "additions removals" \| "additions text" \| "all" \| "removals" \| "removals additions" \| "removals text" \| "text additions" \| "text removals" \| undefined` |
-| `aria-required?` | `Booleanish \| undefined` |
-| `aria-roledescription?` | `string \| undefined` |
-| `aria-rowcount?` | `number \| undefined` |
-| `aria-rowindex?` | `number \| undefined` |
-| `aria-rowindextext?` | `string \| undefined` |
-| `aria-rowspan?` | `number \| undefined` |
-| `aria-selected?` | `Booleanish \| undefined` |
-| `aria-setsize?` | `number \| undefined` |
-| `aria-sort?` | `"none" \| "ascending" \| "descending" \| "other" \| undefined` |
-| `aria-valuemax?` | `number \| undefined` |
-| `aria-valuemin?` | `number \| undefined` |
-| `aria-valuenow?` | `number \| undefined` |
-| `aria-valuetext?` | `string \| undefined` |
-| `autoCapitalize?` | `"off" \| "none" \| "on" \| "sentences" \| "words" \| "characters" \| (string & {}) \| undefined` |
-| `autoCorrect?` | `string \| undefined` |
-| `autoFocus?` | `boolean \| undefined` |
-| `autoSave?` | `string \| undefined` |
-| `children?` | `ReactNode` |
-| `className?` | `string \| undefined` |
-| `color?` | `string \| undefined` |
-| `content?` | `string \| undefined` |
-| `contentEditable?` | `Booleanish \| "inherit" \| "plaintext-only" \| undefined` |
-| `contextMenu?` | `string \| undefined` |
-| `dangerouslySetInnerHTML?` | `{ __html: string \| TrustedHTML; } \| undefined` |
-| `datatype?` | `string \| undefined` |
-| `defaultChecked?` | `boolean \| undefined` |
-| `defaultValue?` | `string \| number \| readonly string[] \| undefined` |
-| `dir?` | `string \| undefined` |
-| `download?` | `any` |
-| `draggable?` | `Booleanish \| undefined` |
-| `enterKeyHint?` | `"enter" \| "done" \| "go" \| "next" \| "previous" \| "search" \| "send" \| undefined` |
-| `exportparts?` | `string \| undefined` |
-| `hidden?` | `boolean \| undefined` |
-| `href?` | `string \| undefined` |
-| `hrefLang?` | `string \| undefined` |
-| `id?` | `string \| undefined` |
-| `inert?` | `boolean \| undefined` |
-| `inlist?` | `any` |
-| `inputMode?` | `"none" \| "search" \| "text" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal" \| undefined` |
-| `is?` | `string \| undefined` |
-| `itemID?` | `string \| undefined` |
-| `itemProp?` | `string \| undefined` |
-| `itemRef?` | `string \| undefined` |
-| `itemScope?` | `boolean \| undefined` |
-| `itemType?` | `string \| undefined` |
-| `lang?` | `string \| undefined` |
-| `localeRoute?` | `((to: RouteTarget, locale?: string) => RouteTarget) \| undefined` |
-| `media?` | `string \| undefined` |
-| `nonce?` | `string \| undefined` |
-| `onAbort?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAbortCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationEnd?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationEndCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationIteration?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationIterationCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationStart?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationStartCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAuxClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAuxClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBlur?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBlurCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlay?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayThrough?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayThroughCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onChange?` | `ChangeEventHandler<HTMLAnchorElement, Element> \| undefined` |
-| `onChangeCapture?` | `ChangeEventHandler<HTMLAnchorElement, Element> \| undefined` |
-| `onClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionEnd?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionEndCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionStart?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionStartCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionUpdate?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionUpdateCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onContextMenu?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onContextMenuCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCopy?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCopyCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCut?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCutCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDoubleClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDoubleClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDrag?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnd?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEndCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnter?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnterCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragExit?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragExitCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragLeave?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragLeaveCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragOver?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragOverCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragStart?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragStartCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDrop?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDropCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDurationChange?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDurationChangeCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEmptied?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEmptiedCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEncrypted?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEncryptedCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEnded?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEndedCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onError?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onErrorCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocus?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onGotPointerCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalid?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalidCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyDown?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyDownCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyPress?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyPressCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyUp?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyUpCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoad?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedData?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedDataCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedMetadata?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedMetadataCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadStart?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadStartCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLostPointerCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLostPointerCaptureCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseDown?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseDownCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseEnter?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseLeave?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseMove?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseMoveCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOut?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOutCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOver?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOverCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseUp?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseUpCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPaste?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPasteCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPause?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPauseCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlay?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlayCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlaying?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlayingCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerCancel?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerCancelCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerDown?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerDownCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerEnter?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerLeave?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerMove?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerMoveCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOut?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOutCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOver?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOverCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerUp?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerUpCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onProgress?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onProgressCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onRateChange?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onRateChangeCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onReset?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onResetCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScroll?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollCapture?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollEnd?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollEndCapture?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeeked?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeekedCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeeking?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeekingCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSelect?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSelectCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onStalled?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onStalledCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmit?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmitCapture?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSuspend?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSuspendCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTimeUpdate?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTimeUpdateCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchCancel?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchCancelCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchEnd?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchEndCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchMove?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchMoveCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchStart?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchStartCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionCancel?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionEnd?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionEndCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionRun?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionStart?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onVolumeChange?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onVolumeChangeCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWaiting?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWaitingCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWheel?` | `WheelEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWheelCapture?` | `WheelEventHandler<HTMLAnchorElement> \| undefined` |
-| `part?` | `string \| undefined` |
-| `ping?` | `string \| undefined` |
-| `popover?` | `"" \| "auto" \| "manual" \| "hint" \| undefined` |
-| `popoverTarget?` | `string \| undefined` |
-| `popoverTargetAction?` | `"toggle" \| "show" \| "hide" \| undefined` |
-| `prefix?` | `string \| undefined` |
-| `property?` | `string \| undefined` |
-| `radioGroup?` | `string \| undefined` |
-| `referrerPolicy?` | `HTMLAttributeReferrerPolicy \| undefined` |
-| `rel?` | `string \| undefined` |
-| `resource?` | `string \| undefined` |
-| `results?` | `number \| undefined` |
-| `rev?` | `string \| undefined` |
-| `role?` | `AriaRole \| undefined` |
-| `security?` | `string \| undefined` |
-| `slot?` | `string \| undefined` |
-| `spellCheck?` | `Booleanish \| undefined` |
-| `style?` | `CSSProperties \| undefined` |
-| `suppressContentEditableWarning?` | `boolean \| undefined` |
-| `suppressHydrationWarning?` | `boolean \| undefined` |
-| `tabIndex?` | `number \| undefined` |
-| `target?` | `HTMLAttributeAnchorTarget \| undefined` |
-| `title?` | `string \| undefined` |
-| `to` | `RouteTarget` |
-| `translate?` | `"yes" \| "no" \| undefined` |
-| `type?` | `string \| undefined` |
 | `typeof?` | `string \| undefined` |
 | `unselectable?` | `"off" \| "on" \| undefined` |
 | `vocab?` | `string \| undefined` |
@@ -1314,12 +1018,13 @@ import { /* … */ } from '@i18n-micro/react/client'
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("react").Context<I18nContextValue \| null>` |
-| `I18nContextValue` | interface | 5 members |
+| `I18nConfig` | interface | 5 members |
+| `I18nConfigContext` | const | `import("react").Context<I18nConfig \| null>` |
+| `I18nContext` | const | `import("react").Context<I18n \| null>` |
 | `I18nGroup` | const | `(props: I18nGroupProps) => HostElement` |
 | `I18nGroupProps` | interface | 279 members |
 | `I18nLink` | const | `(props: I18nLinkProps) => HostElement` |
-| `I18nLinkProps` | interface | 289 members |
+| `I18nLinkProps` | type | `HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }` |
 | `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement` |
 | `I18nProviderProps` | interface | 18 members |
 | `I18nRoutingStrategy` | interface | 6 members |
@@ -1351,11 +1056,9 @@ import { /* … */ } from '@i18n-micro/react/client'
 
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
-<code>I18nContextValue</code> — 5 members, identical to [`I18nContextValue`](/api/packages/preact).
+<code>I18nConfig</code> — 5 members, identical to [`I18nConfig`](/api/packages/preact).
 
 <code>I18nGroupProps</code> — 279 members, identical to `I18nGroupProps` above.
-
-<code>I18nLinkProps</code> — 289 members, identical to `I18nLinkProps` above.
 
 <code>I18nProviderProps</code> — 18 members, identical to `I18nProviderProps` above.
 

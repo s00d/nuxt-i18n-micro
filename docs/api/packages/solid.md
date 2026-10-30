@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `RouteTarget` | type | `string \| { path?: string }` |
-| `SolidI18n` | class | 64 members |
+| `SolidI18n` | class | 67 members |
 | `SolidI18nOptions` | type | `I18nOptions` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -791,7 +791,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | Member | Type |
 | --- | --- |
 | `defaultLocale?` | `string \| undefined` |
-| `i18n` | `SolidI18n` |
+| `i18n?` | `SolidI18n \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
 
@@ -1532,12 +1532,13 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 64 members</summary>
+<summary><code>SolidI18n</code> — 67 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
+| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
@@ -1547,6 +1548,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
+| `fallbackSignal` | `private Accessor<string>` |
 | `fork` | `(locale?: string) => import("../../solid/src").SolidI18n` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
@@ -1567,6 +1569,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
 | `localeIso` | `protected Record<string, string>` |
+| `localeSignal` | `private Accessor<string>` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
@@ -1583,7 +1586,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
 | `revision` | `private Accessor<number>` |
 | `routeAccessor` | `Accessor<string>` |
-| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
+| `routeSignal` | `private Accessor<string>` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |

@@ -1,4 +1,5 @@
 import { usageError } from '../errors'
+import { addSecret } from '../log'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
 import type { BatchRequest, Driver } from './drivers'
 
@@ -55,6 +56,7 @@ function resolveKey(provider: string, token: string): string {
   const name = `${provider === 'gateway' ? 'AI_GATEWAY' : provider.toUpperCase()}_API_KEY`
   const key = token.trim() || envKey(name)
   if (!key) throw usageError(`AI provider "${provider}" needs a key.`, [`Set I18N_TRANSLATE_TOKEN or ${name}.`])
+  addSecret(key)
   return key
 }
 

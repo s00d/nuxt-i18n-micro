@@ -11,7 +11,9 @@ export function addSecret(value: string | undefined): void {
   secrets.add(encodeURIComponent(value))
 }
 
-const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text)
+const URL_CREDENTIALS = /(\/\/)[^/@\s]+@/g
+
+const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text).replace(URL_CREDENTIALS, '$1***@')
 
 const useColor = (stream: NodeJS.WriteStream): boolean => Boolean(stream.isTTY) && !process.env.NO_COLOR
 const paint = (stream: NodeJS.WriteStream, code: number, text: string): string => (useColor(stream) ? `\u001B[${code}m${text}\u001B[39m` : text)

@@ -1,11 +1,11 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
-import { readJsonIfExists, splitList, stringifyLike, walkFiles, writeFilesAtomic } from '../fs'
+import { readJsonIfExists, readUtf8, splitList, stringifyLike, walkFiles, writeFilesAtomic } from '../fs'
 import { type JsonObject, flattenStrings, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
-import { isCodeFile, isTestFile, projectFiles } from '../source'
+import { isCodeFile, isOwnSource, isTestFile, projectFiles } from '../source'
 import { type Conversion, type Hardcoded, KeyRegistry, type NewTranslation, convertSource } from '../text-to-i18n'
 
 export interface TextToI18nArgs {
@@ -24,6 +24,13 @@ interface Decisions {
 }
 
 const VALID_KEY = /^[\p{L}\p{N}_.-]+$/u
+
+/** A layer or an alias target serves other apps too, and the new keys would land in this one only. */
+function ownFiles(config: ProjectConfig, files: string[]): string[] {
+  const own = files.filter((file) => isOwnSource(config, file))
+  if (own.length < files.length) log.warn(`Left ${files.length - own.length} files of layers and folders outside the project alone.`)
+  return own
+}
 
 function filesToProcess(config: ProjectConfig, args: TextToI18nArgs): string[] {
   if (!args.path) {
@@ -51,8 +58,8 @@ function convertAll(files: string[], args: TextToI18nArgs, tree: JsonObject, dec
   const conversions: Conversion[] = []
 
   for (const file of files) {
-    const content = readFileSync(file, 'utf8')
     try {
+      const content = readUtf8(file)
       const conversion = convertSource(content, file, keys)
       conversions.push(conversion)
       if (conversion.content !== content) changes.push([file, conversion.content])
@@ -114,7 +121,7 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
     ? resolve(config.rootDir, args.translationFile)
     : join(config.translationDir, `${config.defaultLocale}.json`)
   const translations = readJsonIfExists(translationFile)
-  const files = filesToProcess(config, args)
+  const files = ownFiles(config, filesToProcess(config, args))
 
   let result = convertAll(files, args, translations, { keyOverrides: {}, skippedKeys: [] })
   if (args.interactive && result.created.size > 0) {
@@ -124,7 +131,7 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
   log.info(`Found ${files.length} files to process.`)
   report('Mixed text, not rewritten: wrap the sentence in one key by hand', result.mixed, config.rootDir)
   report('Text in code, not rewritten: `$t` may not be in scope there', result.code, config.rootDir)
-  report('Skipped: the generated key would overwrite an existing value', result.blocked, config.rootDir)
+  report('Skipped: the key would overwrite a value, or cannot be written in a template', result.blocked, config.rootDir)
 
   if (result.created.size === 0 && result.changes.length === 0) {
     log.info('No new translations found.')

@@ -44,9 +44,13 @@ function readPo(project: Project, dir: string): Entry[] {
   })
 }
 
-function csvScope(file: string, code: string): string {
-  const match = file.replaceAll('\\', '/').match(/^pages\/(.+)\/([^/]+)\.json$/)
-  return match && match[2] === code ? match[1]! : GLOBAL_SCOPE
+/** The column has to name this locale: a row of another one would land in the wrong file. */
+function csvScope(file: string, code: string, path: string): string {
+  const name = file.replaceAll('\\', '/')
+  if (name === `${code}.json`) return GLOBAL_SCOPE
+  const match = name.match(/^pages\/(.+)\/([^/]+)\.json$/)
+  if (match?.[2] === code) return match[1]!
+  throw validationError(`Row of another file in ${path}: ${file}`, [`Expected ${code}.json or pages/<page>/${code}.json.`])
 }
 
 function csvColumns(header: string[] | undefined, path: string): { file: number; key: number; translation: number } {
@@ -61,7 +65,7 @@ function readCsvFile(path: string, code: string): Entry[] {
   return rows.map((row) => {
     const [file, key, value] = [row[columns.file], row[columns.key], row[columns.translation]]
     if (!file || !key || value === undefined) throw validationError(`Malformed row in ${path}: ${row.join(',')}`)
-    return { code, scope: csvScope(file, code), key, value }
+    return { code, scope: csvScope(file, code, path), key, value }
   })
 }
 

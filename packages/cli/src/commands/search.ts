@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import { validationError } from '../errors'
 import { splitList } from '../fs'
-import { flattenStrings } from '../json'
+import { flattenStrings, getPath } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { type ProjectScan, scanProject, usageIndex } from '../source'
@@ -46,7 +46,8 @@ function matchesOf(project: Project, scan: ProjectScan, args: SearchArgs): Searc
     return keys.flatMap((key): SearchMatch[] => {
       const values = byLocale.map(([, strings]) => strings[key] ?? '')
       const used = isUsed(key)
-      if (args.onlyUnused && used) return []
+      const inherited = project.codes.some((code) => getPath(project.locale(code).inheritedTree(scope), key) !== undefined)
+      if (args.onlyUnused && (used || inherited)) return []
       if (query && ![key, ...values].some((text) => fold(text).includes(query))) return []
       return [
         {

@@ -49,6 +49,12 @@ export function findUnused(project: Project, scan: ProjectScan): UnusedKey[] {
   })
 }
 
+/** Why removing keys cannot be trusted here. Empty when it can. */
+export function deletionDoubts(project: Project, scan: ProjectScan): string[] {
+  const shared = sharedLocaleFiles(project.config).map((file) => `Locale file outside the project: ${file}`)
+  return [...usageDoubts(scan), ...shared]
+}
+
 /** A locale file that lives outside the project may feed another app too, whose code was not scanned. */
 function sharedLocaleFiles(config: ProjectConfig): string[] {
   const root = realpathSync(config.rootDir)
@@ -67,8 +73,7 @@ export default async function run(args: CleanArgs): Promise<void> {
     throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
   }
 
-  const shared = sharedLocaleFiles(project.config).map((file) => `Locale file outside the project: ${file}`)
-  const doubts = [...usageDoubts(scan), ...shared]
+  const doubts = deletionDoubts(project, scan)
   for (const doubt of doubts) log.warn(doubt)
   if (doubts.length > 0 && !args.force && !args.dryRun) {
     throw findingsError('Cannot prove which keys are unused, so nothing was removed.', [

@@ -112,7 +112,7 @@ export interface CheckReport {
   unusedSkipped?: string[]
 }
 
-export function runChecks(project: Project, scan: ProjectScan, types: Set<CheckType>): CheckReport {
+export function runChecks(project: Project, scan: ProjectScan, types: Set<CheckType>, askedForUnused = false): CheckReport {
   const { reference, config } = project
   const doubts = usageDoubts(scan)
   const skipUnused = types.has('unused') && doubts.length > 0
@@ -135,7 +135,9 @@ export function runChecks(project: Project, scan: ProjectScan, types: Set<CheckT
   ]
   const findings = all.filter((finding) => types.has(finding.type))
   const summary = Object.fromEntries([...types].map((type) => [type, findings.filter((finding) => finding.type === type).length]))
-  return { ok: findings.length === 0, summary, findings, ...(skipUnused ? { unusedSkipped: doubts } : {}) }
+  // Asked for by name, a check that could not run is not a pass.
+  const ok = findings.length === 0 && !(askedForUnused && skipUnused)
+  return { ok, summary, findings, ...(skipUnused ? { unusedSkipped: doubts } : {}) }
 }
 
 function print(report: CheckReport): void {
@@ -151,7 +153,7 @@ function print(report: CheckReport): void {
 export default async function run(args: CheckArgs): Promise<void> {
   const types = selectedTypes(args)
   const project = await Project.load(args)
-  const report = runChecks(project, scanProject(project.config, { ignore: splitList(args.ignore) }), types)
+  const report = runChecks(project, scanProject(project.config, { ignore: splitList(args.ignore) }), types, splitList(args.only).includes('unused'))
 
   if (args.json) log.json(report)
   else print(report)
@@ -160,7 +162,7 @@ export default async function run(args: CheckArgs): Promise<void> {
     return
   }
   const counts = Object.entries(report.summary).filter(([, count]) => count > 0)
-  const summary = counts.map(([type, count]) => `${count} ${type}`).join(', ')
+  const summary = counts.map(([type, count]) => `${count} ${type}`).join(', ') || 'unused keys could not be checked'
   throw findingsError(
     `Check failed: ${summary}.`,
     args.json ? [] : ['Translate what is missing: i18n-micro translate. Remove extra keys: i18n-micro sync.'],

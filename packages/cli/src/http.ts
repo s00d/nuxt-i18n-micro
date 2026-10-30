@@ -55,11 +55,10 @@ async function attempt(url: string, options: RequestOptions, retriesLeft: number
       return attempt(url, options, retriesLeft - 1, delayMs * 2)
     }
     // The runtime quotes the whole URL when it cannot parse one, query string included.
-    throw new CliError(`Request failed: ${(error as Error).message.replaceAll(url, safeUrl(url))}`, {
-      code: 'HTTP_ERROR',
-      details: { URL: safeUrl(url) },
-      cause: error,
-    })
+    const scrub = (text: string): string => text.replaceAll(url, safeUrl(url))
+    // A new error, so `--debug` prints this text and not the runtime's stack, which quotes the URL too.
+    const cause = new Error(scrub((error as Error).message))
+    throw new CliError(`Request failed: ${cause.message}`, { code: 'HTTP_ERROR', details: { URL: safeUrl(url) }, cause })
   }
   if (response.ok) return response
   if (RETRYABLE.has(response.status) && retriesLeft > 0) {

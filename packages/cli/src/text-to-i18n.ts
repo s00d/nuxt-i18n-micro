@@ -1,6 +1,6 @@
 import { extname, parse as parsePath, sep } from 'node:path'
 import { MagicString, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { type JsonObject, pathConflict } from './json'
+import { type JsonObject, isWritableKey, pathConflict, setPath } from './json'
 import { type AstNode, NODE_TYPES, lineOf, parseCode, scanFile, staticString } from './source'
 
 const TEXT_ATTRIBUTES = new Set(['title', 'label', 'placeholder', 'alt', 'aria-label'])
@@ -119,12 +119,15 @@ export class KeyRegistry {
   readonly blocked: Hardcoded[] = []
   private readonly byText = new Map<string, string>()
   private readonly used: Set<string>
+  /** The file with this run's keys in it: `pages.user` and `pages.user.save` cannot both be text. */
+  private readonly planned: JsonObject
 
   constructor(
     existing: Record<string, string>,
-    private readonly tree: JsonObject = {},
+    tree: JsonObject = {},
     private readonly options: ConvertOptions = {},
   ) {
+    this.planned = structuredClone(tree)
     this.used = new Set(Object.keys(existing))
     for (const [key, value] of Object.entries(existing)) this.byText.set(value, key)
   }
@@ -138,24 +141,38 @@ export class KeyRegistry {
     return key
   }
 
+  private block(text: string, file: string, line: number): null {
+    this.byText.set(text, '')
+    this.blocked.push({ file, line, text })
+    return null
+  }
+
   /** Key for `text`, or `null` when it stays as it is. */
   keyFor(text: string, file: string, line: number): string | null {
     const known = this.byText.get(text)
-    if (known !== undefined) return known || null
+    if (known === '') return null
+    // A natural-language key such as `Don't save` cannot go between the quotes of a template.
+    if (known !== undefined) return isWritableKey(known) ? known : this.block(text, file, line)
     const generated = this.generate(text, file)
     if (this.options.skippedKeys?.includes(generated)) {
       this.byText.set(text, '') // every occurrence of the text is skipped, not only the first
       return null
     }
     const key = this.options.keyOverrides?.[generated] ?? generated
-    if (pathConflict(this.tree, key)) {
-      this.byText.set(text, '')
-      this.blocked.push({ file, line, text })
-      return null
-    }
+    if (pathConflict(this.planned, key)) return this.block(text, file, line)
+    setPath(this.planned, key, text)
     this.created.set(key, { key, value: text, file, line })
     this.byText.set(text, key)
     return key
+  }
+
+  /** Take back keys of a conversion that was thrown away. */
+  forget(keep: ReadonlySet<string>): void {
+    for (const [key, { value }] of this.created) {
+      if (keep.has(key)) continue
+      this.created.delete(key)
+      this.byText.delete(value)
+    }
   }
 }
 
@@ -176,6 +193,7 @@ interface TemplateNode {
   tag?: string
   name?: string
   value?: { content: string }
+  arg?: { content?: string }
   content?: string
   loc: { source: string; start: { offset: number }; end: { offset: number } }
   props?: TemplateNode[]
@@ -211,9 +229,14 @@ function convertTextNode(node: TemplateNode, run: VueRun): void {
   if (key) run.magic.overwrite(start, start + source.trim().length, `{{ $t('${key}') }}`)
 }
 
-function convertAttribute(prop: TemplateNode, run: VueRun): void {
+/** `title="x" :title="y"`: binding the first would make the attribute a duplicate. */
+const isBound = (element: TemplateNode, name: string | undefined): boolean =>
+  Boolean(element.props?.some((prop) => prop.type === NODE_TYPES.DIRECTIVE && prop.arg?.content === name))
+
+function convertAttribute(prop: TemplateNode, element: TemplateNode, run: VueRun): void {
   const text = prop.value?.content
   if (prop.type !== NODE_TYPES.ATTRIBUTE || !text || !TEXT_ATTRIBUTES.has(prop.name ?? '') || !isTranslatable(text)) return
+  if (isBound(element, prop.name)) return
   const key = run.keys.keyFor(text, run.file, lineOf(run.content, prop.loc.start.offset))
   if (key) run.magic.overwrite(prop.loc.start.offset, prop.loc.end.offset, `:${prop.name}="$t('${key}')"`)
 }
@@ -241,7 +264,7 @@ function reportMixed(node: TemplateNode, run: VueRun): void {
 function convertTemplate(node: TemplateNode, run: VueRun, textAllowed = true): void {
   if (node.type === NODE_TYPES.ELEMENT) {
     if (isSkippedElement(node)) return
-    for (const prop of node.props ?? []) convertAttribute(prop, run)
+    for (const prop of node.props ?? []) convertAttribute(prop, node, run)
   }
   const children = node.children ?? []
   const mixed = isMixed(children)
@@ -286,13 +309,22 @@ function reportCode(content: string, file: string): Hardcoded[] {
 }
 
 function convertVue(content: string, file: string, keys: KeyRegistry): Conversion {
-  const { descriptor } = parseSfc(content, { filename: file })
-  const ast = descriptor.template?.ast as unknown as TemplateNode | undefined
   const out: Conversion = { content, mixed: [], code: [] }
+  if (content.trim() === '') return out
+  const { descriptor, errors } = parseSfc(content, { filename: file })
+  if (errors.length > 0) throw new Error(`it does not parse: ${String((errors[0] as Error).message)}`)
+  const ast = descriptor.template?.ast as unknown as TemplateNode | undefined
   if (!ast) return out
+  const before = new Set(keys.created.keys())
   const run: VueRun = { magic: new MagicString(content), keys, file, content, out }
   for (const child of ast.children ?? []) convertTemplate(child, run)
-  out.content = run.magic.toString()
+  const converted = run.magic.toString()
+  // A file that parsed before has to parse after, whatever a template held that this code did not foresee.
+  if (parseSfc(converted, { filename: file }).errors.length > 0) {
+    keys.forget(before)
+    throw new Error('the rewritten file would not parse')
+  }
+  out.content = converted
   return out
 }
 

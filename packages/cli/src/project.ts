@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { notFoundError, usageError, validationError } from './errors'
-import { readJsonIfExists, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
+import { matchLineEnding, readJsonIfExists, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
 import { type JsonObject, type JsonValue, deletePath, flatten, flattenStrings, getPath, isObject, pathConflict, setPath, sortKeys } from './json'
 import { type ProjectConfig, loadProjectConfig } from './nuxt'
 
@@ -130,6 +130,7 @@ export class LocaleSet {
   /** Writes `value`, or returns the key that blocks it: a write never destroys another value. */
   set(key: string, value: JsonValue, scope: string = GLOBAL_SCOPE): string | null {
     assertSafeScope(scope)
+    if (key.split('.').includes('__proto__')) return key
     const conflict = pathConflict(this.tree(scope), key)
     if (conflict) return conflict
     if (scope !== GLOBAL_SCOPE && !this.pages[scope]) this.pages[scope] = {}
@@ -165,7 +166,9 @@ export class Project {
 
     const locales = new Map<string, LocaleSet>()
     for (const { code } of resolved.locales) {
-      const layers = resolved.translationDirs.map((dir) => readLayer(dir, code, !resolved.additionalDirs.includes(dir)))
+      const layers = resolved.translationDirs.map((dir) =>
+        readLayer(dir, code, !resolved.disablePageLocales && !resolved.additionalDirs.includes(dir)),
+      )
       locales.set(code, new LocaleSet(mergeLayers(layers), mergeLayers(layers.slice(0, -1)), layers.at(-1)!))
     }
     return new Project(resolved, locales)
@@ -210,7 +213,7 @@ export class Project {
       if (previous === undefined && Object.keys(content).length === 0) continue
       // A scope nothing touched keeps its bytes, whatever its formatting.
       if (!options.rewrite && previous !== undefined && JSON.stringify(content) === JSON.stringify(own)) continue
-      const text = options.indent ? stringifyJson(content, options.indent) : stringifyLike(previous, content)
+      const text = options.indent ? matchLineEnding(previous, stringifyJson(content, options.indent)) : stringifyLike(previous, content)
       if (text !== previous) files.push([path, text])
     }
     return files

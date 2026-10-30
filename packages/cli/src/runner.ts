@@ -26,16 +26,36 @@ function convert(name: string, spec: ArgSpec, value: unknown): unknown {
 
 const toCamel = (name: string): string => name.replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase())
 
-/** A mistyped `--dryrun` on `clean` must not run the real thing. */
-function assertKnownFlags(name: string, spec: CommandSpec, rawArgs: string[]): void {
-  const known = new Set(['help', ...Object.keys(spec.args)])
-  for (const raw of rawArgs.slice(0, rawArgs.includes('--') ? rawArgs.indexOf('--') : undefined)) {
-    if (!raw.startsWith('--')) continue
-    const flag = toCamel(raw.slice(2).split('=')[0]!)
-    const positive = flag.replace(/^no([A-Z])/, (_match, letter: string) => letter.toLowerCase())
-    if (!known.has(flag) && !known.has(positive)) {
-      throw usageError(`Unknown flag ${raw.split('=')[0]} for ${name}`, [`See i18n-micro ${name} --help`])
-    }
+function assertKnownFlag(name: string, spec: CommandSpec, raw: string): ArgSpec | undefined {
+  const flag = toCamel(raw.slice(2).split('=')[0]!)
+  const positive = flag.replace(/^no([A-Z])/, (_match, letter: string) => letter.toLowerCase())
+  if (flag !== 'help' && !spec.args[flag] && !spec.args[positive]) {
+    throw usageError(`Unknown flag ${raw.split('=')[0]} for ${name}`, [`See i18n-micro ${name} --help`])
+  }
+  return spec.args[flag]
+}
+
+const takesValue = (arg: ArgSpec | undefined, raw: string): boolean => arg?.type === 'string' && !raw.includes('=')
+
+/**
+ * A mistyped `--dryrun`, `-dryRun` or `dryRun` on `clean` must not run the real thing: whatever
+ * the parser would drop or misread is an error here.
+ */
+function assertKnownArgs(name: string, spec: CommandSpec, rawArgs: string[]): void {
+  const positionals: string[] = []
+  const end = rawArgs.includes('--') ? rawArgs.indexOf('--') : rawArgs.length
+  for (let index = 0; index < end; index += 1) {
+    const raw = rawArgs[index]!
+    if (raw.startsWith('--')) {
+      if (takesValue(assertKnownFlag(name, spec, raw), raw) && !rawArgs[index + 1]?.startsWith('-')) index += 1
+    } else if (raw.startsWith('-') && raw !== '-') {
+      throw usageError(`Unknown flag ${raw} for ${name}`, ['Long flags take two dashes.', `See i18n-micro ${name} --help`])
+    } else positionals.push(raw)
+  }
+  positionals.push(...rawArgs.slice(end + 1))
+  const allowed = Object.values(spec.args).filter((arg) => arg.type === 'positional').length
+  if (positionals.length > allowed) {
+    throw usageError(`Unexpected argument for ${name}: ${positionals[allowed]}`, [`See i18n-micro ${name} --help`])
   }
 }
 
@@ -51,7 +71,7 @@ function toCommand(name: string, spec: CommandSpec): CommandDef {
     meta: { name, description: spec.description },
     args,
     async run({ args: parsed, rawArgs }) {
-      assertKnownFlags(name, spec, rawArgs)
+      assertKnownArgs(name, spec, rawArgs)
       log.setSilent(parsed.logLevel === 'silent')
       const handler = await spec.load()
       await handler.default(validated(spec, parsed) as never)
@@ -80,6 +100,8 @@ export async function runCli(rawArgs: string[]): Promise<void> {
       await showUsage(target, target === main ? undefined : main)
       return
     }
+    // The parser takes the first word as the command, so `--dryRun clean` would lose its flag.
+    if (rawArgs[0]!.startsWith('-')) throw usageError(`Unknown flag ${rawArgs[0]}: flags go after the command.`)
     await runCommand(main, { rawArgs })
   } catch (error) {
     reportError(error, rawArgs.includes('--debug'))

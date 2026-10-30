@@ -112,6 +112,7 @@ export default async function run(args: LintArgs): Promise<void> {
   const rules = selectRules(args, loadConfig(project.config.rootDir))
   if (rules.length === 0) {
     log.warn('No rules to check')
+    if (args.json) log.json({ rulesChecked: [], issueCount: 0, fixedCount: 0, fixApplied: false, issues: [] })
     return
   }
 

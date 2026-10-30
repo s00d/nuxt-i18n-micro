@@ -51,7 +51,7 @@ export const EXIT_CODES: ReadonlyArray<readonly [code: number, meaning: string]>
   [0, 'Done, nothing to report'],
   [
     1,
-    'Findings: `check`, `lint` or `format --check` found something, `clean` could not prove what is unused, `translate` left keys out, `import` or `sync-remote` met a conflict',
+    'Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict',
   ],
   [2, 'Failure: bad usage, unreadable project, network or file error'],
 ]
@@ -116,7 +116,11 @@ export const commands: Record<string, CommandSpec> = {
     description: 'The CI gate: fail on missing, empty, extra, undefined or unused keys and broken placeholders',
     args: {
       ...projectArgs,
-      only: { type: 'string', description: `Comma-separated checks to run: ${CHECK_TYPES.join(', ')}`, defaultHint: 'all but duplicates' },
+      only: {
+        type: 'string',
+        description: `Comma-separated checks to run: ${CHECK_TYPES.join(', ')}. \`unused\` named here fails when it cannot run`,
+        defaultHint: 'all but duplicates',
+      },
       duplicates: { type: 'boolean', description: 'Also report the same text under different keys', default: false },
       ignore,
       json,
@@ -200,8 +204,13 @@ export const commands: Record<string, CommandSpec> = {
   },
   sync: {
     group: 'Translation workflow',
-    description: 'Remove keys the default locale does not have. Missing keys stay missing, for fallbackLocale and `check`',
-    args: { ...projectArgs, ignore, dryRun: { type: 'boolean', description: 'List what would be removed; write nothing', default: false } },
+    description: 'Remove keys the default locale does not have; stops when that cannot be proven safe. Missing keys stay missing',
+    args: {
+      ...projectArgs,
+      ignore,
+      dryRun: { type: 'boolean', description: 'List what would be removed; write nothing', default: false },
+      force: { type: 'boolean', description: 'Remove keys even though it cannot be proven safe', default: false },
+    },
     examples: ['i18n-micro sync --dryRun'],
     load: () => import('./commands/sync'),
   },
@@ -277,6 +286,7 @@ export const commands: Record<string, CommandSpec> = {
       ...projectArgs,
       format: { type: 'string', description: 'File format', values: ['po', 'csv'], default: 'po' },
       dir: { type: 'string', description: 'Output directory, relative to the project', defaultHint: '`pots` for po, `csv_exports` for csv' },
+      force: { type: 'boolean', description: 'Overwrite translations in the output that were never imported', default: false },
     },
     examples: ['i18n-micro export --format csv'],
     load: () => import('./commands/export'),
@@ -301,7 +311,7 @@ export const commands: Record<string, CommandSpec> = {
       pull: { type: 'boolean', description: 'Pull from the remote', default: true },
       push: { type: 'boolean', description: 'Push to the remote', default: false },
       force: { type: 'boolean', description: 'On a conflict, take the remote value', default: false },
-      dryRun: { type: 'boolean', description: 'Report what would change; send and write nothing', default: false },
+      dryRun: { type: 'boolean', description: 'Report what a pull would change; write and push nothing', default: false },
     },
     examples: ['i18n-micro sync-remote --dryRun', 'i18n-micro sync-remote --no-pull --push'],
     load: () => import('./commands/sync-remote'),

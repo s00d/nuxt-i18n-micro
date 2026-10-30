@@ -1,11 +1,11 @@
-import { readFileSync } from 'node:fs'
 import { MagicString } from '@vue/compiler-sfc'
 import { notFoundError, validationError } from '../errors'
-import { splitList, writeFilesAtomic } from '../fs'
-import { type JsonObject, type JsonValue, deletePath, flatten, getPath, groupBy, pathConflict, setPath } from '../json'
+import { readUtf8, splitList, writeFilesAtomic } from '../fs'
+import { type JsonObject, type JsonValue, deletePath, flatten, getPath, groupBy, isWritableKey, pathConflict, setPath } from '../json'
 import { log } from '../log'
+import type { ProjectConfig } from '../nuxt'
 import { Project } from '../project'
-import { type ProjectScan, type ScopedRef, scanProject } from '../source'
+import { type ProjectScan, type ScopedRef, isOwnSource, scanProject } from '../source'
 
 export interface RenameArgs {
   cwd?: string
@@ -72,11 +72,15 @@ function applyToLocales(project: Project, rename: Rename): number {
 /** Only what the parser placed. A position that does not hold the key means the expression was decoded: leave it. */
 function rewritable(ref: ScopedRef, content: string): boolean {
   const written = ref.keyPrefix ? ref.key.slice(ref.keyPrefix.length) : ref.key
-  return ref.start >= 0 && !ref.file.includes('/node_modules/') && content.slice(ref.start, ref.end) === written
+  return ref.start >= 0 && content.slice(ref.start, ref.end) === written
 }
 
-function rewriteFile(file: string, refs: ScopedRef[], rename: Rename, skipped: ScopedRef[]): [string, string] | null {
-  const content = readFileSync(file, 'utf8')
+function rewriteFile(file: string, refs: ScopedRef[], rename: Rename, skipped: ScopedRef[], config: ProjectConfig): [string, string] | null {
+  if (!isOwnSource(config, file)) {
+    skipped.push(...refs)
+    return null
+  }
+  const content = readUtf8(file)
   const magic = new MagicString(content)
   let count = 0
   for (const ref of refs) {
@@ -92,13 +96,13 @@ function rewriteFile(file: string, refs: ScopedRef[], rename: Rename, skipped: S
   return count > 0 ? [file, magic.toString()] : null
 }
 
-function rewriteSources(scan: ProjectScan, rename: Rename, skipped: ScopedRef[]): Array<[string, string]> {
+function rewriteSources(scan: ProjectScan, rename: Rename, skipped: ScopedRef[], config: ProjectConfig): Array<[string, string]> {
   const byFile = groupBy(
     scan.refs.filter((ref) => rename.renamed(ref.key)),
     (ref) => ref.file,
   )
   return [...byFile].flatMap(([file, refs]) => {
-    const change = rewriteFile(file, refs, rename, skipped)
+    const change = rewriteFile(file, refs, rename, skipped, config)
     return change ? [change] : []
   })
 }
@@ -111,8 +115,9 @@ function warnLeftovers(scan: ProjectScan, rename: Rename, skipped: ScopedRef[]):
       log.warn(`Computed key may need the new name: ${entry.file}:${entry.line}: ${entry.expression}`)
     }
   }
-  for (const [text, location] of scan.literals) {
-    if (rename.renamed(text) && !scan.refs.some((ref) => ref.key === text)) log.warn(`The key also appears as a plain string: ${location}`)
+  for (const [text, locations] of scan.literals) {
+    if (!rename.renamed(text)) continue
+    for (const location of locations) log.warn(`The key also appears as a plain string: ${location}`)
   }
 }
 
@@ -120,6 +125,7 @@ export default async function run(args: RenameArgs): Promise<void> {
   const { from, to, dryRun } = args
   if (!from || !to) throw validationError('--from and --to cannot be empty')
   if (from === to) throw validationError('Source and target keys must be different')
+  if (!isWritableKey(to)) throw validationError(`--to cannot be a key: ${to}`, ['No quotes, backslashes, empty segments or __proto__.'])
 
   const project = await Project.load(args)
   const rename = renameFor(from, to)
@@ -127,7 +133,7 @@ export default async function run(args: RenameArgs): Promise<void> {
 
   const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
   const skipped: ScopedRef[] = []
-  const sourceChanges = rewriteSources(scan, rename, skipped)
+  const sourceChanges = rewriteSources(scan, rename, skipped, project.config)
   const replaced = scan.refs.filter((ref) => rename.renamed(ref.key)).length - skipped.length
 
   if (localesUpdated === 0 && sourceChanges.length === 0) {

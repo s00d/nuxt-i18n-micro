@@ -67,6 +67,10 @@ export function pathConflict(tree: JsonObject, path: string): string | null {
   return isObject(current) && !isEmptyObject(current) ? path : null
 }
 
+/** What can go between quotes in a template and a script, and be stored. */
+export const isWritableKey = (key: string): boolean =>
+  !/['"`\\\r\n]|\}\}/.test(key) && key.split('.').every((segment) => segment !== '' && segment !== '__proto__')
+
 export function setPath(tree: JsonObject, path: string, value: JsonValue): void {
   const found = locate(tree, path)
   if (found) {
@@ -95,6 +99,34 @@ export function deletePath(tree: JsonObject, path: string): boolean {
     return true
   }
   return false
+}
+
+const JSON_TOKEN = /"(?:[^"\\]|\\.)*"|[{}[\]:]/g
+
+/** The first key an object repeats. `JSON.parse` keeps the last and says nothing, and a save would lose the other. */
+export function findDuplicateKey(text: string): string | null {
+  const stack: Array<Set<string> | null> = []
+  let lastString = ''
+  for (const [token] of text.matchAll(JSON_TOKEN)) {
+    if (token === '{') stack.push(new Set())
+    else if (token === '[') stack.push(null)
+    else if (token === '}' || token === ']') stack.pop()
+    else if (token !== ':') lastString = token
+    else if (stack.at(-1)?.has(lastString)) return JSON.parse(lastString) as string
+    else stack.at(-1)?.add(lastString)
+  }
+  return null
+}
+
+/** The path of an integer `JSON.parse` could not hold exactly. */
+export function findUnsafeInteger(value: JsonValue, path = ''): string | null {
+  if (typeof value === 'number') return Number.isInteger(value) && !Number.isSafeInteger(value) ? path : null
+  if (typeof value !== 'object' || value === null) return null
+  for (const [key, child] of Object.entries(value)) {
+    const found = findUnsafeInteger(child, path ? `${path}.${key}` : key)
+    if (found !== null) return found
+  }
+  return null
 }
 
 /** `Map.groupBy`, which Node 20 does not have. */

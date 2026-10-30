@@ -1,4 +1,4 @@
-import { readFileSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, extname, relative, sep } from 'node:path'
 import { babelParse, parse as parseSfc, walk } from '@vue/compiler-sfc'
 import { globToRegExp, readText, walkFiles } from './fs'
@@ -12,7 +12,10 @@ const SKIPPED_DIRS = new Set(['node_modules', '.git', '.nuxt', '.output', '.data
 /** Build output by these names only at a root: `pages/dist/` is a page. */
 const OUTPUT_DIRS = new Set(['dist', 'coverage'])
 const SKIPPED_DATA = /^(package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig.*\.json)$/
-const TEST_FILE = /(^|\/)(tests?|__tests__|e2e|cypress|playwright)\/|\.(test|spec)\.[^/]+$/
+/** Test code by location, relative to the project root. `pages/tests/` is a route. */
+const TEST_DIR = /^(tests?|__tests__|e2e|cypress|playwright)\//
+/** Test code by name. Only code: `Latest.spec.vue` renders. */
+const TEST_NAME = /\.(test|spec)\.[cm]?[jt]sx?$/
 export const NODE_TYPES = { ELEMENT: 1, TEXT: 2, COMMENT: 3, INTERPOLATION: 5, ATTRIBUTE: 6, DIRECTIVE: 7 }
 
 export const isCodeFile = (path: string): boolean => CODE_EXTENSIONS.has(extname(path).toLowerCase())
@@ -39,6 +42,8 @@ const BARE_NAMES: ReadonlyArray<[string, Family]> = [
 ]
 const API_NAMES = new Map<string, Family>([...DOLLAR_NAMES, ...BARE_NAMES])
 const I18N_SOURCES = new Set(['useI18n', 'useNuxtApp'])
+/** Resolves to the `t` function itself. */
+const SERVER_T = 'useTranslationServerMiddleware'
 const KEY_LIKE = /^[^\s'"`<>{}()]{1,200}$/
 
 export interface KeyRef {
@@ -69,8 +74,8 @@ export interface DynamicKey {
 export interface FileScan {
   refs: KeyRef[]
   dynamic: DynamicKey[]
-  /** Strings that look like a key, and where the first one is: a key can travel through a variable. */
-  literals: Map<string, string>
+  /** Strings that look like a key, and where each one is: a key can travel through a variable. */
+  literals: Map<string, string[]>
   /** Strings ending in a dot: `'errors.' + code`. */
   prefixes: Set<string>
   /** Why this file could not be read completely. */
@@ -100,6 +105,8 @@ interface Context {
   /** What `node.start` is added to, to be an offset in the file. */
   base: number
   group: Group | null
+  /** String nodes that are the argument of a call: keys, not plain strings. */
+  keyNodes: WeakSet<object>
 }
 
 interface Group {
@@ -142,10 +149,25 @@ function familyOf(callee: AstNode | undefined, names: Names): Family | null {
   return family && (name.startsWith('$') || isI18nObject(objectName(callee), names)) ? family : null
 }
 
+const unawaited = (node: AstNode | undefined): AstNode | undefined => (node?.type === 'AwaitExpression' ? asNode(node.argument) : node)
+
+const isServerT = (node: AstNode | undefined): boolean => {
+  const call = unawaited(node)
+  return call?.type === 'CallExpression' && asNode(call.callee)?.name === SERVER_T
+}
+
 function isI18nSource(node: AstNode | undefined, names: Names): boolean {
   if (node?.type === 'AwaitExpression') return isI18nSource(asNode(node.argument), names)
   if (node?.type === 'Identifier') return isI18nObject(node.name as string, names)
   return node?.type === 'CallExpression' && I18N_SOURCES.has(asNode(node.callee)?.name as string)
+}
+
+/** `useTranslationServerMiddleware(event).then((tr) => ...)`. */
+function readServerThen(node: AstNode, names: Names): void {
+  const callee = asNode(node.callee)
+  if (propertyName(callee) !== 'then' || !isServerT(asNode(callee?.object))) return
+  const params = asNode((node.arguments as AstNode[])[0])?.params as AstNode[] | undefined
+  if (params?.[0]) addAlias(params[0], 't', names)
 }
 
 function addAlias(local: AstNode | undefined, original: string, names: Names): void {
@@ -164,6 +186,10 @@ function readDeclarator(node: AstNode, names: Names): void {
     return
   }
   if (id?.type !== 'Identifier') return
+  if (isServerT(init)) {
+    addAlias(id, 't', names)
+    return
+  }
   if (isI18nSource(init, names)) {
     names.objects.add(id.name as string)
     return
@@ -180,12 +206,13 @@ function readNames(ast: unknown, names: Names): void {
     enter(raw: unknown) {
       const node = raw as unknown as AstNode
       if (node.type === 'VariableDeclarator') readDeclarator(node, names)
+      if (node.type === 'CallExpression') readServerThen(node, names)
     },
   })
 }
 
 function newNames(content: string): Names {
-  const bare = /useI18n|i18n-?group/i.test(content)
+  const bare = /useI18n|useTranslationServerMiddleware|i18n-?group/i.test(content)
   return {
     families: new Map([...DOLLAR_NAMES, ...(bare ? BARE_NAMES : [])]),
     values: new Set(DOLLAR_NAMES.map(([name]) => name)),
@@ -206,7 +233,8 @@ function staticPrefix(node: AstNode | undefined): string {
 }
 
 function addRef(literal: string, node: AstNode, context: Context, extra: Pick<KeyRef, 'guard' | 'defaultText'>, inGroup: boolean): void {
-  const { base, content, file, group, scan } = context
+  const { base, content, file, group, keyNodes, scan } = context
+  keyNodes.add(node)
   const start = base + node.start! + 1
   const keyPrefix = inGroup ? `${group!.prefix}.` : undefined
   scan.refs.push({ key: `${keyPrefix ?? ''}${literal}`, file, line: lineOf(content, start), start, end: start + literal.length, keyPrefix, ...extra })
@@ -239,13 +267,50 @@ function addArgument(wrapped: AstNode | undefined, context: Context, extra: Pick
 function addLiteral(text: string, scan: FileScan, location: string): void {
   if (!KEY_LIKE.test(text)) return
   if (text.endsWith('.')) scan.prefixes.add(text)
-  else if (!scan.literals.has(text)) scan.literals.set(text, location)
+  else scan.literals.set(text, [...(scan.literals.get(text) ?? []), location])
+}
+
+const NOT_A_GUARD = { guard: false }
+
+function addOpaque(expression: string, node: AstNode, context: Context): void {
+  const { base, content, file, scan } = context
+  scan.dynamic.push({ file, line: lineOf(content, base + node.start!), expression, prefix: '' })
+}
+
+/** `<i18n-t keypath={x} />` and `<i18n-t {...x} />` in JSX. */
+function visitJsx(node: AstNode, context: Context): void {
+  const tag = String(asNode(node.name)?.name ?? '')
+  if (!/^i18n-?(t|group)$/i.test(tag)) return
+  const attributes = node.attributes as AstNode[]
+  for (const attribute of attributes) {
+    if (attribute.type === 'JSXSpreadAttribute') addOpaque(`<${tag} {...}>`, attribute, context)
+    if (attribute.type !== 'JSXAttribute') continue
+    const name = asNode(attribute.name)?.name
+    const value = asNode(attribute.value)
+    if (name === 'keypath' || name === 'prefix')
+      addArgument(value?.type === 'JSXExpressionContainer' ? asNode(value.expression) : value, context, NOT_A_GUARD, false)
+  }
+}
+
+/** A `keypath` in an object is a key on its way to `<i18n-t>`: `h(I18nT, { keypath })`, `v-bind="{ keypath }"`. */
+function visitProperty(node: AstNode, context: Context): void {
+  if (asNode(node.key)?.name === 'keypath' && !node.computed) addArgument(asNode(node.value), context, NOT_A_GUARD, false)
+}
+
+/** `t(name)` with `t` from who knows where: a wrapper composable, most likely. It may be a translation. */
+const BARE_KEY_CALL = new Set(BARE_NAMES.filter(([, family]) => family === 'key').map(([name]) => name))
+
+function visitUnknownCall(callee: AstNode | undefined, argument: AstNode | undefined, context: Context): void {
+  const target = unwrap(argument)
+  if (callee?.type !== 'Identifier' || !BARE_KEY_CALL.has(callee.name as string) || !target || staticString(target) !== null) return
+  addOpaque(`${callee.name as string}(...) of unknown origin`, target, context)
 }
 
 function visitCall(node: AstNode, context: Context): void {
   const callee = asNode(node.callee)
   const inGroup = callee?.type === 'Identifier' && Boolean(context.group?.names.has(callee.name as string))
   const family = inGroup ? 'key' : familyOf(callee, context.names)
+  if (family === null) visitUnknownCall(callee, (node.arguments as AstNode[])[0], context)
   if (family !== 'key' && family !== 'guard') return
   const [key, , fallback] = node.arguments as AstNode[]
   addArgument(key, context, { guard: family === 'guard', defaultText: staticString(fallback) ?? undefined }, inGroup)
@@ -274,8 +339,10 @@ function visitNode(node: AstNode, parent: AstNode | null, key: unknown, context:
   if (node.type === 'VariableDeclarator') declare(asNode(node.id), declared)
   if (Array.isArray(node.params)) for (const param of node.params as AstNode[]) declare(param, declared)
   if (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') visitCall(node, context)
+  if (node.type === 'JSXOpeningElement') visitJsx(node, context)
+  if (node.type === 'ObjectProperty') visitProperty(node, context)
   const literal = staticString(node)
-  if (literal !== null) addLiteral(literal, scan, `${file}:${lineOf(content, base + node.start!)}`)
+  if (literal !== null && !context.keyNodes.has(node)) addLiteral(literal, scan, `${file}:${lineOf(content, base + node.start!)}`)
   if (node.type === 'TemplateLiteral' && literal === null) addLiteral(staticPrefix(node), scan, file)
   if (node.type !== 'Identifier' || !names.values.has(node.name as string) || !isValueUse(parent, key, declared, node)) return
   const start = base + node.start!
@@ -353,6 +420,7 @@ interface TemplateProp {
   value?: { content: string; loc: { source: string; start: { offset: number } } }
   exp?: { content?: string; loc: { start: { offset: number } } }
   arg?: { content?: string }
+  loc: { source: string; start: { offset: number } }
   forParseResult?: { source?: { content?: string; loc: { start: { offset: number } } } }
 }
 
@@ -399,7 +467,19 @@ function readSlotNames(expression: string, group: Group): void {
   })
 }
 
+/** `<i18n-t :keypath />` and `<i18n-t v-bind="p" />`: the key is somewhere the template does not show. */
+function readHiddenKey(prop: TemplateProp, tag: string, context: Context): void {
+  const translates = /^i18n-?(t|group)$/i.test(tag)
+  const target = prop.arg?.content
+  const hidden = prop.name === 'bind' && (target === undefined || (!prop.exp?.content && (target === 'keypath' || target === 'prefix')))
+  if (!translates || !hidden) return
+  const { content, file, scan } = context
+  const line = lineOf(content, prop.loc.start.offset)
+  scan.dynamic.push({ file, line, expression: `<${tag} ${prop.loc.source}>`, prefix: '' })
+}
+
 function readDirective(prop: TemplateProp, tag: string, context: Context): void {
+  readHiddenKey(prop, tag, context)
   const expression = prop.forParseResult?.source ?? prop.exp
   if (!expression?.content) return
   const start = expression.loc.start.offset
@@ -468,7 +548,7 @@ function scanCode(content: string, context: Context): void {
 /** Every use of a translation key in one file, with positions. Comments do not count. */
 export function scanFile(content: string, file: string): FileScan {
   const scan: FileScan = { refs: [], dynamic: [], literals: new Map(), prefixes: new Set(), unproven: [] }
-  const context: Context = { content, file, scan, names: newNames(content), base: 0, group: null }
+  const context: Context = { content, file, scan, names: newNames(content), base: 0, group: null, keyNodes: new WeakSet() }
   const extension = extname(file).toLowerCase()
   if (content.trim() === '') return scan
   if (extension === '.vue') scanVue(content, context)
@@ -510,7 +590,7 @@ export interface ScopedRef extends KeyRef {
 export interface ProjectScan {
   refs: ScopedRef[]
   dynamic: DynamicKey[]
-  literals: Map<string, string>
+  literals: Map<string, string[]>
   prefixes: Set<string>
   /** Words of JSON and YAML files: keys can live in data that code feeds to `$t`. */
   dataTokens: Set<string>
@@ -555,22 +635,35 @@ export function projectFiles(config: ProjectConfig, options: ScanOptions = {}): 
     })
 }
 
-export const isTestFile = (config: ProjectConfig, file: string): boolean => TEST_FILE.test(relative(config.rootDir, file).split(sep).join('/'))
+const inTestDir = (config: ProjectConfig, file: string): boolean => TEST_DIR.test(relative(config.rootDir, file).split(sep).join('/'))
+
+export const isTestFile = (config: ProjectConfig, file: string): boolean => inTestDir(config, file) || TEST_NAME.test(file)
 
 function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   const content = readFileSync(file, 'utf8')
   const found = scanFile(content, file)
   const pagesRoot = config.pagesDirs.find((dir) => !relative(dir, file).startsWith('..'))
   const page = pagesRoot && isCodeFile(file) ? pageScopeOf(file, pagesRoot, content) : null
-  const test = isTestFile(config, file)
+  const test = !page && isTestFile(config, file)
   for (const ref of found.refs) out.refs.push({ ...ref, page, test })
-  for (const [text, location] of found.literals) if (!out.literals.has(text)) out.literals.set(text, location)
+  for (const [text, locations] of found.literals) out.literals.set(text, [...(out.literals.get(text) ?? []), ...locations])
   for (const prefix of found.prefixes) out.prefixes.add(prefix)
   out.files += 1
-  // A broken fixture or a computed key in a spec says nothing about what the app reads.
-  if (test) return
+  // A broken fixture says nothing about what the app reads. Anywhere else, a doubt counts.
+  if (!page && inTestDir(config, file)) return
   out.dynamic.push(...found.dynamic)
   for (const reason of found.unproven) out.unproven.push({ file, reason })
+}
+
+/**
+ * Whether a write may touch this source. The scan reads layers and alias targets to prove use;
+ * they belong to whoever else builds on them, and their locale files stay as they are.
+ */
+export function isOwnSource(config: ProjectConfig, file: string): boolean {
+  const real = realpathSync(file)
+  const inside = (root: string): boolean => !relative(realpathSync(root), real).startsWith('..')
+  const layers = config.layerRoots.filter((root) => root !== config.rootDir && existsSync(root))
+  return inside(config.rootDir) && !real.includes('/node_modules/') && !layers.some(inside)
 }
 
 export function scanProject(config: ProjectConfig, options: ScanOptions = {}): ProjectScan {

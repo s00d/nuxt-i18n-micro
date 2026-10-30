@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { findingsError, remoteConfigError } from '../errors'
 import { readJsonObject } from '../fs'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
-import { type JsonObject, type JsonValue, flatten, isObject, pathConflict } from '../json'
+import { type JsonObject, type JsonValue, flatten, isObject, pathConflict, setPath } from '../json'
 import { addSecret, log } from '../log'
 import { Project } from '../project'
 
@@ -30,7 +30,7 @@ function loadConfig(rootDir: string): RemoteConfig {
   const path = join(rootDir, '.i18n-remote.json')
   if (!existsSync(path))
     throw remoteConfigError('Remote configuration file not found.', ['Create .i18n-remote.json with the url of your endpoint.'], { Path: path })
-  const config = readJsonObject(path) as unknown as RemoteConfig
+  const config = readJsonObject(path, { private: true }) as unknown as RemoteConfig
   if (config.type && config.type !== 'custom') {
     throw remoteConfigError(`Remote type "${config.type}" was removed: only an HTTP endpoint of your own is supported.`, [
       'For a translation platform, use its own CLI: see https://s00d.github.io/nuxt-i18n-micro/guide/crowdin',
@@ -62,20 +62,26 @@ interface PullPlan {
 
 function planLocale(project: Project, code: string, tree: JsonObject, force: boolean, plan: PullPlan): void {
   const local = project.locale(code)
+  // Planned writes count: a remote can conflict with itself, `{ "x": .., "x.y": .. }`.
+  const planned = structuredClone(local.global)
+  const apply = (key: string, value: JsonValue): void => {
+    setPath(planned, key, value)
+    plan.apply.push([code, key, value])
+  }
   for (const [key, value] of Object.entries(flatten(tree))) {
     const mine = local.get(key)
     const label = `${code} ${key}`
-    const blocker = pathConflict(local.global, key)
+    const blocker = pathConflict(planned, key)
     // A remote blank says nothing; a blocked path would cost a value or a whole subtree, --force or not.
     if (value === '' || JSON.stringify(mine) === JSON.stringify(value)) continue
     if (blocker) {
       plan.conflicts.push(`${label}: ${blocker} already holds a value`)
     } else if (mine === undefined || mine === '') {
       plan.added.push(label)
-      plan.apply.push([code, key, value])
+      apply(key, value)
     } else if (force) {
       plan.updated.push(label)
-      plan.apply.push([code, key, value])
+      apply(key, value)
     } else {
       plan.conflicts.push(`${label}\n    local:  ${JSON.stringify(mine)}\n    remote: ${JSON.stringify(value)}`)
     }

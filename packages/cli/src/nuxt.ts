@@ -24,6 +24,8 @@ export interface ProjectConfig {
   /** Source folders outside the root that aliases and auto-imports reach into. */
   extraSourceDirs: string[]
   defaultLocale: string
+  /** `DEFAULT_LOCALE` in the shell chose another locale than nuxt.config. */
+  defaultLocaleOverridden: boolean
   locales: LocaleEntry[]
   disablePageLocales: boolean
 }
@@ -232,6 +234,7 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
     pagesDirs: [...new Set(layers.map((layer) => resolve(layer.srcDir ?? layer.rootDir!, layer.dir?.pages ?? 'pages')))],
     extraSourceDirs: extraSourceDirsOf(config, rootDir),
     defaultLocale,
+    defaultLocaleOverridden: defaultLocale !== (i18n.defaultLocale ?? 'en'),
     locales,
     disablePageLocales: Boolean(i18n.disablePageLocales),
   }

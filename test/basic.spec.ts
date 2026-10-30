@@ -212,6 +212,7 @@ describe('basic', () => {
     await expect(page.locator('#plural-component')).toHaveText('5 apples') // Replace with actual pluralization result
     await expect(page.locator('#plural-component-custom')).toHaveText('5 apples') // Replace with actual pluralization result
     await expect(page.locator('#plural-component-custom-zero')).toHaveText('no apples') // Replace with actual pluralization result
+    await expect(page.locator('#slots-reordered')).toHaveText('B before A')
 
     // Verify the localized route generation
     await expect(page.locator('#localized-route')).toHaveText('/de/page')

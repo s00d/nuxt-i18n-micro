@@ -387,7 +387,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Skip build-time disabled locales — do not emit public/{apiBaseUrl}/…/data.json for them.
-    // Nuxt/defu concatenates `locales` arrays, so dedupe by code (disabled if any entry says so).
+    // Nuxt/defu concatenates `locales` arrays project first, so dedupe by code: the first value wins (as in RouteGenerator).
     // Runtime disabledLocales cannot un-publish files already copied to public/.
     const localeInfosByCode = new Map<string, PreMergeLocaleInfo & { disabled?: boolean }>()
     for (const locale of options.locales ?? []) {
@@ -398,8 +398,8 @@ export default defineNuxtModule<ModuleOptions>({
       const prev = localeInfosByCode.get(locale.code)
       localeInfosByCode.set(locale.code, {
         code: locale.code,
-        fallbackLocale: locale.fallbackLocale ?? prev?.fallbackLocale,
-        disabled: !!(prev?.disabled || locale.disabled),
+        fallbackLocale: prev?.fallbackLocale ?? locale.fallbackLocale,
+        disabled: prev?.disabled ?? locale.disabled,
       })
     }
     const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]

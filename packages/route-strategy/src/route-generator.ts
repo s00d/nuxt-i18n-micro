@@ -21,10 +21,13 @@ export interface RouteGeneratorOptions {
   customRegexMatcher?: string | RegExp
 }
 
-/** Merges locales by code (later entries override) and drops disabled ones. */
+/**
+ * Merges locales by code and drops disabled ones. Nuxt concatenates a project's and its layers'
+ * `locales` project first, so earlier entries win: a layer only fills the fields left unset.
+ */
 function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; defaultLocale: Locale } {
   const byCode = new Map<string, Locale>()
-  for (const locale of locales) byCode.set(locale.code, { ...byCode.get(locale.code), ...locale })
+  for (const locale of locales) byCode.set(locale.code, { ...locale, ...byCode.get(locale.code) })
   const active = [...byCode.values()].filter((locale) => !locale.disabled)
   return { locales: active, defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode } }
 }

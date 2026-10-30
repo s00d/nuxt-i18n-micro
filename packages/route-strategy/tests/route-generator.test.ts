@@ -256,6 +256,14 @@ describe('nitro helpers', () => {
     expect(isLocaleAllowedForUnlocalizedRoute(routeLocales, locales, '/other', 'fr')).toBe(true)
   })
 
+  test('repeated locales: the project comes first in Nuxt, it wins and a layer fills the gaps', () => {
+    const merged = [
+      { code: 'en', displayName: 'Project' },
+      { code: 'en', displayName: 'Layer', iso: 'en-GB' },
+    ]
+    expect(generator('prefix', { locales: merged }).locales).toEqual([{ code: 'en', displayName: 'Project', iso: 'en-GB' }])
+  })
+
   test('generateDataRoutes and ensureTranslationFilesExist', () => {
     const g = generator('prefix', { locales: [{ code: 'en' }, { code: 'de', disabled: true }] })
     expect(g.generateDataRoutes([account], '_locales', false)).toEqual([

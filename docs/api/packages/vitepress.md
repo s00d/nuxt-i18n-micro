@@ -21,7 +21,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: CreateI18nOptions) => CreateI18nResult` |
 | `CreateI18nOptions` | interface | 15 members |
-| `CreateI18nResult` | type | ``I18nPlugin & PathMethods & { /** Same as `.global` (VueI18n + path methods). */ i18n: I18nPlugin['global'] & PathMethods enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> \| VitePressSiteDataLike }) => void }`` |
+| `CreateI18nResult` | type | `I18nPlugin & PathMethods & { i18n: I18nPlugin['global'] & PathMethods; enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> \| VitePressSiteDataLike; }) => void; }` |
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 21 members |
 | `getLocaleFromPath` | function | `(path: string, localeCodes: string[], defaultLocale: string, localeKeyToCode?: Record<string, string>, base?: string) => string` |
@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `LocaleCode` | type | `string` |
 | `messagesFromGlob` | function | `(modules: Record<string, { default: Translations; } \| Translations>) => Record<string, Translations>` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PathMethods` | type | `Pick< VitePressRouterAdapter, 'localizePath' \| 'switchLocalePath' \| 'getLocaleFromPath' \| 'removeLocaleFromPath' \| 'routeNameFromPath' >` |
+| `PathMethods` | type | `Pick<VitePressRouterAdapter, 'localizePath' \| 'switchLocalePath' \| 'getLocaleFromPath' \| 'removeLocaleFromPath' \| 'routeNameFromPath'>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `routeNameFromPath` | function | `(path: string, localeCodes: string[], defaultLocale?: string, localeKeyToCode?: Record<string, string>, base?: string) => string` |
 | `stripSiteBase` | function | `(path: string, base?: string) => string` |
@@ -203,7 +203,7 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `BuildVitePressLocalesOptions` | interface | 1 members |
 | `relativePathToRoutePath` | function | `(relativePath: string) => string` |
 | `VirtualI18nConfig` | interface | 13 members |
-| `VitePressHeadTuple` | type | `[string, Record<string, string>]` |
+| `VitePressHeadTuple` | type | `[ string, Record<string, string> ]` |
 | `VitePressLocaleEntry` | interface | 3 members |
 | `VitePressLocaleHeadObject` | interface | 2 members |
 | `VitePressUserConfigLike` | interface | 7 members |

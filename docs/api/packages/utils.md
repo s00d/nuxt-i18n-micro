@@ -314,7 +314,7 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | --- | --- | --- |
 | `classifyTranslationRelativePath` | function | `(relativePath: string, disablePageLocales?: boolean) => ParsedTranslationRelativePath` |
 | `pagePathSegmentsToRouteName` | function | `(segments: string[]) => string \| null` |
-| `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string } \| { type: 'root'; locale: string } \| { type: 'ignore' }` |
+| `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string; } \| { type: 'root'; locale: string; } \| { type: 'ignore'; }` |
 | `parseTranslationRelativePath` | function | `(relativePath: string) => ParsedTranslationRelativePath` |
 | `storeLoadedTranslationFile` | function | `<T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void` |
 | `TranslationFileBuckets` | interface | `<T = Record<string, unknown>>` |
@@ -337,7 +337,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-fetch'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `fetchTranslationPayloadFromHost` | function | `(config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations>` |
-| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number> }) => Promise<T>` |
+| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; }) => Promise<T>` |
 | `TranslationPayloadHostConfig` | interface | 3 members |
 
 <details>

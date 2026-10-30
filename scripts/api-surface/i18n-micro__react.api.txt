@@ -315,7 +315,7 @@ member I18nGroupProps.typeof?: string | undefined
 member I18nGroupProps.unselectable?: "off" | "on" | undefined
 member I18nGroupProps.vocab?: string | undefined
 const I18nLink: (props: I18nLinkProps) => HostElement
-type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }
+type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget; activeStyle?: HostStyle; localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget; children?: HostNode; }
 function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement
 interface I18nProviderProps
 member I18nProviderProps.children?: import("react").ReactNode
@@ -999,7 +999,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
-member ReactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.clear: () => void
@@ -1020,6 +1020,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -1069,7 +1070,7 @@ member ReactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member ReactI18nOptions.plural?: PluralFunc | undefined
 member ReactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member ReactI18nOptions.timeZone?: string | undefined
-type RouteTarget: string | { path?: string }
+type RouteTarget: string | { path?: string; }
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface Translations
 member Translations.[string]: unknown
@@ -1424,7 +1425,7 @@ member I18nGroupProps.typeof?: string | undefined
 member I18nGroupProps.unselectable?: "off" | "on" | undefined
 member I18nGroupProps.vocab?: string | undefined
 const I18nLink: (props: I18nLinkProps) => HostElement
-type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }
+type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget; activeStyle?: HostStyle; localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget; children?: HostNode; }
 function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement
 interface I18nProviderProps
 member I18nProviderProps.children?: import("react").ReactNode
@@ -2108,7 +2109,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
-member ReactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.clear: () => void
@@ -2129,6 +2130,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -2178,7 +2180,7 @@ member ReactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member ReactI18nOptions.plural?: PluralFunc | undefined
 member ReactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member ReactI18nOptions.timeZone?: string | undefined
-type RouteTarget: string | { path?: string }
+type RouteTarget: string | { path?: string; }
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface Translations
 member Translations.[string]: unknown
@@ -2257,7 +2259,7 @@ function interpolate: (template: string, params: Params) => string
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
-member ReactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.clear: () => void
@@ -2278,6 +2280,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void

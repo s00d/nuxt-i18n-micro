@@ -138,6 +138,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function routeQuery: (search: string | undefined) => Record<string, string | string[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
@@ -242,6 +243,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function routeQuery: (search: string | undefined) => Record<string, string | string[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string

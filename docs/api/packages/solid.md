@@ -43,8 +43,8 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `RouteTarget` | type | `string \| { path?: string }` |
-| `SolidI18n` | class | 65 members |
+| `RouteTarget` | type | `string \| { path?: string; }` |
+| `SolidI18n` | class | 66 members |
 | `SolidI18nOptions` | type | `I18nOptions` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -1532,13 +1532,13 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 65 members</summary>
+<summary><code>SolidI18n</code> — 66 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
-| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
+| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
@@ -1560,6 +1560,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isReadable` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |

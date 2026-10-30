@@ -41,6 +41,7 @@ export default defineConfig({
         'node:module',
         'node:async_hooks',
         'astro',
+        'vue',
         'svelte/store',
         'react',
         'react/jsx-runtime',

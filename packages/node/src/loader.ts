@@ -24,7 +24,8 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
 
     const loaded = await Promise.all(
       jsonFiles.map(async (file) => {
-        const fullPath = join(file.path, file.name)
+        // `path` is gone in Node 24, `parentPath` only exists from 20.12
+        const fullPath = join(file.parentPath ?? file.path, file.name)
         const relativePath = relative(dir, fullPath).split(sep).join('/')
 
         try {

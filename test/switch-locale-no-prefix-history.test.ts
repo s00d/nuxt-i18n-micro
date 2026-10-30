@@ -1,7 +1,7 @@
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
-import type { Router } from 'vue-router'
+import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 
 /**
@@ -139,6 +139,15 @@ describe('links from the plugin', () => {
     }
   })
 
+  test('$switchRoute hands mailto: and tel: to the browser', async () => {
+    for (const to of ['mailto:a@x.com', 'tel:+1']) {
+      const { provide, navigateTo, push } = makeApi('prefix')
+      await provide.switchRoute(to)
+      expect(navigateTo).toHaveBeenCalledWith(to, expect.objectContaining({ external: true }))
+      expect(push).not.toHaveBeenCalled()
+    }
+  })
+
   test("a switch to a locale's own domain is external", async () => {
     const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://es.example/x' as unknown as Record<string, unknown> })
     await provide.switchLocale('es')
@@ -152,6 +161,13 @@ describe('links from the plugin', () => {
     })
     expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ name: 'about', path: '/de/about/', fullPath: '/de/about/?q=1' }))
     expect(provide.switchLocalePath('es')).toBe('/de/about/?q=1')
+  })
+
+  test('a push of that route object keeps the slash', async () => {
+    const switched = { name: 'about', params: {}, query: { q: '1' }, hash: '', path: '/de/about', fullPath: '/de/about?q=1' }
+    const { provide } = makeApi('prefix', true, { trailingSlash: 'append', switched })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/de/about', name: 'about', component: {} }] })
+    expect(router.resolve(provide.switchLocaleRoute('es') as RouteLocationRaw).fullPath).toBe('/de/about/?q=1')
   })
 
   test('while hydrating, links leave out a hash the server never saw', () => {

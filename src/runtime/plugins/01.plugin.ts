@@ -358,9 +358,9 @@ export interface PluginsInjections {
   /** Merge translations into the active locale at runtime, overriding what is loaded. */
   $mergeTranslations: (newTranslations: Translations) => void
   /**
-   * The route object for the current page in another locale, without navigating. Under
-   * `trailingSlash` its `path` and `fullPath` follow the rule, while a push by `name` does not:
-   * link with `$switchLocalePath` there.
+   * The route object for the current page in another locale, without navigating, or a URL string
+   * for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
+   * follow the rule, and `router.push` or a link keep them.
    */
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   /** The path of the current page in another locale, without navigating. */

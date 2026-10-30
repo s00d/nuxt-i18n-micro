@@ -62,6 +62,8 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
 
 /** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
 const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
+/** Never a page, and no request can send a visitor elsewhere with one. */
+const APP_SCHEME = /^(?:mailto:|tel:)/i
 
 /** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
 function switchedPath(switched: RouteLike | string): string {
@@ -600,6 +602,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
   }
 
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
+    if (typeof to === 'string' && APP_SCHEME.test(to)) return navigateTo(to, { redirectCode: 200, external: true })
+
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
@@ -658,7 +662,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-      return { ...switched, fullPath, path: fullPath.split(/[?#]/)[0] } as RouteLocationRaw
+      // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
+      const { name, ...route } = switched
+      return Object.defineProperty({ ...route, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

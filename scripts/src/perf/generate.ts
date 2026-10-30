@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { repoRoot } from '../utils/workspace'
 import { fixtureAbsDir, fixtureSourceAbsDir, type PerfFixtureDef } from './fixtures'
@@ -21,10 +21,20 @@ export function writeRuntimeProfile(profile: PerfRuntimeProfile): void {
   console.log(`Wrote ${RUNTIME_JSON}`)
 }
 
+function removeDictionaries(dir: string): void {
+  if (!existsSync(dir)) return
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isFile() && entry.name.endsWith('.json')) rmSync(join(dir, entry.name))
+  }
+  rmSync(join(dir, 'pages'), { recursive: true, force: true })
+}
+
 /** Regenerate dictionaries via each fixture's `generate:locales`. */
 export function regenerateLocales(fixtures: PerfFixtureDef[]): void {
   for (const fixture of fixtures) {
     const cwd = fixtureAbsDir(fixture)
+    // a smaller profile writes fewer locales: what a bigger run left would be built and served too
+    removeDictionaries(fixtureSourceAbsDir(fixture))
     console.log(`Generating locales for ${fixture.id}...`)
     execSync('pnpm run generate:locales', { cwd, stdio: 'inherit' })
   }

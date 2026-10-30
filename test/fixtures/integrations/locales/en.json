@@ -17,22 +17,6 @@
       "content": "Integrity, innovation, and inclusivity."
     }
   },
-  "services": {
-    "title": "Our Services",
-    "description": "Discover the wide range of services we offer.",
-    "service1": {
-      "title": "Consulting",
-      "content": "Expert advice for your business."
-    },
-    "service2": {
-      "title": "Development",
-      "content": "Building robust and scalable solutions."
-    },
-    "service3": {
-      "title": "Support",
-      "content": "24/7 assistance for all your needs."
-    }
-  },
   "contact": {
     "title": "Contact Us",
     "description": "Get in touch with our team.",

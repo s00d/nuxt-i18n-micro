@@ -20,5 +20,3 @@ description: 'Learn more about our mission and values.'
 ---
 
 :ln{name="contact" title="Contact Us" id="link" className="contactLink"}
-
-:ln{name="services" title="Go to Services" id="link" className="servicesLink"}

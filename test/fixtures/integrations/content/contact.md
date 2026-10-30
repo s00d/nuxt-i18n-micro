@@ -20,5 +20,3 @@ description: 'Get in touch with our team.'
 ---
 
 [about](/about)
-
-[services](/services)

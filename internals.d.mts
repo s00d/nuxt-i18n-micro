@@ -87,6 +87,7 @@ interface I18nStrategyRouterLike {
 }
 
 declare module '#build/i18n.strategy.mjs' {
+  export const domains: boolean
   /** Создаёт инстанс стратегии: контекст (build-time) уже в файле, при импорте передаётся только router. */
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
   export function getI18nConfig(): unknown
@@ -98,6 +99,7 @@ declare module '#i18n-internal/config' {
 }
 
 declare module '#i18n-internal/strategy' {
+  export const domains: boolean
   export function getI18nConfig(): unknown
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
 }

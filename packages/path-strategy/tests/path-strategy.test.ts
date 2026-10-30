@@ -7,7 +7,7 @@ import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
-import { createPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
+import { createPathStrategy, DomainPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
 
 const LOCALES: Locale[] = [
   { code: 'en', displayName: 'English' },
@@ -92,7 +92,8 @@ function setup(
       hash: r.hash,
     }
   }
-  const i18n = createPathStrategy({
+  const create = locales.some((l) => l.baseUrl) ? (context: PathStrategyContext) => new DomainPathStrategy(context) : createPathStrategy
+  const i18n = create({
     strategy,
     defaultLocale: 'en',
     locales,

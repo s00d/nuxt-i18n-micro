@@ -36,7 +36,7 @@ Every URL is resolved with `?q=1#top`.
 | /fr | localized-index | fr | index | index | null | fr | fr | null |
 | /fr/a-propos | localized-about-fr | fr | about | about | null | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
-| /ueber-uns | localized-about-de-default | en | about | about | null | null | en | null |
+| /ueber-uns | localized-about-de-default | en | about | about | null | null | en | Locale not allowed for this route |
 | /en/ | localized-index | en | index | index | null | en | en | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | en | null |

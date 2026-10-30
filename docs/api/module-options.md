@@ -160,8 +160,8 @@ Each entry is a `Locale` object:
 | `fallbackLocale` | `string` | Fallback for this locale; overrides the global `fallbackLocale`. |
 | `seo` | `boolean` | `false` leaves the locale out of `hreflang` and `og:locale:alternate`. |
 | `og` | `string` | `og:locale` value (`ar_AE`); default: `iso` converted. |
-| `baseUrl` | `string` | The locale's own domain: links into it become absolute URLs there. |
-| `baseDefault` | `boolean` | With `baseUrl`: no `/<code>` prefix in those URLs. |
+| `baseUrl` | `string` | The locale's own domain: one build serves it, and links into it from other domains are absolute. |
+| `baseDefault` | `boolean` | With `baseUrl`: the default locale of its host, with no `/<code>` prefix in links to it (`prefix` keeps it). |
 
 Other properties are kept and returned by `$getLocales()`. Type them by augmenting `Locale`:
 
@@ -658,6 +658,13 @@ canonical URLs use `https://` even though the app itself listens on HTTP.
 <!-- /generated:option:metaTrustForwardedProto -->
 
 Same scope as `metaTrustForwardedHost`.
+
+#### `trustForwardedHost`
+
+<!-- generated:option:trustForwardedHost — do not edit; run `pnpm run docs:generate` -->
+<!-- /generated:option:trustForwardedHost -->
+
+Separate from `metaTrustForwardedHost` and off by default: here the header would select another domain's locales, not only the origin of a tag. See [Layers and domains](/guide/layers#multiple-domains).
 
 #### `hreflangBaseLanguage`
 

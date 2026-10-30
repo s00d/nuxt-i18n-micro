@@ -43,7 +43,7 @@ Every URL is resolved with `?q=1#top`.
 | /nl | localized-index | nl | index | index | null | nl | nl | null |
 | /nl/about | localized-about | nl | about | about | null | nl | nl | null |
 | /nl/blog/hello-world | localized-blog-slug | nl | blog-slug | blog-slug | null | nl | nl | null |
-| /ueber-uns | localized-about-de-default | en | about | about | null | null | en | null |
+| /ueber-uns | localized-about-de-default | en | about | about | null | null | en | Locale not allowed for this route |
 | /en/ | localized-index | en | index | index | null | en | en | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | en | null |

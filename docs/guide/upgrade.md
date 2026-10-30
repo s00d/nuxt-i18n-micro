@@ -39,6 +39,10 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **An unlocalized page has no `hreflang` or `og:locale:alternate`.**
 - **`$localePath` and `$localeRoute` return a string with an `http(s):`, `mailto:` or `tel:` scheme as is**, so do not pass an unchecked value (a `?next=` parameter) to them as a link target. `//host` and bare names like `x.com` stay paths, on this origin in every locale.
 - **`$switchRoute` stays in the app.** Only a locale's own `baseUrl` leaves it; any other string is a path.
+- **`locales[].baseUrl` now routes requests.** One build serves every domain: see [Layers and domains](/guide/layers#multiple-domains). With `baseUrl` set, a locale of another domain is a 404 on this host (`/en/about` on `example.de`), and links to a locale on the same host are relative. Requests on any other host, `localhost` included, behave as before, except that canonical and `hreflang` no longer take the request's origin: set `metaBaseUrl` if you relied on that.
+- **Under `prefix`, `baseDefault` keeps the prefix in links to another domain.** `https://example.de/de/about`, not `https://example.de/about`, which only redirects.
+- **Under `prefix_except_default` with `baseDefault` on a locale other than the build default, routes keep every prefix** so other domains can link to them. `/en` is still a 404. Only code reading `router.getRoutes()` sees the difference.
+- **`@i18n-micro/path-strategy`: `createPathStrategy` no longer builds absolute URLs.** Use `new DomainPathStrategy(ctx)` when locales have `baseUrl`.
 - **`customRegexMatcher` no longer 404s a real page** whose first segment looks like a locale.
 - **`nuxi generate` prerenders every static page in every locale**, linked or not: more files in the output.
 - **`$switchLocale` resolves `true` or `false`** (it resolved nothing), `false` when the locale's dictionary did not apply.

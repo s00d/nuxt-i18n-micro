@@ -21,9 +21,11 @@ function resolveStrategy(): Strategies {
 // under globalLocaleRoutes. Same iso values, so the head stays comparable.
 const regionCodes = process.env.REGION_CODES === '1'
 const code = (short: string, region: string) => (regionCodes ? region : short)
+// DOMAINS (`strategy-domains-*`): en on example.com, de on example.de, ru on every host; the value is app.baseURL
+const domain = (host: string) => (process.env.DOMAINS ? { baseUrl: `https://${host}${process.env.DOMAINS.replace(/^\/$/, '')}`, baseDefault: true } : {})
 const locales = [
-  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English' },
-  { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German' },
+  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English', ...domain('example.com') },
+  { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German', ...domain('example.de') },
   { code: code('ru', 'ru-ru'), iso: 'ru_RU', displayName: 'Russian' },
   // `strategy-disabled-locale`: off at build time
   ...(process.env.DISABLED_LOCALE ? [{ code: process.env.DISABLED_LOCALE, iso: 'es_ES', disabled: true }] : []),
@@ -56,7 +58,7 @@ export default defineNuxtConfig({
     prerender: {
       failOnError: false,
     },
-    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),
+    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output'), publicDir: process.env.PUBLIC_DIR } } : {}),
   },
 
   i18n: {

@@ -65,7 +65,9 @@ Absolute URLs use the first of:
 
 Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto` because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links. Set both to `false` if the app is reachable directly.
 
-The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin. For a fixed domain per locale use `baseUrl` on the locale, see [Layers and domains](/guide/layers#multiple-domains).
+The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin.
+
+With `baseUrl` on the locales the fallback is gone. A known host uses its own `baseUrl`, over `metaBaseUrl` and `site.url`, so canonical and `og:url` stay on that domain and `hreflang` points each locale at its domain. Any other host uses `metaBaseUrl`, else the default locale's `baseUrl`, so a spoofed `Host` never reaches your tags. See [Layers and domains](/guide/layers#multiple-domains).
 
 ## Leave locales or pages out
 

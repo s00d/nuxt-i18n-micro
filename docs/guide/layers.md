@@ -6,7 +6,7 @@ outline: [2, 3]
 
 # Layers and domains
 
-A Nuxt layer can carry the i18n config and the `locales/` folder for several apps, and each app adds or overrides what it needs. The same mechanism is the simplest way to run one site per domain: a shared base layer plus a small app per domain. This page shows both, plus the single-build alternatives.
+A Nuxt layer can carry the i18n config and the `locales/` folder for several apps, and each app adds or overrides what it needs. This page shows that, and how one build serves several domains.
 
 ## Share config and translations
 
@@ -46,47 +46,64 @@ To merge folders that are not part of a layer, list them in [`additionalTranslat
 
 ## Multiple domains
 
-When `example.com` shows English and `example.de` German, build one app per domain on top of a shared base. The base lists every locale with the domain it lives on:
+One build serves every domain. List each locale with its domain; `baseDefault` makes it the default of that host:
 
 ```ts
-// base/nuxt.config.ts
+// nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   i18n: {
     strategy: 'prefix_except_default',
+    defaultLocale: 'en',
     locales: [
       { code: 'en', iso: 'en-US', baseUrl: 'https://example.com', baseDefault: true },
       { code: 'de', iso: 'de-DE', baseUrl: 'https://example.de', baseDefault: true },
+      { code: 'nl', iso: 'nl-NL', baseUrl: 'https://example.de' },
+      { code: 'fr', iso: 'fr-FR' },
     ],
   },
 })
 ```
 
-Each domain's app only picks its default locale:
+Point both domains at the same server. The request's host decides the rest:
 
-```ts
-// sites/de/nuxt.config.ts
-export default defineNuxtConfig({
-  extends: ['../../base'],
-  i18n: {
-    defaultLocale: 'de',
-  },
-})
-```
+- **Default:** the host's `baseDefault` locale. Without one, the build default if the host serves it, else the host's first locale.
+- **Served locales:** the locales of that host, plus every locale with no `baseUrl`. On `example.de` that is `de`, `nl` and `fr`.
+- **Locales of other domains** are link targets. `$localePath`, `$switchLocalePath`, `<i18n-switcher>` and `hreflang` give absolute URLs on their `baseUrl`, and `$switchLocale` navigates there. On this host their URLs are a 404, and a cookie or `Accept-Language` cannot pick them.
+- **Any other host** gets the build config, with every `baseUrl` locale as a link target. Nothing from the request is echoed: canonical and `hreflang` use `metaBaseUrl`, else the build default's `baseUrl`.
+- **Payload files** in `public/` are static: any host returns any locale's file. Per-domain [generate](/guide/deployment#static-site-nuxi-generate) publishes only that domain's.
 
-Build and deploy each app separately and point its domain at it. On `example.de`, German pages are unprefixed (`/about`). Links to another locale — `$localePath`, `$switchLocalePath`, `<i18n-switcher>`, `hreflang` — become absolute URLs on that locale's `baseUrl`, and `baseDefault: true` drops the locale prefix from them: the English link is `https://example.com/about`, which the `example.com` build serves as its default locale.
+`example.de` under each strategy, with `de: '/kontakt'` as a custom path of `contact`:
 
-`baseUrl` and `baseDefault` only shape links; they do not route requests. Each domain must serve its locale at those paths, which is what setting `defaultLocale` per build does.
+| Strategy | `/` | Default locale's page | Other URLs |
+| --- | --- | --- | --- |
+| `prefix_except_default` | `de` | `/kontakt` | `/de/kontakt` and `/en/contact` are a 404, `/contact` redirects to `/kontakt` |
+| `prefix_and_default` | `de` | `/kontakt` and `/de/kontakt`, links use `/kontakt` | `/en/contact` and `/contact` are a 404 |
+| `prefix` | redirects to `/de` | `/de/kontakt` | `/kontakt` redirects to `/de/kontakt`, `/en/contact` is a 404 |
+| `no_prefix` | `de` | `/kontakt` | a custom path of a locale on another domain is a 404 |
 
-### One build for every domain
+Under `prefix` a link from another domain keeps the prefix, since the unprefixed URL would only redirect. Under `no_prefix` a link to another domain lands on that host's default locale: the URL cannot name a second one.
 
-If the domains differ only in their default and enabled locales, skip the per-domain apps: build once with `strategy: 'prefix'` or `'no_prefix'` and start one instance per domain with [runtime overrides](/guide/runtime-overrides):
+Things to know:
 
-```bash
-NUXT_I18N_DEFAULT_LOCALE=de NUXT_I18N_DISABLED_LOCALES=en,fr node .output/server/index.mjs
-```
+- **Behind a proxy** the host comes from `Host`. If the proxy puts the public host in `X-Forwarded-Host` instead, set [`trustForwardedHost`](/api/module-options#trustforwardedhost), and only when the proxy overwrites that header.
+- **`app.baseURL`** belongs in `baseUrl` too: `baseUrl: 'https://example.de/shop'` with `app.baseURL: '/shop'`.
+- **Hosts match exactly.** `www.example.de` is another host: redirect it at the edge, or give the locale that `baseUrl`. Only one host per locale.
+- **Caches must key on the host.** A CDN normally does. Nitro's `swr` and `isr` route rules key on the path: add `cache: { varies: ['host'] }`.
+- **Custom paths of two host defaults must not collide.** The unprefixed records share one router, so `/x` cannot be one page on `example.de` and another on `example.com`.
+- **`hashMode`:** the host picks the render as above, links to another domain carry the route in the hash (`https://example.com/#/contact`).
+- **`ssr: false`:** the browser reads the domain from `location.host`, so a host with no server still resolves.
+- **[Runtime overrides](/guide/runtime-overrides)** apply first. A runtime `disabledLocales` holds on every host, and a host whose default is disabled falls to the next locale it serves. A runtime `defaultLocale` applies to unknown hosts only.
 
-Under `prefix_except_default` and `prefix_and_default` the default locale is fixed at build, so use separate builds there. For a single instance answering every domain with the request's own origin in SEO tags, see [SEO](/guide/seo#set-the-public-origin); to choose the locale from the host in code, see [Custom locale detection](/guide/custom-auto-detect).
+For a [static site](/guide/deployment#static-site-nuxi-generate), generate once per domain.
+
+### One app per domain
+
+A shared layer with one small app per domain still works, when the domains need different pages or modules. Each app sets its own `defaultLocale` on top of the same `locales` list. A locale on another domain is a 404 in that app, as above.
+
+### Choosing the locale in code
+
+For a single instance answering every domain with the request's own origin in SEO tags, see [SEO](/guide/seo#set-the-public-origin); to choose the locale from the host in code, see [Custom locale detection](/guide/custom-auto-detect).
 
 ## Related
 

@@ -27,7 +27,7 @@ Every URL is resolved with `?q=1#top`.
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
 | / | index | de | index | index | null | null | de | null |
-| /about | about | de | about | about | null | null | de | null |
+| /about | about | de | about | about | null | null | de | Locale not allowed for this route |
 | /blog/hello-world | blog-slug | de | blog-slug | blog-slug | null | null | de | null |
 | /de | localized-index | de | index | index | null | de | de | null |
 | /de-only | localized-de-only-de-default | de | de-only | de-only | null | null | de | null |
@@ -46,7 +46,7 @@ Every URL is resolved with `?q=1#top`.
 | /ueber-uns | localized-about-de-default | de | about | about | null | null | de | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /nl/ | localized-index | nl | index | index | null | nl | nl | null |
-| /about/ | about | de | about | about | null | null | de | null |
+| /about/ | about | de | about | about | null | null | de | Locale not allowed for this route |
 | /nl/about/ | localized-about | nl | about | about | null | nl | nl | null |
 | /missing | null | de |  | null | null | null | de | null |
 | /nl/missing | null | nl |  | null | null | nl | nl | null |

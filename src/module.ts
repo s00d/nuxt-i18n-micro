@@ -54,7 +54,7 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver, staticPagePaths } from './localized-paths'
+import { createLocalizedPathResolver, type LocalizedPathResolver, staticPagePaths } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
@@ -143,7 +143,8 @@ function buildFullConfig(params: {
 
   return {
     locales: locales ?? [],
-    metaBaseUrl: options.metaBaseUrl || undefined,
+    // a build with domains never takes its origin from a request of an unknown host
+    metaBaseUrl: options.metaBaseUrl || (locales?.find((locale) => locale.code === defaultLocale) ?? locales?.[0])?.baseUrl || locales?.find((locale) => locale.baseUrl)?.baseUrl || undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
     trustForwardedHost: options.trustForwardedHost ?? false,
@@ -844,6 +845,15 @@ declare module '#i18n-internal/payload-source' {
 
     // The preset (and so `node` / `serveStatic`) is only resolved here, not in `nitro:config`.
     nuxt.hook('nitro:init', (nitro) => {
+      // Nuxt and the crawler list every static record: on one domain those of another host are a 404 or a redirect
+      if (buildConfig.domain) {
+        let localize: LocalizedPathResolver | undefined
+        nitro.hooks.hook('prerender:generate', async (route) => {
+          localize ??= await createBuildStrategy()
+          if (route.route !== '/' && localize.isPage(route.route) && !localize.isServed(route.route)) route.skip = true
+        })
+      }
+
       // Static output has no server bundle; its prerenderer keeps the fs reader.
       if (nitro.options.static) return
       const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)

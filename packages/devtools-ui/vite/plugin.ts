@@ -2,7 +2,7 @@ import * as fs from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
-import { safeResolvePath } from '../src/safe-path'
+import { resolveTranslationFile, safeResolvePath } from '../src/safe-path'
 import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
@@ -475,19 +475,12 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Path parameter is required')
           }
 
-          // Resolve path relative to translationDir
-          const fullPath = path.join(translationDir, filePath)
-          const resolvedPath = safeResolvePath(projectRoot, fullPath)
-
-          if (!fs.existsSync(resolvedPath)) {
+          const resolvedPath = resolveTranslationFile(projectRoot, translationDir, filePath)
+          if (!resolvedPath) {
             res.statusCode = 404
             res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, error: 'File not found' }))
+            res.end(JSON.stringify({ success: false, error: 'File not found in the translation directory' }))
             return
-          }
-
-          if (!resolvedPath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
           }
 
           const content = fs.readFileSync(resolvedPath, 'utf-8')
@@ -534,19 +527,13 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Invalid data: file and content are required')
           }
 
-          // Resolve path relative to translationDir if path is not absolute
-          const fullPath = file.startsWith(translationDir) ? file : path.join(translationDir, file)
-          const filePath = safeResolvePath(projectRoot, fullPath)
-
-          // Check extension
-          if (!filePath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
-          }
-
-          // Create directory if it doesn't exist
-          const dir = path.dirname(filePath)
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true })
+          // Only an existing translation file inside translationDir can be written
+          const filePath = typeof file === 'string' ? resolveTranslationFile(projectRoot, translationDir, file) : null
+          if (!filePath) {
+            res.statusCode = 403
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ success: false, error: `Not a translation file: ${String(file)}` }))
+            return
           }
 
           // Write file

@@ -70,7 +70,7 @@ const paramNames = (routePath: string): string =>
 const isRouteRuleStub = (page: NuxtPage): boolean => !page.name && /(?:^|\/)component-stub(?:\.\w+)?$/.test(page.file ?? '')
 
 /** The name Nuxt's scanner would give the path: `/a/:id()` -> `a-id`. */
-function nameOfPath(fullPath: string): string {
+export function nameOfPath(fullPath: string): string {
   const key = routeKey(fullPath)
   return key === '/' ? 'index' : key.replace(/\/|:|\(.*?\)|[?*+]/g, (s) => (s === '/' ? '-' : ''))
 }

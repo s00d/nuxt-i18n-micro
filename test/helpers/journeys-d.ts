@@ -21,9 +21,9 @@ export async function resetHmr(files: Files, baseURL: string, pristine: PayloadV
 }
 
 /**
- * Load a page and check one text, retried as a whole: an HMR update still in flight
- * (from a patch or a reset) can reload the document mid-load. Callers first wait for the
- * payload API to serve `text`, so the window only covers that reload; wrong text fails fast.
+ * Load a page and check one text. First waits for the server render at `baseURL` to show `text`:
+ * a stale render would not hydrate against the live payload. The load is retried as a whole, as an
+ * HMR update still in flight can reload the document mid-load. Wrong text fails fast.
  */
 export async function gotoSettled(page: Page, goto: Goto, baseURL: string, path: string, selector: string, text: string): Promise<void> {
   // the SSR chunk cache drops on the watcher event: a render before it would not hydrate against the live payload

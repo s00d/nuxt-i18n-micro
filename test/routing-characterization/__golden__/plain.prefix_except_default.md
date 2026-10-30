@@ -1,6 +1,6 @@
 # plain · prefix_except_default
 
-small site without any custom path, one routeRules redirect
+small site without any custom path, one stub record of a routeRules redirect
 
 locales: en, de, fr · default: en
 
@@ -154,7 +154,6 @@ params: the PARAMS keys the route's records use.
 | contact | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] |
 | index | / [index] | /de [localized-index] | /fr [localized-index] | / [index] | /de [localized-index] | /fr [localized-index] | / [index] | /de [localized-index] | /fr [localized-index] |
 
-## Invariant breaks (2)
+## Invariant breaks (0)
 
-- /old → de: switch lands on /old?q=1#top read as en
-- /old → fr: switch lands on /old?q=1#top read as en
+none

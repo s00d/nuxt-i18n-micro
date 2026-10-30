@@ -117,23 +117,6 @@ params: the PARAMS keys the route's records use.
 | blog-slug | /en/blog/hello-world [localized-blog-slug] | /de/blog/hello-world [localized-blog-slug] | /fr/blog/hello-world [localized-blog-slug] |
 | index | /en [localized-index] | /de [localized-index] | /fr [localized-index] |
 
-## Invariant breaks (18)
+## Invariant breaks (0)
 
-- /de → de: switch lands on /de?q=1#top read as en
-- /de → fr: switch lands on /fr?q=1#top read as en
-- /de/blog/hello-world → de: switch lands on /de/blog/hello-world?q=1#top read as en
-- /de/blog/hello-world → fr: switch lands on /fr/blog/hello-world?q=1#top read as en
-- /de/ueber-uns → de: switch lands on /de/ueber-uns?q=1#top read as en
-- /de/ueber-uns → fr: switch lands on /fr/about?q=1#top read as en
-- /en → de: switch lands on /de?q=1#top read as en
-- /en → fr: switch lands on /fr?q=1#top read as en
-- /en/about → de: switch lands on /de/ueber-uns?q=1#top read as en
-- /en/about → fr: switch lands on /fr/about?q=1#top read as en
-- /en/blog/hello-world → de: switch lands on /de/blog/hello-world?q=1#top read as en
-- /en/blog/hello-world → fr: switch lands on /fr/blog/hello-world?q=1#top read as en
-- /fr → de: switch lands on /de?q=1#top read as en
-- /fr → fr: switch lands on /fr?q=1#top read as en
-- /fr/about → de: switch lands on /de/ueber-uns?q=1#top read as en
-- /fr/about → fr: switch lands on /fr/about?q=1#top read as en
-- /fr/blog/hello-world → de: switch lands on /de/blog/hello-world?q=1#top read as en
-- /fr/blog/hello-world → fr: switch lands on /fr/blog/hello-world?q=1#top read as en
+none

@@ -463,7 +463,7 @@ export class I18nPathStrategy {
    * or null to stay. URLs with a locale prefix are never rewritten here.
    */
   getClientRedirect(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}): string | null {
-    if (this.ctx.strategy === 'no_prefix') return null
+    if (this.ctx.strategy === 'no_prefix' || this.disabledCodes.has(preferredLocale)) return null
     const path = splitUrl(currentPath).path || '/'
     // a runtime-disabled prefix is a 404 (`shouldReturn404`), not an unprefixed URL
     if (this.isDisabledPrefix(path, path.split('/')[1] ?? '')) return null

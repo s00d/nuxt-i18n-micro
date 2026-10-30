@@ -31,6 +31,8 @@ interface Built {
   disabled: string[]
   /** Locales of other domains: link targets on this host. */
   foreign: string[]
+  /** The URL names no locale: a switch is read by its target, as under no_prefix. */
+  hashMode: boolean
   defaultLocale: string
   strategy: Strategies
 }
@@ -151,7 +153,7 @@ export function build(app: App, strategy: Strategies, host?: string): Built {
   const locales = generator.locales.map((l) => l.code).filter((code) => served.includes(code))
   const disabled = all.filter((l) => l.disabled).map((l) => l.code)
   const foreign = generator.locales.map((l) => l.code).filter((code) => !served.includes(code))
-  return { pages, router, i18n, locales, disabled, foreign, defaultLocale: hosted.defaultLocale!, strategy }
+  return { pages, router, i18n, locales, disabled, foreign, hashMode: !!app.hashMode, defaultLocale: hosted.defaultLocale!, strategy }
 }
 
 // ---------- capture ----------
@@ -402,6 +404,7 @@ export function describeApp(app: App, strategy: Strategies, host?: string): stri
 
   // unlocalized pages (`false` rules, excludePatterns) are served in one form only
   const unlocalized = (url: string) =>
+    (app.hasStub && url === '/old') ||
     (app.excludePatterns ?? []).some((p) => url.startsWith(p)) ||
     Object.entries(app.globalLocaleRoutes ?? {}).some(([key, rule]) => rule === false && url.replace(/^\//, '') === key)
   sections.push(
@@ -421,7 +424,7 @@ export function describeApp(app: App, strategy: Strategies, host?: string): stri
  * The rewrite drives this list to empty (or explains what stays).
  */
 function invariants(
-  { pages, router, i18n, locales, strategy }: Built,
+  { pages, router, i18n, locales, strategy, hashMode }: Built,
   served: { url: string; route: ResolvedRouteLike }[],
   homes: ResolvedRouteLike[],
   nameRows: string[][],
@@ -474,10 +477,10 @@ function invariants(
       const to = sw.value
       if (!to) continue
       // under no_prefix the URL carries no locale: only the page itself can be checked
-      const landed = strategy === 'no_prefix' ? target : i18n.getCurrentLocale(to)
-      // a page the build serves only in other locales cannot land in `target`
+      const landed = strategy === 'no_prefix' || hashMode ? target : i18n.getCurrentLocale(to)
+      // a page `target` does not serve leads to its home by design (guide/upgrade): no round trip back
       const base = i18n.getRouteBaseName(route)
-      if (landed !== target && base && !pageLocales.get(base)?.has(target)) continue
+      if (base && !pageLocales.get(base)?.has(target)) continue
       if (landed !== target) out.push(`${url} → ${target}: switch lands on ${to.fullPath} read as ${landed}`)
       const lrLand = lr.value ? quiet(() => land(lr.value!)!.fullPath) : undefined
       if (lrLand?.error) out.push(`${url} → ${target}: localeRoute(route) gives an unknown route (${lrLand.error})`)

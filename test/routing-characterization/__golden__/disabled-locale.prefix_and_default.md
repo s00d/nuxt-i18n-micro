@@ -107,7 +107,7 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | /about?q=1#top [about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,de |
 | /de/about/ | /de/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,de |
 | /missing | /missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | /es/missing | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | null | null | null |
 | /de/de/about | /de/de/about?q=1#top [—] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,de |
 | /es | /es?q=1#top [—] |  | /en/es?q=1#top [null] | /en/es?q=1#top [null] | null | null | null |

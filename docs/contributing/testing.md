@@ -79,7 +79,7 @@ Browser e2e runs through [untestutils](https://github.com/s00d/untestutils) and 
 - One spec walks one real flow on one recipe: visit, browse, switch locale, reload, detection, head. Each step has a `// step n: action → assert` comment.
 - One harness per file: `test.override({ harness: '<recipe>' })` at the top of the `describe`. A second harness in the same file would reach the first one's server, so split it into its own file.
 - No `waitForTimeout`, no `networkidle`, no optional `if` assertions. Statuses come from `request.get(path)`, with `{ maxRedirects: 0 }` where the redirect itself is checked. Arm console collectors before the first `goto`.
-- Specs import `test` from `test/helpers/guarded-test.ts`. It fails a test on any document response >= 500, uncaught page error, console error or hydration warning, even when the assertions pass. A test that expects one calls `guard.allow(/pattern/)`; `test.override({ guardAllow: [/pattern/] })` allows a pattern for a whole `describe` (the dev HMR journeys).
+- Specs import `test` from `test/helpers/guarded-test.ts`. It fails a test on any document response >= 500, uncaught page error, console error or hydration warning, even when the assertions pass. A test that expects one calls `guard.allow(/pattern/)`; `test.override({ guardAllow: [/pattern/] })` allows a pattern for a whole `describe`.
 - Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
 
 ## Routing goldens

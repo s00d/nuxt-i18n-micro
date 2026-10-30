@@ -13,6 +13,7 @@ member GenerateOptions.strategy: Strategies
 function generateRoutes: (pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]
 function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isLocaleAllowedForUnlocalizedRoute: (routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean
+function nameOfPath: (fullPath: string) => string
 function normalizePath: (routePath: string) => string
 function normalizeRouteKey: (key: string) => string
 class RouteGenerator
@@ -23,13 +24,16 @@ member RouteGenerator.extendPages: (pages: NuxtPage[]) => void
 member RouteGenerator.generateDataRoutes: (pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]
 member RouteGenerator.hostDefaults: private string[]
 member RouteGenerator.locales: Locale[]
+member RouteGenerator.localizedKey: private (key: string, localeCode: string) => string
 member RouteGenerator.localizedPaths: private LocalizedPaths
 member RouteGenerator.options: private RouteGeneratorOptions
+member RouteGenerator.parentKeys: private string[]
 member RouteGenerator.resolveLocalizedPath: (originalPath: string, localeCode: string) => string
 member RouteGenerator.resolveLocalizedRulePaths: (originalPath: string, localeCode: string) => string[]
 member RouteGenerator.routeLocales: Record<string, string[]>
 member RouteGenerator.rules: private Rules
 member RouteGenerator.strategy: Strategies
+member RouteGenerator.withPrefix: private (localized: string, localeCode: string) => string
 member RouteGenerator.new: (options: RouteGeneratorOptions): RouteGenerator
 interface RouteGeneratorOptions
 member RouteGeneratorOptions.apiBaseUrl?: string | undefined
@@ -40,6 +44,7 @@ member RouteGeneratorOptions.globalLocaleRoutes: GlobalLocaleRoutes
 member RouteGeneratorOptions.locales: Locale[]
 member RouteGeneratorOptions.localizedRouteNamePrefix?: string | undefined
 member RouteGeneratorOptions.noPrefixRedirect: boolean
+member RouteGeneratorOptions.parentPaths?: string[] | undefined
 member RouteGeneratorOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member RouteGeneratorOptions.routeLocales?: Record<string, string[]> | undefined
 member RouteGeneratorOptions.strategy: Strategies
@@ -47,11 +52,12 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+function routeKey: (routePathOrName: string) => string
 class Rules
 member Rules.allowedLocales: (fullPath: string, name: string | undefined) => string[] | undefined
 member Rules.byName: private Map<string, Rule>
+member Rules.customKeysUnder: (base: string, locale: string) => string[]
 member Rules.customPath: (fullPath: string, locale: string) => string | undefined
-member Rules.customPathsUnder: (base: string, locale: string) => string[]
 member Rules.disableMeta: (fullPath: string, name: string | undefined) => NoMeta | undefined
 member Rules.get: (fullPath: string, name: string | undefined) => Rule | undefined
 member Rules.noMeta: private Map<string, NoMeta>

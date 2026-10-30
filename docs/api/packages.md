@@ -19,7 +19,7 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 21 |
 | [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact` | 39 |
 | [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/router` | 39 |
-| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 10 |
+| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 12 |
 | [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 16 |
 | [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid`, `@i18n-micro/solid/router` | 34 |
 | [`@i18n-micro/test-utils`](/api/packages/test-utils) | `@i18n-micro/test-utils`, `@i18n-micro/test-utils/publish-smoke` | 60 |

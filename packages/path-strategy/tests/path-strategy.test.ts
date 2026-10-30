@@ -435,6 +435,12 @@ describe('a page on the segment of a disabled locale', () => {
     expect(prefix.getClientRedirect('/es', 'de')).toBe('/de/es')
   })
 
+  test('is no redirect target', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales, { pages })
+    expect(i18n.getClientRedirect('/missing', 'es')).toBeNull()
+    expect(i18n.getClientRedirect('/de/missing', 'es', { switchPrefixed: true })).toBeNull()
+  })
+
   test('a catch-all does not count as a page', () => {
     const { i18n } = setup('prefix_except_default', {}, locales)
     expect(i18n.shouldReturn404('/es')).toBe('Locale disabled')

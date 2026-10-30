@@ -165,8 +165,6 @@ params: the PARAMS keys the route's records use.
 | index | /en [localized-index] | /de [localized-index] | /fr [localized-index] | /en [localized-index] | /de [localized-index] | /fr [localized-index] | /en [localized-index] | /de [localized-index] | /fr [localized-index] |
 | team | /en/team [localized-team] | /de/team-config [localized-team-de] | /fr/team [localized-team] | /en/team [localized-team] | /de/team-config [localized-team-de] | /fr/team [localized-team] | /en/team [localized-team] | /de/team-config [localized-team-de] | /fr/team [localized-team] |
 
-## Invariant breaks (3)
+## Invariant breaks (0)
 
-- /careers → fr → en: round trip ends on /en, not /en/careers?q=1#top
-- /de/jobs-seite → fr → de: round trip ends on /de, not /de/jobs-seite?q=1#top
-- /en/careers → fr → en: round trip ends on /en, not /en/careers?q=1#top
+none

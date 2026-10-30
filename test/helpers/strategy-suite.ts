@@ -35,7 +35,7 @@ const SETTINGS = (prefix: string) => [`${prefix}settings/profile`, `${prefix}set
 export const CASES: Record<StrategyName, StrategyCase> = {
   no_prefix: {
     routes: { '/': 'en', '/contact': 'contact', '/kontakt': 'contact' },
-    pages: ['about', 'a-propos', ...SETTINGS('')],
+    pages: ['about', 'a-propos', 'unlinked', ...SETTINGS('')],
     absent: ['de'],
   },
   prefix_except_default: {
@@ -71,7 +71,18 @@ export const CASES: Record<StrategyName, StrategyCase> = {
   },
   prefix_and_default: {
     routes: { '/': 'en', '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
-    pages: ['en/about', 'de/a-propos', 'ru/about', ...SETTINGS('en/'), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    pages: [
+      'en/about',
+      'de/a-propos',
+      'ru/about',
+      'unlinked',
+      'en/unlinked',
+      'de/unlinked',
+      'ru/unlinked',
+      ...SETTINGS('en/'),
+      ...SETTINGS('de/'),
+      ...SETTINGS('ru/'),
+    ],
     unprefixedDefault: '/contact',
   },
 }

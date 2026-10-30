@@ -30,7 +30,7 @@ export interface App {
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string
   hashMode?: boolean
-  /** A `routeRules` redirect with no page: Nuxt adds an unnamed stub record for `/old`. */
+  /** A `routeRules` redirect with no page: Nuxt adds an unnamed stub record for `/old`, served in one form only. The rule itself is Nitro's. */
   hasStub?: boolean
   /** Pages a module pushes in `pages:extend`: these can have no name, unlike the file scanner's. */
   modulePages?: NuxtPage[]
@@ -63,14 +63,14 @@ export const PARAMS: Record<string, string | string[]> = {
 export const APPS: App[] = [
   {
     name: 'plain',
-    description: 'small site without any custom path, one routeRules redirect',
+    description: 'small site without any custom path, one stub record of a routeRules redirect',
     files: ['index.vue', 'about.vue', 'contact.vue', 'blog/index.vue', 'blog/[slug].vue'],
     hasStub: true,
   },
   {
     name: 'company',
     description:
-      'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one routeRules redirect',
+      'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one stub record of a routeRules redirect',
     hasStub: true,
     files: [
       'index.vue',

@@ -3,9 +3,17 @@
  * runtime on a real vue-router) and records everything the module, its plugin, middleware and
  * server ask of the two packages, as a markdown report used as a golden file.
  */
-import { createPathStrategy, type PathStrategy, type ResolvedRouteLike, type RouteLike, type RouterAdapter } from '@i18n-micro/path-strategy'
+import {
+  createPathStrategy,
+  DomainPathStrategy,
+  type PathStrategy,
+  type ResolvedRouteLike,
+  type RouteLike,
+  type RouterAdapter,
+} from '@i18n-micro/path-strategy'
 import { RouteGenerator } from '@i18n-micro/route-strategy'
-import type { Strategies } from '@i18n-micro/types'
+import type { ModuleOptionsExtend, Strategies } from '@i18n-micro/types'
+import { configForHost } from '@i18n-micro/utils/domains'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Router } from 'vue-router'
 import { mergeDefineI18nRouteMeta } from '../../src/unplugin-define-i18n-route'
@@ -21,6 +29,8 @@ interface Built {
   locales: string[]
   /** Disabled locales: the strategy knows them, nothing serves them. */
   disabled: string[]
+  /** Locales of other domains: link targets on this host. */
+  foreign: string[]
   /** The URL names no locale: a switch is read by its target, as under no_prefix. */
   hashMode: boolean
   defaultLocale: string
@@ -85,7 +95,7 @@ function stubResolve(to: RouteLike | string) {
 const stubRouter = (): Router => ({ resolve: stubResolve, getRoutes: () => [], hasRoute: () => false }) as unknown as Router
 
 /** Same inputs module.ts hands RouteGenerator and the i18n.strategy.mjs template, from the same functions. */
-export function build(app: App, strategy: Strategies): Built {
+export function build(app: App, strategy: Strategies, host?: string): Built {
   const config = mergeDefineI18nRouteMeta(
     Object.entries(app.pageI18n ?? {}).map(([file, cfg]) => ({
       routePath: pageFilePathToRoutePath(`/app/pages/${file}.vue`, '/app'),
@@ -123,21 +133,27 @@ export function build(app: App, strategy: Strategies): Built {
     resolve: (to) => adapterResolve(router, to),
     getRoutes: () => router.getRoutes(),
   }
-  const i18n = createPathStrategy({
+  // the runtime config keeps disabled locales; only the records leave them out
+  const all = [...generator.locales, ...generator.disabledLocales]
+  const runtime = { locales: all, defaultLocale: generator.defaultLocale.code } as ModuleOptionsExtend
+  const hosted = host ? configForHost(runtime, host) : runtime
+  const context = {
     strategy,
-    defaultLocale: generator.defaultLocale.code,
-    // the runtime config keeps disabled locales; only the records leave them out
-    locales: appLocales(app),
+    defaultLocale: hosted.defaultLocale!,
+    locales: hosted.locales!,
     localizedRouteNamePrefix,
     router: adapter,
     hashMode: app.hashMode,
     customRegexMatcher: app.customRegexMatcher,
-  })
-  const locales = generator.locales.map((l) => l.code)
-  const disabled = appLocales(app)
-    .filter((l) => l.disabled)
-    .map((l) => l.code)
-  return { pages, router, i18n, locales, disabled, hashMode: !!app.hashMode, defaultLocale: generator.defaultLocale.code, strategy }
+    domain: hosted.domain,
+    linkLocales: hosted.linkLocales,
+  }
+  const i18n = all.some((l) => l.baseUrl) ? new DomainPathStrategy(context) : createPathStrategy(context)
+  const served = hosted.locales!.map((l) => l.code)
+  const locales = generator.locales.map((l) => l.code).filter((code) => served.includes(code))
+  const disabled = all.filter((l) => l.disabled).map((l) => l.code)
+  const foreign = generator.locales.map((l) => l.code).filter((code) => !served.includes(code))
+  return { pages, router, i18n, locales, disabled, foreign, hashMode: !!app.hashMode, defaultLocale: hosted.defaultLocale!, strategy }
 }
 
 // ---------- capture ----------
@@ -264,17 +280,17 @@ function routesSection(pages: NuxtPage[]): string {
   return `## Generated routes\n\n${table(['name', 'path', 'alias', 'redirect', 'meta.i18n'], rows)}`
 }
 
-export function describeApp(app: App, strategy: Strategies): string {
-  const header = `# ${app.name} · ${strategy}\n\n${app.description}`
+export function describeApp(app: App, strategy: Strategies, host?: string): string {
+  const header = `# ${app.name} · ${strategy}${host ? ` · ${host}` : ''}\n\n${app.description}`
   let built: Built
   try {
-    built = build(app, strategy)
+    built = build(app, strategy, host)
   } catch (e) {
     const pages = (e as { pages?: NuxtPage[] }).pages
     return `${header}\n\n**${(e as Error).message}**\n\n${pages ? routesSection(pages) : ''}\n`
   }
-  const { pages, router, i18n, locales, disabled, defaultLocale } = built
-  const concrete = concreteUrls(router, locales)
+  const { pages, router, i18n, locales, disabled, foreign, defaultLocale } = built
+  const concrete = concreteUrls(router, [...locales, ...foreign])
   const urls = [...new Set([...concrete, ...edgeUrls(locales, disabled, defaultLocale)])]
   // frozen: strategy calls read the current route, they never write to it (the router shares it)
   const resolved = urls.map((url) => {
@@ -318,7 +334,7 @@ export function describeApp(app: App, strategy: Strategies): string {
     )}`,
   ]
 
-  for (const target of [...locales, ...disabled]) {
+  for (const target of [...locales, ...disabled, ...foreign]) {
     const rows = resolved.map(({ url, route }) => {
       const from = i18n.getCurrentLocale(route)
       const i18nRouteParams = Object.keys(route.params ?? {}).some((k) => k !== 'locale')
@@ -394,7 +410,8 @@ export function describeApp(app: App, strategy: Strategies): string {
   sections.push(
     invariants(
       built,
-      resolved.filter(({ url }) => concrete.includes(url) && !unlocalized(url)),
+      // on a host, what it answers with a 404 is no page of it
+      resolved.filter(({ url }) => concrete.includes(url) && !unlocalized(url) && !(host && i18n.shouldReturn404(url))),
       homes,
       nameRows,
     ),
@@ -449,7 +466,8 @@ function invariants(
     // the same page in its own locale: aliases and unprefixed fallbacks normalize to it
     const home = quiet(() => land(i18n.switchLocaleRoute(from, from, route, {}))).value
     const redirect = quiet(() => i18n.getClientRedirect(url, from))
-    if (redirect.value && redirect.value !== home?.path)
+    // null: the switch is an absolute link to the locale's own domain, there is no local path to compare
+    if (redirect.value && home !== null && redirect.value !== home?.path)
       out.push(`${url}: getClientRedirect to its own locale ${from} gives ${redirect.value}, switch gives ${home?.path}`)
     for (const target of locales) {
       const sw = quiet(() => land(i18n.switchLocaleRoute(from, target, route, {})))

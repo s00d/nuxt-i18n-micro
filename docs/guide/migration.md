@@ -62,7 +62,9 @@ export default defineNuxtConfig({
 | `locales[].language` (`iso` before v9) | `locales[].iso` |
 | `locales[].name` | `locales[].displayName` |
 | `locales[].dir` | `locales[].dir` |
-| `locales[].domain` | `locales[].baseUrl` (+ `baseDefault`) |
+| `locales[].domain` | `locales[].baseUrl` (an origin with its scheme) |
+| `locales[].domainDefault` | `locales[].baseDefault` |
+| `differentDomains`, `multiDomainLocales` | not needed: `baseUrl` alone routes by host, see [Layers and domains](/guide/layers#multiple-domains) |
 | `locales[].file` / `files`, `langDir`, `lazy` | `translationDir`; files are found by name and always loaded per page |
 | `defaultLocale`, `strategy` | same names, same four values |
 | `baseUrl` | `metaBaseUrl` |

@@ -60,6 +60,22 @@ npx nuxi generate
 
 The default `premerged` mode writes every payload into `.output/public/_locales/`, so any static host can serve them. Pages are prerendered for each locale: under `prefix` the module seeds every localized root (`/en`, `/de`), and `/` is kept as a redirect stub. Leave [`prerenderRoutes`](/api/module-options#translationpayloads) off: the public copy already contains the payload files.
 
+For a build with [locale domains](/guide/layers#multiple-domains), run generate once per domain, with `NUXT_I18N_DOMAIN` as the host of the run. Each tree then holds that domain's pages and payloads. Nitro has no variable for the output folder, so read your own from the config:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  nitro: { output: { publicDir: process.env.PUBLIC_DIR } },
+})
+```
+
+```bash
+NUXT_I18N_DOMAIN=example.de PUBLIC_DIR=sites/example.de npx nuxi generate
+NUXT_I18N_DOMAIN=example.com PUBLIC_DIR=sites/example.com npx nuxi generate
+```
+
+Keep the folders outside `.output`: each run empties it. Absolute links to the other domains are not crawled. Without the variable, a build with a `baseUrl` locale warns and generates the build config, where those locales are links and get no pages. On a Node server the same variable pins the process to one domain, whatever `Host` says.
+
 A static host applies its own headers to these files, not the ones described below; set caching in the host's config. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
 
 ## Cache headers and dateBuild

@@ -19,6 +19,7 @@ const libEntries = {
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
+  domains: resolve(rootDir, 'src/domains.ts'),
   cookie: resolve(rootDir, 'src/cookie.ts'),
   'cache-control': resolve(rootDir, 'src/cache-control.ts'),
   'parse-path': resolve(rootDir, 'src/parse-path.ts'),

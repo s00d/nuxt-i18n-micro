@@ -7,7 +7,7 @@ import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
-import { createPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
+import { createPathStrategy, DomainPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
 
 const LOCALES: Locale[] = [
   { code: 'en', displayName: 'English' },
@@ -98,7 +98,8 @@ function setup(
       hash: r.hash,
     }
   }
-  const i18n = createPathStrategy({
+  const create = locales.some((l) => l.baseUrl) ? (context: PathStrategyContext) => new DomainPathStrategy(context) : createPathStrategy
+  const i18n = create({
     strategy,
     defaultLocale: 'en',
     locales,
@@ -187,6 +188,94 @@ describe('switchLocaleRoute', () => {
     expect(i18n.switchLocaleRoute('en', 'de', at('/about-us?q=1'))).toBe('https://example.de/ueber-uns?q=1')
     expect(i18n.switchLocaleRoute('en', 'fr', at('/about-us'))).toBe('https://example.fr/fr/about')
     expect(i18n.localeRoute('de', { name: 'index' }).fullPath).toBe('https://example.de/')
+  })
+})
+
+describe('a route read back from an absolute link, on a host no locale lives on', () => {
+  const locales: Locale[] = [
+    { code: 'en', baseUrl: 'https://a.test', baseDefault: true },
+    { code: 'de', baseUrl: 'https://b.test/shop', baseDefault: true },
+    { code: 'fr' },
+  ]
+
+  test('the page of the link switches like any route (what $switchRoute does with a path)', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const from = i18n.localeRoute('en', '/about-us?q=1') as ResolvedRouteLike
+    expect(from.fullPath).toBe('https://a.test/about-us?q=1')
+    expect(i18n.switchLocaleRoute('en', 'fr', from)).toMatchObject({ fullPath: '/fr/about?q=1' })
+    expect(i18n.switchLocaleRoute('en', 'de', from)).toBe('https://b.test/shop/ueber-uns?q=1')
+  })
+
+  test('per-locale params still apply; an origin no locale has is left alone', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const from = i18n.localeRoute('de', '/blog/x') as ResolvedRouteLike
+    expect(from.fullPath).toMatch(/^https:\/\/b\.test\/shop\//)
+    const switched = i18n.switchLocaleRoute('de', 'fr', from, { i18nRouteParams: { fr: { slug: 'y' } } })
+    expect(switched).toMatchObject({ fullPath: expect.stringMatching(/\/y$/) })
+    const other = { name: undefined, path: 'https://other.test/about-us', fullPath: 'https://other.test/about-us' }
+    expect(String((i18n.switchLocaleRoute('en', 'fr', other) as ResolvedRouteLike).fullPath)).not.toContain('about-us/')
+  })
+})
+
+describe('a host of a domain build', () => {
+  const locales: Locale[] = [
+    { code: 'en', baseUrl: 'https://a.test', baseDefault: true },
+    { code: 'de', baseUrl: 'https://b.test', baseDefault: true },
+    { code: 'ru' },
+  ]
+  const onB = (strategy: Strategies) =>
+    setup(strategy, { defaultLocale: 'de', locales: locales.filter((l) => l.code !== 'en'), linkLocales: locales, domain: 'b.test' }, locales, {
+      routeLocales: { 'de-only': ['de'], '/en-ru': ['en', 'ru'] },
+      pages: [...PAGES, { path: '/en-ru', name: 'en-ru', file: 'pages/en-ru.vue' }],
+    })
+
+  test('no_prefix: a restricted page renders in a locale the host serves', () => {
+    const { i18n, at } = onB('no_prefix')
+    expect(i18n.getCurrentLocale(at('/en-ru'), 'de')).toBe('ru')
+  })
+
+  test('a real page on a foreign segment stays, a foreign prefix is a 404', () => {
+    const { i18n } = onB('prefix_except_default')
+    expect(i18n.shouldReturn404('/en/about-us')).toBe('Locale on another domain')
+  })
+
+  test('no_prefix: a page whose only local locale is disabled is a 404', () => {
+    const open: Locale[] = [locales[0]!, locales[1]!, { code: 'ru' }]
+    const { i18n } = setup(
+      'no_prefix',
+      { defaultLocale: 'de', locales: [open[1]!, { code: 'ru', disabled: true }], linkLocales: open, domain: 'b.test' },
+      open,
+      { routeLocales: { '/en-ru': ['en', 'ru'] }, pages: [...PAGES, { path: '/en-ru', name: 'en-ru', file: 'pages/en-ru.vue' }] },
+    )
+    expect(i18n.shouldReturn404('/en-ru')).not.toBeNull()
+  })
+
+  test('a host with no locale left answers 404 everywhere', () => {
+    const hostLocales = [{ ...locales[1]!, disabled: true }]
+    for (const strategy of ['no_prefix', 'prefix', 'prefix_except_default'] as const) {
+      const { i18n } = setup(strategy, { defaultLocale: 'de', locales: hostLocales, linkLocales: locales, domain: 'b.test' }, locales)
+      expect(i18n.shouldReturn404('/')).not.toBeNull()
+      expect(i18n.shouldReturn404('/about-us')).not.toBeNull()
+    }
+  })
+
+  test('a redirect never targets a locale the host does not serve', () => {
+    const onA = (strategy: Strategies) =>
+      setup(strategy, { locales: locales.filter((l) => l.code !== 'de'), linkLocales: locales, domain: 'a.test' }, locales)
+    // under prefix a page the preferred locale lacks moves to a locale of this host, not to the first it has
+    expect(onB('prefix').i18n.getClientRedirect('/en-ru', 'de')).toBe('/ru/en-ru')
+    // a locale of another domain is no target, as a disabled one is not
+    expect(onA('prefix_except_default').i18n.getClientRedirect('/about-us', 'de')).toBeNull()
+    expect(onB('prefix').i18n.getClientRedirect('/de-only', 'de')).toBe('/de/de-only')
+  })
+
+  test('hash mode: the route goes to the other domain in the hash', () => {
+    const { i18n, at } = setup(
+      'prefix_except_default',
+      { hashMode: true, defaultLocale: 'de', locales: locales.slice(1), linkLocales: locales, domain: 'b.test' },
+      locales,
+    )
+    expect(i18n.switchLocaleRoute('de', 'en', at('/ueber-uns'))).toBe('https://a.test/#/about-us')
   })
 })
 

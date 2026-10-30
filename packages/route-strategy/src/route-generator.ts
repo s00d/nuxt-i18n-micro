@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import { withHostDefaults } from '@i18n-micro/utils/domains'
 import type { NuxtPage } from '@nuxt/schema'
 import { generateRoutes, type LocalizedPaths } from './generate'
 import { absolute, childSegment, joinChild, removeLeadingSlash, routeKey, rulePattern } from './paths'
@@ -48,6 +49,8 @@ export class RouteGenerator {
   readonly defaultLocale: Locale
   readonly strategy: Strategies
   readonly routeLocales: Record<string, string[]>
+  /** Defaults of the domains in this build, besides the build default. */
+  private readonly hostDefaults: string[]
   private readonly rules: Rules
   private readonly options: RouteGeneratorOptions
   private readonly parentKeys: string[]
@@ -56,13 +59,15 @@ export class RouteGenerator {
 
   constructor(options: RouteGeneratorOptions) {
     const resolved = resolveLocales(options.locales, options.defaultLocaleCode)
-    this.locales = resolved.locales
+    this.locales = withHostDefaults(resolved.locales, options.defaultLocaleCode)
     this.disabledLocales = resolved.disabledLocales
     this.defaultLocale = resolved.defaultLocale
     this.strategy = options.strategy
     this.routeLocales = options.routeLocales ?? {}
     this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales, options.routeDisableMeta)
     this.options = options
+    const unprefixedDefault = options.strategy === 'prefix_except_default' || options.strategy === 'prefix_and_default'
+    this.hostDefaults = unprefixedDefault ? this.locales.filter((l) => l.baseDefault && l.code !== this.defaultLocale.code).map((l) => l.code) : []
     this.parentKeys = (options.parentPaths ?? []).map(routeKey)
   }
 
@@ -81,6 +86,7 @@ export class RouteGenerator {
         excludePatterns: this.options.excludePatterns,
         apiBaseUrl: this.options.apiBaseUrl,
         noPrefixRedirect: this.options.noPrefixRedirect,
+        hostDefaults: this.hostDefaults,
       },
       this.localizedPaths,
     )
@@ -122,13 +128,16 @@ export class RouteGenerator {
    */
   resolveLocalizedRulePaths(originalPath: string, localeCode: string): string[] {
     const paths = new Set([this.resolveLocalizedPath(originalPath, localeCode)])
-    if (!originalPath.endsWith('/**')) return [...paths]
-    const base = routeKey(originalPath.slice(0, -3))
-    for (const key of this.rules.customKeysUnder(base, localeCode)) {
-      const pattern = rulePattern(this.localizedKey(key, localeCode))
-      // the root of the rule took its children along
-      if (pattern) paths.add(this.withPrefix(key === base ? `${pattern}/**` : pattern, localeCode))
+    if (originalPath.endsWith('/**')) {
+      const base = routeKey(originalPath.slice(0, -3))
+      for (const key of this.rules.customKeysUnder(base, localeCode)) {
+        const pattern = rulePattern(this.localizedKey(key, localeCode))
+        // the root of the rule took its children along
+        if (pattern) paths.add(this.withPrefix(key === base ? `${pattern}/**` : pattern, localeCode))
+      }
     }
+    // the default of a domain answers without its prefix there
+    if (this.hostDefaults.includes(localeCode)) for (const path of [...paths]) paths.add(`/${path.split('/').slice(2).join('/')}`)
     return [...paths]
   }
 

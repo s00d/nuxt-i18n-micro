@@ -22,7 +22,8 @@ export async function loadLiveDevTranslations(locale: string, pageName: string, 
   const merged = await mergeDevTranslations({
     locale,
     pageName,
-    locales: config.locales,
+    // a fallback may live on another domain, as in production
+    locales: config.linkLocales ?? config.locales,
     fallbackLocale: config.fallbackLocale,
     disablePageLocales: config.disablePageLocales,
     readLocaleFile,

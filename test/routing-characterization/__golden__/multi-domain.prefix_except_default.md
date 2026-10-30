@@ -8,13 +8,15 @@ locales: en, de, fr · default: en
 
 | name | path | alias | redirect | meta.i18n |
 |---|---|---|---|---|
-| index | / |  |  | index: en |
+| index | / |  |  | index: en, de |
 | about | /about |  |  | about: en |
-| blog-slug | /blog/:slug() |  |  | blog-slug: en |
-| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| localized-about-de-default | /ueber-uns |  |  | about: de |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de |
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-about | /:locale(en)/about |  |  | about: en |
 | localized-about-de | /:locale(de)/ueber-uns |  |  | about: de |
 | localized-about-fr | /:locale(fr)/a-propos |  |  | about: fr |
-| localized-blog-slug | /:locale(de\|fr)/blog/:slug() |  |  | blog-slug: de, fr |
+| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  | blog-slug: en, de, fr |
 
 ## Reading a URL
 
@@ -28,11 +30,14 @@ Every URL is resolved with `?q=1#top`.
 | /de | localized-index | de | index | index | null | de | de | null |
 | /de/blog/hello-world | localized-blog-slug | de | blog-slug | blog-slug | null | de | de | null |
 | /de/ueber-uns | localized-about-de | de | about | about | null | de | de | null |
+| /en | localized-index | en | index | index | null | en | en | Default locale should not have prefix |
+| /en/about | localized-about | en | about | about | null | en | en | Default locale should not have prefix |
+| /en/blog/hello-world | localized-blog-slug | en | blog-slug | blog-slug | null | en | en | Default locale should not have prefix |
 | /fr | localized-index | fr | index | index | null | fr | fr | null |
 | /fr/a-propos | localized-about-fr | fr | about | about | null | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
-| /en | null | en | index | index | null | en | en | Default locale should not have prefix |
-| /en/ | null | en | index | index | null | en | en | Default locale should not have prefix |
+| /ueber-uns | localized-about-de-default | en | about | about | null | null | en | null |
+| /en/ | localized-index | en | index | index | null | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | en | null |
 | /de/about/ | null | de | about | about | null | de | de | null |
@@ -51,10 +56,13 @@ Every URL is resolved with `?q=1#top`.
 | /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
 | /de/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
 | /de/ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,de,fr |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /en/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
 | /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
 | /fr/a-propos | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,de,fr |
 | /fr/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | /about | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
@@ -74,10 +82,13 @@ Every URL is resolved with `?q=1#top`.
 | /de | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
 | /de/blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | null | en,de,fr |
 | /de/ueber-uns | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | /de | en,de,fr |
+| /en/about | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | /de/ueber-uns | en,de,fr |
+| /en/blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | /de/blog/hello-world | en,de,fr |
 | /fr | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | /de | en,de,fr |
 | /fr/a-propos | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | /de/ueber-uns | en,de,fr |
 | /fr/blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | /de/blog/hello-world | en,de,fr |
-| /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | /de | en,de,fr |
+| /ueber-uns | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/ueber-uns | /de/ueber-uns | en,de,fr |
 | /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | /de | en,de,fr |
 | /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
 | /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/ueber-uns | /de/ueber-uns | en,de,fr |
@@ -97,10 +108,13 @@ Every URL is resolved with `?q=1#top`.
 | /de | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
 | /de/blog/hello-world | external https://example.fr/fr/blog/hello-world?q=1#top | external https://example.fr/fr/blog/hello-world-fr?q=1#top | https://example.fr/fr/blog/hello-world?q=1#top [—] | https://example.fr/fr/blog/hello-world?q=1#top [—] | null | /fr/blog/hello-world | en,de,fr |
 | /de/ueber-uns | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | /fr/a-propos | en,de,fr |
+| /en | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
+| /en/about | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | /fr/a-propos | en,de,fr |
+| /en/blog/hello-world | external https://example.fr/fr/blog/hello-world?q=1#top | external https://example.fr/fr/blog/hello-world-fr?q=1#top | https://example.fr/fr/blog/hello-world?q=1#top [—] | https://example.fr/fr/blog/hello-world?q=1#top [—] | null | /fr/blog/hello-world | en,de,fr |
 | /fr | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | null | en,de,fr |
 | /fr/a-propos | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | null | en,de,fr |
 | /fr/blog/hello-world | external https://example.fr/fr/blog/hello-world?q=1#top | external https://example.fr/fr/blog/hello-world-fr?q=1#top | https://example.fr/fr/blog/hello-world?q=1#top [—] | https://example.fr/fr/blog/hello-world?q=1#top [—] | null | null | en,de,fr |
-| /en | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
+| /ueber-uns | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /fr/a-propos | /fr/a-propos | en,de,fr |
 | /en/ | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
 | /de/ | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
 | /about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /fr/a-propos | /fr/a-propos | en,de,fr |

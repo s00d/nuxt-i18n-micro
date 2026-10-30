@@ -41,6 +41,8 @@ export interface App {
   /** params used to build concrete URLs of dynamic routes */
   params?: Record<string, string | string[]>
   strategies?: Strategies[]
+  /** Hosts to record besides the build config: one golden per host. */
+  hosts?: string[]
 }
 
 const enDeFr: Locale[] = [
@@ -232,6 +234,20 @@ export const APPS: App[] = [
       { code: 'fr', iso: 'fr-FR', baseUrl: 'https://example.fr' },
     ],
     globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
+  },
+  {
+    name: 'domains',
+    description: 'one build on two domains: a default per host, a second locale on one host, a locale on every host, a page of one locale',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue', 'de-only.vue'],
+    locales: [
+      { code: 'en', iso: 'en-US', baseUrl: 'https://example.com', baseDefault: true },
+      { code: 'de', iso: 'de-DE', baseUrl: 'https://example.de', baseDefault: true },
+      { code: 'nl', iso: 'nl-NL', baseUrl: 'https://example.de' },
+      { code: 'fr', iso: 'fr-FR' },
+    ],
+    globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
+    pageI18n: { 'de-only': { locales: ['de'] } },
+    hosts: ['example.com', 'example.de'],
   },
 ]
 

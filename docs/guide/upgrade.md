@@ -39,6 +39,10 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **An unlocalized page has no `hreflang` or `og:locale:alternate`.**
 - **`$localePath` returns a string with an `http(s):`, `mailto:` or `tel:` scheme as is, and the `path` and `fullPath` of `$localeRoute` carry it unchanged**, so do not pass an unchecked value (a `?next=` parameter) to them as a link target. `//host` and bare names like `x.com` stay paths, on this origin in every locale.
 - **`$switchRoute` stays in the app.** A locale's own `baseUrl`, `mailto:` and `tel:` leave it; any other string is a path.
+- **`locales[].baseUrl` now routes requests.** One build serves every domain: see [Layers and domains](/guide/layers#multiple-domains). With `baseUrl` set, a locale of another domain is a 404 on this host (`/en/about` on `example.de`), and links to a locale on the same host are relative. Requests on any other host, `localhost` included, behave as before, except that canonical and `hreflang` use `metaBaseUrl` if set, else the default locale's `baseUrl`, and not the request's origin.
+- **Under `prefix`, a link to another domain keeps the locale prefix, with or without `baseDefault`.** `https://example.de/de/about`, not `https://example.de/about`, which only redirects.
+- **Under `prefix_except_default` with `baseDefault` on a locale other than the build default, routes keep every prefix** so other domains can link to them. `/en` is still a 404. Only code reading `router.getRoutes()` sees the difference.
+- **`@i18n-micro/path-strategy`: `createPathStrategy` no longer builds absolute URLs.** Use `new DomainPathStrategy(ctx)` when locales have `baseUrl`.
 - **`customRegexMatcher` no longer 404s a real page** whose first segment looks like a locale.
 - **`nuxi generate` prerenders every static page in each locale that serves it**, linked or not, unless a route rule sets `prerender: false`: more files in the output.
 - **`$switchLocale` resolves `true` or `false`** (it resolved nothing), `false` when the locale's dictionary did not apply.

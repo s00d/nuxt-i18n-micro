@@ -23,7 +23,7 @@ import type {
 import { shallowRef } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
-import { createI18nStrategy } from '#build/i18n.strategy.mjs'
+import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
@@ -195,7 +195,8 @@ export default defineNuxtPlugin({
       i18n,
       loader,
       i18nStrategy,
-      i18nConfig,
+      // $getLocales lists the locales of other domains too: link targets
+      i18nConfig: domains ? { ...i18nConfig, locales: i18nConfig.linkLocales ?? i18nConfig.locales } : i18nConfig,
       router,
       getCurrentLocale,
       getEffectiveLocale,
@@ -211,6 +212,16 @@ export default defineNuxtPlugin({
       // a ref: a link rendered without the hash gets it back when hydration ends
       isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
     })
+
+    if (domains) {
+      const { switchLocale } = provideApi
+      // nothing to load or store here: the locale lives on another origin
+      provideApi.switchLocale = async (code) => {
+        if (isValidLocale(code) || !i18nConfig.linkLocales?.some((locale) => locale.code === code && !locale.disabled)) return switchLocale(code)
+        await navigateTo(provideApi.switchLocalePath(code), { external: true })
+        return true
+      }
+    }
 
     if (import.meta.dev && import.meta.client) {
       setI18nDevtoolsBridge({

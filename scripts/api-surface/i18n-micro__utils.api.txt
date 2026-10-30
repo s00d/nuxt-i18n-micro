@@ -50,6 +50,10 @@ function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 function deepMergeTranslations: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 function deepMergeTranslationsRecursive: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 
+# ./domains (src/domains.ts)
+function configForHost: (config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend
+function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
+
 # ./merge-i18n-head (src/merge-i18n-head.ts)
 interface I18nHeadObject
 member I18nHeadObject.htmlAttrs: Record<string, string | undefined>

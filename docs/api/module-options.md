@@ -113,6 +113,7 @@ Parts of the module you can switch off.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
+| `trustForwardedHost` | `boolean` | `false` | Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of `Host`. Enable it only behind a proxy that overwrites that header. |
 | `hreflangBaseLanguage` | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims the bare tag for that language. Routing `code` is never used — only `iso \|\| code`. |
 | `additionalTranslationDirs` | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts). Only root `{locale}.json` files are read — `pages/` under these dirs is ignored. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`. |
 | `vueDevtools` | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). Separate from the Nuxt DevTools custom tab. |
@@ -160,8 +161,8 @@ Each entry is a `Locale` object:
 | `fallbackLocale` | `string` | Fallback for this locale; overrides the global `fallbackLocale`. |
 | `seo` | `boolean` | `false` leaves the locale out of `hreflang` and `og:locale:alternate`. |
 | `og` | `string` | `og:locale` value (`ar_AE`); default: `iso` converted. |
-| `baseUrl` | `string` | The locale's own domain: links into it become absolute URLs there. |
-| `baseDefault` | `boolean` | With `baseUrl`: no `/<code>` prefix in those URLs. |
+| `baseUrl` | `string` | The locale's own domain: one build serves it, and links into it from other domains are absolute. |
+| `baseDefault` | `boolean` | With `baseUrl`: the default locale of its host, with no `/<code>` prefix in links to it (`prefix` keeps it). |
 
 Other properties are kept and returned by `$getLocales()`. Type them by augmenting `Locale`:
 
@@ -658,6 +659,19 @@ canonical URLs use `https://` even though the app itself listens on HTTP.
 <!-- /generated:option:metaTrustForwardedProto -->
 
 Same scope as `metaTrustForwardedHost`.
+
+#### `trustForwardedHost`
+
+<!-- generated:option:trustForwardedHost — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `boolean` · **Default** `false`
+
+Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of
+`Host`. Enable it only behind a proxy that overwrites that header.
+
+<!-- /generated:option:trustForwardedHost -->
+
+Separate from `metaTrustForwardedHost` and off by default: here the header would select another domain's locales, not only the origin of a tag. See [Layers and domains](/guide/layers#multiple-domains).
 
 #### `hreflangBaseLanguage`
 

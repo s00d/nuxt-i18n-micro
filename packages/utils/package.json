@@ -225,6 +225,21 @@
       },
       "default": "./dist/active-locales.mjs"
     },
+    "./domains": {
+      "production": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "import": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "require": {
+        "types": "./dist/domains.d.cts",
+        "default": "./dist/domains.cjs"
+      },
+      "default": "./dist/domains.mjs"
+    },
     "./cookie": {
       "production": {
         "types": "./dist/cookie.d.ts",

@@ -2,7 +2,7 @@ import { RouteGenerator } from '@i18n-micro/route-strategy'
 import type { Locale } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, test } from 'vitest'
-import { createLocalizedPathResolver } from '../../src/localized-paths'
+import { createLocalizedPathResolver, unfixedOriginWarning } from '../../src/localized-paths'
 
 const locales: Locale[] = [{ code: 'en' }, { code: 'de' }, { code: 'fr' }]
 
@@ -24,6 +24,21 @@ async function resolver(strategy: 'prefix' | 'prefix_except_default') {
   }).extendPages(pages)
   return createLocalizedPathResolver(pages, { strategy, defaultLocale: 'en', locales })
 }
+
+describe('unfixedOriginWarning', () => {
+  const open = [{ code: 'en' }, { code: 'de', baseUrl: 'https://example.de' }]
+
+  test('a domain and nothing that fixes the origin: the owner is told', () => {
+    expect(unfixedOriginWarning(open, 'en')).toContain('no public origin is fixed')
+  })
+
+  test('any fixed origin, or no domains at all: silent', () => {
+    expect(unfixedOriginWarning(open, 'en', 'https://example.com')).toBeNull()
+    expect(unfixedOriginWarning(open, 'en', undefined, 'https://example.com')).toBeNull()
+    expect(unfixedOriginWarning(open, 'de')).toBeNull()
+    expect(unfixedOriginWarning([{ code: 'en' }], 'en')).toBeNull()
+  })
+})
 
 describe('createLocalizedPathResolver (prerender)', () => {
   test('custom and dynamic paths per locale; nothing for pages a locale does not serve', async () => {

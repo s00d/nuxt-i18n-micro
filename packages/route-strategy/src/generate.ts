@@ -36,6 +36,12 @@ export interface GenerateOptions {
   excludePatterns?: (string | RegExp)[]
   apiBaseUrl?: string
   noPrefixRedirect: boolean
+  /**
+   * Under prefix_except_default / prefix_and_default: locales that are the default of a domain in
+   * the same build. They get unprefixed records too, and prefix_except_default keeps every prefix
+   * (the default of one domain is a link target of the others, and the build default of an unknown host).
+   */
+  hostDefaults?: string[]
 }
 
 interface PageInfo {
@@ -93,7 +99,7 @@ const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.n
 export type LocalizedPaths = Map<string, Record<string, string>>
 
 export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, localizedPaths: LocalizedPaths = new Map()): NuxtPage[] {
-  const { strategy, locales, defaultLocale, rules, namePrefix } = options
+  const { strategy, locales, defaultLocale, rules, namePrefix, hostDefaults = [] } = options
   const regex = options.customRegex === undefined ? undefined : String(options.customRegex).replace(/^\/(.*)\/$/, '$1')
   const localePath = (codes: string[], routePath: string) => normalizePath(`/:locale(${regex ?? codes.join('|')})/${removeLeadingSlash(routePath)}`)
 
@@ -220,6 +226,18 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return { plain, records }
   }
 
+  /** Locales of a page served unprefixed, one group per distinct tree, the build default's first. */
+  function unprefixedGroups(variants: Map<string, Variant | null>): string[][] {
+    const groups = new Map<string, string[]>()
+    for (const code of [defaultLocale, ...hostDefaults]) {
+      const variant = variants.get(code)
+      if (!variant) continue
+      const key = signature(variant)
+      groups.set(key, [...(groups.get(key) ?? []), code])
+    }
+    return [...groups.values()]
+  }
+
   const unprefixed: NuxtPage[] = []
   const localized: NuxtPage[] = []
   for (const page of namePages(pages, new Set(pageNames(pages)))) {
@@ -253,18 +271,20 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       continue
     }
 
-    if (strategy !== 'prefix' && defaultAllowed) {
-      const record = emit(localize(page, defaultLocale, '', '', true, true)!, [defaultLocale], '', false, false, true)
-      // prefix_except_default: the original URL of a page with a custom default path still finds the
-      // page, so the redirect middleware can send it to the custom one (`/product` -> `/our-products`)
-      const original = absolute(pagePath)
-      if (strategy === 'prefix_except_default' && record.path !== original && paramNames(record.path) === paramNames(original)) {
-        record.alias = [...(record.alias ?? []), original, ...[encodedVariant(original) ?? []].flat()]
-        record.meta = { ...record.meta, alias: record.alias }
+    if (strategy !== 'prefix')
+      for (const group of unprefixedGroups(variants)) {
+        const own = group[0] === defaultLocale
+        const record = emit(localize(page, group[0]!, '', '', true, true)!, group, own ? '' : `-${group[0]}-default`, !own, false, true, own)
+        // prefix_except_default: the original URL of a page with a custom default path still finds the
+        // page, so the redirect middleware can send it to the custom one (`/product` -> `/our-products`)
+        const original = absolute(pagePath)
+        if (own && strategy === 'prefix_except_default' && record.path !== original && paramNames(record.path) === paramNames(original)) {
+          record.alias = [...(record.alias ?? []), original, ...[encodedVariant(original) ?? []].flat()]
+          record.meta = { ...record.meta, alias: record.alias }
+        }
+        unprefixed.push(record)
       }
-      unprefixed.push(record)
-    }
-    const codes = strategy === 'prefix_except_default' ? allowed.filter((code) => code !== defaultLocale) : allowed
+    const codes = strategy === 'prefix_except_default' && !hostDefaults.length ? allowed.filter((code) => code !== defaultLocale) : allowed
     localized.push(...localeRecords(page, codes, true, variants).records)
 
     if (strategy === 'prefix' && defaultAllowed && page.name && !pagePath.includes(':')) {

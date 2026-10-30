@@ -4,6 +4,7 @@ member GenerateOptions.apiBaseUrl?: string | undefined
 member GenerateOptions.customRegex?: string | RegExp | undefined
 member GenerateOptions.defaultLocale: string
 member GenerateOptions.excludePatterns?: (string | RegExp)[] | undefined
+member GenerateOptions.hostDefaults?: string[] | undefined
 member GenerateOptions.locales: string[]
 member GenerateOptions.namePrefix: string
 member GenerateOptions.noPrefixRedirect: boolean
@@ -21,6 +22,7 @@ member RouteGenerator.disabledLocales: Locale[]
 member RouteGenerator.ensureTranslationFilesExist: (pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void
 member RouteGenerator.extendPages: (pages: NuxtPage[]) => void
 member RouteGenerator.generateDataRoutes: (pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]
+member RouteGenerator.hostDefaults: private string[]
 member RouteGenerator.locales: Locale[]
 member RouteGenerator.localizedKey: private (key: string, localeCode: string) => string
 member RouteGenerator.localizedPaths: private LocalizedPaths

@@ -1,10 +1,10 @@
 import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
-import { useI18nHead } from '../composables/useI18nHead'
+import { usePageHead } from '../composables/useI18nHead'
 import { useLocaleHead } from '../composables/useLocaleHead'
+import type { I18nAppInternals } from '../utils/nuxt-i18n'
 
 function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } }): string | undefined {
   // Soft probe: only present when nuxt-site-config (via @nuxtjs/seo etc.) is installed.
@@ -37,7 +37,7 @@ function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | un
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const { pageHead } = useI18nHead()
+  const pageHead = usePageHead()
   const i18nConfig = nuxtApp.$getI18nConfig()
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
@@ -65,10 +65,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     // a route that disables meta drops the page-defined i18n head too
     if (nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return { htmlAttrs: {}, link: [], meta: [] }
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
-    return mergeI18nHead(build(), pageHead.value, {
-      identifierAttribute: 'id',
-      locales: allLocales as Locale[],
-      currentLocale: locale,
-    }) as unknown as ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
+    type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
+    const head = build(true)
+    const merge = (nuxtApp as I18nAppInternals)._i18nMergeHead
+    if (!pageHead.value || !merge) return head as unknown as Head
+    return merge(head, pageHead.value, { identifierAttribute: 'id', locales: allLocales as Locale[], currentLocale: locale }) as unknown as Head
   })
 })

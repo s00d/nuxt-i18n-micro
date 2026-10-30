@@ -55,7 +55,8 @@ export const useLocaleHead = ({
 
   const empty = (): LocaleHead => ({ htmlAttrs: {}, link: [], meta: [] })
 
-  function build(): LocaleHead {
+  /** `metaChecked`: the caller already asked `isMetaDisabled` for this route and locale. */
+  function build(metaChecked = false): LocaleHead {
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
     const { canonicalQueryWhitelist, strategy, trailingSlash } = i18nConfig
     const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
@@ -64,7 +65,7 @@ export const useLocaleHead = ({
     const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
-    if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return empty()
+    if (!currentLocale || (!metaChecked && i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale))) return empty()
 
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)

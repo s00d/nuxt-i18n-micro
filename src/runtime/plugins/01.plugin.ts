@@ -26,7 +26,7 @@ import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
-import { useI18nHead } from '../composables/useI18nHead'
+import { usePageHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, withDollarAliases, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
@@ -65,7 +65,7 @@ export default defineNuxtPlugin({
     } = useI18nLocale()
 
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
-    const { resetPageHead } = useI18nHead()
+    const pageHead = usePageHead()
     // Not useState: a function in the SSR payload makes devalue throw. Still a ref: `t` reads it
     // while rendering, so setting a handler re-renders the missing keys through it.
     const customMissingHandler = shallowRef<MissingHandler | null>(null)
@@ -237,7 +237,7 @@ export default defineNuxtPlugin({
     router.beforeEach(async (to, from) => {
       if (to.name !== from.name) {
         i18nRouteParams.value = {}
-        resetPageHead()
+        pageHead.value = null
       }
 
       const shouldSwitchContext = to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)

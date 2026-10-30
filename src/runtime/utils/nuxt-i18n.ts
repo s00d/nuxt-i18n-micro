@@ -21,6 +21,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * 103k-key dictionary, on every navigation.
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import type { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -752,6 +753,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 /** What the main plugin leaves on the app for the other plugins. */
 export interface I18nAppInternals {
   _i18nMergeTranslation?: ReturnType<typeof createNuxtI18nPluginApi>['mergeTranslation']
+  /** Set by `useI18nHead`. */
+  _i18nMergeHead?: typeof mergeI18nHead
 }
 
 export type NuxtI18nPluginProvide = ReturnType<typeof createNuxtI18nPluginApi>['provide']

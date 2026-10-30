@@ -87,7 +87,7 @@ export default defineNuxtPlugin({
 
 ## One domain per locale
 
-If each domain should serve its own locales, you do not need a plugin: give each locale a `baseUrl` and build once. See [Layers and domains](/guide/layers#multiple-domains).
+If each domain should serve its own locales, you do not need a plugin: give each locale a `baseUrl`, set `baseDefault: true` on each domain's default locale, and build once (a static site still runs `nuxi generate` per domain). See [Layers and domains](/guide/layers#multiple-domains).
 
 ## Related
 

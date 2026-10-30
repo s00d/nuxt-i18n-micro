@@ -74,7 +74,7 @@ NUXT_I18N_DOMAIN=example.de PUBLIC_DIR=sites/example.de npx nuxi generate
 NUXT_I18N_DOMAIN=example.com PUBLIC_DIR=sites/example.com npx nuxi generate
 ```
 
-Keep the folders outside `.output`: each run empties it. Absolute links to the other domains are not crawled. Without the variable the build warns and generates the build config. On a Node server the same variable pins the process to one domain, whatever `Host` says.
+Keep the folders outside `.output`: each run empties it. Absolute links to the other domains are not crawled. Without the variable, a build with a `baseUrl` locale warns and generates the build config, where those locales are links and get no pages. On a Node server the same variable pins the process to one domain, whatever `Host` says.
 
 A static host applies its own headers to these files, not the ones described below; set caching in the host's config. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
 

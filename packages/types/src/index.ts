@@ -91,9 +91,9 @@ export interface Locale {
    */
   baseUrl?: string
   /**
-   * With `baseUrl`: this locale is the default of its host, unprefixed there (`prefix` keeps its
-   * prefix), and links to it from other domains drop `/<code>`, because the domain already names
-   * the locale (`https://de.example.com/about`, not `…/de/about`).
+   * With `baseUrl`: this locale is the default of its host, unprefixed there, and links to it from
+   * other domains drop `/<code>`, because the domain already names the locale
+   * (`https://de.example.com/about`, not `…/de/about`). `prefix` keeps the prefix in both.
    */
   baseDefault?: boolean
   /**

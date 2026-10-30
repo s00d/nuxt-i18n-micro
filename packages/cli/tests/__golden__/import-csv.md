@@ -1,6 +1,6 @@
 # import-csv
 
-`i18n-micro import-csv` -> exit 0
+`i18n-micro import --format csv` -> exit 0
 
 ## Output
 

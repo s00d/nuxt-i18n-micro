@@ -5,161 +5,20 @@
 ## Output
 
 ```
-Scanned 7 files, updated 12 translation files.
-Dynamic i18n key in <project>/pages/index.vue: `dynamic.${kind}`
+Need a text in en:
+  - header.brand (components/SiteHeader.vue:2)
+  - greeting.hello (composables/useGreeting.ts:2)
+  - footer.copyright (layouts/default.vue:2)
+  - about.title (pages/about.vue:3)
+  - about.more (pages/about.vue:4)
+  - post.heading (pages/blog/[slug].vue:2)
+  - home.tagline (pages/index.vue:15)
+  - home.title (pages/index.vue:3)
+  - common.save (pages/index.vue:4)
+Scanned 8 files: 0 keys added, 9 without text, 0 files updated.
+Dynamic i18n key in <project>/pages/index.vue:5: `dynamic.${kind}`
 ```
 
 ## Files
 
-added i18n/de.json
-
-```
-{
-  "header": {
-    "brand": ""
-  },
-  "footer": {
-    "copyright": ""
-  },
-  "greeting": {
-    "hello": ""
-  }
-}
-```
-
-added i18n/en.json
-
-```
-{
-  "header": {
-    "brand": ""
-  },
-  "footer": {
-    "copyright": ""
-  },
-  "greeting": {
-    "hello": ""
-  }
-}
-```
-
-added i18n/pages/about/de.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added i18n/pages/about/en.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added i18n/pages/about/ru.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added i18n/pages/blog-slug/de.json
-
-```
-{
-  "post": {
-    "heading": ""
-  }
-}
-```
-
-added i18n/pages/blog-slug/en.json
-
-```
-{
-  "post": {
-    "heading": ""
-  }
-}
-```
-
-added i18n/pages/blog-slug/ru.json
-
-```
-{
-  "post": {
-    "heading": ""
-  }
-}
-```
-
-added i18n/pages/index/de.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
-  }
-}
-```
-
-added i18n/pages/index/en.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
-  }
-}
-```
-
-added i18n/pages/index/ru.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
-  }
-}
-```
-
-added i18n/ru.json
-
-```
-{
-  "header": {
-    "brand": ""
-  },
-  "footer": {
-    "copyright": ""
-  },
-  "greeting": {
-    "hello": ""
-  }
-}
-```
+(no files changed)

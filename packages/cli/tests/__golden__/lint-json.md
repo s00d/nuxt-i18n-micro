@@ -1,19 +1,31 @@
 # lint-json
 
-`i18n-micro lint --rules no-html-tags --json` -> exit 0
+`i18n-micro lint --rules no-trailing-spaces --json` -> exit 1
 
 ## Output
 
 ```
 {
   "rulesChecked": [
-    "no-html-tags"
+    "no-trailing-spaces"
   ],
-  "issueCount": 0,
+  "issueCount": 1,
   "fixedCount": 0,
   "fixApplied": false,
-  "issues": []
+  "issues": [
+    {
+      "file": "en.json",
+      "locale": "en",
+      "scope": "",
+      "key": "spaced",
+      "value": "Trailing space ",
+      "rule": "no-trailing-spaces"
+    }
+  ]
 }
+Found 1 issues that need to be fixed
+  Review the issues above, or run with --json for machine-readable output.
+  Apply automatic fixes where available: i18n-micro lint --fix
 ```
 
 ## Files

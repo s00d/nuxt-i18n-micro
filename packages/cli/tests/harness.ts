@@ -1,5 +1,4 @@
 import { spawn } from 'node:child_process'
-import { createHash } from 'node:crypto'
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { type IncomingMessage, type Server, type ServerResponse, createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
@@ -8,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const packageDir = fileURLToPath(new URL('..', import.meta.url))
 
-/** The binary under test. `CLI_BIN` points at the old CLI when goldens are regenerated from it. */
+/** The binary under test. `CLI_BIN` points at another build, for mutation runs. */
 export const cliBin = process.env.CLI_BIN || join(packageDir, 'dist/cli.mjs')
 export const fixtureDir = join(packageDir, 'tests/fixtures/app')
 
@@ -74,20 +73,15 @@ export function snapshotFiles(dir: string): Snapshot {
   return new Map(walk(dir).map((file) => [file, readFileSync(join(dir, file), 'latin1')]))
 }
 
-const isBinary = (name: string) => /\.(zip|enc)$/.test(name)
-
-const fileBody = (name: string, content: string): string => {
-  if (isBinary(name)) return `<binary ${createHash('sha1').update(name).digest('hex').length} chars hash>`
-  return Buffer.from(content, 'latin1').toString('utf8')
-}
+const fileBody = (content: string): string => Buffer.from(content, 'latin1').toString('utf8')
 
 /** Files added, removed or changed by a run: the half of a command's behaviour stdout does not show. */
 export function diffFiles(before: Snapshot, after: Snapshot): string {
   const lines: string[] = []
   for (const name of [...new Set([...before.keys(), ...after.keys()])].sort()) {
     if (!after.has(name)) lines.push(`deleted ${name}`)
-    else if (!before.has(name)) lines.push(`added ${name}`, '', fence(fileBody(name, after.get(name)!)), '')
-    else if (before.get(name) !== after.get(name)) lines.push(`changed ${name}`, '', fence(fileBody(name, after.get(name)!)), '')
+    else if (!before.has(name)) lines.push(`added ${name}`, '', fence(fileBody(after.get(name)!)), '')
+    else if (before.get(name) !== after.get(name)) lines.push(`changed ${name}`, '', fence(fileBody(after.get(name)!)), '')
   }
   return lines.length === 0 ? '(no files changed)' : lines.join('\n').trim()
 }

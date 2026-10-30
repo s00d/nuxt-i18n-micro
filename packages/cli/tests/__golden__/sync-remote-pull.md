@@ -5,10 +5,15 @@
 ## Output
 
 ```
-Conflict de common.save:
-  local:  Speichern
-  remote: Remote
-Conflicts found between local and remote translations.
+New:
+  - de remote.only
+
+Conflicts:
+  - de common.save
+    local:  "Speichern"
+    remote: "Remote"
+Global files only: 2 page scopes are not exchanged.
+Conflicts found between local and remote translations. Nothing was written.
   Resolve them, or rerun with --force to take the remote values.
   Preview without writing: i18n-micro sync-remote --dryRun
 ```

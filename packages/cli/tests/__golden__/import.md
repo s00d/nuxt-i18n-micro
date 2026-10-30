@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Imported 2 translations from 1 PO files.
+Imported 2 translations.
 ```
 
 ## Files

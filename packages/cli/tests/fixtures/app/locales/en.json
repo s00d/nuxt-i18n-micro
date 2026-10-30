@@ -14,7 +14,6 @@
   "plural": {
     "apples": "no apples | one apple | {count} apples"
   },
-  "linked": "See @:common.save",
   "spaced": "Trailing space ",
   "limits": {
     "max": 10,

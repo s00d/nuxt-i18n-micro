@@ -5,10 +5,13 @@
 ## Output
 
 ```
-Updated 1 locales: de
-Conflict de common.save:
-  local:  Speichern
-  remote: Remote
+New:
+  - de remote.only
+
+Replaced:
+  - de common.save
+Pulled 1 new and 1 replaced values.
+Global files only: 2 page scopes are not exchanged.
 ```
 
 ## Files

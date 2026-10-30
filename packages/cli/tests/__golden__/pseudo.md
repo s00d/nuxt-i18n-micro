@@ -6,7 +6,7 @@
 
 ```
 Pseudo locale generated: en -> de
-Updated keys: 13, skipped keys: 0
+Updated keys: 12, skipped keys: 0
 ```
 
 ## Files
@@ -38,7 +38,6 @@ changed locales/de.json
   "plural": {
     "apples": "[nnoo aapppplleess | oonnee aappppllee | {count} aapppplleess]"
   },
-  "linked": "[SSeeee @:common.save]",
   "spaced": "[TTrraaiilliinngg ssppaaccee ]"
 }
 ```

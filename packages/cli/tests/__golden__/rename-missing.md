@@ -1,6 +1,6 @@
 # rename-missing
 
-`i18n-micro rename --from no.such --to other.key` -> exit 1
+`i18n-micro rename --from no.such --to other.key` -> exit 2
 
 ## Output
 

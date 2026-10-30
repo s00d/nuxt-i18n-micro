@@ -1,13 +1,12 @@
 # search-empty
 
-`i18n-micro search` -> exit 1
+`i18n-micro search` -> exit 2
 
 ## Output
 
 ```
-Search query cannot be empty unless --hardcodedOnly is enabled
+Search query cannot be empty unless --onlyUnused is set
   Example: i18n-micro search "welcome"
-  Or scan hardcoded text: i18n-micro search --hardcodedOnly
 ```
 
 ## Files

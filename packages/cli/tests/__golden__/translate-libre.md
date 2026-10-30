@@ -7,7 +7,7 @@
 ```
 Translating locale: de
 Translating locale: ru
-Translated 9 strings.
+Translated 8 strings.
 ```
 
 ## Files
@@ -39,7 +39,6 @@ changed locales/de.json
   "plural": {
     "apples": "de no apples | de one apple | de {count} apples"
   },
-  "linked": "de See @:common.save",
   "spaced": "de Trailing space "
 }
 ```
@@ -69,7 +68,7 @@ changed locales/pages/index/de.json
 ## Requests
 
 ```
-POST /translate {"q":["Cancel","Unused value","Fast i18n","Hello","no apples","one apple","<v0/> apples","See <v0/>","Trailing space "],"source":"en","target":"de","format":"html","api_key":"k"}
+POST /translate {"q":["Cancel","Unused value","Fast i18n","Hello","no apples","one apple","<v0/> apples","Trailing space "],"source":"en","target":"de","format":"html","api_key":"k"}
 POST /translate {"q":["Read more"],"source":"en","target":"de","format":"html","api_key":"k"}
 POST /translate {"q":["Save"],"source":"en","target":"de","format":"html","api_key":"k"}
 ```

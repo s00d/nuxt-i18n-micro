@@ -5,8 +5,11 @@
 ## Output
 
 ```
-Found 6 files to process.
-Found 4 new translations.
+Found 7 files to process.
+
+Text in code, not rewritten: `$t` may not be in scope there:
+  - plugins/notify.ts:2 Saved successfully
+Found 3 new translations.
 Updated 2 files and locales/en.json.
 ```
 
@@ -31,7 +34,6 @@ changed locales/en.json
   "plural": {
     "apples": "no apples | one apple | {count} apples"
   },
-  "linked": "See @:common.save",
   "spaced": "Trailing space ",
   "limits": {
     "max": 10,
@@ -48,11 +50,6 @@ changed locales/en.json
     "index": {
       "hardcoded-landing-text": "Hardcoded landing text",
       "company-logo": "Company logo"
-    }
-  },
-  "plugins": {
-    "notify": {
-      "saved-successfully": "Saved successfully"
     }
   }
 }

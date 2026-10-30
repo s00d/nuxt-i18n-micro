@@ -1,18 +1,15 @@
-import { chmodSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { deflateRawSync } from 'node:zlib'
-import { describe, expect, it } from 'vitest'
-import { decrypt, encrypt, isEncrypted } from '../src/backup'
-import { alignToReference } from '../src/commands/sync'
+import { describe, expect, it, vi } from 'vitest'
 import { parseCsv, stringifyCsv } from '../src/csv'
-import { readJsonObject, walkFiles, writeFilesAtomic } from '../src/fs'
-import { addEntry, glossaryContext, removeEntries } from '../src/glossary'
-import { flatten, flattenStrings, getPath, setPath, sortKeys, unflatten } from '../src/json'
+import { globToRegExp, readJsonObject, stringifyLike, walkFiles, writeFilesAtomic } from '../src/fs'
+import { glossaryContext } from '../src/glossary'
+import { deletePath, flatten, flattenStrings, getPath, groupBy, pathConflict, setPath, sortKeys } from '../src/json'
+import { addSecret, log } from '../src/log'
 import { compilePo, parsePo } from '../src/po'
-import { collectKeys, pageNameOf } from '../src/source'
-import { KeyRegistry, convertSource, extractOnlyMatcher, toSlug } from '../src/text-to-i18n'
-import { createZip, readZip } from '../src/zip'
+import { pageNameOf, scanFile } from '../src/source'
+import { KeyRegistry, convertSource, toSlug } from '../src/text-to-i18n'
 
 const tempDir = () => mkdtempSync(join(tmpdir(), 'cli-unit-'))
 
@@ -36,9 +33,30 @@ describe('json', () => {
     expect(tree).toEqual({ a: { b: 'y' } })
   })
 
-  it('unflatten inverts flatten', () => {
-    const tree = { a: { b: 'x', c: { d: 1 } }, e: [1, 2] }
-    expect(unflatten(flatten(tree))).toEqual(tree)
+  it('deletes one path and the parents it empties', () => {
+    const tree = { a: { b: { c: 'x' } }, 'd.e': 'y', d: { f: 'z' }, keep: 'k' }
+    expect(deletePath(tree, 'a.b.c')).toBe(true)
+    expect(deletePath(tree, 'd.e')).toBe(true)
+    expect(deletePath(tree, 'no.such')).toBe(false)
+    expect(tree).toEqual({ d: { f: 'z' }, keep: 'k' })
+  })
+
+  it('knows what a write would destroy', () => {
+    const tree = { a: 'text', n: { x: 'y' }, e: {}, 'd.o': 'flat', 'a.b': 'dotted child' }
+    expect(pathConflict(tree, 'a.c')).toBe('a')
+    expect(pathConflict(tree, 'n')).toBe('n')
+    expect(pathConflict(tree, 'a')).toBeNull()
+    expect(pathConflict(tree, 'a.b')).toBeNull()
+    expect(pathConflict(tree, 'e')).toBeNull()
+    expect(pathConflict(tree, 'n.y')).toBeNull()
+    expect(pathConflict(tree, 'free')).toBeNull()
+  })
+
+  it('groups in order', () => {
+    expect([...groupBy([1, 2, 3], (n) => n % 2)]).toEqual([
+      [1, [1, 3]],
+      [0, [2]],
+    ])
   })
 
   it('sorts keys deeply, deterministically', () => {
@@ -47,9 +65,12 @@ describe('json', () => {
 })
 
 describe('po', () => {
-  it('round-trips escapes', () => {
+  it('round-trips escapes and carries the source as a comment', () => {
     const entries = { 'a.b': 'He said "hi"\nnext\ttab \\ done', plain: 'x' }
-    expect(parsePo(compilePo(entries))).toEqual(entries)
+    const messages = Object.entries(entries).map(([key, value]) => ({ key, value, source: 'Two\nlines' }))
+    const po = compilePo(messages)
+    expect(po).toContain('#. Two\n#. lines\nmsgid "plain"')
+    expect(parsePo(po)).toEqual({ messages: entries, fuzzy: [] })
   })
 
   it('reads multi-line strings, msgctxt, plurals and comments', () => {
@@ -67,8 +88,20 @@ msgid "apples"
 msgid_plural "apples"
 msgstr[0] "Apfel"
 msgstr[1] "Äpfel"
+
+#, fuzzy
+msgid "guess"
+msgstr "vielleicht"
+
+msgid "blank"
+msgid_plural "blanks"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "last"
+msgstr "x"
 `
-    expect(parsePo(po)).toEqual({ 'ctx.key': 'part one part two', apples: 'Apfel' })
+    expect(parsePo(po)).toEqual({ messages: { 'ctx.key': 'part one part two', apples: 'Apfel|Äpfel', blank: '', last: 'x' }, fuzzy: ['guess'] })
   })
 })
 
@@ -90,63 +123,6 @@ describe('csv', () => {
   })
 })
 
-describe('zip', () => {
-  it('round-trips names and contents', () => {
-    const entries = [
-      { name: 'en.json', data: Buffer.from('{"a":"å"}') },
-      { name: 'pages/index/de.json', data: Buffer.alloc(10_000, 'x') },
-      { name: 'empty.json', data: Buffer.alloc(0) },
-    ]
-    expect(readZip(createZip(entries))).toEqual(entries)
-  })
-
-  it('is deterministic', () => {
-    const entries = [{ name: 'a', data: Buffer.from('x') }]
-    expect(createZip(entries).equals(createZip(entries))).toBe(true)
-  })
-
-  it('reads a stored entry written by another tool', () => {
-    const zip = createZip([{ name: 'a.txt', data: Buffer.from('hello') }])
-    // Rewrite method to stored with raw bytes: an archive this writer would not produce.
-    const name = Buffer.from('a.txt')
-    const data = Buffer.from('hello')
-    const local = Buffer.alloc(30)
-    local.writeUInt32LE(0x04034b50, 0)
-    local.writeUInt16LE(5, 26)
-    const central = Buffer.from(zip.subarray(30 + name.length + deflateRawSync(data, { level: 9 }).length))
-    central.writeUInt16LE(0, 10)
-    central.writeUInt32LE(5, 20)
-    central.writeUInt32LE(5, 24)
-    const directory = Buffer.concat([local, name, data, central])
-    const end = directory.length - 22
-    directory.writeUInt32LE(30 + name.length + data.length, end + 16)
-    expect(readZip(directory)[0]?.data.toString()).toBe('hello')
-  })
-
-  it.each(['../evil.json', '/etc/passwd', 'a/../../b', 'C:/x', '..\\x'])('refuses the unsafe name %s', (name) => {
-    expect(() => readZip(createZip([{ name, data: Buffer.from('x') }]))).toThrow('unsafe path')
-  })
-
-  it('rejects garbage', () => {
-    expect(() => readZip(Buffer.alloc(100))).toThrow('Invalid zip')
-    expect(() => readZip(Buffer.alloc(3))).toThrow('Invalid zip')
-  })
-})
-
-describe('backup encryption', () => {
-  it('round-trips and detects tampering and a wrong password', () => {
-    const data = Buffer.from('secret')
-    const sealed = encrypt(data, 'pw')
-    expect(isEncrypted(sealed)).toBe(true)
-    expect(isEncrypted(data)).toBe(false)
-    expect(sealed.includes(data)).toBe(false)
-    expect(decrypt(sealed, 'pw')).toEqual(data)
-    expect(() => decrypt(sealed, 'other')).toThrow('Wrong password')
-    sealed[sealed.length - 1]! ^= 1
-    expect(() => decrypt(sealed, 'pw')).toThrow('Wrong password')
-  })
-})
-
 describe('safe writes', () => {
   it('leaves nothing behind and changes nothing when one file cannot be written', () => {
     const dir = tempDir()
@@ -161,6 +137,44 @@ describe('safe writes', () => {
     ).toThrow()
     expect(readdirSync(dir).sort()).toEqual(['blocker', 'good.json'])
     expect(readFileSync(good, 'utf8')).toBe('old')
+    rmSync(dir, { recursive: true })
+  })
+
+  it('a failed rename puts back what earlier ones replaced', () => {
+    const dir = tempDir()
+    const first = join(dir, 'first.json')
+    const second = join(dir, 'second.json')
+    const fresh = join(dir, 'fresh.json')
+    writeFileSync(first, 'old first')
+    mkdirSync(second)
+    writeFileSync(join(second, 'inside'), '')
+    expect(() =>
+      writeFilesAtomic([
+        [first, 'new first'],
+        [fresh, 'new file'],
+        [second, 'a file over a directory'],
+      ]),
+    ).toThrow()
+    expect(readFileSync(first, 'utf8')).toBe('old first')
+    expect(readdirSync(dir).sort()).toEqual(['first.json', 'second.json'])
+    rmSync(dir, { recursive: true })
+  })
+
+  it('keeps the mode of the file it replaces', () => {
+    const dir = tempDir()
+    const file = join(dir, 'a.json')
+    writeFileSync(file, 'old')
+    chmodSync(file, 0o640)
+    writeFilesAtomic([[file, 'new']])
+    expect(statSync(file).mode & 0o777).toBe(0o640)
+    rmSync(dir, { recursive: true })
+  })
+
+  it('writes through a dangling symlink to where it points', () => {
+    const dir = tempDir()
+    symlinkSync(join(dir, 'target.json'), join(dir, 'link.json'))
+    writeFilesAtomic([[join(dir, 'link.json'), 'x']])
+    expect(readFileSync(join(dir, 'target.json'), 'utf8')).toBe('x')
     rmSync(dir, { recursive: true })
   })
 
@@ -188,6 +202,17 @@ describe('safe writes', () => {
     rmSync(dir, { recursive: true })
   })
 
+  it('walkFiles follows symlinks and survives a loop', () => {
+    const dir = tempDir()
+    mkdirSync(join(dir, 'real'))
+    writeFileSync(join(dir, 'real/a.ts'), '')
+    symlinkSync(join(dir, 'real'), join(dir, 'link'))
+    symlinkSync(dir, join(dir, 'real/up'))
+    symlinkSync(join(dir, 'gone'), join(dir, 'dangling'))
+    expect(walkFiles(dir).map((file) => file.slice(dir.length))).toEqual(['/link/a.ts'])
+    rmSync(dir, { recursive: true })
+  })
+
   it('walkFiles tolerates a missing directory and skips node_modules', () => {
     const dir = tempDir()
     expect(walkFiles(join(dir, 'nope'))).toEqual([])
@@ -195,6 +220,47 @@ describe('safe writes', () => {
     expect(walkFiles(join(import.meta.dirname, '..'), (path) => path.endsWith('rollup.config.js')).filter((p) => p.includes('node_modules'))).toEqual(
       [],
     )
+  })
+})
+
+describe('formatting', () => {
+  it('stringifyLike follows the file', () => {
+    expect(stringifyLike('{\n    "a": 1\n}\n', { b: 2 })).toBe('{\n    "b": 2\n}\n')
+    expect(stringifyLike('{\n\t"a": 1\n}', { b: 2 })).toBe('{\n\t"b": 2\n}')
+    expect(stringifyLike(undefined, { b: 2 })).toBe('{\n  "b": 2\n}\n')
+    expect(stringifyLike('{}', { b: 2 })).toBe('{\n  "b": 2\n}')
+  })
+
+  it('reads a BOM', () => {
+    const dir = tempDir()
+    writeFileSync(join(dir, 'a.json'), '\uFEFF{"a":1}')
+    expect(readJsonObject(join(dir, 'a.json'))).toEqual({ a: 1 })
+    rmSync(dir, { recursive: true })
+  })
+
+  it('globs', () => {
+    expect(globToRegExp('tests/**').test('tests/a/b.ts')).toBe(true)
+    expect(globToRegExp('*.spec.ts').test('src/a.spec.ts')).toBe(true)
+    expect(globToRegExp('gen').test('a/gen/b.ts')).toBe(true)
+    expect(globToRegExp('src/*.ts').test('src/a/b.ts')).toBe(false)
+  })
+})
+
+describe('secrets', () => {
+  it('redacts the value and its URL-encoded form, in every channel', () => {
+    const out: string[] = []
+    const spy = (...args: unknown[]) => void out.push(String(args[0]))
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(spy)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(spy)
+    addSecret('s3cret/key')
+    addSecret('k')
+    addSecret(undefined)
+    for (const channel of [log.info, log.success, log.warn, log.error]) channel('a s3cret/key b s3cret%2Fkey k')
+    log.json({ token: 's3cret/key' })
+    logSpy.mockRestore()
+    errorSpy.mockRestore()
+    expect(out.join('\n')).not.toContain('s3cret')
+    expect(out[0]).toBe('a *** b *** k')
   })
 })
 
@@ -225,8 +291,8 @@ describe('page names match Nuxt route names', () => {
   })
 })
 
-describe('key collection', () => {
-  const keys = (content: string, file = 'x.vue') => [...collectKeys(content, file).keys].sort()
+describe('scanner', () => {
+  const keys = (content: string, file = 'x.vue') => [...new Set(scanFile(content, file).refs.map((ref) => ref.key))].sort()
 
   it('reads templates, directives, scripts and keypath', () => {
     const sfc = `<template>
@@ -238,6 +304,12 @@ const value: string = $t('a.script')
     expect(keys(sfc)).toEqual(['a.click', 'a.list', 'a.path', 'a.script', 'a.title', 'a.ts'])
   })
 
+  it('gives the exact place of each key', () => {
+    const sfc = `<script setup>\nconst a = $t('in.script')\n</script>\n<template><i18n-t keypath="in.attr" :title="$t('in.bind')" />{{ $t('in.text') }}<i18n-t :keypath="'in.path'" /></template>\n`
+    for (const ref of scanFile(sfc, 'x.vue').refs) expect(sfc.slice(ref.start, ref.end)).toBe(ref.key)
+    expect(scanFile(sfc, 'x.vue').refs).toHaveLength(5)
+  })
+
   it('ignores comments, strings and foreign t()', () => {
     expect(keys(`// $t('no.comment')\nconst s = "$t('no.string')"\nt('no.foreign')`, 'a.ts')).toEqual([])
   })
@@ -245,27 +317,73 @@ const value: string = $t('a.script')
   it('reads t() when the file uses useI18n, and member calls on i18n objects', () => {
     expect(keys(`const { t } = useI18n()\nt('yes.plain')`, 'a.ts')).toEqual(['yes.plain'])
     expect(keys(`nuxt.$i18n.t('yes.member')\ncounter.t('no.member')`, 'a.ts')).toEqual(['yes.member'])
+    expect(keys(`const i = useI18n()\ni.t('yes.object')`, 'a.ts')).toEqual(['yes.object'])
   })
 
-  it('takes both branches of a ternary and reports dynamic keys with their prefix', () => {
-    const usage = collectKeys('$t(ok ? `a.yes` : "a.no"); $t(`b.${x}`); $t(name)', 'a.ts')
-    expect([...usage.keys].sort()).toEqual(['a.no', 'a.yes'])
+  it('follows every alias', () => {
+    const code = `const { t: a, $t: b, $ts: c = fallback } = useI18n()
+const { $_t } = useNuxtApp()
+const bound = $_t(route)
+const copy = b
+const taken = useI18n().tc
+a('k.a'); b('k.b'); c('k.c'); bound('k.d'); copy('k.e'); taken('k.f'); $_t(route)('k.g')`
+    expect(keys(code, 'a.ts')).toEqual(['k.a', 'k.b', 'k.c', 'k.d', 'k.e', 'k.f', 'k.g'])
+  })
+
+  it('$has is a guard, $tn and $td are not keys', () => {
+    const { refs } = scanFile(`$has('g'); $tn(1000); $td(date)`, 'a.ts')
+    expect(refs.map(({ key, guard }) => [key, guard])).toEqual([['g', true]])
+  })
+
+  it('takes both sides of a branch and reports dynamic keys with their prefix', () => {
+    const usage = scanFile('$t(ok ? `a.yes` : "a.no"); $t(x || "a.or"); $t(`b.${x}`); $t("c." + y); $t(name)', 'a.ts')
+    expect(usage.refs.map((ref) => ref.key).sort()).toEqual(['a.no', 'a.or', 'a.yes'])
     expect(usage.dynamic.map(({ expression, prefix }) => [expression, prefix])).toEqual([
+      ['x', ''],
       ['`b.${x}`', 'b.'],
+      ['"c." + y', 'c.'],
       ['name', ''],
     ])
   })
 
-  it('survives broken code', () => {
-    expect(keys('const = = =', 'a.ts')).toEqual([])
-    expect(keys('<template><div></template>')).toEqual([])
+  it('a function used as a value hides its keys; a name in a declaration or a type does not', () => {
+    expect(scanFile('list.map($t)', 'a.ts').dynamic).toHaveLength(1)
+    expect(scanFile('const a = { t: $t }', 'a.ts').dynamic).toHaveLength(1)
+    expect(scanFile('const { $t } = useNuxtApp(); $t("k")', 'a.ts').dynamic).toEqual([])
+    expect(scanFile('type T = typeof $t; function f($t: unknown) {}; x.$t; ({ $t: 1 })', 'a.ts').dynamic).toEqual([])
+  })
+
+  it('collects strings that look like keys, and prefixes', () => {
+    const { literals, prefixes } = scanFile(`const a = 'menu.home'; const b = 'errors.' + code; const c = \`x.\${y}\`; const d = 'two words'`, 'a.ts')
+    expect([...literals.keys()]).toEqual(['menu.home'])
+    expect([...prefixes].sort()).toEqual(['errors.', 'x.'])
+  })
+
+  it('<i18n-group> prefixes what its slot calls', () => {
+    const sfc = `<template><i18n-group prefix="ns"><template #default="{ t: tt }">{{ tt('a') }}</template></i18n-group></template>`
+    const { refs, dynamic } = scanFile(sfc, 'x.vue')
+    expect(refs.map(({ key, keyPrefix }) => [key, keyPrefix])).toEqual([['ns.a', 'ns.']])
+    expect(dynamic[0]).toMatchObject({ prefix: 'ns', group: true })
+  })
+
+  it('reports what it cannot read, and still finds what it can', () => {
+    const broken = scanFile(`const = $t('q')`, 'a.ts')
+    expect(broken.unproven).toHaveLength(1)
+    expect(broken.refs.map((ref) => ref.key)).toEqual(['q'])
+    expect(scanFile("<template><div>{{ $t('x' }}</div></template>", 'x.vue').unproven).not.toEqual([])
+    expect(scanFile('<template lang="pug">\np {{ $t(\'p.k\') }} {{ $t(name) }}\n</template>', 'x.vue').dynamic).toHaveLength(1)
+  })
+
+  it('reads plain JavaScript with JSX', () => {
+    expect(keys(`export const A = () => <b>{$t('j.k')}</b>`, 'a.js')).toEqual(['j.k'])
   })
 })
 
 describe('text conversion', () => {
-  const convert = (content: string, file: string, extractOnly = false) => {
+  const convert = (content: string, file: string) => {
     const registry = new KeyRegistry({ 'known.key': 'Known text' })
-    return { out: convertSource(content, file, registry, extractOnly), created: [...registry.created.keys()] }
+    const conversion = convertSource(content, file, registry)
+    return { out: conversion.content, code: conversion.code, mixed: conversion.mixed, created: [...registry.created.keys()] }
   }
 
   it('leaves non-text attributes and interpolation alone', () => {
@@ -288,41 +406,45 @@ describe('text conversion', () => {
     expect(created).toEqual([])
   })
 
-  it('never emits a mustache string in code', () => {
-    const { out } = convert(`export const label = 'Save your work'`, '/app/components/x.ts')
-    expect(out).toBe(`export const label = $t('components.x.save-your-work')`)
+  it('never rewrites code, only reports it', () => {
+    const source = `export const label = 'Save your work'`
+    const { out, created, code } = convert(source, '/app/components/x.ts')
+    expect(out).toBe(source)
+    expect(created).toEqual([])
+    expect(code).toEqual([{ file: '/app/components/x.ts', line: 1, text: 'Save your work' }])
   })
 
-  it('skips technical strings, imports, object keys and framework calls', () => {
+  it('does not report technical strings, imports, object keys, framework calls or keys', () => {
     const source = `import x from 'Some Module Name'
 emit('Close It Now')
 useFetch('/api/items')
 const route = { name: 'home-page', 'Key Name': 1 }
 const url = 'https://example.com/a b'
 $t('Existing Key')`
-    expect(convert(source, '/app/components/x.ts').created).toEqual([])
+    expect(convert(source, '/app/components/x.ts').code).toEqual([])
   })
 
-  it('extract-only files keep their code but give up their text', () => {
-    const { out, created } = convert(`const m = 'Saved successfully'`, '/app/plugins/n.ts', true)
-    expect(out).toBe(`const m = 'Saved successfully'`)
-    expect(created).toEqual(['plugins.n.saved-successfully'])
-  })
-
-  it('JSX text', () => {
-    expect(convert('export const A = () => <b>Hello there</b>', '/app/components/a.tsx').out).toContain(`<b>{ $t('components.a.hello-there') }</b>`)
+  it('reports JSX text', () => {
+    expect(convert('export const A = () => <b>Hello there</b>', '/app/components/a.tsx').code[0]?.text).toBe('Hello there')
   })
 
   it('makes keys unique', () => {
     const registry = new KeyRegistry({})
-    expect(registry.keyFor('Save', '/p/pages/a.vue', 'Save')).toBe('pages.a.save')
-    expect(registry.keyFor('Save!', '/p/pages/a.vue', 'Save!')).toBe('pages.a.save_1')
+    expect(registry.keyFor('Save', '/p/pages/a.vue', 1)).toBe('pages.a.save')
+    expect(registry.keyFor('Save!', '/p/pages/a.vue', 1)).toBe('pages.a.save_1')
   })
 
   it('honours overrides and skips', () => {
-    const registry = new KeyRegistry({}, { keyOverrides: { 'pages.a.one': 'custom.one' }, skippedKeys: ['pages.a.two'] })
-    expect(registry.keyFor('One', '/p/pages/a.vue', '')).toBe('custom.one')
-    expect(registry.keyFor('Two', '/p/pages/a.vue', '')).toBeNull()
+    const registry = new KeyRegistry({}, {}, { keyOverrides: { 'pages.a.one': 'custom.one' }, skippedKeys: ['pages.a.two'] })
+    expect(registry.keyFor('One', '/p/pages/a.vue', 1)).toBe('custom.one')
+    expect(registry.keyFor('Two', '/p/pages/a.vue', 1)).toBeNull()
+  })
+
+  it('refuses a key that would replace a value', () => {
+    const registry = new KeyRegistry({}, { pages: 'text' })
+    expect(registry.keyFor('One', '/p/pages/a.vue', 3)).toBeNull()
+    expect(registry.keyFor('One', '/p/pages/a.vue', 4)).toBeNull()
+    expect(registry.blocked).toEqual([{ file: '/p/pages/a.vue', line: 3, text: 'One' }])
   })
 
   it('slugs Latin and Cyrillic', () => {
@@ -330,45 +452,17 @@ $t('Existing Key')`
     expect(toSlug('Привет мир')).toBe('privet-mir')
     expect(toSlug('50% & more')).toBe('50-percent-and-more')
   })
-
-  it('matches extract-only globs with negation', () => {
-    const match = extractOnlyMatcher('/p', { dirs: ['plugins'], patterns: ['**/schemas/**/*.ts', '!**/keep.ts'] })
-    expect(match('/p/app/schemas/a/b.ts')).toBe(true)
-    expect(match('/p/plugins/x.ts')).toBe(true)
-    expect(match('/p/app/schemas/keep.ts')).toBe(false)
-    expect(match('/p/components/x.ts')).toBe(false)
-    expect(match('/p/components/my.plugin.ts')).toBe(true)
-  })
-})
-
-describe('sync', () => {
-  it('keeps numbers, booleans and arrays; drops extras; fills gaps', () => {
-    expect(
-      alignToReference(
-        { n: 1, b: true, l: ['a'], s: 'x', o: { i: 'y' }, m: 'z' },
-        { n: 2, b: false, l: ['b'], o: 'scalar', extra: 'gone', m: 'kept' },
-      ),
-    ).toEqual({
-      n: 2,
-      b: false,
-      l: ['b'],
-      s: '',
-      o: { i: '' },
-      m: 'kept',
-    })
-  })
 })
 
 describe('glossary', () => {
-  it('adds, replaces, removes and filters by language pair', () => {
-    const glossary = { entries: [{ source: 'Save', target: 'Sichern', to: 'de' }] }
-    addEntry(glossary, { source: 'Save', target: 'Speichern', to: 'DE' })
-    addEntry(glossary, { source: 'Save', target: 'Sauver', to: 'fr' })
-    expect(glossary.entries).toHaveLength(2)
+  it('filters by language pair', () => {
+    const glossary = {
+      entries: [
+        { source: 'Save', target: 'Speichern', to: 'DE' },
+        { source: 'Save', target: 'Sauver', to: 'fr' },
+      ],
+    }
     expect(glossaryContext(glossary, 'en', 'de')).toBe('Save => Speichern')
     expect(glossaryContext(glossary, 'en', 'es')).toBeUndefined()
-    expect(removeEntries(glossary, { source: 'Save', to: 'fr' })).toBe(1)
-    expect(removeEntries(glossary, { source: 'Save' })).toBe(1)
-    expect(glossary.entries).toEqual([])
   })
 })

@@ -1,6 +1,6 @@
-import { createHash, createHmac } from 'node:crypto'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { signTc3 } from '../src/translate/drivers'
+import { SERVICES } from '../src/spec'
+import { drivers } from '../src/translate/drivers'
 import { type EngineOptions, buildBatches, parseOptions, resolveDriver, translateItems } from '../src/translate/engine'
 import { decodeEntities, isIntact, protect, restore } from '../src/translate/protect'
 import { type MockHandler, type MockRequest, type MockServer, json, startMock } from './harness'
@@ -121,99 +121,11 @@ describe('translation services send the documented request', () => {
     expect(result.translated).toEqual(EXPECTED)
   })
 
-  it('baidu: https host path, form, md5 sign of the raw text, one request per string', async () => {
-    respond = (req, res) => json(res, { trans_result: [{ dst: bodyForm(req).get('q') === 'Bye' ? 'Tschüss' : 'Hallo <v0/>' }] })
-    const result = await translate('baidu', 'secret', { appId: 'app', salt: '7' }, 'en', 'ja')
-    expect(mock.requests).toHaveLength(2)
-    const form = bodyForm(mock.requests[0]!)
-    expect(mock.requests[0]!.url).toBe('/api/trans/vip/translate')
-    expect(Object.fromEntries(form)).toEqual({
-      q: 'Hello <v0/>',
-      from: 'en',
-      to: 'jp',
-      appid: 'app',
-      salt: '7',
-      sign: createHash('md5').update('appHello <v0/>7secret').digest('hex'),
-    })
-    expect(result.translated).toEqual(EXPECTED)
-  })
-
-  it('baidu: joins every line of a multiline answer and surfaces HTTP-200 errors', async () => {
-    respond = (_req, res) => json(res, { trans_result: [{ dst: 'eins' }, { dst: 'zwei' }] })
-    const { translated } = await translateItems([{ key: 'a', text: 'one\ntwo' }], 'en', 'de', config('baidu', 'id:secret'))
-    expect(translated[0]?.value).toBe('eins\nzwei')
-
-    respond = (_req, res) => json(res, { error_code: '52003', error_msg: 'UNAUTHORIZED USER' })
-    await expect(translate('baidu', 'id:secret')).rejects.toThrow('UNAUTHORIZED USER (52003)')
-  })
-
   it('libretranslate: array q, html format, optional api_key', async () => {
     respond = (_req, res) => json(res, { translatedText: TRANSLATED })
     const result = await translate('libretranslate', '')
     expect(bodyJson(only())).toEqual({ q: MASKED, source: 'en', target: 'de', format: 'html' })
     expect(result.translated).toEqual(EXPECTED)
-  })
-
-  it('mymemory: GET with langpair, de email and key, one string per request', async () => {
-    respond = (req, res) => json(res, { responseData: { translatedText: req.url.includes('Bye') ? 'Tschüss' : 'Hallo <v0/>' }, responseStatus: 200 })
-    const result = await translate('mymemory', 'mm', { email: 'me@example.com' })
-    expect(mock.requests).toHaveLength(2)
-    const url = new URL(mock.requests[1]!.url, mock.url)
-    expect(mock.requests[1]!.method).toBe('GET')
-    expect(Object.fromEntries(url.searchParams)).toEqual({ q: 'Bye', langpair: 'en|de', key: 'mm', de: 'me@example.com' })
-    expect(result.translated).toEqual(EXPECTED)
-  })
-
-  it('mymemory: a quota answer is an error, not a translation', async () => {
-    respond = (_req, res) => json(res, { responseData: { translatedText: 'MYMEMORY WARNING' }, responseStatus: '429', responseDetails: 'QUOTA' })
-    await expect(translate('mymemory', '')).rejects.toThrow('QUOTA')
-  })
-
-  it('papago: NCP endpoint and headers', async () => {
-    respond = (req, res) => {
-      const { text } = bodyJson(req) as { text: string }
-      json(res, { message: { result: { translatedText: text === 'Bye' ? 'Tschüss' : 'Hallo <v0/>' } } })
-    }
-    const result = await translate('papago', 'key', { clientId: 'id' }, 'en', 'zh')
-    const request = mock.requests[0]!
-    expect(request.url).toBe('/nmt/v1/translation')
-    expect(request.headers['x-ncp-apigw-api-key-id']).toBe('id')
-    expect(request.headers['x-ncp-apigw-api-key']).toBe('key')
-    expect(bodyJson(request)).toEqual({ source: 'en', target: 'zh-CN', text: 'Hello <v0/>' })
-    expect(result.translated).toEqual(EXPECTED)
-  })
-
-  it('tencent: TextTranslateBatch with TC3 headers over the exact payload bytes', async () => {
-    respond = (_req, res) => json(res, { Response: { TargetTextList: TRANSLATED } })
-    const result = await translate('tencent', 'sk', { secretId: 'sid', region: 'ap-hongkong' })
-    const request = only()
-    expect(request.headers['x-tc-action']).toBe('TextTranslateBatch')
-    expect(request.headers['x-tc-version']).toBe('2018-03-21')
-    expect(request.headers['x-tc-region']).toBe('ap-hongkong')
-    const timestamp = Number(request.headers['x-tc-timestamp'])
-    expect(request.headers.authorization).toBe(
-      signTc3({ host: `127.0.0.1:${mock.port}`, payload: request.text, timestamp, service: 'tmt', secretId: 'sid', secretKey: 'sk' }),
-    )
-    expect(bodyJson(request)).toEqual({ SourceTextList: MASKED, Source: 'en', Target: 'de', ProjectId: 0 })
-    expect(result.translated).toEqual(EXPECTED)
-  })
-
-  it('tencent: Response.Error fails the batch', async () => {
-    respond = (_req, res) => json(res, { Response: { Error: { Code: 'AuthFailure', Message: 'bad signature' } } })
-    await expect(translate('tencent', 'sid:sk')).rejects.toThrow('bad signature (AuthFailure)')
-  })
-
-  it('systran: POST form with repeated input and Key auth; item errors fail', async () => {
-    respond = (_req, res) => json(res, { outputs: TRANSLATED.map((output) => ({ output })) })
-    const result = await translate('systran', 'st')
-    const request = only()
-    expect(request.url).toBe('/translation/text/translate')
-    expect(request.headers.authorization).toBe('Key st')
-    expect(bodyForm(request).getAll('input')).toEqual(MASKED)
-    expect(result.translated).toEqual(EXPECTED)
-
-    respond = (_req, res) => json(res, { outputs: [{ error: 'no route' }, { output: 'x' }] })
-    await expect(translate('systran', 'st')).rejects.toThrow('no route')
   })
 
   it('ai gateway: OpenAI-compatible request with a JSON schema, no temperature', async () => {
@@ -229,6 +141,22 @@ describe('translation services send the documented request', () => {
     expect(body.response_format.type).toBe('json_schema')
     expect(body.messages[1]).toEqual({ role: 'user', content: JSON.stringify(MASKED) })
     expect(result.translated).toEqual(EXPECTED)
+  })
+
+  it('deepl: a :fx key goes to the free host', () => {
+    const host = (token: string) =>
+      resolveDriver('deepl')
+        .translate({ texts: [], from: 'EN', to: 'DE', token, options: {}, http: { retries: 0, timeoutMs: 1 } })
+        .catch((error: { details?: { URL?: string } }) => error.details?.URL)
+    return expect(Promise.all([host('abc:fx'), host('abc')])).resolves.toEqual([
+      'https://api-free.deepl.com/v2/translate',
+      'https://api.deepl.com/v2/translate',
+    ])
+  })
+
+  it('ai: a wrong number of answers is an error', async () => {
+    respond = (_req, res) => json(res, { choices: [{ message: { content: JSON.stringify({ translations: ['only one'] }) } }] })
+    await expect(translate('ai', 'k', { model: 'm' })).rejects.toThrow('expected 2 translations')
   })
 
   it('ai openai: strict schema; key from the environment; truncation is an error', async () => {
@@ -290,20 +218,57 @@ describe('engine', () => {
     await expect(translate('libretranslate', '')).rejects.toThrow('returned 1 translations for 2 strings')
   })
 
-  it('retries 429 and honours Retry-After, then succeeds', async () => {
+  it('retries 429 after the Retry-After delay, not its own', async () => {
     let calls = 0
     respond = (_req, res) => {
       calls += 1
       if (calls === 1) {
         res.statusCode = 429
-        res.setHeader('retry-after', '0')
+        res.setHeader('retry-after', '1')
         res.end('{"error":"slow down"}')
         return
       }
       json(res, { translatedText: TRANSLATED })
     }
+    const started = Date.now()
     await translate('libretranslate', '', { retries: '2', retryDelayMs: '1' })
     expect(mock.requests).toHaveLength(2)
+    expect(Date.now() - started).toBeGreaterThanOrEqual(900)
+  })
+
+  it('respects the character limit of a service', async () => {
+    respond = (request, res) => json(res, { translations: JSON.parse(request.text).text.map((text: string) => ({ text })) })
+    const items = [
+      { key: 'a', text: 'x'.repeat(60_000) },
+      { key: 'b', text: 'y'.repeat(60_000) },
+    ]
+    await translateItems(items, 'en', 'de', config('deepl', 'k'))
+    expect(mock.requests).toHaveLength(2)
+  })
+
+  it('--chunkSize caps below the service limit, never above it', async () => {
+    respond = (request, res) => json(res, { translations: JSON.parse(request.text).text.map((text: string) => ({ text })) })
+    const items = Array.from({ length: 3 }, (_item, index) => ({ key: `k${index}`, text: 'x' }))
+    await translateItems(items, 'en', 'de', { ...config('deepl', 'k'), chunkSize: 2 })
+    expect(mock.requests).toHaveLength(2)
+    mock.requests.length = 0
+    await translateItems(items, 'en', 'de', { ...config('deepl', 'k'), chunkSize: 1000 })
+    expect(mock.requests).toHaveLength(1)
+  })
+
+  it('reports each batch as it lands', async () => {
+    respond = (request, res) => json(res, { translatedText: JSON.parse(request.text).q.map((text: string) => `D ${text}`) })
+    const seen: string[][] = []
+    const items = ['a', 'b', 'c'].map((key) => ({ key, text: key }))
+    const result = await translateItems(items, 'en', 'de', { ...config('libretranslate', ''), chunkSize: 2 }, {}, (batch) =>
+      seen.push(batch.translated.map(({ key }) => key)),
+    )
+    expect(seen).toEqual([['a', 'b'], ['c']])
+    expect(result.translated).toHaveLength(3)
+  })
+
+  it('names the services the spec lists, no more', () => {
+    expect(Object.keys(drivers).sort()).toEqual([...SERVICES].sort())
   })
 
   it('never puts a key into an error', async () => {
@@ -332,7 +297,7 @@ describe('engine', () => {
 })
 
 describe('placeholders', () => {
-  it.each(['Hi {name}', 'Hi %{name}', 'Hi {{ name }}', 'See @:common.save', 'a {x} b {y}'])('round-trips %s', (text) => {
+  it.each(['Hi {name}', 'Hi %{name}', 'Hi {{ name }}', 'a {x} b {y}'])('round-trips %s', (text) => {
     const { masked, tokens } = protect(text)
     expect(masked).not.toContain('{')
     expect(restore(masked, tokens)).toBe(text)
@@ -350,23 +315,5 @@ describe('placeholders', () => {
     expect(isIntact('Hi {a}', ['{a}'])).toBe(true)
     expect(isIntact('Hi', ['{a}'])).toBe(false)
     expect(isIntact('Hi <v0/>', [])).toBe(false)
-  })
-})
-
-describe('TC3 signature', () => {
-  it('derives keys from raw digests, as the published algorithm does', () => {
-    const payload = '{"a":1}'
-    const timestamp = 1_700_000_000
-    const date = '2023-11-14'
-    const raw = (key: string | Buffer, text: string) => createHmac('sha256', key).update(text).digest()
-    const hash = (text: string) => createHash('sha256').update(text).digest('hex')
-    const canonical = `POST\n/\n\ncontent-type:application/json\nhost:h.example\n\ncontent-type;host\n${hash(payload)}`
-    const toSign = `TC3-HMAC-SHA256\n${timestamp}\n${date}/tmt/tc3_request\n${hash(canonical)}`
-    const key = raw(raw(raw('TC3sk', date), 'tmt'), 'tc3_request')
-    const signature = createHmac('sha256', key).update(toSign).digest('hex')
-
-    expect(signTc3({ host: 'h.example', payload, timestamp, service: 'tmt', secretId: 'id', secretKey: 'sk' })).toBe(
-      `TC3-HMAC-SHA256 Credential=id/${date}/tmt/tc3_request, SignedHeaders=content-type;host, Signature=${signature}`,
-    )
   })
 })

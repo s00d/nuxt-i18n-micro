@@ -3,13 +3,7 @@ import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { type MockServer, createProject, diffFiles, json, normalize, removeProject, runCli, snapshotFiles, startMock } from './harness'
 
-/**
- * Characterization of every command: exact arguments -> exit code, output, files written.
- *
- * Generated first from the published `nuxt-i18n-micro-cli@2.1.2` (`CLI_BIN=<old bin> vitest -u`),
- * committed on their own, then re-run against the rewrite: every diff is an intended fix
- * listed in the rewrite's commit, or a bug.
- */
+/** Every command: exact arguments -> exit code, output, files written, requests sent. */
 interface GoldenCase {
   name: string
   args: string[]
@@ -24,17 +18,14 @@ const remote = (dir: string, mock: MockServer, config: Record<string, unknown> =
   writeFileSync(join(dir, '.i18n-remote.json'), JSON.stringify({ type: 'custom', url: mock.url, auth: { username: 'u', password: 'p' }, ...config }))
 
 const pickInfo = (output: string) => {
-  const { project } = JSON.parse(output.slice(output.indexOf('{')))
-  return {
-    defaultLocale: project.defaultLocale,
-    locales: project.locales.map((locale: { code: string }) => locale.code),
-    total: project.totalLocales,
-  }
+  const { defaultLocale, locales } = JSON.parse(output.slice(output.indexOf('{')))
+  return { defaultLocale, locales }
 }
 
 const cases: GoldenCase[] = [
   { name: 'help', args: ['--help'] },
   { name: 'unknown-command', args: ['nope'] },
+  { name: 'removed-command', args: ['validate'] },
   { name: 'info', args: ['info', '--json'], pick: pickInfo },
   { name: 'extract', args: ['extract'] },
   {
@@ -59,51 +50,38 @@ const cases: GoldenCase[] = [
       renameSync(join(dir, 'pages'), join(dir, 'app/pages'))
     },
   },
-  { name: 'validate', args: ['validate'] },
-  { name: 'diff', args: ['diff'] },
-  { name: 'diff-json', args: ['diff', '--json'] },
+  { name: 'check', args: ['check'] },
+  { name: 'check-json', args: ['check', '--json'] },
+  { name: 'check-duplicates', args: ['check', '--only', 'duplicates'] },
   { name: 'sync', args: ['sync'] },
+  { name: 'sync-dry', args: ['sync', '--dryRun'] },
   { name: 'stats', args: ['stats'] },
   { name: 'stats-json', args: ['stats', '--json'] },
-  { name: 'stats-full', args: ['stats', '--full'] },
   { name: 'clean', args: ['clean'] },
   { name: 'clean-exclude', args: ['clean', '--exclude', '^common'] },
   { name: 'lint', args: ['lint', '--rules', 'no-trailing-spaces,no-empty-translation'] },
   { name: 'lint-fix', args: ['lint', '--rules', 'no-trailing-spaces', '--fix'] },
-  { name: 'lint-json', args: ['lint', '--rules', 'no-html-tags', '--json'] },
+  { name: 'lint-json', args: ['lint', '--rules', 'no-trailing-spaces', '--json'] },
   { name: 'search', args: ['search', 'Save'] },
   { name: 'search-json', args: ['search', 'Welcome', '--json'] },
-  { name: 'search-hardcoded', args: ['search', '--hardcodedOnly', '--onlyVue'] },
   { name: 'search-empty', args: ['search'] },
   { name: 'rename', args: ['rename', '--from', 'common.save', '--to', 'actions.save'] },
   { name: 'rename-dry', args: ['rename', '--from', 'common.save', '--to', 'actions.save', '--dryRun'] },
   { name: 'rename-missing', args: ['rename', '--from', 'no.such', '--to', 'other.key'] },
-  { name: 'replace-values', args: ['replace-values', '--search', 'Save', '--replace', 'Store'] },
-  { name: 'replace-values-regex', args: ['replace-values', '--search', '(W)elcome', '--replace', '$1ow', '--useRegex'] },
   { name: 'pseudo', args: ['pseudo', '--targetLocale', 'de', '--replace'] },
-  { name: 'estimate', args: ['estimate'] },
-  { name: 'estimate-json', args: ['estimate', '--json'] },
   { name: 'format', args: ['format'] },
-  { name: 'split', args: ['split', '--splitByPrefix', '--outputDir', 'split-out'] },
-  { name: 'split-default', args: ['split', '--maxKeys', '1', '--outputDir', 'split-out'] },
-  { name: 'optimize', args: ['optimize', '--dryRun', '--minSize', '100'] },
-  { name: 'optimize-json', args: ['optimize', '--json', '--minSize', '100'] },
+  { name: 'format-check', args: ['format', '--check'] },
   { name: 'export', args: ['export'] },
   { name: 'import', args: ['import'] },
-  { name: 'export-csv', args: ['export-csv'] },
-  { name: 'import-csv', args: ['import-csv'] },
-  { name: 'check-duplicates', args: ['check-duplicates'] },
+  { name: 'export-csv', args: ['export', '--format', 'csv'] },
+  { name: 'import-csv', args: ['import', '--format', 'csv'] },
   { name: 'text-to-i18n-dry', args: ['text-to-i18n', '--dryRun'] },
   { name: 'text-to-i18n', args: ['text-to-i18n'] },
-  { name: 'glossary-list', args: ['glossary'] },
-  { name: 'glossary-add', args: ['glossary', '--action', 'add', '--source', 'Cancel', '--target', 'Abbrechen'] },
-  { name: 'glossary-remove', args: ['glossary', '--action', 'remove', '--source', 'Save'] },
-  { name: 'backup', args: ['backup', '--comment', 'golden'] },
-  { name: 'restore-list', args: ['restore'], setup: (dir) => writeFileSync(join(dir, 'locales/x.json'), '{}') },
   {
     name: 'translate-libre',
     args: ['translate', '--service', 'libretranslate', '--token', 'k', '--options', 'baseUrl:<mock>'],
   },
+  { name: 'translate-dry', args: ['translate', '--dryRun'] },
   { name: 'translate-unknown', args: ['translate', '--service', 'nope', '--token', 'k'] },
   { name: 'sync-remote-noconfig', args: ['sync-remote'] },
   { name: 'sync-remote-pull', args: ['sync-remote'], setup: (dir, mock) => remote(dir, mock) },

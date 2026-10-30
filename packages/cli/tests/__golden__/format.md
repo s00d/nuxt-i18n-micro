@@ -56,7 +56,6 @@ changed locales/en.json
     ],
     "max": 10
   },
-  "linked": "See @:common.save",
   "plural": {
     "apples": "no apples | one apple | {count} apples"
   },
@@ -143,7 +142,6 @@ changed locales/ru.json
     ],
     "max": 10
   },
-  "linked": "См. @:common.save",
   "plural": {
     "apples": "нет яблок | одно яблоко | {count} яблок"
   },

@@ -6,7 +6,7 @@
 
 ```
 Dry run: no files were modified.
-Locales: 3, linked messages: 2, source files: 1, source replacements: 1
+Locales: 3, source files: 1, source replacements: 1
 ```
 
 ## Files

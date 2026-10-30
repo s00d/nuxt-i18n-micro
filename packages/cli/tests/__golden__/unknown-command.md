@@ -1,6 +1,6 @@
 # unknown-command
 
-`i18n-micro nope` -> exit 1
+`i18n-micro nope` -> exit 2
 
 ## Output
 

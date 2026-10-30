@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Removed 24 unused keys.
+Removed 22 unused keys.
 ```
 
 ## Files

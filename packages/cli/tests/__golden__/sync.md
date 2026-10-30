@@ -5,7 +5,9 @@
 ## Output
 
 ```
-Translations have been synchronized.
+Removed:
+  - de.json common.extra
+Translations have been synchronized: 1 extra keys removed.
 ```
 
 ## Files
@@ -16,69 +18,16 @@ changed locales/de.json
 {
   "common": {
     "save": "Speichern",
-    "cancel": "",
-    "unused": ""
+    "cancel": ""
   },
   "home": {
-    "title": "Willkommen {name}",
-    "tagline": ""
+    "title": "Willkommen {name}"
   },
-  "greeting": {
-    "hello": ""
-  },
-  "plural": {
-    "apples": ""
-  },
-  "linked": "",
-  "spaced": "",
   "limits": {
     "max": 20,
     "enabled": false,
     "list": [
       "x"
-    ]
-  }
-}
-```
-
-changed locales/pages/index/de.json
-
-```
-{
-  "hero": {
-    "cta": "Jetzt starten"
-  },
-  "footer": ""
-}
-```
-
-changed locales/ru.json
-
-```
-{
-  "common": {
-    "save": "Сохранить",
-    "cancel": "Отмена",
-    "unused": "Не используется"
-  },
-  "home": {
-    "title": "Добро пожаловать {name}",
-    "tagline": "Быстрый i18n"
-  },
-  "greeting": {
-    "hello": "Привет"
-  },
-  "plural": {
-    "apples": "нет яблок | одно яблоко | {count} яблок"
-  },
-  "linked": "См. @:common.save",
-  "spaced": "Пробел",
-  "limits": {
-    "max": 10,
-    "enabled": true,
-    "list": [
-      "a",
-      "b"
     ]
   }
 }

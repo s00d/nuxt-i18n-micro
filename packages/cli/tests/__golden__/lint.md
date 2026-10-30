@@ -6,9 +6,9 @@
 
 ```
 Active rules: no-trailing-spaces, no-empty-translation
-[no-trailing-spaces] Found trailing spaces in file <project>/locales/en.json for key spaced (en)
-[no-empty-translation] Empty translation in file <project>/locales/de.json for key common.cancel (de)
-[no-empty-translation] Empty translation in file <project>/locales/pages/about/de.json for key about.more (de)
+[no-trailing-spaces] spaced (en) in en.json
+[no-empty-translation] common.cancel (de) in de.json
+[no-empty-translation] about.more (de) in pages/about/de.json
 Found 3 issues that need to be fixed
   Review the issues above, or run with --json for machine-readable output.
   Apply automatic fixes where available: i18n-micro lint --fix

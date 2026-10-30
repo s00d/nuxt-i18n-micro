@@ -7,7 +7,7 @@ outline: 'deep'
 # `@i18n-micro/preact`
 
 39 exports across 1 entry point.
-Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
 ## `@i18n-micro/preact`

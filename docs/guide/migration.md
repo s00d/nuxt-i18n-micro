@@ -204,3 +204,7 @@ If using `no_prefix` strategy, set the locale in a server plugin with `order: -1
 ### 🍪 Redirects Not Working
 
 For prefix strategies, ensure `localeCookie: 'user-locale'` is set. Without a cookie, the server redirect plugin has no way to remember the user's preferred locale across page reloads.
+
+## API mapping
+
+TODO (docs step 2): `@nuxtjs/i18n` helpers and composables mapped to this module (`useLocalePath` → `$localePath`, `setLocale` → `$switchLocale`, `detectBrowserLanguage` → `autoDetectLanguage` / `autoDetectPath` / `localeCookie`).

@@ -7,7 +7,7 @@ import { readModuleOptions } from '../utils/module-options'
 import { repoRoot } from '../utils/workspace'
 
 /** Pages whose `#### \`name\`` headings document module options. Kept in step with the generator. */
-const OPTION_PAGES = new Set(['guide/configuration.md', 'guide/strategy.md'])
+const OPTION_PAGES = new Set(['api/module-options.md', 'guide/strategy.md'])
 
 export interface DocsFinding {
   code: string
@@ -236,14 +236,14 @@ export const docsAuditCommand = defineCommand({
     }
 
     // --- options documented that no longer exist --------------------------------------
-    // Only the hand-written option sections of the Configuration guide: that is a
+    // Only the hand-written option details of the reference page: that is a
     // thousand lines that can outlive an option, while the generated tables cannot go
     // stale by construction, and prose elsewhere mentions option-like words constantly.
     const known = new Set(options.map((option) => option.path.split('.').pop()!))
-    const configuration = bodies.get('guide/configuration.md')
-    for (const match of (configuration ?? '').matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
+    const details = bodies.get('api/module-options.md')
+    for (const match of (details ?? '').matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
       const name = match[1]!.split('.').pop()!
-      if (!known.has(name)) add('warnings', 'stale-option', 'guide/configuration.md', `documents "${match[1]!}", which is not in ModuleOptions`)
+      if (!known.has(name)) add('warnings', 'stale-option', 'api/module-options.md', `documents "${match[1]!}", which is not in ModuleOptions`)
     }
 
     // --- nav and sidebar --------------------------------------------------------------

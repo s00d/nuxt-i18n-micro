@@ -153,3 +153,7 @@ If you encounter type errors related to internal imports like `#i18n-internal/pl
 ::: tip
 This is **not required** in most cases — Nuxt resolves these automatically at build time. Add this only if your IDE or `vue-tsc` reports unresolved module errors.
 :::
+
+## Upgrading to the current major
+
+TODO (docs step 2): breaking changes of the rewrite stack — `@i18n-micro/hmr` removed, routing and core majors, default locale pinned at runtime, server API locale order, `$clearCache` semantics.

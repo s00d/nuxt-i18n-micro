@@ -122,17 +122,6 @@ function openListsWithABlankLine(text: string): string {
   return out.join('\n')
 }
 
-/** The compact index used inside the Configuration guide. */
-function optionsIndex(options: ModuleOption[]): string {
-  const rows = options.map((option) => [
-    `[\`${option.path}\`](/api/module-options)`,
-    code(option.type),
-    code(option.default),
-    summarise(option.description),
-  ])
-  return table(['Option', 'Type', 'Default', 'Purpose'], rows)
-}
-
 /* ------------------------------------------------------------------------------ symbols */
 
 const anchorOf = (name: string): string => name.replace(/^\$/, '').toLowerCase()
@@ -358,7 +347,7 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
     `# \`${pkg.name}\``,
     '',
     `${pkg.exportCount} exports across ${pkg.entryPoints.length} entry point${pkg.entryPoints.length === 1 ? '' : 's'}.`,
-    'Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)',
+    'Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)',
     'checks against the TypeScript sources.',
     '',
     ...sections,
@@ -467,11 +456,10 @@ export const docsGenerateCommand = defineCommand({
     // --- module options ---------------------------------------------------------------
     const options = readModuleOptions()
     inBlock('docs/api/module-options.md', 'module-options', groupedOptions(options))
-    inBlock('docs/guide/configuration.md', 'options-index', optionsIndex(options))
-
-    // Any page may give an option a section of its own — the Configuration guide does for
-    // most, the Strategy guide for `strategy` — and each takes its facts from the type.
-    const optionPages = ['docs/guide/configuration.md', 'docs/guide/strategy.md']
+    // Any page may give an option a section of its own — the option details on the
+    // reference page do for most, the Strategy guide for `strategy` — and each takes its
+    // facts from the type.
+    const optionPages = ['docs/api/module-options.md', 'docs/guide/strategy.md']
     for (const page of optionPages) {
       const body = readFileSync(join(repoRoot, page), 'utf8')
       for (const option of options) {

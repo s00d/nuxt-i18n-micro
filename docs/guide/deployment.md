@@ -1,18 +1,22 @@
 ---
-title: 'Firebase AppHosting Deployment'
-description: 'Deploy nuxt-i18n-micro on Firebase AppHosting.'
-outline: 'deep'
+title: 'Deployment'
+description: 'Deploy to Node, serverless and Edge: where translation payloads go, cache headers, dateBuild and prerendering.'
+outline: [2, 3]
 ---
 
-# 🔥 Firebase AppHosting Deployment
+# Deployment
 
-## 📖 Introduction
+TODO (docs step 2): Node vs serverless vs Edge, where payloads end up, `translationPayloads`, cache headers and `dateBuild`, prerender.
+
+## Firebase
+
+### 📖 Introduction
 
 Firebase AppHosting is a powerful platform for deploying Nuxt applications with serverless infrastructure. However, when deploying applications with `nuxt-i18n-micro`, you may encounter specific issues related to how translation JSON files are served. This guide provides comprehensive solutions to ensure your translations work correctly in production.
 
-## ⚠️ Common Issues
+### ⚠️ Common Issues
 
-### Translation Files Not Applied
+#### Translation Files Not Applied
 
 **Symptoms:**
 
@@ -25,9 +29,9 @@ Firebase AppHosting is a powerful platform for deploying Nuxt applications with 
 
 Firebase AppHosting (and other platforms using Nitro prerendering) may serve prerendered JSON files with incorrect MIME types. When the browser receives JSON files with `Content-Type: text/html`, it cannot properly parse them, causing translations to fail silently.
 
-## ✅ Solutions
+### ✅ Solutions
 
-### Solution 1: Route Rules Configuration (Recommended)
+#### Solution 1: Route Rules Configuration (Recommended)
 
 The most straightforward solution is to add explicit headers for translation routes in your `nuxt.config.ts`:
 
@@ -67,7 +71,7 @@ export default defineNuxtConfig({
 - 🚀 Improves performance with proper caching
 - 🔒 Works across all deployment platforms
 
-### Solution 2: Custom API Base URL
+#### Solution 2: Custom API Base URL
 
 If you're using a custom `apiBaseUrl` (path prefix only), adjust the route rules accordingly:
 
@@ -95,7 +99,7 @@ export default defineNuxtConfig({
 })
 ```
 
-### Solution 3: Firebase-Specific Configuration
+#### Solution 3: Firebase-Specific Configuration
 
 Create or update your `firebase.json` file in the project root:
 
@@ -140,7 +144,7 @@ Create or update your `firebase.json` file in the project root:
 Make sure the `source` pattern matches your `apiBaseUrl` configuration. If you've customized `apiBaseUrl`, update the pattern accordingly.
 :::
 
-### Solution 4: Firebase Functions Configuration
+#### Solution 4: Firebase Functions Configuration
 
 For Firebase Functions deployment, ensure your `functions/package.json` includes necessary dependencies:
 
@@ -158,9 +162,9 @@ For Firebase Functions deployment, ensure your `functions/package.json` includes
 }
 ```
 
-## 🔍 Debugging
+### 🔍 Debugging
 
-### Enable Debug Mode
+#### Enable Debug Mode
 
 Add debug logging to identify issues:
 
@@ -179,7 +183,7 @@ This will output detailed logs about:
 - 🔄 Cache operations
 - ⚠️ Loading errors
 
-### Check Network Tab
+#### Check Network Tab
 
 1. Open DevTools → Network tab
 2. Filter by "data.json"
@@ -188,7 +192,7 @@ This will output detailed logs about:
    - ✅ `Content-Type: application/json` (correct)
    - ❌ `Content-Type: text/html` (incorrect - needs fixing)
 
-### Verify Prerender Output
+#### Verify Prerender Output
 
 After building, check that translation files are generated:
 
@@ -202,9 +206,9 @@ ls -la .output/public/_locales/index/en/
 
 You should see `data.json` for each locale under each page.
 
-## 🚀 Build Configuration
+### 🚀 Build Configuration
 
-### Nitro Preset
+#### Nitro Preset
 
 For Firebase AppHosting, ensure you're using the correct preset:
 
@@ -223,7 +227,7 @@ export default defineNuxtConfig({
 })
 ```
 
-### Prerender Configuration
+#### Prerender Configuration
 
 Configure prerendering for optimal performance:
 
@@ -239,7 +243,7 @@ export default defineNuxtConfig({
 })
 ```
 
-## 📋 Complete Example Configuration
+### 📋 Complete Example Configuration
 
 Here's a complete working configuration for Firebase AppHosting:
 
@@ -331,7 +335,7 @@ export default defineNuxtConfig({
 }
 ```
 
-## ✅ Verification Checklist
+### ✅ Verification Checklist
 
 After applying the fixes, verify everything works:
 
@@ -343,9 +347,9 @@ After applying the fixes, verify everything works:
 - [ ] Language switching works correctly
 - [ ] SEO meta tags are generated properly
 
-## 🔄 Deployment Workflow
+### 🔄 Deployment Workflow
 
-### 1. Prepare Build
+#### 1. Prepare Build
 
 ```bash
 # Install dependencies
@@ -358,7 +362,7 @@ pnpm build
 ls -la .output/public/_locales/index/en/data.json
 ```
 
-### 2. Deploy to Firebase
+#### 2. Deploy to Firebase
 
 ```bash
 # Install Firebase CLI if not already installed
@@ -374,7 +378,7 @@ firebase init hosting
 firebase deploy --only hosting,functions
 ```
 
-### 3. Verify Deployment
+#### 3. Verify Deployment
 
 1. Visit your deployed site
 2. Open DevTools → Network tab
@@ -384,9 +388,9 @@ firebase deploy --only hosting,functions
    - Content-Type: application/json
    - Response contains valid JSON
 
-## 🔧 Troubleshooting
+### 🔧 Troubleshooting
 
-### Issue: 404 Errors for Translation Files
+#### Issue: 404 Errors for Translation Files
 
 **Solution:** Ensure translation files are being copied to the output directory:
 
@@ -404,7 +408,7 @@ export default defineNuxtConfig({
 })
 ```
 
-### Issue: Translations Work on Some Pages But Not Others
+#### Issue: Translations Work on Some Pages But Not Others
 
 **Solution:** Check if page-specific translations are being generated:
 
@@ -422,7 +426,7 @@ i18n: {
 }
 ```
 
-### Issue: Slow Translation Loading
+#### Issue: Slow Translation Loading
 
 **Solution:** Optimize caching and preloading:
 
@@ -439,14 +443,14 @@ routeRules: {
 }
 ```
 
-## 📚 Additional Resources
+### 📚 Additional Resources
 
 - [Firebase AppHosting Documentation](https://firebase.google.com/docs/app-hosting)
 - [Nitro Presets](https://nitro.unjs.io/deploy/providers/firebase)
 - [Nuxt Deployment Guide](https://nuxt.com/docs/getting-started/deployment)
 - [Module Configuration](/guide/configuration)
 
-## 💡 Tips
+### 💡 Tips
 
 1. **Always test in production-like environment** before deploying
 2. **Use debug mode** during initial setup to catch issues early
@@ -454,9 +458,9 @@ routeRules: {
 4. **Keep translation files small** for faster loading
 5. **Use proper cache headers** to reduce server load
 
-## ⚡ Performance Optimization
+### ⚡ Performance Optimization
 
-### Enable Compression
+#### Enable Compression
 
 Firebase automatically handles Gzip/Brotli compression, but ensure your build is optimized:
 
@@ -475,7 +479,7 @@ export default defineNuxtConfig({
 })
 ```
 
-### Lazy Load Translations
+#### Lazy Load Translations
 
 `Nuxt I18n Micro` automatically lazy-loads translations on a per-page basis. Translations are only loaded when needed, reducing initial bundle size. This is built-in functionality - no additional configuration required.
 
@@ -494,7 +498,7 @@ pnpm update nuxt-i18n-micro@latest
 
 :::
 
-## 🎯 Next Steps
+### 🎯 Next Steps
 
 - [Server-Side Translations](/guide/server-side-translations)
 - [Performance Optimization](/guide/performance)

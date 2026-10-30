@@ -7,7 +7,7 @@ outline: 'deep'
 # `@i18n-micro/vue`
 
 28 exports across 2 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
 ## `@i18n-micro/vue`

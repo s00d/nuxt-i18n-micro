@@ -29,14 +29,7 @@ import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRunti
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import {
-  createNuxtI18nPluginApi,
-  formatterFor,
-  NuxtI18n,
-  NuxtTranslationLoader,
-  type I18nAppInternals,
-  type TranslationFn,
-} from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'

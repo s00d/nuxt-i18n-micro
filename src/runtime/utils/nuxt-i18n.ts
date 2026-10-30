@@ -525,21 +525,21 @@ export class NuxtTranslationLoader {
   }
 
   /**
-   * Load and apply translations for a locale/route. Returns `false` when a newer
-   * navigation superseded this switch — callers must skip post-await side effects
-   * (e.g. `setLocale`) for the abandoned navigation.
+   * Load and apply translations for a locale/route. Returns `false` when the switch did not
+   * apply — a newer navigation superseded it, or its chunk failed to load — and callers must
+   * skip post-await side effects (e.g. `setLocale`). The next navigation loads it again.
    */
   async switchContext(locale: string, routeName?: string): Promise<boolean> {
+    const { i18n } = this.options
     const generation = ++this.switchGeneration
-    let data = this.loadFromCacheSync(locale, routeName)
-
-    if (data === null) {
-      data = await this.loadAsync(locale, routeName)
-    }
+    const data = this.loadFromCacheSync(locale, routeName) ?? (await this.loadChunk(locale, routeName))
 
     if (generation !== this.switchGeneration) return false
+    // keeps what is on screen, as refresh() does: an empty dictionary would turn the strings that
+    // still work (a layout's) into raw keys. Only a first render has nothing to keep.
+    if (data === null && i18n.getCurrentLocale()) return false
 
-    this.options.i18n.applySwitchContext(locale, routeName, data)
+    i18n.applySwitchContext(locale, routeName, data ?? {})
     return true
   }
 }

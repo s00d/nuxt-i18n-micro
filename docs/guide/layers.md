@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 })
 ```
 
-- **Config:** scalar options in the app replace the layer's. `locales` arrays from all layers are combined, and entries with the same `code` merge into one, so an app can add a locale or set fields such as `disabled: true` on an inherited one.
+- **Config:** scalar options in the app replace the layer's. `locales` arrays from all layers are combined, and entries with the same `code` merge into one with the app's fields winning, so an app can add a locale or set fields such as `disabled: true` on an inherited one.
 - **Translations:** `locales/` of every layer are merged key by key, layer first and app last, so a key in `shop/locales/en.json` overrides the same key in `base/locales/en.json`. Page files (`locales/pages/<page>/`) merge the same way.
 - **Pages:** `$defineI18nRoute` is read from the pages of every layer.
 

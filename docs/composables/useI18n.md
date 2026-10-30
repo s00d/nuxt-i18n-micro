@@ -55,10 +55,10 @@ const title = computed(() => t('page.title'))
 
 ## Not in the type
 
-`$defineI18nRoute` and `$clearCache` are typed on `useNuxtApp()` only:
+`$defineI18nRoute` is typed on `useNuxtApp()` only:
 
 ```ts
-const { $defineI18nRoute, $clearCache } = useNuxtApp()
+const { $defineI18nRoute } = useNuxtApp()
 ```
 
 ## Related

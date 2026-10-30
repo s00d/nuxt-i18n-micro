@@ -142,7 +142,7 @@ The adapter prefixes every locale except the default (`/about`, `/de/about`) and
 
 ## SSR
 
-The React binding is client-only for now: `useI18n()` subscribes with `useSyncExternalStore` without a server snapshot, so `renderToString` throws `Missing getServerSnapshot`. Render translated text on the client, or translate on the server with [`@i18n-micro/node`](./nodejs-package) and pass strings as props.
+`renderToString` works: `useI18n()` has a server snapshot. Create one instance per request and add its dictionaries before you render, so requests in different locales do not share state.
 
 ## API
 

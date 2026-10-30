@@ -14,9 +14,9 @@ The module injects its runtime helpers into the Nuxt app: `$t`, `$tc`, `$localeP
 | --- | --- |
 | Template | <code v-pre>{{ $t('title') }}</code> — every helper, with the `$` |
 | `<script setup>` | `const { t, localePath } = useI18n()` — every helper in `PluginsInjections`, with and without the `$` |
-| Plugin, middleware, `<script setup>` | `const { $t, $defineI18nRoute, $clearCache } = useNuxtApp()` — everything, `$` only |
+| Plugin, middleware, `<script setup>` | `const { $t, $defineI18nRoute } = useNuxtApp()` — everything, `$` only |
 
-`$defineI18nRoute` and `$clearCache` are typed on `useNuxtApp()` only. See [`useI18n`](/composables/useI18n).
+`$defineI18nRoute` is typed on `useNuxtApp()` only. See [`useI18n`](/composables/useI18n).
 
 ```vue
 <script setup lang="ts">
@@ -575,8 +575,11 @@ every translation file change.
 <!-- /generated:method:$clearCache -->
 
 ```ts
-useNuxtApp().$clearCache()
+const { clearCache } = useI18n()
+clearCache()
 ```
+
+A failed reload keeps the current dictionary.
 
 ## Related
 

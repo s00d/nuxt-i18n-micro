@@ -474,9 +474,9 @@ export interface ModuleOptions {
   routeLocales?: Record<string, string[]>
 
   /**
-   * Per-route meta tag disabling, extracted at build time from `$defineI18nRoute()` calls.
-   * Maps a route path to `true` (disable all meta) or an array of locale codes
-   * for which meta should be disabled. Build output: set `disableMeta` in the page instead.
+   * Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array
+   * of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()`
+   * calls at build time are added to it.
    */
   routeDisableMeta?: Record<string, boolean | string[]>
 

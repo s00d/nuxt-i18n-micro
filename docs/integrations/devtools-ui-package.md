@@ -45,15 +45,17 @@ export default defineConfig({
 | `translationDir` | `'src/locales'` | Folder with the JSON files, relative to the Vite root. |
 | `base` | `'/__i18n_api'` | Base path of the API endpoints. |
 | `injectButton` | `true` | Add a floating button to pages served through Vite's `index.html` transform. |
+| `defaultLocale` | first locale file in `translationDir` | Reported by `/config`. |
+| `fallbackLocale` | `defaultLocale` | Reported by `/config`. |
 
 The plugin runs on the dev server only (`apply: 'serve'`); a production build contains nothing from it. The button opens `/__i18n_devtools.html`, which reads and saves files through the plugin's endpoints:
 
 | Endpoint | Does |
 | --- | --- |
 | `GET <base>/files` | `{ files, structure }`: every `.json` under `translationDir` |
-| `GET <base>/file?path=en.json` | `{ success, content, path }` |
-| `POST <base>/save` | body `{ file, content }`; writes the file (`.json` only, inside the project root) |
-| `GET <base>/config` | `{ defaultLocale: 'en', fallbackLocale: 'en', locales: [], translationDir }` (fixed values except `translationDir`) |
+| `GET <base>/file?path=en.json` | `{ success, content, path }`; 404 for anything but an existing `.json` inside `translationDir` |
+| `POST <base>/save` | body `{ file, content }`; overwrites an existing `.json` inside `translationDir`, 403 for anything else. It never creates a file |
+| `GET <base>/config` | `{ defaultLocale, fallbackLocale, locales, translationDir }`; `locales` come from the root files in `translationDir` |
 
 Saving only writes the file. An app that imports the JSON through Vite gets it through HMR; for edits applied to the running instance directly, use a bridge.
 

@@ -78,7 +78,7 @@ export default defineNuxtConfig({
 
 - A locale's own `fallbackLocale` is followed to its end: `de-at` → `de` → `en`.
 - The global `fallbackLocale` is the weakest layer, under every chain.
-- The chain is applied to the root files first, then to the page files. So a page file in a fallback locale still beats the root file of the active locale.
+- Each locale in the chain adds its root file, then its page file, from the weakest fallback up to the active locale. So the active locale's root file beats a fallback locale's page file.
 
 Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a warning in the browser console in dev ([`missingWarn`](/api/module-options#missingwarn)).
 

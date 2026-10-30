@@ -1,6 +1,6 @@
 # @i18n-micro/react
 
-React bindings for Nuxt I18n Micro: `createI18n`, `<I18nProvider>`, `useI18n()`, `<I18nT>`, `<I18nLink>`, `<I18nSwitcher>`, `<I18nGroup>`, and a React Router adapter in `@i18n-micro/react/router`. Client-side rendering only for now.
+React bindings for Nuxt I18n Micro: `createI18n`, `<I18nProvider>`, `useI18n()`, `<I18nT>`, `<I18nLink>`, `<I18nSwitcher>`, `<I18nGroup>`, and a React Router adapter in `@i18n-micro/react/router`.
 
 ```bash
 pnpm add @i18n-micro/react

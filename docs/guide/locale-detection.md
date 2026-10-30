@@ -18,7 +18,7 @@ The first source that names an **enabled** locale wins. An invalid or malformed 
 
 | # | Source | Counts when |
 | --- | --- | --- |
-| 1 | URL prefix (`/de/about`) | prefix strategies. Under `prefix_except_default` an unprefixed URL is the default locale |
+| 1 | URL prefix (`/de/about`) | prefix strategies. Under `prefix_except_default` and `prefix_and_default` an unprefixed URL is the default locale |
 | 2 | `?locale=de` | pages: `no_prefix` only. Server API helpers: always, and before the URL |
 | 3 | Locale state set by the app (`useI18nLocale().setLocale()`) | the URL has no locale |
 | 4 | Cookie | [`localeCookie`](/api/module-options#localecookie) is set (`'user-locale'` automatically under `no_prefix`) |
@@ -33,7 +33,7 @@ flowchart TB
   P -->|yes| U[Render that locale]
   P -->|no| S{Strategy}
   S -->|no_prefix| N["Render: ?locale → state → cookie → Accept-Language → default"]
-  S -->|prefix_and_default| D["Render, no redirect"]
+  S -->|prefix_and_default| D["Render the default locale, no redirect"]
   S -->|prefix / prefix_except_default| A{"autoDetectPath allows this path?"}
   A -->|yes| X["Redirect to: state → cookie → Accept-Language → default"]
   A -->|no| Y["Redirect to default locale (prefix) or render it (prefix_except_default)"]
@@ -47,12 +47,12 @@ Visitor prefers `de` (cookie or header), `defaultLocale: 'en'`, default `autoDet
 
 | Request | `prefix_except_default` | `prefix` | `prefix_and_default` | `no_prefix` |
 | --- | --- | --- | --- | --- |
-| `/` | → `/de` | → `/de` | `/`, rendered in `de` | `/`, rendered in `de` |
-| `/about` | `/about` in `en` | → `/en/about` | `/about` | `/about` in `de` |
+| `/` | → `/de` | → `/de` | `/` in `en` | `/` in `de` |
+| `/about` | `/about` in `en` | → `/en/about` | `/about` in `en` | `/about` in `de` |
 | `/fr/about` | `/fr/about` | `/fr/about` | `/fr/about` | — |
 | `/en/about` | 404 | `/en/about` | `/en/about` | — |
 
-A visitor who prefers `en` is not redirected from `/` under `prefix_except_default`. Targets have no trailing slash (`/de`, not `/de/`) and follow custom paths (`/about` → `/de/ueber-uns`).
+`prefix_and_default` never redirects: an unprefixed URL belongs to the default locale, and other locales live under their prefix. A visitor who prefers `en` is not redirected from `/` under `prefix_except_default`. Targets have no trailing slash (`/de`, not `/de/`) and follow custom paths (`/about` → `/de/ueber-uns`).
 
 ### `autoDetectPath`
 
@@ -63,7 +63,7 @@ Where the preference sources may move a visitor:
 | `'/'` (default) | `/` only. Deep links stay in the language of the URL |
 | `'no_prefix'` | every path without a locale prefix (`/about` → `/de/about`) |
 | `'/welcome'` | that exact path (a trailing slash is ignored) |
-| `'*'` | every path, prefixed ones too: `/fr/about` → `/de/about` when the visitor prefers `de` |
+| `'*'` | every path, prefixed ones too: `/about` and `/fr/about` → `/de/about` when the visitor prefers `de` |
 
 On paths it does not allow, an unprefixed URL is treated as the default locale, so `prefix` still sends `/about` to `/en/about`. With `'*'` a prefixed URL no longer records its own locale in the cookie; the cookie changes when the visitor switches with `$switchLocale`. Shared links then open in the reader's language, which can surprise; prefer `'/'` or `'no_prefix'` unless that is what you want.
 

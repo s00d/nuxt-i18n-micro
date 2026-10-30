@@ -43,10 +43,6 @@ Patterns are matched against the path without `app.baseURL`:
 
 A string without `*` or `?` matches the path and whole segments below it. With `*` (any run of characters, slashes included) or `?` (one character) it must match the whole path. Always start strings with `/`.
 
-::: warning RegExp patterns
-A `RegExp` works for route generation and prerendering, but the runtime config is serialized to JSON, so the redirect plugin and the client middleware do not see it. Prefer string patterns.
-:::
-
 ## What is excluded already
 
 These never get locale routes or redirects, without any config:

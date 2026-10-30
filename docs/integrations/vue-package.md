@@ -51,7 +51,7 @@ const i18n = createI18n({
 createApp(App).use(i18n).mount('#app')
 ```
 
-`locales` and `defaultLocale` are required for `useI18n()`: it throws `I18nLocalesKey not provided` without them. Pass them to `createI18n` (as above) or `app.provide(I18nLocalesKey, …)` and `app.provide(I18nDefaultLocaleKey, …)` yourself.
+`locales` and `defaultLocale` are required for `useI18n()`: it throws `I18nLocalesKey not provided` without them. Pass them to `createI18n` (as above), to `useI18n({ locales, defaultLocale })`, or through `app.provide(I18nLocalesKey, …)` and `app.provide(I18nDefaultLocaleKey, …)`.
 
 The plugin registers `I18nT`, `I18nLink`, `I18nGroup` and `I18nSwitcher` globally and adds `$t`, `$ts`, `$tc`, `$tn`, `$td`, `$tdr`, `$has` and `$i18n` to templates. The instance is `i18n.global` outside components. Other options are in [the instance](./#create-i18n-options); `routeMessages` is not available in Vue, use `addRouteTranslations`.
 

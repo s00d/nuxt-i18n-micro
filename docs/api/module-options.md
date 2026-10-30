@@ -118,7 +118,7 @@ Parts of the module you can switch off.
 | `vueDevtools` | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). Separate from the Nuxt DevTools custom tab. |
 | `trailingSlash` | `'append' \| 'remove'` | `undefined (inherit from Nuxt)` | Trailing slash for `$localePath` / `$switchLocalePath` (NuxtLink parity). Defaults to `experimental.defaults.nuxtLink.trailingSlash` when unset. Set explicitly to override Nuxt's link default for i18n path helpers. |
 | `localizedRouteNamePrefix` | `string` | `'localized-'` | Prefix prepended to localized route names (e.g. `'localized-index'`). Used internally to distinguish original routes from generated locale variants. |
-| `routeDisableMeta` | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted at build time from `$defineI18nRoute()` calls. Maps a route path to `true` (disable all meta) or an array of locale codes for which meta should be disabled. Build output: set `disableMeta` in the page instead. |
+| `routeDisableMeta` | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()` calls at build time are added to it. |
 | `missingWarn` | `boolean` | `true` | Show console warnings when a translation key is missing (development build, in the browser). |
 | `hmr` | `boolean` | `true` | Enable Hot Module Replacement for translation files in development. When `true`, changes to JSON translation files trigger an automatic reload without a full page refresh. |
 | `cacheMaxSize` | `number` | `0` | Maximum number of entries in the in-memory translation caches. The fetch and server caches drop the least recently used entry; the browser's dictionary map drops the oldest one (FIFO). `0` means no limit in the browser; server caches keep at most 1000 entries then, so request URLs naming made-up pages cannot grow server memory. |
@@ -249,9 +249,9 @@ Routes not listed have no restrictions (all locales allowed).
 
 **Type** `Record<string, boolean \| string[]>` · **Default** —
 
-Per-route meta tag disabling, extracted at build time from `$defineI18nRoute()` calls.
-Maps a route path to `true` (disable all meta) or an array of locale codes
-for which meta should be disabled. Build output: set `disableMeta` in the page instead.
+Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array
+of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()`
+calls at build time are added to it.
 
 <!-- /generated:option:routeDisableMeta -->
 

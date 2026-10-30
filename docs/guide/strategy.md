@@ -115,7 +115,7 @@ Signatures are in [Methods](/api/methods).
 
 ## Apps without `pages/`
 
-With `pages: false` there are no page routes to localize. Use root translation files only (`disablePageLocales: true`); detection, the cookie and `$switchLocale` still work. The `test/fixtures/pages-false` fixture in the repository is a working setup.
+With `pages: false` there are no page routes to localize. Use root translation files only (`disablePageLocales: true`); detection, the cookie and `$switchLocale` still work. The `pages-false` variant of `test/fixtures/basic` in the repository is a working setup.
 
 ## Related
 

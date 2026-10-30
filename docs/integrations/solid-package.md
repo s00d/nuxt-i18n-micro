@@ -139,7 +139,7 @@ The adapter prefixes every locale except the default (`/about`, `/de/about`), re
 
 ## SSR
 
-The package is tested in the browser only. The instance has no `destroy()`; create one instance per app (and per request if you render on the server) and let it be garbage-collected.
+For server rendering, build with `vite-plugin-solid`: the package's `solid` export condition hands it the source, so it compiles for the server. The prebuilt `dist` is for the browser only. The instance has no `destroy()`; create one per app, or one per request on the server, and let it be garbage-collected.
 
 ## API
 

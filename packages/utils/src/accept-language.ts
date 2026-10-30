@@ -65,7 +65,11 @@ function scriptOf(tag: string): string {
 }
 
 /** Same language may stand in, but never across scripts both sides name (`zh-CN` is not `zh-Hant`). */
-const sameScript = (a: string, b: string) => a === '' || b === '' || a === b
+function sameScript(script: string, code: string): boolean {
+  if (script === '') return true
+  const other = scriptOf(code)
+  return other === '' || other === script
+}
 
 /**
  * The config locale one language tag asks for: the tag itself or a shorter form of it
@@ -84,8 +88,9 @@ function matchTag(tag: string, validLocales: readonly string[], lower: readonly 
   }
   // `candidate` is the primary language now
   const regional = `${candidate}-`
-  const script = scriptOf(tag)
-  const index = lower.findIndex((code) => code.startsWith(regional) && sameScript(script, scriptOf(code)))
+  // no other language's locale can match: skip the script work
+  const script = lower.some((code) => code.startsWith(regional)) ? scriptOf(tag) : ''
+  const index = lower.findIndex((code) => code.startsWith(regional) && sameScript(script, code))
   return index === -1 ? null : validLocales[index]!
 }
 

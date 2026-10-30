@@ -71,6 +71,25 @@ describe('extractDefineI18nRouteData', () => {
     expect(extract(`const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`, 'division.vue')).toEqual({ locales: ['en'] })
   })
 
+  // A config that references script bindings runs the page script; destructuring the call
+  // from useNuxtApp() used to re-declare `$defineI18nRoute` and drop the whole config.
+  it('variable config on a page that destructures $defineI18nRoute from useNuxtApp()', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const script = [
+      "import { useNuxtApp } from '#imports'",
+      'const { $defineI18nRoute } = useNuxtApp()',
+      "const locales = ['en', 'de']",
+      "const routes = { en: '/welcome', de: '/willkommen' }",
+      '$defineI18nRoute({ locales: locales, localeRoutes: routes })',
+    ].join('\n')
+    expect(extractDefineI18nRouteData(`<script setup lang="ts">\n${script}\n</script>`, 'destructured.vue')).toEqual({
+      locales: ['en', 'de'],
+      localeRoutes: { en: '/welcome', de: '/willkommen' },
+    })
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
   describe('unresolvable config', () => {
     it('warns instead of silently dropping a config built from an import', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

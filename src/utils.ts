@@ -257,12 +257,17 @@ function evaluateConfig(scriptContent: string, configStr: string): EvalResult {
     .filter((line) => !line.trim().startsWith('import '))
     .join('\n')
 
+  // The page runs in its own block so its declarations shadow the stubs instead of
+  // clashing with them (`const { $defineI18nRoute } = useNuxtApp()` is the usual form).
   const safeScript = `
           const $defineI18nRoute = () => {}
           const defineI18nRoute = () => {}
+          const useNuxtApp = () => ({ $defineI18nRoute })
           const process = { env: { NODE_ENV: 'development' } }
+          {
           ${removeTypeScriptTypes(scriptWithoutImports)}
           return (${cleanConfigStr})
+          }
         `
 
   try {

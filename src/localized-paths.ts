@@ -30,6 +30,16 @@ export function staticPagePaths(pages: NuxtPage[], parent = '/'): string[] {
   })
 }
 
+/**
+ * With locale domains the origin of SEO tags on an unknown host comes from the request when nothing
+ * fixes it, so the `Host` a client sends reaches canonical and `hreflang`: the owner has to know.
+ */
+export function unfixedOriginWarning(locales: { code: string; baseUrl?: string }[], defaultLocale: string, metaBaseUrl?: string, siteUrl?: string) {
+  if (metaBaseUrl || siteUrl || !locales.some((locale) => locale.baseUrl)) return null
+  if (locales.find((locale) => locale.code === defaultLocale)?.baseUrl) return null
+  return 'locales[].baseUrl is set, but no public origin is fixed: an unknown host reaches canonical and hreflang from the request. Set metaBaseUrl, site.url, or a baseUrl on the default locale.'
+}
+
 const toRecord = (page: NuxtPage): RouteRecordRaw =>
   ({
     path: page.path,

@@ -62,6 +62,18 @@ describe('generate per domain', () => {
     expect(alternateOf(html, 'ru_RU')).toBe('https://example.de/ru/contact')
   })
 
+  test('a domain with no fixed public origin is reported at build; a fixed one is not', { timeout: 120_000 }, async () => {
+    const env = { ...generated.env, STRATEGY: 'prefix_except_default', DOMAINS: '/' }
+    const open = await runCommand('npx', ['nuxi', 'prepare'], { cwd: generated.fixtureDir, env: { ...env, DOMAINS_OPEN_DEFAULT: '1' } })
+    expect(open).toContain('no public origin is fixed')
+    const site = await runCommand('npx', ['nuxi', 'prepare'], {
+      cwd: generated.fixtureDir,
+      env: { ...env, DOMAINS_OPEN_DEFAULT: '1', NUXT_PUBLIC_SITE_URL: 'https://example.com' },
+    })
+    expect(site).not.toContain('no public origin is fixed')
+    expect(await runCommand('npx', ['nuxi', 'prepare'], { cwd: generated.fixtureDir, env })).not.toContain('no public origin is fixed')
+  })
+
   test('without the variable: a warning, the build config', { timeout: 300_000 }, async () => {
     const output = await generate(null, 'all')
     expect(output).toContain('NUXT_I18N_DOMAIN')

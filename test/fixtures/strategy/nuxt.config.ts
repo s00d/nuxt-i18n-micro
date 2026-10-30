@@ -25,7 +25,8 @@ const code = (short: string, region: string) => (regionCodes ? region : short)
 const domain = (host: string) =>
   process.env.DOMAINS ? { baseUrl: `https://${host}${process.env.DOMAINS.replace(/^\/$/, '')}`, baseDefault: true } : {}
 const locales = [
-  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English', ...domain('example.com') },
+  // DOMAINS_OPEN_DEFAULT: the default locale has no domain, so nothing fixes the public origin
+  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English', ...(process.env.DOMAINS_OPEN_DEFAULT ? {} : domain('example.com')) },
   { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German', ...domain('example.de') },
   { code: code('ru', 'ru-ru'), iso: 'ru_RU', displayName: 'Russian' },
   // `strategy-disabled-locale`: off at build time

@@ -54,7 +54,7 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver, type LocalizedPathResolver, staticPagePaths } from './localized-paths'
+import { createLocalizedPathResolver, type LocalizedPathResolver, staticPagePaths, unfixedOriginWarning } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
 
@@ -517,6 +517,10 @@ export default defineNuxtModule<ModuleOptions>({
         'locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.',
       )
     }
+
+    const siteUrl = (nuxt.options as { site?: { url?: string } }).site?.url || process.env.NUXT_PUBLIC_SITE_URL || process.env.NUXT_SITE_URL
+    const originWarning = buildConfig.domain ? null : unfixedOriginWarning(routeGenerator.locales, defaultLocale, options.metaBaseUrl, siteUrl)
+    if (originWarning) logger.warn(originWarning)
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
     const templates = registerI18nTemplates(

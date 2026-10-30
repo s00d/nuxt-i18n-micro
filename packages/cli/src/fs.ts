@@ -18,7 +18,7 @@ import {
 import type { Stats } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import { CliError } from './errors'
-import { type JsonObject, findDuplicateKey, findUnsafeInteger } from './json'
+import { type JsonObject, findDuplicateKey, findUnsafeInteger, hasProtoKey } from './json'
 
 const SKIPPED_DIRS = new Set(['node_modules', '.git', '.nuxt', '.output'])
 
@@ -61,6 +61,11 @@ function realTarget(path: string): string {
 
 const tempName = (path: string): string => join(dirname(path), `.${basename(path)}.${randomBytes(4).toString('hex')}.tmp`)
 
+export interface WriteOptions {
+  /** The old content does not matter: it is replaced, not edited. */
+  overwrite?: boolean
+}
+
 /** A rename needs only the directory, so it would replace a file somebody made read-only. */
 function assertWritable(target: string): void {
   try {
@@ -70,17 +75,25 @@ function assertWritable(target: string): void {
   }
 }
 
+/** The tail of `tempName`. Anything else with a similar name is somebody else's. */
+const TEMP_SUFFIX = /^[0-9a-f]{8}\.tmp$/
+
 /** What a killed run left next to `target`. */
 function clearStaleTemps(target: string): void {
   const prefix = `.${basename(target)}.`
   for (const name of readdirSync(dirname(target))) {
-    if (name.startsWith(prefix) && name.endsWith('.tmp')) rmSync(join(dirname(target), name), { force: true })
+    if (name.startsWith(prefix) && TEMP_SUFFIX.test(name.slice(prefix.length))) rmSync(join(dirname(target), name), { force: true })
   }
 }
 
-function writeTemps(files: Array<[path: string, content: string | Buffer]>): Array<[temp: string, target: string]> {
+function writeTemps(files: Array<[path: string, content: string | Buffer]>, options: WriteOptions): Array<[temp: string, target: string]> {
   const pending: Array<[temp: string, target: string]> = []
-  for (const [path] of files) assertWritable(realTarget(path))
+  for (const [path] of files) {
+    const target = realTarget(path)
+    assertWritable(target)
+    // The one place a file gets replaced, so the one place its bytes matter. Reading never stops here.
+    if (!options.overwrite && statOf(target)?.isFile()) readUtf8(target)
+  }
   try {
     for (const [path, content] of files) {
       const target = realTarget(path)
@@ -126,8 +139,8 @@ function restore(target: string, original: Buffer | null): void {
   commit(temp, target)
 }
 
-export function writeFilesAtomic(files: Array<[path: string, content: string | Buffer]>): void {
-  const pending = writeTemps(files)
+export function writeFilesAtomic(files: Array<[path: string, content: string | Buffer]>, options: WriteOptions = {}): void {
+  const pending = writeTemps(files, options)
   const originals: Array<Buffer | null> = []
   let done = 0
   try {
@@ -162,6 +175,9 @@ export function readUtf8(path: string): string {
   return text
 }
 
+/** For what is only read: a stray byte in a data file or a locale file costs nothing until a save. */
+export const readLoose = (path: string): string => readFileSync(path, 'utf8').replace(/^\uFEFF/, '')
+
 /** A BOM comes from Windows editors and Excel; `JSON.parse` stops at it. */
 export const readText = (path: string): string => readUtf8(path).replace(/^\uFEFF/, '')
 
@@ -172,7 +188,7 @@ export const readText = (path: string): string => readUtf8(path).replace(/^\uFEF
  * replace somebody's translations with `{}`.
  */
 export function readJsonObject(path: string, options: { private?: boolean } = {}): JsonObject {
-  const content = readText(path)
+  const content = readLoose(path)
   if (content.trim() === '') return {}
   let parsed: unknown
   try {
@@ -187,6 +203,9 @@ export function readJsonObject(path: string, options: { private?: boolean } = {}
   }
   const duplicate = findDuplicateKey(content)
   if (duplicate !== null) throw new CliError(`Duplicate key in ${path}: ${duplicate}`, { code: 'INVALID_JSON' })
+  if (content.includes('"__proto__"') && hasProtoKey(parsed as JsonObject)) {
+    throw new CliError(`A key called __proto__ in ${path} would be lost on a save.`, { code: 'INVALID_JSON' })
+  }
   const unsafe = findUnsafeInteger(parsed as JsonObject)
   if (unsafe !== null)
     throw new CliError(`Integer too large in ${path}: ${unsafe}. A save would change it; store it as a string.`, { code: 'INVALID_JSON' })

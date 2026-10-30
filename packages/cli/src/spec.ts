@@ -286,7 +286,7 @@ export const commands: Record<string, CommandSpec> = {
       ...projectArgs,
       format: { type: 'string', description: 'File format', values: ['po', 'csv'], default: 'po' },
       dir: { type: 'string', description: 'Output directory, relative to the project', defaultHint: '`pots` for po, `csv_exports` for csv' },
-      force: { type: 'boolean', description: 'Overwrite translations in the output that were never imported', default: false },
+      force: { type: 'boolean', description: 'Overwrite files changed since the last export and never imported', default: false },
     },
     examples: ['i18n-micro export --format csv'],
     load: () => import('./commands/export'),

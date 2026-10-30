@@ -11,6 +11,15 @@ export function addSecret(value: string | undefined): void {
   secrets.add(encodeURIComponent(value))
 }
 
+/** A URL somebody typed: what is after its path and before its host can be a key, whatever a server echoes back. */
+export function addUrlSecrets(url: string | undefined): void {
+  if (!url) return
+  const [address, ...tail] = url.split(/[?#;&]/)
+  for (const pair of tail) addSecret(pair.slice(pair.indexOf('=') + 1))
+  const credentials = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(.*)@/i.exec(address!)?.[1]
+  for (const part of credentials?.split(':') ?? []) addSecret(part)
+}
+
 const URL_CREDENTIALS = /(\/\/)[^/@\s]+@/g
 
 const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text).replace(URL_CREDENTIALS, '$1***@')

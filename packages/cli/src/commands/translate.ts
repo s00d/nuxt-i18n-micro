@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { findingsError, notFoundError, usageError } from '../errors'
 import { splitList } from '../fs'
 import { type Glossary, glossaryContext, loadGlossary } from '../glossary'
-import { addSecret, ask, choose, log } from '../log'
+import { addSecret, addUrlSecrets, ask, choose, log } from '../log'
 import { GLOBAL_SCOPE, type LocaleSet, Project } from '../project'
 import { drivers } from '../translate/drivers'
 import { type EngineOptions, parseOptions, resolveDriver, translateItems } from '../translate/engine'
@@ -92,10 +92,12 @@ export default async function run(args: TranslateArgs): Promise<void> {
   const token = await resolveToken(args, Boolean(driver.keyOptional))
   addSecret(token)
   const glossary = resolveGlossary(args, rootDir)
+  const options = parseOptions(args.options)
+  addUrlSecrets(options.baseUrl)
   const config: EngineOptions = {
     service,
     token,
-    options: parseOptions(args.options),
+    options,
     chunkSize: args.chunkSize,
     pluralSeparator: args.pluralSeparator,
   }

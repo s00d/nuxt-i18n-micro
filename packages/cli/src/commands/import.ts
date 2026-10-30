@@ -38,7 +38,8 @@ function readPo(project: Project, dir: string): Entry[] {
       return []
     }
     const { messages, fuzzy } = parsePo(readText(file))
-    if (fuzzy.length > 0) log.warn(`Skipping ${fuzzy.length} fuzzy entries in ${file}: ${fuzzy.join(', ')}`)
+    const guesses = Object.keys(fuzzy)
+    if (guesses.length > 0) log.warn(`Skipping ${guesses.length} fuzzy entries in ${file}: ${guesses.join(', ')}`)
     const scope = poScope(file, dir)
     return Object.entries(messages).map(([key, value]) => ({ code, scope, key, value }))
   })

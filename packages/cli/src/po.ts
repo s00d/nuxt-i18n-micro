@@ -32,8 +32,8 @@ interface PoEntry {
 
 export interface PoCatalog {
   messages: Record<string, string>
-  /** Marked fuzzy: a machine's guess nobody confirmed, not a translation. */
-  fuzzy: string[]
+  /** Marked fuzzy: a guess nobody confirmed, not a translation. A translator's work all the same. */
+  fuzzy: Record<string, string>
 }
 
 const QUOTED = /^"((?:[^"\\]|\\.)*)"$/
@@ -45,12 +45,12 @@ function finish(entry: PoEntry, catalog: PoCatalog): void {
   if (entry.msgid === '') return
   const key = entry.msgctxt ? `${entry.msgctxt}.${entry.msgid}` : entry.msgid
   // The runtime keeps plural forms in one string.
-  if (entry.fuzzy) catalog.fuzzy.push(key)
-  else catalog.messages[key] = entry.forms.every((form) => form === '') ? '' : entry.forms.join('|')
+  const value = entry.forms.every((form) => form === '') ? '' : entry.forms.join('|')
+  ;(entry.fuzzy ? catalog.fuzzy : catalog.messages)[key] = value
 }
 
 export function parsePo(content: string): PoCatalog {
-  const catalog: PoCatalog = { messages: {}, fuzzy: [] }
+  const catalog: PoCatalog = { messages: {}, fuzzy: {} }
   let entry = emptyEntry()
   let write: ((text: string) => void) | null = null
   let inTranslation = false

@@ -1,5 +1,6 @@
 import { findingsError } from '../errors'
 import { splitList } from '../fs'
+import { getPath } from '../json'
 import { log } from '../log'
 import { type LocaleSet, Project, relativeFile } from '../project'
 import { scanProject, usageIndex } from '../source'
@@ -50,11 +51,14 @@ export default async function run(args: SyncArgs): Promise<void> {
   const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
   const isUsed = usageIndex(scan)
 
-  const extras = project.targetCodes.flatMap((code) => extraKeys(reference, project.locale(code)).map((extra) => ({ ...extra, code })))
+  const extras = project.targetCodes.flatMap((code) => extraKeys(reference, project.locale(code)).map(({ scope, key }) => ({ code, scope, key })))
   for (const { code, scope, key } of extras.filter((extra) => isUsed(extra.key))) {
     log.warn(`Keeping ${key} in ${relativeFile(code, scope)}: the code uses it, but ${project.config.defaultLocale} has no text for it.`)
   }
-  const removable = extras.filter((extra) => !isUsed(extra.key))
+  // A layer's key stays where it is: this command does not edit layers, and must not say it did.
+  const inLayer = ({ code, scope, key }: ExtraKey & { code: string }): boolean =>
+    getPath(project.locale(code).inheritedTree(scope), key) !== undefined
+  const removable = extras.filter((extra) => !isUsed(extra.key) && !inLayer(extra))
 
   const doubts = removable.length === 0 ? [] : [...overridden(project), ...missingReferences(project, removable), ...deletionDoubts(project, scan)]
   for (const doubt of doubts) log.warn(doubt)

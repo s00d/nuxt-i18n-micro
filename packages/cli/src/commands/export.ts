@@ -1,8 +1,9 @@
+import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import { parseCsv, stringifyCsv } from '../csv'
 import { findingsError } from '../errors'
-import { readText, writeFilesAtomic } from '../fs'
+import { readJsonIfExists, readLoose, stringifyJson, writeFilesAtomic } from '../fs'
 import { log } from '../log'
 import { type PoMessage, compilePo, parsePo } from '../po'
 import { Project, relativeFile } from '../project'
@@ -45,19 +46,37 @@ function csvRows(project: Project, code: string): string[][] {
 const csvFiles = (project: Project, dir: string): Array<[string, string]> =>
   project.codes.map((code) => [join(dir, `${code}.csv`), stringifyCsv(csvRows(project, code))])
 
-/** Translations in a catalog, by key. `null`: not a file this command wrote. */
+/** What the last export wrote, by file: the one way to tell a translator's edit from a changed locale file. */
+const MANIFEST = '.i18n-export.json'
+
+const digest = (text: string): string => createHash('sha256').update(text).digest('hex')
+
+function readManifest(dir: string): Record<string, unknown> {
+  try {
+    return readJsonIfExists(join(dir, MANIFEST))
+  } catch {
+    return {}
+  }
+}
+
+/** Translations in a catalog by key, unconfirmed ones too. `null`: not a file this command wrote. */
 function catalogOf(text: string, format: string): Map<string, string> | null {
-  if (format === 'po') return new Map(Object.entries(parsePo(text).messages))
+  if (format === 'po') {
+    const { messages, fuzzy } = parsePo(text)
+    return new Map(Object.entries({ ...messages, ...fuzzy }))
+  }
   const [header, ...rows] = parseCsv(text)
   const [file, key, translation] = ['File', 'Key', 'Translation'].map((name) => header?.indexOf(name) ?? -1)
   if (file === -1 || key === -1 || translation === -1) return null
   return new Map(rows.map((row) => [`${row[file!]} ${row[key!]}`, row[translation!] ?? '']))
 }
 
-/** A translator's work that has not been imported yet: this run would write over it. */
-function holdsUnimportedWork(path: string, next: string, format: string): boolean {
+/** A translator's work this run would write over: the file changed since the last export, and not by an import. */
+function holdsUnimportedWork(path: string, next: string, format: string, recorded: unknown): boolean {
   if (!existsSync(path)) return false
-  const before = catalogOf(readText(path), format)
+  const text = readLoose(path)
+  if (digest(text) === recorded) return false
+  const before = catalogOf(text, format)
   const after = catalogOf(next, format)
   return !before || [...before].some(([key, value]) => value !== '' && value !== after?.get(key))
 }
@@ -66,11 +85,19 @@ export default async function run(args: ExportArgs): Promise<void> {
   const project = await Project.load(args)
   const dir = resolve(project.config.rootDir, args.dir ?? defaultExchangeDir(args.format))
   const files = args.format === 'csv' ? csvFiles(project, dir) : poFiles(project, dir)
-  const edited = files.filter(([path, text]) => holdsUnimportedWork(path, text, args.format)).map(([path]) => relative(project.config.rootDir, path))
+  const manifest = readManifest(dir)
+  const nameOf = (path: string): string => relative(dir, path).split(sep).join('/')
+
+  const edited = files.filter(([path, text]) => holdsUnimportedWork(path, text, args.format, manifest[nameOf(path)]))
   if (edited.length > 0 && !args.force) {
-    log.list('Holds translations that are not in the locale files', edited)
+    log.list(
+      'Changed since the last export, and not imported',
+      edited.map(([path]) => relative(project.config.rootDir, path)),
+    )
     throw findingsError('Nothing was exported.', ['Import them first, or overwrite with --force.'])
   }
-  writeFilesAtomic(files)
+
+  const written = Object.fromEntries(files.map(([path, text]) => [nameOf(path), digest(text)]))
+  writeFilesAtomic([...files, [join(dir, MANIFEST), stringifyJson({ ...manifest, ...written })]], { overwrite: true })
   log.success(`Exported ${files.length} ${args.format.toUpperCase()} files to ${dir}`)
 }

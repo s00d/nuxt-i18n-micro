@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
-import { readJsonIfExists, readUtf8, splitList, stringifyLike, walkFiles, writeFilesAtomic } from '../fs'
+import { readJsonIfExists, readUtf8, splitList, stringifyLike, writeFilesAtomic } from '../fs'
 import { type JsonObject, flattenStrings, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
@@ -33,13 +33,13 @@ function ownFiles(config: ProjectConfig, files: string[]): string[] {
 }
 
 function filesToProcess(config: ProjectConfig, args: TextToI18nArgs): string[] {
-  if (!args.path) {
-    const files = projectFiles(config, { ignore: splitList(args.ignore) })
-    return files.filter((file) => isCodeFile(file) && !isTestFile(config, file) && !/\bnuxt\.config\.\w+$/.test(file))
-  }
+  const scanned = projectFiles(config, { ignore: splitList(args.ignore) })
+  const sources = scanned.filter((file) => isCodeFile(file) && !isTestFile(config, file) && !/\bnuxt\.config\.\w+$/.test(file))
+  if (!args.path) return sources
   const target = resolve(config.rootDir, args.path)
   if (!existsSync(target)) throw notFoundError(`Path does not exist: ${target}`)
-  if (statSync(target).isDirectory()) return walkFiles(target, isCodeFile)
+  // A folder narrows the same walk: `--path .` must not reach build output and tests.
+  if (statSync(target).isDirectory()) return sources.filter((file) => !relative(target, file).startsWith('..'))
   if (!isCodeFile(target)) throw validationError(`Unsupported file type: ${target}`, ['Supported: .vue, .js, .ts, .jsx, .tsx'])
   return [target]
 }

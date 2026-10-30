@@ -11,7 +11,7 @@ const RETRYABLE = new Set([408, 429, 500, 502, 503, 504])
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** What a URL may show in an error: query strings carry API keys (`?key=`). */
-const safeUrl = (url: string): string => url.split('?')[0]!.replace(/\/\/[^/@]*@/, '//')
+const safeUrl = (url: string): string => url.split(/[?#;]/)[0]!.replace(/^([a-z][a-z0-9+.-]*:\/\/)?.*@/i, '$1')
 
 function messageFromBody(body: string): string {
   try {

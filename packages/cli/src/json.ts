@@ -69,7 +69,7 @@ export function pathConflict(tree: JsonObject, path: string): string | null {
 
 /** What can go between quotes in a template and a script, and be stored. */
 export const isWritableKey = (key: string): boolean =>
-  !/['"`\\\r\n]|\}\}/.test(key) && key.split('.').every((segment) => segment !== '' && segment !== '__proto__')
+  !/['"`\\\r\n]|\}\}|\$\{|&#?\w+;/.test(key) && key.split('.').every((segment) => segment !== '' && segment !== '__proto__')
 
 export function setPath(tree: JsonObject, path: string, value: JsonValue): void {
   const found = locate(tree, path)
@@ -101,7 +101,8 @@ export function deletePath(tree: JsonObject, path: string): boolean {
   return false
 }
 
-const JSON_TOKEN = /"(?:[^"\\]|\\.)*"|[{}[\]:]/g
+/** The string is unrolled: an alternation in a loop overflows the regexp stack on a value of megabytes. */
+const JSON_TOKEN = /"[^"\\]*(?:\\.[^"\\]*)*"|[{}[\]:]/g
 
 /** The first key an object repeats. `JSON.parse` keeps the last and says nothing, and a save would lose the other. */
 export function findDuplicateKey(text: string): string | null {
@@ -111,11 +112,17 @@ export function findDuplicateKey(text: string): string | null {
     if (token === '{') stack.push(new Set())
     else if (token === '[') stack.push(null)
     else if (token === '}' || token === ']') stack.pop()
-    else if (token !== ':') lastString = token
-    else if (stack.at(-1)?.has(lastString)) return JSON.parse(lastString) as string
+    else if (token !== ':') lastString = token.includes('\\') ? (JSON.parse(token) as string) : token.slice(1, -1)
+    else if (stack.at(-1)?.has(lastString)) return lastString
     else stack.at(-1)?.add(lastString)
   }
   return null
+}
+
+/** The merge and the writers skip this key, so it would vanish on a save. */
+export function hasProtoKey(value: JsonValue): boolean {
+  if (typeof value !== 'object' || value === null) return false
+  return Object.hasOwn(value, '__proto__') || Object.values(value).some(hasProtoKey)
 }
 
 /** The path of an integer `JSON.parse` could not hold exactly. */

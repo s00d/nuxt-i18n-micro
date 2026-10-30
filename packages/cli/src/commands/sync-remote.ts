@@ -4,7 +4,7 @@ import { findingsError, remoteConfigError } from '../errors'
 import { readJsonObject } from '../fs'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
 import { type JsonObject, type JsonValue, flatten, isObject, pathConflict, setPath } from '../json'
-import { addSecret, log } from '../log'
+import { addSecret, addUrlSecrets, log } from '../log'
 import { Project } from '../project'
 
 export interface SyncRemoteArgs {
@@ -40,13 +40,15 @@ function loadConfig(rootDir: string): RemoteConfig {
   const token = config.token ?? process.env.I18N_REMOTE_TOKEN
   addSecret(token)
   addSecret(config.auth?.password)
+  addUrlSecrets(config.url)
   return { ...config, token }
 }
 
 function requestOptions(config: RemoteConfig): RequestOptions {
   const { username, password } = config.auth ?? {}
-  const basic = username ? `Basic ${Buffer.from(`${username}:${password ?? ''}`).toString('base64')}` : undefined
-  const authorization = basic ?? (config.token ? `Bearer ${config.token}` : undefined)
+  const encoded = username ? Buffer.from(`${username}:${password ?? ''}`).toString('base64') : undefined
+  addSecret(encoded)
+  const authorization = encoded ? `Basic ${encoded}` : config.token ? `Bearer ${config.token}` : undefined
   addSecret(authorization)
   return { headers: authorization ? { Authorization: authorization } : {} }
 }

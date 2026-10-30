@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, extname, relative, sep } from 'node:path'
 import { babelParse, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { globToRegExp, readText, walkFiles } from './fs'
+import { globToRegExp, readLoose, walkFiles } from './fs'
 import type { ProjectConfig } from './nuxt'
 
 const CODE_EXTENSIONS = new Set(['.vue', '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs', '.mts', '.cts'])
@@ -14,6 +14,10 @@ const OUTPUT_DIRS = new Set(['dist', 'coverage'])
 const SKIPPED_DATA = /^(package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig.*\.json)$/
 /** Test code by location, relative to the project root. `pages/tests/` is a route. */
 const TEST_DIR = /^(tests?|__tests__|e2e|cypress|playwright)\//
+/** Served as it is, never compiled into the app. */
+const PUBLIC_DIR = /^public\//
+/** Built by a tool, wherever it sits. Here a bare `t(e)` is a minified name, not a guess worth stopping for. */
+const GENERATED_PATH = /(^|\/)(dist|\.vitepress|storybook-static)\//
 /** Test code by name. Only code: `Latest.spec.vue` renders. */
 const TEST_NAME = /\.(test|spec)\.[cm]?[jt]sx?$/
 export const NODE_TYPES = { ELEMENT: 1, TEXT: 2, COMMENT: 3, INTERPOLATION: 5, ATTRIBUTE: 6, DIRECTIVE: 7 }
@@ -69,6 +73,8 @@ export interface DynamicKey {
   prefix: string
   /** `<i18n-group prefix>`: a known prefix, not a key computed at runtime. */
   group?: boolean
+  /** A function that may not translate at all. Build output is full of them. */
+  guess?: boolean
 }
 
 export interface FileScan {
@@ -84,6 +90,10 @@ export interface FileScan {
 
 interface Names {
   families: Map<string, Family>
+  /** Functions this file defines: if one wraps the real `t`, the call inside it is the doubt. */
+  locals: Set<string>
+  /** A `t` taken from something that is not known to be i18n, under another name. */
+  unknown: Set<string>
   /** Names that hold the function itself: used as a value, the keys it receives cannot be seen. */
   values: Set<string>
   /** `const i18n = useI18n()`. */
@@ -139,6 +149,7 @@ function objectName(callee: AstNode | undefined): string {
 const isI18nObject = (name: string, names: Names): boolean => /i18n$/i.test(name) || names.objects.has(name) || I18N_SOURCES.has(name)
 
 function familyOf(callee: AstNode | undefined, names: Names): Family | null {
+  if (isServerT(callee)) return 'key'
   if (callee?.type === 'Identifier') return names.families.get(callee.name as string) ?? null
   if (callee?.type === 'CallExpression' || callee?.type === 'OptionalCallExpression') {
     return familyOf(asNode(callee.callee), names) === 'bound' ? 'key' : null
@@ -178,14 +189,49 @@ function addAlias(local: AstNode | undefined, original: string, names: Names): v
   names.values.add(target.name as string)
 }
 
+const keyName = (prop: AstNode): string => String(asNode(prop.key)?.name ?? asNode(prop.key)?.value ?? '')
+
+function readObjectPattern(pattern: AstNode, init: AstNode | undefined, names: Names): void {
+  const fromI18n = isI18nSource(init, names)
+  for (const prop of pattern.properties as AstNode[]) {
+    if (prop.type === 'RestElement' && fromI18n) names.objects.add(asNode(prop.argument)?.name as string)
+    if (prop.type === 'RestElement') continue
+    const original = keyName(prop)
+    const local = asNode(prop.value)
+    if (fromI18n) addAlias(local, original, names)
+    else if (API_NAMES.get(original) === 'key' && local?.type === 'Identifier') names.unknown.add(local.name as string)
+  }
+}
+
+const FUNCTION_NODES = new Set(['ArrowFunctionExpression', 'FunctionExpression'])
+
+/** `const [tr] = await Promise.all([useTranslationServerMiddleware(event)])`. */
+function holdsServerT(node: AstNode | undefined): boolean {
+  let found = false
+  walk(node as unknown as Parameters<typeof walk>[0], {
+    enter(raw: unknown) {
+      found ||= isServerT(raw as unknown as AstNode)
+    },
+  })
+  return found
+}
+
 function readDeclarator(node: AstNode, names: Names): void {
   const id = asNode(node.id)
   const init = asNode(node.init)
-  if (id?.type === 'ObjectPattern' && isI18nSource(init, names)) {
-    for (const prop of id.properties as AstNode[]) addAlias(asNode(prop.value), asNode(prop.key)?.name as string, names)
+  if (id?.type === 'ObjectPattern') {
+    readObjectPattern(id, init, names)
+    return
+  }
+  if (id?.type === 'ArrayPattern' && init && holdsServerT(init)) {
+    for (const element of id.elements as AstNode[]) addAlias(element ?? undefined, 't', names)
     return
   }
   if (id?.type !== 'Identifier') return
+  if (FUNCTION_NODES.has(init?.type ?? '')) {
+    names.locals.add(id.name as string)
+    return
+  }
   if (isServerT(init)) {
     addAlias(id, 't', names)
     return
@@ -207,6 +253,8 @@ function readNames(ast: unknown, names: Names): void {
       const node = raw as unknown as AstNode
       if (node.type === 'VariableDeclarator') readDeclarator(node, names)
       if (node.type === 'CallExpression') readServerThen(node, names)
+      if (node.type === 'AssignmentExpression') readDeclarator({ type: node.type, id: node.left, init: node.right }, names)
+      if (node.type === 'FunctionDeclaration') names.locals.add(asNode(node.id)?.name as string)
     },
   })
 }
@@ -215,6 +263,8 @@ function newNames(content: string): Names {
   const bare = /useI18n|useTranslationServerMiddleware|i18n-?group/i.test(content)
   return {
     families: new Map([...DOLLAR_NAMES, ...(bare ? BARE_NAMES : [])]),
+    locals: new Set(),
+    unknown: new Set(),
     values: new Set(DOLLAR_NAMES.map(([name]) => name)),
     objects: new Set(),
   }
@@ -272,15 +322,37 @@ function addLiteral(text: string, scan: FileScan, location: string): void {
 
 const NOT_A_GUARD = { guard: false }
 
-function addOpaque(expression: string, node: AstNode, context: Context): void {
+function addOpaque(expression: string, node: AstNode, context: Context, guess = false): void {
   const { base, content, file, scan } = context
-  scan.dynamic.push({ file, line: lineOf(content, base + node.start!), expression, prefix: '' })
+  scan.dynamic.push({ file, line: lineOf(content, base + node.start!), expression, prefix: '', guess })
+}
+
+/** `I18nT`, `i18n-t`, and the `Lazy` form Nuxt registers for every component. */
+const isTranslationTag = (tag: string): boolean => /^(lazy-?)?i18n-?(t|group)$/i.test(tag)
+const isKeyTag = (tag: string): boolean => /^(lazy-?)?i18n-?t$/i.test(tag)
+const isGroupTag = (tag: string): boolean => /^(lazy-?)?i18n-?group$/i.test(tag)
+
+const RENDER_FUNCTIONS = new Set(['h', 'createVNode'])
+
+function componentName(node: AstNode | undefined): string {
+  if (node?.type === 'CallExpression') return staticString((node.arguments as AstNode[])[0]) ?? ''
+  return String(node?.name ?? staticString(node) ?? '')
+}
+
+/** `h(I18nT, props)`: the key is in an object this code does not spell out. */
+function visitRender(node: AstNode, context: Context): void {
+  if (!RENDER_FUNCTIONS.has(asNode(node.callee)?.name as string)) return
+  const [component, props] = node.arguments as AstNode[]
+  const name = componentName(component)
+  if (!isTranslationTag(name) || !props) return
+  const spelled = props.type === 'ObjectExpression' && !(props.properties as AstNode[]).some((prop) => prop.type === 'SpreadElement')
+  if (!spelled) addOpaque(`h(${name}, ...)`, props, context)
 }
 
 /** `<i18n-t keypath={x} />` and `<i18n-t {...x} />` in JSX. */
 function visitJsx(node: AstNode, context: Context): void {
   const tag = String(asNode(node.name)?.name ?? '')
-  if (!/^i18n-?(t|group)$/i.test(tag)) return
+  if (!isTranslationTag(tag)) return
   const attributes = node.attributes as AstNode[]
   for (const attribute of attributes) {
     if (attribute.type === 'JSXSpreadAttribute') addOpaque(`<${tag} {...}>`, attribute, context)
@@ -294,16 +366,18 @@ function visitJsx(node: AstNode, context: Context): void {
 
 /** A `keypath` in an object is a key on its way to `<i18n-t>`: `h(I18nT, { keypath })`, `v-bind="{ keypath }"`. */
 function visitProperty(node: AstNode, context: Context): void {
-  if (asNode(node.key)?.name === 'keypath' && !node.computed) addArgument(asNode(node.value), context, NOT_A_GUARD, false)
+  if (keyName(node) === 'keypath' && !node.computed) addArgument(asNode(node.value), context, NOT_A_GUARD, false)
 }
 
-/** `t(name)` with `t` from who knows where: a wrapper composable, most likely. It may be a translation. */
+/** `t(name)` with `t` from a parameter, an import or a call: a wrapper composable, most likely. It may be a translation. */
 const BARE_KEY_CALL = new Set(BARE_NAMES.filter(([, family]) => family === 'key').map(([name]) => name))
 
 function visitUnknownCall(callee: AstNode | undefined, argument: AstNode | undefined, context: Context): void {
   const target = unwrap(argument)
-  if (callee?.type !== 'Identifier' || !BARE_KEY_CALL.has(callee.name as string) || !target || staticString(target) !== null) return
-  addOpaque(`${callee.name as string}(...) of unknown origin`, target, context)
+  if (callee?.type !== 'Identifier' || !target || staticString(target) !== null) return
+  const name = callee.name as string
+  const candidate = BARE_KEY_CALL.has(name) || context.names.unknown.has(name)
+  if (candidate && !context.names.locals.has(name)) addOpaque(`${name}(...) of unknown origin`, target, context, true)
 }
 
 function visitCall(node: AstNode, context: Context): void {
@@ -316,9 +390,13 @@ function visitCall(node: AstNode, context: Context): void {
   addArgument(key, context, { guard: family === 'guard', defaultText: staticString(fallback) ?? undefined }, inGroup)
 }
 
+/** `$t.call(null, k)`: the function itself, handed to something else. */
+const FUNCTION_METHODS = new Set(['call', 'apply', 'bind'])
+
 /** Where a name only stands for itself: a declaration, a parameter, a property, a type. */
 function isValueUse(parent: AstNode | null, key: unknown, declared: WeakSet<object>, node: AstNode): boolean {
-  if (!parent || declared.has(node) || key === 'callee' || key === 'params' || key === 'object' || key === 'id') return false
+  if (key === 'object' && parent) return FUNCTION_METHODS.has(propertyName(parent) ?? '')
+  if (!parent || declared.has(node) || key === 'callee' || key === 'params' || key === 'id') return false
   if ((key === 'key' || key === 'property') && !parent.computed) return false
   if (parent.type.startsWith('Import') || parent.type.startsWith('Export')) return false
   if (parent.type === 'UnaryExpression' && parent.operator === 'typeof') return false
@@ -339,6 +417,7 @@ function visitNode(node: AstNode, parent: AstNode | null, key: unknown, context:
   if (node.type === 'VariableDeclarator') declare(asNode(node.id), declared)
   if (Array.isArray(node.params)) for (const param of node.params as AstNode[]) declare(param, declared)
   if (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') visitCall(node, context)
+  if (node.type === 'CallExpression') visitRender(node, context)
   if (node.type === 'JSXOpeningElement') visitJsx(node, context)
   if (node.type === 'ObjectProperty') visitProperty(node, context)
   const literal = staticString(node)
@@ -448,8 +527,8 @@ function addGroupPrefix(prop: TemplateProp, tag: string, context: Context): void
 
 function readAttribute(prop: TemplateProp, tag: string, context: Context): void {
   if (!prop.value) return
-  if (prop.name === 'keypath' && /^i18n-?t$/i.test(tag)) addKeypathAttribute(prop, context)
-  else if (prop.name === 'prefix' && /^i18n-?group$/i.test(tag)) addGroupPrefix(prop, tag, context)
+  if (prop.name === 'keypath' && isKeyTag(tag)) addKeypathAttribute(prop, context)
+  else if (prop.name === 'prefix' && isGroupTag(tag)) addGroupPrefix(prop, tag, context)
   else addLiteral(prop.value.content, context.scan, `${context.file}:${lineOf(context.content, prop.value.loc.start.offset)}`)
 }
 
@@ -469,7 +548,7 @@ function readSlotNames(expression: string, group: Group): void {
 
 /** `<i18n-t :keypath />` and `<i18n-t v-bind="p" />`: the key is somewhere the template does not show. */
 function readHiddenKey(prop: TemplateProp, tag: string, context: Context): void {
-  const translates = /^i18n-?(t|group)$/i.test(tag)
+  const translates = isTranslationTag(tag)
   const target = prop.arg?.content
   const hidden = prop.name === 'bind' && (target === undefined || (!prop.exp?.content && (target === 'keypath' || target === 'prefix')))
   if (!translates || !hidden) return
@@ -488,21 +567,29 @@ function readDirective(prop: TemplateProp, tag: string, context: Context): void 
     return
   }
   const argument = prop.arg?.content
-  if (argument === 'keypath' && /^i18n-?t$/i.test(tag)) {
+  if (argument === 'keypath' && isKeyTag(tag)) {
     const ast = parseCode(`$t(${expression.content}\n)`)
     if (ast) visitCode(ast, { ...context, base: start - 3 })
     else unproven(context, expression.content, start, `unparsed :keypath at line ${lineOf(context.content, start)}`)
     return
   }
-  if (argument === 'prefix' && /^i18n-?group$/i.test(tag)) {
+  if (argument === 'prefix' && isGroupTag(tag)) {
     const line = lineOf(context.content, start)
     context.scan.dynamic.push({ file: context.file, line, expression: expression.content, prefix: '' })
   }
   scanExpression(expression.content, start, context)
 }
 
+/** `<component :is="'i18n-t'">` is an `<i18n-t>`, and so is a dynamic `is` that gets a `keypath`. */
+function tagOf(node: TemplateElement): string {
+  if (node.tag !== 'component') return node.tag ?? ''
+  const is = node.props?.find((prop) => prop.name === 'is' || prop.arg?.content === 'is')
+  const named = (is?.value?.content ?? is?.exp?.content ?? '').replace(/^['"`]|['"`]$/g, '')
+  return node.props?.some((prop) => prop.name === 'keypath' || prop.arg?.content === 'keypath') ? 'i18n-t' : named
+}
+
 function groupOf(node: TemplateElement, context: Context): Context {
-  if (!/^i18n-?group$/i.test(node.tag ?? '')) return context
+  if (!isGroupTag(tagOf(node))) return context
   const prefix = node.props?.find((prop) => prop.type === NODE_TYPES.ATTRIBUTE && prop.name === 'prefix')?.value?.content
   return prefix ? { ...context, group: { prefix, names: new Set() } } : context
 }
@@ -512,8 +599,8 @@ function visitTemplate(node: TemplateElement, outer: Context): void {
   const context = node.type === NODE_TYPES.ELEMENT ? groupOf(node, outer) : outer
   if (node.type === NODE_TYPES.ELEMENT) {
     for (const prop of node.props ?? []) {
-      if (prop.type === NODE_TYPES.ATTRIBUTE) readAttribute(prop, node.tag ?? '', context)
-      if (prop.type === NODE_TYPES.DIRECTIVE) readDirective(prop, node.tag ?? '', context)
+      if (prop.type === NODE_TYPES.ATTRIBUTE) readAttribute(prop, tagOf(node), context)
+      if (prop.type === NODE_TYPES.DIRECTIVE) readDirective(prop, tagOf(node), context)
     }
   }
   for (const child of node.children ?? []) visitTemplate(child, context)
@@ -594,6 +681,7 @@ export interface ProjectScan {
   prefixes: Set<string>
   /** Words of JSON and YAML files: keys can live in data that code feeds to `$t`. */
   dataTokens: Set<string>
+  dataFiles: string[]
   unproven: Array<{ file: string; reason: string }>
   files: number
 }
@@ -605,8 +693,12 @@ export interface ScanOptions {
 
 const DATA_TOKEN = /[\p{L}\p{N}_$-]+(?:\.[\p{L}\p{N}_$-]+)*/gu
 
+/** Evidence only, never saved: a stray byte in a notes file must not stop anything. */
+export const dataTokensOf = (path: string): string[] => Array.from(readLoose(path).matchAll(DATA_TOKEN), (match) => match[0])
+
 function collectData(path: string, scan: ProjectScan): void {
-  for (const match of readText(path).matchAll(DATA_TOKEN)) scan.dataTokens.add(match[0])
+  scan.dataFiles.push(path)
+  for (const token of dataTokensOf(path)) scan.dataTokens.add(token)
 }
 
 /** Everything of the project a key can hide in, once each, whatever folder it lives in. */
@@ -639,6 +731,14 @@ const inTestDir = (config: ProjectConfig, file: string): boolean => TEST_DIR.tes
 
 export const isTestFile = (config: ProjectConfig, file: string): boolean => inTestDir(config, file) || TEST_NAME.test(file)
 
+const AVERAGE_LINE_OF_A_BUNDLE = 1000
+
+const isMinified = (file: string, content: string): boolean =>
+  /\.min\.[cm]?js$/.test(file) || content.length / content.split('\n').length > AVERAGE_LINE_OF_A_BUNDLE
+
+const isServedAsIs = (config: ProjectConfig, file: string, content: string): boolean =>
+  [config.rootDir, config.srcDir].some((root) => PUBLIC_DIR.test(relative(root, file).split(sep).join('/'))) || isMinified(file, content)
+
 function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   const content = readFileSync(file, 'utf8')
   const found = scanFile(content, file)
@@ -649,9 +749,10 @@ function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   for (const [text, locations] of found.literals) out.literals.set(text, [...(out.literals.get(text) ?? []), ...locations])
   for (const prefix of found.prefixes) out.prefixes.add(prefix)
   out.files += 1
-  // A broken fixture says nothing about what the app reads. Anywhere else, a doubt counts.
-  if (!page && inTestDir(config, file)) return
-  out.dynamic.push(...found.dynamic)
+  // A broken fixture, a vendor script or a bundle says nothing about what the app reads. Anywhere else, a doubt counts.
+  if (!page && (inTestDir(config, file) || isServedAsIs(config, file, content))) return
+  const generated = !page && GENERATED_PATH.test(relative(config.rootDir, file).split(sep).join('/'))
+  out.dynamic.push(...found.dynamic.filter((entry) => !(generated && entry.guess)))
   for (const reason of found.unproven) out.unproven.push({ file, reason })
 }
 
@@ -661,13 +762,25 @@ function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
  */
 export function isOwnSource(config: ProjectConfig, file: string): boolean {
   const real = realpathSync(file)
-  const inside = (root: string): boolean => !relative(realpathSync(root), real).startsWith('..')
-  const layers = config.layerRoots.filter((root) => root !== config.rootDir && existsSync(root))
-  return inside(config.rootDir) && !real.includes('/node_modules/') && !layers.some(inside)
+  const under = (dir: string, path: string): boolean => !relative(dir, path).startsWith('..')
+  const project = realpathSync(config.rootDir)
+  // Only a layer inside the project is a separate thing here: `extends: ['..']` has the app inside the layer.
+  const layers = config.layerRoots.filter((root) => existsSync(root)).map((root) => realpathSync(root))
+  const nested = layers.filter((root) => root !== project && under(project, root))
+  return under(project, real) && !real.slice(project.length).includes('/node_modules/') && !nested.some((root) => under(root, real))
 }
 
 export function scanProject(config: ProjectConfig, options: ScanOptions = {}): ProjectScan {
-  const out: ProjectScan = { refs: [], dynamic: [], literals: new Map(), prefixes: new Set(), dataTokens: new Set(), unproven: [], files: 0 }
+  const out: ProjectScan = {
+    refs: [],
+    dynamic: [],
+    literals: new Map(),
+    prefixes: new Set(),
+    dataTokens: new Set(),
+    dataFiles: [],
+    unproven: [],
+    files: 0,
+  }
   for (const file of projectFiles(config, options)) {
     if (DATA_EXTENSIONS.has(extname(file).toLowerCase())) collectData(file, out)
     else addFile(file, config, out)

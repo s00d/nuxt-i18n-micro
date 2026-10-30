@@ -1,11 +1,12 @@
+import { readFileSync } from 'node:fs'
 import { MagicString } from '@vue/compiler-sfc'
 import { notFoundError, validationError } from '../errors'
-import { readUtf8, splitList, writeFilesAtomic } from '../fs'
+import { splitList, writeFilesAtomic } from '../fs'
 import { type JsonObject, type JsonValue, deletePath, flatten, getPath, groupBy, isWritableKey, pathConflict, setPath } from '../json'
 import { log } from '../log'
 import type { ProjectConfig } from '../nuxt'
 import { Project } from '../project'
-import { type ProjectScan, type ScopedRef, isOwnSource, scanProject } from '../source'
+import { type ProjectScan, type ScopedRef, dataTokensOf, isOwnSource, scanProject } from '../source'
 
 export interface RenameArgs {
   cwd?: string
@@ -80,7 +81,8 @@ function rewriteFile(file: string, refs: ScopedRef[], rename: Rename, skipped: S
     skipped.push(...refs)
     return null
   }
-  const content = readUtf8(file)
+  // Offsets count the BOM, so this is the file as it is. The save checks its bytes.
+  const content = readFileSync(file, 'utf8')
   const magic = new MagicString(content)
   let count = 0
   for (const ref of refs) {
@@ -118,6 +120,10 @@ function warnLeftovers(scan: ProjectScan, rename: Rename, skipped: ScopedRef[]):
   for (const [text, locations] of scan.literals) {
     if (!rename.renamed(text)) continue
     for (const location of locations) log.warn(`The key also appears as a plain string: ${location}`)
+  }
+  // Only a hint: the same words can come from a README.
+  for (const file of scan.dataFiles) {
+    if (dataTokensOf(file).some((token) => rename.renamed(token))) log.warn(`A data file mentions the key, check it by hand: ${file}`)
   }
 }
 

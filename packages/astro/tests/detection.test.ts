@@ -57,6 +57,9 @@ describe('createI18nMiddleware (F10, D5)', () => {
     // no redirect loop where the default locale's home is the root, and never on a prerendered page
     await run('/', {}, { redirectToDefault: true, routingStrategy: { resolvePath: () => '/' } })
     expect(vary.location).toBeNull()
+    // resolvePath may answer with a route object: its path is the home
+    await run('/', {}, { redirectToDefault: true, routingStrategy: { resolvePath: () => ({ path: '/home-en' }) } })
+    expect(vary.location).toBe('/home-en')
     await run('/', { isPrerendered: true }, { redirectToDefault: true })
     expect(vary.location).toBeNull()
     await run('/', {}, {})

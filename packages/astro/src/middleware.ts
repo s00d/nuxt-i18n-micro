@@ -139,7 +139,8 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 /** A locale's home: the strategy's path for `/` in that locale, else `/<locale>`. */
 function homeOf(locale: string, strategy?: I18nRoutingStrategy | null): string {
   const resolved = strategy?.resolvePath?.('/', locale)
-  return typeof resolved === 'string' ? resolved : `/${locale}`
+  const path = typeof resolved === 'string' ? resolved : resolved?.path
+  return path || `/${locale}`
 }
 
 function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {

@@ -388,6 +388,10 @@ test('a custom routing strategy decides locale, route name and every link the pa
   ]).toEqual(['r_x', 'de', '/~fr/x', '/~de/y', '/~fr/y'])
   expect(useLocaleHead(de.astro, { baseUrl: 'B' }).link.map((l) => l.href)).toEqual(['B/x', 'B/~en/x', 'B/~fr/x', 'B/~en/x'])
 
+  // the bare adapter tolerates a path without its leading slash, or with two
+  const adapter = createAstroRouterAdapter(locales, 'en')
+  expect(['fr/about', '//fr/about'].map((path) => adapter.getLocaleFromPath!(path, 'en', ['en', 'fr']))).toEqual(['fr', 'fr'])
+
   // a strategy with no getLocaleFromPath / getRouteName → the plain path parsing (prefix, route from the path)
   const bare = createI18nMiddleware({ i18n: site, defaultLocale: 'en', locales: ['en', 'fr'], routingStrategy: { getCurrentPath: () => '/' } })
   const res = await request(bare, '/x/y')

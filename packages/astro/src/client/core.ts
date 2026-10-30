@@ -43,7 +43,8 @@ export function translate(
   }
 
   // If not found, use defaultValue or key
-  const value = lookup(state, key, routeName) || (defaultValue === undefined ? key : defaultValue || key)
+  // `??`: 0, false and '' are values, as on the server
+  const value = lookup(state, key, routeName) ?? (defaultValue === undefined ? key : defaultValue || key)
 
   if (typeof value === 'string' && params) {
     return interpolate(value, params)

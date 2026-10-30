@@ -104,61 +104,14 @@ member I18nClientProps.locale: string
 member I18nClientProps.translations: Record<string, Translations>
 function i18nIntegration: (options: I18nIntegrationOptions) => AstroIntegration
 interface I18nIntegrationOptions
-member I18nIntegrationOptions.additionalTranslationDirs?: string[] | undefined
-member I18nIntegrationOptions.apiBaseClientHost?: string | undefined
-member I18nIntegrationOptions.apiBaseServerHost?: string | undefined
-member I18nIntegrationOptions.apiBaseUrl?: string | undefined
 member I18nIntegrationOptions.autoDetect?: boolean | undefined
-member I18nIntegrationOptions.autoDetectLanguage?: boolean | undefined
-member I18nIntegrationOptions.autoDetectPath?: string | undefined
-member I18nIntegrationOptions.cacheMaxSize?: number | undefined
-member I18nIntegrationOptions.cacheTtl?: number | undefined
-member I18nIntegrationOptions.canonicalQueryWhitelist?: string[] | undefined
-member I18nIntegrationOptions.components?: boolean | undefined
-member I18nIntegrationOptions.customRegexMatcher?: string | RegExp | undefined
-member I18nIntegrationOptions.dateBuild?: string | number | undefined
-member I18nIntegrationOptions.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
-member I18nIntegrationOptions.debug?: boolean | undefined
-member I18nIntegrationOptions.defaultLocale?: string | undefined
-member I18nIntegrationOptions.define?: boolean | undefined
-member I18nIntegrationOptions.disablePageLocales?: boolean | undefined
-member I18nIntegrationOptions.disableWatcher?: boolean | undefined
-member I18nIntegrationOptions.excludePatterns?: (string | RegExp)[] | undefined
-member I18nIntegrationOptions.experimental?: Record<string, unknown> | undefined
 member I18nIntegrationOptions.fallbackLocale?: string | undefined
-member I18nIntegrationOptions.globalLocaleRoutes?: GlobalLocaleRoutes
-member I18nIntegrationOptions.hmr?: boolean | undefined
-member I18nIntegrationOptions.hooks?: boolean | undefined
-member I18nIntegrationOptions.hreflangBaseLanguage?: boolean | undefined
-member I18nIntegrationOptions.httpCacheDuration?: number | undefined
 member I18nIntegrationOptions.locale: string
 member I18nIntegrationOptions.localeCookie?: string | null | undefined
 member I18nIntegrationOptions.locales?: Locale[] | undefined
-member I18nIntegrationOptions.localizedRouteNamePrefix?: string | undefined
-member I18nIntegrationOptions.messages?: Record<string, Record<string, unknown>> | undefined
-member I18nIntegrationOptions.meta?: boolean | undefined
-member I18nIntegrationOptions.metaBaseUrl?: string | undefined
-member I18nIntegrationOptions.metaTrustForwardedHost?: boolean | undefined
-member I18nIntegrationOptions.metaTrustForwardedProto?: boolean | undefined
-member I18nIntegrationOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nIntegrationOptions.missingWarn?: boolean | undefined
-member I18nIntegrationOptions.noPrefixRedirect?: boolean | undefined
-member I18nIntegrationOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
-member I18nIntegrationOptions.plugin?: boolean | undefined
-member I18nIntegrationOptions.plural?: PluralFunc | undefined
-member I18nIntegrationOptions.redirects?: boolean | undefined
 member I18nIntegrationOptions.redirectToDefault?: boolean | undefined
-member I18nIntegrationOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
-member I18nIntegrationOptions.routeLocales?: Record<string, string[]> | undefined
-member I18nIntegrationOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
-member I18nIntegrationOptions.routingStrategy?: I18nRoutingStrategy | undefined
-member I18nIntegrationOptions.serverTranslationPreload?: boolean | undefined
-member I18nIntegrationOptions.strategy?: Strategies | undefined
-member I18nIntegrationOptions.trailingSlash?: "append" | "remove" | undefined
 member I18nIntegrationOptions.translationDir?: string | undefined
-member I18nIntegrationOptions.translationPayloads?: TranslationPayloadOptions | undefined
-member I18nIntegrationOptions.types?: boolean | undefined
-member I18nIntegrationOptions.vueDevtools?: boolean | undefined
 interface I18nMiddlewareOptions
 member I18nMiddlewareOptions.autoDetect?: boolean | undefined
 member I18nMiddlewareOptions.defaultLocale: string

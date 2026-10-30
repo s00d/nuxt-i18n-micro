@@ -46,10 +46,7 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
     defaultLocale,
     validLocales,
     autoDetectLanguage: config.autoDetectLanguage,
-    url:
-      urlless && mode === 'page'
-        ? null
-        : urlLocale(event, mode, path, validLocales, unprefixedIsDefault ? defaultLocale : null),
+    url: urlless && mode === 'page' ? null : urlLocale(event, mode, path, validLocales, unprefixedIsDefault ? defaultLocale : null),
     query: mode === 'api' || config.strategy === 'no_prefix' ? firstQueryValue(getQuery(event).locale) : null,
     queryFirst: mode === 'api',
     cookie: cookieName ? getCookie(event, cookieName) : null,

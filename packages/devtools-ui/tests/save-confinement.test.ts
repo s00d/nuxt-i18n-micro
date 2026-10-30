@@ -44,7 +44,17 @@ test('save writes an existing translation file and refuses anything outside tran
   const { root, routes } = project()
   const save = (file: string) => call(routes.get('/__i18n_api/save')!, 'POST', '/', { file, content: { hacked: true } })
 
-  const refused = ['../package.json', '../../package.json', 'locales/../package.json', '/etc/x.json', join(root, 'package.json'), '..%2Fpackage.json', 'escape/secret.json', 'new.json', 'en.txt']
+  const refused = [
+    '../package.json',
+    '../../package.json',
+    'locales/../package.json',
+    '/etc/x.json',
+    join(root, 'package.json'),
+    '..%2Fpackage.json',
+    'escape/secret.json',
+    'new.json',
+    'en.txt',
+  ]
   expect(await Promise.all(refused.map(save))).toEqual(refused.map(() => 403))
   expect(readFileSync(join(root, 'package.json'), 'utf-8')).toBe('{"name":"app"}')
   expect(readFileSync(join(root, 'outside/secret.json'), 'utf-8')).toBe('{"secret":1}')

@@ -164,7 +164,9 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run typecheck 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
+          # type tests of test/ run here, not in "Test unit", so test counts are runtime tests only
+          # both run even if the first fails, so one failure does not hide the other
+          { pnpm run typecheck; a=$?; pnpm run test:unit:types; b=$?; exit $((a || b)); } 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
           exit "${PIPESTATUS[0]}"
 
       # integration + e2e both drive a real browser (chromium.launch / createPage)
@@ -183,7 +185,7 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run test:unit 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
+          pnpm run test:unit --typecheck.enabled=false 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
           exit "${PIPESTATUS[0]}"
 
       - name: Test integration

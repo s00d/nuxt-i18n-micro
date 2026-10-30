@@ -26,7 +26,16 @@ import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } f
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
 
-const toEntry = (data: Translations): ServerTranslationCacheEntry => ({ data, json: JSON.stringify(data).replace(/</g, '\\u003c') })
+/** `json` on demand: where the public dir answers `/_locales` the string would only hold memory (a chunk's size, per cached entry). */
+export function toEntry(data: Translations): ServerTranslationCacheEntry {
+  let json: string | undefined
+  return {
+    data,
+    get json() {
+      return (json ??= JSON.stringify(data).replace(/</g, '\\u003c'))
+    },
+  }
+}
 
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<ServerTranslationCacheEntry> {
   const config = getI18nServerConfig()

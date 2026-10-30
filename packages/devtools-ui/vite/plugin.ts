@@ -8,6 +8,10 @@ import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite
 export interface DevToolsPluginOptions {
   base?: string
   translationDir?: string
+  /** Reported by `/config`. Default: the first locale file in `translationDir`. */
+  defaultLocale?: string
+  /** Reported by `/config`. Default: `defaultLocale`. */
+  fallbackLocale?: string
   injectButton?: boolean
 }
 
@@ -383,13 +387,22 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         }
 
         try {
+          // A root file is one locale: `<translationDir>/<code>.json`
+          const localesPath = path.resolve(projectRoot, translationDir)
+          const entries = fs.existsSync(localesPath) ? fs.readdirSync(localesPath, { withFileTypes: true }) : []
+          const codes = entries
+            .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+            .map((entry) => entry.name.slice(0, -'.json'.length))
+            .sort()
+          const defaultLocale = options.defaultLocale || codes[0] || 'en'
+
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(
             JSON.stringify({
-              defaultLocale: 'en',
-              fallbackLocale: 'en',
-              locales: [],
+              defaultLocale,
+              fallbackLocale: options.fallbackLocale || defaultLocale,
+              locales: codes.map((code) => ({ code })),
               translationDir,
             }),
           )

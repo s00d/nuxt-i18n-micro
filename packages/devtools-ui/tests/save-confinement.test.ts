@@ -53,6 +53,20 @@ test('save writes an existing translation file and refuses anything outside tran
   expect(JSON.parse(readFileSync(join(root, 'locales/en.json'), 'utf-8'))).toEqual({ hacked: true })
 })
 
+test('config reports the locales found in translationDir and the configured default', async () => {
+  const { root, routes } = project()
+  writeFileSync(join(root, 'locales/de.json'), '{}')
+  const server = { config: { root }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
+  const plugin = i18nDevToolsPlugin({ translationDir: 'locales', defaultLocale: 'en' }) as { configureServer: (server: ViteDevServer) => void }
+  plugin.configureServer(server as unknown as ViteDevServer)
+
+  const config = await new Promise((done) => {
+    void routes.get('/__i18n_api/config')!({ method: 'GET' }, { setHeader: () => {}, end: (body: string) => done(JSON.parse(body)) }, () => {})
+  })
+
+  expect(config).toEqual({ defaultLocale: 'en', fallbackLocale: 'en', locales: [{ code: 'de' }, { code: 'en' }], translationDir: 'locales' })
+})
+
 test('file reads stay inside translationDir, encoded traversal included', async () => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
   const { routes } = project()

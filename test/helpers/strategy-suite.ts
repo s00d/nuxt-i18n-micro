@@ -36,6 +36,8 @@ interface StrategyCase {
   absent?: string[]
   /** `prefix` prerenders `/` as a redirect page to the default locale. */
   rootRedirect?: string
+  /** An unprefixed URL that belongs to the default locale, whatever the visitor prefers. */
+  unprefixedDefault?: string
 }
 
 const SETTINGS = (prefix: string) => [`${prefix}settings/profile`, `${prefix}settings/team`]
@@ -49,6 +51,7 @@ const CASES: Record<StrategyName, StrategyCase> = {
   prefix_except_default: {
     routes: { '/': 'en', '/ru': 'ru', '/de': 'de', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
     pages: ['about', 'contact', 'de/a-propos', 'ru/about', ...SETTINGS(''), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    unprefixedDefault: '/contact',
   },
   prefix: {
     routes: { '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
@@ -58,6 +61,7 @@ const CASES: Record<StrategyName, StrategyCase> = {
   prefix_and_default: {
     routes: { '/': 'en', '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
     pages: ['en/about', 'de/a-propos', 'ru/about', ...SETTINGS('en/'), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    unprefixedDefault: '/contact',
   },
 }
 
@@ -89,9 +93,9 @@ async function fetchHtml(url: string): Promise<string> {
 }
 
 export function registerStrategySuite(strategy: StrategyName): void {
-  const { routes, pages, absent = [], rootRedirect } = CASES[strategy]
-  const build = (script: 'generate' | 'build', dir: ReturnType<typeof isolatedBuild>) =>
-    runCommand('npx', ['nuxi', script], { cwd: dir.fixtureDir, env: { ...dir.env, STRATEGY: strategy } })
+  const { routes, pages, absent = [], rootRedirect, unprefixedDefault } = CASES[strategy]
+  const build = (script: 'generate' | 'build', dir: ReturnType<typeof isolatedBuild>, env: Record<string, string> = {}) =>
+    runCommand('npx', ['nuxi', script], { cwd: dir.fixtureDir, env: { ...dir.env, STRATEGY: strategy, ...env } })
 
   const generated = isolatedBuild('strategy', `strategies-${strategy}-static`)
   const ssr = isolatedBuild('strategy', `strategies-${strategy}-ssr`)
@@ -133,12 +137,16 @@ export function registerStrategySuite(strategy: StrategyName): void {
 
   test('nuxi build: the SSR server renders every localized URL on a direct request', { timeout: 300_000 }, async () => {
     await rm(ssr.buildDir, { recursive: true, force: true })
-    await build('build', ssr)
+    await build('build', ssr, { AUTO_DETECT_LANGUAGE: '1' })
     const port = await getFreePort()
     server = spawnServer('node', [ssr.serverEntry], { cwd: ssr.fixtureDir, env: { PORT: String(port) } })
 
     for (const [path, content] of Object.entries(routes)) {
       expect(contentOf(await fetchHtml(`http://${HOST}:${port}${path}`))).toBe(content)
     }
+    if (!unprefixedDefault) return
+    // the unprefixed URL is the default locale's: Accept-Language must not render another one on it
+    const german = await fetch(`http://${HOST}:${port}${unprefixedDefault}`, { headers: { 'Accept-Language': 'de' } }).then((res) => res.text())
+    expect(german).toMatch(/<html[^>]+lang="en_EN"/)
   })
 }

@@ -28,8 +28,9 @@ type DetectionConfig = Pick<ModuleOptionsExtend, 'defaultLocale' | 'localeCookie
 
 /**
  * - `page`: what the page render shows. The URL decides wherever the router does: a prefix, or the
- *   default locale for an unprefixed URL under prefix_except_default (a cookie must not render `de`
- *   on the `en` page). `?locale=` counts only under no_prefix, where no URL locale exists.
+ *   default locale for an unprefixed URL under prefix_except_default and prefix_and_default (a cookie
+ *   must not render `de` on the `en` page). `?locale=` counts only under no_prefix, where no URL
+ *   locale exists.
  * - `api`: server API helpers — `?locale=`, a `[locale]` route param or prefix, cookie, header.
  */
 export type RequestLocaleMode = 'page' | 'api'
@@ -39,6 +40,7 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
   const validLocales = getEnabledLocaleCodes(config.locales as Locale[])
   const defaultLocale = config.defaultLocale || 'en'
   const urlless = config.strategy === 'no_prefix' || Boolean(config.hashMode)
+  const unprefixedIsDefault = config.strategy === 'prefix_except_default' || config.strategy === 'prefix_and_default'
   const cookieName = getPreferenceCookieName(config as ModuleOptionsExtend)
   return resolveLocale({
     defaultLocale,
@@ -47,7 +49,7 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
     url:
       urlless && mode === 'page'
         ? null
-        : urlLocale(event, mode, path, validLocales, config.strategy === 'prefix_except_default' ? defaultLocale : null),
+        : urlLocale(event, mode, path, validLocales, unprefixedIsDefault ? defaultLocale : null),
     query: mode === 'api' || config.strategy === 'no_prefix' ? firstQueryValue(getQuery(event).locale) : null,
     queryFirst: mode === 'api',
     cookie: cookieName ? getCookie(event, cookieName) : null,

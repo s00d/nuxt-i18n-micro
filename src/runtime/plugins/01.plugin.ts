@@ -185,6 +185,7 @@ export default defineNuxtPlugin({
       setMissingHandler: (handler) => {
         customMissingHandler.value = handler
       },
+      isHydrating: () => nuxtApp.isHydrating === true,
     })
 
     if (import.meta.dev && import.meta.client) {
@@ -330,7 +331,11 @@ export interface PluginsInjections {
   $setTranslation: (key: string, value: unknown) => void
   /** Merge translations into the active locale at runtime, overriding what is loaded. */
   $mergeTranslations: (newTranslations: Translations) => void
-  /** The route object for the current page in another locale, without navigating. */
+  /**
+   * The route object for the current page in another locale, without navigating. Under
+   * `trailingSlash` its `path` and `fullPath` follow the rule, while a push by `name` does not:
+   * link with `$switchLocalePath` there.
+   */
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   /** The path of the current page in another locale, without navigating. */
   $switchLocalePath: (locale: string) => string

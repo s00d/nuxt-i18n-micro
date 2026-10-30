@@ -561,6 +561,7 @@ export interface NuxtI18nPluginApiDeps {
   isValidLocale: (locale: string) => boolean
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
+  isHydrating: () => boolean
 }
 
 export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
@@ -579,14 +580,22 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     isValidLocale,
     navigateTo,
     setMissingHandler,
+    isHydrating,
   } = deps
 
   const isDev = process.env.NODE_ENV !== 'production'
   const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
-  /** A route object loses a trailing slash in `router.resolve`, so under a slash rule the URL is the target. */
+  /** A route object loses a trailing slash in `router.resolve`, so under a slash rule `push` takes the URL. */
   const withSlashRule = (switched: RouteLike | string): RouteLike | string =>
     i18nConfig.trailingSlash ? applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash) : switched
+
+  /** The current route for a link. The server never sees the hash, so the hydrating render leaves it out too. */
+  const linkRoute = (): ResolvedRouteLike => {
+    const route = router.currentRoute.value as unknown as ResolvedRouteLike
+    if (!route.hash || !isHydrating()) return route
+    return { ...route, hash: '', fullPath: route.fullPath.slice(0, route.fullPath.indexOf('#')) }
+  }
 
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
     const external = externalLinkHref(to)
@@ -644,19 +653,18 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     setTranslation: i18n.setTranslation.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     switchLocaleRoute: (toLocale: string) => {
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const fromLocale = getCurrentLocale(route)
-      return withSlashRule(
-        i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) }),
-      ) as RouteLocationRaw
+      const route = linkRoute()
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
+      const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
+      return { ...switched, fullPath, path: fullPath.split(/[?#]/)[0] } as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()
     },
     switchLocalePath: (toLocale: string) => {
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const fromLocale = getCurrentLocale(route)
-      const switched = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      const route = linkRoute()
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
       return applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
     },
     switchLocale: async (toLocale: string) => {

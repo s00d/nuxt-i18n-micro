@@ -35,6 +35,12 @@
     <p id="plural-component-custom-zero">
       <i18n-t keypath="page.apples" :plural="0" :custom-plural-rule="customPluralRule" />
     </p>
+    <p id="slots-reordered">
+      <i18n-t keypath="page.slotOrder">
+        <template #first>A</template>
+        <template #second>B</template>
+      </i18n-t>
+    </p>
     <p id="localized-route">
       {{ $localeRoute({ name: 'page' }, 'de').path }}
     </p>

@@ -64,7 +64,11 @@ export function goldenSuite({ h, render, fireEvent, act, lib, adapter }: GoldenH
     test('i18n-group', async () => {
       const children = ({ t }: { t: (key: string, params?: object) => string }) => t('deep', { x: 1 })
       const group = (props: object) => htmlOf(() => h(I18nProvider, { i18n: instance() }, h(I18nGroup, { prefix: 'nested', ...props }, children)))
-      const lines = [`- plain → ${group({})}`, `- groupClass → ${group({ groupClass: 'g' })}`, `- className → ${group({ groupClass: 'g', className: 'u' })}`]
+      const lines = [
+        `- plain → ${group({})}`,
+        `- groupClass → ${group({ groupClass: 'g' })}`,
+        `- className → ${group({ groupClass: 'g', className: 'u' })}`,
+      ]
       await expect(report(lines)).toMatchFileSnapshot('./__golden__/i18n-group.md')
     })
 

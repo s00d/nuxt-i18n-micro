@@ -4,12 +4,17 @@ import { join } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { T_CASES } from '../../core/tests/characterization/i18n-t-cases'
 
-const golden = (pkg: string, file: string) => readFileSync(join(import.meta.dirname, `../../${pkg}/tests/characterization/__golden__/${file}`), 'utf8')
+const golden = (pkg: string, file: string) =>
+  readFileSync(join(import.meta.dirname, `../../${pkg}/tests/characterization/__golden__/${file}`), 'utf8')
 
 /** Attribute order is the renderer's own; the mismatch marker exists for Vue's hydration only. */
 const normalize = (html: string) =>
   html.replace(/ data-allow-mismatch="text"/g, '').replace(/<(\w+)((?:\s[\w-]+="[^"]*")+)>/g, (_tag, name: string, attrs: string) => {
-    return `<${name} ${attrs.trim().split(/\s(?=[\w-]+=")/).sort().join(' ')}>`
+    return `<${name} ${attrs
+      .trim()
+      .split(/\s(?=[\w-]+=")/)
+      .sort()
+      .join(' ')}>`
   })
 
 /** `- \`label\` → html` of the React family and Solid. */

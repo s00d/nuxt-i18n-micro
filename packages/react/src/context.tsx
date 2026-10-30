@@ -124,7 +124,10 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
   const locales = options?.locales
   const defaultLocale = options?.defaultLocale
   const own = useMemo(
-    () => (locales || defaultLocale ? createApi({ ...context, locales: locales ?? context.locales, defaultLocale: defaultLocale ?? context.defaultLocale }) : null),
+    () =>
+      locales || defaultLocale
+        ? createApi({ ...context, locales: locales ?? context.locales, defaultLocale: defaultLocale ?? context.defaultLocale })
+        : null,
     [context, snapshot, locales, defaultLocale],
   )
   if (own) return own
@@ -151,12 +154,15 @@ export function useLocaleSwitch(load: (locale: string) => unknown): [(locale: st
   const { switchLocale } = useI18n()
   const [pending, setPending] = useState(false)
   const latest = useRef(0)
+  // the router may have moved during the load: switch with the adapter of the last render
+  const current = useRef(switchLocale)
+  current.current = switchLocale
   const run = async (locale: string): Promise<void> => {
     const call = ++latest.current
     setPending(true)
     try {
       await load(locale)
-      if (call === latest.current) switchLocale(locale)
+      if (call === latest.current) current.current(locale)
     } finally {
       if (call === latest.current) setPending(false)
     }

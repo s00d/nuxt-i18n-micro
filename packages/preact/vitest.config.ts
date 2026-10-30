@@ -10,8 +10,7 @@ import { defineConfig } from 'vitest/config'
  * resolve to different files (CJS vs ESM, or `"source"` vs dist), hooks break.
  *
  * Pin every preact entry to the same ESM dist build and inline TL so imports
- * share one module cache. (Preact 11 ESM-only / require()-based aliases are a
- * follow-up once CI actually installs preact 11; monorepo stays on 10.x.)
+ * share one module cache. The monorepo stays on 10.x; 11 has other file names here.
  */
 const require = createRequire(import.meta.url)
 const preactDir = realpathSync(dirname(require.resolve('preact/package.json')))

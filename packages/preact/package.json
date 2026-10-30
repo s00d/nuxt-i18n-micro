@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.19",
+  "version": "2.0.0",
   "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -75,11 +75,11 @@
     "@testing-library/preact": "catalog:",
     "jsdom": "catalog:",
     "preact": "catalog:",
+    "preact-render-to-string": "catalog:",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:",
-    "preact-render-to-string": "catalog:"
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "preact": "catalog:"

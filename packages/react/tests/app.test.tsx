@@ -741,6 +741,5 @@ describe('React app over @i18n-micro/react', () => {
     fireEvent.click(button)
     fireEvent.click(view.container.querySelector('.switcher-locale-de'))
     expect([i18n.locale, view.container.querySelector('ul'), button.textContent]).toEqual(['de', null, 'Deutsch ▾'])
-
   })
 })

@@ -80,7 +80,9 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     test('a blank text with hideIfEmpty gives the default in every branch, without the wrapper', () => {
       const branches = [{}, { number: 1 }, { plural: 1 }, { date: WHEN }, { relativeDate: WHEN }, { html: true }]
       for (const branch of branches) {
-        const { container, unmount } = render(withI18n(instance(), h(I18nT, { keypath: 'blank', hideIfEmpty: true, defaultValue: 'dv', id: 'x', ...branch })))
+        const { container, unmount } = render(
+          withI18n(instance(), h(I18nT, { keypath: 'blank', hideIfEmpty: true, defaultValue: 'dv', id: 'x', ...branch })),
+        )
         expect(container.innerHTML).toBe('dv')
         unmount()
       }
@@ -146,7 +148,12 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     test('children replace the text; as a function they get it', () => {
       const replaced = render(withI18n(instance(), h(I18nT, { keypath: 'plain' }, h('b', null, 'own'))))
       expect(replaced.container.innerHTML).toBe('<span><b>own</b></span>')
-      const scoped = render(withI18n(instance(), h(I18nT, { keypath: 'plain' }, ({ translation }: { translation: string }) => `[${translation}]`)))
+      const scoped = render(
+        withI18n(
+          instance(),
+          h(I18nT, { keypath: 'plain' }, ({ translation }: { translation: string }) => `[${translation}]`),
+        ),
+      )
       expect(scoped.container.textContent).toBe('[Hello]')
     })
 
@@ -326,6 +333,36 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(i18n.locale).toBe('de')
     })
 
+    test('useLocaleSwitch switches from where the router is when the load ends', async () => {
+      const pushes: string[] = []
+      const adapter = (current: string) => ({
+        getCurrentPath: () => current,
+        push: ({ path }: { path: string }) => pushes.push(path),
+        replace: () => {},
+        resolvePath: (to: string, locale: string) => `/${locale}${to}`,
+      })
+      let finish!: () => void
+      const load = () => new Promise<void>((resolve) => (finish = resolve))
+      const i18n = instance()
+      let run!: (locale: string) => Promise<void>
+      const Probe = () => {
+        ;[run] = useLocaleSwitch(load)
+        return null
+      }
+      const tree = (path: string) => h(I18nProvider, { i18n, locales, routingStrategy: adapter(path) }, h(Probe))
+      const { rerender } = render(tree('/one'))
+      let done!: Promise<void>
+      act(() => {
+        done = run('de')
+      })
+      rerender(tree('/two'))
+      await act(async () => {
+        finish()
+        await done
+      })
+      expect(pushes).toEqual(['/de/two'])
+    })
+
     test('useLocaleSwitch: a failed load keeps the locale and rejects', async () => {
       const i18n = instance()
       let run!: (locale: string) => Promise<void>
@@ -371,7 +408,9 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
         return null
       }
       const { strategy } = plainStrategy()
-      render(h(I18nProvider, { i18n: instance(), locales, routingStrategy: strategy }, h(I18nProvider, { i18n: instance({ locale: 'de' }) }, h(Probe))))
+      render(
+        h(I18nProvider, { i18n: instance(), locales, routingStrategy: strategy }, h(I18nProvider, { i18n: instance({ locale: 'de' }) }, h(Probe))),
+      )
       expect([api.locale, api.getLocales().length, api.localePath('/x')]).toEqual(['de', 3, '/x'])
     })
   })
@@ -380,7 +419,9 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     const link = (extra: object = {}, provider: object = {}) => {
       const onClick = vi.fn()
       const { strategy, pushes } = plainStrategy()
-      const view = render(h(I18nProvider, { i18n: instance(), routingStrategy: strategy, ...provider }, h(I18nLink, { to: '/x', onClick, ...extra }, 'go')))
+      const view = render(
+        h(I18nProvider, { i18n: instance(), routingStrategy: strategy, ...provider }, h(I18nLink, { to: '/x', onClick, ...extra }, 'go')),
+      )
       return { onClick, pushes, anchor: view.container.querySelector('a')! }
     }
 
@@ -440,7 +481,13 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
         return h('a', { href: props.href }, 'x')
       }
       const { strategy } = plainStrategy()
-      render(h(I18nProvider, { i18n: instance(), routingStrategy: { ...strategy, linkComponent: LinkComponent } }, h(I18nLink, { to: '/x', style: { color: 'red' } })))
+      render(
+        h(
+          I18nProvider,
+          { i18n: instance(), routingStrategy: { ...strategy, linkComponent: LinkComponent } },
+          h(I18nLink, { to: '/x', style: { color: 'red' } }),
+        ),
+      )
       expect(seen[0]).toEqual({ color: 'red' })
     })
 
@@ -456,7 +503,9 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
 
     test('the current page is compared by path, whatever the strategy reports', () => {
       const { strategy } = plainStrategy('/about?tab=1#h')
-      const view = render(h(I18nProvider, { i18n: instance(), routingStrategy: strategy }, h(I18nLink, { to: '/about', activeStyle: { color: 'red' } }, 'x')))
+      const view = render(
+        h(I18nProvider, { i18n: instance(), routingStrategy: strategy }, h(I18nLink, { to: '/about', activeStyle: { color: 'red' } }, 'x')),
+      )
       expect(view.container.querySelector('a')!.hasAttribute('style')).toBe(true)
     })
   })
@@ -515,7 +564,11 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
 
     test('a switch keeps the query and hash', () => {
       const pushes: string[] = []
-      const strategy = { ...plainStrategy('/about?x=1#h').strategy, push: ({ path }: { path: string }) => pushes.push(path), resolvePath: (to: string, l: string) => `/${l}${to}` }
+      const strategy = {
+        ...plainStrategy('/about?x=1#h').strategy,
+        push: ({ path }: { path: string }) => pushes.push(path),
+        resolvePath: (to: string, l: string) => `/${l}${to}`,
+      }
       let api: any
       const Probe = () => {
         api = useI18n()
@@ -584,7 +637,12 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       const container = document.body.appendChild(document.createElement('div'))
       container.innerHTML = renderToString(ago(() => serverNow))
       vi.setSystemTime(serverNow + 7_200_000)
-      expect(await hydrate(ago(() => serverNow), container)).toEqual([])
+      expect(
+        await hydrate(
+          ago(() => serverNow),
+          container,
+        ),
+      ).toEqual([])
       expect(container.textContent).toBe('Updated 1 hour ago')
       container.remove()
     })

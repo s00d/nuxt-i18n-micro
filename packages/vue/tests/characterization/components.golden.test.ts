@@ -30,7 +30,10 @@ beforeAll(() => {
 })
 afterAll(() => vi.useRealTimers())
 
-const slotOf = ([tag, text]: SlotSpec) => () => h(tag, text)
+const slotOf =
+  ([tag, text]: SlotSpec) =>
+  () =>
+    h(tag, text)
 
 /** The shared matrix as Vue mount options. */
 const mountOptions = ({ slots, defaultSlot, ...options }: TCase): MountOptions => {

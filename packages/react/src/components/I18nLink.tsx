@@ -21,8 +21,8 @@ export const I18nLink = (props: I18nLinkProps): HostElement => {
 
   const href = routePath(localeRoute(to))
   // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
-  const codes = [i18n.locale, i18n.defaultLocale(), i18n.fallbackLocale, ...i18n.getLocales().map((l) => l.code)]
-  const active = activeStyle && router && isActiveLink(router.getCurrentPath(), href, codes)
+  const codes = () => [i18n.locale, i18n.defaultLocale(), i18n.fallbackLocale, ...i18n.getLocales().map((l) => l.code)]
+  const active = activeStyle && router && isActiveLink(router.getCurrentPath(), href, codes())
   const linkProps = { ...restProps, href, style: active ? { ...(style as object), ...activeStyle } : style }
 
   if (router?.linkComponent) return h(router.linkComponent as never, { ...linkProps, onClick }, children)

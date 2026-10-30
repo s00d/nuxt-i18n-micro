@@ -51,7 +51,7 @@ catalog:
   '@types/react-dom': ^19.3.0
   react-router-dom: "^6.30.6 || ^7.0.0"
   # Preact (wide peer; monorepo pin → catalogs.pin)
-  preact: "^10.27.2 || ^11.0.0-0"
+  preact: "^10.27.2 || ^11.0.0"
   '@testing-library/preact': ^3.2.4
   preact-render-to-string: ^6.8.2
   wouter-preact: ^3.11.1

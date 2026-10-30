@@ -140,7 +140,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
       h('span', { style: { ...STYLES.icon, ...(open ? STYLES.openIcon : null), ...customIconStyle } }, '▾'),
     ),
     open
-      ? h('ul', { className: 'i18n-switcher-dropdown', style: { ...STYLES.dropdown, ...customDropdownStyle } }, allLocales.filter((l) => !l.disabled).map(renderItem))
+      ? h(
+          'ul',
+          { className: 'i18n-switcher-dropdown', style: { ...STYLES.dropdown, ...customDropdownStyle } },
+          allLocales.filter((l) => !l.disabled).map(renderItem),
+        )
       : null,
   )
 }

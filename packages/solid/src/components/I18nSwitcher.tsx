@@ -31,7 +31,9 @@ export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
 
 /** Core's look with Solid's property names: `style` here takes CSS names. */
 const css = (style: object): JSX.CSSProperties =>
-  Object.fromEntries(Object.entries(style).map(([name, value]) => [name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`), value])) as JSX.CSSProperties
+  Object.fromEntries(
+    Object.entries(style).map(([name, value]) => [name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`), value]),
+  ) as JSX.CSSProperties
 
 const WRAPPER_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.wrapper)
 const BUTTON_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.button)
@@ -115,7 +117,9 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   return (
     <div
       {...others}
-      ref={wrapper}
+      ref={(element) => {
+        wrapper = element
+      }}
       class={['i18n-switcher-wrapper', local.class].filter(Boolean).join(' ')}
       style={{ ...WRAPPER_STYLE, ...local.customWrapperStyle, ...(local.style as object) }}
     >

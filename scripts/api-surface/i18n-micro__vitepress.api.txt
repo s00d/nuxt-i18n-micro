@@ -31,6 +31,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -106,7 +107,6 @@ interface VueI18nOptions
 member VueI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member VueI18nOptions.fallbackLocale?: string | undefined
 member VueI18nOptions.locale: string
-member VueI18nOptions.localeIso?: Record<string, string> | undefined
 member VueI18nOptions.messages?: Record<string, Translations> | undefined
 member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18nOptions.missingWarn?: boolean | undefined
@@ -223,26 +223,32 @@ member CreateI18nOptions.defaultLocale?: string | undefined
 member CreateI18nOptions.disablePageLocales?: boolean | undefined
 member CreateI18nOptions.fallbackLocale?: string | undefined
 member CreateI18nOptions.locale: string
+member CreateI18nOptions.localeIso?: Record<string, string> | undefined
 member CreateI18nOptions.localeKeyToCode?: Record<string, string> | undefined
 member CreateI18nOptions.locales?: Locale[] | string[] | undefined
 member CreateI18nOptions.messages?: Record<string, Translations> | undefined
 member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member CreateI18nOptions.missingWarn?: boolean | undefined
+member CreateI18nOptions.now?: (() => number) | undefined
 member CreateI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member CreateI18nOptions.plural?: PluralFunc | undefined
 member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member CreateI18nOptions.timeZone?: string | undefined
 member CreateI18nOptions.translationDir?: string | undefined
 interface I18nOptions
 member I18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
+member I18nOptions.localeIso?: Record<string, string> | undefined
 member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.now?: (() => number) | undefined
 member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member I18nOptions.timeZone?: string | undefined
 member I18nOptions.translationDir?: string | undefined
 interface LoadedTranslations
 member LoadedTranslations.root: Record<string, import("@i18n-micro/types").Translations>

@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 56 members |
+| `AstroI18n` | class | 57 members |
 | `AstroI18nOptions` | interface | 9 members |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -26,7 +26,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `createI18nMiddleware` | function | `(options: I18nMiddlewareOptions) => MiddlewareHandler` |
 | `defaultPlural` | const | `PluralFunc` |
 | `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `getDefaultLocale` | function | `(astro: AstroGlobal) => string` |
 | `getGlobalRoutingStrategy` | function | `() => I18nRoutingStrategy \| null` |
 | `getI18n` | function | `(astro: AstroGlobal) => AstroI18n` |
@@ -59,7 +59,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 56 members</summary>
+<summary><code>AstroI18n</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -96,7 +96,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: AstroI18nOptions): AstroI18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (_locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -105,6 +105,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -140,7 +141,7 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>FormatService</code> — 20 members</summary>
+<summary><code>FormatService</code> — 21 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -156,6 +157,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
 | `new` | `(options?: FormatServiceOptions \| undefined): FormatService` |
+| `now` | `private any` |
 | `numberCache` | `private any` |
 | `numberFormats` | `private any` |
 | `relativeCache` | `private any` |

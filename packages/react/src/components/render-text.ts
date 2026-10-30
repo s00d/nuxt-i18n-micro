@@ -30,7 +30,21 @@ function toSlots({ h }: RenderApi, components: I18nTProps['components'], childre
 
 /** Props to element: no hooks, so it serves both the client component and the server one. */
 export function renderText(api: RenderApi, i18n: TextHost, props: I18nTProps): HostElement {
-  const { keypath, params, tag, plural, defaultValue, html, hideIfEmpty, customPluralRule, number, date, relativeDate, components, children, ...attrs } =
-    props
+  const {
+    keypath,
+    params,
+    tag,
+    plural,
+    defaultValue,
+    html,
+    hideIfEmpty,
+    customPluralRule,
+    number,
+    date,
+    relativeDate,
+    components,
+    children,
+    ...attrs
+  } = props
   return renderI18nT(api, i18n, props, toSlots(api, components, children), attrs) as HostElement
 }

@@ -81,7 +81,11 @@ describe('components characterization', () => {
     const children = (({ t }: { t: (key: string, params?: object) => string }) => t('deep', { x: 1 })) as never
     const group = (props: object) =>
       htmlOf(withProvider({ i18n: instance() }, () => createComponent(I18nGroup, { prefix: 'nested', ...props, children } as never)))
-    const lines = [`- plain → ${group({})}`, `- groupClass → ${group({ groupClass: 'g' })}`, `- className → ${group({ groupClass: 'g', class: 'u' })}`]
+    const lines = [
+      `- plain → ${group({})}`,
+      `- groupClass → ${group({ groupClass: 'g' })}`,
+      `- className → ${group({ groupClass: 'g', class: 'u' })}`,
+    ]
     await expect(report(lines)).toMatchFileSnapshot('./__golden__/i18n-group.md')
   })
 

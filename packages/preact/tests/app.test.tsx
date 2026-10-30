@@ -3,16 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/preact'
 import { stderr } from 'node:process'
 import { useEffect, useState } from 'preact/hooks'
-import {
-  createI18n,
-  I18nGroup,
-  I18nLink,
-  I18nProvider,
-  I18nSwitcher,
-  I18nT,
-  PreactI18n,
-  useI18n,
-} from '../src'
+import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, PreactI18n, useI18n } from '../src'
 import { createBrowserHistoryAdapter } from '../src/router'
 
 // Same shape as packages/preact/playground: three locales, English default, locale files loaded later.
@@ -713,6 +704,5 @@ describe('Preact app over @i18n-micro/preact', () => {
     fireEvent.click(button)
     fireEvent.click(view.container.querySelector('.switcher-locale-de'))
     expect([i18n.locale, view.container.querySelector('ul'), button.textContent]).toEqual(['de', null, 'Deutsch ▾'])
-
   })
 })

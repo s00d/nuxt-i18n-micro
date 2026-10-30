@@ -58,7 +58,11 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
   const slotNodes = new Map<string, unknown>()
   let builtFrom: I18nTProps['components']
   const renderSlot = (slot: RenderSlot, key: string): unknown => {
-    if (!slotNodes.has(key)) slotNodes.set(key, runWithOwner(owner, () => untrack(() => slot({}))))
+    if (!slotNodes.has(key))
+      slotNodes.set(
+        key,
+        runWithOwner(owner, () => untrack(() => slot({}))),
+      )
     return slotNodes.get(key)
   }
 

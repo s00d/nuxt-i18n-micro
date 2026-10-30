@@ -21,10 +21,10 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 58 members |
-| `I18nOptions` | interface | 9 members |
+| `I18n` | class | 59 members |
+| `I18nOptions` | interface | 12 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
 | `LoadFromUrlOptions` | interface | 3 members |
@@ -35,10 +35,10 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `Translations` | interface | 1 members |
 | `TranslationStorage` | interface | 1 members |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 58 members</summary>
+<summary><code>I18n</code> — 59 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -75,7 +75,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -84,6 +84,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -103,7 +104,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 
 </details>
 
-<code>I18nOptions</code> — 9 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+<code>I18nOptions</code> — 12 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 
 <details>
 <summary><code>LoadFromUrlEntry</code> — 4 members</summary>

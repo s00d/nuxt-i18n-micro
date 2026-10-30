@@ -12,7 +12,8 @@ export const I18nGroup = (props: I18nGroupProps): HostElement => {
   const { prefix, groupClass, children, className, class: userClass, ...restProps } = props as I18nGroupProps & { class?: string }
   const { t } = useI18n()
 
-  const translate = (key: string, params?: Record<string, string | number | boolean>): string => String(t(`${prefix}.${key}` as TranslationKey, params))
+  const translate = (key: string, params?: Record<string, string | number | boolean>): string =>
+    String(t(`${prefix}.${key}` as TranslationKey, params))
 
   return h(
     'div',

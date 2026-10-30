@@ -20,10 +20,10 @@ import { /* … */ } from '@i18n-micro/node'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 62 members |
-| `I18nOptions` | interface | 11 members |
+| `I18n` | class | 63 members |
+| `I18nOptions` | interface | 14 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
@@ -34,10 +34,10 @@ import { /* … */ } from '@i18n-micro/node'
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `Translations` | interface | 1 members |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 62 members</summary>
+<summary><code>I18n</code> — 63 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -76,7 +76,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -86,6 +86,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -107,7 +108,7 @@ import { /* … */ } from '@i18n-micro/node'
 </details>
 
 <details>
-<summary><code>I18nOptions</code> — 11 members</summary>
+<summary><code>I18nOptions</code> — 14 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -115,12 +116,15 @@ import { /* … */ } from '@i18n-micro/node'
 | `disablePageLocales?` | `boolean \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
 | `translationDir?` | `string \| undefined` |
 
 </details>

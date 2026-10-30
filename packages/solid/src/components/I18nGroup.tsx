@@ -5,7 +5,9 @@ import { useI18nContext } from '../injection'
 export interface I18nGroupProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
   prefix: string
   groupClass?: string
-  children?: JSX.Element | ((props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string }) => JSX.Element)
+  children?:
+    | JSX.Element
+    | ((props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string }) => JSX.Element)
 }
 
 export const I18nGroup: Component<I18nGroupProps> = (props): JSX.Element => {

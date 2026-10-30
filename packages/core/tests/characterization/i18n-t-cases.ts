@@ -70,10 +70,7 @@ export const T_CASES: [string, TCase][] = [
   ['slots repeated', { props: { keypath: 'repeat' }, slots: { a: slotA } }],
   ['slots at the edges', { props: { keypath: 'edges' }, slots: { a: slotA, b: slotB } }],
   ['unknown slot', { props: { keypath: 'order' }, slots: { z: slotA } }],
-  [
-    'default slot',
-    { props: { keypath: 'greeting', params: { name: 'Z' } }, defaultSlot: true },
-  ],
+  ['default slot', { props: { keypath: 'greeting', params: { name: 'Z' } }, defaultSlot: true }],
   ['unicode names, params', { props: { keypath: 'uni', params: { имя: 'И', 'first-name': 'F' } } }],
   ['unicode names, slots', { props: { keypath: 'uni' }, slots: { имя: slotA, 'first-name': slotB } }],
   ['proto, no params', { props: { keypath: 'proto' } }],

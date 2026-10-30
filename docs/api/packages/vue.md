@@ -21,7 +21,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: CreateI18nOptions) => I18nPlugin` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nDefaultLocaleKey` | const | `InjectionKey<string>` |
 | `I18nGroup` | const | `import("vue").DefineComponent<I18nGroupProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>` |
@@ -44,10 +44,10 @@ import { /* … */ } from '@i18n-micro/vue'
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue").Ref<{ htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }, LocaleHead \| { htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 60 members |
+| `VueI18n` | class | 61 members |
 | `VueI18nOptions` | interface | 10 members |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <code>I18nRoutingStrategy</code> — 7 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
 
@@ -90,7 +90,7 @@ import { /* … */ } from '@i18n-micro/vue'
 </details>
 
 <details>
-<summary><code>VueI18n</code> — 60 members</summary>
+<summary><code>VueI18n</code> — 61 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -139,6 +139,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -157,7 +158,23 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 
-<code>VueI18nOptions</code> — 10 members, identical to [`VueI18nOptions`](/api/packages/vitepress).
+<details>
+<summary><code>VueI18nOptions</code> — 10 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `timeZone?` | `string \| undefined` |
+
+</details>
 ## `@i18n-micro/vue/router`
 
 ```ts

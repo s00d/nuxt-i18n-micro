@@ -30,7 +30,12 @@ const RouterLink = (props: { href: string; [key: string]: unknown }): JSX.Elemen
  * @param location - Location object from @solidjs/router's useLocation hook
  * @returns I18nRoutingStrategy
  */
-export function createSolidRouterAdapter(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location): I18nRoutingStrategy {
+export function createSolidRouterAdapter(
+  locales: Locale[],
+  defaultLocale: string,
+  navigate: NavigateFunction,
+  location: Location,
+): I18nRoutingStrategy {
   const codes = locales.map((locale) => locale.code)
   const fullPath = () => `${location.pathname}${location.search}${location.hash}`
 

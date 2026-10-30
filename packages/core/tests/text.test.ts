@@ -440,7 +440,8 @@ describe('defaults', () => {
 
   it('resolveText gives defaultValue to a missing key in every branch', () => {
     const branches = [{}, { number: 1 }, { plural: 1 }, { date: 0 }, { relativeDate: 0 }]
-    for (const branch of branches) expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', defaultValue: 'dv', ...branch })?.template).toBe('dv')
+    for (const branch of branches)
+      expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', defaultValue: 'dv', ...branch })?.template).toBe('dv')
   })
 
   it('a custom rule reads the default through its getter; its own default comes first', () => {

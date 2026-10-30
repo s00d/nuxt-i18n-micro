@@ -123,19 +123,24 @@ export default defineComponent({
       const children: (string | VNode)[] = []
       let lastIndex = 0
 
-      for (const [slotName, slotFn] of Object.entries(slots)) {
-        const placeholder = `{${slotName}}`
-        const index = translation.indexOf(placeholder, lastIndex)
+      // Locales can order placeholders differently from the slot declarations, so place each slot
+      // by its position in the translation.
+      const placements = Object.entries(slots)
+        .map(([slotName, slotFn]) => {
+          const placeholder = `{${slotName}}`
+          return { placeholder, slotFn, index: translation.indexOf(placeholder) }
+        })
+        .filter(({ index }) => index !== -1)
+        .sort((a, b) => a.index - b.index)
 
-        if (index !== -1) {
-          if (index > lastIndex) {
-            children.push(translation.slice(lastIndex, index))
-          }
-
-          children.push(hyperscript(slotFn!))
-
-          lastIndex = index + placeholder.length
+      for (const { placeholder, slotFn, index } of placements) {
+        if (index > lastIndex) {
+          children.push(translation.slice(lastIndex, index))
         }
+
+        children.push(hyperscript(slotFn!))
+
+        lastIndex = index + placeholder.length
       }
 
       if (lastIndex < translation.length) {

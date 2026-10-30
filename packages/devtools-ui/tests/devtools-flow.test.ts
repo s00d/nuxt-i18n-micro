@@ -56,7 +56,7 @@ function appI18n(cache: Record<string, unknown>) {
 /** Lets every pending message handler (microtasks) finish before asserting on replies. */
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
-function saveEndpoint(reply: () => { ok: boolean; statusText?: string; json: () => Promise<unknown> }) {
+function saveEndpoint(reply: () => { ok: boolean; status?: number; statusText?: string; json: () => Promise<unknown> }) {
   const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => reply())
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
@@ -249,14 +249,25 @@ test('a failed disk save reaches the editor as an error after the app was alread
   expect(state.locales.value['pages/new/de.json']).toBeUndefined()
   state.handleFileSelected('de.json')
 
-  // A preview build without the save endpoint keeps the edit in localStorage instead.
+  // In a browser too, an error the reachable endpoint reports is an error: rolled back, not kept in localStorage.
   const stored = new Map<string, string>()
   vi.stubGlobal('localStorage', { setItem: (k: string, v: string) => stored.set(k, v) })
-  saveEndpoint(() => ({ ok: false, statusText: 'Not Found', json: async () => ({ error: 'no endpoint' }) }))
+  saveEndpoint(() => ({ ok: false, status: 500, statusText: 'Server Error', json: async () => ({ error: 'Path traversal detected' }) }))
   state.selectedFileContent.value = { hello: 'Moin' }
+  await expect(state.saveCurrent()).rejects.toThrow('Failed to save: Path traversal detected')
+  expect(stored.size).toBe(0)
+  expect(app.adapter.getRouteCache()['de:index']).toEqual({ hello: 'Hallo' })
+
+  // A preview build without the save endpoint keeps the edit in localStorage instead.
+  saveEndpoint(() => ({ ok: false, status: 404, statusText: 'Not Found', json: async () => ({ error: 'no endpoint' }) }))
   await state.saveCurrent()
   expect([...stored]).toEqual([['i18n_save_de.json', '{\n  "hello": "Moin"\n}']])
   expect(state.locales.value['de.json']).toEqual({ hello: 'Moin' })
+  // So does an unreachable server.
+  vi.stubGlobal('fetch', async () => Promise.reject(new TypeError('Failed to fetch')))
+  state.selectedFileContent.value = { hello: 'Na' }
+  await state.saveCurrent()
+  expect(stored.get('i18n_save_de.json')).toBe('{\n  "hello": "Na"\n}')
 
   // A file the bridge cannot map to a locale is refused before anything is written.
   state.selectedFile.value = 'notes/readme.txt'

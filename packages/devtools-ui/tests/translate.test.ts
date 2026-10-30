@@ -81,14 +81,26 @@ test('editor round trip: a nested file flattens to dotted keys for the table and
     matrix: [[1, 2], ['x']],
   })
 
+  // Empty containers and a `__proto__` key (own data, as JSON.parse makes it) survive the round trip.
+  const parsed = JSON.parse('{"__proto__":"Proto","empty":[],"obj":{},"deep":{"none":[],"__proto__":{"k":"v"}}}')
+  const parsedFlat = flattenTranslations(parsed)
+  expect(parsedFlat).toEqual(JSON.parse('{"__proto__":"Proto","empty":"[]","obj":"{}","deep.none":"[]","deep.__proto__.k":"v"}'))
+  const restored = unflattenTranslations<Record<string, unknown>>(parsedFlat)
+  expect(JSON.stringify(restored)).toBe(JSON.stringify(parsed))
+  expect(Object.getPrototypeOf(restored)).toBe(Object.prototype)
+
   // Malformed keys from hand edits: empty segments and bad indexes are skipped, an index past the
-  // end leaves a hole, a `__proto__` path writes nothing.
-  expect(unflattenTranslations({ 'a..b': 'x', '.lead': 'y', 'list.[]1.name': 'z', 'bad.[]x.k': 'w', '__proto__.polluted': 'p', '': 'e' })).toEqual({
-    a: { b: 'x' },
-    lead: 'y',
-    list: [undefined, { name: 'z' }],
-    bad: { k: 'w' },
+  // end leaves a hole, a `__proto__` path stays own data and never reaches the prototype.
+  const malformed = unflattenTranslations<Record<string, unknown>>({
+    'a..b': 'x',
+    '.lead': 'y',
+    'list.[]1.name': 'z',
+    'bad.[]x.k': 'w',
+    '__proto__.polluted': 'p',
+    '': 'e',
   })
+  expect(JSON.stringify(malformed)).toBe('{"a":{"b":"x"},"lead":"y","list":[null,{"name":"z"}],"bad":{"k":"w"},"__proto__":{"polluted":"p"}}')
+  expect(Object.getPrototypeOf(malformed)).toBe(Object.prototype)
   expect(({} as Record<string, unknown>).polluted).toBeUndefined()
 })
 

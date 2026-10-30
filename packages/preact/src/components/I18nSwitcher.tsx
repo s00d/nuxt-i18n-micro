@@ -11,6 +11,25 @@ function resolveCurrentLocale(prop: string | (() => string) | undefined, fallbac
   return fallback
 }
 
+/** The `<button>` reset under the item styles, and the caller keys that belong to the same shorthand as each part. */
+const BUTTON_RESET: Record<string, [string, RegExp]> = {
+  border: ['none', /^border(?!.*Radius|Collapse|Spacing)/],
+  backgroundColor: ['transparent', /^background$/],
+}
+
+/**
+ * The reset parts no caller style touches: a shorthand mixed with its longhand (`background` over
+ * `backgroundColor`) restyles in key order on rerender, and the caller's own value replaces the reset anyway.
+ */
+function buttonReset(...custom: (Record<string, string | number> | undefined)[]): Record<string, string> {
+  const callerKeys = custom.flatMap((style) => Object.keys(style ?? {}))
+  const reset: Record<string, string> = {}
+  for (const [key, [value, family]] of Object.entries(BUTTON_RESET)) {
+    if (!callerKeys.some((k) => family.test(k))) reset[key] = value
+  }
+  return reset
+}
+
 export interface I18nSwitcherProps extends HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
@@ -84,9 +103,9 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
   }
 
   const currentLocaleLabel = (): string => {
-    // allLocales: a disabled current locale is still named; getLocaleName only covers a code missing from the list
+    // a caller's getLocaleName wins; then the list name (allLocales: a disabled current locale is still named); then the code
     const current = allLocales.find((l) => l.code === currentLocale)
-    return current ? localeLabel(current) : getLocaleNameProp?.() || currentLocale
+    return getLocaleNameProp?.() || (current && localeLabel(current)) || currentLocale
   }
 
   const handleSwitchLocale = (code: string) => {
@@ -163,11 +182,9 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     textDecoration: 'none',
     transition: 'background-color 0.3s ease',
     cursor: 'pointer',
-    // <button> reset, under the active and custom styles so callers can override it
     width: '100%',
     textAlign: 'left',
-    border: 'none',
-    backgroundColor: 'transparent',
+    ...buttonReset(customLinkStyle, customActiveLinkStyle),
   }
 
   const activeLinkStyle: Record<string, string | number> = {

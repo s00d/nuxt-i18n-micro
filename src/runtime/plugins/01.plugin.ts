@@ -239,7 +239,8 @@ export default defineNuxtPlugin({
       // the first navigation opens the page the server rendered, unless it redirects: what that page set
       // came in the payload, and a component that does not run here (server-only, `hydrate-never`) will not set it again
       const opensRenderedPage = nuxtApp.isHydrating && !to.redirectedFrom
-      if (to.name !== from.name && !opensRenderedPage) {
+      // `/news/1` to `/news/4` is one route name and another page: what the first one set does not carry over
+      if ((to.name !== from.name || to.path !== from.path) && !opensRenderedPage) {
         i18nRouteParams.value = {}
         pageHead.value = null
       }

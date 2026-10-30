@@ -2,24 +2,37 @@ import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getPreferenceCookieName } from '@i18n-micro/utils/cookie'
+import { configForHost } from '@i18n-micro/utils/domains'
 import { firstQueryValue, localeFromPath, resolveLocale } from '@i18n-micro/utils/resolve-locale'
 import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
-import { getCookie, getHeader, getQuery, getRequestURL } from 'h3'
-import { getI18nConfig } from '#i18n-internal/strategy'
+import { getCookie, getHeader, getQuery, getRequestHost, getRequestURL } from 'h3'
+import { domains, getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 
 // ponytail: env is read once per process (Nitro's env does not change while it runs); a
 // runtime env switch needs a restart, as for the rest of runtimeConfig.
 const resolveConfig = createI18nConfigResolver()
 
+/** The host of a process that serves one domain, and of `nuxt generate`, which has no real request. */
+function fixedHost(): string | undefined {
+  try {
+    return process.env.NUXT_I18N_DOMAIN
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * The module config with runtime overrides (`runtimeConfig.public.i18nRuntime`, then env), resolved
- * once: every caller of a request, and every request with the same overrides, gets the same object
- * (so override warnings are logged once). Read-only: deep-frozen in dev.
+ * once: every caller of a request, and every request with the same overrides and host, gets the
+ * same object (so override warnings are logged once). Read-only: deep-frozen in dev.
  */
 export function getI18nServerConfig(event?: H3Event): ModuleOptionsExtend {
-  return resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  const config = resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  if (!domains) return config
+  const host = fixedHost() ?? (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
+  return host ? configForHost(config, host) : config
 }
 
 type DetectionConfig = Pick<ModuleOptionsExtend, 'defaultLocale' | 'localeCookie' | 'autoDetectLanguage' | 'strategy' | 'hashMode'> & {

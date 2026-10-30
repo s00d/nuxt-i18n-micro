@@ -1,10 +1,11 @@
 import fs, { existsSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { configForHost } from '@i18n-micro/utils/domains'
 import { buildFullConfigSource } from './config-template'
 import type {
   Getter,
@@ -145,6 +146,7 @@ function buildFullConfig(params: {
     metaBaseUrl: options.metaBaseUrl || undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
+    trustForwardedHost: options.trustForwardedHost ?? false,
     hreflangBaseLanguage: options.hreflangBaseLanguage ?? false,
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
@@ -231,13 +233,17 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      return `import { Strategy } from '${resolvedStrategyPath}'
+      const domains = runtimeFullConfig.locales.some((locale) => locale.baseUrl)
+      return `import { ${domains ? 'DomainPathStrategy as Strategy' : 'Strategy'} } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
 // disabled at build: no routes and not in the config, but routing must answer for their prefix
 const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
 export function getI18nConfig() { return __fullConfig }
+
+// a constant, so a build without locale domains drops their code
+export const domains = ${domains}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -250,7 +256,7 @@ export function createI18nStrategy(router, config = __fullConfig) {
     router,
     hashMode: config.hashMode,
     disablePageLocales: config.disablePageLocales,
-    customRegexMatcher: config.customRegexMatcher,
+    customRegexMatcher: config.customRegexMatcher,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
   })
 }
 `
@@ -325,6 +331,7 @@ export default defineNuxtModule<ModuleOptions>({
     missingWarn: true,
     metaTrustForwardedHost: true,
     metaTrustForwardedProto: true,
+    trustForwardedHost: false,
     hreflangBaseLanguage: false,
     httpCacheDuration: 31536000,
   },
@@ -523,6 +530,14 @@ export default defineNuxtModule<ModuleOptions>({
       translationsHash,
     })
 
+    // `nuxt generate` has no real request: this variable is the host of the run
+    const generateDomain = process.env.NUXT_I18N_DOMAIN
+    const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
+    if (generateDomain && !buildConfig.domain) logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
+    if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseDefault)) {
+      logger.warn('locales[].baseDefault in a static build without NUXT_I18N_DOMAIN: the build config applies. Generate once per domain.')
+    }
+
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
     const templates = registerI18nTemplates(
       options,
@@ -699,6 +714,7 @@ declare module '#build/i18n.plural.mjs' {
 }
 
 declare module '#build/i18n.strategy.mjs' {
+  export const domains: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -708,6 +724,7 @@ declare module '#i18n-internal/config' {
 }
 
 declare module '#i18n-internal/strategy' {
+  export const domains: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -730,8 +747,10 @@ declare module '#i18n-internal/payload-source' {
     const createBuildStrategy = () =>
       createLocalizedPathResolver(generatedPages, {
         strategy: options.strategy!,
-        defaultLocale,
-        locales: routeGenerator.locales,
+        defaultLocale: buildConfig.defaultLocale!,
+        locales: buildConfig.locales!,
+        domain: buildConfig.domain,
+        linkLocales: buildConfig.linkLocales,
         localizedRouteNamePrefix: options.localizedRouteNamePrefix,
         customRegexMatcher: fullConfig.customRegexMatcher as string | undefined,
       })
@@ -863,7 +882,10 @@ declare module '#i18n-internal/payload-source' {
 
         try {
           if (existsSync(publicAssetsDir)) {
-            fs.cpSync(publicAssetsDir, publicDir, { recursive: true })
+            // a per-domain generate publishes that domain's locales only (premerged layout: <page>/<locale>/)
+            const foreign = new Set((buildConfig.linkLocales ?? []).map((l) => l.code).filter((code) => !buildConfig.locales!.some((l) => l.code === code)))
+            const published = (source: string) => !foreign.has(basename(source)) || basename(dirname(source)) === basename(publicAssetsDir)
+            fs.cpSync(publicAssetsDir, publicDir, { recursive: true, filter: published })
             logger.log(`Translation payloads copied to public directory`)
 
             const compressed = compressTranslationPayloads(publicDir, nitro.options.compressPublicAssets)
@@ -903,12 +925,12 @@ declare module '#i18n-internal/payload-source' {
         // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
         for (const path of staticPaths) {
           if (prerendered(path) && localize.isServed(path)) routesSet.add(path)
-          for (const { code } of routeGenerator.locales) {
+          for (const { code } of buildConfig.locales!) {
             const localized = prerendered(path) ? localize.path(path, code) : null
             if (localized && prerendered(localized)) routesSet.add(localized)
           }
         }
-        for (const locale of routeGenerator.locales) {
+        for (const locale of buildConfig.locales!) {
           const localizedRoot = localize.path('/', locale.code)
           if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)
         }
@@ -920,7 +942,7 @@ declare module '#i18n-internal/payload-source' {
 
       for (const route of routesSet) {
         if (/\.[a-z0-9]+$/i.test(route) || !prerendered(route) || localize.localeOf(route)) continue
-        for (const locale of routeGenerator.locales) {
+        for (const locale of buildConfig.locales!) {
           const localizedRoute = localize.path(route, locale.code)
           if (localizedRoute && prerendered(localizedRoute)) additionalRoutes.add(localizedRoute)
         }

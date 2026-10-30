@@ -36,6 +36,8 @@ export interface App {
   /** params used to build concrete URLs of dynamic routes */
   params?: Record<string, string | string[]>
   strategies?: Strategies[]
+  /** Hosts to record besides the build config: one golden per host. */
+  hosts?: string[]
 }
 
 const enDeFr: Locale[] = [
@@ -240,6 +242,7 @@ export const APPS: App[] = [
     ],
     globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
     pageI18n: { 'de-only': { locales: ['de'] } },
+    hosts: ['example.com', 'example.de'],
   },
 ]
 

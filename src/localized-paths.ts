@@ -3,7 +3,7 @@
  * a memory router over them and the runtime path strategy, so build and runtime agree on custom
  * paths, `false` (unlocalized) pages and routeLocales restrictions.
  */
-import { createPathStrategy, type PathStrategyContext } from '@i18n-micro/path-strategy'
+import { createPathStrategy, DomainPathStrategy, type PathStrategyContext } from '@i18n-micro/path-strategy'
 import type { NuxtPage } from '@nuxt/schema'
 import { joinURL } from 'ufo'
 import type { RouteRecordRaw } from 'vue-router'
@@ -43,7 +43,7 @@ const toRecord = (page: NuxtPage): RouteRecordRaw =>
 export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<PathStrategyContext, 'router'>): Promise<LocalizedPathResolver> {
   const { createMemoryHistory, createRouter } = await import('vue-router')
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
-  const strategy = createPathStrategy({ ...ctx, router })
+  const strategy = ctx.locales.some((locale) => locale.baseUrl) ? new DomainPathStrategy({ ...ctx, router }) : createPathStrategy({ ...ctx, router })
   // asked per path and per locale (prerender): one resolve per path. Build time, so unbounded.
   const seen = new Map<string, ReturnType<typeof router.resolve>['matched']>()
   const matched = (path: string) => {
@@ -71,11 +71,14 @@ export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<P
       const served = strategy.pageLocales({ path })
       if (!isPage(path) || (served && !served.includes(locale)) || isUnlocalized(path)) return null
       const target = strategy.localeRoute(locale, path).fullPath
-      return target && target !== path ? target : null
+      // another domain's URL: not this site's to prerender
+      return target && target !== path && !/^https?:/.test(target) ? target : null
     },
     localeOf: (path) => strategy.getLocaleFromPath(path),
     isUnlocalized,
     isPage,
-    isServed: (path) => matched(path).length > 0,
+    // a known domain also leaves out what it answers with a 404 or a redirect (another host's URL)
+    isServed: (path) =>
+      matched(path).length > 0 && (!ctx.domain || (!strategy.shouldReturn404(path) && !strategy.getClientRedirect(path, ctx.defaultLocale))),
   }
 }

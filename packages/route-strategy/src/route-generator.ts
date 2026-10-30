@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import { hostDefaultLocales } from '@i18n-micro/utils/domains'
 import type { NuxtPage } from '@nuxt/schema'
 import { generateRoutes, type LocalizedPaths } from './generate'
 import { absolute, removeLeadingSlash, routeKey, staticPrefix } from './paths'
@@ -46,6 +47,8 @@ export class RouteGenerator {
   readonly defaultLocale: Locale
   readonly strategy: Strategies
   readonly routeLocales: Record<string, string[]>
+  /** Defaults of the domains in this build, besides the build default. */
+  private readonly hostDefaults: string[]
   private readonly rules: Rules
   private readonly options: RouteGeneratorOptions
   /** Localized paths of the pages seen by the last extendPages call. */
@@ -60,6 +63,8 @@ export class RouteGenerator {
     this.routeLocales = options.routeLocales ?? {}
     this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales, options.routeDisableMeta)
     this.options = options
+    const unprefixedDefault = options.strategy === 'prefix_except_default' || options.strategy === 'prefix_and_default'
+    this.hostDefaults = unprefixedDefault ? hostDefaultLocales(this.locales, this.defaultLocale.code) : []
   }
 
   /** Replaces `pages` (in place, as Nuxt's `pages:resolved` hook expects) with the localized routes. */
@@ -77,6 +82,7 @@ export class RouteGenerator {
         excludePatterns: this.options.excludePatterns,
         apiBaseUrl: this.options.apiBaseUrl,
         noPrefixRedirect: this.options.noPrefixRedirect,
+        hostDefaults: this.hostDefaults,
       },
       this.localizedPaths,
     )
@@ -106,6 +112,8 @@ export class RouteGenerator {
    */
   resolveLocalizedRulePaths(originalPath: string, localeCode: string): string[] {
     const paths = new Set([this.resolveLocalizedPath(originalPath, localeCode)])
+    // the default of a domain answers without its prefix there
+    if (this.hostDefaults.includes(localeCode)) paths.add(`/${this.resolveLocalizedPath(originalPath, localeCode).split('/').slice(2).join('/')}`)
     if (!originalPath.endsWith('/**')) return [...paths]
     for (const custom of this.rules.customPathsUnder(routeKey(originalPath.slice(0, -3)), localeCode)) {
       const prefix = staticPrefix(custom)

@@ -1,6 +1,6 @@
 import { computed, type InjectionKey, inject, type MaybeRefOrGetter, provide, type Ref, shallowRef, toValue, watch } from 'vue'
 import type { I18nClientProps } from '../utils'
-import { createIslandApi, type I18nState } from './core'
+import { createIslandApi, type I18nState, withLocale } from './core'
 
 const I18nSymbol = Symbol('i18n-astro') as InjectionKey<Ref<I18nState>>
 
@@ -29,8 +29,11 @@ export function useAstroI18n() {
   if (!state) {
     throw new Error('useAstroI18n must be used within a component that calls provideI18n')
   }
-  const patch = (change: Partial<I18nState>) => {
-    state.value = { ...state.value, ...change }
+  const setLocale = (locale: string) => {
+    state.value = withLocale(state.value, locale)
+  }
+  const setRoute = (currentRoute: string) => {
+    state.value = { ...state.value, currentRoute }
   }
 
   return {
@@ -39,16 +42,16 @@ export function useAstroI18n() {
     // Reactive locale state
     locale: computed({
       get: () => state.value.locale,
-      set: (locale: string) => patch({ locale }),
+      set: setLocale,
     }),
     fallbackLocale: computed(() => state.value.fallbackLocale),
     currentRoute: computed({
       get: () => state.value.currentRoute,
-      set: (currentRoute: string) => patch({ currentRoute }),
+      set: setRoute,
     }),
 
     // Route management
-    setLocale: (locale: string) => patch({ locale }),
-    setRoute: (currentRoute: string) => patch({ currentRoute }),
+    setLocale,
+    setRoute,
   }
 }

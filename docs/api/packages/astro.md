@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 53 members |
+| `AstroI18n` | class | 56 members |
 | `AstroI18nOptions` | interface | 9 members |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -59,7 +59,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 53 members</summary>
+<summary><code>AstroI18n</code> — 56 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -90,6 +90,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `localeIso` | `private any` |
 | `lookupLocale` | `private any` |
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
@@ -97,6 +98,8 @@ import { /* … */ } from '@i18n-micro/astro'
 | `new` | `(options: AstroI18nOptions): AstroI18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

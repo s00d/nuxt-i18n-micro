@@ -762,7 +762,32 @@ export function storeReport(): string {
   return r.toString()
 }
 
-const PLURAL_LOCALES = ['en', 'de', 'fr', 'es', 'ja', 'ru', 'uk', 'pl', 'cs', 'he', 'ar', 'cy', 'xx-invalid_', '']
+const PLURAL_LOCALES = [
+  'en',
+  'de',
+  'fr',
+  'es',
+  'ja',
+  'ru',
+  'uk',
+  'pl',
+  'cs',
+  'he',
+  'ar',
+  'ars',
+  'blo',
+  'br',
+  'cv',
+  'cy',
+  'ksh',
+  'kw',
+  'lag',
+  'lv',
+  'prg',
+  'ua',
+  'xx-invalid_',
+  '',
+]
 const PLURAL_COUNTS = [0, 1, 2, 3, 5, 11, 12, 21, 22, 25, 100, 101, 111, 1000000, -1, 1.5, Number.NaN]
 const PLURAL_TEMPLATES = [
   'only',
@@ -770,6 +795,10 @@ const PLURAL_TEMPLATES = [
   'zero | one | other',
   '{count} a | {count} b | {count} c',
   'none | one | {count} many',
+  'нет | одно | много',
+  'нет товаров | {n} товар | {n} товаров',
+  '=0 zero | one | {count} other',
+  '=0 zero | one | few | many',
   'нет | {count} one | {count} few | {count} many',
   'a | b | c | d | e | f',
   'a | b | c | d | e | f | g',

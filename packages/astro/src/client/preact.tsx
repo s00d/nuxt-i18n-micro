@@ -4,7 +4,7 @@ import type { ComponentChildren } from 'preact'
 import { createContext, createElement } from 'preact'
 import { type Dispatch, type StateUpdater, useContext, useMemo, useState } from 'preact/hooks'
 import type { I18nClientProps } from '../utils'
-import { createIslandApi, type I18nState } from './core'
+import { createIslandApi, type I18nState, withLocale } from './core'
 
 interface I18nContextValue {
   state: I18nState
@@ -42,7 +42,7 @@ export function useAstroI18n() {
     fallbackLocale: state.fallbackLocale,
     currentRoute: state.currentRoute,
 
-    setLocale: (locale: string) => setState((current) => ({ ...current, locale })),
+    setLocale: (locale: string) => setState((current) => withLocale(current, locale)),
     setRoute: (currentRoute: string) => setState((current) => ({ ...current, currentRoute })),
   }
 }

@@ -106,6 +106,7 @@ interface VueI18nOptions
 member VueI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member VueI18nOptions.fallbackLocale?: string | undefined
 member VueI18nOptions.locale: string
+member VueI18nOptions.localeIso?: Record<string, string> | undefined
 member VueI18nOptions.messages?: Record<string, Translations> | undefined
 member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18nOptions.missingWarn?: boolean | undefined

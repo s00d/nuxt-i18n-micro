@@ -1,4 +1,4 @@
-import { BaseI18n } from '@i18n-micro/core'
+import { BaseI18n, localeIsoMap } from '@i18n-micro/core'
 import type { MissingHandler, Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 export type LocaleCode = string
@@ -124,7 +124,7 @@ export class I18nTestContext extends BaseI18n {
     Pick<ResetI18nOptions, 'defaultLocale' | 'translations' | 'messages'>
 
   constructor(options: CreateI18nTestContextOptions = {}) {
-    super({ missingWarn: false })
+    super({ missingWarn: false, localeIso: localeIsoMap(options.locales ?? []) })
     this.getCustomMissingHandler = () => this.customMissingHandler
     this.initial = {
       locale: options.locale ?? 'en',

@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 59 members |
+| `I18n` | class | 62 members |
 | `I18nOptions` | interface | 11 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/node'
 <code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 59 members</summary>
+<summary><code>I18n</code> — 62 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -71,12 +71,15 @@ import { /* … */ } from '@i18n-micro/node'
 | `loadTranslations` | `(dir?: string) => Promise<void>` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `localeIso` | `private any` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private any` |
 | `reload` | `() => Promise<void>` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |

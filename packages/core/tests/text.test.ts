@@ -64,72 +64,195 @@ describe('escapeHtml', () => {
 
 describe('plural forms', () => {
   const pick = (template: string, count: number, locale: string) => pluralForm(template, count, locale)
+  const picks = (template: string, counts: number[], locale: string) => counts.map((count) => pick(template, count, locale))
 
-  it.each([
-    [0, 'яблок'],
-    [1, 'яблоко'],
-    [2, 'яблока'],
-    [4, 'яблока'],
-    [5, 'яблок'],
-    [11, 'яблок'],
-    [12, 'яблок'],
-    [21, 'яблоко'],
-    [22, 'яблока'],
-    [25, 'яблок'],
-    [111, 'яблок'],
-    [1000001, 'яблоко'],
-  ])('ru one | few | many × %i → %s', (count, form) => {
-    expect(pick('яблоко | яблока | яблок', count, 'ru')).toBe(form)
+  describe('a template without the marker stays on the index rule', () => {
+    it.each([
+      ['яблоко | яблока | яблок', ['яблоко', 'яблока', 'яблок', 'яблок', 'яблок']],
+      ['нет | одно | много', ['нет', 'одно', 'много', 'много', 'много']],
+      ['нет яблок | одно яблоко | {count} яблок', ['нет яблок', 'одно яблоко', '{count} яблок', '{count} яблок', '{count} яблок']],
+      ['нет товаров | {n} товар | {n} товаров', ['нет товаров', '{n} товар', '{n} товаров', '{n} товаров', '{n} товаров']],
+      [
+        '{count} товаров | {count} товар | {count} товара',
+        ['{count} товаров', '{count} товар', '{count} товара', '{count} товара', '{count} товара'],
+      ],
+      ['нет | один | два | {count} много', ['нет', 'один', 'два', '{count} много', '{count} много']],
+      ['нет | один | {count} a | {count} b', ['нет', 'один', '{count} a', '{count} b', '{count} b']],
+      ['a | b', ['a', 'b', 'b', 'b', 'b']],
+    ])('ru %s', (template, forms) => {
+      expect(picks(template, [0, 1, 2, 5, 21], 'ru')).toEqual(forms)
+    })
+
+    it('a numbered first form is no zero form', () => {
+      expect(picks('{count} a | {count} b | {count} c | {count} d', [0, 1, 2, 3, 21], 'ru')).toEqual([
+        '{count} a',
+        '{count} b',
+        '{count} c',
+        '{count} d',
+        '{count} d',
+      ])
+    })
+
+    it('two categories stay on the index rule even where one is not just 1', () => {
+      expect(picks('a | {count} b | {count} c', [0, 1, 2, 21], 'is')).toEqual(['a', '{count} b', '{count} c', '{count} c'])
+    })
+
+    it('a fallback text keeps its own shape on another locale', () => {
+      expect(picks('zero | one | many', [0, 1, 2, 21], 'ru')).toEqual(['zero', 'one', 'many', 'many'])
+    })
+
+    it.each(['en', 'de', 'fr', 'es', 'ja', 'en_US', ''])('%j', (locale) => {
+      expect(picks('a | b | c', [0, 1, 2, 5], locale)).toEqual(['a', 'b', 'c', 'c'])
+      expect(picks('a | b', [0, 1, 2], locale)).toEqual(['a', 'b', 'b'])
+    })
+
+    it.each([-1, 1.5, Number.NaN])('%d takes the last form', (count) => {
+      expect(pick('яблоко | яблока | яблок', count, 'ru')).toBe('яблок')
+      expect(pick('a | b | c', count, 'en')).toBe('c')
+    })
   })
 
-  it('a form per category with {count} in each', () => {
-    expect(pick('{count} файл | {count} файла | {count} файлов', 21, 'ru')).toBe('{count} файл')
+  describe('the one unmarked shape with categories: a zero form, then a numbered form per category', () => {
+    it('ru', () => {
+      const template = 'нет | {count} яблоко | {count} яблока | {count} яблок'
+      expect(picks(template, [0, 1, 3, 5, 21, 22, 111, 1000001], 'ru')).toEqual([
+        'нет',
+        '{count} яблоко',
+        '{count} яблока',
+        '{count} яблок',
+        '{count} яблоко',
+        '{count} яблока',
+        '{count} яблок',
+        '{count} яблоко',
+      ])
+    })
+
+    it('ar: forms for exactly one count need no number', () => {
+      const template = 'صفر | واحد | اثنان | {count} قليل | {count} كثير | {count} آخر'
+      expect(picks(template, [0, 1, 2, 3, 11, 100], 'ar')).toEqual(['صفر', 'واحد', 'اثنان', '{count} قليل', '{count} كثير', '{count} آخر'])
+    })
+
+    it('a count past the probed table cannot fall onto the zero form', () => {
+      expect(pick('a | {count} b | {count} c | {count} d | {count} e', 1000000, 'br')).toBe('{count} e')
+    })
   })
 
-  it('one more form than categories: the first is for zero', () => {
-    const template = 'нет | {count} яблоко | {count} яблока | {count} яблок'
-    expect([0, 1, 3, 5, 21].map((count) => pick(template, count, 'ru'))).toEqual([
-      'нет',
-      '{count} яблоко',
-      '{count} яблока',
-      '{count} яблок',
-      '{count} яблоко',
-    ])
+  describe('every locale with a zero category', () => {
+    const zeroLocales = ['ar', 'ars', 'blo', 'cv', 'cy', 'ksh', 'kw', 'lag', 'lv', 'prg']
+
+    it('the list is complete for this ICU', () => {
+      const tags: string[] = []
+      const letters = 'abcdefghijklmnopqrstuvwxyz'
+      for (const a of letters) for (const b of letters) tags.push(a + b, ...[...letters].map((c) => a + b + c))
+      const found = Intl.PluralRules.supportedLocalesOf(tags).filter((tag) => {
+        const rules = new Intl.PluralRules(tag)
+        return Array.from({ length: 200 }, (_, n) => rules.select(n)).includes('zero')
+      })
+      expect(found.toSorted()).toEqual(zeroLocales)
+    })
+
+    it.each(zeroLocales)('%s keeps a three-form zero-first template on the index rule', (locale) => {
+      expect(picks('nav | viens | {count} āboli', [0, 1, 2, 10, 11, 19, 20, 21, 30, 100], locale)).toEqual([
+        'nav',
+        'viens',
+        ...Array.from({ length: 8 }, () => '{count} āboli'),
+      ])
+    })
+
+    it.each(['lv', 'prg'])('%s with the marker: 10 is not the zero form', (locale) => {
+      const template = '=0 nav | {count} ābols | {count} āboli'
+      expect(picks(template, [0, 1, 2, 10, 11, 21, 100], locale)).toEqual([
+        'nav',
+        '{count} ābols',
+        '{count} āboli',
+        '{count} āboli',
+        '{count} āboli',
+        '{count} ābols',
+        '{count} āboli',
+      ])
+    })
+
+    it.each(['lv', 'prg'])('%s with the marker and a form per category', (locale) => {
+      expect(picks('=0 nav | {count} ābolu | {count} ābols | {count} āboli', [0, 10, 21, 22], locale)).toEqual([
+        'nav',
+        '{count} ābolu',
+        '{count} ābols',
+        '{count} āboli',
+      ])
+    })
   })
 
-  it('a zero-first template of the same size stays on the index rule', () => {
-    const template = 'нет яблок | одно яблоко | {count} яблок'
-    expect([0, 1, 2, 21].map((count) => pick(template, count, 'ru'))).toEqual(['нет яблок', 'одно яблоко', '{count} яблок', '{count} яблок'])
+  describe('the =0 marker', () => {
+    it('the zero form, then the rest by category, the last form taking what has no form of its own', () => {
+      expect(picks('=0 нет | одно | много', [0, 1, 2, 5, 11, 21, 22], 'ru')).toEqual(['нет', 'одно', 'много', 'много', 'много', 'одно', 'много'])
+    })
+
+    it('a form per category', () => {
+      expect(picks('=0 нет | яблоко | яблока | яблок', [0, 1, 2, 5, 21, 22, 25], 'ru')).toEqual([
+        'нет',
+        'яблоко',
+        'яблока',
+        'яблок',
+        'яблоко',
+        'яблока',
+        'яблок',
+      ])
+    })
+
+    it('works in a two-category locale', () => {
+      expect(picks('=0 none | one | {count} many', [0, 1, 2, 21], 'en')).toEqual(['none', 'one', '{count} many', '{count} many'])
+      expect(picks('=0 aucun | un | {count}', [0, 1, 2], 'fr')).toEqual(['aucun', 'un', '{count}'])
+    })
+
+    it('a category only a huge count reaches goes to the last form, or its own when written', () => {
+      expect(pick('=0 aucun | un | {count}', 1000000, 'fr')).toBe('{count}')
+      expect(pick('=0 aucun | un | des millions | {count}', 1000000, 'fr')).toBe('des millions')
+      expect(pick('=0 aucun | un | des millions | {count}', 2, 'fr')).toBe('{count}')
+    })
+
+    it('ar: zero is the marked form, whichever way the rest are counted', () => {
+      expect(picks('=0 z | a | b | c | d | e', [0, 1, 2, 3, 11, 100], 'ar')).toEqual(['z', 'a', 'b', 'c', 'd', 'e'])
+    })
+
+    it('a single form answers every count', () => {
+      expect(picks('=0 only', [0, 1, 5], 'ru')).toEqual(['only', 'only', 'only'])
+    })
+
+    it.each([-1, 1.5, Number.NaN])('%d takes the last form', (count) => {
+      expect(pick('=0 нет | одно | много', count, 'ru')).toBe('много')
+    })
+
+    it('without usable rules it falls back to the index rule, the marker removed', () => {
+      expect(picks('=0 none | one | many', [0, 1, 2, 5], 'en_US')).toEqual(['none', 'one', 'many', 'many'])
+    })
+
+    it('only at the very start, followed by a space', () => {
+      expect(pick('=0x | b', 0, 'en')).toBe('=0x')
+      expect(pick(' =0 a | b', 0, 'en')).toBe('=0 a')
+    })
+
+    it('defaultPlural interpolates the form, with the marker gone', () => {
+      expect(defaultPlural('k', 21, {}, 'ru', (() => '=0 нет | {count} яблоко | {count} яблок') as never)).toBe('21 яблоко')
+      expect(defaultPlural('k', 0, {}, 'ru', (() => '=0 нет | {count} яблоко | {count} яблок') as never)).toBe('нет')
+    })
   })
 
-  it('fewer forms than categories stay on the index rule', () => {
-    expect([0, 1, 2, 21].map((count) => pick('a | b', count, 'ru'))).toEqual(['a', 'b', 'b', 'b'])
-    expect([0, 1, 2, 3].map((count) => pick('a | b | c', count, 'ar'))).toEqual(['a', 'b', 'c', 'c'])
+  describe('which rules a locale gets never depends on the host', () => {
+    it.each(['ua', 'cz', 'jp', 'cn', 'xx', 'russian'])('%s is unknown to Intl: the index rule', (locale) => {
+      const spy = vi.spyOn(Intl, 'PluralRules')
+      expect(picks('a | {count} b | {count} c | {count} d', [0, 1, 2, 3, 21], locale)).toEqual([
+        'a',
+        '{count} b',
+        '{count} c',
+        '{count} d',
+        '{count} d',
+      ])
+      expect(spy).not.toHaveBeenCalled()
+      spy.mockRestore()
+    })
   })
 
-  it('a locale with a zero category maps every form, the first having no number', () => {
-    const template = 'صفر | واحد | اثنان | {count} قليل | {count} كثير | {count} آخر'
-    expect([0, 1, 2, 3, 11, 100].map((count) => pick(template, count, 'ar'))).toEqual([
-      'صفر',
-      'واحد',
-      'اثنان',
-      '{count} قليل',
-      '{count} كثير',
-      '{count} آخر',
-    ])
-  })
-
-  it.each(['en', 'de', 'fr', 'es', 'ja', 'en_US', ''])('%j keeps the index rule for every template', (locale) => {
-    expect([0, 1, 2, 5].map((count) => pick('a | b | c', count, locale))).toEqual(['a', 'b', 'c', 'c'])
-    expect([0, 1, 2].map((count) => pick('a | b', count, locale))).toEqual(['a', 'b', 'b'])
-  })
-
-  it.each([-1, 1.5, Number.NaN])('%d takes the last form in any locale', (count) => {
-    expect(pick('яблоко | яблока | яблок', count, 'ru')).toBe('яблок')
-    expect(pick('a | b | c', count, 'en')).toBe('c')
-  })
-
-  it('builds the rules of a locale once, and a cold cache never exceeds its bound', () => {
+  it('builds the rules of a locale once', () => {
     const spy = vi.spyOn(Intl, 'PluralRules')
     pick('a | b | c', 1, 'sk')
     pick('a | b | c', 2, 'sk')
@@ -137,10 +260,14 @@ describe('plural forms', () => {
     spy.mockRestore()
   })
 
-  it('defaultPlural interpolates the picked form only', () => {
-    const getter = () => '{count} яблоко | {count} яблока | {count} яблок'
-    expect(defaultPlural('k', 21, { x: 1 }, 'ru', getter as never)).toBe('21 яблоко')
-    expect(defaultPlural('k', 1, {}, 'ru', (() => undefined) as never)).toBeNull()
+  it('the first 200 counts of a locale cost no Intl call', () => {
+    pick('=0 a | b', 1, 'bs')
+    const select = vi.spyOn(Intl.PluralRules.prototype, 'select')
+    pick('=0 a | b | c', 21, 'bs')
+    expect(select).not.toHaveBeenCalled()
+    pick('=0 a | b | c', 1021, 'bs')
+    expect(select).toHaveBeenCalledTimes(1)
+    select.mockRestore()
   })
 })
 
@@ -148,7 +275,7 @@ describe('resolveText', () => {
   const messages = {
     hi: 'Hello, {name}!',
     apples: 'none | one | {count} apples',
-    ruApples: 'яблоко | яблока | яблок',
+    ruApples: '=0 нет | яблоко | яблока | яблок',
     blank: '   ',
     sum: 'total {number}',
     when: 'on {date}',
@@ -164,6 +291,7 @@ describe('resolveText', () => {
   it('picks the plural form before anything is interpolated', () => {
     expect(resolveText(i18n(), { keypath: 'apples', plural: 3 })).toEqual({ template: '{count} apples', params: { count: 3 } })
     expect(text(new TestI18n('ru', messages), { keypath: 'ruApples', plural: 21 })).toBe('яблоко')
+    expect(text(new TestI18n('ru', messages), { keypath: 'ruApples', plural: 0 })).toBe('нет')
   })
 
   it('treats null props as not set', () => {
@@ -242,11 +370,50 @@ describe('resolveText', () => {
       expect(text(custom, { keypath: 'apples', plural: 2 })).toBe('custom 2')
     })
 
-    it('null falls back to the default rule, Intl categories included', () => {
+    it('sees the marker in the raw value: it is the rule that reads the forms', () => {
+      const seen: unknown[] = []
+      const reader: PluralFunc = (key, _count, _params, _locale, getter) => {
+        seen.push(getter(key))
+        return 'mine'
+      }
+      expect(new TestI18n('ru', messages, reader).tc('ruApples', 1)).toBe('mine')
+      expect(text(new TestI18n('ru', messages), { keypath: 'ruApples', plural: 1, customPluralRule: reader })).toBe('mine')
+      expect(seen).toEqual(['=0 нет | яблоко | яблока | яблок', '=0 нет | яблоко | яблока | яблок'])
+    })
+
+    it('null falls back to the default rule, the marker included', () => {
       const custom = new TestI18n('ru', messages, rule)
       expect(custom.tc('ruApples', 21)).toBe('яблоко')
       expect(text(custom, { keypath: 'ruApples', plural: 21 })).toBe('яблоко')
     })
+  })
+})
+
+describe('the plural locale of an instance', () => {
+  class IsoI18n extends BaseI18n {
+    constructor(plural?: PluralFunc) {
+      super({ plural, missingWarn: false, localeIso: { ua: 'uk-UA', de: 'de-DE' } })
+      this.helper.loadTranslations('ua', { x: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } as never)
+    }
+    getLocale = () => 'ua'
+    getFallbackLocale = () => 'ua'
+    getRoute = () => 'index'
+  }
+
+  it('a code that is no language plurals by its iso', () => {
+    expect(new IsoI18n().tc('x', 21)).toBe('21 яблуко')
+    expect(new IsoI18n().tc('x', 22)).toBe('22 яблука')
+    expect(text(new IsoI18n(), { keypath: 'x', plural: 21 })).toBe('21 яблуко')
+  })
+
+  it('a custom rule keeps getting the code, and its null falls back by iso', () => {
+    const codes: string[] = []
+    const rule: PluralFunc = (_k, _c, _p, locale) => {
+      codes.push(locale)
+      return null
+    }
+    expect(new IsoI18n(rule).tc('x', 21)).toBe('21 яблуко')
+    expect(codes).toEqual(['ua'])
   })
 })
 

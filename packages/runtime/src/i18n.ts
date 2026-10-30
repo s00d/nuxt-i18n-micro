@@ -24,6 +24,8 @@ export interface I18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (`td(d, 'short')`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. `localeIsoMap(locales)` builds it. */
+  localeIso?: Record<string, string>
   /** Set by `fork()`: the instance whose dictionaries, formatters and rules this one shares. */
   parent?: I18n
 }
@@ -72,6 +74,7 @@ export class I18n extends BaseI18n {
       missingHandler: options.missingHandler,
       numberFormats: options.numberFormats,
       datetimeFormats: options.datetimeFormats,
+      localeIso: parent?.localeIso ?? options.localeIso,
     })
 
     this.ownStore = createReactiveI18nStore({

@@ -47,6 +47,10 @@ describe('site base on the way out', () => {
     expect(routing.toHref!('/fr/guide')).toBe('/docs/fr/guide')
   })
 
+  it('a location keeps its query', () => {
+    expect(adapter(vi.fn()).resolvePath!({ path: '/guide', query: { x: '1' }, hash: '#a' }, 'fr')).toBe('/fr/guide?x=1#a')
+  })
+
   it('a location keeps its hash, and without a base nothing changes', () => {
     const go = vi.fn()
     expect(adapter(go).resolvePath!({ path: '/guide', hash: '#a' }, 'fr')).toBe('/fr/guide#a')

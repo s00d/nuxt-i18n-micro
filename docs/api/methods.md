@@ -48,6 +48,7 @@ const { t, localePath } = useI18n()
 | [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
 | `$pluralFunc` | `PluralFunc` | The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. |
+| `$pluralLocale` | `() => string` | The tag `$tc` plurals by: the locale's `iso` when it has one, else its code. |
 | [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
@@ -221,15 +222,30 @@ Translate with pluralization. `params` may be the count itself, or an object con
 
 Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form.
 
-Locales with three or more integer categories (`ru`, `uk`, `pl`, `cs`, `he`, `ar`...) use `Intl.PluralRules` when the template fits them:
+For languages whose plurals do not follow the count, such as Russian, start the template with `=0 `. The first form is then for 0, and the others go by [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules) category, in the order `zero, one, two, few, many, other`:
 
-| Template | Forms | Rule |
-| --- | --- | --- |
-| `яблоко \| яблока \| яблок` | one per category | by category: 21 → `яблоко`, 22 → `яблока`, 25 → `яблок` |
-| `{count} яблоко \| {count} яблока \| {count} яблок` | one per category | by category |
-| `нет \| {count} яблоко \| {count} яблока \| {count} яблок` | one more, for zero | 0 → the first form, else by category |
-| `нет яблок \| одно яблоко \| {count} яблок` | first form without `{count}`, a later one with it | by index |
-| `a \| b` in `ru`, `a \| b \| c` in `ar` | fewer than categories | by index |
+```json
+{
+  "apples": "=0 нет яблок | {count} яблоко | {count} яблока | {count} яблок",
+  "files": "=0 нет | один | много"
+}
+```
+
+```ts
+$tc('apples', 0) // 'нет яблок'
+$tc('apples', 21) // '21 яблоко'
+$tc('apples', 22) // '22 яблока'
+$tc('apples', 25) // '25 яблок'
+$tc('files', 3) // 'много': no form for `few`, so the last one
+```
+
+- `=0 ` counts only at the very start of the value, with the space. `$t` shows it as text: it belongs to plurals.
+- A category with no form of its own takes the last form. A negative or fractional count takes the last form too.
+- It works in any locale: `=0 none | one | {count} many` in English.
+- The category comes from the locale's `iso`, else its code. A code `Intl` does not know falls back to the index rule, the marker still removed, so the result never depends on the machine.
+- `<i18n-t :plural>` follows the same rule. A custom [`plural`](/api/module-options#plural) or `customPluralRule` gets the raw value, marker included, and decides for itself; `plural` returning `null` hands the call back to the built-in rule, which honours the marker.
+
+Without the marker a template stays on the index rule, with one exception that only reads one way: a zero form with no placeholder, then one form per category, with `{count}` in each form several counts share (`нет | {count} яблоко | {count} яблока | {count} яблок`).
 
 For rules of your own set [`plural`](/api/module-options#plural).
 

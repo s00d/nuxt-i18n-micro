@@ -15,6 +15,8 @@ export interface VueI18nOptions {
   datetimeFormats?: DateTimeFormatsConfig
   /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
   timeZone?: string
+  /** BCP 47 tag per locale code, for plurals of a code that is no language tag. `createI18n` fills it from `locales`. */
+  localeIso?: Record<string, string>
 }
 
 export class VueI18n extends BaseI18n {
@@ -40,6 +42,7 @@ export class VueI18n extends BaseI18n {
       numberFormats: options.numberFormats,
       datetimeFormats: options.datetimeFormats,
       timeZone: options.timeZone,
+      localeIso: options.localeIso,
     })
 
     this.storage = storage

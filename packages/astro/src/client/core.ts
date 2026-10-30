@@ -6,6 +6,8 @@ import type { CleanTranslation, Getter, Params, TranslationKey, Translations } f
  */
 export interface I18nState {
   locale: string
+  /** The tag plurals go by, when it is not `locale`. */
+  pluralLocale?: string
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
@@ -53,7 +55,7 @@ export function translatePlural(state: I18nState, key: TranslationKey, count: nu
     if (raw === null) return dv === undefined ? undefined : dv || k
     return p && typeof raw === 'string' ? interpolate(raw, p) : raw
   }
-  return defaultPlural(key, Number(countValue), params, state.locale, getter) ?? defaultValue ?? key
+  return defaultPlural(key, Number(countValue), params, state.pluralLocale ?? state.locale, getter) ?? defaultValue ?? key
 }
 
 /**
@@ -62,6 +64,9 @@ export function translatePlural(state: I18nState, key: TranslationKey, count: nu
 export function hasTranslation(state: I18nState, key: string, routeName?: string): boolean {
   return lookup(state, key, routeName) !== null
 }
+
+/** `state` in another locale: the tag of the old one no longer applies. */
+export const withLocale = (state: I18nState, locale: string): I18nState => ({ ...state, locale, pluralLocale: undefined })
 
 const formatter = /*#__PURE__*/ new FormatService()
 

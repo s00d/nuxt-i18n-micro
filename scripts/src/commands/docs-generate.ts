@@ -185,10 +185,10 @@ function typeText(type: unknown): string {
   return node.name ?? 'unknown'
 }
 
-/** Slots of a `defineSlots` block: vue-docgen-api reads them from templates only, and a render function has none. */
+/** Slots of a `SlotsType` block: vue-docgen-api reads them from templates only, and a render function has none. */
 function declaredSlots(file: string): { name: string; bindings: { name: string }[]; description: string }[] {
-  const block = readFileSync(file, 'utf8').match(/defineSlots<\{([\s\S]*?)\n\}>/)?.[1] ?? ''
-  return [...block.matchAll(/\/\*\* (.+?) \*\/\n\s+'?([\w-]+)'?\?: \((?:scope: \{ (\w+):[^)]*)?\)/g)].map(([, description, name, binding]) => ({
+  const block = readFileSync(file, 'utf8').match(/SlotsType<\{([\s\S]*?)\n\s*\}>/)?.[1] ?? ''
+  return [...block.matchAll(/\/\*\* (.+?) \*\/\n\s+'?([\w-]+)'?: \((?:scope: \{ (\w+):[^)]*)?\)/g)].map(([, description, name, binding]) => ({
     name: name!,
     bindings: binding ? [{ name: binding }] : [],
     description: description!,

@@ -1,3 +1,4 @@
+import { localeIsoMap } from '@i18n-micro/core'
 import type { Locale, TranslationKey } from '@i18n-micro/types'
 import type { App, Plugin } from 'vue'
 import { I18nGroup } from './components/i18n-group'
@@ -29,7 +30,7 @@ export type I18nPlugin = Plugin & {
 
 export function createI18n(options: CreateI18nOptions): I18nPlugin {
   const { routingStrategy, locales, defaultLocale, ...i18nOptions } = options
-  const i18n = new VueI18n(i18nOptions)
+  const i18n = new VueI18n({ localeIso: locales && localeIsoMap(locales), ...i18nOptions })
 
   let currentApp: App | null = null
   let currentStrategy: I18nRoutingStrategy | null = routingStrategy || null

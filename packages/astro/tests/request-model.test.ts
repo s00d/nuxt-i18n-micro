@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { createAstroRouterAdapter, createI18n, createI18nMiddleware, getI18nProps, useI18n, useLocaleHead, type I18nRoutingStrategy } from '../src'
+import { translatePlural, withLocale } from '../src/client/core'
 import { resolveI18nT, resolveLinkHref } from '../src/utils'
 
 const locales = [{ code: 'en', iso: 'en-US' }, { code: 'de', iso: 'de-DE' }, { code: 'fr', iso: 'fr-FR', disabled: true }]
@@ -328,4 +329,20 @@ describe('<I18nT> text', () => {
 test('the default adapter survives a window with a URL object', () => {
   const adapter = createAstroRouterAdapter(locales, 'en', () => new URL('http://x.test/a?b=1'))
   expect(adapter.getRoute!()).toEqual({ fullPath: '/a?b=1', query: { b: '1' } })
+})
+
+test('islands plural by the locale tag: a code that is no language tag', async () => {
+  const i18n = createI18n({
+    locale: 'ua',
+    localeIso: { ua: 'uk-UA' },
+    messages: { ua: { items: '{count} предмет | {count} предмети | {count} предметів' } },
+    missingWarn: false,
+  })
+  const handler = createI18nMiddleware({ i18n, defaultLocale: 'ua', locales: ['ua'] })
+  const ctx = context('/')
+  await handler(ctx as never, async () => new Response(''))
+  const props = getI18nProps({ locals: ctx.locals } as never)
+  expect(props.pluralLocale).toBe('uk-UA')
+  expect(translatePlural(props, 'items', 21)).toBe('21 предмет')
+  expect(withLocale(props, 'en').pluralLocale).toBeUndefined()
 })

@@ -1,6 +1,6 @@
 import { get, type Writable, writable } from 'svelte/store'
 import type { I18nClientProps } from '../utils'
-import { createIslandApi, type I18nState } from './core'
+import { createIslandApi, type I18nState, withLocale } from './core'
 
 /**
  * Creates a Svelte store for i18n state. An island kept by `transition:persist` follows its new
@@ -36,7 +36,7 @@ export function useAstroI18n(store: Writable<I18nState>) {
 
     // Route management
     setLocale: (locale: string) => {
-      store.update((state) => ({ ...state, locale }))
+      store.update((state) => withLocale(state, locale))
     },
     setRoute: (routeName: string) => {
       store.update((state) => ({ ...state, currentRoute: routeName }))

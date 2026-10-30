@@ -40,7 +40,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 61 members |
+| `SolidI18n` | class | 64 members |
 | `SolidI18nOptions` | interface | 8 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -85,7 +85,7 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 61 members</summary>
+<summary><code>SolidI18n</code> — 64 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -121,6 +121,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
+| `localeIso` | `private any` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
@@ -128,6 +129,8 @@ import { /* … */ } from '@i18n-micro/solid'
 | `notifyListeners` | `private () => void` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

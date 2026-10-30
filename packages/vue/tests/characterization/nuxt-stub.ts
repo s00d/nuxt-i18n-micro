@@ -18,6 +18,10 @@ export const useNuxtApp = () => app
 export const useRoute = () => route
 export const useState = () => ref(null)
 
+/** A router under `app.baseURL`: tests set the base, as the real one takes it from the config. */
+export const routerBase = { value: '' }
+export const useRouter = () => ({ resolve: (path: string) => ({ href: `${routerBase.value}${path}` }) })
+
 /** What a plain `<NuxtLink>` puts in the DOM: an anchor to `to`. */
 export const NuxtLink = defineComponent({
   name: 'NuxtLink',

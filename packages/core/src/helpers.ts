@@ -1,4 +1,4 @@
-export { externalLinkHref, isPlainClick, isSamePage } from './link'
+export { externalLinkHref, isPlainClick, isSamePage, localeIsoMap } from './link'
 export {
   isNoPrefixStrategy,
   isPrefixAndDefaultStrategy,

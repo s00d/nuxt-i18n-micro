@@ -130,3 +130,14 @@ describe('loadFromUrls', () => {
     expect(i18n.t('v')).toBe('/second.json')
   })
 })
+
+test('a fork keeps the locale tags: plurals of a code that is no language tag', () => {
+  const root = createI18n({
+    locale: 'ua',
+    localeIso: { ua: 'uk-UA' },
+    messages: { ua: { items: '{count} предмет | {count} предмети | {count} предметів' } },
+    missingWarn: false,
+  })
+  expect(root.fork().tc('items', 21)).toBe(root.tc('items', 21))
+  expect(root.fork().tc('items', 21)).toBe('21 предмет')
+})

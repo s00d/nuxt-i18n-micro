@@ -223,6 +223,8 @@ export function useLocaleHead(astro: Astro, options: LocaleHeadOptions = {}): Lo
  */
 export interface I18nClientProps {
   locale: string
+  /** The tag plurals go by: the locale's `iso` when it has one. */
+  pluralLocale?: string
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
@@ -248,6 +250,7 @@ export function getI18nProps(astro: Pick<AstroGlobal, 'locals'>, keys?: string[]
   const all = i18n.resolveTranslations(currentRoute)
   return {
     locale: getLocale(astro),
+    pluralLocale: i18n.pluralLocale(),
     fallbackLocale: i18n.getFallbackLocale(),
     currentRoute,
     translations: { [currentRoute]: keys && keys.length > 0 ? pickKeys(all, keys) : all },

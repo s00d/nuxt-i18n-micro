@@ -13,6 +13,16 @@ function show(value: unknown): string {
   return JSON.stringify(value, (_key, v) => (v === undefined ? '«undefined»' : typeof v === 'number' && !Number.isFinite(v) ? String(v) : v))
 }
 
+/** What a throw is recorded as: a thrown value `show` cannot print must not fail the run. */
+function showThrown(error: unknown): string {
+  if (error instanceof Error) return `throws ${error.name}: ${error.message}`
+  try {
+    return `throws ${show(error)}`
+  } catch {
+    return 'throws [unserializable]'
+  }
+}
+
 export class Recorder {
   private lines: string[] = []
 
@@ -32,7 +42,7 @@ export class Recorder {
       value = fn()
       out = show(value)
     } catch (error) {
-      out = error instanceof Error ? `throws ${error.name}: ${error.message}` : `throws ${show(error)}`
+      out = showThrown(error)
     }
     this.lines.push(`- \`${label}\` → ${out}`)
     return value

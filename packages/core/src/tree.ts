@@ -87,10 +87,21 @@ export function mergeTranslationChunk(existing: Tree, incoming: Tree, options?: 
   return root
 }
 
-/** What `mergeInto` does to a key of an empty target: `JSON.parse` makes `__proto__` an own key, a merge never keeps it. */
-function copyWithoutProto(tree: Tree): Tree {
-  const copy = { ...tree }
-  delete copy.__proto__
+/**
+ * What `mergeInto` does to the keys of an empty target, at every level: `JSON.parse` makes
+ * `__proto__` an own key, a merge never keeps it. Aliased nodes stay aliased, a cycle stays a cycle.
+ * ponytail: copies every node of a chunk once on load (O(keys)), never on `t()`.
+ */
+function copyWithoutProto(tree: Tree, copies = new WeakMap<object, Tree>()): Tree {
+  const known = copies.get(tree)
+  if (known) return known
+  const copy: Tree = {}
+  copies.set(tree, copy)
+  for (const key of Object.keys(tree)) {
+    if (key === '__proto__') continue
+    const value = tree[key]
+    copy[key] = isTree(value) ? copyWithoutProto(value, copies) : value
+  }
   return copy
 }
 

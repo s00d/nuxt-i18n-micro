@@ -8,6 +8,7 @@ import { BaseI18n, type BaseI18nOptions } from '../src/base'
 import { collectTranslationPaths, getByPath, mergeTranslationChunk, mergeTranslationLayers } from '../src/helpers'
 import { FormatService } from '../src/format-service'
 import { createReactiveI18nStore, useTranslationHelper } from '../src'
+import { Recorder } from './characterization/record'
 
 class TestI18n extends BaseI18n {
   constructor(
@@ -83,6 +84,48 @@ describe('merges', () => {
     helper.mergeTranslation('en', 'proto', incoming)
     expect(helper.getTranslation('en', 'proto', '__proto__.x')).toBeNull()
     expect(helper.getTranslation('en', 'proto', 'a')).toBe(1)
+  })
+})
+
+describe('a merge into an empty chunk', () => {
+  test('drops __proto__ at every level and shares no node with the input', () => {
+    const incoming = JSON.parse('{"a":{"__proto__":{"x":"y"},"b":{"__proto__":{"x":"y"},"c":1}},"list":[1]}')
+    const merged = mergeTranslationChunk({}, incoming)
+    expect(Object.keys(merged.a as object)).toEqual(['b'])
+    expect(Object.keys((merged.a as { b: object }).b)).toEqual(['c'])
+    expect(merged.a).not.toBe(incoming.a)
+    expect(merged.list).toBe(incoming.list)
+  })
+
+  test('keeps a cycle and an aliased node instead of overflowing', () => {
+    const shared = { v: 1 }
+    const incoming: Record<string, unknown> = { one: shared, two: shared }
+    incoming.self = incoming
+    const merged = mergeTranslationChunk({}, incoming)
+    expect(merged.self).toBe(merged)
+    expect(merged.one).toBe(merged.two)
+  })
+})
+
+describe('the golden recorder', () => {
+  test('a thrown value it cannot print is recorded, not rethrown', () => {
+    const recorder = new Recorder()
+    const circular: Record<string, unknown> = {}
+    circular.self = circular
+    recorder.run('bigint', () => {
+      throw 1n
+    })
+    recorder.run('circular', () => {
+      throw circular
+    })
+    recorder.run('plain', () => {
+      throw 'text'
+    })
+    expect(recorder.toString().trim().split('\n')).toEqual([
+      '- `bigint` → throws [unserializable]',
+      '- `circular` → throws [unserializable]',
+      '- `plain` → throws "text"',
+    ])
   })
 })
 

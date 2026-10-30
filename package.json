@@ -92,6 +92,7 @@
     "format:check": "oxfmt --check src packages test client playground scripts/src build.config.ts",
     "test": "vitest run",
     "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:unit:types": "vitest run --config vitest.unit.config.ts --typecheck.only",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:packages": "vitest run --config vitest.packages.config.ts",

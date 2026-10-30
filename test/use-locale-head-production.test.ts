@@ -33,7 +33,7 @@ async function waitForOk(url: string, tries = 40, ms = 500) {
   await attempt(0)
 }
 
-function runNuxiBuild(): Promise<void> {
+function runNuxiBuild(): Promise<string> {
   return runCommand('npx', ['nuxi', 'build', FIXTURE], { cwd: ROOT })
 }
 

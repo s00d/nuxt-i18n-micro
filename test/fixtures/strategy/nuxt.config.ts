@@ -28,8 +28,8 @@ export default defineNuxtConfig({
 
   ...(testBuildDir ? { buildDir: testBuildDir } : {}),
 
-  // Краулер при prefix находит ссылки типа /ru/kontakt (с /de), которых нет — 404.
-  // Не падать generate на ошибках prerender (тест проверяет только успешную сборку и маршруты).
+  // generate does not stop at the first prerender error: test/helpers/strategy-suite.ts collects
+  // every failed route from the log and expects the list to be empty, so a failure names them all.
   nitro: {
     prerender: {
       failOnError: false,

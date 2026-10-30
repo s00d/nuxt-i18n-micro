@@ -15,14 +15,12 @@ import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
 import { toTranslations } from '@i18n-micro/utils/normalize'
 import { readPayload } from '#i18n-internal/payload-source'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import { getI18nConfig } from '#i18n-internal/strategy'
-import { useRuntimeConfig } from '#imports'
 import { loadLiveDevTranslations } from './dev-live-translations'
+import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from './server-translation-cache'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
@@ -31,7 +29,7 @@ const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
 const toEntry = (data: Translations): ServerTranslationCacheEntry => ({ data, json: JSON.stringify(data).replace(/</g, '\\u003c') })
 
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<ServerTranslationCacheEntry> {
-  const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig().public as Record<string, unknown>)
+  const config = getI18nServerConfig()
   if (!isEnabledLocale(config.locales, locale)) return EMPTY
   const page = resolveTranslationPayloadPage(routeName, config.routesLocaleLinks || {})
   // dev reads live files, unless the payloads come from an external host

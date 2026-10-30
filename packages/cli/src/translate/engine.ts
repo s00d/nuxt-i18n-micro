@@ -62,9 +62,11 @@ export function buildBatches<T>(items: T[], size: (item: T) => number, maxCount:
 }
 
 interface Segment {
+  /** The item this form belongs to. */
   index: number
   masked: string
   tokens: string[]
+  translated?: string
 }
 
 const httpOptions = (options: DriverOptions): BatchRequest['http'] => ({
@@ -77,45 +79,40 @@ function splitForms(text: string, separator: string): string[] {
   return separator && text.includes(separator) ? text.split(separator).map((part) => part.trim()) : [text]
 }
 
-async function translateSegments(driver: Driver, segments: Segment[], base: Omit<BatchRequest, 'texts'>, config: EngineOptions): Promise<string[]> {
-  const out = Array.from<string>({ length: segments.length })
-  const maxCount = Math.min(config.chunkSize ?? driver.maxBatch, driver.maxBatch)
-  const positions = segments.map((segment, position) => ({ segment, position }))
-
-  for (const batch of buildBatches(positions, (item) => item.segment.masked.length, maxCount, driver.maxChars)) {
-    // oxlint-disable-next-line no-await-in-loop -- one request at a time: every vendor rate-limits, and order keeps runs reproducible
-    const translated = await driver.translate({ ...base, texts: batch.map((item) => item.segment.masked) })
-    if (translated.length !== batch.length) {
-      throw commandFailed(`${driver.label} returned ${translated.length} translations for ${batch.length} strings.`, [
-        'Nothing from this batch was written.',
-      ])
-    }
-    for (const [offset, item] of batch.entries()) out[item.position] = translated[offset]!
-  }
-  return out
-}
-
 export interface EngineResult {
   translated: TranslationResult[]
   /** Keys whose placeholders did not survive: left untranslated rather than broken. */
   rejected: string[]
 }
 
-/** Translate one list of messages, plural forms and placeholders handled, into `to`. */
+/** The finished value of an item, or `null` when a placeholder got lost on the way. */
+function assemble(segments: Segment[], joiner: string): string | null {
+  const values = segments.map((segment) => restore(segment.translated!, segment.tokens))
+  const intact = values.every((value, position) => value !== '' && isIntact(value, segments[position]!.tokens))
+  return intact ? values.join(joiner) : null
+}
+
+/**
+ * Translate one list of messages, plural forms and placeholders handled, into `to`.
+ *
+ * `onBatch` hears about every item as soon as its last form is back, so what was paid for can
+ * be saved before the next request. A failed request throws, and costs only what it carried.
+ */
 export async function translateItems(
   items: TranslateItem[],
   from: string,
   to: string,
   config: EngineOptions,
   extra: DriverOptions = {},
+  onBatch: (result: EngineResult) => void = () => {},
 ): Promise<EngineResult> {
   const driver = resolveDriver(config.service)
-  const segments = items.flatMap((item, index) =>
-    splitForms(item.text, config.pluralSeparator).map((form) => {
-      const { masked, tokens } = protect(form)
-      return { index, masked, tokens }
-    }),
-  )
+  const toSegment = (index: number, form: string): Segment => {
+    const { masked, tokens } = protect(form)
+    return { index, masked, tokens }
+  }
+  const formsOf = items.map((item, index) => splitForms(item.text, config.pluralSeparator).map((form) => toSegment(index, form)))
+  const segments = formsOf.flat()
   const options = { ...config.options, ...extra }
   const base = {
     from: driver.sourceLang?.(from) ?? from,
@@ -124,20 +121,30 @@ export async function translateItems(
     options,
     http: httpOptions(options),
   }
-
-  const results = await translateSegments(driver, segments, base, config)
-  const forms = new Map<number, string[]>()
-  const broken = new Set<number>()
-
-  for (const [position, segment] of segments.entries()) {
-    const value = restore(results[position]!, segment.tokens)
-    if (value === '' || !isIntact(value, segment.tokens)) broken.add(segment.index)
-    forms.set(segment.index, [...(forms.get(segment.index) ?? []), value])
-  }
-
+  const total: EngineResult = { translated: [], rejected: [] }
   const joiner = ` ${config.pluralSeparator} `
-  return {
-    translated: items.flatMap((item, index) => (broken.has(index) ? [] : [{ key: item.key, value: forms.get(index)!.join(joiner) }])),
-    rejected: items.filter((_item, index) => broken.has(index)).map((item) => item.key),
+  const maxCount = Math.min(config.chunkSize ?? driver.maxBatch, driver.maxBatch)
+
+  for (const batch of buildBatches(segments, (segment) => segment.masked.length, maxCount, driver.maxChars)) {
+    // oxlint-disable-next-line no-await-in-loop -- one request at a time: every vendor rate-limits, and order keeps runs reproducible
+    const translated = await driver.translate({ ...base, texts: batch.map((segment) => segment.masked) })
+    if (translated.length !== batch.length) {
+      throw commandFailed(`${driver.label} returned ${translated.length} translations for ${batch.length} strings.`, [
+        'Nothing from this batch was written.',
+      ])
+    }
+    for (const [position, segment] of batch.entries()) segment.translated = translated[position]!
+
+    const done: EngineResult = { translated: [], rejected: [] }
+    for (const index of new Set(batch.map((segment) => segment.index))) {
+      if (formsOf[index]!.some((form) => form.translated === undefined)) continue
+      const value = assemble(formsOf[index]!, joiner)
+      if (value === null) done.rejected.push(items[index]!.key)
+      else done.translated.push({ key: items[index]!.key, value })
+    }
+    onBatch(done)
+    total.translated.push(...done.translated)
+    total.rejected.push(...done.rejected)
   }
+  return total
 }

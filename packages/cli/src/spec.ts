@@ -30,12 +30,66 @@ export interface CommandSpec {
   load: () => Promise<{ default: CommandHandler }>
 }
 
-export const COMMAND_GROUPS = ['Setup and diagnostics', 'Translation workflow', 'Refactoring', 'Import and export', 'Backup and planning'] as const
+export const COMMAND_GROUPS = ['Inspect', 'Translation workflow', 'Refactoring', 'Exchange'] as const
 export type CommandGroup = (typeof COMMAND_GROUPS)[number]
+
+/** Translation services of `translate`. A test keeps this equal to the drivers. */
+export const SERVICES = ['ai', 'azure', 'deepl', 'google', 'libretranslate', 'yandexcloud'] as const
+
+/** What `check` looks for. `duplicates` is off by default: the same word under two keys is often fine. */
+export const CHECK_TYPES = ['missing', 'empty', 'extra', 'placeholders', 'undefined', 'unused', 'duplicates'] as const
+export type CheckType = (typeof CHECK_TYPES)[number]
+
+export const LINT_RULES = [
+  { name: 'no-trailing-spaces', description: 'Spaces at the end of a value or a line', fixable: true },
+  { name: 'no-multiple-spaces', description: 'Two or more spaces in a row', fixable: true },
+  { name: 'no-empty-translation', description: 'An empty or blank value', fixable: false },
+] as const
+export type LintRuleName = (typeof LINT_RULES)[number]['name']
+
+export const EXIT_CODES: ReadonlyArray<readonly [code: number, meaning: string]> = [
+  [0, 'Done, nothing to report'],
+  [
+    1,
+    'Findings: `check`, `lint` or `format --check` found something, `clean` could not prove what is unused, `translate` left keys out, `import` or `sync-remote` met a conflict',
+  ],
+  [2, 'Failure: bad usage, unreadable project, network or file error'],
+]
+
+export const CONFIG_FILES: ReadonlyArray<readonly [file: string, purpose: string]> = [
+  ['.i18n-lintrc.json', '`lint`: `enabledRules`, `disabledRules`, `customRegexRules` (`name`, `pattern`, `flags`, `description`, `replacement`)'],
+  ['.i18n-remote.json', '`sync-remote`: `url`, `path`, `token`, `auth` (`username`, `password`). `type` may be left out; only `custom` exists'],
+  ['.i18n-glossary.json', '`translate --service ai`: `entries` of `source`, `target`, and optional `from`, `to`'],
+]
+
+export const ENVIRONMENT: ReadonlyArray<readonly [name: string, purpose: string]> = [
+  ['I18N_TRANSLATE_TOKEN', 'API key of `translate`. Read from `.env` too'],
+  ['I18N_REMOTE_TOKEN', 'Bearer token of `sync-remote`. Read from `.env` too'],
+  ['AI_GATEWAY_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY', 'Key of the `ai` service, when `I18N_TRANSLATE_TOKEN` is not set'],
+  ['DEFAULT_LOCALE', 'Overrides `defaultLocale`, as in the module'],
+]
+
+/** Commands that went away, and what to run instead. */
+export const REMOVED_COMMANDS: Record<string, string> = {
+  validate: 'check',
+  diff: 'check --only missing',
+  'check-duplicates': 'check --only duplicates',
+  'export-csv': 'export --format csv',
+  'import-csv': 'import --format csv',
+  estimate: 'translate --dryRun',
+  optimize: 'check --only duplicates',
+  backup: 'git, which already keeps your locale files',
+  restore: 'git, which already keeps your locale files',
+  init: 'nuxi init, then add nuxt-i18n-micro to modules',
+  split: 'nothing: the module does not read split files',
+  'replace-values': 'your editor or sed',
+  glossary: 'editing .i18n-glossary.json by hand',
+}
 
 const shared: Record<string, ArgSpec> = {
   cwd: { type: 'string', description: 'Project directory', defaultHint: 'current directory' },
-  logLevel: { type: 'string', description: 'Output level', values: ['silent', 'info', 'verbose'], default: 'info' },
+  logLevel: { type: 'string', description: 'Output level', values: ['silent', 'info'], default: 'info' },
+  debug: { type: 'boolean', description: 'Print a stack trace when a command fails', default: false },
 }
 
 const translationDir: ArgSpec = {
@@ -48,81 +102,33 @@ const projectArgs: Record<string, ArgSpec> = { ...shared, translationDir }
 
 const json: ArgSpec = { type: 'boolean', description: 'Print JSON instead of text', default: false }
 
+const ignore: ArgSpec = { type: 'string', description: 'Comma-separated globs of source files to skip, relative to the project' }
+
 export const commands: Record<string, CommandSpec> = {
-  init: {
-    group: 'Setup and diagnostics',
-    description: 'Create a new Nuxt project wired to nuxt-i18n-micro',
-    args: { ...shared, name: { type: 'string', description: 'Project directory name; asked for when omitted' } },
-    examples: ['i18n-micro init --name shop'],
-    load: () => import('./commands/init'),
-  },
   info: {
-    group: 'Setup and diagnostics',
-    description: 'Print the CLI version, the resolved project configuration and the environment',
-    args: { ...shared, json, debug: { type: 'boolean', description: 'Also print process and OS details', default: false } },
+    group: 'Inspect',
+    description: 'Print the resolved i18n configuration of the project',
+    args: { ...shared, json },
     load: () => import('./commands/info'),
   },
-  extract: {
-    group: 'Translation workflow',
-    description: 'Add the translation keys used in source files to the locale files',
-    args: projectArgs,
-    examples: ['i18n-micro extract', 'i18n-micro extract && i18n-micro sync'],
-    load: () => import('./commands/extract'),
-  },
-  translate: {
-    group: 'Translation workflow',
-    description: 'Fill missing translations from the default locale through a translation service',
+  check: {
+    group: 'Inspect',
+    description: 'The CI gate: fail on missing, empty, extra, undefined or unused keys and broken placeholders',
     args: {
       ...projectArgs,
-      service: {
-        type: 'string',
-        description: 'Translation service: ai, azure, baidu, deepl, google, libretranslate, mymemory, papago, systran, tencent, yandexcloud',
-      },
-      token: { type: 'string', description: 'API key. Prefer the I18N_TRANSLATE_TOKEN environment variable: flags end up in shell history' },
-      options: { type: 'string', description: 'Service options as key:value pairs, separated by commas' },
-      replace: { type: 'boolean', description: 'Translate every key again, replacing existing values', default: false },
-      chunkSize: { type: 'string', description: 'Strings per request; capped at what the service accepts', numeric: 'int' },
-      pluralSeparator: { type: 'string', description: 'Separator of plural forms in messages', default: '|' },
-      glossaryFile: { type: 'string', description: 'Glossary file, used by the `ai` service' },
+      only: { type: 'string', description: `Comma-separated checks to run: ${CHECK_TYPES.join(', ')}`, defaultHint: 'all but duplicates' },
+      duplicates: { type: 'boolean', description: 'Also report the same text under different keys', default: false },
+      ignore,
+      json,
     },
-    examples: [
-      'I18N_TRANSLATE_TOKEN=... i18n-micro translate --service deepl',
-      'i18n-micro translate --service ai --options provider:openai,model:gpt-4o-mini',
-      'i18n-micro translate --service libretranslate --options baseUrl:https://translate.example.com',
-    ],
-    load: () => import('./commands/translate'),
-  },
-  sync: {
-    group: 'Translation workflow',
-    description: 'Give every locale the key structure of the default locale, removing extra keys',
-    args: projectArgs,
-    load: () => import('./commands/sync'),
-  },
-  'sync-remote': {
-    group: 'Translation workflow',
-    description: 'Pull translations from, or push them to, the remote described in .i18n-remote.json',
-    args: {
-      ...projectArgs,
-      pull: { type: 'boolean', description: 'Pull from the remote', default: true },
-      push: { type: 'boolean', description: 'Push to the remote', default: false },
-      force: { type: 'boolean', description: 'On a conflict, take the remote value', default: false },
-      dryRun: { type: 'boolean', description: 'Report what would change; send and write nothing', default: false },
-    },
-    examples: ['i18n-micro sync-remote --dryRun', 'i18n-micro sync-remote --no-pull --push'],
-    load: () => import('./commands/sync-remote'),
-  },
-  validate: {
-    group: 'Translation workflow',
-    description: 'Fail when a locale misses keys of the default locale or has extra ones',
-    args: projectArgs,
-    load: () => import('./commands/validate'),
+    examples: ['i18n-micro check', 'i18n-micro check --only missing,placeholders --json'],
+    load: () => import('./commands/check'),
   },
   stats: {
-    group: 'Translation workflow',
+    group: 'Inspect',
     description: 'Show translation completion per locale',
     args: {
       ...projectArgs,
-      full: { type: 'boolean', description: 'Show detailed statistics', default: false },
       html: { type: 'string', description: 'Also write an HTML report to this file' },
       json,
       baseRef: { type: 'string', description: 'Git ref to compare completion with, e.g. HEAD~1 or main' },
@@ -131,60 +137,98 @@ export const commands: Record<string, CommandSpec> = {
     load: () => import('./commands/stats'),
   },
   lint: {
-    group: 'Translation workflow',
-    description: 'Check translation quality; fails when issues remain',
+    group: 'Inspect',
+    description: 'Check the text of translations; fails when issues remain',
     args: {
       ...projectArgs,
-      rules: { type: 'string', description: 'Comma-separated rules to run', defaultHint: 'all, or `enabledRules` of .i18n-lintrc.json' },
-      fix: { type: 'boolean', description: 'Fix what can be fixed, keeping a .bak copy of each file', default: false },
+      rules: {
+        type: 'string',
+        description: `Comma-separated rules to run: ${LINT_RULES.map((rule) => rule.name).join(', ')}, or a custom one`,
+        defaultHint: 'all, or `enabledRules` of .i18n-lintrc.json',
+      },
+      fix: { type: 'boolean', description: 'Fix what can be fixed: spaces, and custom rules with a replacement', default: false },
       json,
     },
-    examples: ['i18n-micro lint --rules no-trailing-spaces,no-empty-translation --fix'],
+    examples: ['i18n-micro lint --rules no-trailing-spaces --fix'],
     load: () => import('./commands/lint'),
   },
-  clean: {
-    group: 'Translation workflow',
-    description: 'Remove keys no source file uses',
-    args: {
-      ...projectArgs,
-      include: { type: 'string', description: 'Regular expression: consider only matching keys for removal' },
-      exclude: { type: 'string', description: 'Regular expression: never remove matching keys' },
-      dryRun: { type: 'boolean', description: 'List what would be removed; write nothing', default: false },
-      force: { type: 'boolean', description: 'Remove keys even though some keys are computed at runtime', default: false },
-    },
-    examples: ['i18n-micro clean --dryRun', `i18n-micro clean --exclude '^errors\\.'`],
-    load: () => import('./commands/clean'),
-  },
   search: {
-    group: 'Translation workflow',
-    description: 'Search keys, values, source usages and hardcoded text across all layers',
+    group: 'Inspect',
+    description: 'Search keys and values, and show where each key is used',
     args: {
       ...projectArgs,
       query: { type: 'positional', description: 'Text or key to search for', required: false },
       caseSensitive: { type: 'boolean', description: 'Match case', default: false },
-      onlyUnused: { type: 'boolean', description: 'Only keys without source usages', default: false },
-      preferUnused: { type: 'boolean', description: 'Rank unused keys first', default: false },
+      onlyUnused: { type: 'boolean', description: 'Only keys `clean` would remove; the query becomes optional', default: false },
       scope: { type: 'string', description: 'Where to search', values: ['global', 'pages', 'all'], default: 'all' },
       limit: { type: 'string', description: 'Return at most this many keys', numeric: 'int' },
-      hardcodedOnly: { type: 'boolean', description: 'Report source text missing from translations; the query becomes optional', default: false },
-      onlyVue: { type: 'boolean', description: 'Scan only .vue files', default: false },
+      ignore,
       json,
     },
-    examples: ['i18n-micro search "Welcome"', 'i18n-micro search --hardcodedOnly --onlyVue'],
+    examples: ['i18n-micro search "Welcome"', 'i18n-micro search --onlyUnused'],
     load: () => import('./commands/search'),
+  },
+  extract: {
+    group: 'Translation workflow',
+    description: 'List the keys source files use that have no text yet, and add those with a default text to the default locale',
+    args: { ...projectArgs, ignore },
+    examples: ['i18n-micro extract'],
+    load: () => import('./commands/extract'),
+  },
+  translate: {
+    group: 'Translation workflow',
+    description: 'Fill missing translations from the default locale through a translation service',
+    args: {
+      ...projectArgs,
+      service: { type: 'string', description: `Translation service: ${SERVICES.join(', ')}` },
+      token: { type: 'string', description: 'API key. Prefer the I18N_TRANSLATE_TOKEN environment variable: flags end up in shell history' },
+      options: { type: 'string', description: 'Service options as key:value pairs, separated by commas' },
+      locale: { type: 'string', description: 'Comma-separated locales to fill', defaultHint: 'every locale but the default one' },
+      replace: { type: 'boolean', description: 'Translate every key again, replacing existing values', default: false },
+      dryRun: { type: 'boolean', description: 'Count keys and characters per locale; send nothing', default: false },
+      chunkSize: { type: 'string', description: 'Strings per request; capped at what the service accepts', numeric: 'int' },
+      pluralSeparator: { type: 'string', description: 'Separator of plural forms in messages', default: '|' },
+      glossaryFile: { type: 'string', description: 'Glossary file, used by the `ai` service', defaultHint: '`.i18n-glossary.json` when it exists' },
+    },
+    examples: [
+      'i18n-micro translate --dryRun',
+      'I18N_TRANSLATE_TOKEN=... i18n-micro translate --service deepl --locale de,fr',
+      'i18n-micro translate --service ai --options provider:openai,model:gpt-4o-mini',
+      'i18n-micro translate --service libretranslate --options baseUrl:https://translate.example.com',
+    ],
+    load: () => import('./commands/translate'),
+  },
+  sync: {
+    group: 'Translation workflow',
+    description: 'Remove keys the default locale does not have. Missing keys stay missing, for fallbackLocale and `check`',
+    args: { ...projectArgs, ignore, dryRun: { type: 'boolean', description: 'List what would be removed; write nothing', default: false } },
+    examples: ['i18n-micro sync --dryRun'],
+    load: () => import('./commands/sync'),
+  },
+  clean: {
+    group: 'Translation workflow',
+    description: 'Remove keys nothing in the project uses; stops when that cannot be proven',
+    args: {
+      ...projectArgs,
+      include: { type: 'string', description: 'Regular expression: consider only matching keys for removal' },
+      exclude: { type: 'string', description: 'Regular expression: never remove matching keys' },
+      ignore,
+      dryRun: { type: 'boolean', description: 'List what would be removed; write nothing', default: false },
+      force: { type: 'boolean', description: 'Remove keys even though usage cannot be proven for all of them', default: false },
+    },
+    examples: ['i18n-micro clean --dryRun', `i18n-micro clean --exclude '^errors\\.'`],
+    load: () => import('./commands/clean'),
   },
   'text-to-i18n': {
     group: 'Refactoring',
-    description: 'Replace hardcoded text in templates and code with translation calls',
+    description: 'Replace hardcoded text in Vue templates with translation calls, and report hardcoded text in code',
     args: {
       ...shared,
       translationFile: { type: 'string', description: 'File the new keys go to', defaultHint: '`<translationDir>/<defaultLocale>.json`' },
-      path: { type: 'string', description: 'File or directory to process', defaultHint: 'pages, components, plugins, layouts' },
+      path: { type: 'string', description: 'File or directory to process', defaultHint: 'the whole project' },
       context: { type: 'string', description: 'Prefix for generated keys' },
+      ignore,
       dryRun: { type: 'boolean', description: 'Show what would change; write nothing', default: false },
-      verbose: { type: 'boolean', description: 'List every file processed', default: false },
-      extractOnlyDirs: { type: 'string', description: 'Comma-separated directories whose files are never rewritten', default: 'plugins' },
-      extractOnlyPatterns: { type: 'string', description: 'Comma-separated globs of such files; prefix with ! to exclude' },
       interactive: { type: 'boolean', description: 'Confirm or edit every generated key', default: false },
     },
     examples: ['i18n-micro text-to-i18n --dryRun', 'i18n-micro text-to-i18n --path components --context ui'],
@@ -192,26 +236,16 @@ export const commands: Record<string, CommandSpec> = {
   },
   rename: {
     group: 'Refactoring',
-    description: 'Rename a key in every locale, in linked messages and in source files',
+    description: 'Rename a key or a namespace in every locale and in source files',
     args: {
       ...projectArgs,
-      from: { type: 'string', description: 'Current key', required: true },
-      to: { type: 'string', description: 'New key', required: true },
+      from: { type: 'string', description: 'Current key or namespace', required: true },
+      to: { type: 'string', description: 'New key or namespace', required: true },
+      ignore,
       dryRun: { type: 'boolean', description: 'Report the changes; write nothing', default: false },
     },
     examples: ['i18n-micro rename --from common.save --to actions.save'],
     load: () => import('./commands/rename'),
-  },
-  'replace-values': {
-    group: 'Refactoring',
-    description: 'Replace text in the values of every locale',
-    args: {
-      ...projectArgs,
-      search: { type: 'string', description: 'Text or regular expression to find', required: true },
-      replace: { type: 'string', description: 'Replacement; with --useRegex, $1 is the first group', required: true },
-      useRegex: { type: 'boolean', description: 'Treat --search as a regular expression', default: false },
-    },
-    load: () => import('./commands/replace-values'),
   },
   pseudo: {
     group: 'Refactoring',
@@ -224,18 +258,6 @@ export const commands: Record<string, CommandSpec> = {
     },
     load: () => import('./commands/pseudo'),
   },
-  optimize: {
-    group: 'Refactoring',
-    description: 'Report oversized files, deep nesting and duplicated values',
-    args: {
-      ...projectArgs,
-      minSize: { type: 'string', description: 'Report files above this size in bytes', default: '1024', numeric: 'int' },
-      maxDepth: { type: 'string', description: 'Report keys nested deeper than this', default: '3', numeric: 'int' },
-      dryRun: { type: 'boolean', description: 'Accepted for compatibility: this command never writes', default: false },
-      json,
-    },
-    load: () => import('./commands/optimize'),
-  },
   format: {
     group: 'Refactoring',
     description: 'Rewrite locale files with sorted keys and uniform indentation',
@@ -243,107 +265,45 @@ export const commands: Record<string, CommandSpec> = {
       ...projectArgs,
       indent: { type: 'string', description: 'Spaces of indentation', default: '2', numeric: 'int' },
       sortKeys: { type: 'boolean', description: 'Sort keys; use --no-sortKeys to keep their order', default: true },
+      check: { type: 'boolean', description: 'Fail if a file would change; write nothing', default: false },
     },
+    examples: ['i18n-micro format --check'],
     load: () => import('./commands/format'),
   },
-  split: {
-    group: 'Refactoring',
-    description: 'Write each locale as smaller files grouped by top-level key, for review or hand-off',
+  export: {
+    group: 'Exchange',
+    description: 'Export locale files to PO or CSV, with the default-locale text as the source',
     args: {
       ...projectArgs,
-      maxKeys: { type: 'string', description: 'Keys per file before a group is split further', default: '100', numeric: 'int' },
-      maxDepth: { type: 'string', description: 'Levels joined into dotted keys', default: '2', numeric: 'int' },
-      splitByPrefix: { type: 'boolean', description: 'Flatten keys fully before grouping', default: false },
-      outputDir: { type: 'string', description: 'Output directory, relative to the project', defaultHint: '`<translationDir>/split`' },
+      format: { type: 'string', description: 'File format', values: ['po', 'csv'], default: 'po' },
+      dir: { type: 'string', description: 'Output directory, relative to the project', defaultHint: '`pots` for po, `csv_exports` for csv' },
     },
-    load: () => import('./commands/split'),
-  },
-  export: {
-    group: 'Import and export',
-    description: 'Export locale files to PO',
-    args: { ...projectArgs, potsDir: { type: 'string', description: 'PO directory, relative to the project', default: 'pots' } },
+    examples: ['i18n-micro export --format csv'],
     load: () => import('./commands/export'),
   },
   import: {
-    group: 'Import and export',
-    description: 'Merge PO files into the locale files',
-    args: { ...projectArgs, potsDir: { type: 'string', description: 'PO directory, relative to the project', default: 'pots' } },
+    group: 'Exchange',
+    description: 'Merge PO or CSV files into the locale files',
+    args: {
+      ...projectArgs,
+      format: { type: 'string', description: 'File format', values: ['po', 'csv'], default: 'po' },
+      dir: { type: 'string', description: 'Input directory, relative to the project', defaultHint: '`pots` for po, `csv_exports` for csv' },
+      dryRun: { type: 'boolean', description: 'Report what would be imported; write nothing', default: false },
+    },
+    examples: ['i18n-micro import --format csv --dryRun'],
     load: () => import('./commands/import'),
   },
-  'export-csv': {
-    group: 'Import and export',
-    description: 'Export every locale to one CSV file, page files included',
-    args: { ...projectArgs, csvDir: { type: 'string', description: 'CSV directory, relative to the project', default: 'csv_exports' } },
-    load: () => import('./commands/export-csv'),
-  },
-  'import-csv': {
-    group: 'Import and export',
-    description: 'Merge CSV files into the locale files',
-    args: { ...projectArgs, csvDir: { type: 'string', description: 'CSV directory, relative to the project', default: 'csv_exports' } },
-    load: () => import('./commands/import-csv'),
-  },
-  diff: {
-    group: 'Import and export',
-    description: 'List keys each locale misses compared with the default locale',
-    args: { ...projectArgs, json },
-    load: () => import('./commands/diff'),
-  },
-  'check-duplicates': {
-    group: 'Import and export',
-    description: 'List identical values under different keys, per locale',
-    args: projectArgs,
-    load: () => import('./commands/check-duplicates'),
-  },
-  backup: {
-    group: 'Backup and planning',
-    description: 'Archive the translation directory',
+  'sync-remote': {
+    group: 'Exchange',
+    description: 'Pull global translations from, or push them to, the HTTP endpoint in .i18n-remote.json',
     args: {
       ...projectArgs,
-      backupDir: { type: 'string', description: 'Archive directory, relative to the project', defaultHint: '`<translationDir>/backups`' },
-      password: { type: 'string', description: 'Encrypt the archive with AES-256-GCM' },
-      comment: { type: 'string', description: 'Added to the archive name' },
+      pull: { type: 'boolean', description: 'Pull from the remote', default: true },
+      push: { type: 'boolean', description: 'Push to the remote', default: false },
+      force: { type: 'boolean', description: 'On a conflict, take the remote value', default: false },
+      dryRun: { type: 'boolean', description: 'Report what would change; send and write nothing', default: false },
     },
-    load: () => import('./commands/backup'),
-  },
-  restore: {
-    group: 'Backup and planning',
-    description: 'List backups, or restore one over the translation directory',
-    args: {
-      ...projectArgs,
-      backupDir: { type: 'string', description: 'Archive directory, relative to the project', defaultHint: '`<translationDir>/backups`' },
-      backup: { type: 'string', description: 'Archive to restore, or the start of its name' },
-      password: { type: 'string', description: 'Password of an encrypted archive' },
-      force: { type: 'boolean', description: 'Do not ask for confirmation', default: false },
-    },
-    load: () => import('./commands/restore'),
-  },
-  estimate: {
-    group: 'Backup and planning',
-    description: 'Estimate tokens and cost of a translate run',
-    args: {
-      ...projectArgs,
-      replace: { type: 'boolean', description: 'Estimate re-translating every key', default: false },
-      inputCostPer1kTokens: { type: 'string', description: 'USD per 1k input tokens', default: '0.5', numeric: 'number' },
-      outputCostPer1kTokens: { type: 'string', description: 'USD per 1k output tokens', default: '1.5', numeric: 'number' },
-      outputTokenRatio: { type: 'string', description: 'Expected output/input token ratio', default: '1.0', numeric: 'number' },
-      json,
-    },
-    load: () => import('./commands/estimate'),
-  },
-  glossary: {
-    group: 'Backup and planning',
-    description: 'Manage the glossary the `ai` translation service follows',
-    args: {
-      ...shared,
-      file: { type: 'string', description: 'Glossary file, relative to the project', default: '.i18n-glossary.json' },
-      action: { type: 'string', description: 'What to do', values: ['list', 'add', 'remove'], default: 'list' },
-      source: { type: 'string', description: 'Source term' },
-      target: { type: 'string', description: 'Target term' },
-      from: { type: 'string', description: 'Limit to this source locale' },
-      to: { type: 'string', description: 'Limit to this target locale' },
-      json,
-    },
-    examples: ['i18n-micro glossary --action add --source Cart --target Warenkorb --to de'],
-    load: () => import('./commands/glossary'),
+    examples: ['i18n-micro sync-remote --dryRun', 'i18n-micro sync-remote --no-pull --push'],
+    load: () => import('./commands/sync-remote'),
   },
 }

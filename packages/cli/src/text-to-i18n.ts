@@ -1,11 +1,7 @@
-import { basename, dirname, extname, parse as parsePath, relative, sep } from 'node:path'
+import { extname, parse as parsePath, sep } from 'node:path'
 import { MagicString, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { ALL_COMPOSABLE_NAMES, type AstNode, isTranslationCall, parseCode, staticString } from './source'
-
-const NODE_TEXT = 2
-const NODE_ELEMENT = 1
-const NODE_ATTRIBUTE = 6
-const NODE_INTERPOLATION = 5
+import { type JsonObject, pathConflict } from './json'
+import { type AstNode, NODE_TYPES, lineOf, parseCode, scanFile, staticString } from './source'
 
 const TEXT_ATTRIBUTES = new Set(['title', 'label', 'placeholder', 'alt', 'aria-label'])
 const NON_TEXT_CALLS = new Set([
@@ -104,6 +100,12 @@ export interface NewTranslation {
   line: number
 }
 
+export interface Hardcoded {
+  file: string
+  line: number
+  text: string
+}
+
 export interface ConvertOptions {
   context?: string
   keyOverrides?: Record<string, string>
@@ -113,11 +115,14 @@ export interface ConvertOptions {
 /** Shared across files: known text reuses its key, generated keys stay unique. */
 export class KeyRegistry {
   readonly created = new Map<string, NewTranslation>()
+  /** Text left alone because its key would overwrite a value of the translation file. */
+  readonly blocked: Hardcoded[] = []
   private readonly byText = new Map<string, string>()
   private readonly used: Set<string>
 
   constructor(
     existing: Record<string, string>,
+    private readonly tree: JsonObject = {},
     private readonly options: ConvertOptions = {},
   ) {
     this.used = new Set(Object.keys(existing))
@@ -133,8 +138,8 @@ export class KeyRegistry {
     return key
   }
 
-  /** Key for `text`, or `null` when the user skipped it. */
-  keyFor(text: string, file: string, content: string): string | null {
+  /** Key for `text`, or `null` when it stays as it is. */
+  keyFor(text: string, file: string, line: number): string | null {
     const known = this.byText.get(text)
     if (known !== undefined) return known || null
     const generated = this.generate(text, file)
@@ -143,8 +148,12 @@ export class KeyRegistry {
       return null
     }
     const key = this.options.keyOverrides?.[generated] ?? generated
-    const index = content.indexOf(text)
-    this.created.set(key, { key, value: text, file, line: index < 0 ? 0 : content.slice(0, index).split('\n').length })
+    if (pathConflict(this.tree, key)) {
+      this.byText.set(text, '')
+      this.blocked.push({ file, line, text })
+      return null
+    }
+    this.created.set(key, { key, value: text, file, line })
     this.byText.set(text, key)
     return key
   }
@@ -173,34 +182,73 @@ interface TemplateNode {
   children?: TemplateNode[]
 }
 
-function convertTextNode(node: TemplateNode, magic: MagicString, keys: KeyRegistry, file: string, content: string): void {
-  const source = node.loc.source
-  const text = source.trim()
+export interface Conversion {
+  /** The new file content. */
+  content: string
+  /** Text that is half a sentence: a key per fragment cannot be translated. */
+  mixed: Hardcoded[]
+  /** Text in code. `$t` is not in scope everywhere, so it is reported and never rewritten. */
+  code: Hardcoded[]
+}
+
+interface VueRun {
+  magic: MagicString
+  keys: KeyRegistry
+  file: string
+  content: string
+  out: Conversion
+}
+
+/** The compiler's text: entities decoded, so `&amp;` does not reach the locale file as five characters. */
+const displayText = (node: TemplateNode): string => (node.content ?? '').replace(/\s+/g, ' ').trim()
+
+function convertTextNode(node: TemplateNode, run: VueRun): void {
+  const text = displayText(node)
   if (!isTranslatable(text)) return
-  const key = keys.keyFor(text, file, content)
-  if (!key) return
+  const source = node.loc.source
   const start = node.loc.start.offset + (source.length - source.trimStart().length)
-  magic.overwrite(start, start + text.length, `{{ $t('${key}') }}`)
+  const key = run.keys.keyFor(text, run.file, lineOf(run.content, start))
+  if (key) run.magic.overwrite(start, start + source.trim().length, `{{ $t('${key}') }}`)
 }
 
-function convertAttribute(prop: TemplateNode, magic: MagicString, keys: KeyRegistry, file: string, content: string): void {
+function convertAttribute(prop: TemplateNode, run: VueRun): void {
   const text = prop.value?.content
-  if (prop.type !== NODE_ATTRIBUTE || !text || !TEXT_ATTRIBUTES.has(prop.name ?? '') || !isTranslatable(text)) return
-  const key = keys.keyFor(text, file, content)
-  if (key) magic.overwrite(prop.loc.start.offset, prop.loc.end.offset, `:${prop.name}="$t('${key}')"`)
+  if (prop.type !== NODE_TYPES.ATTRIBUTE || !text || !TEXT_ATTRIBUTES.has(prop.name ?? '') || !isTranslatable(text)) return
+  const key = run.keys.keyFor(text, run.file, lineOf(run.content, prop.loc.start.offset))
+  if (key) run.magic.overwrite(prop.loc.start.offset, prop.loc.end.offset, `:${prop.name}="$t('${key}')"`)
 }
 
-function convertTemplate(node: TemplateNode, magic: MagicString, keys: KeyRegistry, file: string, content: string): void {
-  if (node.type === NODE_ELEMENT) {
-    if (NON_DISPLAY_TAGS.has(node.tag ?? '')) return
-    for (const prop of node.props ?? []) convertAttribute(prop, magic, keys, file, content)
+const isBlank = (node: TemplateNode): boolean => node.type === NODE_TYPES.COMMENT || (node.type === NODE_TYPES.TEXT && displayText(node) === '')
+
+/** Text next to markup or an interpolation: `<p>Hello <b>world</b> today</p>`. */
+const isMixed = (children: TemplateNode[]): boolean => {
+  const present = children.filter((child) => !isBlank(child))
+  return present.some((child) => child.type === NODE_TYPES.TEXT) && present.some((child) => child.type !== NODE_TYPES.TEXT)
+}
+
+const isSkippedElement = (node: TemplateNode): boolean =>
+  NON_DISPLAY_TAGS.has(node.tag ?? '') ||
+  /^i18n-?t$/i.test(node.tag ?? '') ||
+  // The compiler drops `v-pre` from the props.
+  /^<[^>]*\sv-pre[\s/>]/.test(node.loc.source)
+
+function reportMixed(node: TemplateNode, run: VueRun): void {
+  const text = displayText({ ...node, content: node.loc.source.replace(/<[^>]*>/g, ' ') })
+  if (isTranslatable(text.replace(/\{\{[^}]*\}\}/g, '')))
+    run.out.mixed.push({ file: run.file, line: lineOf(run.content, node.loc.start.offset), text })
+}
+
+function convertTemplate(node: TemplateNode, run: VueRun, textAllowed = true): void {
+  if (node.type === NODE_TYPES.ELEMENT) {
+    if (isSkippedElement(node)) return
+    for (const prop of node.props ?? []) convertAttribute(prop, run)
   }
   const children = node.children ?? []
-  // Text around an interpolation is half a sentence: a key for each half cannot be translated.
-  const mixed = children.some((child) => child.type === NODE_INTERPOLATION)
+  const mixed = isMixed(children)
+  if (mixed && textAllowed) reportMixed(node, run)
   for (const child of children) {
-    if (child.type !== NODE_TEXT) convertTemplate(child, magic, keys, file, content)
-    else if (!mixed) convertTextNode(child, magic, keys, file, content)
+    if (child.type !== NODE_TYPES.TEXT) convertTemplate(child, run, textAllowed && !mixed)
+    else if (textAllowed && !mixed) convertTextNode(child, run)
   }
 }
 
@@ -217,85 +265,39 @@ function isDataLiteral(node: AstNode, parent: AstNode | null, key: unknown): boo
   if (parent.type === 'BinaryExpression' || parent.type === 'TaggedTemplateExpression') return true
   if (parent.type === 'JSXAttribute') return true
   if (parent.type !== 'CallExpression' && parent.type !== 'OptionalCallExpression' && parent.type !== 'NewExpression') return false
-  return NON_TEXT_CALLS.has(calleeName(parent)) || isTranslationCall(parent.callee as AstNode, ALL_COMPOSABLE_NAMES) || node === parent.callee
+  return NON_TEXT_CALLS.has(calleeName(parent)) || node === parent.callee
 }
 
-function convertCode(content: string, file: string, keys: KeyRegistry, extractOnly: boolean): string {
+/** Text a person would read, in code. The strings the scanner took for keys or arguments of `$t` are not. */
+function reportCode(content: string, file: string): Hardcoded[] {
   const ast = parseCode(content, extname(file).slice(1))
-  if (!ast) throw new Error('parse failed')
-  const magic = new MagicString(content)
-
+  if (!ast) return []
+  const found: Hardcoded[] = []
+  const keyArguments = new Set(scanFile(content, file).refs.map((ref) => ref.start - 1))
   walk(ast as Parameters<typeof walk>[0], {
     enter(raw: unknown, parent: unknown, key: unknown) {
       const node = raw as unknown as AstNode
-      if (node.type === 'JSXText') {
-        const source = node.value as string
-        const text = source.trim()
-        if (!isTranslatable(text)) return
-        const translation = keys.keyFor(text, file, content)
-        const start = node.start! + (source.length - source.trimStart().length)
-        if (translation && !extractOnly) magic.overwrite(start, start + text.length, `{ $t('${translation}') }`)
-        return
-      }
-      const value = staticString(node)
-      if (value === null || !isTranslatable(value) || isTechnical(value)) return
-      if (isDataLiteral(node, parent as unknown as AstNode | null, key)) return
-      const translation = keys.keyFor(value, file, content)
-      if (translation && !extractOnly) magic.overwrite(node.start!, node.end!, `$t('${translation}')`)
+      const text = node.type === 'JSXText' ? (node.value as string).trim() : staticString(node)
+      if (!text || !isTranslatable(text) || isTechnical(text) || keyArguments.has(node.start!)) return
+      if (!isDataLiteral(node, parent as unknown as AstNode | null, key)) found.push({ file, line: lineOf(content, node.start!), text })
     },
   })
-  return magic.toString()
+  return found
 }
 
-function convertVue(content: string, file: string, keys: KeyRegistry): string {
+function convertVue(content: string, file: string, keys: KeyRegistry): Conversion {
   const { descriptor } = parseSfc(content, { filename: file })
   const ast = descriptor.template?.ast as unknown as TemplateNode | undefined
-  if (!ast) return content
-  const magic = new MagicString(content)
-  for (const child of ast.children ?? []) convertTemplate(child, magic, keys, file, content)
-  return magic.toString()
+  const out: Conversion = { content, mixed: [], code: [] }
+  if (!ast) return out
+  const run: VueRun = { magic: new MagicString(content), keys, file, content, out }
+  for (const child of ast.children ?? []) convertTemplate(child, run)
+  out.content = run.magic.toString()
+  return out
 }
 
-/** The new content of one source file, registering the texts it found in `keys`. */
-export function convertSource(content: string, file: string, keys: KeyRegistry, extractOnly = false): string {
+/** One source file: `.vue` templates are rewritten, anything else is only read. */
+export function convertSource(content: string, file: string, keys: KeyRegistry): Conversion {
   if (extname(file) === '.vue') return convertVue(content, file, keys)
-  return convertCode(content, file, keys, extractOnly)
-}
-
-const globToRegExp = (glob: string): RegExp => {
-  const source = glob
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*\//g, '\u0000')
-    .replace(/\*\*/g, '\u0001')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\?/g, '[^/]')
-    .replaceAll('\u0000', '(?:.*/)?')
-    .replaceAll('\u0001', '.*')
-  return new RegExp(`^${source}$`)
-}
-
-export interface ExtractOnlyRules {
-  dirs: string[]
-  patterns: string[]
-}
-
-/** Files where code runs before an app context exists: their text is collected, the code stays. */
-export function extractOnlyMatcher(root: string, rules: ExtractOnlyRules): (file: string) => boolean {
-  const include = rules.patterns.filter((pattern) => !pattern.startsWith('!')).map(globToRegExp)
-  const exclude = rules.patterns.filter((pattern) => pattern.startsWith('!')).map((pattern) => globToRegExp(pattern.slice(1)))
-  const dirs = new Set(rules.dirs.map((dir) => dir.toLowerCase()))
-
-  return (file) => {
-    const rel = relative(root, file).split(sep).join('/')
-    if (exclude.some((pattern) => pattern.test(rel))) return false
-    if (include.some((pattern) => pattern.test(rel))) return true
-    if (
-      dirname(rel)
-        .toLowerCase()
-        .split('/')
-        .some((part) => dirs.has(part))
-    )
-      return true
-    return basename(file).toLowerCase().includes('plugin.')
-  }
+  return { content, mixed: [], code: reportCode(content, file) }
 }

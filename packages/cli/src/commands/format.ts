@@ -1,4 +1,5 @@
-import { type JsonObject, sortKeys } from '../json'
+import { relative } from 'node:path'
+import { findingsError } from '../errors'
 import { log } from '../log'
 import { Project } from '../project'
 
@@ -7,18 +8,24 @@ export interface FormatArgs {
   translationDir?: string
   indent: number
   sortKeys?: boolean
+  check?: boolean
 }
 
 export default async function run(args: FormatArgs): Promise<void> {
   const project = await Project.load(args)
+  for (const code of project.codes) project.locale(code).modified = true
+  const options = { indent: args.indent, sort: args.sortKeys, rewrite: true }
 
-  for (const code of project.codes) {
-    const locale = project.locale(code)
-    locale.modified = true
-    if (!args.sortKeys) continue
-    for (const scope of locale.scopes) locale.replaceTree(scope, sortKeys(locale.tree(scope)) as JsonObject)
+  if (args.check) {
+    const files = project.pendingFiles(options).map(([path]) => relative(project.config.rootDir, path))
+    if (files.length === 0) {
+      log.success('All translation files are formatted.')
+      return
+    }
+    log.list('Not formatted', files)
+    throw findingsError(`${files.length} files need formatting.`, ['Run i18n-micro format.'])
   }
 
-  const written = project.save({ indent: args.indent })
+  const written = project.save(options)
   log.success(`Formatted translation files: ${written.length} changed.`)
 }

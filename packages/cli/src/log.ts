@@ -2,6 +2,17 @@ import { type Interface, createInterface } from 'node:readline'
 
 let silent = false
 
+const secrets = new Set<string>()
+
+/** Anything printed from now on shows `***` instead. Shorter than a real key, it would only garble the text. */
+export function addSecret(value: string | undefined): void {
+  if (!value || value.length < 4) return
+  secrets.add(value)
+  secrets.add(encodeURIComponent(value))
+}
+
+const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text)
+
 const useColor = (stream: NodeJS.WriteStream): boolean => Boolean(stream.isTTY) && !process.env.NO_COLOR
 const paint = (stream: NodeJS.WriteStream, code: number, text: string): string => (useColor(stream) ? `\u001B[${code}m${text}\u001B[39m` : text)
 
@@ -10,20 +21,20 @@ export const log = {
     silent = value
   },
   info(message: string): void {
-    if (!silent) console.log(message)
+    if (!silent) console.log(redact(message))
   },
   success(message: string): void {
-    if (!silent) console.log(paint(process.stdout, 32, message))
+    if (!silent) console.log(paint(process.stdout, 32, redact(message)))
   },
   warn(message: string): void {
-    console.error(paint(process.stderr, 33, message))
+    console.error(paint(process.stderr, 33, redact(message)))
   },
   error(message: string): void {
-    console.error(paint(process.stderr, 31, message))
+    console.error(paint(process.stderr, 31, redact(message)))
   },
   /** Machine-readable output: not muted by `--logLevel silent`. */
   json(value: unknown): void {
-    console.log(JSON.stringify(value, null, 2))
+    console.log(redact(JSON.stringify(value, null, 2)))
   },
   section(title: string): void {
     log.info(`\n== ${title} ==`)

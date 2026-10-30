@@ -1,11 +1,11 @@
-import { copyFileSync, existsSync } from 'node:fs'
-import { basename, join } from 'node:path'
-import { commandFailed } from '../errors'
-import { readJsonIfExists, readJsonObject, walkFiles, writeJson } from '../fs'
-import { type JsonObject, flattenStrings, setPath } from '../json'
-import { type LintConfig, type LintResult, type LintRule, lintRules } from '../lint-rules'
+import { join } from 'node:path'
+import { findingsError, usageError } from '../errors'
+import { readJsonIfExists, splitList } from '../fs'
+import { flattenStrings } from '../json'
+import { type LintRule, lintRules } from '../lint-rules'
 import { log } from '../log'
-import { Project } from '../project'
+import { Project, relativeFile } from '../project'
+import { LINT_RULES } from '../spec'
 
 export interface LintArgs {
   cwd?: string
@@ -15,7 +15,22 @@ export interface LintArgs {
   json?: boolean
 }
 
-const stringList = (value: unknown): string[] | undefined => (Array.isArray(value) ? value.filter((item) => typeof item === 'string') : undefined)
+export interface LintResult {
+  file: string
+  locale: string
+  scope: string
+  key: string
+  value: string
+  rule: string
+}
+
+interface LintConfig {
+  enabledRules: string[]
+  disabledRules: string[]
+  customRules: LintRule[]
+}
+
+const stringList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [])
 
 function customRule(item: Record<string, unknown>): LintRule[] {
   const { name, pattern, flags, description, replacement } = item
@@ -31,12 +46,11 @@ function customRule(item: Record<string, unknown>): LintRule[] {
     {
       name,
       description: typeof description === 'string' ? description : `Regex rule: ${pattern}`,
-      check: (value) => {
+      isValid: (value) => {
         // A `g` or `y` regex keeps its position between calls.
         matcher.lastIndex = 0
         return !matcher.test(value)
       },
-      message: (_value, { key, locale, file }) => `Custom lint rule "${name}" failed in file ${file} for key ${key} (${locale})`,
       fix: typeof replacement === 'string' ? (value) => value.replace(matcher, replacement) : undefined,
     },
   ]
@@ -53,60 +67,43 @@ function loadConfig(rootDir: string): LintConfig {
 }
 
 function selectRules(args: LintArgs, config: LintConfig): LintRule[] {
-  const available = [...lintRules, ...config.customRules]
-  const requested =
-    args.rules?.split(',').map((name) => name.trim()) ?? (config.enabledRules?.length ? config.enabledRules : available.map((rule) => rule.name))
-  const unknown = requested.filter((name) => !available.some((rule) => rule.name === name))
-  if (unknown.length > 0) log.warn(`Unknown lint rules: ${unknown.join(', ')}`)
-  const disabled = new Set(config.disabledRules)
-  return available.filter((rule) => requested.includes(rule.name) && !disabled.has(rule.name))
+  const builtIn = LINT_RULES.map(({ name, description }) => ({ name, description, isValid: lintRules[name].isValid, fix: lintRules[name].fix }))
+  const available: LintRule[] = [...builtIn, ...config.customRules]
+  const requested = splitList(args.rules)
+  const selected = requested.length > 0 ? requested : config.enabledRules.length > 0 ? config.enabledRules : available.map((rule) => rule.name)
+  const unknown = selected.filter((name) => !available.some((rule) => rule.name === name))
+  if (unknown.length > 0)
+    throw usageError(`Unknown lint rules: ${unknown.join(', ')}`, [`Available: ${available.map((rule) => rule.name).join(', ')}`])
+  return available.filter((rule) => selected.includes(rule.name) && !config.disabledRules.includes(rule.name))
 }
 
-function lintFile(file: string, locale: string, rules: LintRule[]): LintResult[] {
-  const results: LintResult[] = []
-  for (const [key, value] of Object.entries(flattenStrings(readJsonObject(file)))) {
-    const context = { key, locale, file }
-    for (const rule of rules) {
-      if (!rule.check(value, context)) results.push({ file, locale, key, value, rule: rule.name, message: rule.message(value, context) })
-    }
-  }
-  return results
-}
-
+/** Own files only: a layer's text is the layer's to fix. */
 function lintProject(project: Project, rules: LintRule[]): LintResult[] {
-  const dir = project.config.translationDir
   return project.codes.flatMap((code) => {
-    const fileName = `${code}.json`
-    const pageFiles = walkFiles(join(dir, 'pages'), (path) => basename(path) === fileName)
-    const global = join(dir, fileName)
-    return [...(existsSync(global) ? [global] : []), ...pageFiles].flatMap((file) => lintFile(file, code, rules))
+    const locale = project.locale(code)
+    return locale.scopes.flatMap((scope) =>
+      Object.entries(flattenStrings(locale.ownTree(scope))).flatMap(([key, value]) =>
+        rules
+          .filter((rule) => !rule.isValid(value))
+          .map((rule) => ({ file: relativeFile(code, scope), locale: code, scope, key, value, rule: rule.name })),
+      ),
+    )
   })
 }
 
 /** Fixes stack: two rules on one value both apply, in rule order. */
-function applyFixes(results: LintResult[], rules: LintRule[]): number {
+function applyFixes(project: Project, results: LintResult[], rules: LintRule[]): number {
   const fixers = new Map(rules.map((rule) => [rule.name, rule.fix]))
-  const byFile = new Map<string, LintResult[]>()
-  for (const result of results) byFile.set(result.file, [...(byFile.get(result.file) ?? []), result])
   let fixed = 0
-
-  for (const [file, fileResults] of byFile) {
-    const tree: JsonObject = readJsonObject(file)
-    const current = flattenStrings(tree)
-    let changed = false
-    for (const result of fileResults) {
-      const before = current[result.key]!
-      const after = fixers.get(result.rule)?.(before) ?? before
-      if (after === before) continue
-      current[result.key] = after
-      setPath(tree, result.key, after)
-      fixed += 1
-      changed = true
-    }
-    if (!changed) continue
-    copyFileSync(file, `${file}.bak`)
-    writeJson(file, tree)
+  for (const { locale, scope, key, rule } of results) {
+    const set = project.locale(locale)
+    const before = set.get(key, scope) as string
+    const after = fixers.get(rule)?.(before) ?? before
+    if (after === before) continue
+    set.set(key, after, scope)
+    fixed += 1
   }
+  project.save()
   return fixed
 }
 
@@ -119,20 +116,21 @@ export default async function run(args: LintArgs): Promise<void> {
   }
 
   const results = lintProject(project, rules)
-  const fixedCount = args.fix ? applyFixes(results, rules) : 0
-  const remaining = args.fix ? lintProject(project, rules) : results
+  const fixedCount = args.fix ? applyFixes(project, results, rules) : 0
+  const fixers = new Set(rules.filter((rule) => rule.fix).map((rule) => rule.name))
+  const remaining = args.fix ? results.filter((result) => !fixers.has(result.rule)).length : results.length
 
   if (args.json) {
     log.json({ rulesChecked: rules.map((rule) => rule.name), issueCount: results.length, fixedCount, fixApplied: Boolean(args.fix), issues: results })
   } else {
     log.info(`Active rules: ${rules.map((rule) => rule.name).join(', ')}`)
-    for (const result of results) log.warn(`[${result.rule}] ${result.message}`)
-    if (fixedCount > 0) log.success(`Fixed ${fixedCount} issues; originals kept as .bak`)
-    if (remaining.length === 0) log.success('Check completed. No issues remain.')
+    for (const { rule, file, key, locale } of results) log.warn(`[${rule}] ${key} (${locale}) in ${file}`)
+    if (fixedCount > 0) log.success(`Fixed ${fixedCount} issues.`)
+    if (remaining === 0) log.success('Check completed. No issues remain.')
   }
 
-  if (remaining.length > 0) {
-    throw commandFailed(`Found ${remaining.length} issues that need to be fixed`, [
+  if (remaining > 0) {
+    throw findingsError(`Found ${remaining} issues that need to be fixed`, [
       'Review the issues above, or run with --json for machine-readable output.',
       'Apply automatic fixes where available: i18n-micro lint --fix',
     ])

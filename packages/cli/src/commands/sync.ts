@@ -1,32 +1,56 @@
-import { type JsonObject, isObject } from '../json'
+import { splitList } from '../fs'
 import { log } from '../log'
-import { Project } from '../project'
+import { type LocaleSet, Project, relativeFile } from '../project'
+import { scanProject, usageIndex } from '../source'
 
 export interface SyncArgs {
   cwd?: string
   translationDir?: string
+  ignore?: string
+  dryRun?: boolean
 }
 
-/** The shape of `reference` with the values of `target`; only a missing leaf becomes `''`. */
-export function alignToReference(reference: JsonObject, target: JsonObject): JsonObject {
-  const out: JsonObject = {}
-  for (const [key, value] of Object.entries(reference)) {
-    const current = Object.hasOwn(target, key) ? target[key] : undefined
-    if (isObject(value)) out[key] = alignToReference(value, isObject(current) ? current : {})
-    else out[key] = current === undefined || isObject(current) ? '' : current
-  }
-  return out
+export interface ExtraKey {
+  scope: string
+  key: string
 }
 
+/** Keys of `locale` the default locale cannot answer, compared by path: `"a.b"` and `a: { b }` are the same key. */
+export function extraKeys(reference: LocaleSet, locale: LocaleSet): ExtraKey[] {
+  return locale.scopes.flatMap((scope) =>
+    Object.keys(locale.leaves(scope))
+      .filter((key) => reference.resolve(key, scope) === undefined)
+      .map((key) => ({ scope, key })),
+  )
+}
+
+/**
+ * Removes what the default locale does not have. Missing keys stay missing: `''` would hide
+ * them from `fallbackLocale` and from `check`.
+ */
 export default async function run(args: SyncArgs): Promise<void> {
   const project = await Project.load(args)
   const { reference } = project
+  const isUsed = usageIndex(scanProject(project.config, { ignore: splitList(args.ignore) }))
+  const removed: string[] = []
 
   for (const code of project.targetCodes) {
     const locale = project.locale(code)
-    for (const scope of reference.scopes) locale.replaceTree(scope, alignToReference(reference.tree(scope), locale.tree(scope)))
+    for (const { scope, key } of extraKeys(reference, locale)) {
+      if (isUsed(key)) {
+        log.warn(`Keeping ${key} in ${relativeFile(code, scope)}: the code uses it, but ${project.config.defaultLocale} has no text for it.`)
+        continue
+      }
+      removed.push(`${relativeFile(code, scope)} ${key}`)
+      if (!args.dryRun) locale.delete(key, scope)
+    }
   }
 
+  log.list(args.dryRun ? 'Would remove' : 'Removed', removed)
+  if (args.dryRun) {
+    log.info(`Dry run: ${removed.length} keys would be removed.`)
+    return
+  }
   project.save()
-  log.success('Translations have been synchronized.')
+  log.success(`Translations have been synchronized: ${removed.length} extra keys removed.`)
 }

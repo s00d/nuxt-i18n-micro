@@ -38,12 +38,11 @@ export default async function run(args: PseudoArgs): Promise<void> {
   for (const scope of source.scopes) {
     for (const [key, value] of Object.entries(source.strings(scope))) {
       const current = target.get(key, scope)
-      if (!args.replace && typeof current === 'string' && current.trim() !== '') {
-        skipped += 1
-        continue
-      }
-      target.set(key, pseudoLocalize(value), scope)
-      updated += 1
+      const kept = !args.replace && typeof current === 'string' && current.trim() !== ''
+      const conflict = kept ? null : target.set(key, pseudoLocalize(value), scope)
+      if (conflict) log.warn(`Skipping ${key}: ${conflict} already holds a value.`)
+      if (kept || conflict) skipped += 1
+      else updated += 1
     }
   }
 

@@ -47,7 +47,7 @@ export function getPath(tree: JsonObject, path: string): JsonValue | undefined {
 }
 
 /** The leaf a new `path` would have to replace: `a` when `a` is text and `a.b` is wanted. */
-export function blockingLeaf(tree: JsonObject, path: string): string | null {
+function blockingLeaf(tree: JsonObject, path: string): string | null {
   const parts = path.split('.')
   for (let length = 1; length < parts.length; length += 1) {
     const prefix = parts.slice(0, length).join('.')
@@ -55,6 +55,16 @@ export function blockingLeaf(tree: JsonObject, path: string): string | null {
     if (value !== undefined && !isObject(value)) return prefix
   }
   return null
+}
+
+/**
+ * What writing `path` would destroy: a text above it, or the keys below it. Every write that
+ * comes from outside the file (import, pull, translation, generated key) asks this first.
+ */
+export function pathConflict(tree: JsonObject, path: string): string | null {
+  const current = getPath(tree, path)
+  if (current === undefined) return blockingLeaf(tree, path)
+  return isObject(current) && !isEmptyObject(current) ? path : null
 }
 
 export function setPath(tree: JsonObject, path: string, value: JsonValue): void {
@@ -74,10 +84,28 @@ export function setPath(tree: JsonObject, path: string, value: JsonValue): void 
   current[last] = value
 }
 
-export function unflatten(flat: Record<string, JsonValue>): JsonObject {
-  const out: JsonObject = {}
-  for (const [key, value] of Object.entries(flat)) setPath(out, key, value)
-  return out
+/** Remove one leaf and the parents it leaves empty. Everything else stays exactly as written. */
+export function deletePath(tree: JsonObject, path: string): boolean {
+  if (Object.hasOwn(tree, path)) return delete tree[path]
+  for (let index = path.indexOf('.'); index !== -1; index = path.indexOf('.', index + 1)) {
+    const head = path.slice(0, index)
+    const child = Object.hasOwn(tree, head) ? tree[head] : undefined
+    if (!isObject(child) || !deletePath(child, path.slice(index + 1))) continue
+    if (isEmptyObject(child)) delete tree[head]
+    return true
+  }
+  return false
+}
+
+/** `Map.groupBy`, which Node 20 does not have. */
+export function groupBy<T, K>(items: T[], keyOf: (item: T) => K): Map<K, T[]> {
+  const groups = new Map<K, T[]>()
+  for (const item of items) {
+    const key = keyOf(item)
+    if (groups.has(key)) groups.get(key)!.push(item)
+    else groups.set(key, [item])
+  }
+  return groups
 }
 
 export function sortKeys(value: JsonValue): JsonValue {

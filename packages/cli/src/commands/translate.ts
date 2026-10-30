@@ -1,11 +1,12 @@
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { usageError } from '../errors'
-import { glossaryContext, loadGlossary } from '../glossary'
-import { ask, choose, log } from '../log'
-import { Project } from '../project'
+import { findingsError, notFoundError, usageError } from '../errors'
+import { splitList } from '../fs'
+import { type Glossary, glossaryContext, loadGlossary } from '../glossary'
+import { addSecret, ask, choose, log } from '../log'
+import { GLOBAL_SCOPE, type LocaleSet, Project } from '../project'
 import { drivers } from '../translate/drivers'
 import { type EngineOptions, parseOptions, resolveDriver, translateItems } from '../translate/engine'
-import { keysToTranslate } from './estimate'
 
 export interface TranslateArgs {
   cwd?: string
@@ -13,10 +14,28 @@ export interface TranslateArgs {
   service?: string
   token?: string
   options?: string
+  locale?: string
   replace?: boolean
+  dryRun?: boolean
   chunkSize?: number
   pluralSeparator: string
   glossaryFile?: string
+}
+
+const DEFAULT_GLOSSARY = '.i18n-glossary.json'
+
+interface Job {
+  scope: string
+  items: Array<{ key: string; text: string }>
+}
+
+function jobsFor(reference: LocaleSet, locale: LocaleSet, replace: boolean): Job[] {
+  return reference.scopes.flatMap((scope) => {
+    const items = Object.entries(reference.strings(scope))
+      .filter(([key, text]) => text !== '' && (replace || (locale.resolve(key, scope) ?? '') === ''))
+      .map(([key, text]) => ({ key, text }))
+    return items.length > 0 ? [{ scope, items }] : []
+  })
 }
 
 async function resolveService(args: TranslateArgs): Promise<string> {
@@ -33,19 +52,46 @@ async function resolveToken(args: TranslateArgs, keyOptional: boolean): Promise<
   return answer
 }
 
+function resolveGlossary(args: TranslateArgs, rootDir: string): Glossary | undefined {
+  const path = resolve(rootDir, args.glossaryFile ?? DEFAULT_GLOSSARY)
+  if (existsSync(path)) return loadGlossary(path)
+  if (args.glossaryFile) throw notFoundError(`Glossary not found: ${path}`)
+  return undefined
+}
+
 const contextOf = (scope: string, keys: string[]): string => {
   const shown = keys.slice(0, 10).join(', ')
-  return `scope=${scope}; keys=${shown}${keys.length > 10 ? ` (+${keys.length - 10} more)` : ''}`
+  return `scope=${scope === GLOBAL_SCOPE ? 'global' : scope}; keys=${shown}${keys.length > 10 ? ` (+${keys.length - 10} more)` : ''}`
+}
+
+function printPlan(project: Project, codes: string[], replace: boolean): void {
+  const rows = codes.map((code): [string, string] => {
+    const items = jobsFor(project.reference, project.locale(code), replace).flatMap((job) => job.items)
+    const chars = items.reduce((sum, item) => sum + item.text.length, 0)
+    return [code, `${items.length} keys, ${chars} characters`]
+  })
+  log.section('To translate')
+  log.rows(rows)
+  log.info('Dry run: nothing was sent.')
 }
 
 export default async function run(args: TranslateArgs): Promise<void> {
-  const service = await resolveService(args)
-  const driver = resolveDriver(service)
-  const token = await resolveToken(args, Boolean(driver.keyOptional))
+  addSecret(args.token)
+  // First: this also loads `.env`, where a token usually lives.
   const project = await Project.load(args)
   const { reference } = project
   const { defaultLocale, rootDir } = project.config
-  const glossary = args.glossaryFile ? loadGlossary(resolve(rootDir, args.glossaryFile)) : undefined
+  const codes = project.selectLocales(splitList(args.locale))
+  if (args.dryRun) {
+    printPlan(project, codes, Boolean(args.replace))
+    return
+  }
+
+  const service = await resolveService(args)
+  const driver = resolveDriver(service)
+  const token = await resolveToken(args, Boolean(driver.keyOptional))
+  addSecret(token)
+  const glossary = resolveGlossary(args, rootDir)
   const config: EngineOptions = {
     service,
     token,
@@ -57,31 +103,34 @@ export default async function run(args: TranslateArgs): Promise<void> {
   const rejected: string[] = []
   let translated = 0
 
-  for (const code of project.targetCodes) {
+  for (const code of codes) {
     const locale = project.locale(code)
     log.info(`Translating locale: ${code}`)
     const glossaryText = glossary && glossaryContext(glossary, defaultLocale, code)
 
-    try {
-      for (const scope of reference.scopes) {
-        const source = reference.strings(scope)
-        const keys = keysToTranslate(source, locale.strings(scope), Boolean(args.replace))
-        if (keys.length === 0) continue
-        const items = keys.map((key) => ({ key, text: source[key]! }))
-        const extra = { translationContext: contextOf(scope, keys), ...(glossaryText ? { glossaryContext: glossaryText } : {}) }
-        // oxlint-disable-next-line no-await-in-loop -- sequential by design, see translateSegments
-        const result = await translateItems(items, defaultLocale, code, config, extra)
-        for (const { key, value } of result.translated) locale.set(key, value, scope)
-        translated += result.translated.length
-        rejected.push(...result.rejected.map((key) => `${code}: ${key}`))
+    for (const { scope, items } of jobsFor(reference, locale, Boolean(args.replace))) {
+      const extra = {
+        translationContext: contextOf(
+          scope,
+          items.map((item) => item.key),
+        ),
+        ...(glossaryText ? { glossaryContext: glossaryText } : {}),
       }
-    } finally {
-      // Translations are paid for: what finished survives a failure in a later scope.
-      // Each locale goes out as whole files, so a failed run leaves nothing half-written.
-      project.save()
+      // oxlint-disable-next-line no-await-in-loop -- sequential by design, see translateItems
+      await translateItems(items, defaultLocale, code, config, extra, (result) => {
+        // Translations are paid for: each batch is on disk before the next request goes out.
+        for (const { key, value } of result.translated) {
+          const conflict = locale.set(key, value, scope)
+          if (conflict) rejected.push(`${code}: ${key} (${conflict} already holds a value)`)
+          else translated += 1
+        }
+        rejected.push(...result.rejected.map((key) => `${code}: ${key} (a placeholder did not survive)`))
+        project.save()
+      })
     }
   }
 
-  log.list('Not written, placeholders did not survive', rejected)
+  log.list('Not written', rejected)
   log.success(`Translated ${translated} strings.`)
+  if (rejected.length > 0) throw findingsError(`${rejected.length} strings were not written.`, ['Fill them in by hand.'])
 }

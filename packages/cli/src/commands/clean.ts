@@ -1,19 +1,28 @@
-import { commandFailed, validationError } from '../errors'
-import { getPath, unflatten } from '../json'
+import { realpathSync } from 'node:fs'
+import { relative } from 'node:path'
+import { commandFailed, findingsError, validationError } from '../errors'
+import { splitList, walkFiles } from '../fs'
+import { getPath } from '../json'
 import { log } from '../log'
-import { GLOBAL_SCOPE, type LocaleSet, Project } from '../project'
-import { type ProjectUsage, scanProject } from '../source'
+import type { ProjectConfig } from '../nuxt'
+import { GLOBAL_SCOPE, Project } from '../project'
+import { type ProjectScan, scanProject, usageDoubts, usageIndex } from '../source'
 
 export interface CleanArgs {
   cwd?: string
   translationDir?: string
   include?: string
   exclude?: string
+  ignore?: string
   dryRun?: boolean
   force?: boolean
 }
 
-const LINKED_KEY = /@:([\w.-]+)/g
+export interface UnusedKey {
+  code: string
+  scope: string
+  key: string
+}
 
 function regexFrom(pattern: string | undefined, flag: string): RegExp | null {
   if (!pattern) return null
@@ -24,83 +33,57 @@ function regexFrom(pattern: string | undefined, flag: string): RegExp | null {
   }
 }
 
-function linkedKeys(project: Project): Set<string> {
-  const linked = new Set<string>()
-  for (const code of project.codes) {
+/**
+ * Keys of this project's own files that nothing in the project can read. A key used anywhere
+ * stays in every scope: a page's route name is not always knowable from its file.
+ */
+export function findUnused(project: Project, scan: ProjectScan): UnusedKey[] {
+  const isUsed = usageIndex(scan)
+  return project.codes.flatMap((code) => {
     const locale = project.locale(code)
-    for (const scope of locale.scopes) {
-      for (const value of Object.values(locale.strings(scope))) {
-        for (const match of value.matchAll(LINKED_KEY)) linked.add(match[1]!)
-      }
-    }
-  }
-  return linked
+    return locale.scopes.flatMap((scope) =>
+      Object.keys(locale.leaves(scope))
+        .filter((key) => !isUsed(key) && getPath(locale.inheritedTree(scope), key) === undefined)
+        .map((key) => ({ code, scope, key })),
+    )
+  })
 }
 
-/** `$t('a')` also reads everything under `a`, and `$t('a.b')` needs `a.b` itself. */
-const covers = (used: string, key: string): boolean => used === key || used.startsWith(`${key}.`) || key.startsWith(`${used}.`)
-
-interface Retention {
-  used(key: string, scope: string): boolean
+/** A locale file that lives outside the project may feed another app too, whose code was not scanned. */
+function sharedLocaleFiles(config: ProjectConfig): string[] {
+  const root = realpathSync(config.rootDir)
+  return walkFiles(config.translationDir, (path) => path.endsWith('.json')).filter((file) => relative(root, realpathSync(file)).startsWith('..'))
 }
 
-function retention(project: Project, usage: ProjectUsage): Retention {
-  const linked = linkedKeys(project)
-  const everywhere = [...usage.global, ...linked, ...Object.values(usage.pages).flatMap((keys) => Array.from(keys))]
-  const shared = [...usage.global, ...linked]
-  const prefixes = usage.dynamic.map((entry) => entry.prefix).filter(Boolean)
-
-  return {
-    used(key, scope) {
-      if (prefixes.some((prefix) => key.startsWith(prefix))) return true
-      const candidates = scope === GLOBAL_SCOPE ? everywhere : [...shared, ...(usage.pages[scope] ?? [])]
-      return candidates.some((used) => covers(used, key))
-    },
-  }
-}
+const describe = ({ code, scope, key }: UnusedKey): string => `${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`
 
 export default async function run(args: CleanArgs): Promise<void> {
   const project = await Project.load(args)
   const include = regexFrom(args.include, 'include')
   const exclude = regexFrom(args.exclude, 'exclude')
-  const usage = scanProject(project.config)
+  const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
 
-  if (usage.files === 0) {
+  if (scan.files === 0) {
     throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
   }
-  const opaque = usage.dynamic.filter((entry) => !entry.prefix)
-  for (const { file, expression } of opaque) log.warn(`Key computed at runtime in ${file}: ${expression}`)
-  if (opaque.length > 0 && !args.force && !args.dryRun) {
-    throw commandFailed('Some keys are computed at runtime, so any key may be in use.', [
+
+  const shared = sharedLocaleFiles(project.config).map((file) => `Locale file outside the project: ${file}`)
+  const doubts = [...usageDoubts(scan), ...shared]
+  for (const doubt of doubts) log.warn(doubt)
+  if (doubts.length > 0 && !args.force && !args.dryRun) {
+    throw findingsError('Cannot prove which keys are unused, so nothing was removed.', [
       'Review the list with --dryRun, protect keys with --exclude, then rerun with --force.',
     ])
   }
 
-  const { used } = retention(project, usage)
-  const removable = (key: string, scope: string, locale: LocaleSet): boolean => {
-    if (getPath(scope === GLOBAL_SCOPE ? locale.inherited.global : (locale.inherited.pages[scope] ?? {}), key) !== undefined) return false
-    if (include && !include.test(key)) return false
-    if (exclude?.test(key)) return false
-    return !used(key, scope)
-  }
-
-  const removed: string[] = []
-  for (const code of project.codes) {
-    const locale = project.locale(code)
-    for (const scope of locale.scopes) {
-      const leaves = Object.entries(locale.leaves(scope))
-      const kept = leaves.filter(([key]) => !removable(key, scope, locale))
-      if (kept.length === leaves.length) continue
-      for (const [key] of leaves) if (removable(key, scope, locale)) removed.push(`${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`)
-      if (!args.dryRun) locale.replaceTree(scope, unflatten(Object.fromEntries(kept)))
-    }
-  }
-
+  const unused = findUnused(project, scan).filter(({ key }) => (!include || include.test(key)) && !exclude?.test(key))
   if (args.dryRun) {
-    log.list('Would remove', removed)
-    log.info(`Dry run: ${removed.length} keys would be removed.`)
+    log.list('Would remove', unused.map(describe))
+    log.info(`Dry run: ${unused.length} keys would be removed.${doubts.length > 0 ? ' Without --force, none would be.' : ''}`)
     return
   }
+
+  for (const { code, scope, key } of unused) project.locale(code).delete(key, scope)
   project.save()
-  log.success(`Removed ${removed.length} unused keys.`)
+  log.success(`Removed ${unused.length} unused keys.`)
 }

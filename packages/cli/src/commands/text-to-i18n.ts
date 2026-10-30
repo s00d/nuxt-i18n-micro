@@ -1,22 +1,20 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
-import { readJsonIfExists, stringifyJson, walkFiles, writeFilesAtomic } from '../fs'
-import { flattenStrings, setPath } from '../json'
+import { readJsonIfExists, splitList, stringifyLike, walkFiles, writeFilesAtomic } from '../fs'
+import { type JsonObject, flattenStrings, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
-import { isSourceFile, rewritableSources } from '../source'
-import { KeyRegistry, type NewTranslation, convertSource, extractOnlyMatcher } from '../text-to-i18n'
+import { isCodeFile, isTestFile, projectFiles } from '../source'
+import { type Conversion, type Hardcoded, KeyRegistry, type NewTranslation, convertSource } from '../text-to-i18n'
 
 export interface TextToI18nArgs {
   cwd?: string
   translationFile?: string
   path?: string
   context?: string
+  ignore?: string
   dryRun?: boolean
-  verbose?: boolean
-  extractOnlyDirs: string
-  extractOnlyPatterns?: string
   interactive?: boolean
 }
 
@@ -25,42 +23,50 @@ interface Decisions {
   skippedKeys: string[]
 }
 
-const splitList = (value: string | undefined): string[] =>
-  (value ?? '')
-    .split(',')
-    .map((part) => part.trim())
-    .filter(Boolean)
+const VALID_KEY = /^[\p{L}\p{N}_.-]+$/u
 
-function filesToProcess(config: ProjectConfig, customPath: string | undefined): string[] {
-  if (!customPath) return rewritableSources(config)
-  const target = resolve(config.rootDir, customPath)
+function filesToProcess(config: ProjectConfig, args: TextToI18nArgs): string[] {
+  if (!args.path) {
+    const files = projectFiles(config, { ignore: splitList(args.ignore) })
+    return files.filter((file) => isCodeFile(file) && !isTestFile(config, file) && !/\bnuxt\.config\.\w+$/.test(file))
+  }
+  const target = resolve(config.rootDir, args.path)
   if (!existsSync(target)) throw notFoundError(`Path does not exist: ${target}`)
-  if (statSync(target).isDirectory()) return walkFiles(target, isSourceFile)
-  if (!isSourceFile(target)) throw validationError(`Unsupported file type: ${target}`, ['Supported: .vue, .js, .ts, .jsx, .tsx'])
+  if (statSync(target).isDirectory()) return walkFiles(target, isCodeFile)
+  if (!isCodeFile(target)) throw validationError(`Unsupported file type: ${target}`, ['Supported: .vue, .js, .ts, .jsx, .tsx'])
   return [target]
 }
 
 interface RunResult {
   changes: Array<[string, string]>
   created: Map<string, NewTranslation>
+  mixed: Hardcoded[]
+  code: Hardcoded[]
+  blocked: Hardcoded[]
 }
 
-function convertAll(files: string[], config: ProjectConfig, args: TextToI18nArgs, existing: Record<string, string>, decisions: Decisions): RunResult {
-  const keys = new KeyRegistry(existing, { context: args.context, ...decisions })
-  const isExtractOnly = extractOnlyMatcher(config.rootDir, { dirs: splitList(args.extractOnlyDirs), patterns: splitList(args.extractOnlyPatterns) })
+function convertAll(files: string[], args: TextToI18nArgs, tree: JsonObject, decisions: Decisions): RunResult {
+  const keys = new KeyRegistry(flattenStrings(tree), tree, { context: args.context, ...decisions })
   const changes: Array<[string, string]> = []
+  const conversions: Conversion[] = []
 
   for (const file of files) {
     const content = readFileSync(file, 'utf8')
-    if (args.verbose) log.info(`Processing ${relative(config.rootDir, file)}`)
     try {
-      const updated = convertSource(content, file, keys, isExtractOnly(file))
-      if (updated !== content) changes.push([file, updated])
+      const conversion = convertSource(content, file, keys)
+      conversions.push(conversion)
+      if (conversion.content !== content) changes.push([file, conversion.content])
     } catch (error) {
       log.warn(`Skipping ${file}: ${(error as Error).message}`)
     }
   }
-  return { changes, created: keys.created }
+  return {
+    changes,
+    created: keys.created,
+    mixed: conversions.flatMap((item) => item.mixed),
+    code: conversions.flatMap((item) => item.code),
+    blocked: keys.blocked,
+  }
 }
 
 async function askDecision(entry: NewTranslation, decisions: Decisions, reserved: Set<string>): Promise<void> {
@@ -76,8 +82,8 @@ async function askDecision(entry: NewTranslation, decisions: Decisions, reserved
 
   const edited = await ask(`New key for "${entry.value}":`)
   if (!edited || edited === entry.key) return
-  if (reserved.has(edited)) {
-    log.warn(`Key "${edited}" is already used in this run; keeping ${entry.key}.`)
+  if (reserved.has(edited) || !VALID_KEY.test(edited)) {
+    log.warn(`Key "${edited}" is taken or not a valid key; keeping ${entry.key}.`)
     return
   }
   decisions.keyOverrides[entry.key] = edited
@@ -95,21 +101,31 @@ async function collectDecisions(created: Map<string, NewTranslation>, existing: 
   return decisions
 }
 
+function report(title: string, items: Hardcoded[], rootDir: string): void {
+  log.list(
+    title,
+    items.map(({ file, line, text }) => `${relative(rootDir, file)}:${line} ${text}`),
+  )
+}
+
 export default async function run(args: TextToI18nArgs): Promise<void> {
   const config = await loadProjectConfig(args.cwd ?? '.')
   const translationFile = args.translationFile
     ? resolve(config.rootDir, args.translationFile)
     : join(config.translationDir, `${config.defaultLocale}.json`)
   const translations = readJsonIfExists(translationFile)
-  const existing = flattenStrings(translations)
-  const files = filesToProcess(config, args.path)
+  const files = filesToProcess(config, args)
 
-  let result = convertAll(files, config, args, existing, { keyOverrides: {}, skippedKeys: [] })
+  let result = convertAll(files, args, translations, { keyOverrides: {}, skippedKeys: [] })
   if (args.interactive && result.created.size > 0) {
-    result = convertAll(files, config, args, existing, await collectDecisions(result.created, existing))
+    result = convertAll(files, args, translations, await collectDecisions(result.created, flattenStrings(translations)))
   }
 
   log.info(`Found ${files.length} files to process.`)
+  report('Mixed text, not rewritten: wrap the sentence in one key by hand', result.mixed, config.rootDir)
+  report('Text in code, not rewritten: `$t` may not be in scope there', result.code, config.rootDir)
+  report('Skipped: the generated key would overwrite an existing value', result.blocked, config.rootDir)
+
   if (result.created.size === 0 && result.changes.length === 0) {
     log.info('No new translations found.')
     return
@@ -127,7 +143,8 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
   }
 
   for (const { key, value } of result.created.values()) setPath(translations, key, value)
+  const previous = existsSync(translationFile) ? readFileSync(translationFile, 'utf8') : undefined
   // One step: rewritten sources must not exist without the keys they call.
-  writeFilesAtomic([...result.changes, [translationFile, stringifyJson(translations)]])
+  writeFilesAtomic([...result.changes, [translationFile, stringifyLike(previous, translations)]])
   log.success(`Updated ${result.changes.length} files and ${relative(config.rootDir, translationFile)}.`)
 }

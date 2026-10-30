@@ -2,7 +2,7 @@ import { type ArgsDef, type CommandDef, defineCommand, runCommand, showUsage } f
 import { name as packageName, version } from '../package.json'
 import { reportError, usageError, validationError } from './errors'
 import { closePrompts, log } from './log'
-import { type ArgSpec, type CommandSpec, commands } from './spec'
+import { type ArgSpec, type CommandSpec, REMOVED_COMMANDS, commands } from './spec'
 
 type ParsedArgs = Record<string, unknown>
 
@@ -28,7 +28,7 @@ const toCamel = (name: string): string => name.replace(/-([a-z])/g, (_match, let
 
 /** A mistyped `--dryrun` on `clean` must not run the real thing. */
 function assertKnownFlags(name: string, spec: CommandSpec, rawArgs: string[]): void {
-  const known = new Set(['debug', 'help', ...Object.keys(spec.args)])
+  const known = new Set(['help', ...Object.keys(spec.args)])
   for (const raw of rawArgs.slice(0, rawArgs.includes('--') ? rawArgs.indexOf('--') : undefined)) {
     if (!raw.startsWith('--')) continue
     const flag = toCamel(raw.slice(2).split('=')[0]!)
@@ -73,6 +73,8 @@ export async function runCli(rawArgs: string[]): Promise<void> {
       console.log(version)
       return
     }
+    const replacement = REMOVED_COMMANDS[rawArgs[0] ?? '']
+    if (replacement) throw usageError(`The ${rawArgs[0]} command was removed. Use ${replacement}.`)
     if (rawArgs.length === 0 || rawArgs.includes('--help') || rawArgs.includes('-h')) {
       const target = commands[rawArgs[0] ?? ''] ? toCommand(rawArgs[0]!, commands[rawArgs[0]!]!) : main
       await showUsage(target, target === main ? undefined : main)

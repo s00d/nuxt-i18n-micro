@@ -387,10 +387,16 @@ interface CliCommand {
 interface CliSpec {
   COMMAND_GROUPS: readonly string[]
   commands: Record<string, CliCommand>
+  CHECK_TYPES: readonly string[]
+  LINT_RULES: ReadonlyArray<{ name: string; description: string; fixable: boolean }>
+  EXIT_CODES: ReadonlyArray<readonly [number, string]>
+  CONFIG_FILES: ReadonlyArray<readonly [string, string]>
+  ENVIRONMENT: ReadonlyArray<readonly [string, string]>
+  REMOVED_COMMANDS: Record<string, string>
 }
 
 /** On every project command, so the reference states them once. */
-const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'translationDir'])
+const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug', 'translationDir'])
 
 const cliFlag = (name: string, arg: CliArg): string => code(arg.type === 'positional' ? `<${name}>` : `--${name}`) + (arg.required ? ' **\\***' : '')
 
@@ -424,7 +430,8 @@ function cliCommandBlock(name: string, command: CliCommand): string {
  * would pull every command's parser into the type-check of the tooling.
  */
 async function cliReference(): Promise<string> {
-  const { COMMAND_GROUPS, commands } = (await import(/* @vite-ignore */ join(repoRoot, 'packages/cli/src/spec.ts'))) as CliSpec
+  const spec = (await import(/* @vite-ignore */ join(repoRoot, 'packages/cli/src/spec.ts'))) as CliSpec
+  const { COMMAND_GROUPS, commands, LINT_RULES, EXIT_CODES, CONFIG_FILES, ENVIRONMENT, REMOVED_COMMANDS } = spec
   const entries = Object.entries(commands)
   const common = entries.flatMap(([, command]) => Object.entries(command.args)).filter(([name]) => CLI_COMMON_FLAGS.has(name))
   const uniqueCommon = [...new Map(common).entries()]
@@ -434,7 +441,22 @@ async function cliReference(): Promise<string> {
     return [`## ${group}`, '', ...members.flatMap(([name, command]) => [cliCommandBlock(name, command), ''])].join('\n').trim()
   })
 
-  return ['## Common flags', '', cliFlagTable(uniqueCommon), '', ...groups.flatMap((group) => [group, ''])].join('\n').trim()
+  const reference: Array<[string, string[], string[][]]> = [
+    [
+      'Lint rules',
+      ['Rule', 'Finds', 'Fixed by `--fix`'],
+      LINT_RULES.map(({ name, description, fixable }) => [code(name), description, fixable ? 'yes' : 'no']),
+    ],
+    ['Exit codes', ['Code', 'Meaning'], EXIT_CODES.map(([exit, meaning]) => [code(String(exit)), meaning])],
+    ['Configuration files', ['File', 'Used by'], CONFIG_FILES.map(([file, purpose]) => [code(file), purpose])],
+    ['Environment variables', ['Name', 'Used for'], ENVIRONMENT.map(([name, purpose]) => [code(name), purpose])],
+    ['Removed commands', ['Command', 'Instead'], Object.entries(REMOVED_COMMANDS).map(([name, replacement]) => [code(name), replacement])],
+  ]
+  const tables = reference.map(([title, head, rows]) => [`## ${title}`, '', table(head, rows)].join('\n'))
+
+  return ['## Common flags', '', cliFlagTable(uniqueCommon), '', ...groups.flatMap((group) => [group, '']), ...tables.flatMap((block) => [block, ''])]
+    .join('\n')
+    .trim()
 }
 
 /* -------------------------------------------------------------------------------- budget */

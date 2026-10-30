@@ -11,7 +11,7 @@ const RETRYABLE = new Set([408, 429, 500, 502, 503, 504])
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** What a URL may show in an error: query strings carry API keys (`?key=`). */
-const safeUrl = (url: string): string => url.split('?')[0]!
+const safeUrl = (url: string): string => url.split('?')[0]!.replace(/\/\/[^/@]*@/, '//')
 
 function messageFromBody(body: string): string {
   try {
@@ -54,7 +54,12 @@ async function attempt(url: string, options: RequestOptions, retriesLeft: number
       await sleep(delayMs)
       return attempt(url, options, retriesLeft - 1, delayMs * 2)
     }
-    throw new CliError(`Request failed: ${(error as Error).message}`, { code: 'HTTP_ERROR', details: { URL: safeUrl(url) }, cause: error })
+    // The runtime quotes the whole URL when it cannot parse one, query string included.
+    throw new CliError(`Request failed: ${(error as Error).message.replaceAll(url, safeUrl(url))}`, {
+      code: 'HTTP_ERROR',
+      details: { URL: safeUrl(url) },
+      cause: error,
+    })
   }
   if (response.ok) return response
   if (RETRYABLE.has(response.status) && retriesLeft > 0) {

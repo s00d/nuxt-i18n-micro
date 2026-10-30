@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
+import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { CliError } from './errors'
 
@@ -15,6 +15,14 @@ export interface ProjectConfig {
   translationDir: string
   /** Lowest priority first, the project's own directory last. */
   translationDirs: string[]
+  /** The ones the module reads top-level `{locale}.json` from, never `pages/`. */
+  additionalDirs: string[]
+  /** Every layer's root, the project's included. */
+  layerRoots: string[]
+  /** `dir.pages` of every layer. */
+  pagesDirs: string[]
+  /** Source folders outside the root that aliases and auto-imports reach into. */
+  extraSourceDirs: string[]
   defaultLocale: string
   locales: LocaleEntry[]
   disablePageLocales: boolean
@@ -28,17 +36,24 @@ interface I18nOptions {
   additionalTranslationDirs?: Array<string | { path?: string }>
 }
 
-interface ResolvedNuxtConfig {
+interface LayerConfig {
   rootDir?: string
   srcDir?: string
+  dir?: { pages?: string }
+}
+
+interface ResolvedNuxtConfig extends LayerConfig {
   i18n?: I18nOptions
   modules?: unknown[]
-  _layers?: ReadonlyArray<{ config?: { rootDir?: string } }>
+  alias?: Record<string, string>
+  components?: unknown
+  imports?: { dirs?: unknown }
+  _layers?: ReadonlyArray<{ config?: LayerConfig }>
 }
 
 type LoadNuxtConfig = (options: { cwd: string; dotenv?: { cwd: string } }) => Promise<ResolvedNuxtConfig>
 
-const NUXT_CONFIG_FILES = ['nuxt.config.ts', 'nuxt.config.js', 'nuxt.config.mjs', 'nuxt.config.cjs']
+const NUXT_CONFIG_FILES = ['ts', 'js', 'mjs', 'cjs', 'mts', 'cts'].map((extension) => `nuxt.config.${extension}`)
 
 export function findNuxtRoot(startDir: string): string | null {
   const start = resolve(startDir)
@@ -86,6 +101,12 @@ function moduleEnabled(modules: unknown[] = []): boolean {
   return modules.some((entry) => String(Array.isArray(entry) ? entry[0] : entry).includes('nuxt-i18n-micro'))
 }
 
+/** `modules: [['nuxt-i18n-micro', { ... }]]`. */
+function inlineOptions(modules: unknown[] = []): I18nOptions | undefined {
+  const entry = modules.find((item): item is [string, I18nOptions] => Array.isArray(item) && String(item[0]).includes('nuxt-i18n-micro'))
+  return entry?.[1]
+}
+
 /** Layers concatenate `locales`, project first, so the first entry of a code wins, as in the module. */
 function normalizeLocales(locales: I18nOptions['locales'] = []): LocaleEntry[] {
   const byCode = new Map<string, LocaleEntry & { disabled?: boolean }>()
@@ -96,15 +117,40 @@ function normalizeLocales(locales: I18nOptions['locales'] = []): LocaleEntry[] {
   return [...byCode.values()].filter((entry) => !entry.disabled).map(({ code }) => ({ code }))
 }
 
-function translationDirsOf(config: ResolvedNuxtConfig, rootDir: string, dirName: string, i18n: I18nOptions): string[] {
-  const layerRoots = (config._layers ?? []).map((layer) => layer.config?.rootDir).filter((dir): dir is string => Boolean(dir))
-  const additional = (i18n.additionalTranslationDirs ?? [])
-    .map((entry) => (typeof entry === 'string' ? entry : entry.path))
-    .filter((dir): dir is string => Boolean(dir))
-    .map((dir) => resolve(rootDir, dir))
-  const own = resolve(rootDir, dirName)
-  const layers = [...layerRoots].reverse().map((dir) => resolve(dir, dirName))
-  return [...new Set([...additional, ...layers, own])].sort((a, b) => Number(a === own) - Number(b === own))
+const layersOf = (config: ResolvedNuxtConfig, rootDir: string): LayerConfig[] => {
+  const layers = (config._layers ?? []).flatMap((layer) => (layer.config?.rootDir ? [layer.config] : []))
+  return layers.some((layer) => layer.rootDir === rootDir) ? layers : [{ rootDir, srcDir: config.srcDir, dir: config.dir }, ...layers]
+}
+
+/** Like the module: each additional directory is relative to every layer, and sits under the layers' own files. */
+function additionalDirsOf(roots: string[], i18n: I18nOptions): string[] {
+  const names = (i18n.additionalTranslationDirs ?? []).map((entry) => (typeof entry === 'string' ? entry : entry.path)).filter(Boolean) as string[]
+  return [...new Set(names.flatMap((name) => roots.map((root) => resolve(root, name))))]
+}
+
+const ALIAS_PREFIX = /^(~~|@@|~|@)(?=\/)/
+
+/** Strings out of `components` and `imports.dirs`, in every shape Nuxt accepts them. */
+function dirNames(value: unknown): string[] {
+  if (typeof value === 'string') return [value]
+  if (Array.isArray(value)) return value.flatMap(dirNames)
+  if (typeof value !== 'object' || value === null) return []
+  const { path, dirs } = value as { path?: unknown; dirs?: unknown }
+  return [...dirNames(path), ...dirNames(dirs)]
+}
+
+/** A folder outside the root is still this app's code when an alias or auto-import points at it. */
+function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[] {
+  const srcDir = config.srcDir ?? rootDir
+  const expand = (dir: string): string =>
+    resolve(
+      rootDir,
+      dir.replace(ALIAS_PREFIX, (prefix) => (prefix.length === 2 ? rootDir : srcDir)),
+    )
+  const names = [...Object.values(config.alias ?? {}), ...dirNames(config.components), ...dirNames(config.imports?.dirs)]
+  const dirs = names.filter((name) => typeof name === 'string').map(expand)
+  const outside = dirs.filter((dir) => relative(rootDir, dir).startsWith('..') && !dir.includes('/node_modules/') && existsSync(dir))
+  return [...new Set(outside.filter((dir) => statSync(dir).isDirectory()))]
 }
 
 async function readNuxtConfig(rootDir: string): Promise<ResolvedNuxtConfig> {
@@ -133,13 +179,14 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
   if (!rootDir) {
     throw new CliError('No Nuxt project found.', {
       code: 'NOT_NUXT_PROJECT',
-      hints: ['Run inside a Nuxt app (where nuxt.config.ts exists), or pass --cwd /path/to/app.', 'To bootstrap a new project: i18n-micro init'],
+      hints: ['Run inside a Nuxt app (where nuxt.config.ts exists), or pass --cwd /path/to/app.'],
       details: { 'Working directory': requested },
     })
   }
 
   const config = await readNuxtConfig(rootDir)
-  const i18n = config.i18n
+  const inline = inlineOptions(config.modules)
+  const i18n = config.i18n || inline ? { ...config.i18n, ...inline } : undefined
   if (!i18n) {
     const enabled = moduleEnabled(config.modules)
     throw new CliError(enabled ? 'nuxt-i18n-micro is enabled, but has no i18n options.' : 'nuxt-i18n-micro is not enabled in this project.', {
@@ -158,13 +205,33 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
     })
   }
 
+  // The same fallbacks as the module: a project without `defaultLocale` runs on `en`, not on its first locale.
+  const defaultLocale = process.env.DEFAULT_LOCALE ?? i18n.defaultLocale ?? 'en'
+  if (!locales.some((locale) => locale.code === defaultLocale)) {
+    throw new CliError(`The default locale "${defaultLocale}" is not among the enabled locales.`, {
+      code: 'NO_LOCALES',
+      hints: ['Set i18n.defaultLocale in nuxt.config.'],
+      details: { 'Project root': rootDir, Locales: locales.map((locale) => locale.code).join(', ') },
+    })
+  }
+
   const dirName = i18n.translationDir || 'locales'
+  const layers = layersOf(config, rootDir)
+  const roots = layers.map((layer) => layer.rootDir!).reverse()
+  const translationDir = resolve(rootDir, dirName)
+  const additionalDirs = additionalDirsOf(roots, i18n)
   return {
     rootDir,
     srcDir: config.srcDir ?? rootDir,
-    translationDir: resolve(rootDir, dirName),
-    translationDirs: translationDirsOf(config, rootDir, dirName, i18n),
-    defaultLocale: i18n.defaultLocale ?? locales[0]!.code,
+    translationDir,
+    translationDirs: [...new Set([...additionalDirs, ...roots.map((root) => resolve(root, dirName)), translationDir])].sort(
+      (a, b) => Number(a === translationDir) - Number(b === translationDir),
+    ),
+    additionalDirs,
+    layerRoots: roots,
+    pagesDirs: [...new Set(layers.map((layer) => resolve(layer.srcDir ?? layer.rootDir!, layer.dir?.pages ?? 'pages')))],
+    extraSourceDirs: extraSourceDirsOf(config, rootDir),
+    defaultLocale,
     locales,
     disablePageLocales: Boolean(i18n.disablePageLocales),
   }

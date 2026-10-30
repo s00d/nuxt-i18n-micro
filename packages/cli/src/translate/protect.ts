@@ -1,4 +1,4 @@
-const PLACEHOLDER = /%?\{[^{}]+\}|\{\{[^{}]+\}\}|@:[\w.-]+/g
+const PLACEHOLDER = /%?\{[^{}]+\}|\{\{[^{}]+\}\}/g
 
 export interface Protected {
   masked: string

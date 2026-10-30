@@ -1,61 +1,479 @@
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, extname, join, relative, sep } from 'node:path'
+import { readFileSync, realpathSync } from 'node:fs'
+import { basename, dirname, extname, relative, sep } from 'node:path'
 import { babelParse, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { walkFiles } from './fs'
+import { globToRegExp, readText, walkFiles } from './fs'
 import type { ProjectConfig } from './nuxt'
 
-const SOURCE_EXTENSIONS = new Set(['.vue', '.js', '.ts', '.jsx', '.tsx'])
-const GLOBAL_DIRS = ['components', 'layouts', 'plugins', 'composables', 'utils', 'middleware', 'stores', 'store', 'server']
-const ROOT_FILES = ['app.vue', 'error.vue', 'app.config.ts']
-const REWRITABLE_DIRS = ['pages', 'components', 'plugins', 'layouts']
-const NODE_TYPES = { ELEMENT: 1, ATTRIBUTE: 6, DIRECTIVE: 7, INTERPOLATION: 5 }
+const CODE_EXTENSIONS = new Set(['.vue', '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs', '.mts', '.cts'])
+/** Text no parser here reads. Keys in it still count as evidence of use. */
+const TEMPLATE_EXTENSIONS = new Set(['.html', '.pug'])
+const DATA_EXTENSIONS = new Set(['.json', '.yaml', '.yml', '.md', '.mdx'])
+const SKIPPED_DIRS = new Set(['node_modules', '.git', '.nuxt', '.output', '.data', '.cache', '.vercel', '.netlify', '.idea', '.vscode'])
+/** Build output by these names only at a root: `pages/dist/` is a page. */
+const OUTPUT_DIRS = new Set(['dist', 'coverage'])
+const SKIPPED_DATA = /^(package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig.*\.json)$/
+const TEST_FILE = /(^|\/)(tests?|__tests__|e2e|cypress|playwright)\/|\.(test|spec)\.[^/]+$/
+export const NODE_TYPES = { ELEMENT: 1, TEXT: 2, COMMENT: 3, INTERPOLATION: 5, ATTRIBUTE: 6, DIRECTIVE: 7 }
 
-const TRANSLATION_CALLS = new Set(['$t', '$ts', '$tc', '$has'])
-/** Plain `t()` is `useI18n()`'s; in a file without `useI18n` it is somebody else's function. */
-const COMPOSABLE_CALLS = ['t', 'ts', 'tc', 'has']
-const NO_NAMES: ReadonlySet<string> = new Set()
-const DESTRUCTURED_I18N = /\{([^{}]*)\}\s*=\s*useI18n\s*\(/g
+export const isCodeFile = (path: string): boolean => CODE_EXTENSIONS.has(extname(path).toLowerCase())
 
-/** Names that translate in this file, aliases included: `const { t: tr } = useI18n()`. */
-export function composableNames(content: string): ReadonlySet<string> {
-  if (!/useI18n|i18n-?group/i.test(content)) return NO_NAMES
-  const names = new Set(COMPOSABLE_CALLS)
-  for (const match of content.matchAll(DESTRUCTURED_I18N)) {
-    for (const part of match[1]!.split(',')) {
-      const [original, alias] = part.split(':').map((text) => text.trim())
-      if (alias && COMPOSABLE_CALLS.includes(original!)) names.add(alias)
+type Family = 'key' | 'guard' | 'bound'
+
+/** The translation API by name. `bound` returns a key function for a route: `$_t(route)('key')`. */
+const DOLLAR_NAMES: ReadonlyArray<[string, Family]> = [
+  ['$t', 'key'],
+  ['$ts', 'key'],
+  ['$tc', 'key'],
+  ['$has', 'guard'],
+  ['$_t', 'bound'],
+  ['$_ts', 'bound'],
+]
+/** `useI18n()` also returns these. In a file without `useI18n` a plain `t()` is somebody else's function. */
+const BARE_NAMES: ReadonlyArray<[string, Family]> = [
+  ['t', 'key'],
+  ['ts', 'key'],
+  ['tc', 'key'],
+  ['has', 'guard'],
+  ['_t', 'bound'],
+  ['_ts', 'bound'],
+]
+const API_NAMES = new Map<string, Family>([...DOLLAR_NAMES, ...BARE_NAMES])
+const I18N_SOURCES = new Set(['useI18n', 'useNuxtApp'])
+const KEY_LIKE = /^[^\s'"`<>{}()]{1,200}$/
+
+export interface KeyRef {
+  key: string
+  file: string
+  line: number
+  /** The key's text in the file, without quotes. -1 when it came from text no parser read. */
+  start: number
+  end: number
+  /** `$has` asks whether a key exists: it does not need one to exist. */
+  guard: boolean
+  /** Text after `$t(key, params, 'text')`. */
+  defaultText?: string
+  /** Inside `<i18n-group>` the code holds only the part after this. */
+  keyPrefix?: string
+}
+
+export interface DynamicKey {
+  file: string
+  line: number
+  expression: string
+  /** Static text before the first interpolation: every key under it may be in use. */
+  prefix: string
+  /** `<i18n-group prefix>`: a known prefix, not a key computed at runtime. */
+  group?: boolean
+}
+
+export interface FileScan {
+  refs: KeyRef[]
+  dynamic: DynamicKey[]
+  /** Strings that look like a key, and where the first one is: a key can travel through a variable. */
+  literals: Map<string, string>
+  /** Strings ending in a dot: `'errors.' + code`. */
+  prefixes: Set<string>
+  /** Why this file could not be read completely. */
+  unproven: string[]
+}
+
+interface Names {
+  families: Map<string, Family>
+  /** Names that hold the function itself: used as a value, the keys it receives cannot be seen. */
+  values: Set<string>
+  /** `const i18n = useI18n()`. */
+  objects: Set<string>
+}
+
+export interface AstNode {
+  type: string
+  start?: number
+  end?: number
+  [key: string]: unknown
+}
+
+interface Context {
+  content: string
+  file: string
+  scan: FileScan
+  names: Names
+  /** What `node.start` is added to, to be an offset in the file. */
+  base: number
+  group: Group | null
+}
+
+interface Group {
+  prefix: string
+  names: Set<string>
+}
+
+const asNode = (value: unknown): AstNode | undefined => value as AstNode | undefined
+
+export const lineOf = (content: string, offset: number): number => content.slice(0, Math.max(0, offset)).split('\n').length
+
+export function staticString(node: AstNode | undefined): string | null {
+  if (node?.type === 'StringLiteral') return node.value as string
+  const quasis = node?.quasis as Array<{ value: { cooked: string } }> | undefined
+  if (node?.type === 'TemplateLiteral' && quasis?.length === 1) return quasis[0]!.value.cooked
+  return null
+}
+
+const propertyName = (callee: AstNode | undefined): string | null => {
+  const isMember = callee?.type === 'MemberExpression' || callee?.type === 'OptionalMemberExpression'
+  return isMember && !callee.computed ? ((asNode(callee.property)?.name as string | undefined) ?? null) : null
+}
+
+/** `i18n`, `this.$i18n`, `useI18n()`: the name a member call hangs off. */
+function objectName(callee: AstNode | undefined): string {
+  const object = asNode(callee?.object)
+  return String(object?.name ?? asNode(object?.property)?.name ?? asNode(object?.callee)?.name ?? '')
+}
+
+const isI18nObject = (name: string, names: Names): boolean => /i18n$/i.test(name) || names.objects.has(name) || I18N_SOURCES.has(name)
+
+function familyOf(callee: AstNode | undefined, names: Names): Family | null {
+  if (callee?.type === 'Identifier') return names.families.get(callee.name as string) ?? null
+  if (callee?.type === 'CallExpression' || callee?.type === 'OptionalCallExpression') {
+    return familyOf(asNode(callee.callee), names) === 'bound' ? 'key' : null
+  }
+  const name = propertyName(callee)
+  if (!name) return null
+  const family = API_NAMES.get(name) ?? null
+  return family && (name.startsWith('$') || isI18nObject(objectName(callee), names)) ? family : null
+}
+
+function isI18nSource(node: AstNode | undefined, names: Names): boolean {
+  if (node?.type === 'AwaitExpression') return isI18nSource(asNode(node.argument), names)
+  if (node?.type === 'Identifier') return isI18nObject(node.name as string, names)
+  return node?.type === 'CallExpression' && I18N_SOURCES.has(asNode(node.callee)?.name as string)
+}
+
+function addAlias(local: AstNode | undefined, original: string, names: Names): void {
+  const family = API_NAMES.get(original)
+  const target = local?.type === 'AssignmentPattern' ? asNode(local.left) : local
+  if (!family || target?.type !== 'Identifier') return
+  names.families.set(target.name as string, family)
+  names.values.add(target.name as string)
+}
+
+function readDeclarator(node: AstNode, names: Names): void {
+  const id = asNode(node.id)
+  const init = asNode(node.init)
+  if (id?.type === 'ObjectPattern' && isI18nSource(init, names)) {
+    for (const prop of id.properties as AstNode[]) addAlias(asNode(prop.value), asNode(prop.key)?.name as string, names)
+    return
+  }
+  if (id?.type !== 'Identifier') return
+  if (isI18nSource(init, names)) {
+    names.objects.add(id.name as string)
+    return
+  }
+  const family = init?.type === 'CallExpression' ? (familyOf(asNode(init.callee), names) === 'bound' ? 'key' : null) : familyOf(init, names)
+  if (!family) return
+  names.families.set(id.name as string, family)
+  names.values.add(id.name as string)
+}
+
+/** Aliases first: a template or a later function uses what the script declares. */
+function readNames(ast: unknown, names: Names): void {
+  walk(ast as Parameters<typeof walk>[0], {
+    enter(raw: unknown) {
+      const node = raw as unknown as AstNode
+      if (node.type === 'VariableDeclarator') readDeclarator(node, names)
+    },
+  })
+}
+
+function newNames(content: string): Names {
+  const bare = /useI18n|i18n-?group/i.test(content)
+  return {
+    families: new Map([...DOLLAR_NAMES, ...(bare ? BARE_NAMES : [])]),
+    values: new Set(DOLLAR_NAMES.map(([name]) => name)),
+    objects: new Set(),
+  }
+}
+
+const TYPE_WRAPPERS = new Set(['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSSatisfiesExpression', 'ParenthesizedExpression'])
+
+/** `$t('a' as string)` is still the key `a`. */
+const unwrap = (node: AstNode | undefined): AstNode | undefined => (node && TYPE_WRAPPERS.has(node.type) ? unwrap(asNode(node.expression)) : node)
+
+/** `\`a.${x}\`` and `'a.' + x` both pin down `a.`. */
+function staticPrefix(node: AstNode | undefined): string {
+  if (node?.type === 'BinaryExpression') return staticPrefix(asNode(node.left))
+  const quasis = node?.quasis as Array<{ value: { cooked: string } }> | undefined
+  return quasis?.[0]?.value.cooked ?? staticString(node) ?? ''
+}
+
+function addRef(literal: string, node: AstNode, context: Context, extra: Pick<KeyRef, 'guard' | 'defaultText'>, inGroup: boolean): void {
+  const { base, content, file, group, scan } = context
+  const start = base + node.start! + 1
+  const keyPrefix = inGroup ? `${group!.prefix}.` : undefined
+  scan.refs.push({ key: `${keyPrefix ?? ''}${literal}`, file, line: lineOf(content, start), start, end: start + literal.length, keyPrefix, ...extra })
+}
+
+function addArgument(wrapped: AstNode | undefined, context: Context, extra: Pick<KeyRef, 'guard' | 'defaultText'>, inGroup: boolean): void {
+  const argument = unwrap(wrapped)
+  if (!argument) return
+  const literal = staticString(argument)
+  if (literal !== null) {
+    addRef(literal, argument, context, extra, inGroup)
+    return
+  }
+  if (argument.type === 'ConditionalExpression') {
+    addArgument(asNode(argument.consequent), context, extra, inGroup)
+    addArgument(asNode(argument.alternate), context, extra, inGroup)
+    return
+  }
+  if (argument.type === 'LogicalExpression') {
+    addArgument(asNode(argument.left), context, extra, inGroup)
+    addArgument(asNode(argument.right), context, extra, inGroup)
+    return
+  }
+  const { base, content, file, scan, group } = context
+  const start = base + argument.start!
+  const prefix = `${inGroup ? `${group!.prefix}.` : ''}${staticPrefix(argument)}`
+  scan.dynamic.push({ file, line: lineOf(content, start), expression: content.slice(start, base + argument.end!), prefix })
+}
+
+function addLiteral(text: string, scan: FileScan, location: string): void {
+  if (!KEY_LIKE.test(text)) return
+  if (text.endsWith('.')) scan.prefixes.add(text)
+  else if (!scan.literals.has(text)) scan.literals.set(text, location)
+}
+
+function visitCall(node: AstNode, context: Context): void {
+  const callee = asNode(node.callee)
+  const inGroup = callee?.type === 'Identifier' && Boolean(context.group?.names.has(callee.name as string))
+  const family = inGroup ? 'key' : familyOf(callee, context.names)
+  if (family !== 'key' && family !== 'guard') return
+  const [key, , fallback] = node.arguments as AstNode[]
+  addArgument(key, context, { guard: family === 'guard', defaultText: staticString(fallback) ?? undefined }, inGroup)
+}
+
+/** Where a name only stands for itself: a declaration, a parameter, a property, a type. */
+function isValueUse(parent: AstNode | null, key: unknown, declared: WeakSet<object>, node: AstNode): boolean {
+  if (!parent || declared.has(node) || key === 'callee' || key === 'params' || key === 'object' || key === 'id') return false
+  if ((key === 'key' || key === 'property') && !parent.computed) return false
+  if (parent.type.startsWith('Import') || parent.type.startsWith('Export')) return false
+  if (parent.type === 'UnaryExpression' && parent.operator === 'typeof') return false
+  return !parent.type.startsWith('TS') || key === 'expression'
+}
+
+function declare(node: AstNode | undefined, declared: WeakSet<object>): void {
+  if (!node) return
+  declared.add(node)
+  if (node.type === 'ObjectPattern') for (const prop of node.properties as AstNode[]) declare(asNode(prop.value) ?? prop, declared)
+  if (node.type === 'ArrayPattern') for (const element of node.elements as AstNode[]) declare(element ?? undefined, declared)
+  if (node.type === 'AssignmentPattern') declare(asNode(node.left), declared)
+  if (node.type === 'RestElement') declare(asNode(node.argument), declared)
+}
+
+function visitNode(node: AstNode, parent: AstNode | null, key: unknown, context: Context, declared: WeakSet<object>): void {
+  const { base, content, file, names, scan } = context
+  if (node.type === 'VariableDeclarator') declare(asNode(node.id), declared)
+  if (Array.isArray(node.params)) for (const param of node.params as AstNode[]) declare(param, declared)
+  if (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') visitCall(node, context)
+  const literal = staticString(node)
+  if (literal !== null) addLiteral(literal, scan, `${file}:${lineOf(content, base + node.start!)}`)
+  if (node.type === 'TemplateLiteral' && literal === null) addLiteral(staticPrefix(node), scan, file)
+  if (node.type !== 'Identifier' || !names.values.has(node.name as string) || !isValueUse(parent, key, declared, node)) return
+  const start = base + node.start!
+  scan.dynamic.push({ file, line: lineOf(content, start), expression: `${node.name as string} passed as a value`, prefix: '' })
+}
+
+function visitCode(ast: unknown, context: Context): void {
+  const declared = new WeakSet<object>()
+  walk(ast as Parameters<typeof walk>[0], {
+    enter(raw: unknown, parent: unknown, key: unknown) {
+      visitNode(raw as unknown as AstNode, parent as unknown as AstNode | null, key, context, declared)
+    },
+  })
+}
+
+/** JSX only where the file allows it: in plain TypeScript `<string>x` is a cast. */
+function tryParse(code: string, plugins: Array<'typescript' | 'jsx' | 'decorators'>): { errors?: unknown[] } | null {
+  try {
+    return babelParse(code, { sourceType: 'module', errorRecovery: true, plugins }) as unknown as { errors?: unknown[] }
+  } catch {
+    return null
+  }
+}
+
+const isClean = (ast: { errors?: unknown[] } | null): boolean => Boolean(ast) && !ast!.errors?.length
+
+/**
+ * The syntax tree, or `null` when the code does not parse. A file with a recoverable error
+ * (a duplicate declaration, say) still gives a whole tree; `strict` refuses it, for telling
+ * an expression from a statement.
+ */
+export function parseCode(code: string, lang = 'ts', strict = false): unknown | null {
+  const first = tryParse(code, /x$/.test(lang) ? ['typescript', 'jsx', 'decorators'] : ['typescript', 'decorators'])
+  if (isClean(first)) return first
+  const retry = /^[cm]?js$/.test(lang) ? tryParse(code, ['jsx', 'decorators']) : null
+  if (isClean(retry)) return retry
+  return strict ? null : (first ?? retry)
+}
+
+const TEXT_CALL = /(?:\$tc?s?|\$has|\btc?s?)\s*\(\s*(?:['"`]([^'"`$]+)['"`]|([^'"`)\s][^)]*))/g
+const QUOTED = /['"`]([^'"`\n]+)['"`]/g
+
+/** For what no parser here reads, such as Pug templates: finding a key too many is the safe mistake. */
+function collectFromText(text: string, context: Context, base: number): void {
+  const { content, file, scan } = context
+  for (const match of text.matchAll(TEXT_CALL)) {
+    const line = lineOf(content, base + match.index)
+    if (match[1]) scan.refs.push({ key: match[1], file, line, start: -1, end: -1, guard: false })
+    else scan.dynamic.push({ file, line, expression: match[2]!.trim(), prefix: '' })
+  }
+  for (const match of text.matchAll(QUOTED)) addLiteral(match[1]!, scan, `${file}:${lineOf(content, base + match.index)}`)
+}
+
+function unproven(context: Context, text: string, base: number, reason: string): void {
+  context.scan.unproven.push(reason)
+  collectFromText(text, context, base)
+}
+
+function scanExpression(expression: string, offset: number, context: Context): void {
+  // Parenthesized first so `{ a: $t('x') }` reads as an object, not as a block with a label.
+  const wrapped = parseCode(`(${expression}\n)`, 'ts', true)
+  const ast = wrapped ?? parseCode(expression)
+  if (!ast) {
+    unproven(context, expression, offset, `unparsed template expression at line ${lineOf(context.content, offset)}`)
+    return
+  }
+  visitCode(ast, { ...context, base: wrapped ? offset - 1 : offset })
+}
+
+interface TemplateProp {
+  type: number
+  name: string
+  value?: { content: string; loc: { source: string; start: { offset: number } } }
+  exp?: { content?: string; loc: { start: { offset: number } } }
+  arg?: { content?: string }
+  forParseResult?: { source?: { content?: string; loc: { start: { offset: number } } } }
+}
+
+interface TemplateElement {
+  type?: number
+  tag?: string
+  content?: { content?: string; loc: { start: { offset: number } } }
+  props?: TemplateProp[]
+  children?: TemplateElement[]
+}
+
+function addKeypathAttribute(prop: TemplateProp, context: Context): void {
+  const { file, content, scan } = context
+  const { value } = prop
+  const quote = /^['"]/.test(value!.loc.source) ? 1 : 0
+  const start = value!.loc.start.offset + quote
+  scan.refs.push({ key: value!.content, file, line: lineOf(content, start), start, end: start + value!.content.length, guard: false })
+}
+
+function addGroupPrefix(prop: TemplateProp, tag: string, context: Context): void {
+  const { file, content, scan } = context
+  const line = lineOf(content, prop.value!.loc.start.offset)
+  scan.dynamic.push({ file, line, expression: `<${tag} prefix="${prop.value!.content}">`, prefix: prop.value!.content, group: true })
+}
+
+function readAttribute(prop: TemplateProp, tag: string, context: Context): void {
+  if (!prop.value) return
+  if (prop.name === 'keypath' && /^i18n-?t$/i.test(tag)) addKeypathAttribute(prop, context)
+  else if (prop.name === 'prefix' && /^i18n-?group$/i.test(tag)) addGroupPrefix(prop, tag, context)
+  else addLiteral(prop.value.content, context.scan, `${context.file}:${lineOf(context.content, prop.value.loc.start.offset)}`)
+}
+
+/** `v-slot="{ t: tr }"` of an `<i18n-group>`: what the block calls the scoped `t`. */
+function readSlotNames(expression: string, group: Group): void {
+  const ast = parseCode(`(${expression}\n)=>0`)
+  if (!ast) return
+  walk(ast as Parameters<typeof walk>[0], {
+    enter(raw: unknown) {
+      const node = raw as unknown as AstNode
+      if (node.type !== 'ObjectProperty' || asNode(node.key)?.name !== 't') return
+      const local = asNode(node.value)
+      if (local?.type === 'Identifier') group.names.add(local.name as string)
+    },
+  })
+}
+
+function readDirective(prop: TemplateProp, tag: string, context: Context): void {
+  const expression = prop.forParseResult?.source ?? prop.exp
+  if (!expression?.content) return
+  const start = expression.loc.start.offset
+  if (prop.name === 'slot') {
+    if (context.group) readSlotNames(expression.content, context.group)
+    return
+  }
+  const argument = prop.arg?.content
+  if (argument === 'keypath' && /^i18n-?t$/i.test(tag)) {
+    const ast = parseCode(`$t(${expression.content}\n)`)
+    if (ast) visitCode(ast, { ...context, base: start - 3 })
+    else unproven(context, expression.content, start, `unparsed :keypath at line ${lineOf(context.content, start)}`)
+    return
+  }
+  if (argument === 'prefix' && /^i18n-?group$/i.test(tag)) {
+    const line = lineOf(context.content, start)
+    context.scan.dynamic.push({ file: context.file, line, expression: expression.content, prefix: '' })
+  }
+  scanExpression(expression.content, start, context)
+}
+
+function groupOf(node: TemplateElement, context: Context): Context {
+  if (!/^i18n-?group$/i.test(node.tag ?? '')) return context
+  const prefix = node.props?.find((prop) => prop.type === NODE_TYPES.ATTRIBUTE && prop.name === 'prefix')?.value?.content
+  return prefix ? { ...context, group: { prefix, names: new Set() } } : context
+}
+
+function visitTemplate(node: TemplateElement, outer: Context): void {
+  if (node.type === NODE_TYPES.INTERPOLATION && node.content?.content) scanExpression(node.content.content, node.content.loc.start.offset, outer)
+  const context = node.type === NODE_TYPES.ELEMENT ? groupOf(node, outer) : outer
+  if (node.type === NODE_TYPES.ELEMENT) {
+    for (const prop of node.props ?? []) {
+      if (prop.type === NODE_TYPES.ATTRIBUTE) readAttribute(prop, node.tag ?? '', context)
+      if (prop.type === NODE_TYPES.DIRECTIVE) readDirective(prop, node.tag ?? '', context)
     }
   }
-  return names
+  for (const child of node.children ?? []) visitTemplate(child, context)
 }
 
-export const ALL_COMPOSABLE_NAMES: ReadonlySet<string> = new Set(COMPOSABLE_CALLS)
+function scanVue(content: string, context: Context): void {
+  const { descriptor, errors } = parseSfc(content, { filename: context.file })
+  const { template, script, scriptSetup } = descriptor
+  if (errors.length > 0) context.scan.unproven.push(`SFC parse error: ${String((errors[0] as Error).message)}`)
 
-export const isSourceFile = (path: string): boolean => SOURCE_EXTENSIONS.has(extname(path).toLowerCase())
+  const blocks = [script, scriptSetup].flatMap((block) => (block ? [{ block, ast: parseCode(block.content, block.lang ?? 'ts') }] : []))
+  for (const { ast } of blocks) if (ast) readNames(ast, context.names)
+  for (const { block, ast } of blocks) {
+    if (ast) visitCode(ast, { ...context, base: block.loc.start.offset })
+    else unproven(context, block.content, block.loc.start.offset, `unparsed <script> in ${basename(context.file)}`)
+  }
 
-const sourceRoots = (config: ProjectConfig): string[] => [...new Set([config.srcDir, config.rootDir])]
-
-/** A layer's pages count too: an app key may be used only there. */
-const scanRoots = (config: ProjectConfig): string[] => {
-  const layers = config.translationDirs.flatMap((dir) => [dirname(dir), join(dirname(dir), 'app')])
-  return [...new Set([...sourceRoots(config), ...layers])]
+  if (template?.ast && (!template.lang || template.lang === 'html')) visitTemplate(template.ast as unknown as TemplateElement, context)
+  else if (template) collectFromText(template.content, context, template.loc.start.offset)
 }
 
-const sourcesIn = (roots: string[], dirs: string[]): string[] => [
-  ...new Set(roots.flatMap((root) => dirs.flatMap((dir) => walkFiles(join(root, dir), isSourceFile)))),
-]
-
-const rootFilesIn = (roots: string[]): string[] =>
-  roots.flatMap((root) => ROOT_FILES.map((name) => join(root, name))).filter((file) => existsSync(file))
-
-/** Everything of the app itself that can use a key. */
-export const allProjectSources = (config: ProjectConfig): string[] => {
-  const roots = sourceRoots(config)
-  return [...sourcesIn(roots, ['pages', ...GLOBAL_DIRS]), ...rootFilesIn(roots)]
+function scanCode(content: string, context: Context): void {
+  const ast = parseCode(content, extname(context.file).slice(1).toLowerCase())
+  if (!ast) {
+    unproven(context, content, 0, `parse error in ${basename(context.file)}`)
+    return
+  }
+  readNames(ast, context.names)
+  visitCode(ast, context)
 }
 
-/** What `text-to-i18n` may rewrite: places where `$t` is in scope, not composables or server code. */
-export const rewritableSources = (config: ProjectConfig): string[] => sourcesIn(sourceRoots(config), REWRITABLE_DIRS)
+/** Every use of a translation key in one file, with positions. Comments do not count. */
+export function scanFile(content: string, file: string): FileScan {
+  const scan: FileScan = { refs: [], dynamic: [], literals: new Map(), prefixes: new Set(), unproven: [] }
+  const context: Context = { content, file, scan, names: newNames(content), base: 0, group: null }
+  const extension = extname(file).toLowerCase()
+  if (content.trim() === '') return scan
+  if (extension === '.vue') scanVue(content, context)
+  else if (CODE_EXTENSIONS.has(extension)) scanCode(content, context)
+  else collectFromText(content, context, 0)
+  return scan
+}
 
 const SEGMENT_TOKEN = /\[{1,2}(?:\.\.\.)?([^\]]+)\]{1,2}/g
 
@@ -80,207 +498,119 @@ export function pageScopeOf(file: string, pagesRoot: string, content: string): s
   return content.match(PAGE_META_NAME)?.[1] ?? pageNameOf(relative(pagesRoot, file))
 }
 
-export interface DynamicKey {
-  file: string
-  expression: string
-  /** Static text before the first interpolation: every key under it may be in use. */
-  prefix: string
+export interface ScopedRef extends KeyRef {
+  /** Route name when the file is a page. */
+  page: string | null
+  /** A test or a fixture: proof of use, but no reason to add a key. */
+  test: boolean
 }
 
-export interface KeyUsage {
-  keys: Set<string>
+export interface ProjectScan {
+  refs: ScopedRef[]
   dynamic: DynamicKey[]
-}
-
-export interface AstNode {
-  type: string
-  start?: number
-  end?: number
-  [key: string]: unknown
-}
-
-const asNode = (value: unknown): AstNode | undefined => value as AstNode | undefined
-
-export function staticString(node: AstNode | undefined): string | null {
-  if (node?.type === 'StringLiteral') return node.value as string
-  const quasis = node?.quasis as Array<{ value: { cooked: string } }> | undefined
-  if (node?.type === 'TemplateLiteral' && quasis?.length === 1) return quasis[0]!.value.cooked
-  return null
-}
-
-function calleeName(callee: AstNode | undefined): string | null {
-  if (callee?.type === 'Identifier') return callee.name as string
-  if ((callee?.type === 'MemberExpression' || callee?.type === 'OptionalMemberExpression') && !callee.computed) {
-    return asNode(callee.property)?.name as string
-  }
-  return null
-}
-
-function objectName(callee: AstNode | undefined): string {
-  const object = asNode(callee?.object)
-  return String(object?.name ?? asNode(object?.property)?.name ?? asNode(object?.callee)?.name ?? '')
-}
-
-export function isTranslationCall(callee: AstNode | undefined, names: ReadonlySet<string>): boolean {
-  const name = calleeName(callee)
-  if (!name) return false
-  if (TRANSLATION_CALLS.has(name)) return true
-  if (callee?.type === 'Identifier') return names.has(name)
-  return ALL_COMPOSABLE_NAMES.has(name) && /i18n$/i.test(objectName(callee))
-}
-
-const TYPE_WRAPPERS = new Set(['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSSatisfiesExpression', 'ParenthesizedExpression'])
-
-/** `$t('a' as string)` is still the key `a`. */
-const unwrap = (node: AstNode | undefined): AstNode | undefined => (node && TYPE_WRAPPERS.has(node.type) ? unwrap(asNode(node.expression)) : node)
-
-function collectArgument(wrapped: AstNode | undefined, code: string, file: string, usage: KeyUsage): void {
-  const argument = unwrap(wrapped)
-  const literal = staticString(argument)
-  if (literal !== null) {
-    usage.keys.add(literal)
-    return
-  }
-  if (argument?.type === 'ConditionalExpression') {
-    collectArgument(asNode(argument.consequent), code, file, usage)
-    collectArgument(asNode(argument.alternate), code, file, usage)
-    return
-  }
-  if (!argument) return
-  usage.dynamic.push({ file, expression: code.slice(argument.start, argument.end), prefix: staticPrefix(argument) })
-}
-
-/** `\`a.${x}\`` and `'a.' + x` both pin down `a.`. */
-function staticPrefix(node: AstNode | undefined): string {
-  if (node?.type === 'BinaryExpression') return staticPrefix(asNode(node.left))
-  const quasis = node?.quasis as Array<{ value: { cooked: string } }> | undefined
-  return quasis?.[0]?.value.cooked ?? staticString(node) ?? ''
-}
-
-/** JSX only where the file allows it: in plain TypeScript `<string>x` is a cast. */
-export function parseCode(code: string, lang = 'ts'): unknown | null {
-  const plugins: Array<'typescript' | 'jsx' | 'decorators'> = ['typescript', 'decorators']
-  if (/x$/.test(lang)) plugins.push('jsx')
-  try {
-    return babelParse(code, { sourceType: 'module', errorRecovery: true, plugins })
-  } catch {
-    return null
-  }
-}
-
-const CALL_TEXT = /(?:\$t|\$ts|\$tc|\$has|\bt|\bts|\btc)\s*\(\s*['"`]([^'"`$]+)['"`]/g
-
-/** For what no parser here reads, such as Pug templates: finding a key too many is the safe mistake. */
-function collectFromText(code: string, usage: KeyUsage): void {
-  for (const match of code.matchAll(CALL_TEXT)) usage.keys.add(match[1]!)
-}
-
-function collectFromCode(code: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>, lang = 'ts'): void {
-  const ast = parseCode(code, lang)
-  if (!ast) {
-    collectFromText(code, usage)
-    return
-  }
-  walk(ast as Parameters<typeof walk>[0], {
-    enter(node: unknown) {
-      const current = node as unknown as AstNode
-      if (current.type !== 'CallExpression' && current.type !== 'OptionalCallExpression') return
-      if (!isTranslationCall(asNode(current.callee), composable)) return
-      collectArgument((current.arguments as AstNode[])[0], code, file, usage)
-    },
-  })
-}
-
-function collectFromExpression(expression: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
-  if (!expression.includes('(')) return
-  // Parenthesized first so `{ a: $t('x') }` reads as an object, not as a block with a label.
-  const ast = parseCode(`(${expression}\n)`)
-  const isExpression = ast && !(ast as { errors?: unknown[] }).errors?.length
-  collectFromCode(isExpression ? `(${expression}\n)` : expression, file, usage, composable)
-}
-
-function collectFromProp(prop: unknown, tag: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
-  const current = prop as {
-    type: number
-    name: string
-    value?: { content: string }
-    exp?: { content?: string }
-    arg?: { content?: string }
-    forParseResult?: { source?: { content?: string } }
-  }
-  if (current.type === NODE_TYPES.ATTRIBUTE && current.name === 'keypath' && /^i18n-?t$/i.test(tag) && current.value) {
-    usage.keys.add(current.value.content)
-  }
-  if (current.type === NODE_TYPES.ATTRIBUTE && current.name === 'prefix' && /^i18n-?group$/i.test(tag) && current.value) {
-    usage.dynamic.push({ file, expression: `<${tag} prefix="${current.value.content}">`, prefix: current.value.content })
-  }
-  if (current.type !== NODE_TYPES.DIRECTIVE) return
-  const expression = current.forParseResult?.source?.content ?? current.exp?.content
-  if (expression && current.arg?.content === 'keypath' && /^i18n-?t$/i.test(tag)) {
-    collectFromCode(`$t(${expression}\n)`, file, usage, composable)
-    return
-  }
-  if (expression) collectFromExpression(expression, file, usage, composable)
-}
-
-function collectFromTemplate(node: unknown, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
-  const current = node as { type?: number; tag?: string; content?: { content?: string }; props?: unknown[]; children?: unknown[] }
-  if (current.type === NODE_TYPES.INTERPOLATION && current.content?.content) {
-    collectFromExpression(current.content.content, file, usage, composable)
-  }
-  if (current.type === NODE_TYPES.ELEMENT) {
-    for (const prop of current.props ?? []) collectFromProp(prop, current.tag ?? '', file, usage, composable)
-  }
-  for (const child of current.children ?? []) collectFromTemplate(child, file, usage, composable)
-}
-
-/** Translation keys a source file uses. Parses instead of matching text, so comments and strings do not count. */
-export function collectKeys(content: string, file: string): KeyUsage {
-  const usage: KeyUsage = { keys: new Set(), dynamic: [] }
-  const composable = composableNames(content)
-  if (!file.endsWith('.vue')) {
-    collectFromCode(content, file, usage, composable, extname(file).slice(1))
-    return usage
-  }
-  const { descriptor } = parseSfc(content, { filename: file })
-  const { template } = descriptor
-  if (template?.ast && (!template.lang || template.lang === 'html')) collectFromTemplate(template.ast, file, usage, composable)
-  else if (template) collectFromText(template.content, usage)
-  for (const block of [descriptor.script, descriptor.scriptSetup]) {
-    if (block) collectFromCode(block.content, file, usage, composable, block.lang ?? 'ts')
-  }
-  return usage
-}
-
-export interface ProjectUsage {
-  global: Set<string>
-  pages: Record<string, Set<string>>
-  dynamic: DynamicKey[]
+  literals: Map<string, string>
+  prefixes: Set<string>
+  /** Words of JSON and YAML files: keys can live in data that code feeds to `$t`. */
+  dataTokens: Set<string>
+  unproven: Array<{ file: string; reason: string }>
   files: number
 }
 
-/** Keys per page, and keys of everything rendered on any page. */
-export function scanProject(config: ProjectConfig): ProjectUsage {
-  const usage: ProjectUsage = { global: new Set(), pages: {}, dynamic: [], files: 0 }
+export interface ScanOptions {
+  /** Globs relative to the project root. */
+  ignore?: string[]
+}
 
-  const roots = scanRoots(config)
-  for (const root of roots) {
-    const pagesRoot = join(root, 'pages')
-    for (const file of walkFiles(pagesRoot, isSourceFile)) {
-      const content = readFileSync(file, 'utf8')
-      const found = collectKeys(content, file)
-      const scope = pageScopeOf(file, pagesRoot, content)
-      usage.pages[scope] = new Set([...(usage.pages[scope] ?? []), ...found.keys])
-      usage.dynamic.push(...found.dynamic)
-      usage.files += 1
-    }
-  }
+const DATA_TOKEN = /[\p{L}\p{N}_$-]+(?:\.[\p{L}\p{N}_$-]+)*/gu
 
-  for (const file of [...sourcesIn(roots, GLOBAL_DIRS), ...rootFilesIn(roots)]) {
-    const found = collectKeys(readFileSync(file, 'utf8'), file)
-    for (const key of found.keys) usage.global.add(key)
-    usage.dynamic.push(...found.dynamic)
-    usage.files += 1
+function collectData(path: string, scan: ProjectScan): void {
+  for (const match of readText(path).matchAll(DATA_TOKEN)) scan.dataTokens.add(match[0])
+}
+
+/** Everything of the project a key can hide in, once each, whatever folder it lives in. */
+export function projectFiles(config: ProjectConfig, options: ScanOptions = {}): string[] {
+  const excluded = new Set(config.translationDirs)
+  const ignored = (options.ignore ?? []).map(globToRegExp)
+  const isIgnored = (path: string): boolean => {
+    const rel = relative(config.rootDir, path).split(sep).join('/')
+    return ignored.some((pattern) => pattern.test(rel))
   }
-  return usage
+  const accept = (path: string): boolean => {
+    const extension = extname(path).toLowerCase()
+    const known = CODE_EXTENSIONS.has(extension) || TEMPLATE_EXTENSIONS.has(extension) || DATA_EXTENSIONS.has(extension)
+    return known && !path.endsWith('.d.ts') && !SKIPPED_DATA.test(basename(path)) && !isIgnored(path)
+  }
+  const roots = [...new Set([config.rootDir, config.srcDir, ...config.layerRoots, ...config.extraSourceDirs])]
+  const skipDir = (path: string): boolean =>
+    SKIPPED_DIRS.has(basename(path)) || (OUTPUT_DIRS.has(basename(path)) && roots.includes(dirname(path))) || excluded.has(path) || isIgnored(path)
+  // Through a symlink a locale file can sit anywhere. Read as data, every key in it would look used.
+  const seen = new Set(config.translationDirs.flatMap((dir) => walkFiles(dir, (path) => path.endsWith('.json')).map((file) => realpathSync(file))))
+  return roots
+    .flatMap((root) => walkFiles(root, accept, skipDir))
+    .filter((file) => {
+      const real = realpathSync(file)
+      return seen.has(real) ? false : Boolean(seen.add(real))
+    })
+}
+
+export const isTestFile = (config: ProjectConfig, file: string): boolean => TEST_FILE.test(relative(config.rootDir, file).split(sep).join('/'))
+
+function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
+  const content = readFileSync(file, 'utf8')
+  const found = scanFile(content, file)
+  const pagesRoot = config.pagesDirs.find((dir) => !relative(dir, file).startsWith('..'))
+  const page = pagesRoot && isCodeFile(file) ? pageScopeOf(file, pagesRoot, content) : null
+  const test = isTestFile(config, file)
+  for (const ref of found.refs) out.refs.push({ ...ref, page, test })
+  out.dynamic.push(...found.dynamic)
+  for (const [text, location] of found.literals) if (!out.literals.has(text)) out.literals.set(text, location)
+  for (const prefix of found.prefixes) out.prefixes.add(prefix)
+  for (const reason of found.unproven) out.unproven.push({ file, reason })
+  out.files += 1
+}
+
+export function scanProject(config: ProjectConfig, options: ScanOptions = {}): ProjectScan {
+  const out: ProjectScan = { refs: [], dynamic: [], literals: new Map(), prefixes: new Set(), dataTokens: new Set(), unproven: [], files: 0 }
+  for (const file of projectFiles(config, options)) {
+    if (DATA_EXTENSIONS.has(extname(file).toLowerCase())) collectData(file, out)
+    else addFile(file, config, out)
+  }
+  return out
+}
+
+const parentsOf = (key: string): string[] => {
+  const parts = key.split('.')
+  return parts.slice(1).map((_part, index) => parts.slice(0, index + 1).join('.'))
+}
+
+/**
+ * Whether a key may be read. One answer for `clean`, `check` and `search`.
+ *
+ * Any trace counts, not only a call: a string equal to the key can reach `$t` through a
+ * variable, a prop or a data file. A dead key that stays is a line of noise; a live key that
+ * goes is a broken page.
+ */
+export function usageIndex(scan: ProjectScan): (key: string) => boolean {
+  const called = new Set(scan.refs.map((ref) => ref.key))
+  // `$t('a.b')` with `{ "a": "x", "a.b": "y" }`: the walk passes through `a`.
+  const passedThrough = new Set(scan.refs.flatMap((ref) => parentsOf(ref.key)))
+  const prefixes = [...scan.prefixes, ...scan.dynamic.map((entry) => entry.prefix).filter(Boolean)]
+  return (key) =>
+    called.has(key) ||
+    passedThrough.has(key) ||
+    scan.literals.has(key) ||
+    scan.dataTokens.has(key) ||
+    // `$t('a')` reads everything under `a`.
+    parentsOf(key).some((parent) => called.has(parent)) ||
+    prefixes.some((prefix) => key.startsWith(prefix))
+}
+
+/** Why "no source file uses this key" cannot be trusted in this project. Empty when it can. */
+export function usageDoubts(scan: ProjectScan): string[] {
+  const opaque = scan.dynamic.filter((entry) => !entry.prefix)
+  return [
+    ...opaque.map(({ file, line, expression }) => `Key computed at runtime in ${file}:${line}: ${expression}`),
+    ...scan.unproven.map(({ file, reason }) => `Could not read ${file}: ${reason}`),
+    ...(scan.refs.length === 0 ? ['No source file uses any key: the scan is probably looking in the wrong place.'] : []),
+  ]
 }

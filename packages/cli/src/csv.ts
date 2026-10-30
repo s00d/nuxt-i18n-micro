@@ -1,4 +1,4 @@
-/** RFC 4180: enough for the three-column files the CLI reads and writes. */
+/** RFC 4180: enough for the files the CLI reads and writes. */
 
 const quote = (cell: string): string => (/[",\r\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell)
 

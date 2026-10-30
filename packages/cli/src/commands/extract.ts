@@ -1,39 +1,42 @@
-import { blockingLeaf } from '../json'
+import { relative } from 'node:path'
+import { splitList } from '../fs'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
-import { scanProject } from '../source'
+import { type ScopedRef, scanProject } from '../source'
 
 export interface ExtractArgs {
   cwd?: string
   translationDir?: string
+  ignore?: string
 }
 
-function addMissing(project: Project, key: string, scope: string): void {
-  for (const code of project.codes) {
-    const locale = project.locale(code)
-    const blocker = blockingLeaf(locale.tree(scope), key)
-    if (blocker) log.warn(`Skipping ${key} in ${code}: ${blocker} already holds a value.`)
-    else if (locale.get(key, scope) === undefined) locale.set(key, '', scope)
-  }
-}
+const wanted = (ref: ScopedRef): boolean => !ref.guard && !ref.test
 
-/** A page-file `''` would shadow a global value: a key the global file has stays global. */
-const definedGlobally = (project: Project, key: string): boolean => project.codes.some((code) => project.locale(code).get(key) !== undefined)
+/**
+ * Keys with a text of their own go to the default locale. A key without one stays absent:
+ * `''` is a defined value, it would show a blank instead of the fallback locale.
+ */
+function addDefaultText(project: Project, ref: ScopedRef): boolean {
+  const scope = ref.page && !project.config.disablePageLocales ? ref.page : GLOBAL_SCOPE
+  const conflict = project.reference.set(ref.key, ref.defaultText!, scope)
+  if (conflict) log.warn(`Skipping ${ref.key}: ${conflict} already holds a value.`)
+  return !conflict
+}
 
 export default async function run(args: ExtractArgs): Promise<void> {
   const project = await Project.load(args)
-  const usage = scanProject(project.config)
+  const { reference, config } = project
+  const scan = scanProject(config, { ignore: splitList(args.ignore) })
+  for (const { file, line, expression, group } of scan.dynamic) if (!group) log.warn(`Dynamic i18n key in ${file}:${line}: ${expression}`)
 
-  for (const { file, expression } of usage.dynamic) log.warn(`Dynamic i18n key in ${file}: ${expression}`)
-  for (const key of usage.global) addMissing(project, key, GLOBAL_SCOPE)
-
-  for (const [scope, keys] of Object.entries(usage.pages)) {
-    for (const key of keys) {
-      if (project.config.disablePageLocales) addMissing(project, key, GLOBAL_SCOPE)
-      else if (!definedGlobally(project, key)) addMissing(project, key, scope)
-    }
-  }
-
+  const absent = (ref: ScopedRef): boolean => reference.resolve(ref.key, ref.page ?? GLOBAL_SCOPE) === undefined
+  const added = scan.refs.filter((ref) => wanted(ref) && ref.defaultText && absent(ref) && addDefaultText(project, ref))
+  const untexted = scan.refs.filter((ref) => wanted(ref) && absent(ref))
   const written = project.save()
-  log.success(`Scanned ${usage.files} files, updated ${written.length} translation files.`)
+
+  log.list(
+    `Need a text in ${config.defaultLocale}`,
+    untexted.map((ref) => `${ref.key} (${relative(config.rootDir, ref.file)}:${ref.line})`),
+  )
+  log.success(`Scanned ${scan.files} files: ${added.length} keys added, ${untexted.length} without text, ${written.length} files updated.`)
 }

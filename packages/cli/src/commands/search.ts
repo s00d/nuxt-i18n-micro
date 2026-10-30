@@ -1,8 +1,10 @@
-import { dirname } from 'node:path'
+import { relative } from 'node:path'
 import { validationError } from '../errors'
+import { splitList } from '../fs'
+import { flattenStrings } from '../json'
 import { log } from '../log'
-import { Project } from '../project'
-import { type SearchMatch, searchProjectTranslations } from '../search'
+import { GLOBAL_SCOPE, Project } from '../project'
+import { type ProjectScan, scanProject, usageIndex } from '../source'
 
 export interface SearchArgs {
   cwd?: string
@@ -10,75 +12,80 @@ export interface SearchArgs {
   query?: string
   caseSensitive?: boolean
   onlyUnused?: boolean
-  preferUnused?: boolean
   scope: 'global' | 'pages' | 'all'
   limit?: number
-  hardcodedOnly?: boolean
-  onlyVue?: boolean
+  ignore?: string
   json?: boolean
 }
 
-function printMatch(match: SearchMatch, index: number, codes: string[]): void {
-  log.section(`Match #${index + 1}`)
-  log.rows([
-    ['Scope', match.scope],
-    ['Key', match.key],
-    ['Used in source code', match.isUsed ? 'yes' : 'no'],
-    ['Missing locales', match.missingLocales.length],
-  ])
-  log.list(
-    'Translations',
-    codes.map((code) => `${code}: ${match.translations[code] ? `"${match.translations[code]}"` : '[missing]'}`),
-  )
-  log.list(
-    'Defined in',
-    match.translationLocations.map((location) => `[${location.locale}] ${location.file}:${location.line}`),
-  )
-  log.list(
-    'Used in',
-    match.usages.map((usage) => `${usage.file}:${usage.line} -> ${usage.content}`),
-  )
+export interface SearchMatch {
+  scope: string
+  key: string
+  translations: Record<string, string | null>
+  missingLocales: string[]
+  isUsed: boolean
+  usages: string[]
+}
+
+function scopesOf(project: Project, wanted: SearchArgs['scope']): string[] {
+  const all = [...new Set(project.codes.flatMap((code) => project.locale(code).scopes))]
+  if (wanted === 'global') return [GLOBAL_SCOPE]
+  return wanted === 'pages' ? all.filter((scope) => scope !== GLOBAL_SCOPE) : all
+}
+
+function matchesOf(project: Project, scan: ProjectScan, args: SearchArgs): SearchMatch[] {
+  const isUsed = usageIndex(scan)
+  const fold = (text: string): string => (args.caseSensitive ? text : text.toLowerCase())
+  const query = fold((args.query ?? '').trim())
+  const usagesOf = (key: string): string[] =>
+    scan.refs.filter((ref) => ref.key === key).map((ref) => `${relative(project.config.rootDir, ref.file)}:${ref.line}`)
+
+  return scopesOf(project, args.scope).flatMap((scope) => {
+    const byLocale = project.codes.map((code) => [code, flattenStrings(project.locale(code).tree(scope))] as const)
+    const keys = [...new Set(byLocale.flatMap(([, strings]) => Object.keys(strings)))]
+    return keys.flatMap((key): SearchMatch[] => {
+      const values = byLocale.map(([, strings]) => strings[key] ?? '')
+      const used = isUsed(key)
+      if (args.onlyUnused && used) return []
+      if (query && ![key, ...values].some((text) => fold(text).includes(query))) return []
+      return [
+        {
+          scope: scope === GLOBAL_SCOPE ? 'global' : `pages/${scope}`,
+          key,
+          translations: Object.fromEntries(byLocale.map(([code, strings]) => [code, strings[key] ?? null])),
+          missingLocales: byLocale.filter(([, strings]) => strings[key] === undefined).map(([code]) => code),
+          isUsed: used,
+          usages: usagesOf(key),
+        },
+      ]
+    })
+  })
+}
+
+function printMatch(match: SearchMatch): void {
+  log.section(`${match.scope}: ${match.key}`)
+  log.rows(Object.entries(match.translations).map(([code, value]) => [code, value ?? '[missing]']))
+  log.info(match.isUsed ? `Used in: ${match.usages.join(', ') || 'a string or a computed key'}` : 'Not used')
 }
 
 export default async function run(args: SearchArgs): Promise<void> {
   const query = (args.query ?? '').trim()
-  if (!query && !args.hardcodedOnly) {
-    throw validationError('Search query cannot be empty unless --hardcodedOnly is enabled', [
-      'Example: i18n-micro search "welcome"',
-      'Or scan hardcoded text: i18n-micro search --hardcodedOnly',
-    ])
+  if (!query && !args.onlyUnused) {
+    throw validationError('Search query cannot be empty unless --onlyUnused is set', ['Example: i18n-micro search "welcome"'])
   }
 
   const project = await Project.load(args)
-  const { rootDir, srcDir, locales, translationDirs } = project.config
-  const result = await searchProjectTranslations({
-    cwd: rootDir,
-    roots: [...new Set([srcDir, rootDir, ...translationDirs.map((dir) => dirname(dir))])],
-    query,
-    locales,
-    translationDirs,
-    caseSensitive: Boolean(args.caseSensitive),
-    onlyUnused: Boolean(args.onlyUnused),
-    preferUnused: Boolean(args.preferUnused),
-    hardcodedOnly: Boolean(args.hardcodedOnly),
-    onlyVue: Boolean(args.onlyVue),
-    scope: args.scope,
-    limit: args.limit,
-  })
+  const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
+  const found = matchesOf(project, scan, args)
+  const matches = args.limit ? found.slice(0, args.limit) : found
 
   if (args.json) {
-    log.json(result)
+    log.json({ query, totalMatches: found.length, matches })
     return
   }
-  if (result.matches.length === 0 && result.hardcoded.length === 0) {
+  if (matches.length === 0) {
     log.info(query ? `No matches found for "${query}"` : 'No matches found')
     return
   }
-
-  for (const [index, match] of result.matches.entries()) printMatch(match, index, project.codes)
-  if (result.hardcoded.length > 0)
-    log.list(
-      'Hardcoded text',
-      result.hardcoded.map((item) => `${item.file}:${item.line} -> ${item.content}`),
-    )
+  for (const match of matches) printMatch(match)
 }

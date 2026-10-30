@@ -1,46 +1,72 @@
 import { execFileSync } from 'node:child_process'
 import { join, relative, resolve, sep } from 'node:path'
 import { validationError } from '../errors'
+import { writeFileAtomic } from '../fs'
 import { type JsonObject, flattenStrings, isObject } from '../json'
 import { log } from '../log'
-import { Project } from '../project'
-import { type StatsDiff, type StatsInput, type StatsReport, buildStatsDiff, buildStatsReport, generateStatsHtmlReport } from '../stats-report'
+import { GLOBAL_SCOPE, Project } from '../project'
 
 export interface StatsArgs {
   cwd?: string
   translationDir?: string
-  full?: boolean
   html?: string
   json?: boolean
   baseRef?: string
 }
 
-/** Not `pages`: `text-to-i18n` generates global keys under that name. */
-const COMBINED_PAGES = '$pages'
+interface Trees {
+  global: JsonObject
+  pages: Record<string, JsonObject>
+}
 
-type LocaleTree = Pick<StatsInput['locales'][number], 'code' | 'global' | 'pages'>
+export interface LocaleCompletion {
+  code: string
+  totalKeys: number
+  translatedKeys: number
+  completion: number
+}
 
-function buildInput(trees: LocaleTree[], defaultLocale: string, pageScopes: string[]): StatsInput {
-  const reference = trees.find((tree) => tree.code === defaultLocale)
-  const referenceGlobalKeys = Object.keys(flattenStrings(reference?.global ?? {}))
-  const referencePageKeys = Object.fromEntries(pageScopes.map((scope) => [scope, Object.keys(flattenStrings(reference?.pages[scope] ?? {}))]))
-  const pageCombined = Object.entries(referencePageKeys).flatMap(([scope, keys]) => keys.map((key) => `${COMBINED_PAGES}.${scope}.${key}`))
-  return {
-    locales: trees.map((tree) => ({ ...tree, combined: { ...tree.global, [COMBINED_PAGES]: tree.pages } })),
-    pageScopes,
-    referenceGlobalKeys,
-    referencePageKeys,
-    referenceCombinedKeys: [...new Set([...referenceGlobalKeys, ...pageCombined])],
-    totalFiles: trees.length * (pageScopes.length + 1),
+export interface LocaleDelta {
+  code: string
+  completionDelta: number
+  translatedKeysDelta: number
+  totalKeysDelta: number
+}
+
+const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+
+/** Locale codes come from the project, but a report is opened in a browser. */
+const esc = (text: string): string => text.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]!)
+
+const percent = (value: number): string => `${value.toFixed(2)}%`
+
+const scopeKeys = (tree: JsonObject): string[] => Object.keys(flattenStrings(tree))
+
+function completionOf(code: string, trees: Trees, reference: Trees): LocaleCompletion {
+  const scopes = [GLOBAL_SCOPE, ...Object.keys(reference.pages)]
+  const treeOf = (source: Trees, scope: string): JsonObject => (scope === GLOBAL_SCOPE ? source.global : (source.pages[scope] ?? {}))
+  let totalKeys = 0
+  let translatedKeys = 0
+  for (const scope of scopes) {
+    const strings = flattenStrings(treeOf(trees, scope))
+    const keys = scopeKeys(treeOf(reference, scope))
+    totalKeys += keys.length
+    translatedKeys += keys.filter((key) => Boolean(strings[key])).length
   }
+  return { code, totalKeys, translatedKeys, completion: totalKeys === 0 ? 100 : (translatedKeys / totalKeys) * 100 }
+}
+
+const reportOf = (byCode: Map<string, Trees>, defaultLocale: string): LocaleCompletion[] =>
+  [...byCode].map(([code, trees]) => completionOf(code, trees, byCode.get(defaultLocale)!))
+
+function git(rootDir: string, args: string[]): string {
+  return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
 }
 
 function gitShow(rootDir: string, ref: string, path: string): JsonObject {
   const gitPath = relative(rootDir, path).split(sep).join('/')
   try {
-    const parsed = JSON.parse(
-      execFileSync('git', ['show', `${ref}:./${gitPath}`], { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }),
-    ) as unknown
+    const parsed = JSON.parse(git(rootDir, ['show', `${ref}:./${gitPath}`])) as unknown
     return isObject(parsed) ? parsed : {}
   } catch {
     return {} // the file did not exist at that ref
@@ -49,12 +75,7 @@ function gitShow(rootDir: string, ref: string, path: string): JsonObject {
 
 function gitPageScopes(rootDir: string, ref: string, translationDir: string): string[] {
   const pagesDir = relative(rootDir, join(translationDir, 'pages')).split(sep).join('/')
-  const listing = execFileSync('git', ['ls-tree', '-r', '--name-only', ref, '--', `./${pagesDir}`], {
-    cwd: rootDir,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  })
-  const scopes = listing
+  const scopes = git(rootDir, ['ls-tree', '-r', '--name-only', ref, '--', `./${pagesDir}`])
     .split('\n')
     .filter((line) => line.endsWith('.json'))
     .map((line) => line.slice(line.indexOf('pages/') + 'pages/'.length, line.lastIndexOf('/')))
@@ -63,125 +84,69 @@ function gitPageScopes(rootDir: string, ref: string, translationDir: string): st
 
 function assertRef(rootDir: string, ref: string): void {
   try {
-    execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], { cwd: rootDir, stdio: 'ignore' })
+    git(rootDir, ['rev-parse', '--verify', `${ref}^{commit}`])
   } catch {
     throw validationError(`Unknown git ref: ${ref}`, ['Pass a branch, tag or commit of this repository.'])
   }
 }
 
-function inputAtRef(project: Project, ref: string): StatsInput {
-  const { rootDir, translationDir, defaultLocale } = project.config
+function treesAtRef(project: Project, ref: string): Map<string, Trees> {
+  const { rootDir, translationDir } = project.config
   assertRef(rootDir, ref)
   const scopes = [...new Set([...project.reference.pageScopes, ...gitPageScopes(rootDir, ref, translationDir)])]
-  const trees = project.codes.map((code) => ({
-    code,
-    global: gitShow(rootDir, ref, join(translationDir, `${code}.json`)),
-    pages: Object.fromEntries(scopes.map((scope) => [scope, gitShow(rootDir, ref, join(translationDir, 'pages', scope, `${code}.json`))])),
-  }))
-  return buildInput(trees, defaultLocale, scopes)
+  return new Map(
+    project.codes.map((code) => [
+      code,
+      {
+        global: gitShow(rootDir, ref, join(translationDir, `${code}.json`)),
+        pages: Object.fromEntries(scopes.map((scope) => [scope, gitShow(rootDir, ref, join(translationDir, 'pages', scope, `${code}.json`))])),
+      },
+    ]),
+  )
 }
 
-const percent = (value: number): string => `${value.toFixed(2)}%`
-
-interface Completion {
-  totalKeys: number
-  translatedKeys: number
-  completion: number
+/** Git knows the project's own files, so the comparison is between own files: no layer on either side. */
+function buildDiff(project: Project, ref: string): LocaleDelta[] {
+  const current = new Map(project.codes.map((code) => [code, project.locale(code).own]))
+  const before = new Map(reportOf(treesAtRef(project, ref), project.config.defaultLocale).map((entry) => [entry.code, entry]))
+  return reportOf(current, project.config.defaultLocale).map((entry) => {
+    const base = before.get(entry.code)!
+    return {
+      code: entry.code,
+      completionDelta: entry.completion - base.completion,
+      translatedKeysDelta: entry.translatedKeys - base.translatedKeys,
+      totalKeysDelta: entry.totalKeys - base.totalKeys,
+    }
+  })
 }
 
-const completionRows = (stats: Completion): Array<[string, string | number]> => [
-  ['Total Keys', stats.totalKeys],
-  ['Translated Keys', stats.translatedKeys],
-  ['Completion', percent(stats.completion)],
-]
-
-function printLocaleDetails(locale: StatsReport['locales'][number]): void {
-  const { global } = locale
-  log.section(`Locale: ${locale.code}`)
-  log.info('Global Translations:')
-  log.rows(
-    [
-      ...completionRows(global),
-      ['Average Key Length', global.averageKeyLength.toFixed(2)],
-      ['Average Value Length', global.averageValueLength.toFixed(2)],
-      ['Special Characters', global.specialCharsCount],
-      ['Empty Values', global.emptyValues],
-      ['Total Words', global.wordStats.totalWords],
-      ['Unique Words', global.wordStats.uniqueWords],
-    ],
-    '  ',
+const htmlReport = (locales: LocaleCompletion[]): string => {
+  const rows = locales.map(
+    ({ code, translatedKeys, totalKeys, completion }) =>
+      `<tr><td>${esc(code)}</td><td>${translatedKeys}/${totalKeys}</td><td>${percent(completion)}</td></tr>`,
   )
-  log.list('Duplicate Values', global.duplicateValues)
-  log.list(
-    'Formatting Issues',
-    global.formattingIssues.map((issue) => `${issue.key}: ${issue.issue}`),
-  )
-  log.list(
-    'Value Types',
-    Object.entries(global.valueTypes).map(([type, count]) => `${type}: ${count}`),
-  )
-  log.list(
-    'String Lengths',
-    Object.entries(global.stringLengths).map(([size, count]) => `${size}: ${count}`),
-  )
-  log.list(
-    'Variables',
-    global.variables.examples.slice(0, 5).map(({ key, variables }) => `${key}: ${variables.join(', ')}`),
-  )
-  log.list(
-    'Most Used Tags',
-    global.htmlTags.tags.slice(0, 5).map(({ tag, count }) => `${tag}: ${count}`),
-  )
-  for (const [page, stats] of Object.entries(locale.pages)) {
-    log.info(`\nPage ${page}:`)
-    log.rows(completionRows(stats), '  ')
-  }
-  log.info('\nCombined:')
-  log.rows(completionRows(locale.combined), '  ')
-}
-
-function printFull(report: StatsReport): void {
-  for (const locale of report.locales) printLocaleDetails(locale)
-  log.section('Summary')
-  log.rows([
-    ['Total Locales', report.summary.totalLocales],
-    ['Total Files', report.summary.totalFiles],
-    ['Total Keys', report.summary.totalKeys],
-    ['Average Completion', percent(report.summary.averageCompletion)],
-    ['Most Translated Locale', report.summary.mostTranslatedLocale],
-    ['Least Translated Locale', report.summary.leastTranslatedLocale],
-  ])
-}
-
-function printDiff(diff: StatsDiff): void {
-  log.section(`Diff vs ${diff.baseRef}`)
-  log.rows(diff.locales.map((locale) => [locale.code, `${locale.completionDelta >= 0 ? '+' : ''}${percent(locale.completionDelta)}`]))
-}
-
-function printSummary(report: StatsReport): void {
-  log.section('Completion Summary')
-  log.rows(report.locales.map(({ code, combined }) => [code, `${combined.translatedKeys}/${combined.totalKeys} (${percent(combined.completion)})`]))
+  return `<!doctype html><meta charset="utf-8"><title>i18n completion</title><table><tr><th>Locale</th><th>Keys</th><th>Completion</th></tr>${rows.join('')}</table>\n`
 }
 
 export default async function run(args: StatsArgs): Promise<void> {
   const project = await Project.load(args)
   const { rootDir, defaultLocale } = project.config
-  const trees = project.codes.map((code) => {
-    const { global, pages } = project.locale(code)
-    return { code, global, pages }
-  })
-  const report = buildStatsReport(buildInput(trees, defaultLocale, project.reference.pageScopes))
-  const diff = args.baseRef ? buildStatsDiff(report, buildStatsReport(inputAtRef(project, args.baseRef)), args.baseRef) : undefined
+  const merged = new Map(project.codes.map((code): [string, Trees] => [code, project.locale(code)]))
+  const locales = reportOf(merged, defaultLocale)
+  const diff = args.baseRef ? { baseRef: args.baseRef, locales: buildDiff(project, args.baseRef) } : undefined
   const htmlReportPath = args.html ? resolve(rootDir, args.html) : undefined
-  if (htmlReportPath) generateStatsHtmlReport(report, htmlReportPath)
+  if (htmlReportPath) writeFileAtomic(htmlReportPath, htmlReport(locales))
 
   if (args.json) {
-    log.json({ ...report, diff, htmlReportPath })
+    log.json({ locales, diff, htmlReportPath })
     return
   }
 
-  if (args.full) printFull(report)
-  else printSummary(report)
-  if (diff) printDiff(diff)
+  log.section('Completion Summary')
+  log.rows(locales.map(({ code, translatedKeys, totalKeys, completion }) => [code, `${translatedKeys}/${totalKeys} (${percent(completion)})`]))
+  if (diff) {
+    log.section(`Diff vs ${diff.baseRef}`)
+    log.rows(diff.locales.map(({ code, completionDelta }) => [code, `${completionDelta >= 0 ? '+' : ''}${percent(completionDelta)}`]))
+  }
   if (htmlReportPath) log.success(`HTML report generated: ${htmlReportPath}`)
 }

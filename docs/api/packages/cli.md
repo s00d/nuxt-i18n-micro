@@ -19,7 +19,7 @@ import { /* … */ } from '@i18n-micro/cli'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `ArgSpec` | interface | 8 members |
-| `COMMAND_GROUPS` | const | `readonly ["Setup and diagnostics", "Translation workflow", "Refactoring", "Import and export", "Backup and planning"]` |
+| `COMMAND_GROUPS` | const | `readonly ["Inspect", "Translation workflow", "Refactoring", "Exchange"]` |
 | `CommandGroup` | type | `(typeof COMMAND_GROUPS)[number]` |
 | `commands` | const | `Record<string, CommandSpec>` |
 | `CommandSpec` | interface | 5 members |
@@ -49,7 +49,7 @@ import { /* … */ } from '@i18n-micro/cli'
 | `args` | `Record<string, ArgSpec>` |
 | `description` | `string` |
 | `examples?` | `string[] \| undefined` |
-| `group` | `"Setup and diagnostics" \| "Translation workflow" \| "Refactoring" \| "Import and export" \| "Backup and planning"` |
+| `group` | `"Inspect" \| "Translation workflow" \| "Refactoring" \| "Exchange"` |
 | `load` | `() => Promise<{ default: CommandHandler; }>` |
 
 </details>

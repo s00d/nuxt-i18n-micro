@@ -312,9 +312,21 @@ const value: string = $t('a.script')
 
   it.each([
     ['CRLF', `<template>\r\n  <p>{{ $t('a.b') }}</p>\r\n</template>\r\n<script setup>\r\nconst x = $t('c.d')\r\n</script>\r\n`, 2],
-    ['script first, two scripts', `<script>\nexport default { data: () => ({ a: this.$t('o.a') }) }\n</script>\n<script setup>\nconst x = $t('o.b')\n</script>\n<template>{{ $t('o.c') }}</template>`, 3],
-    ['unicode before the key', `<template><p title="日本語🎌">{{ $t('u.a') }}</p></template>\n<script setup>\nconst s = '🎌'; $t('u.b')\n</script>`, 2],
-    ['v-bind object, v-if, slot props', `<template><C v-bind="{ title: $t('v.a') }" v-if="$t('v.b')" #item="{ x }"><p :a="[$t('v.c')]">{{ x ? $t('v.d') : $t('v.e') }}</p></C></template>`, 5],
+    [
+      'script first, two scripts',
+      `<script>\nexport default { data: () => ({ a: this.$t('o.a') }) }\n</script>\n<script setup>\nconst x = $t('o.b')\n</script>\n<template>{{ $t('o.c') }}</template>`,
+      3,
+    ],
+    [
+      'unicode before the key',
+      `<template><p title="日本語🎌">{{ $t('u.a') }}</p></template>\n<script setup>\nconst s = '🎌'; $t('u.b')\n</script>`,
+      2,
+    ],
+    [
+      'v-bind object, v-if, slot props',
+      `<template><C v-bind="{ title: $t('v.a') }" v-if="$t('v.b')" #item="{ x }"><p :a="[$t('v.c')]">{{ x ? $t('v.d') : $t('v.e') }}</p></C></template>`,
+      5,
+    ],
     ['statements in a handler', `<template><b @click="a = 1; go($t('h.a'))" /></template>`, 1],
     ['multi-line interpolation', `<template>{{\n  $t(\n    'm.a'\n  )\n}}</template>`, 1],
     ['tsx script', `<script setup lang="tsx">\nconst A = () => <b>{$t('t.a')}</b>\n</script>`, 1],

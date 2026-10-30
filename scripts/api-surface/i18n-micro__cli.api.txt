@@ -8,13 +8,13 @@ member ArgSpec.numeric?: "number" | "int" | undefined
 member ArgSpec.required?: boolean | undefined
 member ArgSpec.type: "string" | "boolean" | "positional"
 member ArgSpec.values?: readonly string[] | undefined
-const COMMAND_GROUPS: readonly ["Setup and diagnostics", "Translation workflow", "Refactoring", "Import and export", "Backup and planning"]
+const COMMAND_GROUPS: readonly ["Inspect", "Translation workflow", "Refactoring", "Exchange"]
 type CommandGroup: (typeof COMMAND_GROUPS)[number]
 const commands: Record<string, CommandSpec>
 interface CommandSpec
 member CommandSpec.args: Record<string, ArgSpec>
 member CommandSpec.description: string
 member CommandSpec.examples?: string[] | undefined
-member CommandSpec.group: "Setup and diagnostics" | "Translation workflow" | "Refactoring" | "Import and export" | "Backup and planning"
+member CommandSpec.group: "Inspect" | "Translation workflow" | "Refactoring" | "Exchange"
 member CommandSpec.load: () => Promise<{ default: CommandHandler; }>
 function runCli: (rawArgs: string[]) => Promise<void>

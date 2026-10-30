@@ -8,12 +8,12 @@ pnpm add @i18n-micro/vitepress
 
 Peers: `vitepress` `>=1.0.0 || >=2.0.0-alpha.0`, `vue` `^3.5.43`.
 
-| Import | Role |
-| --- | --- |
+| Import                         | Role                                          |
+| ------------------------------ | --------------------------------------------- |
 | `@i18n-micro/vitepress/config` | `withI18n`, `buildVitePressLocales`, SEO head |
-| `@i18n-micro/vitepress/theme` | `defineI18nTheme(DefaultTheme)` |
-| `@i18n-micro/vitepress` | client `createI18n`, `useI18n`, components |
-| `@i18n-micro/vitepress/node` | Node `createI18n` with path methods |
+| `@i18n-micro/vitepress/theme`  | `defineI18nTheme(DefaultTheme)`               |
+| `@i18n-micro/vitepress`        | client `createI18n`, `useI18n`, components    |
+| `@i18n-micro/vitepress/node`   | Node `createI18n` with path methods           |
 
 ```ts
 // .vitepress/theme/index.ts

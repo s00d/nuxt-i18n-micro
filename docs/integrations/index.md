@@ -43,7 +43,7 @@ Each package has a playground under `packages/<name>/playground` in the reposito
 | `numberFormats` | `Record<locale, Record<name, Intl.NumberFormatOptions>>` | — | Named formats: `tn(9.5, 'currency')`. |
 | `datetimeFormats` | `Record<locale, Record<name, Intl.DateTimeFormatOptions>>` | — | Named formats: `td(date, 'short')`. |
 
-The dictionaries live in `i18n.storage.translations`, a `Map` keyed `locale:route` (`en:index`, `en:about`). There is no `cache` property.
+The dictionaries live in `i18n.storage.translations`, a `Map` keyed `locale:route` (`en:index`, `en:about`).
 
 A key is looked up in the current route's dictionary, then in the root dictionary, first for `locale`, then for `fallbackLocale`. A missing key returns the key itself (or the `defaultValue` you pass).
 
@@ -55,8 +55,6 @@ i18n.setRoute('about')
 i18n.t('title') // 'About us'
 i18n.t('nav.home') // 'Start' (root key, still visible on the route)
 ```
-
-Every write notifies the framework binding, so components re-render after translations load.
 
 ### Translate and format
 
@@ -71,12 +69,6 @@ Every write notifies the framework binding, so components re-render after transl
 | `has(key, routeName?)` | `true` when the active locale has the key (route or root dictionary; the fallback is not checked). |
 
 `defaultPlural` splits the value on `|` and picks the form by count: `0` → first, `1` → second, more → last.
-
-```ts
-i18n.addTranslations('en', { apples: 'no apples | one apple | {count} apples' })
-i18n.tc('apples', 0) // 'no apples'
-i18n.tc('apples', 5) // '5 apples'
-```
 
 A custom `plural` receives `(key, count, params, locale, getter)`. Read the value through `getter(key)`; do not split the key:
 
@@ -155,7 +147,7 @@ Only one formatting prop applies, checked in this order: `number`, `date`, `rela
 | `activeStyle` | style object | applied when the current path equals the link path |
 | `localeRoute` | function | overrides `resolvePath` for this link |
 
-External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`. There is no `activeClass`; style the active link with `activeStyle`.
+External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`.
 
 ### `<I18nSwitcher>`
 
@@ -178,7 +170,7 @@ A `<div class="i18n-group">` that hands a prefixed `t` to its children. It does 
 | `prefix` | required, e.g. `'profile'` |
 | `groupClass` | extra class on the wrapper |
 
-The prefixed `t` comes through a scoped slot in Vue (`v-slot="{ t }"`) and a render-prop child in React, Preact and Solid (`{({ t }) => …}`). Examples are on each framework page.
+The prefixed `t` comes through a scoped slot in Vue (`v-slot="{ t }"`) and a render-prop child in React, Preact and Solid (`{({ t }) => …}`).
 
 ## Typed keys
 

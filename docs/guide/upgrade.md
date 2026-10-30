@@ -29,7 +29,7 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **`/en` and `/en/...` are a 404 under `prefix_except_default`** (`en` being the default), as documented.
 - **A locale that does not serve a page links to its home.** `$localeRoute`, `$switchLocalePath` and the switcher no longer return another locale's page.
 - **`hreflang` lists only the locales that serve the page**; `x-default` is emitted only when the default locale serves it.
-- **`autoDetectPath: '*'` now applies the cookie and `Accept-Language` to unprefixed paths too** (`/about` → `/de/about`). Before, every unprefixed URL got the default locale.
+- **`autoDetectPath: '*'` now applies the cookie and `Accept-Language` to unprefixed paths too** (`/about` → `/de/about`).
 - **Under `prefix_and_default` an unprefixed URL is the default locale.** `/contact` with `Accept-Language: de` used to render German and then hydrate English. It now renders the default locale; visitors reach German through `/de/...`.
 
 ### Locale detection
@@ -48,7 +48,7 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 
 - **Merges are deep at every level.** Root, page and fallback files used a 2-level merge, so `a.b.c` from a fallback or the root was lost in source mode and in dev. All modes now give the same dictionary.
 - **Fallback chains are followed to their end** (`fr` → `de` → `en`) in every mode.
-- **Merging goes by locale, not by file kind.** The active locale's root file now beats a fallback locale's page file. If a key relied on the old order, move it to the active locale's page file. See [Fallback locales](/guide/translations#fallback-locales).
+- **Merging goes by locale, not by file kind.** The active locale's root file now beats a fallback locale's page file. See [Fallback locales](/guide/translations#fallback-locales).
 - **A project's `locales` entry beats a layer's** for the same `code`; a layer only fills the gaps.
 - **A page without its own `pages/<name>/` folder reads the root dictionary** in production builds. It used to get `{}` and show raw keys.
 - **`disablePageLocales: true` reads the root files only;** `pages/index` is no longer merged in.
@@ -91,7 +91,6 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 | `@i18n-micro/devtools-ui` | `/save` and `/file` accept only an existing `.json` inside `translationDir`; `/save` no longer creates files | create new locale files yourself |
 | `@i18n-micro/core` (2.0.0) | `TranslationHelper` drops `setCache`, `getGeneration`, `lookupIn` (use `lookup(chunkKey, key)`); `BaseI18n` drops `ensurePinnedChunk`, `invalidatePin`; route chunks hold only their own keys and lookups fall through to the root chunk | only for custom adapters |
 | `@i18n-micro/utils` | subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | they were module internals |
-| `@i18n-micro/path-strategy` | per-strategy subpaths removed, one class from the root entry; `RouterAdapter` needs `getRoutes` | internal to the module |
 
 ## From v2 to v3
 

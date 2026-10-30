@@ -6,7 +6,7 @@ outline: 'deep'
 
 # React and Preact
 
-`@i18n-micro/react` and `@i18n-micro/preact` wrap the framework-agnostic [runtime](./runtime-package) in a provider, a `useI18n()` hook and four components. Use them in a client-rendered React or Preact app that is not built with Nuxt. Both packages have the same API; the [Preact](#preact) block lists the few differences, and the shared model is in [Frameworks](./).
+`@i18n-micro/react` and `@i18n-micro/preact` wrap the framework-agnostic [runtime](./runtime-package) in a provider, a `useI18n()` hook and four components. Use them in a React or Preact app that is not built with Nuxt. Both packages have the same API; the [Preact](#preact) block lists the few differences, and the shared model is in [Frameworks](./).
 
 ## Install
 

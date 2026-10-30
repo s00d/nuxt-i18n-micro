@@ -17,7 +17,10 @@ const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
   messages: { en: { greeting: 'Hello, {name}!' } },
-  locales: [{ code: 'en', iso: 'en-US' }, { code: 'de', iso: 'de-DE' }],
+  locales: [
+    { code: 'en', iso: 'en-US' },
+    { code: 'de', iso: 'de-DE' },
+  ],
   defaultLocale: 'en', // locales and defaultLocale are required by useI18n()
 })
 

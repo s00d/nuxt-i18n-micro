@@ -10,7 +10,7 @@ This page takes a Nuxt app from no i18n to a translated page with a language swi
 
 ## Install
 
-The module needs Nuxt 3.18 or newer (Nuxt 4 works too).
+The module needs Nuxt 3.18 or newer (Nuxt 4 works too) and Node 20 or newer.
 
 ::: code-group
 

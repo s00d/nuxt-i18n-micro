@@ -65,7 +65,7 @@ Where the preference sources may move a visitor:
 | `'/welcome'` | that exact path (a trailing slash is ignored) |
 | `'*'` | every path, prefixed ones too: `/about` and `/fr/about` → `/de/about` when the visitor prefers `de` |
 
-On paths it does not allow, an unprefixed URL is treated as the default locale, so `prefix` still sends `/about` to `/en/about`. With `'*'` a prefixed URL no longer records its own locale in the cookie; the cookie changes when the visitor switches with `$switchLocale`. Shared links then open in the reader's language, which can surprise; prefer `'/'` or `'no_prefix'` unless that is what you want.
+On paths it does not allow, an unprefixed URL is treated as the default locale, so `prefix` still sends `/about` to `/en/about`. With `'*'` the server ignores the app's state, and a prefixed URL no longer records its own locale in the cookie; the cookie changes when the visitor switches with `$switchLocale`. Shared links then open in the reader's language, which can surprise; prefer `'/'` or `'no_prefix'` unless that is what you want.
 
 ## Accept-Language
 

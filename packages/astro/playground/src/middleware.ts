@@ -30,6 +30,7 @@ const i18nMiddleware = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   autoDetect: config.autoDetect,
+  localeCookie: config.localeCookie,
   routingStrategy,
 })
 

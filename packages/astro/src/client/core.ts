@@ -1,5 +1,5 @@
-import { interpolate } from '@i18n-micro/core'
-import type { Params, Translations } from '@i18n-micro/types'
+import { defaultPlural, interpolate, resolveTranslation } from '@i18n-micro/core'
+import type { Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 
 /**
  * I18n state for client islands
@@ -11,33 +11,16 @@ export interface I18nState {
   currentRoute: string
 }
 
-// Helper function to find a translation in a Translations object
-// Returns the value as-is, including objects (for nested translations)
-function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
-  if (translations === null || typeof key !== 'string') {
-    return null
-  }
+type Value = string | number | boolean | Translations
 
-  let value: string | number | boolean | Translations | unknown | null = translations
-
-  // Direct key access
-  if (translations[key]) {
-    value = translations[key]
-  } else {
-    // Search by nested keys (e.g. "nested.message")
-    const parts = key.toString().split('.')
-    for (const part of parts) {
-      if (value && typeof value === 'object' && value !== null && part in value) {
-        value = (value as Translations)[part]
-      } else {
-        return null
-      }
-    }
-  }
-
-  // Return value as-is (can be string, number, boolean, object, or null)
-  // This matches CleanTranslation type which allows objects
-  return (value as T) ?? null
+/**
+ * The value at `key` in the route's dictionary, or null. Own keys only (core's `resolveTranslation`):
+ * `toString` or `__proto__` is a missing key, not `Object.prototype`'s.
+ */
+function lookup(state: I18nState, key: string, routeName?: string): Value | null {
+  const route = routeName || state.currentRoute
+  const translations = Object.prototype.hasOwnProperty.call(state.translations, route) ? state.translations[route] : undefined
+  return (resolveTranslation(translations, key) as Value | null) ?? null
 }
 
 /**
@@ -59,17 +42,8 @@ export function translate(
     return defaultValue || key || ''
   }
 
-  const route = routeName || state.currentRoute
-  let value: string | number | boolean | Translations | null = null
-
-  if (state.translations[route]) {
-    value = findTranslation<string | number | boolean | Translations>(state.translations[route], key)
-  }
-
   // If not found, use defaultValue or key
-  if (!value) {
-    value = defaultValue === undefined ? key : defaultValue || key
-  }
+  const value = lookup(state, key, routeName) || (defaultValue === undefined ? key : defaultValue || key)
 
   if (typeof value === 'string' && params) {
     return interpolate(value, params)
@@ -78,18 +52,24 @@ export function translate(
 }
 
 /**
+ * `tc` of every island adapter, as the server's `BaseI18n.tc`: a missing key gives `defaultValue`
+ * (else the key), because the getter reports the miss to `defaultPlural` instead of the key.
+ */
+export function translatePlural(state: I18nState, key: TranslationKey, count: number | Params, defaultValue?: string): string {
+  const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
+  if (countValue === undefined || countValue === null) return defaultValue ?? key
+  const getter: Getter = (k, p, dv) => {
+    const raw = lookup(state, k)
+    if (raw === null) return dv === undefined ? undefined : dv || k
+    return p && typeof raw === 'string' ? interpolate(raw, p) : raw
+  }
+  return defaultPlural(key, Number(countValue), params, state.locale, getter) ?? defaultValue ?? key
+}
+
+/**
  * Checks if a translation exists in the state
  */
 export function hasTranslation(state: I18nState, key: string, routeName?: string): boolean {
-  const route = routeName || state.currentRoute
-  const routeTranslations = state.translations[route]
-
-  if (routeTranslations) {
-    const value = findTranslation(routeTranslations, key)
-    if (value !== null && typeof value !== 'object') {
-      return true
-    }
-  }
-
-  return false
+  const value = lookup(state, key, routeName)
+  return value !== null && typeof value !== 'object'
 }

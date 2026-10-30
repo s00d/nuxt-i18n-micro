@@ -1,12 +1,12 @@
 // Preact может использовать React Context API, так как Preact совместим с React
 
-import { defaultPlural, FormatService } from '@i18n-micro/core'
+import { FormatService } from '@i18n-micro/core'
 import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
 import type { ComponentChildren } from 'preact'
 import { createContext, createElement } from 'preact'
 import { useContext, useMemo, useState } from 'preact/hooks'
 import type { I18nClientProps } from '../utils'
-import { hasTranslation, type I18nState, translate } from './core'
+import { hasTranslation, type I18nState, translate, translatePlural } from './core'
 
 const formatter = new FormatService()
 
@@ -54,22 +54,9 @@ export function useAstroI18n() {
 
   const tc = useMemo(
     () =>
-      (key: TranslationKey, count: number | Params, defaultValue?: string): string => {
-        const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-
-        if (countValue === undefined) {
-          return defaultValue ?? (key as string)
-        }
-
-        const getter = (k: TranslationKey, p?: Params, dv?: string) => {
-          return t(k, p, dv)
-        }
-
-        const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.locale, getter)
-
-        return result ?? defaultValue ?? (key as string)
-      },
-    [t, state],
+      (key: TranslationKey, count: number | Params, defaultValue?: string): string =>
+        translatePlural(state, key, count, defaultValue),
+    [state],
   )
 
   const tn = useMemo(

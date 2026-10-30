@@ -33,6 +33,7 @@ export default defineConfig({
         '@i18n-micro/core',
         '@i18n-micro/types',
         '@i18n-micro/utils/accept-language',
+        '@i18n-micro/utils/resolve-locale',
         '@i18n-micro/utils/parse-path',
         'node:fs',
         'node:path',

@@ -110,6 +110,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
           hrefLang: language,
           lang: language,
           dir: locale.dir,
+          'aria-current': active ? 'page' : undefined,
           style: { ...STYLES.link, ...(active ? STYLES.activeLink : null), ...customLinkStyle, ...(active ? customActiveLinkStyle : null) },
           onClick: (event: HostMouseEvent<HTMLAnchorElement>) => select(event, locale.code),
         },

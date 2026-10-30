@@ -163,6 +163,14 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(container.textContent).toBe('21 яблуко')
     })
 
+    test('children JSX draws as nothing leave the text alone', () => {
+      for (const child of [false, null, true]) {
+        const { container, unmount } = render(withI18n(instance(), h(I18nT, { keypath: 'plain' }, child)))
+        expect(container.textContent).toBe('Hello')
+        unmount()
+      }
+    })
+
     test('dates go through the timeZone option', () => {
       const tz = (timeZone: string) => {
         const { container, unmount } = render(withI18n(instance({ timeZone }), h(I18nT, { keypath: 'posted', date: WHEN })))
@@ -297,6 +305,28 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(renders).toBe(before + 1)
     })
 
+    test('a new adapter object renders neither useT nor I18nT, and keeps t', () => {
+      const i18n = instance()
+      let leafRenders = 0
+      const Leaf = () => {
+        leafRenders++
+        return h('p', null, useT('plain'))
+      }
+      const seen: unknown[] = []
+      const Reader = () => {
+        seen.push(useI18n().t)
+        return null
+      }
+      const leaf = h(Leaf)
+      const reader = h(Reader)
+      const tree = () => h(I18nProvider, { i18n, routingStrategy: plainStrategy().strategy, locales: [...locales] }, leaf, reader)
+      const { rerender } = render(tree())
+      rerender(tree())
+      rerender(tree())
+      expect(leafRenders).toBe(1)
+      expect(new Set(seen).size).toBe(1)
+    })
+
     test('useLocaleSwitch keeps the old text until the load is done; the last call wins', async () => {
       const i18n = createI18n({ locale: 'en', messages: { en: { plain: 'Hello' } }, missingWarn: false })
       const loads: Record<string, () => void> = {}
@@ -412,6 +442,32 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
         h(I18nProvider, { i18n: instance(), locales, routingStrategy: strategy }, h(I18nProvider, { i18n: instance({ locale: 'de' }) }, h(Probe))),
       )
       expect([api.locale, api.getLocales().length, api.localePath('/x')]).toEqual(['de', 3, '/x'])
+    })
+
+    test('a nested provider without an instance keeps the outer one', () => {
+      let api: any
+      const Probe = () => {
+        api = useI18n()
+        return h(I18nT, { keypath: 'plain' })
+      }
+      const i18n = instance()
+      const { container } = render(withI18n(i18n, h(I18nProvider, { locales }, h(Probe))))
+      expect([container.textContent, api.locale, api.getLocales().length]).toEqual(['Hello', 'en', 3])
+    })
+
+    test('a provider with neither instance nor locale says so', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+      expect(() => render(h(I18nProvider, { locales }))).toThrow('[i18n-micro] I18nProvider needs')
+      consoleError.mockRestore()
+    })
+
+    test('locales add to localeIso, they do not replace it', () => {
+      const ua = { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } }
+      const i18n = createI18n({ locale: 'ua', messages: ua, localeIso: { ua: 'uk-UA' }, missingWarn: false })
+      const { container } = render(
+        h(I18nProvider, { i18n, locales: [{ code: 'ua', displayName: 'UA' }] }, h(I18nT, { keypath: 'apples', plural: 21 })),
+      )
+      expect(container.textContent).toBe('21 яблуко')
     })
   })
 
@@ -553,6 +609,13 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(container.querySelector('button')!.hasAttribute('aria-haspopup')).toBe(false)
     })
 
+    test('the current locale is marked for screen readers', () => {
+      const { container } = app(h(I18nSwitcher))
+      fireEvent.click(container.querySelector('button')!)
+      expect(container.querySelector('.switcher-locale-en')!.getAttribute('aria-current')).toBe('page')
+      expect(container.querySelector('.switcher-locale-de')!.hasAttribute('aria-current')).toBe(false)
+    })
+
     test('a modified click on an item opens the link in the browser', () => {
       const { strategy, pushes } = plainStrategy('/de/x')
       const i18n = instance()
@@ -605,44 +668,60 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       for (const part of ['Hello', '<b>A</b>', '2 apples', 'href="/x"', 'i18n-switcher-button', 'i18n-group']) expect(html).toContain(part)
     })
 
-    test('the same locale hydrates without a mismatch', async () => {
+    /** Server HTML, hydrated; the checks that hold on Preact too, which reports no mismatch at all. */
+    async function hydrated(server: unknown, client: unknown) {
       const container = document.body.appendChild(document.createElement('div'))
-      container.innerHTML = renderToString(page(instance()))
-      expect(await hydrate(page(instance()), container)).toEqual([])
+      container.innerHTML = renderToString(server)
+      const first = container.querySelector('div, h1')
+      const errors = await hydrate(client, container)
+      // adopted, not rebuilt
+      expect(container.querySelector('div, h1')).toBe(first)
+      return { container, errors }
+    }
+    /** A write renders again: hydration keeps the server's text, this shows what the client computes. */
+    const rerender = (i18n: any) =>
+      act(() => {
+        i18n.addTranslations('en', { unrelated: 'x' })
+      })
+
+    test('the same locale hydrates without a mismatch and stays live', async () => {
+      const i18n = instance()
+      const { container, errors } = await hydrated(page(instance()), page(i18n))
+      expect(errors).toEqual([])
       expect(container.textContent).toContain('2 apples')
+      act(() => {
+        i18n.locale = 'de'
+      })
+      expect(container.querySelector('h1')!.textContent).toBe('Hallo')
       container.remove()
     })
 
-    test('one timeZone hydrates a date without a mismatch', async () => {
-      const dated = (i18n: unknown) => withI18n(i18n, h('div', null, h(I18nT, { keypath: 'posted', date: WHEN })))
-      const container = document.body.appendChild(document.createElement('div'))
-      container.innerHTML = renderToString(dated(instance({ timeZone: 'Asia/Tokyo' })))
-      expect(await hydrate(dated(instance({ timeZone: 'Asia/Tokyo' })), container)).toEqual([])
+    const dated = (i18n: unknown) => withI18n(i18n, h('div', null, h(I18nT, { keypath: 'posted', date: WHEN })))
+
+    test('one timeZone gives one date on both sides', async () => {
+      const i18n = instance({ timeZone: 'Asia/Tokyo' })
+      const { container, errors } = await hydrated(dated(instance({ timeZone: 'Asia/Tokyo' })), dated(i18n))
+      expect(errors).toEqual([])
+      rerender(i18n)
       expect(container.textContent).toBe('Posted 1/16/2024')
       container.remove()
     })
 
     test('different zones do not fail hydration of <I18nT>', async () => {
-      const dated = (i18n: unknown) => withI18n(i18n, h('div', null, h(I18nT, { keypath: 'posted', date: WHEN })))
-      const container = document.body.appendChild(document.createElement('div'))
-      container.innerHTML = renderToString(dated(instance({ timeZone: 'Asia/Tokyo' })))
-      expect(await hydrate(dated(instance({ timeZone: 'UTC' })), container)).toEqual([])
+      const { container, errors } = await hydrated(dated(instance({ timeZone: 'Asia/Tokyo' })), dated(instance({ timeZone: 'UTC' })))
+      expect(errors).toEqual([])
       container.remove()
     })
 
-    test('a frozen clock hydrates relative dates without a mismatch', async () => {
+    test('a frozen clock gives one relative date on both sides', async () => {
       const serverNow = Date.now()
-      const ago = (now: () => number) =>
-        withI18n(instance({ now }), h('div', null, h(I18nT, { keypath: 'ago', relativeDate: new Date(serverNow - 3_600_000) })))
-      const container = document.body.appendChild(document.createElement('div'))
-      container.innerHTML = renderToString(ago(() => serverNow))
+      const ago = (i18n: unknown) => withI18n(i18n, h('div', null, h(I18nT, { keypath: 'ago', relativeDate: new Date(serverNow - 3_600_000) })))
+      const server = ago(instance({ now: () => serverNow }))
       vi.setSystemTime(serverNow + 7_200_000)
-      expect(
-        await hydrate(
-          ago(() => serverNow),
-          container,
-        ),
-      ).toEqual([])
+      const i18n = instance({ now: () => serverNow })
+      const { container, errors } = await hydrated(server, ago(i18n))
+      expect(errors).toEqual([])
+      rerender(i18n)
       expect(container.textContent).toBe('Updated 1 hour ago')
       container.remove()
     })

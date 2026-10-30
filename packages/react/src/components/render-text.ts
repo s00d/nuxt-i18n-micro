@@ -14,17 +14,20 @@ export interface I18nTProps extends Omit<HostAttrs<HTMLElement>, 'children' | 'd
 
 const NO_SLOTS: RenderSlots = {}
 
+/** What JSX itself draws as nothing, `{cond && <b />}` among them: no children, not empty ones. */
+const isUnset = (children: I18nTProps['children']): boolean => children === undefined || children === null || typeof children === 'boolean'
+
 /** A stable type around a slot function: called directly it would run its hooks in `<I18nT>`, in any order. */
 const Slot = ({ render }: { render: () => HostNode }) => render()
 
 function toSlots({ h }: RenderApi, components: I18nTProps['components'], children: I18nTProps['children']): RenderSlots {
-  if (!components && children === undefined) return NO_SLOTS
+  if (!components && isUnset(children)) return NO_SLOTS
   const slots: Record<string, RenderSlot> = Object.create(null)
   for (const name of Object.keys(components ?? {})) {
     const value = components![name]
     if (value !== undefined) slots[name] = typeof value === 'function' ? () => h(Slot, { render: value }) : () => value
   }
-  if (children !== undefined) slots.default = typeof children === 'function' ? (children as RenderSlot) : () => children
+  if (!isUnset(children)) slots.default = typeof children === 'function' ? (children as RenderSlot) : () => children
   return slots
 }
 

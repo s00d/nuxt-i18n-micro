@@ -2,10 +2,10 @@ import { localeIsoMap } from '@i18n-micro/core'
 import { createI18n, type I18n, type I18nOptions } from '@i18n-micro/runtime'
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { h, type HostElement, type HostNode, useContext, useMemo, useRef, useState, useStore } from '#host'
-import { I18nContext, type I18nContextValue, type I18nRoutingStrategy, type RouteTarget, useI18nContext, useI18nContextValue } from './injection'
+import { type I18nConfig, I18nConfigContext, I18nContext, type I18nRoutingStrategy, type RouteTarget, useI18nContext } from './injection'
 
 export interface I18nProviderProps extends Partial<I18nOptions> {
-  /** An instance you created. Without it, the provider builds one from the options next to it: plain data, so a server component can pass them. */
+  /** An instance you created. Without it, the outer provider's; without that, one built from the options next to it: plain data, so a server component can pass them. */
   i18n?: I18n
   locales?: Locale[]
   defaultLocale?: string
@@ -13,23 +13,30 @@ export interface I18nProviderProps extends Partial<I18nOptions> {
   children?: HostNode
 }
 
+function buildInstance(options: Partial<I18nOptions>): I18n {
+  if (!options.locale) throw new Error('[i18n-micro] I18nProvider needs an `i18n` instance, an outer provider, or a `locale`.')
+  return createI18n(options as I18nOptions)
+}
+
 export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps): HostElement {
-  const outer = useContext(I18nContext)
+  const outerInstance = useContext(I18nContext)
+  const outer = useContext(I18nConfigContext)
+  const inherited = i18n ?? outerInstance
   // A new `locale` prop comes with its own messages. Keyed by it alone: an inline `messages` object must not reset the instance.
-  const own = useMemo(() => (i18n ? null : createI18n(options as I18nOptions)), [i18n, options.locale])
-  const value = useMemo<I18nContextValue>(() => {
-    const instance = i18n ?? own!
-    if (locales) instance.setLocaleIso(localeIsoMap(locales))
+  const instance = useMemo(() => inherited ?? buildInstance(options), [inherited, options.locale])
+  const methods = useRef<TranslationMethods | null>(null)
+  const config = useMemo<I18nConfig>(() => {
+    if (locales) instance.addLocaleIso(localeIsoMap(locales))
     return {
-      i18n: instance,
       // an omitted prop leaves the outer provider's value in place
       locales: locales ?? outer?.locales ?? null,
       defaultLocale: defaultLocale ?? outer?.defaultLocale ?? null,
       router: routingStrategy ?? outer?.router ?? null,
       api: null,
+      methods,
     }
-  }, [i18n, own, locales, defaultLocale, routingStrategy, outer])
-  return h(I18nContext.Provider, { value }, children)
+  }, [instance, locales, defaultLocale, routingStrategy, outer])
+  return h(I18nContext.Provider, { value: instance }, h(I18nConfigContext.Provider, { value: config }, children))
 }
 
 export interface UseI18nOptions {
@@ -73,11 +80,15 @@ export interface UseI18nReturn {
 
 export const routePath = (target: RouteTarget): string => (typeof target === 'string' ? target : target.path || '/')
 
-function createApi({ i18n, locales, defaultLocale, router }: Omit<I18nContextValue, 'api'>): UseI18nReturn {
-  const list = locales ?? []
-  const localeRoute = (to: RouteTarget, code?: string): RouteTarget => (router?.resolvePath ? router.resolvePath(to, code || i18n.locale) : to)
-  return {
-    // Bound per snapshot: the identity changes when the text can, so `memo` and effect deps stay right.
+export type TranslationMethods = Pick<UseI18nReturn, 't' | 'ts' | 'tc' | 'tn' | 'td' | 'tdr' | 'has'> & { i18n: I18n; snapshot: string }
+
+/** Bound per snapshot: the identity changes when the text can, so `memo` and effect deps stay right. */
+function translationMethods(i18n: I18n, snapshot: string, cache: I18nConfig['methods'] | undefined): TranslationMethods {
+  const known = cache?.current
+  if (known && known.i18n === i18n && known.snapshot === snapshot) return known
+  const methods = {
+    i18n,
+    snapshot,
     t: i18n.t.bind(i18n),
     ts: i18n.ts.bind(i18n),
     tc: i18n.tc.bind(i18n),
@@ -85,6 +96,27 @@ function createApi({ i18n, locales, defaultLocale, router }: Omit<I18nContextVal
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
     has: i18n.has.bind(i18n),
+  }
+  if (cache) cache.current = methods
+  return methods
+}
+
+function createApi(
+  i18n: I18n,
+  { locales, defaultLocale, router }: Pick<I18nConfig, 'locales' | 'defaultLocale' | 'router'>,
+  methods: TranslationMethods,
+): UseI18nReturn {
+  const list = locales ?? []
+  const localeRoute = (to: RouteTarget, code?: string): RouteTarget => (router?.resolvePath ? router.resolvePath(to, code || i18n.locale) : to)
+  const { t, ts, tc, tn, td, tdr, has } = methods
+  return {
+    t,
+    ts,
+    tc,
+    tn,
+    td,
+    tdr,
+    has,
 
     get locale() {
       return i18n.locale
@@ -119,25 +151,26 @@ function createApi({ i18n, locales, defaultLocale, router }: Omit<I18nContextVal
 }
 
 export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
-  const context = useI18nContextValue()
-  const snapshot = useStore(context.i18n.subscribe, context.i18n.getSnapshot)
-  const locales = options?.locales
-  const defaultLocale = options?.defaultLocale
+  const i18n = useI18nContext()
+  const config = useContext(I18nConfigContext)
+  const snapshot = useStore(i18n.subscribe, i18n.getSnapshot)
+  const locales = options?.locales ?? config?.locales ?? null
+  const defaultLocale = options?.defaultLocale ?? config?.defaultLocale ?? null
+  const router = config?.router ?? null
+  // one object for all consumers, unless this hook overrides the provider or stands under a bare `I18nContext`
+  const shared = config && !options?.locales && !options?.defaultLocale ? config : null
   const own = useMemo(
-    () =>
-      locales || defaultLocale
-        ? createApi({ ...context, locales: locales ?? context.locales, defaultLocale: defaultLocale ?? context.defaultLocale })
-        : null,
-    [context, snapshot, locales, defaultLocale],
+    () => (shared ? null : createApi(i18n, { locales, defaultLocale, router }, translationMethods(i18n, snapshot, config?.methods))),
+    [shared, i18n, snapshot, locales, defaultLocale, router],
   )
-  if (own) return own
-  if (context.api?.snapshot !== snapshot) context.api = { snapshot, value: createApi(context) }
-  return context.api.value
+  if (own || !shared) return own!
+  if (shared.api?.snapshot !== snapshot) shared.api = { snapshot, value: createApi(i18n, shared, translationMethods(i18n, snapshot, shared.methods)) }
+  return shared.api.value
 }
 
 /**
  * One translation as a value: the component renders only when this string changes, not on every
- * locale or message write.
+ * locale or message write, nor when a provider gets a new adapter object.
  */
 export function useT(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string {
   const i18n = useI18nContext()

@@ -70,6 +70,7 @@ import { /* … */ } from '@i18n-micro/core'
 | --- | --- |
 | `activeKey` | `private ChunkKey` |
 | `activeRootKey` | `private ChunkKey` |
+| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `clearCache` | `() => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M` |
 | `fallbackKey` | `private ChunkKey` |
@@ -99,7 +100,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -150,7 +150,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
 | `new` | `(options?: FormatServiceOptions): FormatService` |
-| `now` | `private () => number` |
+| `now?` | `private (() => number) \| undefined` |
 | `numberCache` | `private Map<string, Intl.NumberFormat>` |
 | `numberFormats` | `private NumberFormatsConfig` |
 | `relativeCache` | `private Map<string, Intl.RelativeTimeFormat>` |

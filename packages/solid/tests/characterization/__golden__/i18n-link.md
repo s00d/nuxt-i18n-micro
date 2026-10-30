@@ -14,10 +14,10 @@
   - router → <a href="/de/about/team">L</a>
   - no router → <a href="/about/team">L</a>
 - `"#top"`
-  - router → <a href="/de#top">L</a>
+  - router → <a href="#top">L</a>
   - no router → <a href="#top">L</a>
 - `"?x=1"`
-  - router → <a href="/de?x=1">L</a>
+  - router → <a href="?x=1">L</a>
   - no router → <a href="?x=1">L</a>
 - `"/"`
   - router → <a href="/de">L</a>

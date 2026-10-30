@@ -54,7 +54,7 @@ render(
 )
 ```
 
-`<I18nProvider>` takes `i18n` (required), `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the outer provider's value. `getLocaleName()` and `<I18nSwitcher>` read `locales`; without them they have nothing to list. Options are in [the instance](./#create-i18n-options). The instance is the [runtime](./runtime-package)'s, with one signal over its store.
+`<I18nProvider>` takes `i18n`, `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the outer provider's value, the instance included. `getLocaleName()` and `<I18nSwitcher>` read `locales`; without them they have nothing to list. Options are in [the instance](./#create-i18n-options). The instance is the [runtime](./runtime-package)'s, with one signal over its store.
 
 ## Translate
 
@@ -73,7 +73,7 @@ export function Greeting() {
 }
 ```
 
-Call the methods inside JSX or an effect so Solid tracks them, `localePath` and `getLocale` too; a value read once in the component body does not update. On the instance, track with `i18n.locale` and `i18n.currentRoute`: `i18n.getLocale()` stays plain, because writes read it. Do not destructure props or keep `t('key')` results in plain variables.
+Call the methods inside JSX or an effect so Solid tracks them, `localePath` and `getLocale` too; a value read once in the component body does not update. On the instance, track with `i18n.locale` and `i18n.currentRoute`: `i18n.getLocale()` stays plain, because writes read it. Reading the locale wakes on the locale alone, so an effect that reads it and loads a dictionary runs once. Do not destructure props or keep `t('key')` results in plain variables.
 
 `useI18n()` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `locale` (an accessor: `locale()`), `getLocale`, `getLocales`, `defaultLocale()`, `getLocaleName`, `switchLocale`, `localePath`, `localeRoute`, `setRoute`, `getRoute`, `addTranslations`, `addRouteTranslations`, `resolveTranslations`, `setTranslation`, `clearCache` and `instance`.
 

@@ -166,7 +166,7 @@ const AppRoutes: React.FC<{}> = () => {
 const RouterRoot: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const routingStrategy = createReactRouterAdapter(localesConfig, 'en', location, navigate)
+  const routingStrategy = React.useMemo(() => createReactRouterAdapter(localesConfig, 'en', location, navigate), [location, navigate])
 
   return (
     <I18nProvider i18n={i18n} locales={localesConfig} defaultLocale="en" routingStrategy={routingStrategy}>

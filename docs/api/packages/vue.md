@@ -100,6 +100,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `_revision` | `private Ref<number, number>` |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
+| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
@@ -139,7 +140,6 @@ import { /* … */ } from '@i18n-micro/vue'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `setLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
@@ -158,23 +158,7 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 
-<details>
-<summary><code>VueI18nOptions</code> — 10 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `locale` | `string` |
-| `localeIso?` | `Record<string, string> \| undefined` |
-| `messages?` | `Record<string, Translations> \| undefined` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `numberFormats?` | `NumberFormatsConfig \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `timeZone?` | `string \| undefined` |
-
-</details>
+<code>VueI18nOptions</code> — 10 members, identical to [`VueI18nOptions`](/api/packages/vitepress).
 ## `@i18n-micro/vue/router`
 
 ```ts

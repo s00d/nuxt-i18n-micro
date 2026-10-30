@@ -51,7 +51,7 @@ createRoot(document.getElementById('root')!).render(
 )
 ```
 
-Create the instance once, at module level or in a `useState` initializer, never in a component body. `<I18nProvider>` takes `i18n`, `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the value of an outer provider. Without `i18n` it builds an instance from the `createI18n` options next to them, so the props stay plain data: `<I18nProvider locale="de" messages={messages}>`. A new `locale` prop builds a new instance with the `messages` of that render. All `createI18n` options, including `routeMessages`, are in [the instance](./#create-i18n-options).
+Create the instance once, at module level or in a `useState` initializer, never in a component body. `<I18nProvider>` takes `i18n`, `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the value of an outer provider, the instance included. With no instance at all it builds an instance from the `createI18n` options next to them, so the props stay plain data: `<I18nProvider locale="de" messages={messages}>`. A new `locale` prop builds a new instance with the `messages` of that render. Such an instance lives in the component: if something above it suspends during mount, React throws it away, with whatever was added to it. All `createI18n` options, including `routeMessages`, are in [the instance](./#create-i18n-options).
 
 ## Translate
 
@@ -70,9 +70,9 @@ export function Greeting() {
 }
 ```
 
-`useI18n()` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `locale`, `fallbackLocale`, `currentRoute`, `setLocale`, `setRoute`, `getRoute`, `getLocales`, `defaultLocale()`, `getLocaleName`, `switchLocale`, `localePath`, `localeRoute`, `addTranslations`, `addRouteTranslations` and `clearCache`. The component re-renders when the locale, the route or a readable dictionary changes; a dictionary of a locale that is neither active nor fallback renders nothing. The object, and `t` in it, stays the same until then, so it is safe in `memo` and effect deps.
+`useI18n()` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `locale`, `fallbackLocale`, `currentRoute`, `setLocale`, `setRoute`, `getRoute`, `getLocales`, `defaultLocale()`, `getLocaleName`, `switchLocale`, `localePath`, `localeRoute`, `addTranslations`, `addRouteTranslations` and `clearCache`. The component re-renders when the locale, the route or a readable dictionary changes, and when the provider gets a new `locales` or `routingStrategy` object; a dictionary of a locale that is neither active nor fallback renders nothing. `t` and the other translation methods change only with the store, so they are safe in `memo` and effect deps.
 
-`useT` is one string as a value. The component renders only when that string changes:
+`useT` is one string as a value. The component renders only when that string changes, whatever happens to the provider's other props; `<I18nT>` does not depend on them either:
 
 ```tsx
 const title = useT('page.title')
@@ -123,6 +123,7 @@ The React Router adapter lives in a subpath so the main entry never imports `rea
 
 ```tsx
 // src/App.tsx
+import { useMemo } from 'react'
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { I18nLink, I18nProvider, I18nSwitcher } from '@i18n-micro/react'
 import { createReactRouterAdapter } from '@i18n-micro/react/router'
@@ -130,7 +131,10 @@ import { i18n, locales } from './i18n'
 import { About, Home } from './pages'
 
 function Localized() {
-  const routingStrategy = createReactRouterAdapter(locales, 'en', useLocation(), useNavigate())
+  const location = useLocation()
+  const navigate = useNavigate()
+  // memoized: a new object on every render re-renders every `useI18n()` consumer
+  const routingStrategy = useMemo(() => createReactRouterAdapter(locales, 'en', location, navigate), [location, navigate])
   return (
     <I18nProvider i18n={i18n} locales={locales} defaultLocale="en" routingStrategy={routingStrategy}>
       <I18nLink to="/about">About</I18nLink>
@@ -160,16 +164,16 @@ The adapter prefixes every locale except the default (`/about`, `/de/about`) and
 
 ### Hydration
 
-Numbers, plurals and text hydrate as they are. A date depends on the time zone and a relative date on the clock: set `timeZone` on the server and in the browser, and for `tdr` hand the browser the server's time with `now`. `<I18nT>` with `date` or `relativeDate` sets `suppressHydrationWarning`, so a difference does not fail hydration, but the server's text stays until the next render.
+Numbers, plurals and text hydrate as they are. A date depends on the time zone and a relative date on the clock: set `timeZone` on the server and in the browser, and for `tdr` hand the browser the server's time with `now`. `<I18nT>` with `date` or `relativeDate` sets `suppressHydrationWarning`, so a difference does not fail hydration, but the server's text stays until the text changes. That reaches one level only: `children` that wrap the translation in an element still fail on a difference, so give those the same `timeZone`.
 
 ### Server Components
 
-The package marks its client code with `'use client'`. Under the `react-server` condition, as in the Next.js app router, the main entry resolves to `@i18n-micro/react/server`: `createI18n` and an `I18nT` without hooks that takes the instance as a prop, so the text stays out of the client bundle. `@i18n-micro/react/client` always gives the client entry.
+The package marks its client code with `'use client'`. `@i18n-micro/react/server` has `createI18n` and an `I18nT` without hooks that takes the instance as a prop, so the text stays out of the client bundle. Under the `react-server` condition, as in the Next.js app router, the main entry resolves to it too, but TypeScript does not know that by default: import from `/server`. `@i18n-micro/react/client` always gives the client entry.
 
 ```tsx
 // app/[locale]/layout.tsx: a server component
 import { cache } from 'react'
-import { createI18n, I18nT } from '@i18n-micro/react'
+import { createI18n, I18nT } from '@i18n-micro/react/server'
 import { I18nProvider } from '@i18n-micro/react/client'
 import { loadMessages } from './messages'
 
@@ -197,7 +201,7 @@ Rendered through `react-server-dom-webpack`; a Next.js app itself has not been r
 | --- | --- |
 | `createI18n`, `ReactI18n`, `I18nProvider`, `useI18n`, `useT`, `useLocaleSwitch` | `@i18n-micro/react` |
 | `I18nT`, `I18nLink`, `I18nSwitcher`, `I18nGroup` | `@i18n-micro/react` |
-| `I18nContext`, `useI18nContext`, `useI18nLocales`, `useI18nDefaultLocale`, `useI18nRouter` | `@i18n-micro/react` |
+| `I18nContext`, `I18nConfigContext`, `useI18nContext`, `useI18nLocales`, `useI18nDefaultLocale`, `useI18nRouter` | `@i18n-micro/react` |
 | `defaultPlural`, `FormatService`, `interpolate` | `@i18n-micro/react` |
 | Types: `I18nRoutingStrategy`, `ReactI18nOptions`, `I18nProviderProps`, `UseI18nReturn`, component props, `TranslationKey`, `Locale`, `Translations`, `PluralFunc` | `@i18n-micro/react` |
 | `createReactRouterAdapter` | `@i18n-micro/react/router` |

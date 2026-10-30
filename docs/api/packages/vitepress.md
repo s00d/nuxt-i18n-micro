@@ -47,7 +47,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `VirtualI18nConfig` | interface | 10 members |
 | `VitePressSiteDataLike` | interface | 1 members |
 | `VitePressUserConfigLike` | interface | 7 members |
-| `VueI18nOptions` | interface | 9 members |
+| `VueI18nOptions` | interface | 10 members |
 | `WithI18nOptions` | interface | 23 members |
 
 <details>
@@ -139,13 +139,14 @@ import { /* … */ } from '@i18n-micro/vitepress'
 </details>
 
 <details>
-<summary><code>VueI18nOptions</code> — 9 members</summary>
+<summary><code>VueI18nOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |

@@ -2,6 +2,7 @@
 class BaseI18n
 member BaseI18n.activeKey: private ChunkKey
 member BaseI18n.activeRootKey: private ChunkKey
+member BaseI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member BaseI18n.clearCache: () => void
 member BaseI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M
 member BaseI18n.fallbackKey: private ChunkKey
@@ -30,7 +31,6 @@ member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: un
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member BaseI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
-member BaseI18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member BaseI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member BaseI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -73,7 +73,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.now: private () => number
+member FormatService.now?: private (() => number) | undefined
 member FormatService.numberCache: private Map<string, Intl.NumberFormat>
 member FormatService.numberFormats: private NumberFormatsConfig
 member FormatService.relativeCache: private Map<string, Intl.RelativeTimeFormat>

@@ -1,6 +1,6 @@
 // What the React family pins in tests/shared/behaviour.ts, the Solid way: reactive props and reads.
 import type { Locale } from '@i18n-micro/types'
-import { createEffect, createRoot, createSignal, type JSX } from 'solid-js'
+import { createEffect, createRoot, createSignal, type JSX, onCleanup } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, type I18nRoutingStrategy, type SolidI18n, useI18n } from '../src'
@@ -138,6 +138,36 @@ describe('I18nT', () => {
     expect(container.textContent).toBe('21 яблуко')
   })
 
+  test('a custom rule that reads only its locale argument follows the locale', () => {
+    const i18n = instance()
+    const rule = (_key: string, count: number, _params: object, locale: string) => `${locale}:${count}`
+    const container = withI18n(i18n, () => <I18nT keypath="apples" plural={1} customPluralRule={rule} />)
+    expect(container.textContent).toBe('en:1')
+    i18n.locale = 'de'
+    expect(container.textContent).toBe('de:1')
+  })
+
+  test('children JSX draws as nothing leave the text alone', () => {
+    for (const child of [false, null, true]) {
+      const container = withI18n(instance(), () => <I18nT keypath="plain">{child as never}</I18nT>)
+      expect(container.textContent).toBe('Hello')
+    }
+  })
+
+  test('new components dispose what the old slots created', () => {
+    const [round, setRound] = createSignal(1)
+    const cleaned: number[] = []
+    const slot = (n: number) => () => {
+      onCleanup(() => cleaned.push(n))
+      return <b>{n}</b>
+    }
+    const container = withI18n(instance(), () => <I18nT keypath="order" components={{ a: slot(round()), b: slot(round() * 10) }} />)
+    expect(container.textContent).toBe('1 then 10')
+    setRound(2)
+    expect(container.textContent).toBe('2 then 20')
+    expect(cleaned.sort((a, b) => a - b)).toEqual([1, 10])
+  })
+
   test('dates go through the timeZone option', () => {
     const tz = (timeZone: string) => withI18n(instance({ timeZone }), () => <I18nT keypath="posted" date={WHEN} />).textContent
     expect(tz('UTC')).toBe('Posted 1/15/2024')
@@ -166,18 +196,73 @@ describe('reactive reads', () => {
     expect(seen).toEqual(expect.arrayContaining(['en', 'index', 'de', 'about']))
   })
 
-  test('a write inside an effect does not re-run it', () => {
+  test('an effect that reads the locale and loads a dictionary runs once per locale', () => {
     const i18n = instance()
-    let runs = 0
+    const loaded: string[] = []
     createRoot((dispose) => {
       disposers.push(dispose)
       createEffect(() => {
-        runs++
-        i18n.addTranslations('en', { written: 'x' })
+        const locale = i18n.localeAccessor()
+        loaded.push(locale)
+        i18n.addTranslations(locale, { written: 'x' })
         i18n.setTranslation('other', 'y')
       })
     })
-    expect(runs).toBe(1)
+    expect(loaded).toEqual(['en'])
+    i18n.locale = 'de'
+    expect(loaded).toEqual(['en', 'de'])
+  })
+
+  test('a reader of the locale or route wakes for that alone', () => {
+    const i18n = instance()
+    const reads = { locale: 0, route: 0, fallback: 0 }
+    createRoot((dispose) => {
+      disposers.push(dispose)
+      createEffect(() => {
+        i18n.locale
+        reads.locale++
+      })
+      createEffect(() => {
+        i18n.currentRoute
+        reads.route++
+      })
+      createEffect(() => {
+        i18n.fallbackLocale
+        reads.fallback++
+      })
+    })
+    i18n.addTranslations('en', { other: 'y' })
+    expect(reads).toEqual({ locale: 1, route: 1, fallback: 1 })
+    i18n.setRoute('about')
+    expect(reads).toEqual({ locale: 1, route: 2, fallback: 1 })
+    i18n.locale = 'de'
+    expect(reads).toEqual({ locale: 2, route: 2, fallback: 1 })
+    i18n.fallbackLocale = 'de'
+    expect(reads).toEqual({ locale: 2, route: 2, fallback: 2 })
+  })
+
+  test('a nested provider without an instance keeps the outer one; with neither it says so', () => {
+    const i18n = instance()
+    const container = withI18n(i18n, () => (
+      <I18nProvider locales={locales}>
+        <I18nT keypath="plain" />
+      </I18nProvider>
+    ))
+    expect(container.textContent).toBe('Hello')
+    expect(() =>
+      mount(() => (
+        <I18nProvider locales={locales}>
+          <I18nT keypath="plain" />
+        </I18nProvider>
+      )),
+    ).toThrow('[i18n-micro] I18nProvider needs')
+  })
+
+  test('locales add to localeIso, they do not replace it', () => {
+    const ua = { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } }
+    const i18n = createI18n({ locale: 'ua', messages: ua, localeIso: { ua: 'uk-UA' }, missingWarn: false })
+    const container = withI18n(i18n, () => <I18nT keypath="apples" plural={21} />, { locales: [{ code: 'ua', displayName: 'UA' }] })
+    expect(container.textContent).toBe('21 яблуко')
   })
 
   test('hook options win, and a bare provider answers empty', () => {
@@ -417,6 +502,13 @@ describe('I18nSwitcher', () => {
     expect(list).not.toContain('left')
     expect(container.querySelector('button span:last-child')!.getAttribute('style')).toContain('margin-inline-start')
     expect(container.querySelector('button')!.hasAttribute('aria-haspopup')).toBe(false)
+  })
+
+  test('the current locale is marked for screen readers', () => {
+    const container = app()
+    container.querySelector('button')!.click()
+    expect(container.querySelector('.switcher-locale-en')!.getAttribute('aria-current')).toBe('page')
+    expect(container.querySelector('.switcher-locale-de')!.hasAttribute('aria-current')).toBe(false)
   })
 
   test('a modified click on an item stays with the browser', () => {

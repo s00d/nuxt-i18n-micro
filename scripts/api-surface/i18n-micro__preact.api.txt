@@ -14,7 +14,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.now: private any
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -25,13 +25,14 @@ member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
 member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-const I18nContext: import("preact").Context<I18nContextValue | null>
-interface I18nContextValue
-member I18nContextValue.api: { snapshot: string; value: UseI18nReturn; } | null
-member I18nContextValue.defaultLocale: string | null
-member I18nContextValue.i18n: I18n
-member I18nContextValue.locales: Locale[] | null
-member I18nContextValue.router: I18nRoutingStrategy | null
+interface I18nConfig
+member I18nConfig.api: { snapshot: string; value: UseI18nReturn; } | null
+member I18nConfig.defaultLocale: string | null
+member I18nConfig.locales: Locale[] | null
+member I18nConfig.methods: { current: TranslationMethods | null; }
+member I18nConfig.router: I18nRoutingStrategy | null
+const I18nConfigContext: import("preact").Context<I18nConfig | null>
+const I18nContext: import("preact").Context<I18n | null>
 const I18nGroup: (props: I18nGroupProps) => HostElement
 interface I18nGroupProps
 member I18nGroupProps.about?: Signalish<string | undefined>
@@ -343,328 +344,7 @@ member I18nGroupProps.translate?: Signalish<boolean | undefined>
 member I18nGroupProps.typeof?: Signalish<string | undefined>
 member I18nGroupProps.vocab?: Signalish<string | undefined>
 const I18nLink: (props: I18nLinkProps) => HostElement
-interface I18nLinkProps
-member I18nLinkProps.about?: Signalish<string | undefined>
-member I18nLinkProps.accesskey?: Signalish<string | undefined>
-member I18nLinkProps.accessKey?: Signalish<string | undefined>
-member I18nLinkProps.activeStyle?: import("preact").CSSProperties | undefined
-member I18nLinkProps.aria-activedescendant?: Signalish<string | undefined>
-member I18nLinkProps.aria-atomic?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-autocomplete?: Signalish<"none" | "list" | "inline" | "both" | undefined>
-member I18nLinkProps.aria-braillelabel?: Signalish<string | undefined>
-member I18nLinkProps.aria-brailleroledescription?: Signalish<string | undefined>
-member I18nLinkProps.aria-busy?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-checked?: Signalish<Booleanish | "mixed" | undefined>
-member I18nLinkProps.aria-colcount?: Signalish<number | undefined>
-member I18nLinkProps.aria-colindex?: Signalish<number | undefined>
-member I18nLinkProps.aria-colindextext?: Signalish<string | undefined>
-member I18nLinkProps.aria-colspan?: Signalish<number | undefined>
-member I18nLinkProps.aria-controls?: Signalish<string | undefined>
-member I18nLinkProps.aria-current?: Signalish<Booleanish | "time" | "location" | "page" | "step" | "date" | undefined>
-member I18nLinkProps.aria-describedby?: Signalish<string | undefined>
-member I18nLinkProps.aria-description?: Signalish<string | undefined>
-member I18nLinkProps.aria-details?: Signalish<string | undefined>
-member I18nLinkProps.aria-disabled?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-dropeffect?: Signalish<"none" | "link" | "copy" | "execute" | "move" | "popup" | undefined>
-member I18nLinkProps.aria-errormessage?: Signalish<string | undefined>
-member I18nLinkProps.aria-expanded?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-flowto?: Signalish<string | undefined>
-member I18nLinkProps.aria-grabbed?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-haspopup?: Signalish<Booleanish | "dialog" | "grid" | "listbox" | "menu" | "tree" | undefined>
-member I18nLinkProps.aria-hidden?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-invalid?: Signalish<Booleanish | "grammar" | "spelling" | undefined>
-member I18nLinkProps.aria-keyshortcuts?: Signalish<string | undefined>
-member I18nLinkProps.aria-label?: Signalish<string | undefined>
-member I18nLinkProps.aria-labelledby?: Signalish<string | undefined>
-member I18nLinkProps.aria-level?: Signalish<number | undefined>
-member I18nLinkProps.aria-live?: Signalish<"off" | "assertive" | "polite" | undefined>
-member I18nLinkProps.aria-modal?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-multiline?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-multiselectable?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-orientation?: Signalish<"horizontal" | "vertical" | undefined>
-member I18nLinkProps.aria-owns?: Signalish<string | undefined>
-member I18nLinkProps.aria-placeholder?: Signalish<string | undefined>
-member I18nLinkProps.aria-posinset?: Signalish<number | undefined>
-member I18nLinkProps.aria-pressed?: Signalish<Booleanish | "mixed" | undefined>
-member I18nLinkProps.aria-readonly?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-relevant?: Signalish<"additions" | "additions removals" | "additions text" | "all" | "removals" | "removals additions" | "removals text" | "text" | "text additions" | "text removals" | undefined>
-member I18nLinkProps.aria-required?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-roledescription?: Signalish<string | undefined>
-member I18nLinkProps.aria-rowcount?: Signalish<number | undefined>
-member I18nLinkProps.aria-rowindex?: Signalish<number | undefined>
-member I18nLinkProps.aria-rowindextext?: Signalish<string | undefined>
-member I18nLinkProps.aria-rowspan?: Signalish<number | undefined>
-member I18nLinkProps.aria-selected?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-setsize?: Signalish<number | undefined>
-member I18nLinkProps.aria-sort?: Signalish<"none" | "ascending" | "descending" | "other" | undefined>
-member I18nLinkProps.aria-valuemax?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuemin?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuenow?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuetext?: Signalish<string | undefined>
-member I18nLinkProps.autocapitalize?: Signalish<"off" | "none" | "on" | "sentences" | "words" | "characters" | undefined>
-member I18nLinkProps.autoCapitalize?: Signalish<"off" | "none" | "on" | "sentences" | "words" | "characters" | undefined>
-member I18nLinkProps.autocorrect?: Signalish<string | undefined>
-member I18nLinkProps.autoCorrect?: Signalish<string | undefined>
-member I18nLinkProps.autofocus?: Signalish<boolean | undefined>
-member I18nLinkProps.autoFocus?: Signalish<boolean | undefined>
-member I18nLinkProps.children?: ComponentChildren
-member I18nLinkProps.class?: Signalish<string | undefined>
-member I18nLinkProps.className?: Signalish<string | undefined>
-member I18nLinkProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nLinkProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nLinkProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
-member I18nLinkProps.datatype?: Signalish<string | undefined>
-member I18nLinkProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
-member I18nLinkProps.disablePictureInPicture?: Signalish<boolean | undefined>
-member I18nLinkProps.download?: any
-member I18nLinkProps.draggable?: Signalish<boolean | undefined>
-member I18nLinkProps.elementtiming?: Signalish<string | undefined>
-member I18nLinkProps.elementTiming?: Signalish<string | undefined>
-member I18nLinkProps.enterkeyhint?: Signalish<"enter" | "done" | "go" | "next" | "previous" | "search" | "send" | undefined>
-member I18nLinkProps.exportparts?: Signalish<string | undefined>
-member I18nLinkProps.hidden?: Signalish<boolean | "hidden" | "until-found" | undefined>
-member I18nLinkProps.href?: Signalish<string | undefined>
-member I18nLinkProps.hreflang?: Signalish<string | undefined>
-member I18nLinkProps.hrefLang?: Signalish<string | undefined>
-member I18nLinkProps.id?: Signalish<string | undefined>
-member I18nLinkProps.inert?: Signalish<boolean | undefined>
-member I18nLinkProps.inlist?: any
-member I18nLinkProps.inputmode?: Signalish<string | undefined>
-member I18nLinkProps.inputMode?: Signalish<string | undefined>
-member I18nLinkProps.is?: Signalish<string | undefined>
-member I18nLinkProps.itemid?: Signalish<string | undefined>
-member I18nLinkProps.itemID?: Signalish<string | undefined>
-member I18nLinkProps.itemprop?: Signalish<string | undefined>
-member I18nLinkProps.itemProp?: Signalish<string | undefined>
-member I18nLinkProps.itemref?: Signalish<string | undefined>
-member I18nLinkProps.itemRef?: Signalish<string | undefined>
-member I18nLinkProps.itemscope?: Signalish<boolean | undefined>
-member I18nLinkProps.itemScope?: Signalish<boolean | undefined>
-member I18nLinkProps.itemtype?: Signalish<string | undefined>
-member I18nLinkProps.itemType?: Signalish<string | undefined>
-member I18nLinkProps.jsx?: boolean | undefined
-member I18nLinkProps.key?: any
-member I18nLinkProps.lang?: Signalish<string | undefined>
-member I18nLinkProps.localeRoute?: ((to: RouteTarget, locale?: string) => RouteTarget) | undefined
-member I18nLinkProps.media?: Signalish<string | undefined>
-member I18nLinkProps.nonce?: Signalish<string | undefined>
-member I18nLinkProps.onAbort?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAbortCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationEnd?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationEndCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationIteration?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationIterationCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationStart?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationStartCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAuxClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAuxClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeInput?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBlur?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBlurCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCancel?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlay?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayThrough?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayThroughCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClose?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCommand?: CommandEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionEnd?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionEndCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionStart?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionStartCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionUpdate?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionUpdateCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onContextMenu?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onContextMenuCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCopy?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCopyCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCut?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCutCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDblClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDblClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDrag?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnd?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEndCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnter?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnterCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragExit?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragExitCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragLeave?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragLeaveCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragOver?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragOverCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragStart?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragStartCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDrop?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDropCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDurationChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDurationChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEmptied?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEmptiedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEncrypted?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEncryptedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnded?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEndedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnterPictureInPicture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnterPictureInPictureCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onError?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onErrorCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocus?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusIn?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusInCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusOut?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusOutCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFormData?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFormDataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onGotPointerCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInput?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalid?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalidCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyDown?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyDownCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyPress?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyPressCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyUp?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyUpCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLeavePictureInPicture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLeavePictureInPictureCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoad?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedData?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedDataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedMetadata?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedMetadataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadStart?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadStartCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLostPointerCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLostPointerCaptureCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseDown?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseDownCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseEnter?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseEnterCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseLeave?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseLeaveCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseMove?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseMoveCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOut?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOutCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOver?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOverCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseUp?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseUpCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPaste?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPasteCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPause?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPauseCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlay?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlayCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlaying?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlayingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerCancel?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerCancelCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerDown?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerDownCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerEnter?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerEnterCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerLeave?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerLeaveCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerMove?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerMoveCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOut?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOutCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOver?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOverCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerUp?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerUpCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onProgress?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onProgressCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onRateChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onRateChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onReset?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResetCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResize?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResizeCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScroll?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollEnd?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollEndCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChange?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChanging?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSearch?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSearchCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeeked?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeekedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeeking?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeekingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSelect?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSelectCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onStalled?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onStalledCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmit?: SubmitEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmitCapture?: SubmitEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSuspend?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSuspendCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTimeUpdate?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTimeUpdateCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchCancel?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchCancelCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchEnd?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchEndCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchMove?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchMoveCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchStart?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchStartCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionCancel?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionEnd?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionEndCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionRun?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionRunCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionStart?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionStartCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onVolumeChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onVolumeChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWaiting?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWaitingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWheel?: WheelEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWheelCapture?: WheelEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.part?: Signalish<string | undefined>
-member I18nLinkProps.ping?: Signalish<string | undefined>
-member I18nLinkProps.popover?: Signalish<boolean | "auto" | "hint" | "manual" | undefined>
-member I18nLinkProps.prefix?: Signalish<string | undefined>
-member I18nLinkProps.property?: Signalish<string | undefined>
-member I18nLinkProps.ref?: Ref<HTMLAnchorElement> | undefined
-member I18nLinkProps.referrerpolicy?: Signalish<HTMLAttributeReferrerPolicy | undefined>
-member I18nLinkProps.referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | undefined>
-member I18nLinkProps.rel?: Signalish<string | undefined>
-member I18nLinkProps.resource?: Signalish<string | undefined>
-member I18nLinkProps.results?: Signalish<number | undefined>
-member I18nLinkProps.role?: Signalish<AriaRole | undefined>
-member I18nLinkProps.slot?: Signalish<string | undefined>
-member I18nLinkProps.spellcheck?: Signalish<boolean | undefined>
-member I18nLinkProps.style?: Signalish<string | CSSProperties | undefined>
-member I18nLinkProps.tabindex?: Signalish<number | undefined>
-member I18nLinkProps.tabIndex?: Signalish<number | undefined>
-member I18nLinkProps.target?: Signalish<HTMLAttributeAnchorTarget | undefined>
-member I18nLinkProps.title?: Signalish<string | undefined>
-member I18nLinkProps.to: RouteTarget
-member I18nLinkProps.translate?: Signalish<boolean | undefined>
-member I18nLinkProps.type?: Signalish<string | undefined>
-member I18nLinkProps.typeof?: Signalish<string | undefined>
-member I18nLinkProps.vocab?: Signalish<string | undefined>
+type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }
 function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement
 interface I18nProviderProps
 member I18nProviderProps.children?: import("preact").ComponentChildren
@@ -1407,6 +1087,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class PreactI18n
 member PreactI18n.activeKey: private any
 member PreactI18n.activeRootKey: private any
+member PreactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.clear: () => void
@@ -1446,7 +1127,6 @@ member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: 
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member PreactI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member PreactI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
-member PreactI18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member PreactI18n.storage: TranslationStorage

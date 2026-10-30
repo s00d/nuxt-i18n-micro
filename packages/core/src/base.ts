@@ -102,9 +102,9 @@ export abstract class BaseI18n {
   }
 
   /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
-  /** Sets {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
-  public setLocaleIso(localeIso: Record<string, string>): void {
-    this.localeIso = localeIso
+  /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
+  public addLocaleIso(localeIso: Record<string, string>): void {
+    this.localeIso = { ...this.localeIso, ...localeIso }
   }
 
   public pluralLocale(): string {
@@ -202,7 +202,9 @@ export abstract class BaseI18n {
     if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
       // not always a string: modules call `$t(key, params, true)`
-      return (typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key) as CleanTranslation
+      return (
+        defaultValue && typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key
+      ) as CleanTranslation
     }
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }

@@ -38,7 +38,20 @@ function vueSide(side: 'vue' | 'nuxt'): Map<string, string> {
 
 const react = flat('react', 'i18n-t.md')
 
+/** `<a ...>` items of an open switcher, without the styles and hrefs each side computes itself. */
+const switcherItems = (pkg: string, section: RegExp) => {
+  const text = normalize(golden(pkg, 'i18n-switcher.md'))
+  const line = text.split('- ').find((part) => section.test(part)) ?? ''
+  return [...line.matchAll(/<a [^>]*>/g)].map(([tag]) => tag.replace(/ style="[^"]*"/, '').replace(/ href="[^"]*"/, ''))
+}
+
 describe('one matrix, one output', () => {
+  test('switcher items carry the same attributes in every renderer', () => {
+    const vue = switcherItems('vue', /^vue open/)
+    expect(vue.length).toBe(3)
+    for (const pkg of ['react', 'preact', 'solid']) expect(switcherItems(pkg, /^open/)).toEqual(vue)
+  })
+
   test.each([
     ['preact', flat('preact', 'i18n-t.md')],
     ['solid', flat('solid', 'i18n-t.md')],

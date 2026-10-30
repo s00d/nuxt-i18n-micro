@@ -14,7 +14,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.now: private any
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -28,6 +28,7 @@ type Getter: (key: TranslationKey, params?: Record<string, string | number | boo
 class I18n
 member I18n.activeKey: private any
 member I18n.activeRootKey: private any
+member I18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member I18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member I18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member I18n.clear: () => void
@@ -67,7 +68,6 @@ member I18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknow
 member I18n.resolveRouteName: protected (routeContext?: unknown) => string
 member I18n.resolveTranslations: (routeContext?: unknown) => Translations
 member I18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
-member I18n.setLocaleIso: (localeIso: Record<string, string>) => void
 member I18n.setRoute: (routeName: string) => void
 member I18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member I18n.storage: TranslationStorage

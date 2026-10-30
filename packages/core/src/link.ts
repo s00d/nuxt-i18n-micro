@@ -49,6 +49,8 @@ export function isActiveLink(current: string, link: string, localeCodes: readonl
 export function localizedPath(to: string | { path?: string }, locale: string, localeCodes: readonly string[], defaultLocale: string): string {
   const path = typeof to === 'string' ? to : to.path || '/'
   const end = path.search(/[?#]/)
+  // `#top`, `?x=1`: this page, in this locale
+  if (end === 0) return path
   const pathname = end === -1 ? path : path.slice(0, end)
   const suffix = end === -1 ? '' : path.slice(end)
   const segments = pathname.split('/').filter(Boolean)

@@ -16,5 +16,5 @@ export { I18nT } from './components/I18nT'
 export type { I18nProviderProps, UseI18nOptions, UseI18nReturn } from './context'
 export { I18nProvider, useI18n, useLocaleSwitch, useT } from './context'
 // Injection helpers
-export type { I18nContextValue, I18nRoutingStrategy, RouteTarget } from './injection'
-export { I18nContext, useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from './injection'
+export type { I18nConfig, I18nRoutingStrategy, RouteTarget } from './injection'
+export { I18nConfigContext, I18nContext, useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from './injection'

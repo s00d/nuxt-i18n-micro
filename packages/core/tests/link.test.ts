@@ -117,8 +117,8 @@ describe('localizedPath', () => {
     ['/de/a?x=1#y', 'fr', '/fr/a?x=1#y'],
     ['/about?next=/de/x', 'de', '/de/about?next=/de/x'],
     ['/deutsch', 'en', '/deutsch'],
-    ['#top', 'de', '/de#top'],
-    ['?x=1', 'en', '/?x=1'],
+    ['#top', 'de', '#top'],
+    ['?x=1', 'en', '?x=1'],
   ])('%s in %s is %s', (to, locale, path) => {
     expect(localizedPath(to, locale, codes, 'en')).toBe(path)
   })

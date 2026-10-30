@@ -38,29 +38,18 @@ export const recipes = defineRecipes(
     basic: app('basic'),
     // basic under prefix: the default locale gets a prefix too
     'basic-prefix': app('basic-prefix', 'basic', undefined, { i18n: { strategy: 'prefix' } }),
-    named: app('named'),
     content: app('content'),
     'custom-regex': app('custom-regex'),
-    'define-i18n-route': app('define-i18n-route'),
-    'fallback-locale': app('fallback-locale'),
     layer: app('layer'),
-    'layout-switch': app('layout-switch'),
     n3: app('n3'),
     'nuxt-seo': app('nuxt-seo'),
     'pages-false': app('pages-false'),
     'pages-false-no-prefix': app('pages-false-no-prefix', 'pages-false', { STRATEGY: 'no_prefix' }),
     redirect: app('redirect'),
-    'seo-og-locale-format': app('seo-og-locale-format'),
     seo: app('seo'),
     serverless: app('serverless'),
     'use-i18n-head': app('use-i18n-head'),
-    'seo-trailing-slash': nuxt({
-      id: 'seo-trailing-slash',
-      root: resolve(fixtures, 'seo'),
-      run: 'server',
-      hashInputs: [resolve(fixtures, 'seo'), moduleSrc],
-      nuxtConfig: { i18n: { trailingSlash: 'append' } },
-    }),
+    'seo-trailing-slash': app('seo-trailing-slash', 'seo', undefined, { i18n: { trailingSlash: 'append' } }),
 
     // LOCALE_COOKIE on all four: the force-locale plugin (header x-test-force-locale) writes `user-locale`,
     // and the journeys assert the module leaves it alone. no_prefix also detects from Accept-Language.
@@ -73,17 +62,20 @@ export const recipes = defineRecipes(
       STRATEGY: 'prefix',
       LOCALE_COOKIE: 'user-locale',
     }),
+    // pec also detects from Accept-Language (autoDetectPath '/'): the layout-switch journey
     'strategy-prefix-except-default': app('strategy-prefix-except-default', 'strategy', {
       STRATEGY: 'prefix_except_default',
       LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
     }),
-    // one prefix build run with env overrides: they must reach routing, the server and the client alike
-    'strategy-prefix-overrides': app('strategy-prefix-overrides', 'strategy', {
-      STRATEGY: 'prefix',
-      LOCALE_COOKIE: 'user-locale',
-      NUXT_I18N_DEFAULT_LOCALE: 'de',
-      NUXT_I18N_DISABLED_LOCALES: 'ru',
-    }),
+    // one prefix build with runtime overrides, one per input: the default locale from env, the disabled
+    // locales from runtimeConfig. They must reach routing, the server and the client alike.
+    'strategy-prefix-overrides': app(
+      'strategy-prefix-overrides',
+      'strategy',
+      { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', NUXT_I18N_DEFAULT_LOCALE: 'de' },
+      { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['ru'] } } } },
+    ),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',
@@ -92,15 +84,8 @@ export const recipes = defineRecipes(
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
 
-    'cookie-default': app('cookie-default', 'cookie'),
-
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
-    'translation-watcher-prod': nuxt({
-      id: 'translation-watcher-prod',
-      root: resolve(fixtures, 'translation-watcher'),
-      run: 'server',
-      hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
-    }),
+    'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),
 
     // Dev servers for the HMR journeys run from a temp copy, so they never write into the repo tree
     // (the prod recipe hashes and builds the pristine dir). Roots: translationWatcherTmpRoots.

@@ -48,7 +48,7 @@ describe('J2 strategies: prefix', () => {
   })
 })
 
-describe('J2 strategies: prefix with runtime overrides (env default de, ru disabled)', () => {
+describe('J2 strategies: prefix with runtime overrides (env default de, runtimeConfig disables ru)', () => {
   test.override({ harness: 'strategy-prefix-overrides' })
 
   test('P-T3 runtime overrides reach routing, server and client', async ({ page, goto, request, baseURL }) => {
@@ -59,6 +59,13 @@ describe('J2 strategies: prefix with runtime overrides (env default de, ru disab
 
     // step 2 (F1): the runtime-disabled /ru is a 404, not a page with raw keys
     expect((await request.get('/ru', { maxRedirects: 0 })).status()).toBe(404)
+
+    // step 2b: the runtime default's payload is served
+    // was: runtime-i18n-overrides.e2e › runtimeConfig overrides the default locale (step 2). Its step 3 (disabled
+    // payload 404) needed the locale disabled at build time too: here ru's premerged file is in public/ and served as is.
+    const de = await request.get('/_locales/index/de/data.json')
+    expect(de.status()).toBe(200)
+    expect(await de.json()).toMatchObject({ key0: 'de' })
 
     // step 3 (F11): the client sees the same config: de content, no ru in the switcher, no hydration mismatch
     const issues = collectHydrationIssues(page)

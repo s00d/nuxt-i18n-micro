@@ -1,7 +1,8 @@
+import { getLocaleCookie } from 'untestutils/utils'
 import { describe, expect, test } from 'untestutils/vitest'
 import { ssr } from '../helpers/journeys-b.ts'
 
-describe('J5 detection: Accept-Language redirect (redirect, pec, autoDetectPath *)', () => {
+describe('J5 detection: Accept-Language redirect (redirect, pec, autoDetectPath *, cookie user-locale)', () => {
   test.override({ harness: 'redirect' })
 
   // was: redirect › language detection redirects based on Accept-Language
@@ -11,6 +12,13 @@ describe('J5 detection: Accept-Language redirect (redirect, pec, autoDetectPath 
     await goto('/ru/page', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/page')
     await expect(page.locator('#locale')).toHaveText('en')
+
+    // step 1b: no cookie, open /de → / (the default locale has no prefix), and the redirect writes cookie en
+    // was: cookie › /de → / + cookie en (cookie-default recipe)
+    await page.context().clearCookies()
+    await goto('/de', { waitUntil: 'hydration' })
+    await expect(page).toHaveURL('/')
+    await expect.poll(() => getLocaleCookie(page)).toBe('en')
 
     // step 2 (F8): /de//evil.example moves to a path on this origin, never to //evil.example
     // (stateless requests: the redirect writes a cookie that would steer the next step)

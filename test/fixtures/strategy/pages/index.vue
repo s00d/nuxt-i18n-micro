@@ -3,6 +3,7 @@
     <p id="content">
       {{ $t('key0') }}
     </p>
+    <h2 class="page-welcome">{{ $t('page.welcome') }}</h2>
 
     <i18n-link id="contact" :to="{ name: 'contact' }"> Contact </i18n-link>
 

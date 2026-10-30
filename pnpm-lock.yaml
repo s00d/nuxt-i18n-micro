@@ -1268,25 +1268,7 @@ importers:
         specifier: 'catalog:'
         version: 3.16.1(@oxc-project/types@0.151.0)(@valibot/to-json-schema@1.8.0(valibot@1.5.0(typescript@6.0.3)))(better-sqlite3@12.2.0)(esbuild@0.28.2)(magic-string@1.4.1)(magicast@0.5.4)(oxc-parser@0.139.0)(rolldown@1.2.11)(rollup@4.63.1)(valibot@1.5.0(typescript@6.0.3))(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
 
-  test/fixtures/cookie:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
-
   test/fixtures/custom-regex:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
-
-  test/fixtures/define-i18n-route:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
-
-  test/fixtures/fallback-locale:
     dependencies:
       nuxt:
         specifier: 'catalog:'
@@ -1321,12 +1303,6 @@ importers:
         specifier: 'catalog:'
         version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
 
-  test/fixtures/layout-switch:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
-
   test/fixtures/n3:
     dependencies:
       nuxt:
@@ -1345,12 +1321,6 @@ importers:
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
-
-  test/fixtures/named:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
 
   test/fixtures/nuxt-seo:
     dependencies:

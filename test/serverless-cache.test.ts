@@ -27,7 +27,13 @@ describe('serverless: translation payloads through a serialized route cache', as
   test('cold, warm, every locale, unknown locale, parallel cold start', async () => {
     // step 1: cold request → root and page keys merged, written to the disk cache
     const en = await payload('en')
-    expect(en).toEqual({ hello: 'Hello World', welcome: 'Welcome to our site', pageTitle: 'Home Page', pageContent: 'This is the home page content' })
+    expect(en).toEqual({
+      hello: 'Hello World',
+      welcome: 'Welcome to our site',
+      global: 'global en',
+      pageTitle: 'Home Page',
+      pageContent: 'This is the home page content',
+    })
     // Nitro writes the entry after responding (waitUntil): wait until it is on disk and complete,
     // or the edit below can land on a half-written file and be overwritten
     const entryPath = () => join(cacheDir, cacheFiles().find((f) => f.includes('index') && f.includes('en')) ?? '')

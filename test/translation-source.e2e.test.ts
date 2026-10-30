@@ -19,7 +19,13 @@ describe('translationPayloads mode: source (serverless fixture)', async () => {
   test('API route merges root and page files at runtime for every locale; SSR renders them', async () => {
     // step 1: en payload = root + page keys, merged by the handler (no premerged tree)
     const en = (await $fetch('/_locales/index/en/data.json')) as Record<string, string>
-    expect(en).toEqual({ hello: 'Hello World', welcome: 'Welcome to our site', pageTitle: 'Home Page', pageContent: 'This is the home page content' })
+    expect(en).toEqual({
+      hello: 'Hello World',
+      welcome: 'Welcome to our site',
+      global: 'global en',
+      pageTitle: 'Home Page',
+      pageContent: 'This is the home page content',
+    })
 
     // step 2: repeat → same payload from the cache
     expect(await $fetch('/_locales/index/en/data.json')).toEqual(en)

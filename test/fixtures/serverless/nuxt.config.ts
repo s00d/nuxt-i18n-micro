@@ -28,9 +28,11 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', iso: 'en_EN' },
       { code: 'de', iso: 'de_DE' },
-      { code: 'fr', iso: 'fr_FR' },
+      // fr falls back to de, every other locale to the global fallbackLocale en (/fallback)
+      { code: 'fr', iso: 'fr_FR', fallbackLocale: 'de' },
     ],
     defaultLocale: 'en',
+    fallbackLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: false,
   },

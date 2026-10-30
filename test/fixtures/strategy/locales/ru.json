@@ -1,3 +1,14 @@
 {
-  "key0": "ru"
+  "key0": "ru",
+  "shared": "Shared RU",
+  "layout": {
+    "title": "Моё приложение",
+    "nav": {
+      "home": "Главная",
+      "about": "О нас"
+    }
+  },
+  "page": {
+    "welcome": "Добро пожаловать на наш сайт"
+  }
 }

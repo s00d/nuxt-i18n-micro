@@ -35,7 +35,7 @@ The CI gate: fail on missing, empty, extra, undefined or unused keys and broken 
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--only` | all but duplicates | Comma-separated checks to run: missing, empty, extra, placeholders, undefined, unused, duplicates |
+| `--only` | all but duplicates | Comma-separated checks to run: missing, empty, extra, placeholders, undefined, unused, duplicates. `unused` named here fails when it cannot run |
 | `--duplicates` | `false` | Also report the same text under different keys |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
 | `--json` | `false` | Print JSON instead of text |
@@ -132,12 +132,13 @@ i18n-micro translate --service libretranslate --options baseUrl:https://translat
 
 ### `sync`
 
-Remove keys the default locale does not have. Missing keys stay missing, for fallbackLocale and `check`
+Remove keys the default locale does not have; stops when that cannot be proven safe. Missing keys stay missing
 
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
 | `--dryRun` | `false` | List what would be removed; write nothing |
+| `--force` | `false` | Remove keys even though it cannot be proven safe |
 
 ```bash
 i18n-micro sync --dryRun
@@ -233,6 +234,7 @@ Export locale files to PO or CSV, with the default-locale text as the source
 | --- | --- | --- |
 | `--format` | `po` | File format: po, csv |
 | `--dir` | `pots` for po, `csv_exports` for csv | Output directory, relative to the project |
+| `--force` | `false` | Overwrite translations in the output that were never imported |
 
 ```bash
 i18n-micro export --format csv
@@ -261,7 +263,7 @@ Pull global translations from, or push them to, the HTTP endpoint in .i18n-remot
 | `--pull` | `true` | Pull from the remote |
 | `--push` | `false` | Push to the remote |
 | `--force` | `false` | On a conflict, take the remote value |
-| `--dryRun` | `false` | Report what would change; send and write nothing |
+| `--dryRun` | `false` | Report what a pull would change; write and push nothing |
 
 ```bash
 i18n-micro sync-remote --dryRun
@@ -281,7 +283,7 @@ i18n-micro sync-remote --no-pull --push
 | Code | Meaning |
 | --- | --- |
 | `0` | Done, nothing to report |
-| `1` | Findings: `check`, `lint` or `format --check` found something, `clean` could not prove what is unused, `translate` left keys out, `import` or `sync-remote` met a conflict |
+| `1` | Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict |
 | `2` | Failure: bad usage, unreadable project, network or file error |
 
 ## Configuration files

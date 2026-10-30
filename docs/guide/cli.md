@@ -37,7 +37,7 @@ i18n-micro check
 | `unused` | Nothing in the project uses a key |
 | `duplicates` | The same text under different keys. Off by default: pass `--duplicates` |
 
-`--only missing,placeholders` picks some, `--json` gives a report for tooling, and `--ignore` skips source files. While keys are computed at runtime `unused` is skipped, and the report says why.
+`--only missing,placeholders` picks some, `--json` gives a report for tooling, and `--ignore` skips source files. While keys are computed at runtime `unused` is skipped, and the report says why. Named in `--only`, a check that could not run fails.
 
 Every command exits `0` when there is nothing to report, `1` on findings, and `2` when it could not run: a usage error, a broken file, a failed request. A pipeline can tell a problem with your translations from a problem with the tool.
 
@@ -52,16 +52,16 @@ i18n-micro stats --baseRef main
 | Command | What it does |
 | --- | --- |
 | `extract` | Lists the keys the code uses that have no text yet. A default text, as in `$t('key', {}, 'Welcome')`, goes to the default locale. |
-| `sync` | Removes keys the default locale does not have. Try `--dryRun` first. |
+| `sync` | Removes keys the default locale does not have. It stops like `clean` does, and also when the default locale has nothing to compare with. Try `--dryRun` first. |
 | `clean` | Removes keys nothing uses. Try `--dryRun` first. |
 | `search` | Finds keys and values, and shows where each key is used. |
 | `stats` | Completion per locale; `--baseRef main` compares with a git ref. |
 
 `extract` and `sync` never write `''` for a key without a translation. The key stays absent, so `fallbackLocale` applies at runtime, and `check` reports it. An empty string would be a defined value: it would show a blank.
 
-All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. A file under `tests/` counts as usage, but `extract` and `check` do not treat its keys as ones the app needs.
+All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. Test code counts as usage, but `extract` and `check` do not treat its keys as ones the app needs. Test code means the root folders `tests`, `test`, `__tests__`, `e2e`, `cypress` and `playwright`, and `*.spec.ts` or `*.test.ts` files anywhere. Only the root folders are exempt from the doubts below: `pages/tests/[id].vue` is a page like any other.
 
-They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()`, `<i18n-t keypath>`, `<i18n-group prefix>`, and aliases such as `const { t: tr } = useI18n()`.
+They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()` and `useTranslationServerMiddleware()`, `<i18n-t keypath>` in templates and JSX, `<i18n-group prefix>`, and aliases such as `const { t: tr } = useI18n()`.
 
 ### How `clean` decides
 
@@ -75,7 +75,9 @@ They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()`
 
 `clean` stops without changing anything when it cannot know, and lists why:
 
-- a key is fully computed, as in `$t(name)`, or `$t` is passed around as a value, as in `items.map($t)`;
+- a key is fully computed, as in `$t(name)`, `<i18n-t :keypath="name" />` or `<i18n-t v-bind="props" />`;
+- `$t` is passed around as a value, as in `items.map($t)`;
+- a function called `t` of unknown origin gets a computed argument: it may be a wrapper around the real one;
 - a source file does not parse;
 - no file uses any key at all, which usually means it is looking in the wrong place;
 - a locale file is a symlink out of the project, so another app may read it.
@@ -103,7 +105,7 @@ i18n-micro translate --service deepl --locale de,fr
 
 Options are `key:value` pairs: `--options provider:openai,model:gpt-4o-mini`. All services also take `baseUrl`, `retries`, `retryDelayMs` and `timeoutMs`.
 
-Flags are visible in shell history and process lists, so prefer the environment variable for the token. Tokens are masked in everything the CLI prints.
+Flags are visible in shell history and process lists, so prefer the environment variable for the token. Tokens, provider keys and credentials in a URL are masked in everything the CLI prints, `--debug` included.
 
 The `ai` service follows a glossary. When `.i18n-glossary.json` exists it is used without a flag; `--glossaryFile` picks another file.
 
@@ -125,7 +127,7 @@ i18n-micro text-to-i18n            # rewrite the templates
 <h1>{{ $t('pages.index.welcome-to-our') }}</h1>
 ```
 
-Only `.vue` templates are rewritten. Text in `.ts` files and scripts is listed, because `$t` is not in scope everywhere. So is text next to markup or an interpolation, such as `<p>Hello <b>world</b> today</p>`: half a sentence cannot be translated on its own. Commit first, and review the diff.
+Only `.vue` templates of the project itself are rewritten, not those of a layer or an alias target. Text in `.ts` files and scripts is listed, because `$t` is not in scope everywhere. So is text next to markup or an interpolation, such as `<p>Hello <b>world</b> today</p>`: half a sentence cannot be translated on its own. A generated key that would collide with another, as a parent page and its child can, is listed and its text stays. A known key that cannot go between quotes stays out too. Every rewritten file is parsed again before it is written. Commit first, and review the diff.
 
 ## Rename a key
 
@@ -134,7 +136,7 @@ i18n-micro rename --from common.save --to actions.save
 i18n-micro rename --from settings --to account.settings   # a whole namespace
 ```
 
-`rename` edits the syntax tree, so comments and unrelated strings stay as they are, and aliases and `:keypath` are followed. It warns about what it cannot rewrite: a computed key under the old name, a plain string equal to it, or a Pug template. A layer's own file is never changed.
+`rename` edits the syntax tree, so comments and unrelated strings stay as they are, and aliases and `:keypath` are followed. It warns about what it cannot rewrite: a computed key under the old name, each plain string equal to it, a Pug template, or a source in a layer or a folder outside the project, which it leaves alone. A layer's own file is never changed. `--to` has to be a key that can be written in code: no quotes, no backslash, no empty segment, no `__proto__`.
 
 ## Exchange files with translators
 
@@ -143,7 +145,7 @@ i18n-micro export --format csv
 i18n-micro import --format csv --dryRun
 ```
 
-`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`.
+`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `export` stops rather than overwrite translations that were never imported; `--force` overwrites them. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`.
 
 For a translation platform, use its own CLI: the [Crowdin](/guide/crowdin) setup syncs the JSON files, page files included.
 
@@ -157,7 +159,7 @@ For a translation platform, use its own CLI: the [Crowdin](/guide/crowdin) setup
 
 The endpoint answers `GET` and `PUT` with a `{ locale: messages }` object. Authenticate with `auth: { username, password }`, or put a bearer token in `I18N_REMOTE_TOKEN`.
 
-A pull fills what you do not have and keeps keys only you have. If a key differs on both sides, nothing is written and the command exits `1`; `--force` takes the remote value. A locale you have not configured is skipped, a blank remote value clears nothing, and a push leaves your blanks out. `--dryRun` lists the changes and neither writes nor sends anything.
+A pull fills what you do not have and keeps keys only you have. If a key differs on both sides, nothing is written and the command exits `1`; `--force` takes the remote value. A locale you have not configured is skipped, a blank remote value clears nothing, and a push leaves your blanks out. `--dryRun` still reads from the endpoint, lists the changes, and neither writes nor pushes.
 
 ## Moving from nuxt-i18n-micro-cli
 
@@ -194,9 +196,13 @@ Changed behaviour:
 - Without `defaultLocale`, the default is `en`, as in the module, and `DEFAULT_LOCALE` is honoured. It used to be the first locale.
 - `check` and `sync` use the default locale as the reference and check page files. `"a.b"` and `a: { b }` count as one key.
 - `clean` keeps a key used anywhere, in any scope, and stops when usage cannot be proven. `--include` and `--exclude` choose what may be removed.
+- `sync` stops the same way, and when the default locale has no keys to compare with. `--force` overrides it. It also stops when `DEFAULT_LOCALE` chose another reference than `nuxt.config`.
+- Single-dash long flags and stray arguments are errors: `clean -dryRun` no longer runs `clean`.
+- A read-only file, bytes that are not UTF-8, a repeated key and an integer above 2^53 stop a command: a save would lose them.
+- `export` stops rather than overwrite translations that were never imported.
 - Exit codes are `0`, `1` and `2`; failures used to be `1`, and `diff` and `check-duplicates` always `0`.
 - `lint --fix` no longer leaves `.bak` files.
-- A save keeps a file's indentation, final newline and symlink, and leaves files it did not change alone.
+- A save keeps a file's indentation, line endings, final newline, symlink and hard link, and leaves files it did not change alone.
 - A mistyped or removed flag is now an error, not silently ignored.
 - Paths such as `--dir` are relative to the project, not to the shell.
 - `ai` no longer loads `@ai-sdk/*` packages: use `provider` `gateway`, `openai` or `anthropic`, or `baseUrl` for an OpenAI-compatible server.

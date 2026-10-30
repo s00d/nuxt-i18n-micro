@@ -35,7 +35,6 @@ catalog:
   '@nuxtjs/sitemap': ^8.5.1
   '@nuxtjs/seo': ^5.3.16
   '@nuxtjs/i18n': ^10.6.0
-  '@nuxthub/core': ^0.10.8
   # Vue
   vue: ^3.5.43
   '@vue/compiler-sfc': ^3.5.43

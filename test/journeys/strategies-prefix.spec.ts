@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'untestutils/vitest'
 import { collectHydrationIssues } from 'untestutils/utils'
-import { forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
+import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
 describe('J2 strategies: prefix', () => {
   test.override({ harness: 'strategy-prefix' })
@@ -37,6 +37,9 @@ describe('J2 strategies: prefix', () => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
     await expect(page.locator('#content')).toHaveText('de')
+
+    // step 8: every localized URL on a direct cookie-less request → 200 and its content
+    await directRoutes(baseURL, 'prefix')
   })
 
   // was: locale-state-prefix › *

@@ -11,7 +11,7 @@ The module ships integration tests that exercise all four routing strategies aga
 ## Commands
 
 ```bash
-# All strategy scenarios (static generate + SSR build per strategy)
+# Static generate of every strategy
 pnpm run test:strategies
 
 # Fast unit tests only — no builds, no browser (~1s)
@@ -43,18 +43,15 @@ The `unit` / `integration` split has a single source of truth: `INTEGRATION_TEST
 
 ## What the strategy suites cover
 
-For each strategy (`no_prefix`, `prefix_except_default`, `prefix`, `prefix_and_default`) there is one file — `test/strategies-<strategy>.test.ts` — so Vitest, which parallelizes per file, can run all four concurrently. They share one implementation in `test/helpers/strategy-suite.ts`:
+For each strategy (`no_prefix`, `prefix_except_default`, `prefix`, `prefix_and_default`) there is one file — `test/strategies-<strategy>.test.ts` — so Vitest, which parallelizes per file, can run all four concurrently. They share one implementation in `test/helpers/strategy-suite.ts`: `nuxi generate` into an isolated build dir (`NUXT_TEST_BUILD_DIR`), then the output is read from disk — locale routes, prerender success, payload files, nested routes. It is one chain (a single `test`), so a strategy costs one build.
 
-1. **Static generate** — runs `nuxi generate` into an isolated build dir (`NUXT_TEST_BUILD_DIR`) and reads the output from disk: locale routes, prerender success, payload files, nested routes.
-2. **SSR build** — runs `nuxi build`, starts the Nitro server, checks the same routes over HTTP.
-
-Each phase is one chain (a single `test`), so a strategy costs two builds.
+The server side of the same routes is not built again here: each `test/journeys/strategies-*.spec.ts` requests every URL of `CASES[strategy].routes` directly on its recipe's server build (`directRoutes` in `test/helpers/journeys-b.ts`).
 
 ## Parallelism
 
 Two rules keep build-spawning suites safe to run concurrently:
 
-- **Own build dir per suite and phase** — `isolatedBuild(fixture, name)` points `NUXT_TEST_BUILD_DIR` at `test/fixtures/<fixture>/.nuxt-test/<name>/`, so nothing rimrafs or reads another suite's output.
+- **Own build dir per suite** — `isolatedBuild(fixture, name)` points `NUXT_TEST_BUILD_DIR` at `test/fixtures/<fixture>/.nuxt-test/<name>/`, so nothing rimrafs or reads another suite's output.
 - **OS-assigned ports, handle-based shutdown** — take ports from `getFreePort()` (`test/helpers/port.ts`, binds port 0) and stop servers with `stopChild()` (`test/helpers/subprocess.ts`), which kills the whole process group. Never free a port by killing whatever process owns it (`lsof -ti tcp:<port>` + `SIGKILL`): with parallel workers that can kill a sibling suite's server, which surfaces as an unrelated `ERR_IPC_CHANNEL_CLOSED` crash.
 
 ## E2E journeys

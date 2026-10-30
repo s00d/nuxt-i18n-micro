@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-98 exports across 21 entry points.
+99 exports across 21 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -160,6 +160,7 @@ import { /* … */ } from '@i18n-micro/utils/locale-head'
 | `LocaleHeadInput` | interface | 11 members |
 | `LocaleHeadLink` | interface | 4 members |
 | `LocaleHeadMeta` | interface | 3 members |
+| `queryString` | function | `(query?: object \| null) => string` |
 
 <details>
 <summary><code>LocaleHead</code> — 3 members</summary>

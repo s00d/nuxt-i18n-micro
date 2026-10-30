@@ -28,7 +28,8 @@ export function vueInstance(messages: Record<string, Translations>, locale = 'en
 export function mountVue(component: Component, messages: Record<string, Translations>, options: MountOptions = {}) {
   const i18n = vueInstance(messages, options.locale, options.plural)
   const wrapper = mount(component as never, {
-    props: { ...options.props, ...options.attrs } as never,
+    props: options.props as never,
+    attrs: options.attrs,
     slots: options.slots as never,
     attachTo: document.body,
     global: { provide: { [I18nInjectionKey as symbol]: i18n, ...options.provide }, config: quiet },
@@ -65,7 +66,8 @@ export function mountNuxt(component: Component, messages: Record<string, Transla
   const i18n = nuxtInstance(messages, options.locale, options.plural)
   wireNuxtApp(i18n, options.provide as Record<string, unknown>)
   const wrapper = mount(component as never, {
-    props: { ...options.props, ...options.attrs } as never,
+    props: options.props as never,
+    attrs: options.attrs,
     slots: options.slots as never,
     attachTo: document.body,
     global: { components: { NuxtLink, ...options.components }, config: quiet, mocks: app },

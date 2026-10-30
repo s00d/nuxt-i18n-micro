@@ -1,7 +1,7 @@
 import { isPlainClick } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy, I18nRouteTarget } from '@i18n-micro/vue'
-import { joinBase } from '@i18n-micro/utils/locale-head'
+import { joinBase, queryString } from '@i18n-micro/utils/locale-head'
 import { defineComponent, h, type Component, type PropType } from 'vue'
 
 export interface VitePressRouterLike {
@@ -266,8 +266,7 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
   }
 
   const resolvePath = (to: I18nRouteTarget, locale: string): string => {
-    const query = typeof to === 'string' ? '' : new URLSearchParams(to.query as Record<string, string>).toString()
-    const path = typeof to === 'string' ? to : `${to.path || '/'}${query && `?${query}`}${to.hash ?? ''}`
+    const path = typeof to === 'string' ? to : `${to.path || '/'}${queryString(to.query)}${to.hash ?? ''}`
     return localizePath(path, locale)
   }
 

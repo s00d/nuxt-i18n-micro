@@ -128,6 +128,7 @@ export class VueI18n extends BaseI18n {
   private notifyListeners(): void {
     // over a copy, each guarded: one throwing listener must not stop a write or the others
     for (const listener of [...this.listeners]) {
+      if (!this.listeners.has(listener)) continue // unsubscribed by an earlier listener
       try {
         listener()
       } catch (error) {

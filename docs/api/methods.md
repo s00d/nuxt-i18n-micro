@@ -220,7 +220,7 @@ Translate with pluralization. `params` may be the count itself, or an object con
 
 <!-- /generated:method:$tc -->
 
-Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form.
+Forms are separated by `|`. With the built-in rule a non-negative integer count `n` picks form `n`, clamped to the last form; a negative, fractional or `NaN` count takes the last form. `{count}` and the other params are interpolated into the picked form.
 
 For languages whose plurals do not follow the count, such as Russian, start the template with `=0 `. The first form is then for 0, and the others go by [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules) category, in the order `zero, one, two, few, many, other`:
 

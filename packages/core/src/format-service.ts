@@ -131,7 +131,10 @@ export class FormatService {
   formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string {
     const time = new Date(value).getTime()
     if (Number.isNaN(time)) return 'Invalid Date'
-    return this.getDateTimeFormatter(locale, this.timeZone ? { timeZone: this.timeZone, ...options } : options).format(time)
+    return this.getDateTimeFormatter(
+      locale,
+      this.timeZone && options?.timeZone === undefined ? { ...options, timeZone: this.timeZone } : options,
+    ).format(time)
   }
 
   /** `3 days ago` / `in 3 days`: the largest unit that fits at least once, rounded down; `Invalid Date` like {@link formatDate}. */

@@ -227,8 +227,10 @@ function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params)
     return { template: String(customPluralRule(keypath, count, params, i18n.getLocale(), getter) ?? ''), params: {} }
   }
   if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }, defaultValue), params: {} }
-  const template = String(i18n.t(keypath, undefined, defaultValue) ?? '')
-  return { template: pluralForm(template, count, i18n.pluralLocale?.() ?? i18n.getLocale()), params: { ...params, count } }
+  // as `defaultPlural`: a tree or a boolean has no forms, so `tc` answers the key
+  const value = i18n.t(keypath, undefined, defaultValue)
+  const translation = typeof value === 'string' || typeof value === 'number' ? String(value) : keypath
+  return { template: pluralForm(translation, count, i18n.pluralLocale?.() ?? i18n.getLocale()), params: { ...params, count } }
 }
 
 /**
@@ -243,5 +245,5 @@ export function resolveText(i18n: TextHost, options: ResolveTextOptions): Resolv
   const resolved = usesPlural
     ? pluralText(i18n, options, params)
     : { template: String(i18n.t(options.keypath, undefined, options.defaultValue) ?? ''), params: formatted ? { ...params, ...formatted } : params }
-  return options.hideIfEmpty && !resolved.template.trim() ? null : resolved
+  return options.hideIfEmpty && !interpolate(resolved.template, resolved.params).trim() ? null : resolved
 }

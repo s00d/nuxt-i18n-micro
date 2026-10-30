@@ -38,7 +38,7 @@ export interface LocaleHeadInput {
   canonical: string
   /** The `x-default` URL, when the page has one. */
   xDefault?: string
-  /** `false` for one URL per page (`no_prefix`): `og:locale:alternate` stays, `hreflang` goes. */
+  /** `false` for one URL per page (`no_prefix`): `og:locale:alternate` stays, `hreflang` and `x-default` go. */
   alternates?: boolean
   addDirAttribute?: boolean
   /** `false` keeps `htmlAttrs` only. */
@@ -63,9 +63,21 @@ export function filterQuery(url: string, whitelist: readonly string[]): string {
   return query ? `${pathname}?${query}` : pathname
 }
 
-/** `base` + `path` with one slash between them: `'/'` + `/de` is `/de`, never the protocol-relative `//de`. */
+/** `?a=1&a=2` of a route's query: arrays repeat the key, `null` is a key with no value, `undefined` is left out. */
+export function queryString(query?: object | null): string {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query ?? {})) {
+    for (const item of [value].flat()) {
+      if (item !== undefined) params.append(key, item === null ? '' : String(item))
+    }
+  }
+  const serialized = params.toString()
+  return serialized && `?${serialized}`
+}
+
+/** `base` + `path` with one slash between them: `'/'` + `/de` or `//de` is `/de`, never the protocol-relative `//de`. */
 export function joinBase(base: string, path: string): string {
-  return `${base.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`
+  return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
 }
 
 /**
@@ -98,6 +110,6 @@ export function buildLocaleHead(input: LocaleHeadInput): LocaleHead {
       if (href) link.push({ [id]: `i18n-alternate-${hreflang}`, rel: 'alternate', href, hreflang })
     }
   }
-  if (xDefault) link.push({ [id]: 'i18n-xd', rel: 'alternate', href: xDefault, hreflang: 'x-default' })
+  if (alternates && xDefault) link.push({ [id]: 'i18n-xd', rel: 'alternate', href: xDefault, hreflang: 'x-default' })
   return { htmlAttrs, link, meta }
 }

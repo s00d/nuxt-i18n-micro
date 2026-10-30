@@ -364,6 +364,22 @@ describe('the Nuxt switcher under app.baseURL', () => {
   })
 })
 
+test('a listener removed by an earlier one is not called', () => {
+  const i18n = vueInstance({ en: {} })
+  const later = vi.fn()
+  let dropLater = () => {}
+  i18n.subscribeToChanges(() => dropLater())
+  dropLater = i18n.subscribeToChanges(later) as () => void
+  i18n.addTranslations('en', { hi: 'Hello' })
+  expect(later).not.toHaveBeenCalled()
+})
+
+test.each(['constructor', 'toString', '__proto__'])('a locale coded %s gets a label, not an inherited member', async (code) => {
+  const { wrapper } = mountVue(I18nSwitcher, messages, { props: { locales: [{ code, displayName: 'Named' }], currentLocale: code } })
+  expect(wrapper.find('button').text()).toContain('Named')
+  wrapper.unmount()
+})
+
 test('a Vue listener that throws stops neither the write nor the others', () => {
   const i18n = vueInstance({ en: {} })
   const error = vi.spyOn(console, 'error').mockImplementation(() => {})

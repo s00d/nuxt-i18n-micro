@@ -2,6 +2,7 @@ import type { PathStrategy } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
+import { defaultPlural } from '@i18n-micro/core'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 
 /**
@@ -81,6 +82,14 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
 
   return { provide, push, replace, setLocale, navigateTo }
 }
+
+describe('what <i18n-t> reads from the plugin', () => {
+  test('$pluralFunc is the rule of the instance, $pluralLocale its tag', () => {
+    const { provide } = makeApi('prefix')
+    expect(provide.pluralFunc).toBe(defaultPlural)
+    expect(provide.pluralLocale()).toBe('')
+  })
+})
 
 describe('switchLocale history (#238)', () => {
   test('no_prefix replaces, prefixed strategies push, a superseded switch does nothing', async () => {

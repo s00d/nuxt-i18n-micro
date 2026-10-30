@@ -5,11 +5,11 @@
 - `"about"`
   - vue plain → <a href="/de/about" style="color: red;">L</a>
   - vue no router → <a href="about">L</a>
-  - nuxt → <a href="/deabout">L</a>
+  - nuxt → <a href="/de/about" style="color: red;">L</a>
 - `"/about/"`
   - vue plain → <a href="/de/about" style="color: red;">L</a>
   - vue no router → <a href="/about/">L</a>
-  - nuxt → <a href="/de/about/" style="color: red;">L</a>
+  - nuxt → <a href="/de/about" style="color: red;">L</a>
 - `"/about?x=1#y"`
   - vue plain → <a href="/de/about?x=1#y" style="color: red;">L</a>
   - vue no router → <a href="/about?x=1#y">L</a>
@@ -17,31 +17,31 @@
 - `"#top"`
   - vue plain → <a href="/de/about#top" style="color: red;">L</a>
   - vue no router → <a href="#top">L</a>
-  - nuxt → <a href="/de#top">L</a>
+  - nuxt → <a href="/de/about#top" style="color: red;">L</a>
 - `"?x=1"`
   - vue plain → <a href="/de/about?x=1" style="color: red;">L</a>
   - vue no router → <a href="?x=1">L</a>
-  - nuxt → <a href="/de?x=1">L</a>
+  - nuxt → <a href="/de/about?x=1" style="color: red;">L</a>
 - `"/"`
   - vue plain → <a href="/de">L</a>
   - vue no router → <a href="/">L</a>
-  - nuxt → <a href="/de/">L</a>
+  - nuxt → <a href="/de">L</a>
 - `{"path":"/a","query":{"x":1}}`
   - vue plain → <a href="/de/a?x=1">L</a>
-  - vue no router → <a href="/a">L</a>
-  - nuxt → <a href="/de/a">L</a>
+  - vue no router → <a href="/a?x=1">L</a>
+  - nuxt → <a href="/de/a?x=1">L</a>
 - `{"path":"/a","hash":"#h"}`
   - vue plain → <a href="/de/a#h">L</a>
-  - vue no router → <a href="/a">L</a>
-  - nuxt → <a href="/de/a">L</a>
+  - vue no router → <a href="/a#h">L</a>
+  - nuxt → <a href="/de/a#h">L</a>
 - `{"name":"about"}`
   - vue plain → <a href="/de/about" style="color: red;">L</a>
   - vue no router → <a href="/">L</a>
-  - nuxt → <a href="/de">L</a>
+  - nuxt → <a href="/de/about" style="color: red;">L</a>
 - `{"name":"about","query":{"x":"1"},"hash":"#h"}`
   - vue plain → <a href="/de/about?x=1#h" style="color: red;">L</a>
-  - vue no router → <a href="/">L</a>
-  - nuxt → <a href="/de">L</a>
+  - vue no router → <a href="/?x=1#h">L</a>
+  - nuxt → <a href="/de/about?x=1#h" style="color: red;">L</a>
 - `"https://e.com/x"`
   - vue plain → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
   - vue no router → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
@@ -75,11 +75,11 @@
 - `"report.pdf"`
   - vue plain → <a href="/de/report.pdf">L</a>
   - vue no router → <a href="report.pdf">L</a>
-  - nuxt → <a href="/dereport.pdf">L</a>
+  - nuxt → <a href="/de/report.pdf">L</a>
 - `"index.html"`
   - vue plain → <a href="/de/index.html">L</a>
   - vue no router → <a href="index.html">L</a>
-  - nuxt → <a href="/deindex.html">L</a>
+  - nuxt → <a href="/de/index.html">L</a>
 - `"example.com/x"`
   - vue plain → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>
   - vue no router → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>

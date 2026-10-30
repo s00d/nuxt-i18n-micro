@@ -139,6 +139,12 @@ test('integration publishes its config as a virtual module', () => {
   })
   expect(setup({ locale: 'en', localeCookie: null }).localeCookie).toBeNull()
 
+  // options of the old integration fail loudly, a config without them keeps working
+  for (const key of ['messages', 'plural', 'missingHandler', 'routingStrategy']) {
+    expect(() => i18nIntegration({ locale: 'en', [key]: {} })).toThrow(`no longer takes "${key}"`)
+  }
+  expect(() => i18nIntegration({ locale: 'en', routingStrategy: undefined } as never)).not.toThrow()
+
   const injectTypes = vi.fn()
   ;(integration.hooks['astro:config:done'] as (p: unknown) => void)({ injectTypes })
   const { filename, content } = injectTypes.mock.calls[0]![0]

@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { ViteDevServer } from 'vite'
 import { expect, test, vi } from 'vitest'
+import { resolveTranslationFile } from '../src/safe-path'
 import { i18nDevToolsPlugin } from '../vite/plugin'
 
 type Handler = (req: unknown, res: unknown, next: () => void) => Promise<void>
@@ -61,6 +62,34 @@ test('save writes an existing translation file and refuses anything outside tran
 
   expect([await save('en.json'), await save('locales/en.json')]).toEqual([200, 200])
   expect(JSON.parse(readFileSync(join(root, 'locales/en.json'), 'utf-8'))).toEqual({ hacked: true })
+})
+
+test('the real target must be a regular .json file inside the project', async () => {
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const { root, routes } = project()
+  writeFileSync(join(root, 'locales/app.ts'), 'export {}')
+  symlinkSync(join(root, 'locales/app.ts'), join(root, 'locales/alias.json'))
+  mkdirSync(join(root, 'locales/dir.json'))
+  const save = (file: string) => call(routes.get('/__i18n_api/save')!, 'POST', '/', { file, content: { hacked: true } })
+
+  expect(await Promise.all(['alias.json', 'dir.json'].map(save))).toEqual([403, 403])
+  expect(readFileSync(join(root, 'locales/app.ts'), 'utf-8')).toBe('export {}')
+  expect(await call(routes.get('/__i18n_api/file')!, 'GET', '/?path=dir.json')).toBe(404)
+})
+
+test('a translationDir out of the project reaches nothing, by `../` or by a symlink', () => {
+  const sandbox = realpathSync(mkdtempSync(join(tmpdir(), 'i18n-devtools-outside-')))
+  mkdirSync(join(sandbox, 'app/locales'), { recursive: true })
+  mkdirSync(join(sandbox, 'outside'))
+  writeFileSync(join(sandbox, 'outside/en.json'), '{"secret":1}')
+  writeFileSync(join(sandbox, 'app/locales/en.json'), '{}')
+  symlinkSync(join(sandbox, 'outside'), join(sandbox, 'app/linked'))
+  const app = join(sandbox, 'app')
+
+  expect(resolveTranslationFile(app, '../outside', 'en.json')).toBeNull()
+  expect(resolveTranslationFile(app, 'linked', 'en.json')).toBeNull()
+  expect(resolveTranslationFile(app, 'locales', 'en.json')).toBe(join(app, 'locales/en.json'))
+  expect(resolveTranslationFile(app, '.', 'locales/en.json')).toBe(join(app, 'locales/en.json'))
 })
 
 test('config reports the locales found in translationDir and the configured default', async () => {

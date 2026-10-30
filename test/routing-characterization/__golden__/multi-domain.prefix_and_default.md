@@ -23,9 +23,9 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | null | null | null | null |
-| /about | about | en | about | about | null | null | null | null |
-| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | null | null | null | null |
+| / | index | en | index | index | null | null | en | null |
+| /about | about | en | about | about | null | null | en | null |
+| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | null | null | en | null |
 | /de | localized-index | de | index | index | null | de | de | null |
 | /de/blog/hello-world | localized-blog-slug | de | blog-slug | blog-slug | null | de | de | null |
 | /de/ueber-uns | localized-about-de | de | about | about | null | de | de | null |
@@ -37,11 +37,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
 | /en/ | localized-index | en | index | index | null | en | en | null |
 | /de/ | localized-index | de | index | index | null | de | de | null |
-| /about/ | about | en | about | about | null | null | null | null |
+| /about/ | about | en | about | about | null | null | en | null |
 | /de/about/ | null | de | about | about | null | de | de | null |
-| /missing | null | en |  | null | null | null | null | null |
+| /missing | null | en |  | null | null | null | en | null |
 | /de/missing | null | de |  | null | null | de | de | null |
-| /xx/about | null | en |  | null | null | null | null | null |
+| /xx/about | null | en |  | null | null | null | en | null |
 | /de/de/about | null | de |  | null | null | de | de | null |
 
 ## To en

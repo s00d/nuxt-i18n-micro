@@ -21,10 +21,16 @@ export interface I18nIntegrationOptions {
 
 export { getGlobalRoutingStrategy, runWithRoutingStrategy, setGlobalRoutingStrategy } from './routing-context'
 
+/** Options that moved to the server bundle: passing one here would silently lose it. */
+const MOVED_OPTIONS = ['messages', 'plural', 'missingHandler', 'routingStrategy']
+
 /**
  * Astro Integration for i18n-micro
  */
 export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration {
+  const moved = MOVED_OPTIONS.find((key) => (options as unknown as Record<string, unknown>)[key] !== undefined)
+  if (moved)
+    throw new Error(`[i18n-micro] i18nIntegration no longer takes "${moved}": pass it to createI18n / createI18nMiddleware in src/middleware.ts`)
   const { locale: defaultLocale, fallbackLocale, translationDir } = options
 
   return {

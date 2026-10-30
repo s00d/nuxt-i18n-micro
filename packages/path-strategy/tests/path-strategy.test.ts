@@ -176,7 +176,10 @@ describe('reading a URL', () => {
     expect(i18n.getCurrentLocale(at('/de/ueber-uns'))).toBe('de')
     expect(i18n.getCurrentLocale(at('/about-us'))).toBe('en')
     expect(i18n.getCurrentLocaleName(at('/fr'))).toBe('Français')
-    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/'), 'fr')).toBe('fr')
+    // an unprefixed URL is the default locale's page, as the server renders it: a stored locale does not move it
+    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/'), 'fr')).toBe('en')
+    expect(setup('prefix_and_default').i18n.getCurrentLocale(setup('prefix_and_default').at('/about-us'), 'fr')).toBe('en')
+    expect(setup('prefix_and_default').i18n.resolveLocaleFromPath('/x')).toBe('en')
     expect(setup('no_prefix').i18n.getCurrentLocale(setup('no_prefix').at('/ueber-uns'), 'de')).toBe('de')
     expect(setup('prefix', { hashMode: true }).i18n.getCurrentLocale(setup('prefix').at('/de'), null)).toBe('en')
   })

@@ -25,11 +25,11 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /about | about | en | about | about | English | null | null | null |
-| /blog | blog | en | blog | blog | English | null | null | null |
-| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
-| /contact | contact | en | contact | contact | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /about | about | en | about | about | English | null | en | null |
+| /blog | blog | en | blog | blog | English | null | en | null |
+| /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | en | null |
+| /contact | contact | en | contact | contact | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/about | localized-about | de | about | about | Deutsch | de | de | null |
 | /de/blog | localized-blog | de | blog | blog | Deutsch | de | de | null |
@@ -47,11 +47,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr/contact | localized-contact | fr | contact | contact | Français | fr | fr | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | about | en | about | about | English | null | null | null |
+| /about/ | about | en | about | about | English | null | en | null |
 | /de/about/ | localized-about | de | about | about | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de | about | about | Deutsch | de | de | null |
 
 ## To en

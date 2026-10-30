@@ -50,6 +50,13 @@ export interface CreateBridgeOptions {
   base?: string
 }
 
+/** A chunk with saves in flight: they run one by one, so `committed` is what the disk holds. */
+interface ChunkSaves {
+  committed: TranslationContent | undefined
+  latest: number
+  tail: Promise<void>
+}
+
 /** A static host (preview build) answers a POST to a missing endpoint with one of these. */
 const NO_ENDPOINT = new Set([404, 405])
 
@@ -90,9 +97,10 @@ async function saveToDisk(base: string, realFilePath: string, content: Translati
  * This bridge works with any framework by using an adapter pattern
  */
 export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
-  const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales', base = '/__i18n_api' } = options
-  /** The newest save per chunk: an older save that fails must not roll a newer edit back. */
-  const latestSaves = new Map<string, number>()
+  const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales' } = options
+  // no trailing slash: `/` + `/save` would be `//save`, a protocol-relative URL
+  const base = (options.base ?? '/__i18n_api').replace(/\/+$/, '')
+  const chunkSaves = new Map<string, ChunkSaves>()
 
   // Helper function to build locale data from cache
   const buildLocaleData = (): LocaleData => {
@@ -134,6 +142,38 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
     return null
   }
 
+  /**
+   * Hot-updates the chunk, then saves after the chunk's earlier saves. Only the newest edit of a
+   * failed run rolls back, to the last save that reached the disk; an older failure leaves it alone.
+   */
+  const applyAndSave = async (
+    write: NonNullable<ReturnType<typeof hotWriter>>,
+    content: TranslationContent,
+    persist: () => Promise<void>,
+  ): Promise<void> => {
+    const chunk = chunkSaves.get(write.cacheKey) ?? { committed: adapter.getRouteCache()[write.cacheKey], latest: 0, tail: Promise.resolve() }
+    chunkSaves.set(write.cacheKey, chunk)
+    const save = ++chunk.latest
+    write.apply(content)
+
+    const saved = chunk.tail.then(persist)
+    chunk.tail = saved
+      .then(
+        () => {
+          chunk.committed = content
+        },
+        () => {
+          if (chunk.latest === save) write.apply(chunk.committed ?? {})
+        },
+      )
+      .then(() => {
+        // idle again: the next edit starts from the live cache, which HMR may have changed
+        if (chunk.latest === save) chunkSaves.delete(write.cacheKey)
+      })
+    await chunk.tail
+    await saved
+  }
+
   return {
     async getLocalesAndTranslations(): Promise<LocaleData> {
       return buildLocaleData()
@@ -155,21 +195,9 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
         const write = hotWriter(normalizedPath)
         if (!write) throw new Error(`Unknown file path format: ${filePath}`)
 
-        // 1. Hot update in memory, keeping what was there so a failed disk save can put it back
-        const previous = adapter.getRouteCache()[write.cacheKey]
-        const save = (latestSaves.get(write.cacheKey) ?? 0) + 1
-        latestSaves.set(write.cacheKey, save)
-        write.apply(content)
-
-        // 2. Save to disk; the app must not keep an edit that is neither on disk nor in localStorage
+        // The app must not keep an edit that is neither on disk nor in localStorage
         const realFilePath = translationDir ? `${translationDir}/${normalizedPath}` : normalizedPath
-        try {
-          await saveToDisk(base, realFilePath, content, filePath)
-        } catch (error) {
-          // ponytail: when an older save failed too, the newest rolls back to that edit; a queue per chunk would fix it
-          if (latestSaves.get(write.cacheKey) === save) write.apply(previous ?? {})
-          throw error
-        }
+        await applyAndSave(write, content, () => saveToDisk(base, realFilePath, content, filePath))
       } catch (error) {
         throw new Error(`Failed to save: ${error instanceof Error ? error.message : String(error)}`)
       }

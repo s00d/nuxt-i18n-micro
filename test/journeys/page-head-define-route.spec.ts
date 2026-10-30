@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import { describe, expect, test } from 'untestutils/vitest'
 
-// `use-i18n-head` fixture: pec, en (en-US) / fr (fr-FR), meta true.
+// seo fixture, SEO_VARIANT=use-i18n-head: pec, en (en-US) / fr (fr-FR), meta true.
 // /test is restricted to en by $defineI18nRoute; /product has localeRoutes (/our-products, /nos-produits)
 // and the detail page sets per-locale slugs with $setI18nRouteParams.
 const EN_DESCRIPTION = 'Discover our collection of high-quality products designed to meet your needs and exceed your expectations.'
@@ -28,7 +28,7 @@ async function expectMetaIds(page: Page, base: string, m: MetaIds) {
 }
 
 describe('J7 $defineI18nRoute page head', () => {
-  test.override({ harness: 'use-i18n-head' })
+  test.override({ harness: 'seo-use-i18n-head' })
 
   test('D-T1: a page restricted to en has en-only alternates and no fr route', async ({ page, goto, request, baseURL }) => {
     const base = baseURL!.replace(/\/$/, '')

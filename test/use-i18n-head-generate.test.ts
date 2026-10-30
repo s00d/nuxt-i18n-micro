@@ -1,5 +1,5 @@
 /**
- * useI18nHead on a static site: `nuxi generate` of the use-i18n-head fixture, then the prerendered
+ * useI18nHead on a static site: `nuxi generate` of the seo fixture (SEO_VARIANT=use-i18n-head), then the prerendered
  * HTML and the served site in a browser. The same scenarios on a server build (SSR head, SPA
  * navigation, the client-fetched /reactive page) are the journey test/journeys/page-head-use-i18n-head.spec.ts.
  */
@@ -17,7 +17,7 @@ import { isolatedBuild } from './helpers/isolated-build'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
-const build = isolatedBuild('use-i18n-head', 'use-i18n-head-generate')
+const build = isolatedBuild('seo', 'use-i18n-head-generate')
 const FIXTURES = build.fixtureDir
 const OUTPUT_DIR = build.outputDir
 const OUTPUT_PUBLIC = build.publicDir
@@ -26,7 +26,7 @@ const HOST = '127.0.0.1'
 function runGenerate(): Promise<string> {
   return runCommand('npx', ['nuxi', 'generate'], {
     cwd: FIXTURES,
-    env: build.env,
+    env: { ...build.env, SEO_VARIANT: 'use-i18n-head' },
   })
 }
 

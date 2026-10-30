@@ -47,7 +47,8 @@ export const recipes = defineRecipes(
     content: app('content'),
     'nuxt-seo': app('nuxt-seo'),
     seo: app('seo'),
-    'use-i18n-head': app('use-i18n-head'),
+    // useI18nHead scenarios: pec en/fr with prerendered, ISR and SPA route rules
+    'seo-use-i18n-head': app('seo-use-i18n-head', 'seo', { SEO_VARIANT: 'use-i18n-head' }),
     'seo-trailing-slash': app('seo-trailing-slash', 'seo', undefined, { i18n: { trailingSlash: 'append' } }),
 
     // LOCALE_COOKIE on all four: the force-locale plugin (header x-test-force-locale) writes `user-locale`,

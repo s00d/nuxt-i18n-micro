@@ -2,7 +2,7 @@ import { emulateDomain } from 'untestutils/utils'
 import { describe, expect, test } from 'untestutils/vitest'
 import { assertI18nHeadScenario, i18nHeadScenarios, i18nHeadStaticPages } from '../helpers/i18n-head-seo'
 
-// `use-i18n-head` fixture: pec, en (en-US) / fr (fr-FR); every page overrides parts of the head with useI18nHead().
+// seo fixture, SEO_VARIANT=use-i18n-head: pec, en (en-US) / fr (fr-FR); every page overrides parts of the head with useI18nHead().
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const meta = (property: string, content: string) => new RegExp(`<meta[^>]*property="${property}"[^>]*content="${esc(content)}"`)
 const metaName = (name: string, content: string) => new RegExp(`<meta[^>]*name="${name}"[^>]*content="${esc(content)}"`)
@@ -111,7 +111,7 @@ const ssrCases: SsrCase[] = [
 ]
 
 describe('J7 useI18nHead page head', () => {
-  test.override({ harness: 'use-i18n-head' })
+  test.override({ harness: 'seo-use-i18n-head' })
 
   test('U-T1: SSR head of every useI18nHead scenario', async ({ request }) => {
     for (const c of ssrCases) {

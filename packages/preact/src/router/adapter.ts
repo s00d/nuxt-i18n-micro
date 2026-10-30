@@ -1,4 +1,4 @@
-import { localizedPath } from '@i18n-micro/core'
+import { localizedPath, routeQuery } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy } from '../../../react/src/injection'
 
@@ -27,6 +27,6 @@ export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: st
     push: (target) => go('pushState', target.path),
     replace: (target) => go('replaceState', target.path),
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath: fullPath(), query: Object.fromEntries(new URLSearchParams(here()?.search)) }),
+    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(here()?.search) }),
   }
 }

@@ -1,11 +1,33 @@
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import llmstxt from 'vitepress-plugin-llms'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
+import { redirects, redirectTarget } from './redirects'
 import { SITE, transformHead } from './seo'
 
 const docsBase = process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/'
+
+/** A page at an old URL that sends crawlers and external links to its new route. */
+function redirectStub(target: string): string {
+  const canonical = new URL(target, SITE.url).href
+  const keepHash = !target.includes('#')
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moved</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${canonical}">
+<meta http-equiv="refresh" content="0; url=${target}">
+<script>location.replace(${JSON.stringify(target)}${keepHash ? ' + location.hash' : ''})</script>
+</head>
+<body><p>This page has moved to <a href="${target}">${target}</a>.</p></body>
+</html>
+`
+}
 
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(
@@ -53,6 +75,19 @@ export default withFolderTree(
       base: docsBase,
 
       transformHead,
+
+      // A link to a moved page still works: the redirect map sends it on.
+      ignoreDeadLinks: [(url: string) => redirectTarget(url) !== undefined],
+
+      buildEnd(site) {
+        for (const [from, to] of Object.entries(redirects)) {
+          const file = join(site.outDir, from.endsWith('/') ? `${from}index.html` : `${from}.html`)
+          // A page rendered at the old route means the map is stale; a stub would hide it.
+          if (existsSync(file)) throw new Error(`redirects.ts: ${from} is still a page; remove the entry or the page.`)
+          mkdirSync(dirname(file), { recursive: true })
+          writeFileSync(file, redirectStub(`${site.site.base}${to.slice(1)}`))
+        }
+      },
 
       sitemap: {
         hostname: 'https://s00d.github.io',

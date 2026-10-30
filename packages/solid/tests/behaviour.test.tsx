@@ -132,6 +132,12 @@ describe('I18nT', () => {
     expect(scoped.textContent).toBe('[Hallo]')
   })
 
+  test('a locale code that is no language tag plurals by its iso', () => {
+    const i18n = createI18n({ locale: 'ua', messages: { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } } })
+    const container = withI18n(i18n, () => <I18nT keypath="apples" plural={21} />, { locales: [{ code: 'ua', iso: 'uk-UA' }] })
+    expect(container.textContent).toBe('21 яблуко')
+  })
+
   test('dates go through the timeZone option', () => {
     const tz = (timeZone: string) => withI18n(instance({ timeZone }), () => <I18nT keypath="posted" date={WHEN} />).textContent
     expect(tz('UTC')).toBe('Posted 1/15/2024')

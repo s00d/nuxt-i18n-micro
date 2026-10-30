@@ -42,13 +42,17 @@
 - `plural + slot` → <span>2 items in <b>A</b></span>
 - `plural + html` → <span><b>&lt;i&gt;</b> new</span>
 - `plural missing + default` → <span>dv</span>
-- `plural ru 1` → <span>яблоко</span>
-- `plural ru 2` → <span>яблока</span>
+- `plural ru 1` → <span>яблока</span>
+- `plural ru 2` → <span>яблок</span>
 - `plural ru 5` → <span>яблок</span>
-- `plural ru 21` → <span>яблоко</span>
+- `plural ru 21` → <span>яблок</span>
 - `plural ru zero-first 0` → <span>нет яблок</span>
 - `plural ru zero-first 1` → <span>одно яблоко</span>
 - `plural ru zero-first 21` → <span>21 яблок</span>
+- `plural ru marked 0` → <span>нет</span>
+- `plural ru marked 21` → <span>21 яблоко</span>
+- `plural ru marked 22` → <span>22 яблока</span>
+- `customPluralRule marked` → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
 - `customPluralRule` → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
 - `customPluralRule null` → <span></span>
 - `customPluralRule miss` → <span>en:4:nope:{}</span>

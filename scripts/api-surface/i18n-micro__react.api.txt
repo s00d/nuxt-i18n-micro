@@ -1295,11 +1295,14 @@ member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMe
 member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
+member ReactI18n.localeIso: private any
 member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected () => void
 member ReactI18n.pluralFunc: PluralFunc
+member ReactI18n.pluralLocale: () => string
+member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string

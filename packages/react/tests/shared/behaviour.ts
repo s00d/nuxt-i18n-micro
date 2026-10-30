@@ -150,6 +150,12 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(scoped.container.textContent).toBe('[Hello]')
     })
 
+    test('a locale code that is no language tag plurals by its iso', () => {
+      const i18n = createI18n({ locale: 'ua', messages: { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } } })
+      const { container } = render(h(I18nProvider, { i18n, locales: [{ code: 'ua', iso: 'uk-UA' }] }, h(I18nT, { keypath: 'apples', plural: 21 })))
+      expect(container.textContent).toBe('21 яблуко')
+    })
+
     test('dates go through the timeZone option', () => {
       const tz = (timeZone: string) => {
         const { container, unmount } = render(withI18n(instance({ timeZone }), h(I18nT, { keypath: 'posted', date: WHEN })))
@@ -407,6 +413,11 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       const { pushes, anchor } = link({ onClick: (event: Event) => event.preventDefault() })
       fireEvent.click(anchor)
       expect(pushes).toEqual([])
+    })
+
+    test('an external link keeps a target or rel of its own', () => {
+      const { anchor } = link({ to: 'https://e.com', target: '_self', rel: 'me' })
+      expect([anchor.getAttribute('target'), anchor.getAttribute('rel')]).toEqual(['_self', 'me'])
     })
 
     test('external links keep onClick', () => {

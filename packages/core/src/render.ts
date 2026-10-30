@@ -26,13 +26,16 @@ export interface I18nTRenderProps extends ResolveTextOptions {
 
 /** Attributes that would set the content, and with it get past the `html` prop. */
 const CONTENT_ATTRS = ['innerHTML', 'textContent', '.innerHTML', '.textContent', 'dangerouslySetInnerHTML']
-const VUE_DATED = { 'data-allow-mismatch': 'text' }
+
+/** A clock or time zone differs between server and browser: such text may, and Vue need not warn. */
+const ALLOW_DATE_MISMATCH = { 'data-allow-mismatch': 'text' }
+
+const isDated = (props: I18nTRenderProps): boolean => (props.date ?? props.relativeDate ?? null) !== null && (props.number ?? null) === null
 
 function elementAttrs(api: RenderApi, props: I18nTRenderProps, attrs: Record<string, unknown>): Record<string, unknown> {
-  const dated = (props.date ?? props.relativeDate ?? null) !== null && (props.number ?? null) === null
+  const dated = isDated(props)
   if (!dated && !CONTENT_ATTRS.some((name) => name in attrs)) return attrs
-  // A clock or time zone differs between server and browser: their text may, and the renderer need not warn.
-  const safe: Record<string, unknown> = dated ? { ...(api.dated ?? VUE_DATED), ...attrs } : { ...attrs }
+  const safe: Record<string, unknown> = dated ? { ...(api.dated ?? ALLOW_DATE_MISMATCH), ...attrs } : { ...attrs }
   for (const name of CONTENT_ATTRS) delete safe[name]
   return safe
 }
@@ -47,6 +50,7 @@ export function foldTemplate(
   template: string,
   params: Record<string, unknown>,
   slots: RenderSlots,
+  textChild: (text: string) => unknown = (text) => text,
 ): unknown {
   if (template.indexOf('{') === -1) return template
   const parts = tokenize(template)
@@ -66,12 +70,12 @@ export function foldTemplate(
     seen ??= new Map()
     const occurrence = (seen.get(name) ?? 0) + 1
     seen.set(name, occurrence)
-    if (text) children.push(text)
+    if (text) children.push(textChild(text))
     children.push(renderSlot(slot, `${name}:${occurrence}`))
     text = parts[i + 1]!
   }
   if (!children) return text
-  if (text) children.push(text)
+  if (text) children.push(textChild(text))
   return children
 }
 
@@ -89,7 +93,9 @@ export function renderI18nT(api: RenderApi, i18n: TextHost, props: I18nTRenderPr
   if (slots.default) return api.h(tag, element, slots.default({ translation: interpolate(template, params) }))
   // called, not `h(slot)`: that makes the slot a component whose type changes with each slot object
   const renderSlot = (slot: RenderSlot, key: string) => api.h(api.Fragment, { key }, slot({}) as never)
-  return api.h(tag, element, foldTemplate(renderSlot, template, params, slots))
+  // Vue checks the attribute on an element's only text, not on a text beside other nodes
+  const textChild = !api.dated && isDated(props) ? (text: string) => api.h('span', ALLOW_DATE_MISMATCH, text) : undefined
+  return api.h(tag, element, foldTemplate(renderSlot, template, params, slots, textChild))
 }
 
 type Style = object
@@ -233,6 +239,7 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
         {
           class: `switcher-locale-${locale.code}`,
           href: adapter.href(locale.code),
+          'aria-current': active ? 'page' : undefined,
           hreflang: language,
           lang: language,
           dir: locale.dir,

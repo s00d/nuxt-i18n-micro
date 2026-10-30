@@ -17,11 +17,14 @@ member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member BaseI18n.localeIso: private Record<string, string>
 member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
 member BaseI18n.onTranslationsChanged: protected () => void
 member BaseI18n.pluralFunc: PluralFunc
+member BaseI18n.pluralLocale: () => string
+member BaseI18n.pluralTag: private (locale: string) => string
 member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -43,6 +46,7 @@ member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
+member BaseI18nOptions.localeIso?: Record<string, string> | undefined
 member BaseI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18nOptions.missingWarn?: boolean | undefined
 member BaseI18nOptions.numberFormats?: NumberFormatsConfig | undefined
@@ -89,6 +93,7 @@ const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_
 const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
 const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 const isSamePage: (a: string, b: string) => boolean
+const localeIsoMap: (locales: readonly { code: string; iso?: string; }[]) => Record<string, string>
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
@@ -130,6 +135,7 @@ function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
 member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string
@@ -204,6 +210,7 @@ const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_
 const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
 const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 const isSamePage: (a: string, b: string) => boolean
+const localeIsoMap: (locales: readonly { code: string; iso?: string; }[]) => Record<string, string>
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
@@ -229,6 +236,7 @@ function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
 member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string
@@ -296,6 +304,7 @@ member SwitcherVue.ref: <T>(value: T) => { value: T; }
 interface TextHost
 member TextHost.getLocale: () => string
 member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string

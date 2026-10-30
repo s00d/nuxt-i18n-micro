@@ -1,3 +1,4 @@
+import { localeIsoMap } from '@i18n-micro/core'
 import { createI18n, type I18n, type I18nOptions } from '@i18n-micro/runtime'
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { h, type HostElement, type HostNode, useContext, useMemo, useRef, useState, useStore } from '#host'
@@ -16,17 +17,18 @@ export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, ch
   const outer = useContext(I18nContext)
   // A new `locale` prop comes with its own messages. Keyed by it alone: an inline `messages` object must not reset the instance.
   const own = useMemo(() => (i18n ? null : createI18n(options as I18nOptions)), [i18n, options.locale])
-  const value = useMemo<I18nContextValue>(
-    () => ({
-      i18n: i18n ?? own!,
+  const value = useMemo<I18nContextValue>(() => {
+    const instance = i18n ?? own!
+    if (locales) instance.setLocaleIso(localeIsoMap(locales))
+    return {
+      i18n: instance,
       // an omitted prop leaves the outer provider's value in place
       locales: locales ?? outer?.locales ?? null,
       defaultLocale: defaultLocale ?? outer?.defaultLocale ?? null,
       router: routingStrategy ?? outer?.router ?? null,
       api: null,
-    }),
-    [i18n, own, locales, defaultLocale, routingStrategy, outer],
-  )
+    }
+  }, [i18n, own, locales, defaultLocale, routingStrategy, outer])
   return h(I18nContext.Provider, { value }, children)
 }
 

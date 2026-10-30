@@ -12,6 +12,8 @@ describe('externalLinkHref', () => {
     ['www.example.com', 'https://www.example.com'],
     ['example.com/report.pdf', 'https://example.com/report.pdf'],
     ['example.com?x=1', 'https://example.com?x=1'],
+    ['example.com:8080', 'https://example.com:8080'],
+    ['example.com:8080/a', 'https://example.com:8080/a'],
     ['HTTPS://example.com', 'HTTPS://example.com'],
     ['Mailto:hi@example.com', 'Mailto:hi@example.com'],
     ['TEL:+100', 'TEL:+100'],

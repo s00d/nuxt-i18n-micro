@@ -27,6 +27,8 @@ export interface I18nOptions {
   timeZone?: string
   /** The clock of relative dates: hand hydration the server's time so both render one text. */
   now?: () => number
+  /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. */
+  localeIso?: Record<string, string>
 }
 
 export class I18n extends BaseI18n {
@@ -47,6 +49,7 @@ export class I18n extends BaseI18n {
       datetimeFormats: options.datetimeFormats,
       timeZone: options.timeZone,
       now: options.now,
+      localeIso: options.localeIso,
     })
 
     this.storage = storage

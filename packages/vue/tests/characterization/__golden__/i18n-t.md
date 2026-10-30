@@ -131,17 +131,17 @@
   - vue → <span>dv</span>
   - nuxt → <span>dv</span>
 - `plural ru 1`
-  - vue → <span>яблоко</span>
-  - nuxt → <span>яблоко</span>
-- `plural ru 2`
   - vue → <span>яблока</span>
   - nuxt → <span>яблока</span>
+- `plural ru 2`
+  - vue → <span>яблок</span>
+  - nuxt → <span>яблок</span>
 - `plural ru 5`
   - vue → <span>яблок</span>
   - nuxt → <span>яблок</span>
 - `plural ru 21`
-  - vue → <span>яблоко</span>
-  - nuxt → <span>яблоко</span>
+  - vue → <span>яблок</span>
+  - nuxt → <span>яблок</span>
 - `plural ru zero-first 0`
   - vue → <span>нет яблок</span>
   - nuxt → <span>нет яблок</span>
@@ -151,6 +151,18 @@
 - `plural ru zero-first 21`
   - vue → <span>21 яблок</span>
   - nuxt → <span>21 яблок</span>
+- `plural ru marked 0`
+  - vue → <span>нет</span>
+  - nuxt → <span>нет</span>
+- `plural ru marked 21`
+  - vue → <span>21 яблоко</span>
+  - nuxt → <span>21 яблоко</span>
+- `plural ru marked 22`
+  - vue → <span>22 яблока</span>
+  - nuxt → <span>22 яблока</span>
+- `customPluralRule marked`
+  - vue → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
+  - nuxt → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
 - `customPluralRule`
   - vue → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
   - nuxt → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>

@@ -1,5 +1,6 @@
+import { localeIsoMap } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
-import { type JSX, type ParentComponent, useContext } from 'solid-js'
+import { createComputed, type JSX, type ParentComponent, useContext } from 'solid-js'
 import type { SolidI18n } from './i18n'
 import { I18nContext } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
@@ -28,6 +29,9 @@ export const I18nProvider: ParentComponent<I18nProviderProps> = (props): JSX.Ele
       return props.routingStrategy ?? outer?.router
     },
   }
+  createComputed(() => {
+    if (props.locales) props.i18n.setLocaleIso(localeIsoMap(props.locales))
+  })
   return <I18nContext.Provider value={value}>{props.children}</I18nContext.Provider>
 }
 

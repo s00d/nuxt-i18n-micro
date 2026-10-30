@@ -5,10 +5,16 @@ export interface JsonObject {
 
 export const isObject = (value: unknown): value is JsonObject => typeof value === 'object' && value !== null && !Array.isArray(value)
 
+/** A lookup by a name from outside: `constructor` is not an entry of a table. */
+export const ownValue = <T>(table: Record<string, T>, name: string): T | undefined => (Object.hasOwn(table, name) ? table[name] : undefined)
+
 const isEmptyObject = (value: unknown): boolean => isObject(value) && Object.keys(value).length === 0
 
-/** `{ a: { b: 'x' } }` -> `{ 'a.b': 'x' }`. Arrays and empty objects are leaves. */
-export function flatten(tree: JsonObject, prefix = '', out: Record<string, JsonValue> = {}): Record<string, JsonValue> {
+/**
+ * `{ a: { b: 'x' } }` -> `{ 'a.b': 'x' }`. Arrays and empty objects are leaves. No prototype:
+ * callers look keys up in the result, and `constructor` is a key like any other.
+ */
+export function flatten(tree: JsonObject, prefix = '', out: Record<string, JsonValue> = Object.create(null)): Record<string, JsonValue> {
   for (const [key, value] of Object.entries(tree)) {
     const path = prefix ? `${prefix}.${key}` : key
     if (isObject(value) && !isEmptyObject(value)) flatten(value, path, out)
@@ -19,7 +25,7 @@ export function flatten(tree: JsonObject, prefix = '', out: Record<string, JsonV
 
 /** Only the string leaves: the part of a tree that is text to translate. */
 export function flattenStrings(tree: JsonObject): Record<string, string> {
-  const out: Record<string, string> = {}
+  const out: Record<string, string> = Object.create(null)
   for (const [key, value] of Object.entries(flatten(tree))) {
     if (typeof value === 'string') out[key] = value
   }

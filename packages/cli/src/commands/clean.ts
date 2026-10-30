@@ -61,6 +61,12 @@ function sharedLocaleFiles(config: ProjectConfig): string[] {
   return walkFiles(config.translationDir, (path) => path.endsWith('.json')).filter((file) => relative(root, realpathSync(file)).startsWith('..'))
 }
 
+/** Nothing scanned proves nothing: no flag changes that. */
+export function assertScanned(scan: ProjectScan): void {
+  if (scan.files === 0)
+    throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
+}
+
 const describe = ({ code, scope, key }: UnusedKey): string => `${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`
 
 export default async function run(args: CleanArgs): Promise<void> {
@@ -69,9 +75,7 @@ export default async function run(args: CleanArgs): Promise<void> {
   const exclude = regexFrom(args.exclude, 'exclude')
   const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
 
-  if (scan.files === 0) {
-    throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
-  }
+  assertScanned(scan)
 
   const doubts = deletionDoubts(project, scan)
   for (const doubt of doubts) log.warn(doubt)

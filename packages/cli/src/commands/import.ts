@@ -6,7 +6,7 @@ import { readText, walkFiles } from '../fs'
 import { log } from '../log'
 import { parsePo } from '../po'
 import { GLOBAL_SCOPE, Project } from '../project'
-import { defaultExchangeDir } from './export'
+import { defaultExchangeDir, readManifest } from './export'
 
 export interface ImportArgs {
   cwd?: string
@@ -23,14 +23,25 @@ interface Entry {
   value: string
 }
 
+/** Only where `export` puts a catalog: a backup in a subfolder must not land on the global file. */
 function poScope(file: string, dir: string): string {
   const parts = relative(dir, dirname(file)).split(sep).filter(Boolean)
-  return parts[0] === 'pages' ? parts.slice(1).join('/') : GLOBAL_SCOPE
+  if (parts.length === 0) return GLOBAL_SCOPE
+  if (parts[0] === 'pages' && parts.length > 1) return parts.slice(1).join('/')
+  throw validationError(`Not a place for a catalog: ${relative(dir, file)}`, ['Expected <locale>.po or pages/<page>/<locale>.po.'])
+}
+
+/** A page's catalog the last export did not write: the page is gone, and importing would bring it back. */
+function assertExported(file: string, dir: string, exported: string[]): void {
+  const name = relative(dir, file).split(sep).join('/')
+  if (exported.length === 0 || exported.includes(name)) return
+  throw validationError(`Not part of the last export: ${name}`, ['Delete the file, or restore the page and export again.'])
 }
 
 function readPo(project: Project, dir: string): Entry[] {
   const files = walkFiles(dir, (path) => path.endsWith('.po'))
   if (files.length === 0) throw notFoundError(`No PO files in ${dir}`)
+  const exported = Object.keys(readManifest(dir)).filter((name) => name.endsWith('.po'))
   return files.flatMap((file) => {
     const code = basename(file, '.po')
     if (!project.codes.includes(code)) {
@@ -41,6 +52,7 @@ function readPo(project: Project, dir: string): Entry[] {
     const guesses = Object.keys(fuzzy)
     if (guesses.length > 0) log.warn(`Skipping ${guesses.length} fuzzy entries in ${file}: ${guesses.join(', ')}`)
     const scope = poScope(file, dir)
+    if (scope !== GLOBAL_SCOPE) assertExported(file, dir, exported)
     return Object.entries(messages).map(([key, value]) => ({ code, scope, key, value }))
   })
 }
@@ -61,7 +73,7 @@ function csvColumns(header: string[] | undefined, path: string): { file: number;
 }
 
 function readCsvFile(path: string, code: string): Entry[] {
-  const [header, ...rows] = parseCsv(readText(path))
+  const [header, ...rows] = parseCsv(readText(path), path)
   const columns = csvColumns(header, path)
   return rows.map((row) => {
     const [file, key, value] = [row[columns.file], row[columns.key], row[columns.translation]]
@@ -83,6 +95,11 @@ export default async function run(args: ImportArgs): Promise<void> {
 
   // An empty cell says nothing about the existing value.
   const filled = entries.filter((entry) => entry.value !== '')
+  if (project.config.disablePageLocales && filled.some((entry) => entry.scope !== GLOBAL_SCOPE)) {
+    throw validationError('disablePageLocales is on: the app would never read page translations.', [
+      'Remove the page entries, or turn the option off.',
+    ])
+  }
   const conflicts = filled.flatMap(({ code, scope, key, value }) => {
     const conflict = project.locale(code).set(key, value, scope)
     return conflict ? [`${code} ${key}: ${conflict} already holds a value`] : []

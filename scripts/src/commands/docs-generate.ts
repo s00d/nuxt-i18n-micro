@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { defineCommand } from 'citty'
 import { indexSnapshot } from '../utils/api-surface'
 import { parseComponent } from '../utils/component-docs'
@@ -395,8 +396,8 @@ interface CliSpec {
   REMOVED_COMMANDS: Record<string, string>
 }
 
-/** On every project command, so the reference states them once. */
-const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug', 'translationDir'])
+/** On every command, so the reference states them once. */
+const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug'])
 
 const cliFlag = (name: string, arg: CliArg): string => code(arg.type === 'positional' ? `<${name}>` : `--${name}`) + (arg.required ? ' **\\***' : '')
 
@@ -429,8 +430,8 @@ function cliCommandBlock(name: string, command: CliCommand): string {
  * Through a computed path: this package has no dependency on the CLI, and a static import
  * would pull every command's parser into the type-check of the tooling.
  */
-async function cliReference(): Promise<string> {
-  const spec = (await import(/* @vite-ignore */ join(repoRoot, 'packages/cli/src/spec.ts'))) as CliSpec
+export async function cliReference(): Promise<string> {
+  const spec = (await import(/* @vite-ignore */ pathToFileURL(join(repoRoot, 'packages/cli/src/spec.ts')).href)) as CliSpec
   const { COMMAND_GROUPS, commands, LINT_RULES, EXIT_CODES, CONFIG_FILES, ENVIRONMENT, REMOVED_COMMANDS } = spec
   const entries = Object.entries(commands)
   const common = entries.flatMap(([, command]) => Object.entries(command.args)).filter(([name]) => CLI_COMMON_FLAGS.has(name))

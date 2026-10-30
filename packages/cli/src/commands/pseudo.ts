@@ -11,10 +11,11 @@ export interface PseudoArgs {
   replace?: boolean
 }
 
+/** Tags, masked placeholders among them, and entities are markup: split on them, the odd chunks are theirs. */
 const elongate = (text: string): string =>
   text
-    .split(/(<v\d+\/>)/)
-    .map((chunk) => (/^<v\d+\/>$/.test(chunk) ? chunk : chunk.replace(/[a-z]/gi, '$&$&')))
+    .split(/(<\/?[a-z][^<>]*>|&#?\w+;)/i)
+    .map((chunk, index) => (index % 2 === 1 ? chunk : chunk.replace(/[a-z]/gi, '$&$&')))
     .join('')
 
 export function pseudoLocalize(text: string): string {
@@ -38,7 +39,7 @@ export default async function run(args: PseudoArgs): Promise<void> {
   for (const scope of source.scopes) {
     for (const [key, value] of Object.entries(source.strings(scope))) {
       const current = target.get(key, scope)
-      const kept = !args.replace && typeof current === 'string' && current.trim() !== ''
+      const kept = !args.replace && current !== undefined && (typeof current !== 'string' || current.trim() !== '')
       const conflict = kept ? null : target.set(key, pseudoLocalize(value), scope)
       if (conflict) log.warn(`Skipping ${key}: ${conflict} already holds a value.`)
       if (kept || conflict) skipped += 1

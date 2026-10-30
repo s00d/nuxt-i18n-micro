@@ -25,9 +25,11 @@ export function restore(masked: string, tokens: string[]): string {
   return out
 }
 
-/** A placeholder lost or still masked after translation: such a value must not reach a locale file. */
+const bag = (items: string[]): string => [...items].sort().join('\u0000')
+
+/** A placeholder lost, repeated, added or still masked after translation: such a value must not reach a locale file. */
 export const isIntact = (translated: string, tokens: string[]): boolean =>
-  !/<\s*\/?\s*v\d+\s*\/?\s*>/i.test(translated) && tokens.every((token) => translated.includes(token))
+  !/<\s*\/?\s*v\d+\s*\/?\s*>/i.test(translated) && bag(translated.match(PLACEHOLDER) ?? []) === bag(tokens)
 
 const ENTITIES: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': `'`, '&#x27;': `'` }
 

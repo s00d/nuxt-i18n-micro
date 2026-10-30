@@ -51,7 +51,7 @@ export const EXIT_CODES: ReadonlyArray<readonly [code: number, meaning: string]>
   [0, 'Done, nothing to report'],
   [
     1,
-    'Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict',
+    'Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict. A `--dryRun` of `clean`, `sync` or a `sync-remote` pull reports these and exits `0`',
   ],
   [2, 'Failure: bad usage, unreadable project, network or file error'],
 ]
@@ -310,7 +310,7 @@ export const commands: Record<string, CommandSpec> = {
       ...projectArgs,
       pull: { type: 'boolean', description: 'Pull from the remote', default: true },
       push: { type: 'boolean', description: 'Push to the remote', default: false },
-      force: { type: 'boolean', description: 'On a conflict, take the remote value', default: false },
+      force: { type: 'boolean', description: 'On a pull, take the remote value; on a push, overwrite text only the remote holds', default: false },
       dryRun: { type: 'boolean', description: 'Report what a pull would change; write and push nothing', default: false },
     },
     examples: ['i18n-micro sync-remote --dryRun', 'i18n-micro sync-remote --no-pull --push'],

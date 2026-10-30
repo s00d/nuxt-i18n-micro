@@ -4,7 +4,7 @@ import { splitList } from '../fs'
 import { flattenStrings, getPath } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
-import { type ProjectScan, scanProject, usageIndex } from '../source'
+import { type ProjectScan, scanProject, usageDoubts, usageIndex } from '../source'
 
 export interface SearchArgs {
   cwd?: string
@@ -46,8 +46,12 @@ function matchesOf(project: Project, scan: ProjectScan, args: SearchArgs): Searc
     return keys.flatMap((key): SearchMatch[] => {
       const values = byLocale.map(([, strings]) => strings[key] ?? '')
       const used = isUsed(key)
-      const inherited = project.codes.some((code) => getPath(project.locale(code).inheritedTree(scope), key) !== undefined)
-      if (args.onlyUnused && (used || inherited)) return []
+      // The same question as `clean`, locale by locale: an override next to a layer's key is removable.
+      const removable = project.codes.some((code) => {
+        const locale = project.locale(code)
+        return locale.get(key, scope) !== undefined && getPath(locale.inheritedTree(scope), key) === undefined
+      })
+      if (args.onlyUnused && (used || !removable)) return []
       if (query && ![key, ...values].some((text) => fold(text).includes(query))) return []
       return [
         {
@@ -79,9 +83,12 @@ export default async function run(args: SearchArgs): Promise<void> {
   const scan = scanProject(project.config, { ignore: splitList(args.ignore) })
   const found = matchesOf(project, scan, args)
   const matches = args.limit ? found.slice(0, args.limit) : found
+  // `Not used` means what it means for `clean`: with these, it is not proven.
+  const doubts = args.onlyUnused ? usageDoubts(scan) : []
+  for (const doubt of doubts) log.warn(doubt)
 
   if (args.json) {
-    log.json({ query, totalMatches: found.length, matches })
+    log.json({ query, totalMatches: found.length, matches, ...(args.onlyUnused ? { doubts } : {}) })
     return
   }
   if (matches.length === 0) {

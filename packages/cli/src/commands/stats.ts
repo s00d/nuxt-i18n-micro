@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { join, relative, resolve, sep } from 'node:path'
 import { validationError } from '../errors'
 import { writeFileAtomic } from '../fs'
-import { type JsonObject, flattenStrings, isObject } from '../json'
+import { type JsonObject, flattenStrings, isObject, ownValue } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 
@@ -44,7 +44,7 @@ const scopeKeys = (tree: JsonObject): string[] => Object.keys(flattenStrings(tre
 
 function completionOf(code: string, trees: Trees, reference: Trees): LocaleCompletion {
   const scopes = [GLOBAL_SCOPE, ...Object.keys(reference.pages)]
-  const treeOf = (source: Trees, scope: string): JsonObject => (scope === GLOBAL_SCOPE ? source.global : (source.pages[scope] ?? {}))
+  const treeOf = (source: Trees, scope: string): JsonObject => (scope === GLOBAL_SCOPE ? source.global : (ownValue(source.pages, scope) ?? {}))
   let totalKeys = 0
   let translatedKeys = 0
   for (const scope of scopes) {
@@ -60,16 +60,24 @@ const reportOf = (byCode: Map<string, Trees>, defaultLocale: string): LocaleComp
   [...byCode].map(([code, trees]) => completionOf(code, trees, byCode.get(defaultLocale)!))
 
 function git(rootDir: string, args: string[]): string {
-  return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+  return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: Number.POSITIVE_INFINITY })
 }
 
 function gitShow(rootDir: string, ref: string, path: string): JsonObject {
   const gitPath = relative(rootDir, path).split(sep).join('/')
+  const spec = `${ref}:./${gitPath}`
   try {
-    const parsed = JSON.parse(git(rootDir, ['show', `${ref}:./${gitPath}`])) as unknown
-    return isObject(parsed) ? parsed : {}
+    git(rootDir, ['cat-file', '-e', spec])
   } catch {
     return {} // the file did not exist at that ref
+  }
+  const text = git(rootDir, ['show', spec])
+  try {
+    const parsed = JSON.parse(text) as unknown
+    return isObject(parsed) ? parsed : {}
+  } catch {
+    // As an empty file it would read as a false gain in completion.
+    throw validationError(`Invalid JSON at ${ref}: ${gitPath}`)
   }
 }
 
@@ -93,7 +101,10 @@ function assertRef(rootDir: string, ref: string): void {
 function treesAtRef(project: Project, ref: string): Map<string, Trees> {
   const { rootDir, translationDir } = project.config
   assertRef(rootDir, ref)
-  const scopes = [...new Set([...project.reference.pageScopes, ...gitPageScopes(rootDir, ref, translationDir)])]
+  // The current side has no pages under `disablePageLocales`, so the baseline must not either.
+  const scopes = project.config.disablePageLocales
+    ? []
+    : [...new Set([...project.reference.pageScopes, ...gitPageScopes(rootDir, ref, translationDir)])]
   return new Map(
     project.codes.map((code) => [
       code,

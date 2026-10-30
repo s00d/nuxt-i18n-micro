@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { findingsError, remoteConfigError } from '../errors'
+import { CliError, findingsError, remoteConfigError } from '../errors'
 import { readJsonObject } from '../fs'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
-import { type JsonObject, type JsonValue, flatten, isObject, pathConflict, setPath } from '../json'
+import { type JsonObject, type JsonValue, flatten, getPath, isObject, pathConflict, setPath } from '../json'
 import { addSecret, addUrlSecrets, log } from '../log'
-import { Project } from '../project'
+import { GLOBAL_SCOPE, Project } from '../project'
 
 export interface SyncRemoteArgs {
   cwd?: string
@@ -76,7 +76,9 @@ function planLocale(project: Project, code: string, tree: JsonObject, force: boo
     const blocker = pathConflict(planned, key)
     // A remote blank says nothing; a blocked path would cost a value or a whole subtree, --force or not.
     if (value === '' || JSON.stringify(mine) === JSON.stringify(value)) continue
-    if (blocker) {
+    if (key.split('.').includes('__proto__')) {
+      plan.conflicts.push(`${label}: a key that cannot be stored`)
+    } else if (blocker) {
       plan.conflicts.push(`${label}: ${blocker} already holds a value`)
     } else if (mine === undefined || mine === '') {
       plan.added.push(label)
@@ -118,7 +120,7 @@ async function pull(args: SyncRemoteArgs, project: Project, config: RemoteConfig
   // A pull lands whole or not at all: half a release's strings is worse than none.
   if (plan.conflicts.length > 0) {
     throw findingsError('Conflicts found between local and remote translations. Nothing was written.', [
-      'Resolve them, or rerun with --force to take the remote values.',
+      'Resolve them. --force takes the remote value where two values differ; a blocked path needs one of the two keys removed.',
       'Preview without writing: i18n-micro sync-remote --dryRun',
     ])
   }
@@ -136,13 +138,41 @@ function withoutBlanks(tree: JsonObject): JsonObject {
   return Object.fromEntries(entries)
 }
 
+/** What the endpoint holds. A 404 is an endpoint nothing was pushed to yet. */
+async function remoteDocument(config: RemoteConfig, options: RequestOptions): Promise<LocaleTranslations> {
+  const remote = await requestJson<unknown>(remoteUrl(config), options).catch((error: unknown) => {
+    if (error instanceof CliError && error.details['HTTP status'] === '404') return undefined
+    throw error
+  })
+  if (remote !== undefined && !isObject(remote)) throw remoteConfigError('Invalid response from the remote: expected an object of locales.')
+  return (remote ?? {}) as LocaleTranslations
+}
+
+/** A PUT replaces the document, so this text would be gone: it is on the remote, and not in what goes up or in any layer. */
+function lostOnPush(project: Project, remote: LocaleTranslations, body: LocaleTranslations): string[] {
+  return Object.entries(remote).flatMap(([code, tree]) => {
+    if (!isObject(tree)) return []
+    const local = project.codes.includes(code) ? project.locale(code).global : {}
+    const lost = Object.entries(flatten(tree)).filter(
+      ([key, value]) => value !== '' && getPath(body[code] ?? {}, key) === undefined && JSON.stringify(value) !== JSON.stringify(getPath(local, key)),
+    )
+    return lost.map(([key]) => `${code} ${key}`)
+  })
+}
+
 async function push(args: SyncRemoteArgs, project: Project, config: RemoteConfig): Promise<void> {
   if (args.dryRun) {
     log.info(`Dry run: would push ${project.codes.join(', ')}. Nothing was sent.`)
     return
   }
-  const body = Object.fromEntries(project.codes.map((code) => [code, withoutBlanks(project.locale(code).global)]))
+  // The project's own keys: pulled back, a layer's key would land in this app's file and shadow the layer.
+  const body = Object.fromEntries(project.codes.map((code) => [code, withoutBlanks(project.locale(code).fileTree(GLOBAL_SCOPE))]))
   const options = requestOptions(config)
+  if (!args.force) {
+    const lost = lostOnPush(project, await remoteDocument(config, options), body)
+    log.list('Only on the remote', lost)
+    if (lost.length > 0) throw findingsError('A push would drop this text. Nothing was sent.', ['Pull it first, or overwrite it with --force.'])
+  }
   await requestJson(remoteUrl(config), {
     ...options,
     method: 'PUT',
@@ -155,7 +185,7 @@ async function push(args: SyncRemoteArgs, project: Project, config: RemoteConfig
 export default async function run(args: SyncRemoteArgs): Promise<void> {
   const project = await Project.load(args)
   const config = loadConfig(project.config.rootDir)
-  const pages = project.reference.pageScopes.length
+  const pages = new Set(project.codes.flatMap((code) => project.locale(code).pageScopes)).size
   if (pages > 0) log.warn(`Global files only: ${pages} page scopes are not exchanged.`)
 
   if (args.pull) await pull(args, project, config)

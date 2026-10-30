@@ -23,7 +23,8 @@ export default async function run(args: FormatArgs): Promise<void> {
       return
     }
     log.list('Not formatted', files)
-    throw findingsError(`${files.length} files need formatting.`, ['Run i18n-micro format.'])
+    const flags = `${args.indent === 2 ? '' : ` --indent ${args.indent}`}${args.sortKeys === false ? ' --no-sortKeys' : ''}`
+    throw findingsError(`${files.length} files need formatting.`, [`Run i18n-micro format${flags}.`])
   }
 
   const written = project.save(options)

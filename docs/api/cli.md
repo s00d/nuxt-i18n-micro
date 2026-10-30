@@ -17,7 +17,6 @@ The [CLI guide](/guide/cli) shows the common workflows. This page lists everythi
 | `--cwd` | current directory | Project directory |
 | `--logLevel` | `info` | Output level: silent, info |
 | `--debug` | `false` | Print a stack trace when a command fails |
-| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 
 ## Inspect
 
@@ -35,6 +34,7 @@ The CI gate: fail on missing, empty, extra, undefined or unused keys and broken 
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--only` | all but duplicates | Comma-separated checks to run: missing, empty, extra, placeholders, undefined, unused, duplicates. `unused` named here fails when it cannot run |
 | `--duplicates` | `false` | Also report the same text under different keys |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
@@ -51,6 +51,7 @@ Show translation completion per locale
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--html` | — | Also write an HTML report to this file |
 | `--json` | `false` | Print JSON instead of text |
 | `--baseRef` | — | Git ref to compare completion with, e.g. HEAD~1 or main |
@@ -66,6 +67,7 @@ Check the text of translations; fails when issues remain
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--rules` | all, or `enabledRules` of .i18n-lintrc.json | Comma-separated rules to run: no-trailing-spaces, no-multiple-spaces, no-empty-translation, or a custom one |
 | `--fix` | `false` | Fix what can be fixed: spaces, and custom rules with a replacement |
 | `--json` | `false` | Print JSON instead of text |
@@ -80,6 +82,7 @@ Search keys and values, and show where each key is used
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `<query>` | — | Text or key to search for |
 | `--caseSensitive` | `false` | Match case |
 | `--onlyUnused` | `false` | Only keys `clean` would remove; the query becomes optional |
@@ -101,6 +104,7 @@ List the keys source files use that have no text yet, and add those with a defau
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
 
 ```bash
@@ -113,6 +117,7 @@ Fill missing translations from the default locale through a translation service
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--service` | — | Translation service: ai, azure, deepl, google, libretranslate, yandexcloud |
 | `--token` | — | API key. Prefer the I18N_TRANSLATE_TOKEN environment variable: flags end up in shell history |
 | `--options` | — | Service options as key:value pairs, separated by commas |
@@ -136,6 +141,7 @@ Remove keys the default locale does not have; stops when that cannot be proven s
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
 | `--dryRun` | `false` | List what would be removed; write nothing |
 | `--force` | `false` | Remove keys even though it cannot be proven safe |
@@ -150,6 +156,7 @@ Remove keys nothing in the project uses; stops when that cannot be proven
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--include` | — | Regular expression: consider only matching keys for removal |
 | `--exclude` | — | Regular expression: never remove matching keys |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
@@ -187,6 +194,7 @@ Rename a key or a namespace in every locale and in source files
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--from` **\*** | — | Current key or namespace |
 | `--to` **\*** | — | New key or namespace |
 | `--ignore` | — | Comma-separated globs of source files to skip, relative to the project |
@@ -204,6 +212,7 @@ Fill a locale with pseudo-translations to find layout and hardcoded-text issues
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--sourceLocale` | the default locale | Locale to read |
 | `--targetLocale` **\*** | — | Locale to fill |
 | `--replace` | `false` | Overwrite existing values |
@@ -216,6 +225,7 @@ Rewrite locale files with sorted keys and uniform indentation
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--indent` | `2` | Spaces of indentation |
 | `--sortKeys` | `true` | Sort keys; use --no-sortKeys to keep their order |
 | `--check` | `false` | Fail if a file would change; write nothing |
@@ -232,6 +242,7 @@ Export locale files to PO or CSV, with the default-locale text as the source
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--format` | `po` | File format: po, csv |
 | `--dir` | `pots` for po, `csv_exports` for csv | Output directory, relative to the project |
 | `--force` | `false` | Overwrite files changed since the last export and never imported |
@@ -246,6 +257,7 @@ Merge PO or CSV files into the locale files
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--format` | `po` | File format: po, csv |
 | `--dir` | `pots` for po, `csv_exports` for csv | Input directory, relative to the project |
 | `--dryRun` | `false` | Report what would be imported; write nothing |
@@ -260,9 +272,10 @@ Pull global translations from, or push them to, the HTTP endpoint in .i18n-remot
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--translationDir` | `i18n.translationDir` of nuxt.config | Translation directory, relative to the project |
 | `--pull` | `true` | Pull from the remote |
 | `--push` | `false` | Push to the remote |
-| `--force` | `false` | On a conflict, take the remote value |
+| `--force` | `false` | On a pull, take the remote value; on a push, overwrite text only the remote holds |
 | `--dryRun` | `false` | Report what a pull would change; write and push nothing |
 
 ```bash
@@ -283,7 +296,7 @@ i18n-micro sync-remote --no-pull --push
 | Code | Meaning |
 | --- | --- |
 | `0` | Done, nothing to report |
-| `1` | Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict |
+| `1` | Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict. A `--dryRun` of `clean`, `sync` or a `sync-remote` pull reports these and exits `0` |
 | `2` | Failure: bad usage, unreadable project, network or file error |
 
 ## Configuration files

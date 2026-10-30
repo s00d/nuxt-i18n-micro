@@ -14,7 +14,7 @@ Conflicts:
     remote: "Remote"
 Global files only: 2 page scopes are not exchanged.
 Conflicts found between local and remote translations. Nothing was written.
-  Resolve them, or rerun with --force to take the remote values.
+  Resolve them. --force takes the remote value where two values differ; a blocked path needs one of the two keys removed.
   Preview without writing: i18n-micro sync-remote --dryRun
 ```
 

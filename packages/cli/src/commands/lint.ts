@@ -51,7 +51,13 @@ function customRule(item: Record<string, unknown>): LintRule[] {
         matcher.lastIndex = 0
         return !matcher.test(value)
       },
-      fix: typeof replacement === 'string' ? (value) => value.replace(matcher, replacement) : undefined,
+      fix:
+        typeof replacement === 'string'
+          ? (value) => {
+              matcher.lastIndex = 0
+              return value.replace(matcher, replacement)
+            }
+          : undefined,
     },
   ]
 }
@@ -82,7 +88,7 @@ function lintProject(project: Project, rules: LintRule[]): LintResult[] {
   return project.codes.flatMap((code) => {
     const locale = project.locale(code)
     return locale.scopes.flatMap((scope) =>
-      Object.entries(flattenStrings(locale.ownTree(scope))).flatMap(([key, value]) =>
+      Object.entries(flattenStrings(locale.fileTree(scope))).flatMap(([key, value]) =>
         rules
           .filter((rule) => !rule.isValid(value))
           .map((rule) => ({ file: relativeFile(code, scope), locale: code, scope, key, value, rule: rule.name })),
@@ -118,8 +124,8 @@ export default async function run(args: LintArgs): Promise<void> {
 
   const results = lintProject(project, rules)
   const fixedCount = args.fix ? applyFixes(project, results, rules) : 0
-  const fixers = new Set(rules.filter((rule) => rule.fix).map((rule) => rule.name))
-  const remaining = args.fix ? results.filter((result) => !fixers.has(result.rule)).length : results.length
+  // Looked at again: a fixer can leave a value its rule still refuses.
+  const remaining = args.fix ? lintProject(project, rules).length : results.length
 
   if (args.json) {
     log.json({ rulesChecked: rules.map((rule) => rule.name), issueCount: results.length, fixedCount, fixApplied: Boolean(args.fix), issues: results })

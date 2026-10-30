@@ -1,6 +1,7 @@
 import { type ArgsDef, type CommandDef, defineCommand, runCommand, showUsage } from 'citty'
 import { name as packageName, version } from '../package.json'
 import { reportError, usageError, validationError } from './errors'
+import { ownValue } from './json'
 import { closePrompts, log } from './log'
 import { type ArgSpec, type CommandSpec, REMOVED_COMMANDS, commands } from './spec'
 
@@ -108,20 +109,24 @@ export { packageName, version }
 
 /** Run the CLI. Failures set `process.exitCode`; nothing here throws. */
 export async function runCli(rawArgs: string[]): Promise<void> {
+  process.exitCode = 0
+  const first = rawArgs[0] ?? ''
   try {
     if (rawArgs.length === 1 && ['--version', '-v'].includes(rawArgs[0]!)) {
       console.log(version)
       return
     }
-    const replacement = REMOVED_COMMANDS[rawArgs[0] ?? '']
-    if (replacement) throw usageError(`The ${rawArgs[0]} command was removed. Use ${replacement}.`)
+    const replacement = ownValue(REMOVED_COMMANDS, first)
+    if (replacement) throw usageError(`The ${first} command was removed. Use ${replacement}.`)
     if (rawArgs.length === 0 || rawArgs.includes('--help') || rawArgs.includes('-h')) {
-      const target = commands[rawArgs[0] ?? ''] ? toCommand(rawArgs[0]!, commands[rawArgs[0]!]!) : main
+      const spec = ownValue(commands, first)
+      const target = spec ? toCommand(first, spec) : main
       await showUsage(target, target === main ? undefined : main)
       return
     }
     // The parser takes the first word as the command, so `--dryRun clean` would lose its flag.
-    if (rawArgs[0]!.startsWith('-')) throw usageError('Flags go after the command.')
+    if (first.startsWith('-')) throw usageError('Flags go after the command.')
+    if (!ownValue(commands, first)) throw usageError(`Unknown command ${first}`, ['See i18n-micro --help'])
     await runCommand(main, { rawArgs })
   } catch (error) {
     reportError(error, rawArgs.includes('--debug'))

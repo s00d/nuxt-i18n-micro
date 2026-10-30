@@ -3,7 +3,19 @@ import { dirname, join, relative, resolve, sep } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { notFoundError, usageError, validationError } from './errors'
 import { matchLineEnding, readJsonIfExists, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
-import { type JsonObject, type JsonValue, deletePath, flatten, flattenStrings, getPath, isObject, pathConflict, setPath, sortKeys } from './json'
+import {
+  type JsonObject,
+  type JsonValue,
+  deletePath,
+  flatten,
+  flattenStrings,
+  getPath,
+  isObject,
+  ownValue,
+  pathConflict,
+  setPath,
+  sortKeys,
+} from './json'
 import { type ProjectConfig, loadProjectConfig } from './nuxt'
 
 /** Not a word: a page may be called `global`. */
@@ -16,12 +28,22 @@ export interface LocaleLayer {
 
 const merge = (target: JsonObject, source: JsonObject): JsonObject => deepMergeTranslationsRecursive(target, source) as JsonObject
 
+/** Scopes arrive from imported files and folder names, and become directories and object keys. */
+function assertSafeScope(scope: string): void {
+  const parts = scope.split(/[/\\]/)
+  if (scope.startsWith('/') || parts.includes('..') || parts.includes('__proto__')) throw validationError(`Unsafe page scope: ${scope}`)
+}
+
 function readLayer(dir: string, code: string, withPages: boolean): LocaleLayer {
   const pagesDir = join(dir, 'pages')
   const fileName = `${code}.json`
   const pages: LocaleLayer['pages'] = {}
   const files = withPages ? walkFiles(pagesDir, (path) => path.endsWith(`${sep}${fileName}`)) : []
-  for (const file of files) pages[relative(pagesDir, dirname(file)).split(sep).join('/')] = readJsonIfExists(file)
+  for (const file of files) {
+    const scope = relative(pagesDir, dirname(file)).split(sep).join('/')
+    assertSafeScope(scope)
+    pages[scope] = readJsonIfExists(file)
+  }
   return { global: readJsonIfExists(join(dir, fileName)), pages }
 }
 
@@ -29,7 +51,7 @@ function mergeLayers(layers: LocaleLayer[]): LocaleLayer {
   const out: LocaleLayer = { global: {}, pages: {} }
   for (const layer of layers) {
     out.global = merge(out.global, layer.global)
-    for (const [scope, tree] of Object.entries(layer.pages)) out.pages[scope] = merge(out.pages[scope] ?? {}, tree)
+    for (const [scope, tree] of Object.entries(layer.pages)) out.pages[scope] = merge(ownValue(out.pages, scope) ?? {}, tree)
   }
   return out
 }
@@ -60,11 +82,6 @@ function ownPart(tree: JsonObject, inherited: JsonObject, own: JsonObject): Json
   return out
 }
 
-/** Scopes also arrive from imported files, and become directories. */
-function assertSafeScope(scope: string): void {
-  if (scope.startsWith('/') || scope.split(/[/\\]/).includes('..')) throw validationError(`Unsafe page scope: ${scope}`)
-}
-
 /** `de.json` or `pages/about/de.json`: the one place a scope turns into a path. */
 export const relativeFile = (code: string, scope: string, extension = 'json'): string =>
   scope === GLOBAL_SCOPE ? `${code}.${extension}` : `pages/${scope}/${code}.${extension}`
@@ -93,15 +110,21 @@ export class LocaleSet {
   }
 
   tree(scope: string): JsonObject {
-    return scope === GLOBAL_SCOPE ? this.global : (this.pages[scope] ?? {})
+    return scope === GLOBAL_SCOPE ? this.global : (ownValue(this.pages, scope) ?? {})
   }
 
+  /** The project's file as it was read. */
   ownTree(scope: string): JsonObject {
-    return scope === GLOBAL_SCOPE ? this.own.global : (this.own.pages[scope] ?? {})
+    return scope === GLOBAL_SCOPE ? this.own.global : (ownValue(this.own.pages, scope) ?? {})
   }
 
   inheritedTree(scope: string): JsonObject {
-    return scope === GLOBAL_SCOPE ? this.inherited.global : (this.inherited.pages[scope] ?? {})
+    return scope === GLOBAL_SCOPE ? this.inherited.global : (ownValue(this.inherited.pages, scope) ?? {})
+  }
+
+  /** The project's file as it stands now: edits in, layers out. */
+  fileTree(scope: string): JsonObject {
+    return ownPart(this.tree(scope), this.inheritedTree(scope), this.ownTree(scope))
   }
 
   replaceTree(scope: string, tree: JsonObject): void {
@@ -133,7 +156,7 @@ export class LocaleSet {
     if (key.split('.').includes('__proto__')) return key
     const conflict = pathConflict(this.tree(scope), key)
     if (conflict) return conflict
-    if (scope !== GLOBAL_SCOPE && !this.pages[scope]) this.pages[scope] = {}
+    if (scope !== GLOBAL_SCOPE && !Object.hasOwn(this.pages, scope)) this.pages[scope] = {}
     setPath(this.tree(scope), key, value)
     this.modified = true
     return null
@@ -162,7 +185,12 @@ export class Project {
     const config = await loadProjectConfig(resolve(options.cwd ?? '.'))
     const requested = options.translationDir ? resolve(config.rootDir, options.translationDir) : config.translationDir
     const own = requested === config.translationDir
-    const resolved: ProjectConfig = { ...config, translationDir: requested, translationDirs: own ? config.translationDirs : [requested] }
+    const resolved: ProjectConfig = {
+      ...config,
+      translationDir: requested,
+      translationDirs: own ? config.translationDirs : [requested],
+      additionalDirs: own ? config.additionalDirs : [],
+    }
 
     const locales = new Map<string, LocaleSet>()
     for (const { code } of resolved.locales) {
@@ -207,7 +235,7 @@ export class Project {
     for (const scope of scopes) {
       const path = join(this.config.translationDir, ...relativeFile(code, scope).split('/'))
       const own = set.ownTree(scope)
-      const part = ownPart(set.tree(scope), set.inheritedTree(scope), own)
+      const part = set.fileTree(scope)
       const content = options.sort ? (sortKeys(part) as JsonObject) : part
       const previous = existsSync(path) ? readFileSync(path, 'utf8') : undefined
       if (previous === undefined && Object.keys(content).length === 0) continue

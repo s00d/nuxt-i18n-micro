@@ -51,6 +51,10 @@ const google: Driver = {
   },
 }
 
+/** Spellings of Chinese in Traditional script. The bare `zh` a lookup falls back to means Simplified. */
+const TRADITIONAL = ['zh-tw', 'zh-hk', 'zh-mo', 'zh-hant', 'zh-hant-tw', 'zh-hant-hk', 'zh-hant-mo']
+const traditionalAs = (name: string): Record<string, string> => Object.fromEntries(TRADITIONAL.map((code) => [code, name]))
+
 const DEEPL_TARGETS: Record<string, string> = {
   en: 'EN-US',
   'en-us': 'EN-US',
@@ -63,8 +67,7 @@ const DEEPL_TARGETS: Record<string, string> = {
   zh: 'ZH-HANS',
   'zh-cn': 'ZH-HANS',
   'zh-hans': 'ZH-HANS',
-  'zh-tw': 'ZH-HANT',
-  'zh-hant': 'ZH-HANT',
+  ...traditionalAs('ZH-HANT'),
 }
 
 const deeplHost = (token: string): string => (token.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com')
@@ -126,7 +129,7 @@ const yandexcloud: Driver = {
   },
 }
 
-const azureLang = fromTable({ zh: 'zh-Hans', 'zh-cn': 'zh-Hans', 'zh-tw': 'zh-Hant', 'zh-hant': 'zh-Hant', 'pt-br': 'pt', 'pt-pt': 'pt-pt' })
+const azureLang = fromTable({ zh: 'zh-Hans', 'zh-cn': 'zh-Hans', ...traditionalAs('zh-Hant'), 'pt-br': 'pt', 'pt-pt': 'pt-pt' })
 
 const azure: Driver = {
   label: 'Azure Translator',

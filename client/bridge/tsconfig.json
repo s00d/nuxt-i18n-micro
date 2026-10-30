@@ -1,0 +1,9 @@
+{
+  // Root unit tests import this folder before `client/.nuxt` exists, and oxc needs a tsconfig it can load.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true
+  }
+}

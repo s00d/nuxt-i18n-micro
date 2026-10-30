@@ -51,7 +51,7 @@ const MANIFEST = '.i18n-export.json'
 
 const digest = (text: string): string => createHash('sha256').update(text).digest('hex')
 
-function readManifest(dir: string): Record<string, unknown> {
+export function readManifest(dir: string): Record<string, unknown> {
   try {
     return readJsonIfExists(join(dir, MANIFEST))
   } catch {
@@ -65,7 +65,13 @@ function catalogOf(text: string, format: string): Map<string, string> | null {
     const { messages, fuzzy } = parsePo(text)
     return new Map(Object.entries({ ...messages, ...fuzzy }))
   }
-  const [header, ...rows] = parseCsv(text)
+  let parsed: string[][]
+  try {
+    parsed = parseCsv(text)
+  } catch {
+    return null
+  }
+  const [header, ...rows] = parsed
   const [file, key, translation] = ['File', 'Key', 'Translation'].map((name) => header?.indexOf(name) ?? -1)
   if (file === -1 || key === -1 || translation === -1) return null
   return new Map(rows.map((row) => [`${row[file!]} ${row[key!]}`, row[translation!] ?? '']))
@@ -98,6 +104,8 @@ export default async function run(args: ExportArgs): Promise<void> {
   }
 
   const written = Object.fromEntries(files.map(([path, text]) => [nameOf(path), digest(text)]))
-  writeFilesAtomic([...files, [join(dir, MANIFEST), stringifyJson({ ...manifest, ...written })]], { overwrite: true })
+  // This format's list is replaced whole: `import` goes by it, and a page that is gone must not stay on it.
+  const others = Object.fromEntries(Object.entries(manifest).filter(([name]) => !name.endsWith(`.${args.format}`)))
+  writeFilesAtomic([...files, [join(dir, MANIFEST), stringifyJson({ ...others, ...written })]], { overwrite: true })
   log.success(`Exported ${files.length} ${args.format.toUpperCase()} files to ${dir}`)
 }

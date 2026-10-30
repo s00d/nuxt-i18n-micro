@@ -49,7 +49,10 @@ unused (22):
   - ru limits.list [ru.json]
   - ru hero.cta [pages/index/ru.json]
 Check failed: 6 missing, 2 empty, 1 extra, 3 undefined, 22 unused.
-  Translate what is missing: i18n-micro translate. Remove extra keys: i18n-micro sync.
+  Translate what is missing: i18n-micro translate.
+  Remove extra keys: i18n-micro sync.
+  Add the listed keys to the default locale.
+  Remove unused keys: i18n-micro clean.
 ```
 
 ## Files

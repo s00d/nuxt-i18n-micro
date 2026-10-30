@@ -8,6 +8,12 @@ export interface RequestOptions extends Omit<RequestInit, 'signal'> {
 
 const RETRYABLE = new Set([408, 429, 500, 502, 503, 504])
 
+/** A POST is a billed translation: after anything else it may have run, so it is not sent twice. */
+const NOT_PROCESSED = new Set([429, 503])
+
+/** Asked to wait longer, a run has hit a quota, not a hiccup: it fails instead of sleeping in silence. */
+const MAX_WAIT_MS = 60_000
+
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** What a URL may show in an error: query strings carry API keys (`?key=`). */
@@ -46,23 +52,27 @@ const retryAfterMs = (response: Response): number | null => {
 
 async function attempt(url: string, options: RequestOptions, retriesLeft: number, delayMs: number): Promise<Response> {
   const { timeoutMs = 30_000, retries: _retries, retryDelayMs: _delay, ...init } = options
+  const once = init.method === 'POST'
   let response: Response
   try {
     response = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) })
   } catch (error) {
-    if (retriesLeft > 0) {
+    if (!once && retriesLeft > 0) {
       await sleep(delayMs)
       return attempt(url, options, retriesLeft - 1, delayMs * 2)
     }
     // The runtime quotes the whole URL when it cannot parse one, query string included.
     const scrub = (text: string): string => text.replaceAll(url, safeUrl(url))
     // A new error, so `--debug` prints this text and not the runtime's stack, which quotes the URL too.
-    const cause = new Error(scrub((error as Error).message))
+    // `fetch failed` says nothing: the reason, ECONNREFUSED or a DNS or TLS error, is in its cause.
+    const reason = [(error as Error).message, ((error as Error).cause as Error | undefined)?.message].filter(Boolean).join(': ')
+    const cause = new Error(scrub(reason))
     throw new CliError(`Request failed: ${cause.message}`, { code: 'HTTP_ERROR', details: { URL: safeUrl(url) }, cause })
   }
   if (response.ok) return response
-  if (RETRYABLE.has(response.status) && retriesLeft > 0) {
-    await sleep(retryAfterMs(response) ?? delayMs)
+  const wait = retryAfterMs(response) ?? delayMs
+  if ((once ? NOT_PROCESSED : RETRYABLE).has(response.status) && retriesLeft > 0 && wait <= MAX_WAIT_MS) {
+    await sleep(wait)
     return attempt(url, options, retriesLeft - 1, delayMs * 2)
   }
   throw httpError(response, url, await response.text())

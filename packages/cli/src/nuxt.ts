@@ -132,6 +132,9 @@ function additionalDirsOf(roots: string[], i18n: I18nOptions): string[] {
 
 const ALIAS_PREFIX = /^(~~|@@|~|@)(?=\/)/
 
+/** `../shared/*`: the folder a glob starts from. Reading all of it only finds more evidence. */
+const globBase = (path: string): string => path.replace(/[/\\][^/\\]*[*?[{(!].*$/, '')
+
 /** Strings out of `components` and `imports.dirs`, in every shape Nuxt accepts them. */
 function dirNames(value: unknown): string[] {
   if (typeof value === 'string') return [value]
@@ -147,7 +150,7 @@ function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[
   const expand = (dir: string): string =>
     resolve(
       rootDir,
-      dir.replace(ALIAS_PREFIX, (prefix) => (prefix.length === 2 ? rootDir : srcDir)),
+      globBase(dir).replace(ALIAS_PREFIX, (prefix) => (prefix.length === 2 ? rootDir : srcDir)),
     )
   const names = [...Object.values(config.alias ?? {}), ...dirNames(config.components), ...dirNames(config.imports?.dirs)]
   const dirs = names.filter((name) => typeof name === 'string').map(expand)
@@ -221,14 +224,14 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
   const layers = layersOf(config, rootDir)
   const roots = layers.map((layer) => layer.rootDir!).reverse()
   const translationDir = resolve(rootDir, dirName)
-  const additionalDirs = additionalDirsOf(roots, i18n)
+  const primaryDirs = [...roots.map((root) => resolve(root, dirName)), translationDir]
+  // Listed there too, a primary directory is still one: its `pages/` count.
+  const additionalDirs = additionalDirsOf(roots, i18n).filter((dir) => !primaryDirs.includes(dir))
   return {
     rootDir,
     srcDir: config.srcDir ?? rootDir,
     translationDir,
-    translationDirs: [...new Set([...additionalDirs, ...roots.map((root) => resolve(root, dirName)), translationDir])].sort(
-      (a, b) => Number(a === translationDir) - Number(b === translationDir),
-    ),
+    translationDirs: [...new Set([...additionalDirs, ...primaryDirs])].sort((a, b) => Number(a === translationDir) - Number(b === translationDir)),
     additionalDirs,
     layerRoots: roots,
     pagesDirs: [...new Set(layers.map((layer) => resolve(layer.srcDir ?? layer.rootDir!, layer.dir?.pages ?? 'pages')))],

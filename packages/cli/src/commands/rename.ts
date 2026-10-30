@@ -43,8 +43,15 @@ function moved(tree: JsonObject, rename: Rename): JsonObject | null {
   })
   if (moves.length === 0) return null
   const next = structuredClone(tree)
-  // Twice is possible: `{ "a.b": 1, a: { b: 2 } }`.
-  for (const { key } of moves) while (deletePath(next, key));
+  // Twice is possible: `{ "a.b": 1, a: { b: 2 } }`. Two texts cannot both move to one key.
+  for (const { key, value } of moves) {
+    deletePath(next, key)
+    const second = getPath(next, key)
+    if (second !== undefined && JSON.stringify(second) !== JSON.stringify(value)) {
+      throw validationError(`${key} is written twice in one file, with different values.`, ['Keep one of them, then rename.'], { Key: key })
+    }
+    deletePath(next, key)
+  }
   for (const { target, value, flat } of moves) {
     const clash = getPath(next, target) === undefined ? pathConflict(next, target) : target
     if (clash) throw validationError(`Target key already exists: ${clash}`, [], { Key: clash })

@@ -34,7 +34,6 @@ import {
   formatterFor,
   NuxtI18n,
   NuxtTranslationLoader,
-  withDollarAliases,
   type I18nAppInternals,
   type TranslationFn,
 } from '../utils/nuxt-i18n'
@@ -200,7 +199,7 @@ export default defineNuxtPlugin({
     })
 
     const {
-      mergeTranslation,
+      helper,
       switchContext,
       provide: provideApi,
     } = createNuxtI18nPluginApi({
@@ -289,12 +288,19 @@ export default defineNuxtPlugin({
       })
     }
 
-    // for 05.hooks. Not a `provide`: that would define it twice and show it on every component
-    ;(nuxtApp as I18nAppInternals)._i18nMergeTranslation = mergeTranslation
+    const provideData = {
+      ...provideApi,
+      helper,
+      getI18nConfig: () => i18nConfig,
+      i18n: undefined as unknown,
+      __micro: true,
+    }
 
-    const api = { ...provideApi, getI18nConfig: () => i18nConfig }
+    const $provideData = Object.fromEntries(Object.entries(provideData).map(([key, value]) => [`$${key}`, value]))
 
-    return { provide: { ...api, i18n: withDollarAliases(api) } }
+    ;(provideData as { i18n: typeof provideData & Record<string, unknown> }).i18n = { ...provideData, ...$provideData }
+
+    return { provide: provideData }
   },
 })
 

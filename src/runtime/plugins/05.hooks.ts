@@ -3,7 +3,6 @@ import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import type { Translations } from '@i18n-micro/types'
 import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { defineNuxtPlugin, useRouter } from '#imports'
-import type { I18nAppInternals } from '../utils/nuxt-i18n'
 
 export default defineNuxtPlugin({
   name: 'i18n-plugin-hooks',
@@ -12,7 +11,9 @@ export default defineNuxtPlugin({
     const i18nConfig = nuxtApp.$getI18nConfig()
     const router = useRouter()
     const { $getLocale, $i18nStrategy: i18nStrategy } = nuxtApp
-    const mergeTranslation = (nuxtApp as I18nAppInternals)._i18nMergeTranslation!
+    const i18nHelper = nuxtApp.$helper as {
+      mergeTranslation: (locale: string, routeName: string, translations: Translations, force?: boolean) => Promise<void>
+    }
 
     /** Asked on every call: a plugin may subscribe later. `_hooks` is hookable's own, so without it the hook just runs. */
     const subscribed = () => {
@@ -29,7 +30,7 @@ export default defineNuxtPlugin({
       await nuxtApp.callHook(
         'i18n:register',
         (translations: unknown, selectedLocale?: string) => {
-          mergeTasks.push(mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations))
+          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations, true))
         },
         locale,
       )

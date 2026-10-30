@@ -200,11 +200,15 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const pagePath = page.path ?? ''
     if (
       (page.redirect && !page.file) ||
-      isRouteRuleStub(page) ||
       isInternalPath(pagePath, options.excludePatterns, options.apiBaseUrl) ||
       info(page, '', true).rule === false
     ) {
       unprefixed.push(unlocalized(page))
+      continue
+    }
+    if (isRouteRuleStub(page)) {
+      // marked: the runtime cannot tell it from a module's unnamed page by the record alone
+      unprefixed.push({ ...page, meta: { ...page.meta, i18nStub: true } })
       continue
     }
     const allowed = info(page, '', true).allowed ?? locales

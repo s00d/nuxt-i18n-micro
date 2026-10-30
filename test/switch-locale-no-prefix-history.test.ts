@@ -135,7 +135,7 @@ describe('links from the plugin', () => {
     for (const to of ['https://evil.example', '//evil.example', 'evil.example']) {
       const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://evil.example/x' as unknown as Record<string, unknown> })
       await provide.switchRoute(to)
-      expect(navigateTo, to).not.toHaveBeenCalled()
+      expect(navigateTo).not.toHaveBeenCalled()
     }
   })
 

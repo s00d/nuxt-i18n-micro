@@ -206,16 +206,10 @@ export class I18nPathStrategy {
     if (locale) forms.push(path.slice(locale.length + 1) || '/')
     else if (this.ctx.strategy !== 'no_prefix') for (const code of this.index.probeCodes) forms.push(`/${code}${path === '/' ? '' : path}`)
     let catchAll: Page | null = null
-    let unnamed = false
     for (const form of forms) {
       const route = this.probe(form)
       const name = named(route?.name) ?? ''
-      if (form === path && unlocalized.has(name)) return UNLOCALIZED
-      // an unnamed record: a module's page has a prefixed form, the stub of a `routeRules` redirect does not
-      if (!name && route?.matched?.length) {
-        if (form !== path) return null
-        unnamed = true
-      }
+      if (form === path && (unlocalized.has(name) || route?.meta?.i18nStub)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
       const { locale: urlLocale, ...params } = route!.params ?? {}
@@ -225,7 +219,7 @@ export class I18nPathStrategy {
       if (!entry.catchAll) return page
       catchAll ??= page
     }
-    return unnamed ? UNLOCALIZED : catchAll
+    return catchAll
   }
 
   private baseOf(name: string): string | null {

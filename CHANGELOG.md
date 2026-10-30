@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.30.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.2...v3.30.3)
+
+### 🩹 Fixes
+
+- **i18n-t:** Place named slots by their position in the translation ([#280](https://github.com/s00d/nuxt-i18n-micro/pull/280))
+
+### ❤️ Contributors
+
+- Dan Duta ([@danduta](https://github.com/danduta))
+
 ## v3.30.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.1...v3.30.2)

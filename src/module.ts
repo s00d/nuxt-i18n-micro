@@ -900,7 +900,14 @@ declare module '#i18n-internal/payload-source' {
       if (isSSG) {
         // `/` itself is kept so a static host still answers the bare root (the redirect stub).
         if (prerendered('/')) routesSet.add('/')
-        for (const path of staticPaths) if (prerendered(path)) routesSet.add(path)
+        // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
+        for (const path of staticPaths) {
+          if (prerendered(path) && localize.isServed(path)) routesSet.add(path)
+          for (const { code } of routeGenerator.locales) {
+            const localized = prerendered(path) ? localize.path(path, code) : null
+            if (localized && prerendered(localized)) routesSet.add(localized)
+          }
+        }
         for (const locale of routeGenerator.locales) {
           const localizedRoot = localize.path('/', locale.code)
           if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)

@@ -17,6 +17,8 @@ export interface LocalizedPathResolver {
   isUnlocalized: (path: string) => boolean
   /** Whether any page matches the URL (API routes and files do not). */
   isPage: (path: string) => boolean
+  /** Whether a record serves this very URL, not only its page in another form. */
+  isServed: (path: string) => boolean
 }
 
 /** URLs of the pages without params, nested ones included. Nuxt seeds generate with one page: the crawler only finds linked ones. */
@@ -74,5 +76,6 @@ export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<P
     localeOf: (path) => strategy.getLocaleFromPath(path),
     isUnlocalized,
     isPage,
+    isServed: (path) => matched(path).length > 0,
   }
 }

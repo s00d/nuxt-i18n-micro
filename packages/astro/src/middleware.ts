@@ -15,7 +15,10 @@ export interface I18nMiddlewareOptions {
   localeObjects?: Locale[]
   /** `/` redirects to the locale the cookie / Accept-Language prefer (default `true`); pages keep the URL's locale. */
   autoDetect?: boolean
-  /** `/` also redirects when nothing prefers another locale: to the default locale's home (default `false`). */
+  /**
+   * `/` also redirects when nothing prefers another locale: to the home `routingStrategy` resolves
+   * for the default locale (default `false`). Without one `/` stays: it is the default locale's page.
+   */
   redirectToDefault?: boolean
   routingStrategy?: I18nRoutingStrategy
   /** Cookie holding the visitor's locale (default `'i18n-locale'`); `null` disables it. */
@@ -110,7 +113,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     const preferred = hinted
       ? detectLocale(pathname, context.cookies, context.request.headers, defaultLocale, locales, localeCookie, strategy)
       : locale
-    const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, strategy) : pathname
+    const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, defaultLocale, strategy) : pathname
     if (target !== pathname) return withVary(context.redirect(target + url.search, 302), hinted, localeCookie)
 
     // per-request instance sharing the global cache
@@ -136,11 +139,11 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
   }
 }
 
-/** A locale's home: the strategy's path for `/` in that locale, else `/<locale>`. */
-function homeOf(locale: string, strategy?: I18nRoutingStrategy | null): string {
+/** A locale's home: the strategy's path for `/` in that locale, else `/<locale>` (an unprefixed URL is the default locale's). */
+function homeOf(locale: string, defaultLocale: string, strategy?: I18nRoutingStrategy | null): string {
   const resolved = strategy?.resolvePath?.('/', locale)
   const path = typeof resolved === 'string' ? resolved : resolved?.path
-  return path || `/${locale}`
+  return path || (locale === defaultLocale ? '/' : `/${locale}`)
 }
 
 function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {

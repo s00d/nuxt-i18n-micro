@@ -207,25 +207,6 @@ member ResolveLocaleInput.queryFirst?: boolean | undefined
 member ResolveLocaleInput.state?: string | null | undefined
 member ResolveLocaleInput.url?: string | null | undefined
 member ResolveLocaleInput.validLocales: readonly string[]
-function resolvePreferredLocale: (input: ResolvePreferredLocaleInput) => string
-interface ResolvePreferredLocaleInput
-member ResolvePreferredLocaleInput.acceptLanguageHeader?: string | null | undefined
-member ResolvePreferredLocaleInput.autoDetectLanguage?: boolean | undefined
-member ResolvePreferredLocaleInput.cookieLocale?: string | null | undefined
-member ResolvePreferredLocaleInput.defaultLocale: string
-member ResolvePreferredLocaleInput.ignoreStateLocale?: boolean | undefined
-member ResolvePreferredLocaleInput.stateLocale?: string | null | undefined
-member ResolvePreferredLocaleInput.validLocales: string[]
-function resolveServerLocale: (input: ResolveServerLocaleInput) => string
-interface ResolveServerLocaleInput
-member ResolveServerLocaleInput.acceptLanguageHeader?: string | null | undefined
-member ResolveServerLocaleInput.autoDetectLanguage?: boolean | undefined
-member ResolveServerLocaleInput.cookieLocale?: string | null | undefined
-member ResolveServerLocaleInput.defaultLocale: string
-member ResolveServerLocaleInput.hasLocaleInUrl: boolean
-member ResolveServerLocaleInput.queryLocale?: string | null | undefined
-member ResolveServerLocaleInput.urlLocale?: string | null | undefined
-member ResolveServerLocaleInput.validLocales: string[]
 
 # ./resolve-og-locale (src/resolve-og-locale.ts)
 function resolveOgLocale: (locale: OgLocaleInput) => string | null

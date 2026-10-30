@@ -132,15 +132,12 @@ function buildFullConfig(params: {
   options: ModuleOptions
   nuxt: Nuxt
   defaultLocale: string
-  isSSG: boolean
   apiConfig: NormalizedApiConfig
   translationPayloadMode: TranslationPayloadMode
-  routeLocales: Record<string, string[]>
-  routeDisableMeta: Record<string, boolean | string[]>
   locales: ModuleOptionsExtend['locales']
   translationsHash: string | null
 }) {
-  const { options, nuxt, defaultLocale, isSSG, apiConfig, translationPayloadMode, routeLocales, routeDisableMeta, locales, translationsHash } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash } = params
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -164,19 +161,13 @@ function buildFullConfig(params: {
       (nuxt.options.experimental as { defaults?: { nuxtLink?: { trailingSlash?: 'append' | 'remove' } } })?.defaults?.nuxtLink?.trailingSlash,
     apiBaseUrl: apiConfig.apiBaseUrl,
     apiBaseClientHost: apiConfig.apiBaseClientHost,
-    isSSG,
     disablePageLocales: options.disablePageLocales ?? false,
     canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? DEFAULT_CANONICAL_QUERY_WHITELIST,
     excludePatterns: options.excludePatterns ?? [],
-    routeLocales,
-    routeDisableMeta,
     missingWarn: options.missingWarn ?? true,
     redirects: options.redirects !== false,
-    hooks: options.hooks !== false,
-    hmr: options.hmr ?? true,
     localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
     routesLocaleLinks: options.routesLocaleLinks ?? {},
-    noPrefixRedirect: options.noPrefixRedirect ?? false,
     debug: options.debug ?? false,
     customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
     cacheMaxSize: options.cacheMaxSize ?? 0,
@@ -505,11 +496,8 @@ export default defineNuxtModule<ModuleOptions>({
       options,
       nuxt,
       defaultLocale,
-      isSSG,
       apiConfig,
       translationPayloadMode: translationPayloads.mode,
-      routeLocales,
-      routeDisableMeta,
       locales: routeGenerator.locales ?? [],
       translationsHash,
     })

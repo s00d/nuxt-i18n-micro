@@ -33,7 +33,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 51 members |
-| `ModuleOptionsExtend` | interface | 56 members |
+| `ModuleOptionsExtend` | interface | 55 members |
 | `ModulePrivateOptionsExtend` | interface | 55 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
@@ -178,7 +178,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 56 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -210,7 +210,6 @@ import { /* … */ } from '@i18n-micro/types'
 | `hooks?` | `boolean \| undefined` |
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
-| `isSSG` | `boolean` |
 | `linkLocales?` | `Locale[] \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |

@@ -668,8 +668,6 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   dateBuild: string | number
   /** Whether the Nuxt app uses hash-based routing (`router.options.hashMode`). */
   hashMode: boolean
-  /** Whether the current build is a static site generation (SSG / `nuxi generate`). */
-  isSSG: boolean
   /** Resolved translations API base URL (after env variable / config merging). */
   apiBaseUrl: string
   /** Resolved flag: whether per-page translations are disabled. */

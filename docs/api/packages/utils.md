@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-104 exports across 22 entry points.
+100 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -451,10 +451,6 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `RedirectLocaleInput` | interface | 10 members |
 | `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
 | `ResolveLocaleInput` | interface | 9 members |
-| `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
-| `ResolvePreferredLocaleInput` | interface | 7 members |
-| `resolveServerLocale` | function | `(input: ResolveServerLocaleInput) => string` |
-| `ResolveServerLocaleInput` | interface | 8 members |
 
 <details>
 <summary><code>RedirectLocaleInput</code> — 10 members</summary>
@@ -488,37 +484,6 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `state?` | `string \| null \| undefined` |
 | `url?` | `string \| null \| undefined` |
 | `validLocales` | `readonly string[]` |
-
-</details>
-
-<details>
-<summary><code>ResolvePreferredLocaleInput</code> — 7 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `acceptLanguageHeader?` | `string \| null \| undefined` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `cookieLocale?` | `string \| null \| undefined` |
-| `defaultLocale` | `string` |
-| `ignoreStateLocale?` | `boolean \| undefined` |
-| `stateLocale?` | `string \| null \| undefined` |
-| `validLocales` | `string[]` |
-
-</details>
-
-<details>
-<summary><code>ResolveServerLocaleInput</code> — 8 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `acceptLanguageHeader?` | `string \| null \| undefined` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `cookieLocale?` | `string \| null \| undefined` |
-| `defaultLocale` | `string` |
-| `hasLocaleInUrl` | `boolean` |
-| `queryLocale?` | `string \| null \| undefined` |
-| `urlLocale?` | `string \| null \| undefined` |
-| `validLocales` | `string[]` |
 
 </details>
 ## `@i18n-micro/utils/resolve-og-locale`

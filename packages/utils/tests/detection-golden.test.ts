@@ -5,7 +5,7 @@
 import { expect, test } from 'vitest'
 import { applyAutoDetectLanguage, detectLocaleFromAcceptLanguage, parseAcceptLanguage } from '../src/accept-language'
 import { shouldAttemptLocaleRedirect } from '../src/auto-detect-path'
-import { resolvePreferredLocale, resolveServerLocale } from '../src/resolve-locale'
+import { resolveLocale } from '../src/resolve-locale'
 
 const show = (value: unknown) => (value === undefined ? 'undefined' : JSON.stringify(value))
 
@@ -66,7 +66,7 @@ function report(): string {
     }
   }
 
-  section('resolveServerLocale')
+  section('resolveLocale: url, query, cookie')
   const validLocales = ['en', 'de', 'ru']
   const urls: [boolean, string | null][] = [
     [false, null],
@@ -82,22 +82,21 @@ function report(): string {
             defaultLocale: 'en',
             validLocales,
             autoDetectLanguage,
-            hasLocaleInUrl,
-            urlLocale,
-            queryLocale,
-            cookieLocale,
-            acceptLanguageHeader: 'ru,de;q=0.5',
+            url: hasLocaleInUrl ? urlLocale : null,
+            query: queryLocale,
+            cookie: cookieLocale,
+            acceptLanguage: 'ru,de;q=0.5',
           }
           run(
             `server(url=${hasLocaleInUrl ? 'prefix' : 'segment'}:${urlLocale}, q=${queryLocale}, cookie=${cookieLocale}, auto=${autoDetectLanguage})`,
-            () => resolveServerLocale(input),
+            () => resolveLocale(input),
           )
         }
       }
     }
   }
 
-  section('resolvePreferredLocale')
+  section('resolveLocale: state, cookie')
   for (const stateLocale of [null, 'ru', 'xx']) {
     for (const cookieLocale of [null, 'de', 'xx']) {
       for (const ignoreStateLocale of [false, true]) {
@@ -106,14 +105,11 @@ function report(): string {
             defaultLocale: 'en',
             validLocales,
             autoDetectLanguage,
-            stateLocale,
-            cookieLocale,
-            acceptLanguageHeader: 'ru',
-            ignoreStateLocale,
+            state: ignoreStateLocale ? null : stateLocale,
+            cookie: cookieLocale,
+            acceptLanguage: 'ru',
           }
-          run(`preferred(state=${stateLocale}, cookie=${cookieLocale}, ignoreState=${ignoreStateLocale}, auto=${autoDetectLanguage})`, () =>
-            resolvePreferredLocale(input),
-          )
+          run(`preferred(state=${stateLocale}, cookie=${cookieLocale}, ignoreState=${ignoreStateLocale}, auto=${autoDetectLanguage})`, () => resolveLocale(input))
         }
       }
     }

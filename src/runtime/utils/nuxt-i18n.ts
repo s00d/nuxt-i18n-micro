@@ -156,26 +156,6 @@ export class NuxtI18n extends BaseI18n {
     this.evictChunks(key)
   }
 
-  /**
-   * Install SSR chunks from the payload into the view layer.
-   *
-   * The loader only installs the chunk for the page being rendered, but SSR may
-   * load buckets for other `(locale, route)` pairs — `$tForRoute()` resolves against
-   * `getChunk()` directly. Without this they hydrate as missing until navigation.
-   *
-   * Existing entries win: anything already loaded is kept as-is.
-   */
-  seedChunks(chunks: Record<string, Record<string, unknown>>): void {
-    let lastKey = ''
-    for (const [cacheKey, data] of Object.entries(chunks)) {
-      if (!this.storage.translations.has(cacheKey)) {
-        this.storage.translations.set(cacheKey, data as Translations)
-        lastKey = cacheKey
-      }
-    }
-    if (lastKey) this.evictChunks(lastKey)
-  }
-
   hasChunk(locale: string, routeName?: string): boolean {
     return this.storage.translations.has(this.getCacheKey(locale, routeName))
   }

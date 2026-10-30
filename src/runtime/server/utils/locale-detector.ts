@@ -74,21 +74,6 @@ function urlLocale(event: H3Event, mode: RequestLocaleMode, path: string | undef
   return prefix ?? (mode === 'page' ? unprefixed : null)
 }
 
-export interface DetectCurrentLocaleConfig {
-  fallbackLocale?: string
-  defaultLocale?: string
-  locales?: { code: string }[]
-  localeCookie?: string | null
-  autoDetectLanguage?: boolean
-}
-
-/**
- * Detects the current locale of a server API request: `detectRequestLocale` with the `api` rules.
- */
-export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleConfig, defaultLocale?: string): string => {
-  return detectRequestLocale(event, { ...config, defaultLocale: defaultLocale || config.defaultLocale } as DetectionConfig, 'api')
-}
-
 /**
  * This request's locale for server API helpers, with the documented API order (query → route
  * param / prefix → cookie → Accept-Language) on every route, `/api` or not — never the page

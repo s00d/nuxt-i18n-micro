@@ -168,7 +168,7 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(missing).toEqual([{ locale: 'en', key: 'missing-on-a', routeName: 'page-a' }])
   })
 
-  test('merging into loaded chunks: async loads, nested siblings, seeding', async () => {
+  test('merging into loaded chunks: async loads, nested siblings', async () => {
     // step 1: merge into a page not loaded yet → the loader runs first, then the merge
     const i18n = new NuxtI18n({ missingWarn: false })
     const loader = vi.fn(async (locale: string, routeName?: string) => ({ loaded: `${locale}:${routeName || 'index'}` }))
@@ -194,11 +194,6 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(nested.t('nav.extra')).toBe('Extra')
     await nested.loadPageTranslations('en', 'index', { nav: { contact: 'Contact' } })
     expect(nested.getChunk('en', 'index')).toEqual({ nav: { about: 'About', home: 'Home', extra: 'Extra', contact: 'Contact' }, title: 'T' })
-
-    // step 4: seeding from the SSR payload installs other contexts, never overwrites a loaded one
-    nested.seedChunks({ 'en:index': { title: 'from-payload' }, 'de:about': { b: 'B' } })
-    expect(nested.getChunk('de', 'about')).toEqual({ b: 'B' })
-    expect(nested.getChunk('en', 'index')).toMatchObject({ title: 'T' })
   })
 
   test('cacheMaxSize bounds the chunk map but never evicts the page on screen', () => {

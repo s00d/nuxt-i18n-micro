@@ -41,7 +41,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const i18nConfig = nuxtApp.$getI18nConfig()
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
-  // routeDisableMeta is evaluated in useLocaleHead.updateMeta so client navigations
+  // disableMeta is evaluated on every head render so client navigations
   // can enable/disable tags per page — a one-shot check here would freeze the first route.
 
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })

@@ -147,6 +147,10 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 
 - **`$helper` and `$__micro` are gone** from `useNuxtApp()` and templates. Neither was documented. `$i18n` no longer holds `helper`, `__micro` or `i18n`, and its `$` spellings (`useI18n().$t`) are inherited: destructuring works as before, but `{ ...useI18n() }` and `Object.keys(useI18n())` give only the bare names.
 
+- **`detectCurrentLocale` is gone** from the server auto-imports. It was undocumented; use [`useLocaleServerMiddleware(event).current`](/guide/server-side-translations), which applies the same rules.
+- **`$getI18nConfig()` no longer has `isSSG`, `hmr`, `hooks`, `noPrefixRedirect`, `routeLocales` or `routeDisableMeta`.** Only the build read them. The options themselves are unchanged. The `ModuleOptionsExtend` type drops `isSSG`.
+- **`resolveServerLocale` and `resolvePreferredLocale` are gone** from `@i18n-micro/utils/resolve-locale`, with their input types. Both were deprecated: call `resolveLocale` with `url`, `query`, `state`, `cookie` and `acceptLanguage`.
+
 ### Framework packages
 
 | Package | Change | Action |

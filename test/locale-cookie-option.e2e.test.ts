@@ -63,6 +63,11 @@ describe('localeCookie option', () => {
     expect(await middlewareNames({ strategy: 'no_prefix' })).not.toContain('i18n-redirect')
   })
 
+  it('the runtime config carries no option that only the build reads', async () => {
+    const source = await strategySource({ routeLocales: { about: ['en'] }, routeDisableMeta: { about: true }, noPrefixRedirect: true, hmr: true })
+    for (const key of ['isSSG', 'routeLocales', 'routeDisableMeta', 'noPrefixRedirect', 'hmr', 'hooks']) expect(source).not.toContain(`"${key}":`)
+  })
+
   it('keeps useCookie in the build only when a cookie can be used', async () => {
     expect(await strategySource({ strategy: 'prefix' })).toContain('export const cookies = false')
     expect(await strategySource({ strategy: 'prefix', localeCookie: 'x' })).toContain('export const cookies = true')

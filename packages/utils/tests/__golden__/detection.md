@@ -113,7 +113,7 @@
 - `apply('en', explicit=true, auto=false, 'de')` → "en"
 - `apply('en', explicit=true, auto=true, 'de')` → "en"
 
-## resolveServerLocale
+## resolveLocale: url, query, cookie
 
 - `server(url=segment:null, q=null, cookie=null, auto=false)` → "en"
 - `server(url=segment:null, q=null, cookie=null, auto=true)` → "ru"
@@ -188,7 +188,7 @@
 - `server(url=segment:de, q=xx, cookie=xx, auto=false)` → "en"
 - `server(url=segment:de, q=xx, cookie=xx, auto=true)` → "ru"
 
-## resolvePreferredLocale
+## resolveLocale: state, cookie
 
 - `preferred(state=null, cookie=null, ignoreState=false, auto=false)` → "en"
 - `preferred(state=null, cookie=null, ignoreState=false, auto=true)` → "ru"

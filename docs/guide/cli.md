@@ -69,7 +69,7 @@ They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()`
 
 - a call uses it, or a key below or above it;
 - a string in the code equals it: `const key = 'menu.home'`, `<Item label="menu.home" />`;
-- a JSON or YAML file in the project contains it;
+- a JSON, YAML or Markdown file in the project contains it;
 - a computed key has a static start that covers it: `` $t(`status.${state}`) `` keeps everything under `status.`;
 - a layer defines it.
 

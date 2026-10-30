@@ -277,6 +277,12 @@ describe('engine', () => {
     expect(JSON.stringify([failure.message, failure.details])).not.toContain('super-secret')
   })
 
+  it('a URL that cannot be parsed loses its query string in the message', async () => {
+    const failure = (await translate('google', 'super-secret', { baseUrl: 'not-a-url' }).catch((error: unknown) => error)) as { message: string }
+    expect(failure.message).toContain('not-a-url')
+    expect(failure.message).not.toContain('super-secret')
+  })
+
   it('explains removed services and rejects unknown ones', () => {
     expect(() => resolveDriver('yandex')).toThrow('Use yandexcloud')
     expect(() => resolveDriver('ibm')).toThrow('removed')

@@ -89,7 +89,7 @@ export function writeFilesAtomic(files: Array<[path: string, content: string | B
   const originals: Array<Buffer | null> = []
   let done = 0
   try {
-    for (const [, target] of pending) originals.push(existsSync(target) ? readFileSync(target) : null)
+    for (const [, target] of pending) originals.push(statOf(target)?.isFile() ? readFileSync(target) : null)
     for (; done < pending.length; done += 1) renameSync(pending[done]![0], pending[done]![1])
   } catch (error) {
     for (const [temp] of pending) rmSync(temp, { force: true })

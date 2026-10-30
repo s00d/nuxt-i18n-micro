@@ -37,7 +37,7 @@ The first matching case decides the output:
 1. `number` — the translation with `{ ...params, number: $tn(number) }`.
 2. `date` — the translation with `{ ...params, date: $td(date) }`.
 3. `relativeDate` — the translation with `{ ...params, relativeDate: $tdr(relativeDate) }`.
-4. `plural` — the form `$tc` picks, with `{ ...params, count }`; or `customPluralRule(keypath, count, params, locale, t)` when set, whose answer is used as is, `null` being empty.
+4. `plural` — the form `$tc` picks, the [`=0 ` marker](/api/methods#tc) included, with `{ ...params, count }`; or `customPluralRule(keypath, count, params, locale, t)` when set, which reads the raw value, marker included, and whose answer is used as is, `null` being empty.
 5. Otherwise the translation with `params`.
 
 `null` counts as not set. In every case:

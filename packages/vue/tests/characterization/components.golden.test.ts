@@ -55,7 +55,11 @@ const messages = {
     count: 7,
   },
   de: { plain: 'Hallo', reorder: '{a} dann {b}' },
-  ru: { apples: 'яблоко | яблока | яблок', zeroFirst: 'нет яблок | одно яблоко | {count} яблок' },
+  ru: {
+    apples: 'яблоко | яблока | яблок',
+    zeroFirst: 'нет яблок | одно яблоко | {count} яблок',
+    marked: '=0 нет | {count} яблоко | {count} яблока | {count} яблок',
+  },
 }
 
 const slotA = () => h('b', 'A')
@@ -118,6 +122,10 @@ const T_CASES: [string, MountOptions][] = [
   ['plural ru zero-first 0', { locale: 'ru', props: { keypath: 'zeroFirst', plural: 0 } }],
   ['plural ru zero-first 1', { locale: 'ru', props: { keypath: 'zeroFirst', plural: 1 } }],
   ['plural ru zero-first 21', { locale: 'ru', props: { keypath: 'zeroFirst', plural: 21 } }],
+  ['plural ru marked 0', { locale: 'ru', props: { keypath: 'marked', plural: 0 } }],
+  ['plural ru marked 21', { locale: 'ru', props: { keypath: 'marked', plural: 21 } }],
+  ['plural ru marked 22', { locale: 'ru', props: { keypath: 'marked', plural: 22 } }],
+  ['customPluralRule marked', { locale: 'ru', props: { keypath: 'marked', plural: 1, customPluralRule: rule } }],
   ['customPluralRule', { props: { keypath: 'apples', plural: 4, params: { p: 1 }, customPluralRule: rule } }],
   ['customPluralRule null', { props: { keypath: 'apples', plural: 4, customPluralRule: () => null } }],
   ['customPluralRule miss', { props: { keypath: 'nope', plural: 4, customPluralRule: rule } }],

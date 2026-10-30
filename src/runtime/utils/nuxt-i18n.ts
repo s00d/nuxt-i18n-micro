@@ -651,6 +651,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     _ts: (route: RouteLocationNormalizedLoaded) => i18n.tsForRoute(route),
     tc: i18n.tc.bind(i18n),
     pluralFunc: i18n.pluralFunc,
+    pluralLocale: i18n.pluralLocale.bind(i18n),
     tn: i18n.tn.bind(i18n),
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),

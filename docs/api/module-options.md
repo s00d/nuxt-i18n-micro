@@ -402,7 +402,7 @@ A file path string is **not** supported.
 
 <!-- /generated:option:plural -->
 
-The built-in rule, `Intl.PluralRules` categories included, is described at [`$tc`](/api/methods#tc). Your function replaces it for what it answers; `null` hands the call back to it. The function receives `(key, count, params, locale, getter)`; `getter(key)` returns the raw string with all forms. Write it as a self-contained `function` or arrow expression (no method shorthand, no imports, no outer variables):
+The built-in rule and its `=0 ` marker are described at [`$tc`](/api/methods#tc). Your function replaces it for what it answers, gets the raw value with any marker in place, and `null` hands the call back to it. The function receives `(key, count, params, locale, getter)`; `getter(key)` returns the raw string with all forms. Write it as a self-contained `function` or arrow expression (no method shorthand, no imports, no outer variables):
 
 ```ts
 plural: function (key, count, params, locale, getter) {

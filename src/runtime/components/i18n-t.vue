@@ -10,9 +10,18 @@ const renderApi = { h, Fragment }
 
 /** Stateless, so functional: no instance per translation on a page of them. */
 const render: FunctionalComponent<I18nTRenderProps> = (props, { slots, attrs }) => {
-  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc } = useNuxtApp() as unknown as PluginsInjections
+  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc, $pluralLocale } = useNuxtApp() as unknown as PluginsInjections
   // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
-  const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, getLocale: $getLocale, pluralFunc: $pluralFunc } as unknown as TextHost
+  const host = {
+    t: $t,
+    tc: $tc,
+    tn: $tn,
+    td: $td,
+    tdr: $tdr,
+    getLocale: $getLocale,
+    pluralFunc: $pluralFunc,
+    pluralLocale: $pluralLocale,
+  } as unknown as TextHost
   return renderI18nT(renderApi, host, props, slots as RenderSlots, attrs) as VNode
 }
 

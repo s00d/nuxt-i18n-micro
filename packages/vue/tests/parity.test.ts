@@ -1,7 +1,7 @@
 // The Vue package and the Nuxt module side by side: both render through one code path, so every
 // test here runs over both components.
 import type { Locale } from '@i18n-micro/types'
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { type Component, createSSRApp, defineComponent, h, onMounted, ref, shallowRef } from 'vue'
 import { renderToString } from 'vue/server-renderer'
@@ -14,6 +14,7 @@ import { I18nSwitcher } from '../src/components/i18n-switcher'
 import { I18nT } from '../src/components/i18n-t'
 import { I18nInjectionKey, I18nLocalesKey } from '../src/injection'
 import { mountNuxt, mountVue, type MountOptions, vueInstance, wireNuxtApp } from './characterization/harness'
+import { routerBase } from './characterization/nuxt-stub'
 
 const messages = {
   en: {
@@ -102,6 +103,22 @@ describe('date output across hydration', () => {
   }
   const relativeDate = Date.UTC(2024, 5, 15, 11, 59, 30)
 
+  test.each([
+    ['vue', I18nT],
+    ['nuxt', NuxtT],
+  ] as [string, Component][])('%s: a date next to a slot does not warn either', async (side, component) => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'index', { dated: '{relativeDate}: {who}' })
+    wireNuxtApp(i18n)
+    const { html, warnings } = await render(() => {
+      const app = createSSRApp({ render: () => h(component, { keypath: 'dated', relativeDate }, { who: () => h('b', 'x') }) })
+      if (side === 'vue') app.provide(I18nInjectionKey, vueInstance({ en: { dated: '{relativeDate}: {who}' } }))
+      return app
+    })
+    expect(html).toContain('<b>x</b>')
+    expect(warnings.filter((line) => /Hydration/.test(line))).toEqual([])
+  })
+
   test('vue: a clock that moved on does not warn', async () => {
     const { html, warnings } = await render(() => {
       const app = createSSRApp({ render: () => h(I18nT, { keypath: 'ago', relativeDate }) })
@@ -126,13 +143,14 @@ describe('date output across hydration', () => {
 describe('the Nuxt i18n-t reads what $t reads', () => {
   test('an evicted chunk still renders from the active dictionary', () => {
     const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 1 })
+    i18n.setRouteContextResolver(() => ({ locale: 'en', routeName: 'index' }))
     i18n.applySwitchContext('en', 'index', { hi: 'Hello' })
     i18n.setChunk('en', 'other', { x: '1' })
     expect(i18n.hasChunk('en', 'index')).toBe(false)
     wireNuxtApp(i18n)
-    const { wrapper } = mountNuxt(NuxtT, { en: {} }, { props: { keypath: 'hi' } })
+    const wrapper = mount(NuxtT as never, { props: { keypath: 'hi' } as never })
+    expect(wrapper.text()).toBe('Hello')
     wrapper.unmount()
-    expect(i18n.t('hi')).toBe('Hello')
   })
 
   test('no route-bound lookup per render', () => {
@@ -274,6 +292,34 @@ describe.each(['vue', 'nuxt'] as const)('%s switcher', (side) => {
     wrapper.unmount()
   })
 
+  test('every attribute reaches the root, on the client and on the server', async () => {
+    const attrs = { id: 'lang', 'data-testid': 'sw', 'aria-label': 'Language', title: 'T', class: 'mine', style: 'color: red' }
+    const { wrapper } = mountSwitcher(side, { host: (inner) => defineComponent({ setup: () => () => h(inner, attrs) }) })
+    expect(wrapper.find('#lang').attributes()).toMatchObject({ 'data-testid': 'sw', 'aria-label': 'Language', title: 'T' })
+    expect(wrapper.find('#lang').classes()).toEqual(['i18n-switcher-wrapper', 'mine'])
+    wrapper.unmount()
+  })
+
+  test('a slot that appears after mount renders', async () => {
+    const show = ref(false)
+    const { wrapper } = mountSwitcher(side, {
+      host: (inner) => defineComponent({ setup: () => () => h(inner, null, show.value ? { 'before-button': () => h('em', 'new') } : {}) }),
+    })
+    expect(wrapper.find('em').exists()).toBe(false)
+    show.value = true
+    await flushPromises()
+    expect(wrapper.find('em').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  test('the current locale is marked for assistive tech', async () => {
+    const { wrapper } = mountSwitcher(side)
+    await open(wrapper)
+    expect(wrapper.find('.switcher-locale-en').attributes('aria-current')).toBe('page')
+    expect(wrapper.find('.switcher-locale-ar').attributes('aria-current')).toBeUndefined()
+    wrapper.unmount()
+  })
+
   test('both class names, so styles of either side keep working', () => {
     const { wrapper } = mountSwitcher(side)
     expect(wrapper.find('button').classes()).toEqual(['i18n-switcher-button', 'language-switcher'])
@@ -295,6 +341,27 @@ test('the Nuxt switcher keeps its links in the server HTML, the Vue one renders 
   const app = createSSRApp({ render: () => h(I18nSwitcher, { locales: LOCALES }) })
   app.provide(I18nInjectionKey, vueInstance(messages))
   expect(await renderToString(app)).not.toContain('switcher-locale-ar')
+})
+
+describe('the Nuxt switcher under app.baseURL', () => {
+  afterEach(() => {
+    routerBase.value = ''
+  })
+
+  test('links carry the base, in the server HTML too; a URL of another domain stays as it is', async () => {
+    routerBase.value = '/app'
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'index', {})
+    wireNuxtApp(i18n, {
+      $getLocales: () => LOCALES,
+      $getLocaleName: () => 'English',
+      $switchLocalePath: (code: string) => (code === 'ar' ? 'https://example.ae/page' : `/${code}/page`),
+      $switchLocale: () => {},
+    })
+    const html = await renderToString(createSSRApp({ render: () => h(NuxtSwitcher) }))
+    expect(html).toContain('href="/app/en/page"')
+    expect(html).toContain('href="https://example.ae/page"')
+  })
 })
 
 test('a Vue listener that throws stops neither the write nor the others', () => {

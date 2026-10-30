@@ -266,7 +266,8 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
   }
 
   const resolvePath = (to: I18nRouteTarget, locale: string): string => {
-    const path = typeof to === 'string' ? to : `${to.path || '/'}${to.hash ?? ''}`
+    const query = typeof to === 'string' ? '' : new URLSearchParams(to.query as Record<string, string>).toString()
+    const path = typeof to === 'string' ? to : `${to.path || '/'}${query && `?${query}`}${to.hash ?? ''}`
     return localizePath(path, locale)
   }
 

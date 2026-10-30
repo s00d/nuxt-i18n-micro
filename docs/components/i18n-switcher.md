@@ -45,7 +45,7 @@ outline: [2, 3]
 ## Behaviour
 
 - Lists every locale without `disabled: true`, the active one included.
-- Each entry is an `<a>` to `$switchLocalePath(code)` with `hreflang` and `lang` set to `iso || code`, `dir` when the locale has one, and class `switcher-locale-<code>`. A click calls `$switchLocale(code)` and closes the dropdown; with a modifier key it is left to the browser.
+- Each entry is an `<a>` to `$switchLocalePath(code)` under `app.baseURL`, with `hreflang` and `lang` set to `iso || code`, `dir` when the locale has one, `aria-current="page"` on the current locale, and class `switcher-locale-<code>`. A click calls `$switchLocale(code)` and closes the dropdown; with a modifier key it is left to the browser.
 - The list stays in the server HTML, hidden, so crawlers see the links. Escape or a click outside closes it.
 - Label: `customLabels[code]`, then the locale's `displayName`, then the code (with a dev warning).
 - Styles: small inline defaults (bordered white button and panel, the active entry bold and blue). Each `custom*Style` prop is applied after the default of its part. The button has the classes `i18n-switcher-button` and `language-switcher`, the wrapper `i18n-switcher-wrapper`, the list `i18n-switcher-dropdown`. Positions use logical CSS properties, so `dir="rtl"` works.

@@ -55,14 +55,8 @@ export function createSolidRouterAdapter(
     }),
 
     // Используем компонент A из @solidjs/router
-    linkComponent: ((props: { href: string; children?: JSX.Element; class?: string; style?: JSX.CSSProperties; [key: string]: unknown }) => {
-      const { href, children, class: className, style, ...restProps } = props
-      return (
-        <A href={href} class={className} style={style} {...restProps}>
-          {children}
-        </A>
-      ) as unknown as JSX.Element
-    }) as unknown as Component<{
+    linkComponent: ((props: { href: string; children?: JSX.Element; class?: string; style?: JSX.CSSProperties; [key: string]: unknown }) =>
+      (<A {...props} />) as unknown as JSX.Element) as unknown as Component<{
       href: string
       children?: JSX.Element
       style?: JSX.CSSProperties

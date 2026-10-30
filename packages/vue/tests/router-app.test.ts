@@ -2,7 +2,7 @@
 // built-in link and switcher, and useLocaleHead for SEO tags. Each test walks one user journey.
 import type { Locale } from '@i18n-micro/types'
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createRouter, createWebHistory, RouterView } from 'vue-router'
 import { createI18n, I18nLink, I18nSwitcher, useI18n, useLocaleHead } from '../src'
@@ -45,7 +45,6 @@ async function mountShop(path: string, locale = 'en') {
     setup() {
       api = useI18n()
       head = useLocaleHead({ baseUrl: 'https://shop.test' })
-      // x-default reads the default locale with inject(), so only a call during setup emits it
       head.updateMeta()
       return () =>
         h('div', [
@@ -98,6 +97,8 @@ test('a visitor browses, switches language from code and from the switcher, and 
   // the switcher: closed by default, label from customLabels, opens on click
   const button = wrapper.find('button.i18n-switcher-button')
   expect(button.text()).toBe('DE▼')
+  expect(button.attributes('aria-haspopup')).toBe('true')
+  expect(button.attributes('ariahaspopup')).toBeUndefined()
   expect(button.attributes('aria-expanded')).toBe('false')
   expect(wrapper.find('.i18n-switcher-dropdown').exists()).toBe(false)
   await button.trigger('click')
@@ -204,11 +205,17 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'ar-EG', dir: 'rtl' })
   expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar/' })
 
-  // the default locale has no prefix to strip
+  // the default locale has no prefix to strip; called after setup (as from a route watcher)
+  // it still emits x-default, and a whitelisted query param from the router stays on the canonical
+  const warn = vi.spyOn(console, 'warn')
   api().switchLocale('en')
   await flushPromises()
-  head().updateMeta()
+  await router.push('/?page=2&utm=x')
+  head().updateMeta(['page'])
   expect(router.currentRoute.value.path).toBe('/')
   expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'en-US', dir: 'auto' })
-  expect(head().metaObject.value.link[0]).toEqual({ id: 'i18n-can', rel: 'canonical', href: 'https://shop.test/' })
+  expect(head().metaObject.value.link[0]).toEqual({ id: 'i18n-can', rel: 'canonical', href: 'https://shop.test/?page=2' })
+  expect(head().metaObject.value.link.at(-1)).toEqual({ id: 'i18n-xd', rel: 'alternate', href: 'https://shop.test/', hreflang: 'x-default' })
+  expect(warn).not.toHaveBeenCalled()
+  warn.mockRestore()
 })

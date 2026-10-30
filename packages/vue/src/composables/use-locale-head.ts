@@ -45,6 +45,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
 
   const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
   const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
+  // inject() only works during setup, and updateMeta is documented to run from a watcher
+  const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
 
   const metaObject = ref<MetaObject>({
     htmlAttrs: {},
@@ -83,7 +85,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const currentOg = resolveOgLocale(currentLocaleObj)
     const currentDir = currentLocaleObj.dir || 'auto'
 
-    let fullPath = routerStrategy.getCurrentPath()
+    // the canonical keeps whitelisted query params, so prefer the route's fullPath (with query)
+    let fullPath = routerStrategy.getRoute?.().fullPath ?? routerStrategy.getCurrentPath()
     if (!fullPath.startsWith('/')) {
       fullPath = `/${fullPath}`
     }
@@ -199,7 +202,6 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     // Generate x-default hreflang link pointing to the default locale's URL.
     // x-default tells search engines which URL to show when none of the
     // specified languages match the user's browser settings.
-    const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
     let xDefaultLink: MetaLink | null = null
     const defaultLocObj = injectedDefaultLocale ? allLocales.find((l: Locale) => l.code === injectedDefaultLocale) : undefined
     if (i18nLocaleRoute && routerStrategy && injectedDefaultLocale && defaultLocObj?.seo !== false) {

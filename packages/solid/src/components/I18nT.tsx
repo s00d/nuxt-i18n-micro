@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import { type Component, createMemo, type JSX, splitProps } from 'solid-js'
+import { type Component, createMemo, type JSX, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { useI18nContext } from '../injection'
 
@@ -101,25 +101,18 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
     )
   }
 
-  // Если html=false, рендерим как текст (Solid автоматически экранирует HTML)
-  const translationValue = translation()
-  if (local.hideIfEmpty && !translationValue.trim()) {
-    if (local.defaultValue) {
-      return (
-        <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)}>
-          {local.defaultValue}
-        </Dynamic>
-      ) as unknown as JSX.Element
-    }
-    return null as unknown as JSX.Element
-  }
+  // Text mode: Solid escapes it. Read inside JSX so it follows the locale and route;
+  // a blank value with hideIfEmpty shows defaultValue or nothing at all.
+  const text = createMemo(() => {
+    const value = translation()
+    return local.hideIfEmpty && !value.trim() ? local.defaultValue || null : value
+  })
 
   return (
-    // @ts-expect-error - Dynamic component type conflict with Vue JSX
-    (
+    <Show when={text() !== null}>
       <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)}>
-        {translationValue}
+        {text()}
       </Dynamic>
-    ) as unknown as JSX.Element
-  )
+    </Show>
+  ) as unknown as JSX.Element
 }

@@ -302,8 +302,8 @@ export const I18nSwitcher = defineComponent({
               toggleDropdown(e)
             },
             type: 'button',
-            ariaHaspopup: true,
-            ariaExpanded: dropdownOpen.value,
+            'aria-haspopup': 'true',
+            'aria-expanded': String(dropdownOpen.value),
           },
           buttonContent,
         ),

@@ -216,7 +216,7 @@ my-project/
 └── nuxt.config.ts
 ```
 
-Optional colocation: `i18n: { translationDir: 'app/locales' }` (see [fixture `n3`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/n3)).
+Optional colocation: `i18n: { translationDir: 'app/locales' }` (the `n3` variant of the test fixture [`basic`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/basic) keeps its locales in `n3/locales`).
 
 For the optional CLI helper `text-to-i18n`, use [`nuxt-i18n-micro-cli` ≥ 2.1.1](/guide/cli#-text-to-i18n-command) so `app/pages` and `app/components` are scanned from the project root.
 

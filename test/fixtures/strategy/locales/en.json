@@ -2,5 +2,16 @@
   "key0": "en",
   "generic": {
     "welcome": "Welcome to the page!"
+  },
+  "shared": "Shared EN",
+  "layout": {
+    "title": "My App",
+    "nav": {
+      "home": "Home",
+      "about": "About"
+    }
+  },
+  "page": {
+    "welcome": "Welcome to our site"
   }
 }

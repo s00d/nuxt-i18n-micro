@@ -131,7 +131,12 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run check:versions 2>&1 | tee "$CI_LOG_DIR/versions.log"
+          # baseline is main, not the PR base: a stacked PR's base is the previous step, and every
+          # step would need a new bump of every dependent. --npm also rejects published versions.
+          # A push to main keeps the command's own default (last tag): there merge-base is HEAD.
+          base_args=()
+          if [ "${{ github.event_name }}" = "pull_request" ]; then base_args=(--base "$(git merge-base origin/main HEAD)"); fi
+          pnpm run check:versions -- "${base_args[@]}" --npm 2>&1 | tee "$CI_LOG_DIR/versions.log"
           exit "${PIPESTATUS[0]}"
 
       # Memory headroom on the runner, for the record: ubuntu-latest gives

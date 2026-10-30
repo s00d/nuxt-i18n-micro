@@ -1,20 +1,13 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { pollUntil } from './sequential'
-
-export const translationWatcherFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher', import.meta.url))
-
-export const translationWatcherSourceFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher-source', import.meta.url))
 
 /**
  * File mutations bound to one fixture.
  *
  * These suites edit translation files on disk to trigger the dev watcher, so each
  * spec must own its files: the two HMR specs assert different values for the same
- * key and now run in parallel. (Both used to write into the premerged fixture —
- * the source fixture's `locales` was a symlink to it — which only stayed green
- * while the suite ran serially.)
+ * key and run in parallel, so each gets its own temp copy (`tmpFixture` variants).
  */
 export function createTranslationWatcherFiles(fixtureRoot: string, localesDirName = 'locales') {
   const localesRoot = join(fixtureRoot, localesDirName)

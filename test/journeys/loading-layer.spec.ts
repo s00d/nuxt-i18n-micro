@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'untestutils/vitest'
 
 describe('J8 translation loading: layer', () => {
-  test.override({ harness: 'layer' })
+  test.override({ harness: 'basic-layer' })
 
   // was: layer › test layer
   test('layer overrides, disabled locale 404, layer-only locale', async ({ page, goto, request }) => {

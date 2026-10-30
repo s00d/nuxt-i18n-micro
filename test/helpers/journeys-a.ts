@@ -3,7 +3,7 @@ import { expect } from 'untestutils/vitest'
 
 type Goto = (path: string, options?: Record<string, unknown>) => Promise<unknown>
 
-/** The activity slug tree of `basic` / `undefault`: localized segments per locale, under a URL prefix. */
+/** The activity slug tree of `basic` (and `basic-prefix`): localized segments per locale, under a URL prefix. */
 export interface ActivitySlugs {
   /** URL prefix of the locale: '' (default under pec), '/en', '/de'. */
   prefix: string
@@ -33,7 +33,7 @@ export const deActivity = (prefix: string): ActivitySlugs => ({
   text: 'Willkommen auf der Seite!',
 })
 
-/** Walks the activity tree: every href, then each child link from a fresh /activity. was: locale-slug › Test Locale Path (+ de, + undefault en) */
+/** Walks the activity tree: every href, then each child link from a fresh /activity. was: locale-slug › Test Locale Path (+ de, + basic-prefix en) */
 export async function walkActivity(page: Page, goto: Goto, s: ActivitySlugs) {
   const root = `${s.prefix}/activity`
   const change = `${s.prefix}${s.change}`

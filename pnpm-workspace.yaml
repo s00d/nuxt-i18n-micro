@@ -6,6 +6,7 @@ packages:
   - 'docs'
   - 'scripts'
   - 'playground'
+  - 'scripts/perf-fixtures/*'
   - 'test/fixtures/**/*'
 
 catalog:
@@ -35,7 +36,6 @@ catalog:
   '@nuxtjs/sitemap': ^8.5.1
   '@nuxtjs/seo': ^5.3.16
   '@nuxtjs/i18n': ^10.6.0
-  '@nuxthub/core': ^0.10.8
   # Vue
   vue: ^3.5.43
   '@vue/compiler-sfc': ^3.5.43
@@ -108,7 +108,6 @@ catalog:
   unplugin: ^1.16.1 || ^2.0.0 || ^3.4.0
   serve: ^14.2.6
   wrangler: ^4.0.0
-  vue-final-modal: ^4.5.5
   nitropack: 2.9.6
   '@intlify/message-compiler': ^11.4.12
   # Pinned for pnpm.overrides (exact)

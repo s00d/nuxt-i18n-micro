@@ -11,7 +11,7 @@ The module ships integration tests that exercise all four routing strategies aga
 ## Commands
 
 ```bash
-# All strategy scenarios (static generate + SSR build per strategy)
+# Static generate of every strategy
 pnpm run test:strategies
 
 # Fast unit tests only — no builds, no browser (~1s)
@@ -43,18 +43,15 @@ The `unit` / `integration` split has a single source of truth: `INTEGRATION_TEST
 
 ## What the strategy suites cover
 
-For each strategy (`no_prefix`, `prefix_except_default`, `prefix`, `prefix_and_default`) there is one file — `test/strategies-<strategy>.test.ts` — so Vitest, which parallelizes per file, can run all four concurrently. They share one implementation in `test/helpers/strategy-suite.ts`:
+For each strategy (`no_prefix`, `prefix_except_default`, `prefix`, `prefix_and_default`) there is one file — `test/strategies-<strategy>.test.ts` — so Vitest, which parallelizes per file, can run all four concurrently. They share one implementation in `test/helpers/strategy-suite.ts`: `nuxi generate` into an isolated build dir (`NUXT_TEST_BUILD_DIR`), then the output is read from disk — locale routes, prerender success, payload files, nested routes. It is one chain (a single `test`), so a strategy costs one build.
 
-1. **Static generate** — runs `nuxi generate` into an isolated build dir (`NUXT_TEST_BUILD_DIR`) and reads the output from disk: locale routes, prerender success, payload files, nested routes.
-2. **SSR build** — runs `nuxi build`, starts the Nitro server, checks the same routes over HTTP.
-
-Each phase is one chain (a single `test`), so a strategy costs two builds.
+The server side of the same routes is not built again here: each `test/journeys/strategies-*.spec.ts` requests every URL of `CASES[strategy].routes` directly on its recipe's server build (`directRoutes` in `test/helpers/journeys-b.ts`).
 
 ## Parallelism
 
 Two rules keep build-spawning suites safe to run concurrently:
 
-- **Own build dir per suite and phase** — `isolatedBuild(fixture, name)` points `NUXT_TEST_BUILD_DIR` at `test/fixtures/<fixture>/.nuxt-test/<name>/`, so nothing rimrafs or reads another suite's output.
+- **Own build dir per suite** — `isolatedBuild(fixture, name)` points `NUXT_TEST_BUILD_DIR` at `test/fixtures/<fixture>/.nuxt-test/<name>/`, so nothing rimrafs or reads another suite's output.
 - **OS-assigned ports, handle-based shutdown** — take ports from `getFreePort()` (`test/helpers/port.ts`, binds port 0) and stop servers with `stopChild()` (`test/helpers/subprocess.ts`), which kills the whole process group. Never free a port by killing whatever process owns it (`lsof -ti tcp:<port>` + `SIGKILL`): with parallel workers that can kill a sibling suite's server, which surfaces as an unrelated `ERR_IPC_CHANNEL_CLOSED` crash.
 
 ## E2E journeys
@@ -62,10 +59,13 @@ Two rules keep build-spawning suites safe to run concurrently:
 Browser e2e runs through [untestutils](https://github.com/s00d/untestutils) and a real Playwright browser against real Nuxt servers.
 
 - **Recipes** — `test/recipes.ts` names one build per fixture variant (`app('strategy-prefix', 'strategy', { STRATEGY: 'prefix' })`). Builds are hashed by fixture dir + `src/`, cached in `test/.untestutils/builds` (CI caches that dir) and started once per run.
+- **Fewer fixtures, more pages** — a new check goes into an existing fixture as a page. A variant of a fixture is one recipe line plus an env switch read by its `nuxt.config.ts` (`BASIC_VARIANT`, `STRATEGY`, `TRANSLATION_PAYLOADS`), or a `nuxtConfig` override for a global URL shape (`hashMode`, `app.baseURL`, `trailingSlash`); never a copied dir. Overrides are a defu merge, so arrays concatenate: never pass `locales` that way, switch them by env. A build-time option that conflicts with the rest of a fixture (`pages: false`, a global `fallbackLocale`, another locale list) is a variant too; `basic/layer` is the only nested app, because `extends` needs a second root. Suites that build a fixture themselves (`@nuxt/test-utils` `setup()`, `nuxi build`/`generate`) set the same env as the recipe.
+- **Fixtures** — `basic` (the public API; variants `prefix`, `pages-false`, `serverless`, `n3`, and `basic/layer`), `strategy` (the four strategies and detection), `seo`, `integrations` (extra Nuxt modules), `translation-watcher` (dev HMR). The benchmark apps live in `scripts/perf-fixtures`.
+- **Generated locale files are committed** — a build creates an empty `locales/pages/<page>/<locale>.json` for every page without one. Commit them: a file that appears mid-run changes the fixture hash, and the forks then reject the recipe (`bound to conflicting identities`).
 - **Journeys** — `test/journeys/*.spec.ts`. One spec walks one real flow on one fixture: visit, browse, switch locale, reload, detection, head. Each step has a `// step n: action → assert` comment, and a `// was: <old spec › test>` comment where an older assertion was folded in.
 - **One harness per file** — `test.override({ harness: '<recipe>' })` at the top of the `describe`. A second harness in the same file would reach the first one's server, so split such journeys into their own files.
 - **Stability rules** — no `waitForTimeout`, no `networkidle`; statuses come from `request.get(path)`, with `{ maxRedirects: 0 }` where the redirect itself is checked; no optional `if` assertions; console collectors are armed before the first `goto`. Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
-- **Never write inside the repo tree** — specs that edit locale files (dev HMR) or a config (`storage-cwd`) run on a temp copy from `tmpFixture()` in `test/helpers/tmp-fixture.ts`, so a parallel build never hashes a patched fixture.
+- **Never write inside the repo tree** — specs that edit locale files (dev HMR) or start a server from the build output (`storage-cwd`) run on a temp copy from `tmpFixture()` in `test/helpers/tmp-fixture.ts`, so a parallel build never hashes a patched fixture.
 
 ## Mutation testing
 

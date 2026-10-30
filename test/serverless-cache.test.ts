@@ -12,25 +12,31 @@ const $fetch = nuxtFetch as (url: string, opts?: object) => Promise<unknown>
 // through the handler, behind the fixture's `/_locales/**` route cache. An fs cache driver makes
 // that cache serialize, so a payload that does not survive JSON breaks here.
 const cacheDir = fileURLToPath(new URL('../.data/test-cache', import.meta.url))
-const payload = (locale: string) => $fetch(`/_locales/index/${locale}/data.json`) as Promise<Record<string, string>>
+const basicDir = fileURLToPath(new URL('./fixtures/basic', import.meta.url))
+const readLocale = (file: string) => JSON.parse(readFileSync(join(basicDir, 'locales', file), 'utf-8')) as Record<string, unknown>
+const payload = (locale: string) => $fetch(`/_locales/cache/${locale}/data.json`) as Promise<Record<string, string>>
+// Nitro names an entry after the first 16 chars of the route (`_localescacheen`), so the page name stays short.
 const cacheFiles = () => readdirSync(cacheDir, { recursive: true }).map(String)
 
 describe('serverless: translation payloads through a serialized route cache', async () => {
   await rm(cacheDir, { recursive: true, force: true })
+  // the e2e `basic-serverless` variant (nuxt.config reads it at build time, in this process)
+  process.env.BASIC_VARIANT = 'serverless'
   await setup({
-    rootDir: fileURLToPath(new URL('./fixtures/serverless', import.meta.url)),
+    rootDir: basicDir,
     server: true,
     nuxtConfig: { nitro: { serveStatic: false, storage: { cache: { driver: 'fs', base: cacheDir } } } },
   })
   afterAll(() => rm(cacheDir, { recursive: true, force: true }))
 
   test('cold, warm, every locale, unknown locale, parallel cold start', async () => {
-    // step 1: cold request → root and page keys merged, written to the disk cache
+    // step 1: cold request → exactly the root file and the /cache page file merged, written to the disk cache
     const en = await payload('en')
-    expect(en).toEqual({ hello: 'Hello World', welcome: 'Welcome to our site', pageTitle: 'Home Page', pageContent: 'This is the home page content' })
+    expect(en).toEqual({ ...readLocale('en.json'), ...readLocale('pages/cache/en.json') })
+    expect(en).toMatchObject({ hello: 'Hello World', pageTitle: 'Home Page' })
     // Nitro writes the entry after responding (waitUntil): wait until it is on disk and complete,
     // or the edit below can land on a half-written file and be overwritten
-    const entryPath = () => join(cacheDir, cacheFiles().find((f) => f.includes('index') && f.includes('en')) ?? '')
+    const entryPath = () => join(cacheDir, cacheFiles().find((f) => f.includes('_localescacheen')) ?? '')
     const entryText = () => {
       try {
         return readFileSync(entryPath(), 'utf-8')
@@ -48,7 +54,7 @@ describe('serverless: translation payloads through a serialized route cache', as
     const [de, fr] = [await payload('de'), await payload('fr')]
     expect(de).toMatchObject({ hello: 'Hallo Welt', pageTitle: 'Startseite' })
     expect(fr).toMatchObject({ pageTitle: "Page d'accueil" })
-    for (const locale of ['de', 'fr']) expect(cacheFiles().some((f) => f.includes(locale))).toBe(true)
+    for (const locale of ['de', 'fr']) expect(cacheFiles().some((f) => f.includes(`_localescache${locale}`))).toBe(true)
 
     // step 4: an unknown locale is a 404, not a crash
     await expect(payload('unknown-locale')).rejects.toMatchObject({ statusCode: 404, statusMessage: expect.stringContaining('Locale not found') })

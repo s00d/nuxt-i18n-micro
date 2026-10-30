@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'untestutils/vitest'
 
+// `basic` fixture: /async-components is the suite home, the two test pages are ssr:false.
 describe('J8 translation loading: async components', () => {
-  test.override({ harness: 'async-components' })
+  test.override({ harness: 'basic' })
 
   test('page 1: async components render translated, dynamic load, navigation', async ({ page, goto }) => {
     // step 1: open /async-components-test → title, description, 5 sections
@@ -52,7 +53,7 @@ describe('J8 translation loading: async components', () => {
     await expect(page).toHaveURL('/async-components-test')
     await expect(page.locator('#dynamic-component-container')).not.toBeVisible()
     await page.click('text=Back to Home')
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL('/async-components')
   })
 
   test('locales: switching re-translates async components on both pages', async ({ page, goto }) => {
@@ -122,22 +123,22 @@ describe('J8 translation loading: async components', () => {
     await expect(page.locator('#toggle-conditional-btn')).toHaveText('Show Component')
     await expect(page.locator('#conditional-component-container')).not.toBeVisible()
 
-    // step 5: home → h1, links to both tests, locale buttons → /ru, /de titles
+    // step 5: suite home → h1, links to both tests, locale buttons → /ru, /de titles
     // was: async-components › main page navigation works; › locale switching on main page works
-    await goto('/', { waitUntil: 'hydration' })
+    await goto('/async-components', { waitUntil: 'hydration' })
     await expect(page.locator('h1')).toHaveText('Async Components Test Suite')
     await page.click('text=🧪 Async Components Test 1')
     await expect(page).toHaveURL('/async-components-test')
-    await goto('/', { waitUntil: 'hydration' })
+    await goto('/async-components', { waitUntil: 'hydration' })
     await page.click('text=🧪 Async Components Test 2')
     await expect(page).toHaveURL('/async-components-test-2')
-    await goto('/', { waitUntil: 'hydration' })
+    await goto('/async-components', { waitUntil: 'hydration' })
     await expect(page.locator('text=Current Locale:')).toBeVisible()
     await page.click('button:has-text("Русский")')
-    await expect(page).toHaveURL('/ru')
+    await expect(page).toHaveURL('/ru/async-components')
     await expect(page.locator('h1')).toHaveText('Набор Тестов Асинхронных Компонентов')
     await page.click('button:has-text("Deutsch")')
-    await expect(page).toHaveURL('/de')
+    await expect(page).toHaveURL('/de/async-components')
     await expect(page.locator('h1')).toHaveText('Async-Komponenten Test-Suite')
   })
 })

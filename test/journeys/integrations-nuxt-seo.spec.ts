@@ -1,8 +1,10 @@
 import { extractJsonLd, extractSitemapLocs, parseSeoHead } from 'untestutils/utils'
 import { describe, expect, test } from 'untestutils/vitest'
 
+// `integrations` fixture: @nuxtjs/seo and @nuxt/content in one build, prefix, en/de/cs; /company is the about page
+// (content owns /about)
 describe('J9 integrations: @nuxtjs/seo (#133)', () => {
-  test.override({ harness: 'nuxt-seo' })
+  test.override({ harness: 'integrations' })
 
   test('browser: localized pages and i18n-link navigation', async ({ page, goto }) => {
     // step 1: open /en and /de → locale and hello per locale
@@ -16,11 +18,11 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
     await expect(page.locator('#locale')).toHaveText('de')
     await expect(page.locator('#hello')).toHaveText('Hallo')
 
-    // step 2: /en → #about-link → /en/about → #home-link → /en
+    // step 2: /en → #about-link → /en/company → #home-link → /en
     // was: nuxt-seo › client navigation between localized routes works with i18n-link
     await goto('/en', { waitUntil: 'hydration' })
     await page.click('#about-link')
-    await expect(page).toHaveURL('/en/about')
+    await expect(page).toHaveURL('/en/company')
     await expect(page.locator('#about-title')).toHaveText('About EN')
     await page.click('#home-link')
     await expect(page).toHaveURL('/en')
@@ -52,12 +54,15 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
       expect(body).toContain('<urlset')
       const locs = extractSitemapLocs(body)
       expect(locs.length).toBeGreaterThan(0)
-      expect(locs.some((loc) => loc.includes('/en') || loc.includes('/de'))).toBe(true)
+      expect(
+        locs.some((loc) => /\/(en|de|cs)(\/|$)/.test(new URL(loc).pathname)),
+        path,
+      ).toBe(true)
     }
 
-    // step 3: GET /en/about → html lang, hreflangs on site.url, translated title and description
+    // step 3: GET /en/company → html lang, hreflangs on site.url, translated title and description
     // was: nuxt-seo › SSR: micro hreflang and html lang; › SSR: site-config i18n uses translated nuxtSiteConfig per locale
-    const enHtml = await (await request.get('/en/about')).text()
+    const enHtml = await (await request.get('/en/company')).text()
     expect(enHtml).toMatch(/<html[^>]*lang="en-US"/)
     const alternates = parseSeoHead(enHtml).hreflangs
     expect(alternates.some((link) => link.hreflang === 'en-US' && link.href.startsWith('https://example.com/'))).toBe(true)
@@ -68,13 +73,13 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
 
     // step 4: same page → canonical and og:url from site.url (#240), og:locale en_US
     // was: nuxt-seo › SSR: canonical and og:url use site.url when metaBaseUrl is unset (#240); › canonical and og:url tags are present
-    expect(enHtml).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/example\.com\/en\/about"/)
-    expect(enHtml).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/example\.com\/en\/about"/)
+    expect(enHtml).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/example\.com\/en\/company"/)
+    expect(enHtml).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/example\.com\/en\/company"/)
     expect(enHtml).toMatch(/<meta[^>]*property="og:locale"[^>]*content="en_US"/)
 
-    // step 5: GET /de/about → de lang, site title, description, page content
+    // step 5: GET /de/company → de lang, site title, description, page content
     // was: nuxt-seo › SSR: translated page content per locale
-    const deHtml = await (await request.get('/de/about')).text()
+    const deHtml = await (await request.get('/de/company')).text()
     expect(deHtml).toMatch(/<html[^>]*lang="de-DE"/)
     expect(deHtml).toContain('<title>Site DE</title>')
     expect(deHtml).toMatch(/<meta[^>]*name="description"[^>]*content="Deutsche Seitenbeschreibung"/)

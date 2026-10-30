@@ -93,9 +93,9 @@ outline: "deep"
 
 ## Project Information
 
-- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
-- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
-- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
+- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/plain-nuxt)**: ./scripts/perf-fixtures/plain-nuxt
+- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n-micro)**: ./scripts/perf-fixtures/i18n-micro
+- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n)**: ./scripts/perf-fixtures/i18n
 - **CLI**: \`pnpm test:performance\`
 
 ### Description
@@ -121,7 +121,7 @@ All metrics below are **means across ${runs} runs**.
 `
       append(`\n${fixtureProfileMarkdown(profile)}\n`)
 
-      const i18nFixtureDir = join(repoRoot, 'test/fixtures/i18n')
+      const i18nFixtureDir = join(repoRoot, 'scripts/perf-fixtures/i18n')
       const rootPackagePath = join(repoRoot, 'package.json')
       const nuxtVersion = getInstalledVersion('nuxt', i18nFixtureDir)
       const dependencies = {
@@ -197,7 +197,7 @@ function writeBuildSection(write: (c: string) => void, result: PerfTargetResult)
   const b = result.build
   const bundle = b.bundle
   write(`
-## Build Performance for test/fixtures/${result.id}
+## Build Performance for scripts/perf-fixtures/${result.id}
 
 - **Build Time**: ${b.buildTimeSec.toFixed(2)} seconds
 - **Bundle Size**: ${formatBytes(bundle?.total || 0)} (code: ${formatBytes(bundle?.code || 0)}, translations: ${formatBytes(bundle?.asset || 0)})

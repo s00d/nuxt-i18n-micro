@@ -1,8 +1,0 @@
-{
-  "hello": "Hello",
-  "aboutTitle": "About EN",
-  "nuxtSiteConfig": {
-    "name": "Site EN",
-    "description": "English site description"
-  }
-}

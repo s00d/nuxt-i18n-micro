@@ -6,30 +6,31 @@ async function switchToCs(page: Page) {
   await page.locator('.switcher-locale-cs').click()
 }
 
+// `integrations` fixture: @nuxt/content and @nuxtjs/seo in one build, prefix, en/de/cs
 describe('J9 integrations: @nuxt/content', () => {
-  test.override({ harness: 'content' })
+  test.override({ harness: 'integrations' })
 
   test('content pages per locale, links and the switcher', async ({ page, goto }) => {
-    // step 1: open /about (en) → heading, text, Contact link → /contact Phone
+    // step 1: open /en/about → heading, text, Contact link → /en/contact Phone
     // was: content › Test About Page
-    await goto('/about', { waitUntil: 'hydration' })
-    await expect(page).toHaveURL('/about')
+    await goto('/en/about', { waitUntil: 'hydration' })
+    await expect(page).toHaveURL('/en/about')
     await expect(page.getByRole('heading', { level: 1 })).toContainText('About Us')
     await expect(page.getByText('Learn more about our mission and values.')).toBeVisible()
     const enLink = page.getByRole('link', { name: 'Contact Us' })
-    await expect(enLink).toHaveAttribute('href', '/contact')
+    await expect(enLink).toHaveAttribute('href', '/en/contact')
     await enLink.click()
-    await expect(page).toHaveURL('/contact')
+    await expect(page).toHaveURL('/en/contact')
     await expect(page.getByText('Phone')).toBeVisible()
 
-    // step 2: switch to cs on /contact → /cs/contact Telefon
+    // step 2: switch to cs on /en/contact → /cs/contact Telefon
     await switchToCs(page)
     await expect(page).toHaveURL('/cs/contact')
     await expect(page.getByText('Telefon')).toBeVisible()
 
-    // step 3: open /about, switch to cs → /cs/about cs content, link → /cs/contact Telefon
+    // step 3: open /en/about, switch to cs → /cs/about cs content, link → /cs/contact Telefon
     // was: content › Test cs About Page
-    await goto('/about', { waitUntil: 'hydration' })
+    await goto('/en/about', { waitUntil: 'hydration' })
     await switchToCs(page)
     await expect(page).toHaveURL('/cs/about')
     await expect(page.getByRole('heading', { level: 1 })).toContainText('O nás')

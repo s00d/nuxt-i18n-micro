@@ -1,5 +1,5 @@
 /**
- * useI18nHead on a static site: `nuxi generate` of the use-i18n-head fixture, then the prerendered
+ * useI18nHead on a static site: `nuxi generate` of the seo fixture (SEO_VARIANT=use-i18n-head), then the prerendered
  * HTML and the served site in a browser. The same scenarios on a server build (SSR head, SPA
  * navigation, the client-fetched /reactive page) are the journey test/journeys/page-head-use-i18n-head.spec.ts.
  */
@@ -8,6 +8,7 @@ import type { ChildProcess } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { stripVTControlCharacters } from 'node:util'
 import { rm } from 'node:fs/promises'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
@@ -16,7 +17,7 @@ import { isolatedBuild } from './helpers/isolated-build'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
-const build = isolatedBuild('use-i18n-head', 'use-i18n-head-generate')
+const build = isolatedBuild('seo', 'use-i18n-head-generate')
 const FIXTURES = build.fixtureDir
 const OUTPUT_DIR = build.outputDir
 const OUTPUT_PUBLIC = build.publicDir
@@ -25,7 +26,7 @@ const HOST = '127.0.0.1'
 function runGenerate(): Promise<string> {
   return runCommand('npx', ['nuxi', 'generate'], {
     cwd: FIXTURES,
-    env: build.env,
+    env: { ...build.env, SEO_VARIANT: 'use-i18n-head' },
   })
 }
 
@@ -51,6 +52,7 @@ async function waitForServer(port: number, path = '/') {
 describe('useI18nHead after nuxi generate', () => {
   let port = 0
   let server: ChildProcess | null = null
+  let generateLog = ''
 
   const stopServer = async () => {
     // stopChild kills the whole process group, so the port is released with it.
@@ -60,7 +62,7 @@ describe('useI18nHead after nuxi generate', () => {
 
   beforeAll(async () => {
     await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
-    await runGenerate()
+    generateLog = stripVTControlCharacters(await runGenerate())
     port = await getFreePort()
     server = serveStatic(port)
     await waitForServer(port, '/')
@@ -85,6 +87,24 @@ describe('useI18nHead after nuxi generate', () => {
       expectHtmlScenario(readFileSync(htmlPath, 'utf-8'), scenario)
     }
     expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/reactive'), 'utf-8')).toContain('Reactive article')
+  })
+
+  test('route rules are localized once: prerendered and SPA pages in every locale', () => {
+    // step 1: the prerender rule reaches fr as /fr/prerendered, never /fr/fr (#218)
+    // was: generate-issue-218 › builds without /fr/fr prerender errors (it only checked the log)
+    expect(generateLog).toMatch(/├─ \/fr\/prerendered /)
+    expect(generateLog).not.toContain('/fr/fr')
+    expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/prerendered'), 'utf-8')).toContain('Prerendered page')
+    expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/fr/prerendered'), 'utf-8')).toContain('Page prérendue')
+    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr'))).toBe(false)
+
+    // step 2: the ssr:false rule is localized too: /spa and /fr/spa are SPA shells
+    // was: async-components-production › the ssr:false pages are SPA shells in every locale
+    for (const path of ['/spa', '/fr/spa']) {
+      const html = readFileSync(staticHtmlPath(OUTPUT_PUBLIC, path), 'utf-8')
+      expect(html).toContain('<div id="__nuxt"></div>')
+      expect(html).toContain('data-ssr="false"')
+    }
   })
 
   test('static site in a browser: index links, reload, direct visit', { timeout: 120_000 }, async () => {

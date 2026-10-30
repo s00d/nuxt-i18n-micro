@@ -1,6 +1,6 @@
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { type MockServer, cliBin, createProject, json, removeProject, runCli, startMock } from './harness'
@@ -77,7 +77,7 @@ describe('sync', () => {
     const before = read(dir, 'locales/de.json')
     const result = await runCli(['sync', '--force', '--ignore', 'nuxt.config.ts'], { cwd: dir })
     expect(result.code).not.toBe(0)
-    expect(result.stderr).toContain('No source files')
+    expect(result.stderr).toContain('nothing proves a key unused or extra')
     expect(read(dir, 'locales/de.json')).toBe(before)
   })
 })
@@ -193,6 +193,16 @@ describe('lint', () => {
     expect(readJson(dir, 'locales/en.json').a).toBe('bar')
   })
 
+  it('--fix of a rule without the g flag replaces every match', async () => {
+    project({
+      'locales/en.json': { a: 'foo foo' },
+      'locales/de.json': {},
+      '.i18n-lintrc.json': rules({ name: 'r', pattern: 'foo', replacement: 'bar' }),
+    })
+    expect((await runCli(['lint', '--fix'], { cwd: dir })).code).toBe(0)
+    expect(readJson(dir, 'locales/en.json').a).toBe('bar bar')
+  })
+
   it('a sticky rule applies its fix', async () => {
     project({
       'locales/en.json': { a: 'bad' },
@@ -219,6 +229,27 @@ describe('export and import', () => {
     expect(result.code).toBe(2)
     expect(result.stderr).toContain('pages/old/de.po')
     expect(existsSync(join(dir, 'locales/pages/old/de.json'))).toBe(false)
+  })
+
+  it('a new export drops a page that is gone and keeps the other format', async () => {
+    project({
+      'locales/en.json': { a: 'x' },
+      'locales/de.json': {},
+      'locales/pages/old/en.json': { p: 'q' },
+      'locales/pages/old/de.json': { p: 'r' },
+    })
+    await runCli(['export', '--dir', 'exchange'], { cwd: dir })
+    await runCli(['export', '--dir', 'exchange', '--format', 'csv'], { cwd: dir })
+    removeProject(join(dir, 'locales/pages'))
+    expect((await runCli(['export', '--dir', 'exchange', '--format', 'csv'], { cwd: dir })).code).toBe(0)
+    const manifest = readJson(dir, 'exchange/.i18n-export.json')
+    expect(
+      Object.keys(manifest)
+        .filter((name) => name.endsWith('.csv'))
+        .sort(),
+    ).toEqual(['de.csv', 'en.csv'])
+    expect(Object.keys(manifest)).toContain('de.po')
+    expect(Object.keys(manifest)).toContain('pages/old/de.po')
   })
 
   it('every digest of the manifest is the digest of its file', async () => {
@@ -377,6 +408,13 @@ describe('translate', () => {
     handler = (_request, response) => json(response, { error: 'busy' }, 503)
     await translate('libretranslate', `baseUrl:${mock.url},retries:2,retryDelayMs:1`)
     expect(mock.requests).toHaveLength(3)
+  })
+
+  it('a custom AI server without a key gets no Authorization header', async () => {
+    project(SOURCE)
+    chat({ translations: ['Hallo'] })
+    await translate('ai', `baseUrl:${mock.url},model:m,retries:0`)
+    expect(mock.requests[0]!.headers).not.toHaveProperty('authorization')
   })
 
   it('a Retry-After of a day fails at once', async () => {
@@ -558,6 +596,31 @@ describe('stats', () => {
     project({ 'locales/en.json': '{ broken', 'locales/de.json': {} })
     commitAll()
     write(dir, 'locales/en.json', { a: 'x' })
+    const result = await runCli(['stats', '--baseRef', 'HEAD'], { cwd: dir })
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('en.json')
+  })
+
+  it('--baseRef follows a locale file that is a link', async () => {
+    project({ 'shared/en.json': { a: 'x', b: 'y' }, 'locales/de.json': {} })
+    symlinkSync('../shared/en.json', join(dir, 'locales/en.json'))
+    commitAll()
+    expect((await stats()).totalKeysDelta).toBe(0)
+  })
+
+  it('--baseRef follows a locale folder that is a link, pages too', async () => {
+    project({ 'shared/en.json': { a: 'x' }, 'shared/de.json': {}, 'shared/pages/p/en.json': { b: 'y' }, 'shared/pages/p/de.json': {} })
+    symlinkSync('shared', join(dir, 'locales'))
+    commitAll()
+    expect((await stats()).totalKeysDelta).toBe(0)
+  })
+
+  it('--baseRef stops on a link that leaves the repository', async () => {
+    project({ 'locales/de.json': {} })
+    outside.push(join(dir, '../outside-stats'))
+    write(dir, '../outside-stats/en.json', { a: 'x' })
+    symlinkSync(join(dir, '../outside-stats/en.json'), join(dir, 'locales/en.json'))
+    commitAll()
     const result = await runCli(['stats', '--baseRef', 'HEAD'], { cwd: dir })
     expect(result.code).toBe(2)
     expect(result.stderr).toContain('en.json')

@@ -150,10 +150,11 @@ function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[
   const expand = (dir: string): string =>
     resolve(
       rootDir,
-      globBase(dir).replace(ALIAS_PREFIX, (prefix) => (prefix.length === 2 ? rootDir : srcDir)),
+      dir.replace(ALIAS_PREFIX, (prefix) => (prefix.length === 2 ? rootDir : srcDir)),
     )
-  const names = [...Object.values(config.alias ?? {}), ...dirNames(config.components), ...dirNames(config.imports?.dirs)]
-  const dirs = names.filter((name) => typeof name === 'string').map(expand)
+  // An alias is a path, whatever its characters; only the folder lists take globs.
+  const aliases = Object.values(config.alias ?? {}).filter((name) => typeof name === 'string')
+  const dirs = [...aliases, ...[...dirNames(config.components), ...dirNames(config.imports?.dirs)].map(globBase)].map(expand)
   const outside = dirs.filter((dir) => relative(rootDir, dir).startsWith('..') && !dir.includes('/node_modules/') && existsSync(dir))
   return [...new Set(outside.filter((dir) => statSync(dir).isDirectory()))]
 }

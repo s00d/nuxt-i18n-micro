@@ -544,6 +544,18 @@ describe('string styles', () => {
     expect(link.style.color).toBe('red')
   })
 
+  test('I18nSwitcher with a custom localeRoute and no router leaves the link to the browser', () => {
+    const i18n = instance()
+    const container = withI18n(i18n, () => <I18nSwitcher locales={locales} localeRoute={(to, code) => `/${code}${to as string}`} />)
+    container.querySelector('button')!.click()
+    const item = container.querySelector('.switcher-locale-de')!
+    expect(item.getAttribute('href')).toBe('/de/')
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+    item.dispatchEvent(click)
+    expect(click.defaultPrevented).toBe(false)
+    expect(i18n.locale).toBe('de')
+  })
+
   test('I18nSwitcher keeps a string style over its own', () => {
     const container = withI18n(instance(), () => <I18nSwitcher style="margin-top: 3px; display: block" customWrapperStyle={{ color: 'red' }} />)
     const wrapper = container.querySelector<HTMLElement>('.i18n-switcher-wrapper')!

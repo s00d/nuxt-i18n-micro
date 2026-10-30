@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
 | `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
-| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| string[]>` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
@@ -384,7 +384,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
 | `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
-| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| string[]>` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
@@ -416,7 +416,7 @@ import { /* … */ } from '@i18n-micro/core/render'
 | `RenderSlots` | type | `Readonly<Record<string, RenderSlot \| undefined>>` |
 | `ResolveTextOptions` | interface | 10 members |
 | `SWITCHER_STYLES` | const | `{ wrapper: object; button: object; dropdown: object; item: object; link: object; activeLink: object; icon: object; openIcon: object; }` |
-| `SwitcherAdapter` | interface | 7 members |
+| `SwitcherAdapter` | interface | 8 members |
 | `SwitcherProps` | interface | 9 members |
 | `SwitcherVue` | interface | 7 members |
 | `TextHost` | interface | 8 members |
@@ -455,10 +455,11 @@ import { /* … */ } from '@i18n-micro/core/render'
 <code>ResolveTextOptions</code> — 10 members, identical to `ResolveTextOptions` above.
 
 <details>
-<summary><code>SwitcherAdapter</code> — 7 members</summary>
+<summary><code>SwitcherAdapter</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `browserNavigates?` | `(() => boolean) \| undefined` |
 | `href` | `(code: string) => string` |
 | `keepList?` | `boolean \| undefined` |
 | `locale` | `() => string` |

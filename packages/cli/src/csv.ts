@@ -50,7 +50,10 @@ export function parseCsv(content: string, name = 'the CSV'): string[][] {
     else if (char === '\n') endRow()
     else if (char !== '\r') cell += char
   }
-  if (quoted) throw malformed(openedAt)
+  if (quoted)
+    throw validationError(`Unclosed quote in ${name}, line ${content.slice(0, openedAt).split('\n').length}.`, [
+      'Every quoted field needs a closing quote.',
+    ])
   if (cell !== '' || row.length > 0) endRow()
   return rows
 }

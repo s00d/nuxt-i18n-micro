@@ -82,7 +82,7 @@ function splitForms(text: string, separator: string): string[] {
 
 export interface EngineResult {
   translated: TranslationResult[]
-  /** Keys whose placeholders did not survive: left untranslated rather than broken. */
+  /** Keys with no usable answer, a placeholder lost or no text: left untranslated rather than broken. */
   rejected: string[]
 }
 

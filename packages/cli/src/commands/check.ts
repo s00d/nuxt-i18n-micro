@@ -125,7 +125,7 @@ function selectedTypes(args: CheckArgs): Set<CheckType> {
 const FIX_HINTS: Record<CheckType, string> = {
   missing: 'Translate what is missing: i18n-micro translate.',
   empty: 'Translate what is missing: i18n-micro translate.',
-  extra: 'Remove extra keys: i18n-micro sync.',
+  extra: 'Review extra keys: i18n-micro sync --dryRun lists what sync would remove.',
   placeholders: 'Correct the placeholders in the listed translations.',
   undefined: 'Add the listed keys to the default locale.',
   unused: 'Remove unused keys: i18n-micro clean.',

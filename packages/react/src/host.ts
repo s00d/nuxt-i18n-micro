@@ -15,6 +15,9 @@ export function useStore<T>(subscribe: (listener: () => void) => () => void, rea
   return useSyncExternalStore(subscribe, read, read)
 }
 
+/** Later wins. */
+export const mergeStyles = (...styles: (CSSProperties | null | undefined)[]): CSSProperties => Object.assign({}, ...styles)
+
 export type HostNode = ReactNode
 export type HostElement = ReactElement | null
 export type HostStyle = CSSProperties

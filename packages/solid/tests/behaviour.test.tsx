@@ -168,6 +168,33 @@ describe('I18nT', () => {
     expect(cleaned.sort((a, b) => a - b)).toEqual([1, 10])
   })
 
+  test('a slot the locale no longer renders is disposed, one that only moves is kept', () => {
+    const cleaned: string[] = []
+    const built: string[] = []
+    const slot = (name: string) => () => {
+      built.push(name)
+      onCleanup(() => cleaned.push(name))
+      return <b>{name}</b>
+    }
+    const i18n = instance({
+      messages: { en: { both: '{a} then {b}', moved: '{b} then {a}', one: 'only {a}', none: 'nothing' } },
+    })
+    const [key, setKey] = createSignal('both')
+    const container = withI18n(i18n, () => <I18nT keypath={key()} components={{ a: slot('a'), b: slot('b') }} />)
+    setKey('moved')
+    expect(container.textContent).toBe('b then a')
+    expect(cleaned).toEqual([])
+    expect(built).toEqual(['a', 'b'])
+    setKey('one')
+    expect(container.textContent).toBe('only a')
+    expect(cleaned).toEqual(['b'])
+    setKey('none')
+    expect(cleaned).toEqual(['b', 'a'])
+    setKey('both')
+    expect(container.textContent).toBe('a then b')
+    expect(built).toEqual(['a', 'b', 'a', 'b'])
+  })
+
   test('dates go through the timeZone option', () => {
     const tz = (timeZone: string) => withI18n(instance({ timeZone }), () => <I18nT keypath="posted" date={WHEN} />).textContent
     expect(tz('UTC')).toBe('Posted 1/15/2024')
@@ -256,6 +283,20 @@ describe('reactive reads', () => {
         </I18nProvider>
       )),
     ).toThrow('[i18n-micro] I18nProvider needs')
+  })
+
+  test('a new iso reaches a plural already on screen', () => {
+    const ua = { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } }
+    const i18n = createI18n({ locale: 'ua', messages: ua, missingWarn: false })
+    const [list, setList] = createSignal<Locale[]>([{ code: 'ua', displayName: 'UA' }])
+    const container = mount(() => (
+      <I18nProvider i18n={i18n} locales={list()}>
+        <I18nT keypath="apples" plural={21} />
+      </I18nProvider>
+    ))
+    expect(container.textContent).toBe('21 яблук')
+    setList([{ code: 'ua', displayName: 'UA', iso: 'uk-UA' }])
+    expect(container.textContent).toBe('21 яблуко')
   })
 
   test('locales add to localeIso, they do not replace it', () => {
@@ -447,6 +488,71 @@ describe('I18nLink', () => {
   })
 })
 
+describe('a provider prop that changes after mount', () => {
+  test('I18nLink follows routingStrategy and locales', () => {
+    const [routing, setRouting] = createSignal<I18nRoutingStrategy | undefined>(undefined)
+    const [list, setList] = createSignal<Locale[]>([])
+    const container = mount(() => (
+      <I18nProvider i18n={instance()} routingStrategy={routing()} locales={list()}>
+        <I18nLink to="/de" activeStyle={{ color: 'red' }}>
+          x
+        </I18nLink>
+      </I18nProvider>
+    ))
+    const link = container.querySelector('a')!
+    expect(link.style.color).toBe('')
+    const { routing: next, pushes } = strategy('/de/about')
+    setRouting(next)
+    expect(link.style.color).toBe('red')
+    setList(locales)
+    expect(link.style.color).toBe('')
+    link.click()
+    expect(pushes).toEqual(['/de'])
+  })
+
+  test('I18nSwitcher follows locales and routingStrategy', () => {
+    const [routing, setRouting] = createSignal<I18nRoutingStrategy | undefined>(undefined)
+    const [list, setList] = createSignal<Locale[]>([locales[0]!])
+    const container = mount(() => (
+      <I18nProvider i18n={instance()} routingStrategy={routing()} locales={list()}>
+        <I18nSwitcher />
+      </I18nProvider>
+    ))
+    container.querySelector('button')!.click()
+    expect(container.querySelectorAll('li')).toHaveLength(1)
+    setList(locales)
+    expect(container.querySelectorAll('li')).toHaveLength(3)
+    expect(container.querySelector('a')!.getAttribute('href')).toBe('#')
+    setRouting(strategy('/about').routing)
+    expect(container.querySelector('a')!.getAttribute('href')).toBe('/about')
+  })
+})
+
+describe('string styles', () => {
+  test('an active I18nLink keeps a string style', () => {
+    const container = withI18n(
+      instance(),
+      () => (
+        <I18nLink to="/about" style="margin-top: 3px" activeStyle={{ color: 'red' }}>
+          x
+        </I18nLink>
+      ),
+      { routingStrategy: strategy('/about').routing },
+    )
+    const link = container.querySelector('a')!
+    expect(link.style.marginTop).toBe('3px')
+    expect(link.style.color).toBe('red')
+  })
+
+  test('I18nSwitcher keeps a string style over its own', () => {
+    const container = withI18n(instance(), () => <I18nSwitcher style="margin-top: 3px; display: block" customWrapperStyle={{ color: 'red' }} />)
+    const wrapper = container.querySelector<HTMLElement>('.i18n-switcher-wrapper')!
+    expect(wrapper.style.marginTop).toBe('3px')
+    expect(wrapper.style.display).toBe('block')
+    expect(wrapper.style.color).toBe('red')
+  })
+})
+
 describe('I18nGroup', () => {
   test('class names add up, and the prefix is reactive', () => {
     const [prefix, setPrefix] = createSignal('a')
@@ -464,6 +570,11 @@ describe('I18nGroup', () => {
 })
 
 describe('I18nSwitcher', () => {
+  test('customLabels answers its own keys: a locale named like a prototype member keeps its name', () => {
+    const container = withI18n(instance({ locale: 'constructor' }), () => <I18nSwitcher customLabels={{}} />, { locales: [{ code: 'constructor' }] })
+    expect(container.querySelector('button')!.textContent).toContain('constructor')
+  })
+
   const app = (extra = () => null as JSX.Element) =>
     withI18n(
       instance(),

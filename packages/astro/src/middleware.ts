@@ -50,6 +50,8 @@ function cookie(cookies: CookieReader, name: string | null): string | null {
  * (a strategy's `getLocaleFromPath` answers the default for a URL without a locale).
  */
 function urlLocale(pathname: string, defaultLocale: string, locales: string[], strategy?: I18nRoutingStrategy | null): string | null {
+  // a literal locale prefix is explicit, even the default one (/en/x); a strategy then maps the
+  // unprefixed paths, and its default answer means "none named" so cookie / header can still pick
   const prefix = localeFromPath(pathname, locales)
   if (prefix || !strategy?.getLocaleFromPath) return prefix
   const read = strategy.getLocaleFromPath(pathname, defaultLocale, locales)

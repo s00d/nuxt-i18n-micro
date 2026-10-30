@@ -119,7 +119,8 @@ export const useLocaleHead = ({
     const switchLocalePath = $switchLocalePath
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
-    const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : enabledLocales
+    // an unlocalized page has one URL: alternates would all point at it
+    const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : []
 
     const currentIso = currentLocale.iso || locale
     const currentOg = resolveOgLocale(currentLocale)
@@ -233,7 +234,7 @@ export const useLocaleHead = ({
     // specified languages match the user's browser settings.
     let xDefaultLink: MetaLink | null = null
     // x-default only when the page exists in the default locale (else it would point at another page)
-    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && (!pageLocales || pageLocales.includes(defaultLocale))) {
+    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && pageLocales?.includes(defaultLocale)) {
       const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
         xDefaultLink = {

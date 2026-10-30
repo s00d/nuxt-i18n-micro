@@ -1,5 +1,13 @@
 import type { Locale } from '@i18n-micro/types'
+import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
 import type { I18nRoutingStrategy } from './types'
+
+/** Route name of an Astro path, without its locale prefix: `/en/blog/post` → `blog-post`, `/` → `index`. */
+export function routeNameFromPath(path: string, locales: string[] = []): string {
+  const segments = path.split('/').filter(Boolean)
+  if (segments[0] !== undefined && locales.includes(segments[0])) segments.shift()
+  return segments.length === 0 ? 'index' : segments.join('-')
+}
 
 /**
  * Factory for Astro router adapter
@@ -13,41 +21,14 @@ export function createAstroRouterAdapter(locales: Locale[], defaultLocale: strin
    * Get route name from Astro path
    * Extracts route name from path (e.g., /en/about -> about)
    */
-  const getRouteName = (path: string, locales: string[] = []): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-
-    if (!cleanPath) {
-      return 'index'
-    }
-
-    const segments = cleanPath.split('/').filter(Boolean)
-
-    // Remove locale from path if present
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
-    }
-
-    if (segments.length === 0) {
-      return 'index'
-    }
-
-    return segments.join('-')
-  }
+  const getRouteName = routeNameFromPath
 
   /**
    * Get locale from path
    * Checks if first segment is a locale code
    */
-  const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      return firstSegment
-    }
-
-    return defaultLocale
-  }
+  const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string =>
+    localeFromPath(path, locales) ?? defaultLocale
 
   /**
    * Switch locale in path

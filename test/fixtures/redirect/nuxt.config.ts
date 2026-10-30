@@ -16,6 +16,8 @@ export default defineNuxtConfig({
     translationDir: 'locales',
     autoDetectLanguage: true,
     autoDetectPath: '*',
+    // a whole-segment prefix: /admin and /admin/x, never /administrator
+    excludePatterns: ['/admin'],
     routesLocaleLinks: {
       'dir1-slug': 'index',
     },

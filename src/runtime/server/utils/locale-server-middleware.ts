@@ -1,10 +1,7 @@
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { getEnabledLocaleCodes, getEnabledLocales } from '@i18n-micro/utils/active-locales'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
+import type { Locale } from '@i18n-micro/types'
+import { getEnabledLocales } from '@i18n-micro/utils/active-locales'
 import type { H3Event } from 'h3'
-import { getI18nConfig } from '#i18n-internal/strategy'
-import { useRuntimeConfig } from '#imports'
-import { detectCurrentLocale } from './locale-detector'
+import { getI18nServerConfig, getRequestLocale } from './locale-detector'
 
 export interface LocaleInfo {
   current: string
@@ -17,39 +14,19 @@ export interface LocaleInfo {
 }
 
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
-  const config = resolveI18nConfigWithRuntimeOverrides(
-    getI18nConfig() as ModuleOptionsExtend,
-    useRuntimeConfig(event).public as Record<string, unknown>,
-  )
-  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config
-  const enabledLocales = getEnabledLocales(locales)
-
-  const detectedLocale =
-    currentLocale ||
-    detectCurrentLocale(
-      event,
-      {
-        fallbackLocale,
-        defaultLocale: defaultLocale || configDefaultLocale,
-        locales: enabledLocales,
-        localeCookie: config.localeCookie || 'user-locale',
-        autoDetectLanguage: true,
-      },
-      defaultLocale,
-    )
-
-  const localeConfig = enabledLocales.find((l) => l.code === detectedLocale) ?? null
-  const availableLocales = getEnabledLocaleCodes(locales)
-  const isDefault = detectedLocale === (defaultLocale || configDefaultLocale || 'en')
-  const isFallback = detectedLocale === (fallbackLocale || defaultLocale || configDefaultLocale || 'en')
+  const config = getI18nServerConfig(event)
+  const enabledLocales = getEnabledLocales(config.locales)
+  const resolvedDefault = defaultLocale || config.defaultLocale || 'en'
+  const fallback = config.fallbackLocale || resolvedDefault
+  const current = currentLocale || getRequestLocale(event, config, defaultLocale)
 
   return {
-    current: detectedLocale,
-    default: defaultLocale || configDefaultLocale || 'en',
-    fallback: fallbackLocale || defaultLocale || configDefaultLocale || 'en',
-    available: availableLocales,
-    locale: localeConfig,
-    isDefault,
-    isFallback,
+    current,
+    default: resolvedDefault,
+    fallback,
+    available: enabledLocales.map((l) => l.code),
+    locale: enabledLocales.find((l) => l.code === current) ?? null,
+    isDefault: current === resolvedDefault,
+    isFallback: current === fallback,
   }
 }

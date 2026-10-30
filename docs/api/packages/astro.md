@@ -25,7 +25,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `createI18n` | function | `(options: AstroI18nOptions) => AstroI18n` |
 | `createI18nMiddleware` | function | `(options: I18nMiddlewareOptions) => MiddlewareHandler` |
 | `defaultPlural` | const | `PluralFunc` |
-| `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null) => string` |
+| `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
 | `FormatService` | class | 19 members |
 | `getDefaultLocale` | function | `(astro: AstroGlobal) => string` |
 | `getGlobalRoutingStrategy` | function | `() => I18nRoutingStrategy \| null` |
@@ -38,7 +38,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `I18nClientProps` | interface | 4 members |
 | `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
 | `I18nIntegrationOptions` | interface | 55 members |
-| `I18nMiddlewareOptions` | interface | 7 members |
+| `I18nMiddlewareOptions` | interface | 8 members |
 | `I18nRoutingStrategy` | interface | 10 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -239,13 +239,14 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>I18nMiddlewareOptions</code> — 7 members</summary>
+<summary><code>I18nMiddlewareOptions</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `autoDetect?` | `boolean \| undefined` |
 | `defaultLocale` | `string` |
 | `i18n` | `AstroI18n` |
+| `localeCookie?` | `string \| null \| undefined` |
 | `localeObjects?` | `Locale[] \| undefined` |
 | `locales` | `string[]` |
 | `redirectToDefault?` | `boolean \| undefined` |

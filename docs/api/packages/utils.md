@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-72 exports across 19 entry points.
+85 exports across 19 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,8 +18,8 @@ import { /* … */ } from '@i18n-micro/utils/accept-language'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `applyAutoDetectLanguage` | function | `(locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean \| undefined, acceptLanguageHeader: string \| undefined, validLocales: string[]) => string` |
-| `detectLocaleFromAcceptLanguage` | function | `(header: string \| undefined, validLocales: string[]) => string \| null` |
+| `applyAutoDetectLanguage` | function | `(locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean \| undefined, acceptLanguageHeader: string \| undefined, validLocales: readonly string[]) => string` |
+| `detectLocaleFromAcceptLanguage` | function | `(header: string \| undefined, validLocales: readonly string[]) => string \| null` |
 | `parseAcceptLanguage` | function | `(header: string \| undefined) => string[]` |
 
 
@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/utils/app-path'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[]) => boolean` |
+| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isStaticAssetPathname` | function | `(pathname: string) => boolean` |
 | `resolveContainedRelPath` | function | `(relPath: string) => string \| null` |
 | `withoutAppBaseURL` | function | `(pathname: string, baseURL?: string \| null) => string` |
@@ -110,12 +110,14 @@ import { /* … */ } from '@i18n-micro/utils/cookie'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `decodeCookieValue` | function | `(value: string) => string \| null` |
 | `DEFAULT_COOKIE_MAX_AGE` | const | `number` |
 | `DEFAULT_COOKIE_NAME` | const | `"user-locale"` |
 | `DEFAULT_HASH_COOKIE_NAME` | const | `"hash-locale"` |
 | `getHashCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 | `getLocaleCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
-| `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; }` |
+| `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string \| null; }` |
+| `getPreferenceCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 
 
 ## `@i18n-micro/utils/deep-merge`
@@ -335,10 +337,32 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `explicitLocale` | function | `(input: Omit<ResolveLocaleInput, "defaultLocale">) => string \| null` |
+| `firstQueryValue` | function | `(value: unknown) => string \| null` |
+| `localeFromPath` | function | `(path: string, validLocales: readonly string[]) => string \| null` |
+| `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
+| `ResolveLocaleInput` | interface | 9 members |
 | `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
 | `ResolvePreferredLocaleInput` | interface | 7 members |
 | `resolveServerLocale` | function | `(input: ResolveServerLocaleInput) => string` |
 | `ResolveServerLocaleInput` | interface | 8 members |
+
+<details>
+<summary><code>ResolveLocaleInput</code> — 9 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `acceptLanguage?` | `string \| null \| undefined` |
+| `autoDetectLanguage?` | `boolean \| undefined` |
+| `cookie?` | `string \| null \| undefined` |
+| `defaultLocale` | `string` |
+| `query?` | `string \| null \| undefined` |
+| `queryFirst?` | `boolean \| undefined` |
+| `state?` | `string \| null \| undefined` |
+| `url?` | `string \| null \| undefined` |
+| `validLocales` | `readonly string[]` |
+
+</details>
 
 <details>
 <summary><code>ResolvePreferredLocaleInput</code> — 7 members</summary>
@@ -399,6 +423,12 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `applyI18nRuntimeOverrides` | function | `(baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend` |
+| `createI18nConfigResolver` | function | `(warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend` |
+| `i18nOverridesKey` | function | `(overrides: RuntimeI18nOverrides) => string` |
+| `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
+| `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |
+| `readI18nRuntimeOverrides` | function | `(runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides` |
 | `resolveI18nConfigWithRuntimeOverrides` | function | `(baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>, warn?: (message: string) => void) => ModuleOptionsExtend` |
 | `RuntimeI18nOverrides` | interface | 4 members |
 

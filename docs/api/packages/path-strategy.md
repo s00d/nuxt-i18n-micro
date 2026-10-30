@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `I18nPathStrategy` | class | 38 members |
+| `I18nPathStrategy` | class | 39 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }` |
 | `PathStrategyContext` | interface | 8 members |
 | `ResolvedRouteLike` | interface | 8 members |
@@ -28,7 +28,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `Strategy` | class | 38 members |
+| `Strategy` | class | 39 members |
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <details>
@@ -41,13 +41,14 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>I18nPathStrategy</code> — 38 members</summary>
+<summary><code>I18nPathStrategy</code> — 39 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `baseOf` | `private (name: string) => string \| null` |
 | `codes` | `private Set<string>` |
 | `ctx` | `private PathStrategyContext` |
+| `disabledCodes` | `private Set<string>` |
 | `external` | `private (locale: string, route: Target) => string \| null` |
 | `findPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
 | `getClientRedirect` | `(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string \| null` |
@@ -168,7 +169,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 
-<code>Strategy</code> — 38 members, identical to `I18nPathStrategy` above.
+<code>Strategy</code> — 39 members, identical to `I18nPathStrategy` above.
 
 <details>
 <summary><code>SwitchLocaleOptions</code> — 1 members</summary>

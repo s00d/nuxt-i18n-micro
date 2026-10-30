@@ -79,11 +79,15 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   return { path: rest.slice(0, queryAt), query, hash }
 }
 
+/** A redirect target stays on this origin: `//evil.example` and `/\evil.example` become `/evil.example`. */
+const sameOrigin = (path: string) => path.replace(/^[/\\]{2,}/, '/')
+
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
 
 export class I18nPathStrategy {
   private readonly ctx: PathStrategyContext
   private readonly codes: Set<string>
+  private readonly disabledCodes: Set<string>
   private readonly prefix: string
   private readonly unknownLocale: RegExp | null
   private shared_: Shared | undefined
@@ -91,6 +95,8 @@ export class I18nPathStrategy {
   constructor(ctx: PathStrategyContext) {
     this.ctx = ctx
     this.codes = new Set(ctx.locales.filter((l) => !l.disabled).map((l) => l.code))
+    // build records still carry a locale disabled at runtime (runtimeConfig disabledLocales)
+    this.disabledCodes = new Set(ctx.locales.filter((l) => l.disabled).map((l) => l.code))
     this.prefix = ctx.localizedRouteNamePrefix ?? 'localized-'
     // `/re/` and `re` alike, as route-strategy reads it
     this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${ctx.customRegexMatcher.replace(/^\/(.*)\/$/, '$1')})$`) : null
@@ -400,6 +406,7 @@ export class I18nPathStrategy {
   private notFoundReason(path: string): string | null {
     const segment = path.split('/')[1] ?? ''
     if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
+    if (this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix') return 'Locale disabled'
     if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
     if (!locale) return null
@@ -443,7 +450,7 @@ export class I18nPathStrategy {
     }
     // a URL no record serves still moves to the preferred locale's form: `prefix` serves nothing
     // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`
-    const target = withoutTrailingSlash((page && this.routeTo(locale, page.base, page.params)?.path) || this.prefixed(locale, path))
+    const target = sameOrigin(withoutTrailingSlash((page && this.routeTo(locale, page.base, page.params)?.path) || this.prefixed(locale, path)))
     return safeDecode(target) === safeDecode(withoutTrailingSlash(path)) ? null : target
   }
 }

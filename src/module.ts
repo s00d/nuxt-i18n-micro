@@ -236,17 +236,18 @@ const __fullConfig = ${fullConfigJson}
 
 export function getI18nConfig() { return __fullConfig }
 
-// vue-router's Router is the adapter as is: no wrapper copying every resolve result
-export function createI18nStrategy(router) {
+// vue-router's Router is the adapter as is: no wrapper copying every resolve result.
+// config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
+export function createI18nStrategy(router, config = __fullConfig) {
   return new Strategy({
-    strategy: __fullConfig.strategy,
-    defaultLocale: __fullConfig.defaultLocale,
-    locales: __fullConfig.locales,
-    localizedRouteNamePrefix: __fullConfig.localizedRouteNamePrefix,
+    strategy: config.strategy,
+    defaultLocale: config.defaultLocale,
+    locales: config.locales,
+    localizedRouteNamePrefix: config.localizedRouteNamePrefix,
     router,
-    hashMode: __fullConfig.hashMode,
-    disablePageLocales: __fullConfig.disablePageLocales,
-    customRegexMatcher: __fullConfig.customRegexMatcher,
+    hashMode: config.hashMode,
+    disablePageLocales: config.disablePageLocales,
+    customRegexMatcher: config.customRegexMatcher,
   })
 }
 `
@@ -646,7 +647,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
       addTypeTemplate({
         filename: 'types/h3.d.ts',
-        getContents: () => `import type { Translations } from '@i18n-micro/types'
+        getContents: () => `import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 
 declare module 'h3' {
   interface H3EventContext {
@@ -655,6 +656,8 @@ declare module 'h3' {
       translations: Translations
       /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
       load?: (locale: string, routeName: string) => Promise<Translations>
+      /** The module config with runtime overrides, resolved once for this request. */
+      config?: ModuleOptionsExtend
     }
   }
 }
@@ -680,7 +683,7 @@ declare module '#build/i18n.plural.mjs' {
 
 declare module '#build/i18n.strategy.mjs' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: I18nStrategyRouter): PathStrategy
+  export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
 
 declare module '#i18n-internal/config' {
@@ -689,7 +692,7 @@ declare module '#i18n-internal/config' {
 
 declare module '#i18n-internal/strategy' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: I18nStrategyRouter): PathStrategy
+  export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
 
 declare module '#i18n-internal/plural' {

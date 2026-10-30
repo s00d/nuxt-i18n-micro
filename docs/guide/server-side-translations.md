@@ -27,7 +27,7 @@ To enable server-side translations and locale information, use the provided midd
 
 Both middleware functions are automatically available in all server routes.
 
-The locale detection logic is shared between both middleware functions through the `detectCurrentLocale` utility function to ensure consistency across the module.
+Both detect the locale with the same rules (`detectCurrentLocale`), on `/api` routes and on any other server route.
 
 ## ✨ Using Translations in Server Handlers
 
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
 In this example:
 
-- The user's locale is detected automatically from query parameters, cookies, or headers.
+- The user's locale is detected automatically from the `?locale=` query, the URL, the locale cookie, or the `Accept-Language` header (see below).
 - The `t` function retrieves the appropriate translation for the detected locale.
 
 ## 🌍 Using Locale Information in Server Handlers
@@ -152,43 +152,31 @@ export default defineEventHandler(async (event) => {
 
 ## 📋 Locale Detection Logic
 
-Both middleware functions automatically determine the user's locale using the following priority order:
+Both middleware functions determine the locale through the module's `resolveLocale` (`@i18n-micro/utils/resolve-locale`), in this order:
 
 ```mermaid
 flowchart TB
-    A[Incoming Request] --> B{URL Parameter?}
-    B -->|"?locale=ru"| Z[Use 'ru']
-    B -->|No| C{Route Parameter?}
-    C -->|"/ru/api/..."| Z
-    C -->|No| D{Cookie?}
-    D -->|"user-locale=de"| Y{Valid Locale?}
-    Y -->|Yes| Z2[Use Cookie Value]
-    Y -->|No| E
-    D -->|No| E{Accept-Language?}
-    E -->|"Accept-Language: fr"| Z3[Use Header Value]
-    E -->|No| F{Fallback Locale?}
-    F -->|Configured| Z4[Use Fallback]
-    F -->|No| G{Default Locale?}
-    G -->|Configured| Z5[Use Default]
-    G -->|No| H["Use 'en'"]
-
-    Z --> I[Return Locale]
-    Z2 --> I
-    Z3 --> I
-    Z4 --> I
-    Z5 --> I
-    H --> I
+    A[Incoming Request] --> C{"?locale= query?"}
+    C -->|"?locale=ru"| Z[Use it]
+    C -->|No| B{URL locale?}
+    B -->|"[locale] route param or /ru/... prefix"| Z
+    B -->|No| D{"Cookie (localeCookie)?"}
+    D -->|"valid locale"| Z
+    D -->|No| E{"Accept-Language (autoDetectLanguage: true)?"}
+    E -->|"matches a locale"| Z
+    E -->|No| G[Default locale]
+    G --> Z
 ```
 
-1. **URL Parameters**: `?locale=ru`
-2. **Route Parameters**: `/ru/api/endpoint`
-3. **Cookies**: `user-locale` cookie
-4. **HTTP Headers**: `Accept-Language` header
-5. **Fallback Locale**: As configured in module options
-6. **Default Locale**: As configured in module options
-7. **Hardcoded Fallback**: `'en'`
+1. **Query**: `?locale=ru` (the first value when repeated)
+2. **URL**: a `[locale]` route param or a locale prefix (`/ru/...`)
+3. **Cookie**: the `localeCookie` cookie — not read when `localeCookie` is `null` (the default outside `no_prefix`)
+4. **Accept-Language**: only with `autoDetectLanguage: true`; `q` weights are honoured, `q=0` excludes a language, and `en` matches a configured `en-US` (never across scripts: `zh-CN` does not match `zh-Hant`)
+5. **Default locale**: `defaultLocale` (runtime overrides included), else `'en'`
 
-> **Note**: The locale detection logic is shared between `useLocaleServerMiddleware` and `useTranslationServerMiddleware` to ensure consistency across the module.
+Invalid or disabled locale codes are skipped at every step; a malformed cookie counts as no cookie. The same order applies to `/api` and to any other server route (`server/routes/*`).
+
+> **Pages and `?locale=`**: a page render takes its locale from the URL under the prefix strategies — `/about?locale=de` is the `en` page under `prefix_except_default`. `?locale=` picks the page locale only under `no_prefix`, where URLs carry none. Server helpers called from a server route keep the order above.
 
 ## 📋 Advanced Usage Examples
 

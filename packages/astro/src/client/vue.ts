@@ -1,8 +1,8 @@
-import { defaultPlural, FormatService } from '@i18n-micro/core'
+import { FormatService } from '@i18n-micro/core'
 import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
 import { computed, type InjectionKey, inject, provide, type Ref, ref } from 'vue'
 import type { I18nClientProps } from '../utils'
-import { hasTranslation, type I18nState, translate } from './core'
+import { hasTranslation, type I18nState, translate, translatePlural } from './core'
 
 const formatter = new FormatService()
 
@@ -41,21 +41,7 @@ export function useAstroI18n() {
     return value?.toString() ?? defaultValue ?? (key as string)
   }
 
-  const tc = (key: TranslationKey, count: number | Params, defaultValue?: string): string => {
-    const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-
-    if (countValue === undefined) {
-      return defaultValue ?? (key as string)
-    }
-
-    const getter = (k: TranslationKey, p?: Params, dv?: string) => {
-      return t(k, p, dv)
-    }
-
-    const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.value.locale, getter)
-
-    return result ?? defaultValue ?? (key as string)
-  }
+  const tc = (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(state.value, key, count, defaultValue)
 
   const tn = (value: number, options?: Intl.NumberFormatOptions): string => {
     return formatter.formatNumber(value, state.value.locale, options)

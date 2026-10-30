@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'untestutils/vitest'
-import { forcedLocale, walkStrategy } from '../helpers/journeys-b.ts'
+import { forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
 describe('J2 strategies: prefix_except_default', () => {
   test.override({ harness: 'strategy-prefix-except-default' })
@@ -16,6 +16,23 @@ describe('J2 strategies: prefix_except_default', () => {
     // step 7: /de stays /de
     await goto('/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
+  })
+
+  test('PEC-T3 the URL decides the page locale; bad cookies are absent', async ({ baseURL }) => {
+    // step 1 (F9): /?locale=de stays on / and renders en — the redirect and the render agree
+    const home = await ssr(baseURL, '/?locale=de')
+    expect(home.status).toBe(200)
+    expect(home.html).toMatch(/id="content"[^>]*>\s*en\s*</)
+
+    // step 2 (F2): an unprefixed page with ?locale=de is the en page, <html lang> included
+    const contact = await ssr(baseURL, '/contact?locale=de')
+    expect(contact.status).toBe(200)
+    expect(contact.html).toMatch(/<html[^>]*lang="en/)
+
+    // step 3 (F7): a malformed locale cookie is no cookie, not a 500
+    const bad = await ssr(baseURL, '/', { Cookie: 'user-locale=%E0%A4%A' })
+    expect(bad.status).toBe(200)
+    expect(bad.html).toMatch(/id="content"[^>]*>\s*en\s*</)
   })
 
   // was: locale-state-prefix-except-default › *

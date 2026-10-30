@@ -9,7 +9,7 @@ member GenerateOptions.noPrefixRedirect: boolean
 member GenerateOptions.rules: Rules
 member GenerateOptions.strategy: Strategies
 function generateRoutes: (pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]
-function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[]) => boolean
+function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isLocaleAllowedForUnlocalizedRoute: (routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean
 function normalizePath: (routePath: string) => string
 function normalizeRouteKey: (key: string) => string

@@ -64,12 +64,15 @@ afterEach(() => {
 
 interface Ctx {
   url: URL
+  request: Request
+  cookies: { get: (name: string) => { value: string } | undefined }
   locals: Partial<App.Locals>
 }
 
-/** Run one request through the middleware the way Astro does; returns what the page sees. */
+/** Run one request through the middleware the way Astro does (no cookie, no Accept-Language); returns what the page sees. */
 async function request(mw: ReturnType<typeof createI18nMiddleware>, path: string, locals: Partial<App.Locals> = {}) {
-  const ctx: Ctx = { url: new URL(`http://site.test${path}`), locals }
+  const url = new URL(`http://site.test${path}`)
+  const ctx: Ctx = { url, request: new Request(url), cookies: { get: () => undefined }, locals }
   let strategyInPage: I18nRoutingStrategy | null = null
   const next = vi.fn(async () => {
     strategyInPage = getGlobalRoutingStrategy()
@@ -304,9 +307,9 @@ test('without a routing strategy the middleware and helpers fall back to plain p
   expect(home.locals.routingStrategy).toBeUndefined()
 
   const post = await request(mw, '/fr/blog/post')
-  // the fallback never reads the prefix: locale stays default, the route keeps it
-  expect(post.locals.locale).toBe('en')
-  expect(post.locals.i18n.getRoute()).toBe('fr-blog-post')
+  // the plain fallback still reads the locale prefix, and the route name drops it like useI18n does
+  expect(post.locals.locale).toBe('fr')
+  expect(post.locals.i18n.getRoute()).toBe('blog-post')
   expect(post.locals.currentUrl.pathname).toBe('/fr/blog/post')
 
   const page = useI18n(post.astro)
@@ -396,10 +399,12 @@ test('a custom routing strategy decides locale, route name and every link the pa
   ]).toEqual(['r_x', 'de', '/~fr/x', '/~de/y', '/~fr/y'])
   expect(useLocaleHead(de.astro, { baseUrl: 'B' }).link.map((l) => l.href)).toEqual(['B/x', 'B/~en/x', 'B/~fr/x', 'B/~en/x'])
 
-  // a strategy with no getLocaleFromPath / getRouteName → default locale, `index` route
+  // a strategy with no getLocaleFromPath / getRouteName → the plain path parsing (prefix, route from the path)
   const bare = createI18nMiddleware({ i18n: site, defaultLocale: 'en', locales: ['en', 'fr'], routingStrategy: { getCurrentPath: () => '/' } })
   const res = await request(bare, '/x/y')
-  expect([res.locals.locale, res.locals.i18n.getRoute()]).toEqual(['en', 'index'])
+  expect([res.locals.locale, res.locals.i18n.getRoute()]).toEqual(['en', 'x-y'])
+  const prefixed = await request(bare, '/fr/x/y')
+  expect([prefixed.locals.locale, prefixed.locals.i18n.getRoute()]).toEqual(['fr', 'x-y'])
 })
 
 test('detectLocale: path, then cookie, then Accept-Language, else default', () => {
@@ -422,11 +427,12 @@ test('detectLocale: path, then cookie, then Accept-Language, else default', () =
   } as unknown as Headers
   expect(detectLocale('/x', jar(), throwing, 'en', L, 'lang')).toBe('en')
 
-  // a strategy decides the path step (explicit, then the installed one)
+  // a strategy maps unprefixed paths (explicit, then the installed one); a literal prefix stays explicit
   const strategy: I18nRoutingStrategy = { getCurrentPath: () => '/', getLocaleFromPath: () => 'de' }
-  expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang', strategy)).toBe('de')
+  expect(detectLocale('/x', jar(), headers(), 'en', L, 'lang', strategy)).toBe('de')
+  expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang', strategy)).toBe('fr')
   setGlobalRoutingStrategy(strategy)
-  expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang')).toBe('de')
+  expect(detectLocale('/x', jar(), headers(), 'en', L, 'lang')).toBe('de')
   // a strategy without getLocaleFromPath → first-segment parsing
   expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang', { getCurrentPath: () => '/' })).toBe('fr')
 })

@@ -6,7 +6,6 @@
 import { SERVER_CC_KEY } from '../../utils/cache-keys'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
 export type ServerTranslationCacheEntry = { data: Translations; json: string }
@@ -32,7 +31,8 @@ export const DEFAULT_SERVER_CACHE_SIZE = 1000
 
 function resolveLimits(limits?: { maxSize: number; ttl: number }): { maxSize: number; ttl: number } {
   if (limits) return limits
-  const cfg = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
+  // cache limits are build-time options: no runtime overrides to apply
+  const cfg = getI18nConfig() as ModuleOptionsExtend
   return { maxSize: cfg.cacheMaxSize || DEFAULT_SERVER_CACHE_SIZE, ttl: cfg.cacheTtl ?? 0 }
 }
 

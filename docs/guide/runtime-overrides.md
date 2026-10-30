@@ -23,6 +23,8 @@ These overrides are applied on top of the build-time config from `.nuxt/i18n.str
 
 If you pass a runtime strategy override, it is ignored and a warning is emitted.
 
+Under `prefix_except_default` and `prefix_and_default` the **default locale** is fixed at build as well: its pages are the unprefixed routes generated for it. A runtime `defaultLocale` that differs from the build one, or a runtime `disabledLocales` entry naming it, is ignored with a warning. Under `prefix` and `no_prefix` a runtime `defaultLocale` applies.
+
 ## RuntimeConfig-based overrides
 
 Provide runtime values under `runtimeConfig.public.i18nRuntime`:
@@ -43,7 +45,7 @@ export default defineNuxtConfig({
 
 ## Environment variable overrides
 
-You can also configure overrides via environment variables:
+You can also configure overrides via environment variables (read once by the server; `runtimeConfig` values win over them):
 
 - `NUXT_I18N_DEFAULT_LOCALE`
 - `NUXT_I18N_FALLBACK_LOCALE`
@@ -60,10 +62,15 @@ Fallback aliases are also supported:
 At runtime, the module validates overrides to avoid broken state:
 
 - You cannot disable all locales.
-- `defaultLocale` must point to an enabled locale.
-- `fallbackLocale` must exist in declared locales.
+- Runtime `disabledLocales` add to the locales disabled at build (`locale.disabled: true`); they never re-enable one.
+- `defaultLocale` must point to an enabled locale (and is fixed at build under `prefix_except_default` / `prefix_and_default`, see above).
+- `fallbackLocale` must point to an enabled locale; otherwise the build `fallbackLocale` is kept when it is enabled, else there is no fallback.
 
-If an override is invalid, the module keeps a safe value and logs a warning.
+If an override is invalid, the module keeps a safe value and logs one warning (once per server process; the browser does not repeat it). The resolved config is shared by every request: treat `$getI18nConfig()` as read-only (it is deep-frozen in development).
+
+## Where overrides apply
+
+The overrides are resolved once on the server and used everywhere: routing (a runtime-disabled locale prefix answers 404, `/` redirects to the runtime default under `prefix`), redirects, the page render, `useI18nLocale()`, the server helpers and the payload route. The server sends the applied values to the browser in the payload, so the client routes and validates with the same config — environment variables included, which the browser cannot read itself.
 
 ## Notes for multi-instance deployments
 

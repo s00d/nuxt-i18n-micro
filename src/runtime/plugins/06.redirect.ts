@@ -9,8 +9,8 @@ import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
-import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
-import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'
+import { getLocaleCookieName, getLocaleCookieOptions, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
+import { resolveLocale } from '@i18n-micro/utils/resolve-locale'
 import { getCookie, getHeader, getRequestURL, setCookie, type H3Event } from 'h3'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRuntimeConfig, useState } from '#imports'
 
@@ -31,7 +31,7 @@ export default defineNuxtPlugin({
     const url = getRequestURL(event)
     const path = withoutAppBaseURL(url.pathname, useRuntimeConfig().app.baseURL)
     // Internals / static assets / Content (`/__nuxt_content`) are never 404'd or redirected.
-    if (isInternalPath(path, i18nConfig.excludePatterns)) return
+    if (isInternalPath(path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
     const notFound = i18nStrategy.shouldReturn404(path)
     if (notFound) {
@@ -47,7 +47,7 @@ export default defineNuxtPlugin({
     const urlLocale = i18nStrategy.getLocaleFromPath(path)
     const writeCookie = (locale: string) => {
       if (!cookieName) return
-      const { watch: _watch, ...options } = getLocaleCookieOptions()
+      const { watch: _watch, decode: _decode, ...options } = getLocaleCookieOptions()
       setCookie(event, cookieName, locale, options)
     }
 
@@ -62,7 +62,7 @@ export default defineNuxtPlugin({
       defaultLocale,
       validLocales: getEnabledLocaleCodes(i18nConfig.locales),
       autoDetectLanguage: i18nConfig.autoDetectLanguage,
-      cookieName,
+      cookieName: getPreferenceCookieName(i18nConfig),
       // a state differing from what the URL resolved to was set by the app (a plugin): a choice
       stateLocale: anyPath ? null : chosenState(useState<string | null>('i18n-locale', () => null).value, event.context.i18n?.locale),
     })
@@ -100,13 +100,13 @@ function preferredLocale(event: H3Event, input: PreferenceInput): string {
   const anyPath = input.autoDetectPath === '*'
   const allowed = shouldAttemptLocaleRedirect(input.path, { autoDetectPath: input.autoDetectPath, hasLocalePrefix: input.urlLocale !== null })
   if (!input.urlLocale && (anyPath || !allowed)) return input.defaultLocale
-  return resolvePreferredLocale({
+  // no `query`: under prefix strategies the URL decides (D1), and no_prefix never redirects
+  return resolveLocale({
     defaultLocale: input.defaultLocale,
     validLocales: input.validLocales,
     autoDetectLanguage: input.autoDetectLanguage,
-    stateLocale: input.stateLocale,
-    cookieLocale: input.cookieName ? getCookie(event, input.cookieName) : null,
-    acceptLanguageHeader: getHeader(event, 'accept-language'),
-    ignoreStateLocale: anyPath,
+    state: anyPath ? null : input.stateLocale,
+    cookie: input.cookieName ? getCookie(event, input.cookieName) : null,
+    acceptLanguage: getHeader(event, 'accept-language'),
   })
 }

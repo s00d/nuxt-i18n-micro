@@ -1,6 +1,6 @@
 # ./accept-language (src/accept-language.ts)
-function applyAutoDetectLanguage: (locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean | undefined, acceptLanguageHeader: string | undefined, validLocales: string[]) => string
-function detectLocaleFromAcceptLanguage: (header: string | undefined, validLocales: string[]) => string | null
+function applyAutoDetectLanguage: (locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean | undefined, acceptLanguageHeader: string | undefined, validLocales: readonly string[]) => string
+function detectLocaleFromAcceptLanguage: (header: string | undefined, validLocales: readonly string[]) => string | null
 function parseAcceptLanguage: (header: string | undefined) => string[]
 
 # ./active-locales (src/active-locales.ts)
@@ -9,7 +9,7 @@ function getEnabledLocales: (locales?: Locale[] | null) => Locale[]
 function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) => boolean
 
 # ./app-path (src/app-path.ts)
-function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[]) => boolean
+function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isStaticAssetPathname: (pathname: string) => boolean
 function resolveContainedRelPath: (relPath: string) => string | null
 function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
@@ -37,12 +37,14 @@ member CacheControlOptions.maxSize?: number | undefined
 member CacheControlOptions.ttl?: number | undefined
 
 # ./cookie (src/cookie.ts)
+function decodeCookieValue: (value: string) => string | null
 const DEFAULT_COOKIE_MAX_AGE: number
 const DEFAULT_COOKIE_NAME: "user-locale"
 const DEFAULT_HASH_COOKIE_NAME: "hash-locale"
 function getHashCookieName: (config: ModuleOptionsExtend) => string | null
 function getLocaleCookieName: (config: ModuleOptionsExtend) => string | null
-function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; }
+function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string | null; }
+function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 
 # ./deep-merge (src/deep-merge.ts)
 function deepMergeTranslations: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
@@ -130,6 +132,20 @@ interface ResolveHreflangAlternatesOptions
 member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefined
 
 # ./resolve-locale (src/resolve-locale.ts)
+function explicitLocale: (input: Omit<ResolveLocaleInput, "defaultLocale">) => string | null
+function firstQueryValue: (value: unknown) => string | null
+function localeFromPath: (path: string, validLocales: readonly string[]) => string | null
+function resolveLocale: (input: ResolveLocaleInput) => string
+interface ResolveLocaleInput
+member ResolveLocaleInput.acceptLanguage?: string | null | undefined
+member ResolveLocaleInput.autoDetectLanguage?: boolean | undefined
+member ResolveLocaleInput.cookie?: string | null | undefined
+member ResolveLocaleInput.defaultLocale: string
+member ResolveLocaleInput.query?: string | null | undefined
+member ResolveLocaleInput.queryFirst?: boolean | undefined
+member ResolveLocaleInput.state?: string | null | undefined
+member ResolveLocaleInput.url?: string | null | undefined
+member ResolveLocaleInput.validLocales: readonly string[]
 function resolvePreferredLocale: (input: ResolvePreferredLocaleInput) => string
 interface ResolvePreferredLocaleInput
 member ResolvePreferredLocaleInput.acceptLanguageHeader?: string | null | undefined
@@ -158,6 +174,12 @@ member WarnUnresolvedOgLocaleOptions.missingWarn?: boolean | undefined
 member WarnUnresolvedOgLocaleOptions.tag?: "og:locale" | "og:locale:alternate" | undefined
 
 # ./runtime-config (src/runtime-config.ts)
+function applyI18nRuntimeOverrides: (baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend
+function createI18nConfigResolver: (warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend
+function i18nOverridesKey: (overrides: RuntimeI18nOverrides) => string
+function mergeI18nOverrides: (primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides
+function readI18nEnvOverrides: () => RuntimeI18nOverrides
+function readI18nRuntimeOverrides: (runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides
 function resolveI18nConfigWithRuntimeOverrides: (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>, warn?: (message: string) => void) => ModuleOptionsExtend
 interface RuntimeI18nOverrides
 member RuntimeI18nOverrides.defaultLocale?: string | undefined

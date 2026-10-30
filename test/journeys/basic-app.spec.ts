@@ -507,12 +507,13 @@ describe('journey: basic app', () => {
   })
 
   test('server routes', async ({ request }) => {
-    // step 1: /api/server → server-side translations per locale
+    // step 1: /api/server → server-side translations per locale; a second helper in en gets the en
+    // dictionary, not the first one's (F4)
     // was: server › test server-side translations
     for (const code of ['en', 'ru']) {
       const res = await request.get(`/api/server?locale=${code}`)
       expect(res.status()).toBe(200)
-      expect(await res.json()).toEqual({ hello: `test_val_${code}` })
+      expect(await res.json()).toEqual({ hello: `test_val_${code}`, helloEn: 'test_val_en' })
     }
 
     // step 2: /api/locale-info → locale from query, Accept-Language, cookie, and the default fallback
@@ -533,9 +534,19 @@ describe('journey: basic app', () => {
     expect(ru.available).toEqual(expect.arrayContaining(['en', 'ru']))
     expect(typeof ru.fallback).toBe('string')
     expect(typeof ru.locale.code).toBe('string')
-    expect((await info('/api/locale-info', { 'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8' })).current).toBe('ru')
-    expect((await info('/api/locale-info', { Cookie: 'user-locale=ru' })).current).toBe('ru')
+    // F3: autoDetectLanguage: false in this app — Accept-Language does not pick the locale, the cookie does
+    expect((await info('/api/locale-info', { 'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8' })).current).toBe('en')
+    // F3: no localeCookie in this app (default null) — a user-locale cookie is not read either
+    expect((await info('/api/locale-info', { Cookie: 'user-locale=ru' })).current).toBe('en')
     expect(await info('/api/locale-info')).toMatchObject({ current: 'en', isDefault: true })
+
+    // step 2b: a server route outside /api keeps the API order: ?locale and a [locale] param pick the
+    // locale (the page-render locale of that URL would be en)
+    for (const path of ['/server-locale?locale=ru', '/server-locale/ru']) {
+      const res = await request.get(path)
+      expect(res.status(), path).toBe(200)
+      expect(await res.json(), path).toEqual({ current: 'ru', hello: 'test_val_ru' })
+    }
 
     // step 3: a page without its own folder → a non-empty subset of index's dictionary
     // was: server › a page without its own folder gets the root dictionary

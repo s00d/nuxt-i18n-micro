@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | --- | --- | --- |
 | `GenerateOptions` | interface | 8 members |
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
-| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[]) => boolean` |
+| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |

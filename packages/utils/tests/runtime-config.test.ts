@@ -7,7 +7,7 @@ function createBaseConfig(): ModuleOptionsExtend {
     locales: [{ code: 'en' }, { code: 'fr' }, { code: 'de' }],
     defaultLocale: 'en',
     fallbackLocale: 'en',
-    strategy: 'prefix_except_default',
+    strategy: 'prefix',
     dateBuild: 'test',
     hashMode: false,
     isSSG: false,
@@ -30,14 +30,14 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
     expect(config.defaultLocale).toBe('fr')
     expect(config.fallbackLocale).toBe('de')
     expect(config.locales?.find((locale) => locale.code === 'en')?.disabled).toBe(true)
-    expect(config.locales?.find((locale) => locale.code === 'fr')?.disabled).toBe(false)
+    expect(config.locales?.find((locale) => locale.code === 'fr')?.disabled).toBeFalsy()
   })
 
   it('ignores strategy override and warns', () => {
     const warn = vi.fn()
     const config = resolveI18nConfigWithRuntimeOverrides(createBaseConfig(), { i18nRuntime: { strategy: 'no_prefix' } }, warn)
 
-    expect(config.strategy).toBe('prefix_except_default')
+    expect(config.strategy).toBe('prefix')
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('strategy override is ignored'))
   })
 

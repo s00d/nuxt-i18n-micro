@@ -76,6 +76,13 @@ export const recipes = defineRecipes(
       STRATEGY: 'prefix_except_default',
       LOCALE_COOKIE: 'user-locale',
     }),
+    // one prefix build run with env overrides: they must reach routing, the server and the client alike
+    'strategy-prefix-overrides': app('strategy-prefix-overrides', 'strategy', {
+      STRATEGY: 'prefix',
+      LOCALE_COOKIE: 'user-locale',
+      NUXT_I18N_DEFAULT_LOCALE: 'de',
+      NUXT_I18N_DISABLED_LOCALES: 'ru',
+    }),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',

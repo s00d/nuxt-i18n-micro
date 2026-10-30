@@ -37,7 +37,7 @@ export default defineNuxtConfig({
 
     // Custom exclusion patterns
     excludePatterns: [
-      // String patterns (exact match or prefix)
+      // String patterns (the path or anything below it)
       '/api/health',
       '/admin',
 
@@ -57,10 +57,10 @@ export default defineNuxtConfig({
 
 ### String Patterns
 
-- **Exact match**: `'/api/health'` - matches exactly `/api/health`
-- **Prefix match**: `'/admin'` - matches `/admin` and `/admin/dashboard`
-- **Wildcards**: `'/api/*'` - matches `/api/users` but not `/api/users/123`
-- **Deep wildcards**: `'/admin/**'` - matches `/admin/users` and `/admin/users/123`
+- **Path and below**: `'/admin'` - matches `/admin` and `/admin/dashboard`, never `/administrator` (whole segments only)
+- **Wildcards**: `*` matches any run of characters (slashes included), `?` one character; the glob must match the whole path: `'/api/*'` matches `/api/users` and `/api/users/123`, but not `/de/api/users`
+
+Patterns are matched against the path without `app.baseURL`. The translations route (`/{apiBaseUrl}/…`, `/_locales` by default) is always excluded.
 
 ### Regular Expressions
 

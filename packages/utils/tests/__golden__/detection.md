@@ -1,0 +1,357 @@
+## parseAcceptLanguage
+
+- `parseAcceptLanguage(undefined)` → []
+- `parseAcceptLanguage("")` → []
+- `parseAcceptLanguage("de")` → ["de"]
+- `parseAcceptLanguage("de-DE")` → ["de-DE"]
+- `parseAcceptLanguage("DE-de")` → ["DE-de"]
+- `parseAcceptLanguage("en-US,en;q=0.9")` → ["en-US","en"]
+- `parseAcceptLanguage("fr;q=0.1,de;q=0.9")` → ["de","fr"]
+- `parseAcceptLanguage("de;q=0,en")` → ["en"]
+- `parseAcceptLanguage("en;q=0.5,de")` → ["de","en"]
+- `parseAcceptLanguage("*")` → ["*"]
+- `parseAcceptLanguage("*;q=0.5,fr")` → ["fr","*"]
+- `parseAcceptLanguage("en-US")` → ["en-US"]
+- `parseAcceptLanguage("pt")` → ["pt"]
+- `parseAcceptLanguage("pt-BR")` → ["pt-BR"]
+- `parseAcceptLanguage("zh-Hant-TW,zh;q=0.8")` → ["zh-Hant-TW","zh"]
+- `parseAcceptLanguage(" de , en ")` → ["de","en"]
+- `parseAcceptLanguage(";;,,")` → []
+- `parseAcceptLanguage("en;q=abc,de")` → ["de"]
+- `parseAcceptLanguage("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")` → ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
+- `parseAcceptLanguage("__proto__,constructor")` → ["__proto__","constructor"]
+
+## detectLocaleFromAcceptLanguage
+
+- `detect(undefined, ["en","de","fr"])` → null
+- `detect("", ["en","de","fr"])` → null
+- `detect("de", ["en","de","fr"])` → "de"
+- `detect("de-DE", ["en","de","fr"])` → "de"
+- `detect("DE-de", ["en","de","fr"])` → "de"
+- `detect("en-US,en;q=0.9", ["en","de","fr"])` → "en"
+- `detect("fr;q=0.1,de;q=0.9", ["en","de","fr"])` → "de"
+- `detect("de;q=0,en", ["en","de","fr"])` → "en"
+- `detect("en;q=0.5,de", ["en","de","fr"])` → "de"
+- `detect("*", ["en","de","fr"])` → null
+- `detect("*;q=0.5,fr", ["en","de","fr"])` → "fr"
+- `detect("en-US", ["en","de","fr"])` → "en"
+- `detect("pt", ["en","de","fr"])` → null
+- `detect("pt-BR", ["en","de","fr"])` → null
+- `detect("zh-Hant-TW,zh;q=0.8", ["en","de","fr"])` → null
+- `detect(" de , en ", ["en","de","fr"])` → "de"
+- `detect(";;,,", ["en","de","fr"])` → null
+- `detect("en;q=abc,de", ["en","de","fr"])` → "de"
+- `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["en","de","fr"])` → null
+- `detect("__proto__,constructor", ["en","de","fr"])` → null
+- `detect(undefined, ["en-GB","de"])` → null
+- `detect("", ["en-GB","de"])` → null
+- `detect("de", ["en-GB","de"])` → "de"
+- `detect("de-DE", ["en-GB","de"])` → "de"
+- `detect("DE-de", ["en-GB","de"])` → "de"
+- `detect("en-US,en;q=0.9", ["en-GB","de"])` → "en-GB"
+- `detect("fr;q=0.1,de;q=0.9", ["en-GB","de"])` → "de"
+- `detect("de;q=0,en", ["en-GB","de"])` → "en-GB"
+- `detect("en;q=0.5,de", ["en-GB","de"])` → "de"
+- `detect("*", ["en-GB","de"])` → null
+- `detect("*;q=0.5,fr", ["en-GB","de"])` → null
+- `detect("en-US", ["en-GB","de"])` → "en-GB"
+- `detect("pt", ["en-GB","de"])` → null
+- `detect("pt-BR", ["en-GB","de"])` → null
+- `detect("zh-Hant-TW,zh;q=0.8", ["en-GB","de"])` → null
+- `detect(" de , en ", ["en-GB","de"])` → "de"
+- `detect(";;,,", ["en-GB","de"])` → null
+- `detect("en;q=abc,de", ["en-GB","de"])` → "de"
+- `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["en-GB","de"])` → null
+- `detect("__proto__,constructor", ["en-GB","de"])` → null
+- `detect(undefined, ["pt-BR","en"])` → null
+- `detect("", ["pt-BR","en"])` → null
+- `detect("de", ["pt-BR","en"])` → null
+- `detect("de-DE", ["pt-BR","en"])` → null
+- `detect("DE-de", ["pt-BR","en"])` → null
+- `detect("en-US,en;q=0.9", ["pt-BR","en"])` → "en"
+- `detect("fr;q=0.1,de;q=0.9", ["pt-BR","en"])` → null
+- `detect("de;q=0,en", ["pt-BR","en"])` → "en"
+- `detect("en;q=0.5,de", ["pt-BR","en"])` → "en"
+- `detect("*", ["pt-BR","en"])` → null
+- `detect("*;q=0.5,fr", ["pt-BR","en"])` → null
+- `detect("en-US", ["pt-BR","en"])` → "en"
+- `detect("pt", ["pt-BR","en"])` → "pt-BR"
+- `detect("pt-BR", ["pt-BR","en"])` → "pt-BR"
+- `detect("zh-Hant-TW,zh;q=0.8", ["pt-BR","en"])` → null
+- `detect(" de , en ", ["pt-BR","en"])` → "en"
+- `detect(";;,,", ["pt-BR","en"])` → null
+- `detect("en;q=abc,de", ["pt-BR","en"])` → null
+- `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["pt-BR","en"])` → null
+- `detect("__proto__,constructor", ["pt-BR","en"])` → null
+- `detect(undefined, ["zh","zh-Hant"])` → null
+- `detect("", ["zh","zh-Hant"])` → null
+- `detect("de", ["zh","zh-Hant"])` → null
+- `detect("de-DE", ["zh","zh-Hant"])` → null
+- `detect("DE-de", ["zh","zh-Hant"])` → null
+- `detect("en-US,en;q=0.9", ["zh","zh-Hant"])` → null
+- `detect("fr;q=0.1,de;q=0.9", ["zh","zh-Hant"])` → null
+- `detect("de;q=0,en", ["zh","zh-Hant"])` → null
+- `detect("en;q=0.5,de", ["zh","zh-Hant"])` → null
+- `detect("*", ["zh","zh-Hant"])` → null
+- `detect("*;q=0.5,fr", ["zh","zh-Hant"])` → null
+- `detect("en-US", ["zh","zh-Hant"])` → null
+- `detect("pt", ["zh","zh-Hant"])` → null
+- `detect("pt-BR", ["zh","zh-Hant"])` → null
+- `detect("zh-Hant-TW,zh;q=0.8", ["zh","zh-Hant"])` → "zh-Hant"
+- `detect(" de , en ", ["zh","zh-Hant"])` → null
+- `detect(";;,,", ["zh","zh-Hant"])` → null
+- `detect("en;q=abc,de", ["zh","zh-Hant"])` → null
+- `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["zh","zh-Hant"])` → null
+- `detect("__proto__,constructor", ["zh","zh-Hant"])` → null
+
+## applyAutoDetectLanguage
+
+- `apply('en', explicit=false, auto=undefined, 'de')` → "en"
+- `apply('en', explicit=false, auto=false, 'de')` → "en"
+- `apply('en', explicit=false, auto=true, 'de')` → "de"
+- `apply('en', explicit=true, auto=undefined, 'de')` → "en"
+- `apply('en', explicit=true, auto=false, 'de')` → "en"
+- `apply('en', explicit=true, auto=true, 'de')` → "en"
+
+## resolveServerLocale
+
+- `server(url=segment:null, q=null, cookie=null, auto=false)` → "en"
+- `server(url=segment:null, q=null, cookie=null, auto=true)` → "ru"
+- `server(url=segment:null, q=null, cookie=de, auto=false)` → "de"
+- `server(url=segment:null, q=null, cookie=de, auto=true)` → "de"
+- `server(url=segment:null, q=null, cookie=xx, auto=false)` → "en"
+- `server(url=segment:null, q=null, cookie=xx, auto=true)` → "ru"
+- `server(url=segment:null, q=ru, cookie=null, auto=false)` → "ru"
+- `server(url=segment:null, q=ru, cookie=null, auto=true)` → "ru"
+- `server(url=segment:null, q=ru, cookie=de, auto=false)` → "ru"
+- `server(url=segment:null, q=ru, cookie=de, auto=true)` → "ru"
+- `server(url=segment:null, q=ru, cookie=xx, auto=false)` → "ru"
+- `server(url=segment:null, q=ru, cookie=xx, auto=true)` → "ru"
+- `server(url=segment:null, q=xx, cookie=null, auto=false)` → "en"
+- `server(url=segment:null, q=xx, cookie=null, auto=true)` → "ru"
+- `server(url=segment:null, q=xx, cookie=de, auto=false)` → "de"
+- `server(url=segment:null, q=xx, cookie=de, auto=true)` → "de"
+- `server(url=segment:null, q=xx, cookie=xx, auto=false)` → "en"
+- `server(url=segment:null, q=xx, cookie=xx, auto=true)` → "ru"
+- `server(url=prefix:de, q=null, cookie=null, auto=false)` → "de"
+- `server(url=prefix:de, q=null, cookie=null, auto=true)` → "de"
+- `server(url=prefix:de, q=null, cookie=de, auto=false)` → "de"
+- `server(url=prefix:de, q=null, cookie=de, auto=true)` → "de"
+- `server(url=prefix:de, q=null, cookie=xx, auto=false)` → "de"
+- `server(url=prefix:de, q=null, cookie=xx, auto=true)` → "de"
+- `server(url=prefix:de, q=ru, cookie=null, auto=false)` → "de"
+- `server(url=prefix:de, q=ru, cookie=null, auto=true)` → "de"
+- `server(url=prefix:de, q=ru, cookie=de, auto=false)` → "de"
+- `server(url=prefix:de, q=ru, cookie=de, auto=true)` → "de"
+- `server(url=prefix:de, q=ru, cookie=xx, auto=false)` → "de"
+- `server(url=prefix:de, q=ru, cookie=xx, auto=true)` → "de"
+- `server(url=prefix:de, q=xx, cookie=null, auto=false)` → "de"
+- `server(url=prefix:de, q=xx, cookie=null, auto=true)` → "de"
+- `server(url=prefix:de, q=xx, cookie=de, auto=false)` → "de"
+- `server(url=prefix:de, q=xx, cookie=de, auto=true)` → "de"
+- `server(url=prefix:de, q=xx, cookie=xx, auto=false)` → "de"
+- `server(url=prefix:de, q=xx, cookie=xx, auto=true)` → "de"
+- `server(url=prefix:xx, q=null, cookie=null, auto=false)` → "en"
+- `server(url=prefix:xx, q=null, cookie=null, auto=true)` → "ru"
+- `server(url=prefix:xx, q=null, cookie=de, auto=false)` → "de"
+- `server(url=prefix:xx, q=null, cookie=de, auto=true)` → "de"
+- `server(url=prefix:xx, q=null, cookie=xx, auto=false)` → "en"
+- `server(url=prefix:xx, q=null, cookie=xx, auto=true)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=null, auto=false)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=null, auto=true)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=de, auto=false)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=de, auto=true)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=xx, auto=false)` → "ru"
+- `server(url=prefix:xx, q=ru, cookie=xx, auto=true)` → "ru"
+- `server(url=prefix:xx, q=xx, cookie=null, auto=false)` → "en"
+- `server(url=prefix:xx, q=xx, cookie=null, auto=true)` → "ru"
+- `server(url=prefix:xx, q=xx, cookie=de, auto=false)` → "de"
+- `server(url=prefix:xx, q=xx, cookie=de, auto=true)` → "de"
+- `server(url=prefix:xx, q=xx, cookie=xx, auto=false)` → "en"
+- `server(url=prefix:xx, q=xx, cookie=xx, auto=true)` → "ru"
+- `server(url=segment:de, q=null, cookie=null, auto=false)` → "en"
+- `server(url=segment:de, q=null, cookie=null, auto=true)` → "ru"
+- `server(url=segment:de, q=null, cookie=de, auto=false)` → "de"
+- `server(url=segment:de, q=null, cookie=de, auto=true)` → "de"
+- `server(url=segment:de, q=null, cookie=xx, auto=false)` → "en"
+- `server(url=segment:de, q=null, cookie=xx, auto=true)` → "ru"
+- `server(url=segment:de, q=ru, cookie=null, auto=false)` → "ru"
+- `server(url=segment:de, q=ru, cookie=null, auto=true)` → "ru"
+- `server(url=segment:de, q=ru, cookie=de, auto=false)` → "ru"
+- `server(url=segment:de, q=ru, cookie=de, auto=true)` → "ru"
+- `server(url=segment:de, q=ru, cookie=xx, auto=false)` → "ru"
+- `server(url=segment:de, q=ru, cookie=xx, auto=true)` → "ru"
+- `server(url=segment:de, q=xx, cookie=null, auto=false)` → "en"
+- `server(url=segment:de, q=xx, cookie=null, auto=true)` → "ru"
+- `server(url=segment:de, q=xx, cookie=de, auto=false)` → "de"
+- `server(url=segment:de, q=xx, cookie=de, auto=true)` → "de"
+- `server(url=segment:de, q=xx, cookie=xx, auto=false)` → "en"
+- `server(url=segment:de, q=xx, cookie=xx, auto=true)` → "ru"
+
+## resolvePreferredLocale
+
+- `preferred(state=null, cookie=null, ignoreState=false, auto=false)` → "en"
+- `preferred(state=null, cookie=null, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=null, cookie=null, ignoreState=true, auto=false)` → "en"
+- `preferred(state=null, cookie=null, ignoreState=true, auto=true)` → "ru"
+- `preferred(state=null, cookie=de, ignoreState=false, auto=false)` → "de"
+- `preferred(state=null, cookie=de, ignoreState=false, auto=true)` → "de"
+- `preferred(state=null, cookie=de, ignoreState=true, auto=false)` → "de"
+- `preferred(state=null, cookie=de, ignoreState=true, auto=true)` → "de"
+- `preferred(state=null, cookie=xx, ignoreState=false, auto=false)` → "en"
+- `preferred(state=null, cookie=xx, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=null, cookie=xx, ignoreState=true, auto=false)` → "en"
+- `preferred(state=null, cookie=xx, ignoreState=true, auto=true)` → "ru"
+- `preferred(state=ru, cookie=null, ignoreState=false, auto=false)` → "ru"
+- `preferred(state=ru, cookie=null, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=ru, cookie=null, ignoreState=true, auto=false)` → "en"
+- `preferred(state=ru, cookie=null, ignoreState=true, auto=true)` → "ru"
+- `preferred(state=ru, cookie=de, ignoreState=false, auto=false)` → "ru"
+- `preferred(state=ru, cookie=de, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=ru, cookie=de, ignoreState=true, auto=false)` → "de"
+- `preferred(state=ru, cookie=de, ignoreState=true, auto=true)` → "de"
+- `preferred(state=ru, cookie=xx, ignoreState=false, auto=false)` → "ru"
+- `preferred(state=ru, cookie=xx, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=ru, cookie=xx, ignoreState=true, auto=false)` → "en"
+- `preferred(state=ru, cookie=xx, ignoreState=true, auto=true)` → "ru"
+- `preferred(state=xx, cookie=null, ignoreState=false, auto=false)` → "en"
+- `preferred(state=xx, cookie=null, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=xx, cookie=null, ignoreState=true, auto=false)` → "en"
+- `preferred(state=xx, cookie=null, ignoreState=true, auto=true)` → "ru"
+- `preferred(state=xx, cookie=de, ignoreState=false, auto=false)` → "de"
+- `preferred(state=xx, cookie=de, ignoreState=false, auto=true)` → "de"
+- `preferred(state=xx, cookie=de, ignoreState=true, auto=false)` → "de"
+- `preferred(state=xx, cookie=de, ignoreState=true, auto=true)` → "de"
+- `preferred(state=xx, cookie=xx, ignoreState=false, auto=false)` → "en"
+- `preferred(state=xx, cookie=xx, ignoreState=false, auto=true)` → "ru"
+- `preferred(state=xx, cookie=xx, ignoreState=true, auto=false)` → "en"
+- `preferred(state=xx, cookie=xx, ignoreState=true, auto=true)` → "ru"
+
+## shouldAttemptLocaleRedirect
+
+- `redirect("", mode=undefined, prefixed=false)` → true
+- `redirect("", mode=undefined, prefixed=true)` → true
+- `redirect("/", mode=undefined, prefixed=false)` → true
+- `redirect("/", mode=undefined, prefixed=true)` → true
+- `redirect("/about", mode=undefined, prefixed=false)` → false
+- `redirect("/about", mode=undefined, prefixed=true)` → false
+- `redirect("/about/", mode=undefined, prefixed=false)` → false
+- `redirect("/about/", mode=undefined, prefixed=true)` → false
+- `redirect("/de", mode=undefined, prefixed=false)` → false
+- `redirect("/de", mode=undefined, prefixed=true)` → false
+- `redirect("/de/about", mode=undefined, prefixed=false)` → false
+- `redirect("/de/about", mode=undefined, prefixed=true)` → false
+- `redirect("/welcome", mode=undefined, prefixed=false)` → false
+- `redirect("/welcome", mode=undefined, prefixed=true)` → false
+- `redirect("/welcome/", mode=undefined, prefixed=false)` → false
+- `redirect("/welcome/", mode=undefined, prefixed=true)` → false
+- `redirect("/welcome/x", mode=undefined, prefixed=false)` → false
+- `redirect("/welcome/x", mode=undefined, prefixed=true)` → false
+- `redirect("", mode="/", prefixed=false)` → true
+- `redirect("", mode="/", prefixed=true)` → true
+- `redirect("/", mode="/", prefixed=false)` → true
+- `redirect("/", mode="/", prefixed=true)` → true
+- `redirect("/about", mode="/", prefixed=false)` → false
+- `redirect("/about", mode="/", prefixed=true)` → false
+- `redirect("/about/", mode="/", prefixed=false)` → false
+- `redirect("/about/", mode="/", prefixed=true)` → false
+- `redirect("/de", mode="/", prefixed=false)` → false
+- `redirect("/de", mode="/", prefixed=true)` → false
+- `redirect("/de/about", mode="/", prefixed=false)` → false
+- `redirect("/de/about", mode="/", prefixed=true)` → false
+- `redirect("/welcome", mode="/", prefixed=false)` → false
+- `redirect("/welcome", mode="/", prefixed=true)` → false
+- `redirect("/welcome/", mode="/", prefixed=false)` → false
+- `redirect("/welcome/", mode="/", prefixed=true)` → false
+- `redirect("/welcome/x", mode="/", prefixed=false)` → false
+- `redirect("/welcome/x", mode="/", prefixed=true)` → false
+- `redirect("", mode="", prefixed=false)` → true
+- `redirect("", mode="", prefixed=true)` → true
+- `redirect("/", mode="", prefixed=false)` → true
+- `redirect("/", mode="", prefixed=true)` → true
+- `redirect("/about", mode="", prefixed=false)` → false
+- `redirect("/about", mode="", prefixed=true)` → false
+- `redirect("/about/", mode="", prefixed=false)` → false
+- `redirect("/about/", mode="", prefixed=true)` → false
+- `redirect("/de", mode="", prefixed=false)` → false
+- `redirect("/de", mode="", prefixed=true)` → false
+- `redirect("/de/about", mode="", prefixed=false)` → false
+- `redirect("/de/about", mode="", prefixed=true)` → false
+- `redirect("/welcome", mode="", prefixed=false)` → false
+- `redirect("/welcome", mode="", prefixed=true)` → false
+- `redirect("/welcome/", mode="", prefixed=false)` → false
+- `redirect("/welcome/", mode="", prefixed=true)` → false
+- `redirect("/welcome/x", mode="", prefixed=false)` → false
+- `redirect("/welcome/x", mode="", prefixed=true)` → false
+- `redirect("", mode="*", prefixed=false)` → true
+- `redirect("", mode="*", prefixed=true)` → true
+- `redirect("/", mode="*", prefixed=false)` → true
+- `redirect("/", mode="*", prefixed=true)` → true
+- `redirect("/about", mode="*", prefixed=false)` → true
+- `redirect("/about", mode="*", prefixed=true)` → true
+- `redirect("/about/", mode="*", prefixed=false)` → true
+- `redirect("/about/", mode="*", prefixed=true)` → true
+- `redirect("/de", mode="*", prefixed=false)` → true
+- `redirect("/de", mode="*", prefixed=true)` → true
+- `redirect("/de/about", mode="*", prefixed=false)` → true
+- `redirect("/de/about", mode="*", prefixed=true)` → true
+- `redirect("/welcome", mode="*", prefixed=false)` → true
+- `redirect("/welcome", mode="*", prefixed=true)` → true
+- `redirect("/welcome/", mode="*", prefixed=false)` → true
+- `redirect("/welcome/", mode="*", prefixed=true)` → true
+- `redirect("/welcome/x", mode="*", prefixed=false)` → true
+- `redirect("/welcome/x", mode="*", prefixed=true)` → true
+- `redirect("", mode="no_prefix", prefixed=false)` → true
+- `redirect("", mode="no_prefix", prefixed=true)` → false
+- `redirect("/", mode="no_prefix", prefixed=false)` → true
+- `redirect("/", mode="no_prefix", prefixed=true)` → false
+- `redirect("/about", mode="no_prefix", prefixed=false)` → true
+- `redirect("/about", mode="no_prefix", prefixed=true)` → false
+- `redirect("/about/", mode="no_prefix", prefixed=false)` → true
+- `redirect("/about/", mode="no_prefix", prefixed=true)` → false
+- `redirect("/de", mode="no_prefix", prefixed=false)` → true
+- `redirect("/de", mode="no_prefix", prefixed=true)` → false
+- `redirect("/de/about", mode="no_prefix", prefixed=false)` → true
+- `redirect("/de/about", mode="no_prefix", prefixed=true)` → false
+- `redirect("/welcome", mode="no_prefix", prefixed=false)` → true
+- `redirect("/welcome", mode="no_prefix", prefixed=true)` → false
+- `redirect("/welcome/", mode="no_prefix", prefixed=false)` → true
+- `redirect("/welcome/", mode="no_prefix", prefixed=true)` → false
+- `redirect("/welcome/x", mode="no_prefix", prefixed=false)` → true
+- `redirect("/welcome/x", mode="no_prefix", prefixed=true)` → false
+- `redirect("", mode="/welcome", prefixed=false)` → false
+- `redirect("", mode="/welcome", prefixed=true)` → false
+- `redirect("/", mode="/welcome", prefixed=false)` → false
+- `redirect("/", mode="/welcome", prefixed=true)` → false
+- `redirect("/about", mode="/welcome", prefixed=false)` → false
+- `redirect("/about", mode="/welcome", prefixed=true)` → false
+- `redirect("/about/", mode="/welcome", prefixed=false)` → false
+- `redirect("/about/", mode="/welcome", prefixed=true)` → false
+- `redirect("/de", mode="/welcome", prefixed=false)` → false
+- `redirect("/de", mode="/welcome", prefixed=true)` → false
+- `redirect("/de/about", mode="/welcome", prefixed=false)` → false
+- `redirect("/de/about", mode="/welcome", prefixed=true)` → false
+- `redirect("/welcome", mode="/welcome", prefixed=false)` → true
+- `redirect("/welcome", mode="/welcome", prefixed=true)` → true
+- `redirect("/welcome/", mode="/welcome", prefixed=false)` → true
+- `redirect("/welcome/", mode="/welcome", prefixed=true)` → true
+- `redirect("/welcome/x", mode="/welcome", prefixed=false)` → false
+- `redirect("/welcome/x", mode="/welcome", prefixed=true)` → false
+- `redirect("", mode="welcome", prefixed=false)` → false
+- `redirect("", mode="welcome", prefixed=true)` → false
+- `redirect("/", mode="welcome", prefixed=false)` → false
+- `redirect("/", mode="welcome", prefixed=true)` → false
+- `redirect("/about", mode="welcome", prefixed=false)` → false
+- `redirect("/about", mode="welcome", prefixed=true)` → false
+- `redirect("/about/", mode="welcome", prefixed=false)` → false
+- `redirect("/about/", mode="welcome", prefixed=true)` → false
+- `redirect("/de", mode="welcome", prefixed=false)` → false
+- `redirect("/de", mode="welcome", prefixed=true)` → false
+- `redirect("/de/about", mode="welcome", prefixed=false)` → false
+- `redirect("/de/about", mode="welcome", prefixed=true)` → false
+- `redirect("/welcome", mode="welcome", prefixed=false)` → true
+- `redirect("/welcome", mode="welcome", prefixed=true)` → true
+- `redirect("/welcome/", mode="welcome", prefixed=false)` → true
+- `redirect("/welcome/", mode="welcome", prefixed=true)` → true
+- `redirect("/welcome/x", mode="welcome", prefixed=false)` → false
+- `redirect("/welcome/x", mode="welcome", prefixed=true)` → false

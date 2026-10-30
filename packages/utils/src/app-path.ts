@@ -29,11 +29,10 @@ export function isStaticAssetPathname(pathname: string): boolean {
   return STATIC_ASSET_EXT.test(last)
 }
 
-const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
+const INTERNAL_PREFIXES = ['/api', '/_nuxt'] as const
 
 const DEFAULT_STATIC_PATTERNS = [
   /^\/sitemap.*\.xml$/,
-  /^\/sitemap\.xml$/,
   /^\/robots\.txt$/,
   /^\/favicon\.ico$/,
   /^\/apple-touch-icon.*\.png$/,
@@ -42,51 +41,55 @@ const DEFAULT_STATIC_PATTERNS = [
   /^\/workbox-.*\.js$/,
 ]
 
+/** `path` is `prefix` or below it: `/admin` covers `/admin` and `/admin/x`, not `/administrator`. */
+function underPrefix(path: string, prefix: string): boolean {
+  const base = prefix.length > 1 && prefix.endsWith('/') ? prefix.slice(0, -1) : prefix
+  return path === base || path.startsWith(base === '/' ? '/' : `${base}/`)
+}
+
+const GLOBS = new Map<string, RegExp>()
+const MAX_GLOBS = 256
+
+/** An anchored RegExp of a `*` / `?` glob, compiled once per pattern string. */
+function globOf(pattern: string): RegExp {
+  let regex = GLOBS.get(pattern)
+  if (regex) return regex
+  if (GLOBS.size >= MAX_GLOBS) GLOBS.clear()
+  const source = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*')
+    .replace(/\?/g, '.')
+  regex = new RegExp(`^${source}$`)
+  GLOBS.set(pattern, regex)
+  return regex
+}
+
+const isGlob = (pattern: string) => pattern.includes('*') || pattern.includes('?')
+
+function matchesPattern(path: string, pattern: string | RegExp | object): boolean {
+  if (typeof pattern === 'string') return isGlob(pattern) ? globOf(pattern).test(path) : underPrefix(path, pattern)
+  if (!(pattern instanceof RegExp)) return false
+  pattern.lastIndex = 0
+  const matches = pattern.test(path)
+  pattern.lastIndex = 0
+  return matches
+}
+
 /**
  * True for Nuxt/i18n internals, Content `__` routes, and static assets that must
  * skip locale detection / redirects. Lives in utils so client middleware can import
  * it without pulling `@nuxt/schema` (via route-strategy) into the browser bundle.
+ * `apiBaseUrl` is the translations route (`_locales` by default).
  */
-export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
-  for (const prefix of INTERNAL_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return true
-  }
+export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl = '_locales'): boolean {
+  if (INTERNAL_PREFIXES.some((prefix) => underPrefix(path, prefix))) return true
+  if (apiBaseUrl && underPrefix(path, `/${apiBaseUrl.replace(/^\/+|\/+$/g, '')}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
-  if (/(?:^|\/)__/.test(path)) {
-    return true
-  }
+  if (/(?:^|\/)__/.test(path)) return true
   const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
-  for (const pattern of DEFAULT_STATIC_PATTERNS) {
-    if (pattern.test(pathForMatch)) {
-      return true
-    }
-  }
-  if (isStaticAssetPathname(path)) {
-    return true
-  }
-  if (excludePatterns) {
-    for (const pattern of excludePatterns) {
-      if (typeof pattern === 'string') {
-        if (pattern.includes('*') || pattern.includes('?')) {
-          const regex = new RegExp(
-            pattern
-              .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-              .replace(/\*/g, '.*')
-              .replace(/\?/g, '.'),
-          )
-          if (regex.test(path)) return true
-        } else if (path === pattern || path.startsWith(pattern)) {
-          return true
-        }
-      } else if (pattern instanceof RegExp) {
-        pattern.lastIndex = 0
-        const matches = pattern.test(path)
-        pattern.lastIndex = 0
-        if (matches) return true
-      }
-    }
-  }
-  return false
+  if (DEFAULT_STATIC_PATTERNS.some((pattern) => pattern.test(pathForMatch))) return true
+  if (isStaticAssetPathname(path)) return true
+  return excludePatterns?.some((pattern) => matchesPattern(path, pattern)) ?? false
 }
 
 /**

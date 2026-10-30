@@ -1,10 +1,7 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { createError, defineEventHandler, getQuery, getRouterParam, send, setResponseHeader } from 'h3'
-import { getI18nConfig } from '#i18n-internal/strategy'
-import { useRuntimeConfig } from '#imports'
+import { getI18nServerConfig } from '../utils/locale-detector'
 import { loadTranslationsFromServer } from '../utils/server-loader'
 
 /**
@@ -20,10 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing locale or page' })
   }
 
-  const config = resolveI18nConfigWithRuntimeOverrides(
-    getI18nConfig() as ModuleOptionsExtend,
-    useRuntimeConfig(event).public as Record<string, unknown>,
-  )
+  const config = getI18nServerConfig(event)
   if (!isEnabledLocale(config.locales, locale)) {
     throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }

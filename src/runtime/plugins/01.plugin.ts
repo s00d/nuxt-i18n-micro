@@ -26,7 +26,7 @@ import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
-import { usePageHead } from '../composables/useI18nHead'
+import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 import {

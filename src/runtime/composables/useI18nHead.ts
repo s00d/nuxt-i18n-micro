@@ -5,9 +5,7 @@ import { toValue, triggerRef, watch } from 'vue'
 import { useState } from '#app/composables/state'
 import { useNuxtApp } from '#app/nuxt'
 import type { I18nAppInternals } from '../utils/nuxt-i18n'
-
-/** The page's overrides. Plugins read this one, not `useI18nHead`: an app that never calls it ships no merge. */
-export const usePageHead = () => useState<I18nHeadInput | null>('i18n-head-page', () => null)
+import { usePageHead } from '../utils/page-head'
 
 /**
  * Register page-level overrides for i18n SEO head tags.

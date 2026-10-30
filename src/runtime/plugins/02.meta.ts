@@ -2,7 +2,7 @@ import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { joinURL } from 'ufo'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
-import { usePageHead } from '../composables/useI18nHead'
+import { usePageHead } from '../utils/page-head'
 import { useLocaleHead } from '../composables/useLocaleHead'
 import type { I18nAppInternals } from '../utils/nuxt-i18n'
 

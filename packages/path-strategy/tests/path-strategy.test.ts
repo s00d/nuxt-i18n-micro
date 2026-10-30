@@ -77,6 +77,7 @@ function setup(
     globalLocaleRoutes: RULES,
     routeLocales: { 'de-only': ['de'], ...routeLocales },
     routeDisableMeta,
+    customRegexMatcher: ctx.customRegexMatcher,
     noPrefixRedirect: false,
   }).extendPages(pages)
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })

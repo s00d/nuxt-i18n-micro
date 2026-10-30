@@ -46,7 +46,7 @@ describe('Accept-Language (F5: q, F6: matching)', () => {
 })
 
 describe('redirectLocale: under prefix an unprefixed URL always takes the preference', () => {
-  test('whatever autoDetectPath says; a prefixed URL still needs it', () => {
+  it('whatever autoDetectPath says; a prefixed URL still needs it', () => {
     const base = { defaultLocale: 'en', validLocales: ['en', 'de'], cookie: 'de', autoDetectPath: '/' }
     expect(redirectLocale({ ...base, path: '/about', urlLocale: null })).toBe('en')
     expect(redirectLocale({ ...base, path: '/about', urlLocale: null, alwaysPrefixed: true })).toBe('de')

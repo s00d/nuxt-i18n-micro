@@ -26,7 +26,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/types', 'globby', 'chokidar', 'unplugin', '@nuxt/kit', 'node:fs', 'node:path'],
+      external: [/^@i18n-micro\//, '@nuxt/kit', /^node:/],
       output: {
         exports: 'named',
       },

@@ -7,17 +7,18 @@ import '@i18n-micro/types';
 
 declare module '@i18n-micro/types' {
   export interface DefineLocaleMessage {
-    "__proto__.evil": string;
+    "a": object;
     "a.b": string;
+    "a.c": object;
     "a.c.d": string;
+    "empty": object;
     "flat.key": string;
     "hello": string;
-    "list": string;
-    "n": string;
-    "nil": string;
-    "notATranslation": string;
+    "list": unknown[];
+    "n": number;
+    "nil": null;
     "onlyDe": string;
     "title": string;
-    "yes": string;
+    "yes": boolean;
   }
 }

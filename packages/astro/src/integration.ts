@@ -61,7 +61,7 @@ function i18nVitePlugin(options: I18nIntegrationOptions, config: AstroConfig) {
 
   const loadMessages = async (watch: (file: string) => void) => {
     const { translationDir, disablePageLocales } = options
-    if (!translationDir) return `export const messages = { root: {}, routes: {} }`
+    if (!translationDir) return 'export const messages = {"root":{},"routes":{}}'
     const { readTranslationDir } = (await import(/* @vite-ignore */ NODE_ENTRY)) as typeof import('./node')
     const { messages, files } = readTranslationDir({ translationDir, rootDir: config.root, disablePageLocales })
     for (const file of files) watch(file)

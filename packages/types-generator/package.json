@@ -69,9 +69,8 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "chokidar": "catalog:",
-    "globby": "catalog:",
-    "unplugin": "catalog:"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -79,12 +78,19 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@nuxt/kit": "catalog:",
+    "@nuxt/schema": "catalog:"
   },
   "peerDependencies": {
     "@nuxt/kit": "catalog:"
   },
   "engines": {
     "node": ">=20"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/kit": {
+      "optional": true
+    }
   }
 }

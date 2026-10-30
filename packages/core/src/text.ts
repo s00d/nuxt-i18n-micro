@@ -226,7 +226,7 @@ function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params)
     const getter: Getter = (key, values, fallback) => i18n.t(key, values, fallback ?? defaultValue)
     return { template: String(customPluralRule(keypath, count, params, i18n.getLocale(), getter) ?? ''), params: {} }
   }
-  if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }, defaultValue), params: {} }
+  if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }, defaultValue || undefined), params: {} }
   // as `defaultPlural`: a tree or a boolean has no forms, so `tc` answers the key
   const value = i18n.t(keypath, undefined, defaultValue)
   const translation = typeof value === 'string' || typeof value === 'number' ? String(value) : keypath

@@ -16,12 +16,12 @@
 - `"/de/about" en` → "/about"
 - `"/de/about" de` → "/de/about"
 - `"/de/about" fr` → "/fr/about"
-- `"/de?x=1" en` → "/de?x=1"
-- `"/de?x=1" de` → "/de/de?x=1"
-- `"/de?x=1" fr` → "/fr/de?x=1"
-- `"/de#top" en` → "/de#top"
-- `"/de#top" de` → "/de/de#top"
-- `"/de#top" fr` → "/fr/de#top"
+- `"/de?x=1" en` → "/?x=1"
+- `"/de?x=1" de` → "/de?x=1"
+- `"/de?x=1" fr` → "/fr?x=1"
+- `"/de#top" en` → "/#top"
+- `"/de#top" de` → "/de#top"
+- `"/de#top" fr` → "/fr#top"
 - `"/about?x=1#h" en` → "/about?x=1#h"
 - `"/about?x=1#h" de` → "/de/about?x=1#h"
 - `"/about?x=1#h" fr` → "/fr/about?x=1#h"
@@ -31,5 +31,5 @@
 - `{} en` → "/"
 - `{} de` → "/de"
 - `{} fr` → "/fr"
-- getCurrentPath → /de/about
-- getRoute → {"fullPath":"/de/about","query":{"q":"1"}}
+- getCurrentPath → /de/about?q=1#h
+- getRoute → {"fullPath":"/de/about?q=1#h","query":{"q":"1"}}

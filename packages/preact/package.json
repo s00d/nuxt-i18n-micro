@@ -39,6 +39,17 @@
       },
       "default": "./dist/index.mjs"
     },
+    "./router": {
+      "import": {
+        "types": "./dist/router.d.ts",
+        "default": "./dist/router.mjs"
+      },
+      "require": {
+        "types": "./dist/router.d.cts",
+        "default": "./dist/router.cjs"
+      },
+      "default": "./dist/router.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -49,6 +60,7 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "vitest run",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
@@ -66,7 +78,8 @@
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "preact-render-to-string": "catalog:"
   },
   "peerDependencies": {
     "preact": "catalog:"

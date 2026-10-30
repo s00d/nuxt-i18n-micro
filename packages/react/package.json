@@ -29,6 +29,28 @@
   "types": "./dist/react/index.d.ts",
   "exports": {
     ".": {
+      "react-server": {
+        "import": {
+          "types": "./dist/react/server.d.ts",
+          "default": "./dist/react/server.mjs"
+        },
+        "require": {
+          "types": "./dist/react/server.d.cts",
+          "default": "./dist/react/server.cjs"
+        },
+        "default": "./dist/react/server.mjs"
+      },
+      "import": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/index.mjs"
+      },
+      "require": {
+        "types": "./dist/react/index.d.cts",
+        "default": "./dist/react/index.cjs"
+      },
+      "default": "./dist/react/index.mjs"
+    },
+    "./client": {
       "import": {
         "types": "./dist/react/index.d.ts",
         "default": "./dist/react/index.mjs"
@@ -50,6 +72,17 @@
       },
       "default": "./dist/react/router.mjs"
     },
+    "./server": {
+      "import": {
+        "types": "./dist/react/server.d.ts",
+        "default": "./dist/react/server.mjs"
+      },
+      "require": {
+        "types": "./dist/react/server.d.cts",
+        "default": "./dist/react/server.cjs"
+      },
+      "default": "./dist/react/server.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -60,14 +93,14 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "vitest run",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit -p tsconfig.build.json",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
     "@i18n-micro/runtime": "workspace:^",
-    "@i18n-micro/types": "workspace:^",
-    "use-sync-external-store": "catalog:"
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "@testing-library/dom": "catalog:",
@@ -80,14 +113,21 @@
     "react": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "catalog:",
+    "@types/react-dom": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",
-    "react-router-dom": "catalog:"
+    "react-router-dom": "catalog:",
+    "react-dom": "catalog:"
   },
   "peerDependenciesMeta": {
     "react-router-dom": {
+      "optional": true
+    },
+    "react-dom": {
       "optional": true
     }
   },

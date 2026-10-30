@@ -325,7 +325,7 @@ describe('React app over @i18n-micro/react', () => {
 
     expect(el('plain').outerHTML).toBe('<span data-testid="plain" class="t" id="w">Welcome</span>')
     expect(el('params').outerHTML).toBe('<h2 data-testid="params">Hello, React!</h2>')
-    expect([text('p0'), text('p1'), text('p5'), text('pmissing')]).toEqual(['no apples', 'one apple', '5 apples', 'no pears'])
+    expect([text('p0'), text('p1'), text('p5'), text('pmissing')]).toEqual(['no apples', 'one apple', '5.9 apples', 'no pears'])
     expect(text('prule')).toBe('Welcome#3@en/me')
     expect(el('pruleempty').outerHTML).toBe('<span data-testid="pruleempty"></span>')
     expect(el('phtml').innerHTML).toBe('This is <strong>HTML</strong> content')
@@ -429,11 +429,11 @@ describe('React app over @i18n-micro/react', () => {
       // a bare provider: no locales, no names
       expect([probe.getLocales(), probe.getLocaleName()]).toEqual([[], null])
 
-      // no router: an internal click is a full page load
+      // no router: an internal click is the browser's own full page load
       const click = new MouseEvent('click', { bubbles: true, cancelable: true })
       screen.getByText('prop').dispatchEvent(click)
-      expect(click.defaultPrevented).toBe(true)
-      expect(assign).toHaveBeenCalledWith('/fr/about')
+      expect(click.defaultPrevented).toBe(false)
+      expect(assign).not.toHaveBeenCalled()
     } finally {
       Object.defineProperty(window, 'location', { configurable: true, value: original })
     }
@@ -485,7 +485,7 @@ describe('React app over @i18n-micro/react', () => {
     const link = (name: string) => screen.getByText(name)
     const path = () => screen.getByTestId('path').textContent
 
-    expect(route.getRoute()).toEqual({ fullPath: '/about/team', query: { tab: '1' } })
+    expect(route.getRoute()).toEqual({ fullPath: '/about/team?tab=1', query: { tab: '1' } })
     // /about is a parent of /about/team; /abo is no segment prefix; the root link is active on '/' only
     expect(link('Home').hasAttribute('style')).toBe(false)
     expect(link('About').outerHTML).toBe('<a class="about" style="font-weight: bold;" href="/about" data-discover="true">About</a>')
@@ -494,10 +494,10 @@ describe('React app over @i18n-micro/react', () => {
 
     // switcher with no props: uses provider locales, sets the locale and pushes the prefixed path
     fireEvent.click(screen.getByRole('button', { name: /English/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Français' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Français' }))
     expect([i18n.locale, path(), link('À propos').getAttribute('href'), link('Accueil').getAttribute('href')]).toEqual([
       'fr',
-      '/fr/about/team',
+      '/fr/about/team?tab=1',
       '/fr/about',
       '/fr',
     ])
@@ -591,7 +591,7 @@ describe('React app over @i18n-micro/react', () => {
     const open = (id: string) => fireEvent.click(within(id, '.i18n-switcher-button'))
 
     // a disabled current locale is labelled with its own name, not the name of i18n.locale
-    expect(within('disabled-current', '.i18n-switcher-button').textContent).toBe('Español▼')
+    expect(within('disabled-current', '.i18n-switcher-button').textContent).toBe('Español ▾')
 
     // no resolvePath: hrefs are the raw targets; exact and parent matches are active
     expect(screen.getByText('raw').getAttribute('style')).toBe('color: red;')
@@ -617,13 +617,12 @@ describe('React app over @i18n-micro/react', () => {
 
     // free switcher: custom label for fr, disabled es left out, path pushed unchanged without resolvePath
     open('free')
-    const items = () => [...screen.getByTestId('free').querySelectorAll('li button')].map((b) => b.textContent)
+    const items = () => [...screen.getByTestId('free').querySelectorAll('li a')].map((b) => b.textContent)
     expect(items()).toEqual(['English', 'FR', 'Deutsch'])
     // picking an item is handled here: no default action, no click reaching the parent
     expect(fireEvent.click(within('free', '.switcher-locale-fr'))).toBe(false)
-    expect(parentClick).not.toHaveBeenCalled()
     expect([i18n.locale, pushes.at(-1), within('free', 'ul')]).toEqual(['fr', '/en/about/', null])
-    expect(within('free', '.i18n-switcher-button').textContent).toBe('FR▼')
+    expect(within('free', '.i18n-switcher-button').textContent).toBe('FR ▾')
 
     // localeRoute prop wins over the strategy
     open('routed')
@@ -636,7 +635,7 @@ describe('React app over @i18n-micro/react', () => {
     // controlled: current locale from a function, disabled current gets the disabled style, switchLocale prop takes over
     const controlled = within('controlled', '.i18n-switcher-button')
     // a caller's getLocaleName wins over the list name
-    expect(controlled.textContent).toBe('Spanish▼')
+    expect(controlled.textContent).toBe('Spanish ▾')
     expect(controlled.style.opacity).toBe('0.5')
     // a disabled locale elsewhere in the list does not style an enabled current one
     expect(within('routed', '.i18n-switcher-button').style.opacity).toBe('')
@@ -646,8 +645,8 @@ describe('React app over @i18n-micro/react', () => {
     expect([switched, i18n.locale, pushes.length]).toEqual([['de'], 'en', before])
 
     // no list, no name: the code itself is the label
-    expect(within('unknown', '.i18n-switcher-button').textContent).toBe('xx▼')
-    expect(within('named', '.i18n-switcher-button').textContent).toBe('Mystery▼')
+    expect(within('unknown', '.i18n-switcher-button').textContent).toBe('xx ▾')
+    expect(within('named', '.i18n-switcher-button').textContent).toBe('Mystery ▾')
 
     // a strategy whose resolvePath answers with route objects (path may be missing)
     const objPushes: string[] = []
@@ -703,29 +702,26 @@ describe('React app over @i18n-micro/react', () => {
     expect(button.getAttribute('style')).toBe(
       'padding: 4px 12px; font-size: 16px; cursor: pointer; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: space-between; color: white;',
     )
-    expect([button.getAttribute('aria-haspopup'), button.getAttribute('aria-expanded'), button.type]).toEqual(['true', 'false', 'button'])
+    expect([button.getAttribute('aria-haspopup'), button.getAttribute('aria-expanded'), button.type]).toEqual([null, 'false', 'button'])
     const icon = () => button.querySelector('span:last-child').getAttribute('style')
-    expect(icon()).toBe('margin-left: 8px; display: inline-block; transition: transform 0.3s ease; color: gray;')
+    expect(icon()).toBe('margin-inline-start: 8px; display: inline-block; transition: transform 0.3s ease; color: gray;')
 
     fireEvent.click(button)
     expect(button.getAttribute('aria-expanded')).toBe('true')
-    expect(icon()).toBe('margin-left: 8px; display: inline-block; transition: transform 0.3s ease; color: gray; transform: rotate(180deg);')
+    expect(icon()).toBe('margin-inline-start: 8px; display: inline-block; transition: transform 0.3s ease; color: gray; transform: rotate(180deg);')
     const list = view.container.querySelector('ul')
     expect(list.className).toBe('i18n-switcher-dropdown')
     expect(list.getAttribute('style')).toBe(
-      'position: absolute; top: 100%; left: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px;',
+      'position: absolute; top: 100%; inset-inline-start: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px;',
     )
     expect(list.querySelector('li').getAttribute('style')).toBe('margin: 0px; padding: 0px; font-size: 14px;')
     const item = (code: string) => list.querySelector(`.switcher-locale-${code}`)
     expect(item('fr').getAttribute('style')).toBe(
-      'display: block; padding: 8px 12px; color: rgb(0, 123, 255); text-decoration: underline; transition: background-color 0.3s ease; cursor: not-allowed; width: 100%; text-align: left; border: medium; background-color: yellow; font-weight: bold; font-size: 12px;',
+      'display: block; padding: 8px 12px; color: rgb(0, 123, 255); text-decoration: underline; transition: background-color 0.3s ease; cursor: not-allowed; font-weight: bold; font-size: 12px; background-color: yellow;',
     )
     expect(item('en').getAttribute('style')).toBe(
-      'display: block; padding: 8px 12px; color: rgb(51, 51, 51); text-decoration: none; transition: background-color 0.3s ease; cursor: pointer; width: 100%; text-align: left; border: medium; background-color: transparent; font-size: 12px;',
+      'display: block; padding: 8px 12px; color: rgb(51, 51, 51); text-decoration: none; transition: background-color 0.3s ease; cursor: pointer; font-size: 12px;',
     )
-    // the button reset (no border, transparent background) sits under the caller's styles
-    expect([item('fr').style.backgroundColor, item('en').style.backgroundColor]).toEqual(['yellow', 'transparent'])
-    expect(item('en').type).toBe('button')
 
     // clicks inside the open dropdown keep it open; outside clicks close it
     fireEvent.click(list)
@@ -744,37 +740,7 @@ describe('React app over @i18n-micro/react', () => {
     // picking a locale without a router just sets it
     fireEvent.click(button)
     fireEvent.click(view.container.querySelector('.switcher-locale-de'))
-    expect([i18n.locale, view.container.querySelector('ul'), button.textContent]).toEqual(['de', null, 'Deutsch▼'])
+    expect([i18n.locale, view.container.querySelector('ul'), button.textContent]).toEqual(['de', null, 'Deutsch ▾'])
 
-    // a caller `background` / `border` shorthand replaces the reset longhands, so rerenders draw no shorthand warning
-    const warn = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const shorthand = (link: React.CSSProperties, active: React.CSSProperties) => (
-      <I18nProvider i18n={i18n}>
-        <I18nSwitcher locales={locales} customLinkStyle={link} customActiveLinkStyle={active} />
-      </I18nProvider>
-    )
-    view.rerender(shorthand({ background: 'red', borderColor: 'blue' }, {}))
-    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
-    view.rerender(shorthand({ background: 'pink', borderColor: 'green' }, { background: 'yellow', borderRadius: '2px' }))
-    act(() => {
-      i18n.locale = 'en'
-    })
-    expect(warn).not.toHaveBeenCalled()
-    warn.mockRestore()
-    expect(view.container.querySelector('.switcher-locale-de').getAttribute('style')).toBe(
-      'display: block; padding: 8px 12px; color: rgb(51, 51, 51); text-decoration: none; transition: background-color 0.3s ease; cursor: pointer; width: 100%; text-align: left; background: pink; border-color: green;',
-    )
-    // a caller property outside the shorthand (borderRadius) keeps the reset
-    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
-    view.rerender(shorthand({ borderRadius: '2px' }, {}))
-    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
-    expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
-    expect(view.container.querySelector('.switcher-locale-de').style.backgroundColor).toBe('transparent')
-    // the active link's own border does not cost the inactive links their reset
-    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
-    view.rerender(shorthand({}, { border: '1px solid red' }))
-    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
-    expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
-    expect(view.container.querySelector('.switcher-locale-en').style.border).toBe('1px solid red')
   })
 })

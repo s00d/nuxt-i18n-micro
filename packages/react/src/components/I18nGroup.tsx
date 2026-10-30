@@ -1,23 +1,22 @@
 import type { TranslationKey } from '@i18n-micro/types'
-import React from 'react'
+import { h, type HostAttrs, type HostElement, type HostNode } from '#host'
 import { useI18n } from '../context'
 
-export interface I18nGroupProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface I18nGroupProps extends Omit<HostAttrs<HTMLDivElement>, 'children'> {
   prefix: string
   groupClass?: string
-  children?: (props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string }) => React.ReactNode
+  children?: HostNode | ((props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string }) => HostNode)
 }
 
-export const I18nGroup = (props: I18nGroupProps): React.ReactElement => {
-  const { prefix, groupClass, children, ...restProps } = props
-  const { t, getRoute } = useI18n()
+export const I18nGroup = (props: I18nGroupProps): HostElement => {
+  const { prefix, groupClass, children, className, class: userClass, ...restProps } = props as I18nGroupProps & { class?: string }
+  const { t } = useI18n()
 
-  const translate = (key: string, params?: Record<string, string | number | boolean>): string => {
-    const result = t(`${prefix}.${key}` as TranslationKey, params, undefined, getRoute())
-    return typeof result === 'string' ? result : String(result)
-  }
+  const translate = (key: string, params?: Record<string, string | number | boolean>): string => String(t(`${prefix}.${key}` as TranslationKey, params))
 
-  const className = ['i18n-group', groupClass].filter(Boolean).join(' ')
-
-  return React.createElement('div', { ...restProps, className }, typeof children === 'function' ? children({ prefix, t: translate }) : children)
+  return h(
+    'div',
+    { ...restProps, className: ['i18n-group', groupClass, className, userClass].filter(Boolean).join(' ') },
+    typeof children === 'function' ? children({ prefix, t: translate }) : children,
+  )
 }

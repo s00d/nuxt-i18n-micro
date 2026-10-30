@@ -64,6 +64,7 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "vitest run",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },

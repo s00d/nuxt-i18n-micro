@@ -45,15 +45,15 @@ catalog:
   '@vue/devtools-api': ^8.1.5
   '@vue/server-renderer': ^3.5.43
   # React (широкий peer; monorepo pin → catalogs.pin)
-  react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  react: "^18.0.0 || ^19.0.0"
   react-dom: "^18.0.0 || ^19.0.0"
   '@types/react': ^19.3.0
   '@types/react-dom': ^19.3.0
   react-router-dom: "^6.30.6 || ^7.0.0"
-  use-sync-external-store: ^1.7.0
   # Preact (wide peer; monorepo pin → catalogs.pin)
   preact: "^10.27.2 || ^11.0.0-0"
   '@testing-library/preact': ^3.2.4
+  preact-render-to-string: ^6.8.2
   wouter-preact: ^3.11.1
   '@preact/preset-vite': ^2.10.6
   # Solid

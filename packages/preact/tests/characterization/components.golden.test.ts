@@ -3,7 +3,7 @@ import { h } from 'preact'
 import { LOCALES } from '../../../core/tests/characterization/component-cases'
 import { goldenSuite } from '../../../react/tests/characterization/suite'
 import * as lib from '../../src'
-import { createBrowserHistoryAdapter } from '../../src'
+import { createBrowserHistoryAdapter } from '../../src/router'
 
 goldenSuite({
   h,

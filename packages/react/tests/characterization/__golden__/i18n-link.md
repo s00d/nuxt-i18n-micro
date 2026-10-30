@@ -8,16 +8,16 @@
   - router → <a href="/de/about" style="color: red;">L</a>
   - no router → <a href="/about/">L</a>
 - `"/about?x=1#y"`
-  - router → <a href="/de/about?x=1#y">L</a>
+  - router → <a href="/de/about?x=1#y" style="color: red;">L</a>
   - no router → <a href="/about?x=1#y">L</a>
 - `"/about/team"`
   - router → <a href="/de/about/team">L</a>
   - no router → <a href="/about/team">L</a>
 - `"#top"`
-  - router → <a href="/de/#top">L</a>
+  - router → <a href="/de#top">L</a>
   - no router → <a href="#top">L</a>
 - `"?x=1"`
-  - router → <a href="/de/?x=1">L</a>
+  - router → <a href="/de?x=1">L</a>
   - no router → <a href="?x=1">L</a>
 - `"/"`
   - router → <a href="/de">L</a>

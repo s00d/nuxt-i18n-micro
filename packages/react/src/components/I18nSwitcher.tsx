@@ -1,46 +1,23 @@
+import { isPlainClick } from '@i18n-micro/core'
+import { SWITCHER_STYLES as STYLES } from '@i18n-micro/core/render'
 import type { Locale } from '@i18n-micro/types'
-import React, { useEffect, useRef, useState } from 'react'
-import { useI18n } from '../context'
-import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
+import { h, type HostAttrs, type HostElement, type HostMouseEvent, type HostStyle, useEffect, useRef, useState } from '#host'
+import { routePath, useI18n } from '../context'
+import { type RouteTarget, useI18nLocales, useI18nRouter } from '../injection'
 
-function resolveCurrentLocale(prop: string | (() => string) | undefined, fallback: string): string {
-  if (typeof prop === 'function') return prop()
-  if (typeof prop === 'string') return prop
-  return fallback
-}
-
-/** The `<button>` reset under the item styles, and the caller keys that belong to the same shorthand as each part. */
-const BUTTON_RESET: Record<string, [string, RegExp]> = {
-  border: ['none', /^border(?!.*Radius|Collapse|Spacing)/],
-  backgroundColor: ['transparent', /^background$/],
-}
-
-/**
- * The reset parts no caller style touches: mixing a shorthand with its longhand (`background` over
- * `backgroundColor`) makes React warn on rerender, and the caller's own value replaces the reset anyway.
- */
-function buttonReset(...custom: (React.CSSProperties | undefined)[]): React.CSSProperties {
-  const callerKeys = custom.flatMap((style) => Object.keys(style ?? {}))
-  const reset: Record<string, string> = {}
-  for (const [key, [value, family]] of Object.entries(BUTTON_RESET)) {
-    if (!callerKeys.some((k) => family.test(k))) reset[key] = value
-  }
-  return reset
-}
-
-export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface I18nSwitcherProps extends HostAttrs<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
   getLocaleName?: () => string | null
   switchLocale?: (locale: string) => void
-  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
+  localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget
   customLabels?: Record<string, string>
-  customWrapperStyle?: React.CSSProperties
-  customButtonStyle?: React.CSSProperties
-  customDropdownStyle?: React.CSSProperties
-  customItemStyle?: React.CSSProperties
-  customLinkStyle?: React.CSSProperties
-  customActiveLinkStyle?: React.CSSProperties
+  customWrapperStyle?: HostStyle
+  customButtonStyle?: HostStyle
+  customDropdownStyle?: HostStyle
+  customItemStyle?: HostStyle
+  customLinkStyle?: HostStyle
+  customActiveLinkStyle?: HostStyle
   /**
    * Inline style applied to the main switcher button when the current locale is
    * marked as `disabled: true` in the locale config.
@@ -48,261 +25,121 @@ export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> 
    * Disabled locales are omitted from the dropdown items, but still shown as the
    * active button label.
    */
-  customDisabledLinkStyle?: React.CSSProperties
-  customIconStyle?: React.CSSProperties
+  customDisabledLinkStyle?: HostStyle
+  customIconStyle?: HostStyle
 }
 
-export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
+export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
   const {
     locales: localesProp,
     currentLocale: currentLocaleProp,
-    getLocaleName: getLocaleNameProp,
-    switchLocale: switchLocaleProp,
-    localeRoute: _localeRouteProp,
-    customLabels = {},
+    getLocaleName,
+    switchLocale,
+    localeRoute,
+    customLabels,
     customWrapperStyle,
     customButtonStyle,
     customDropdownStyle,
     customItemStyle,
     customLinkStyle,
     customActiveLinkStyle,
-    customDisabledLinkStyle = {},
+    customDisabledLinkStyle,
     customIconStyle,
     className,
+    class: userClass,
+    style,
     ...restProps
-  } = props
+  } = props as I18nSwitcherProps & { class?: string }
 
   const i18n = useI18n()
-  const i18nInstance = useI18nContext()
   const router = useI18nRouter()
   const injectedLocales = useI18nLocales()
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+  const wrapper = useRef<HTMLDivElement>(null)
 
-  // Use props if provided, otherwise fallback to injected or useI18n.
-  // Exclude `disabled: true` locales from the UI switcher (keep them available via getLocales for SEO).
-  const allLocales = localesProp || injectedLocales || i18n.getLocales() || []
-  const locales = allLocales.filter((locale) => !locale.disabled)
-
-  const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
-  const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
-
-  const toggleDropdown = (event?: React.MouseEvent<HTMLButtonElement>) => {
-    if (event) {
-      event.stopPropagation()
-      event.preventDefault()
-    }
-    setDropdownOpen(!dropdownOpen)
-  }
-
-  const localeLabel = (localeItem: Locale): string => {
-    const current = customLabels[localeItem.code] || localeItem.displayName
-    return current || localeItem.code
-  }
-
-  const currentLocaleLabel = (): string => {
-    // a caller's getLocaleName wins; then the list name (allLocales: a disabled current locale is still named); then the code
-    const current = allLocales.find((l) => l.code === currentLocale)
-    return getLocaleNameProp?.() || (current && localeLabel(current)) || currentLocale
-  }
-
-  const handleSwitchLocale = (code: string) => {
-    setDropdownOpen(false)
-    if (switchLocaleProp) {
-      switchLocaleProp(code)
-      return
-    }
-
-    i18nInstance.locale = code
-
-    if (!router) {
-      return
-    }
-
-    const currentPath = router.getCurrentPath()
-    const newPath = props.localeRoute
-      ? (() => {
-          const res = props.localeRoute(currentPath, code)
-          return typeof res === 'string' ? res : res.path || '/'
-        })()
-      : router?.resolvePath
-        ? (() => {
-            const res = router.resolvePath(currentPath, code)
-            return typeof res === 'string' ? res : res.path || '/'
-          })()
-        : currentPath
-
-    router.push({ path: newPath })
-  }
-
-  // Default Styles
-  const wrapperStyle: React.CSSProperties = {
-    position: 'relative',
-    display: 'inline-block',
-    verticalAlign: 'middle',
-  }
-
-  const buttonStyle: React.CSSProperties = {
-    padding: '4px 12px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    backgroundColor: '#fff',
-    border: '1px solid #333',
-    transition: 'background-color 0.3s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  }
-
-  const dropdownStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    zIndex: 1000,
-    backgroundColor: '#fff',
-    border: '1px solid #333',
-    listStyle: 'none',
-    padding: '0',
-    margin: '4px 0 0 0',
-    minWidth: '150px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-  }
-
-  const itemStyle: React.CSSProperties = {
-    margin: '0',
-    padding: '0',
-  }
-
-  const linkStyle: React.CSSProperties = {
-    display: 'block',
-    padding: '8px 12px',
-    color: '#333',
-    textDecoration: 'none',
-    transition: 'background-color 0.3s ease',
-    cursor: 'pointer',
-    width: '100%',
-    textAlign: 'left',
-  }
-
-  const activeLinkStyle: React.CSSProperties = {
-    fontWeight: 'bold',
-    color: '#007bff',
-    cursor: 'not-allowed',
-  }
-
-  const iconStyle: React.CSSProperties = {
-    marginLeft: '8px',
-    display: 'inline-block',
-    transition: 'transform 0.3s ease',
-  }
-
-  const openIconStyle: React.CSSProperties = {
-    transform: 'rotate(180deg)',
-  }
+  // `disabled` locales stay out of the list, but one that is current still labels the button.
+  const allLocales = localesProp ?? injectedLocales ?? i18n.getLocales()
+  const current = typeof currentLocaleProp === 'function' ? currentLocaleProp() : (currentLocaleProp ?? i18n.locale)
+  const currentItem = allLocales.find((l) => l.code === current)
 
   useEffect(() => {
-    if (!dropdownOpen) return
-    const handler = (event: MouseEvent) => {
-      if (!dropdownOpen) return
-
-      const target = event.target as HTMLElement
-      if (!target || !wrapperRef.current) return
-
-      const isClickInside = wrapperRef.current.contains(target)
-      const isButtonClick = target.closest('.i18n-switcher-button') !== null
-
-      if (!isClickInside && !isButtonClick) {
-        setDropdownOpen(false)
-      }
+    if (!open) return
+    const onClick = (event: MouseEvent) => {
+      if (!wrapper.current?.contains(event.target as Node)) setOpen(false)
     }
-    document.addEventListener('click', handler)
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('click', onClick)
+    document.addEventListener('keydown', onKeydown)
     return () => {
-      document.removeEventListener('click', handler)
+      document.removeEventListener('click', onClick)
+      document.removeEventListener('keydown', onKeydown)
     }
-  }, [dropdownOpen])
+  }, [open])
 
-  const mergedWrapperStyle = { ...wrapperStyle, ...customWrapperStyle }
-  const mergedButtonStyle = {
-    ...buttonStyle,
-    ...customButtonStyle,
-    ...(currentLocaleDisabled ? customDisabledLinkStyle : {}),
-  }
-  const mergedDropdownStyle = { ...dropdownStyle, ...customDropdownStyle }
-  const mergedItemStyle = { ...itemStyle, ...customItemStyle }
-  const mergedIconStyle = {
-    ...iconStyle,
-    ...(dropdownOpen ? openIconStyle : {}),
-    ...customIconStyle,
+  const label = (locale: Locale): string => customLabels?.[locale.code] || locale.displayName || locale.code
+  const href = (code: string): string => {
+    if (!router) return '#'
+    const path = router.getCurrentPath()
+    return routePath(localeRoute ? localeRoute(path, code) : router.resolvePath ? router.resolvePath(path, code) : path)
   }
 
-  const dropdownItems = locales.map((localeItem) => {
-    const isActive = localeItem.code === currentLocale
-    const mergedLinkStyle = {
-      ...linkStyle,
-      // per item: an active-only `border` must not cost the inactive links their reset
-      ...buttonReset(customLinkStyle, isActive ? customActiveLinkStyle : undefined),
-      ...(isActive ? activeLinkStyle : {}),
-      ...customLinkStyle,
-      ...(isActive ? customActiveLinkStyle : {}),
-    }
+  const select = (event: HostMouseEvent<HTMLAnchorElement>, code: string) => {
+    if (!isPlainClick(event as unknown as MouseEvent)) return
+    event.preventDefault()
+    setOpen(false)
+    if (switchLocale) return switchLocale(code)
+    if (!localeRoute) return i18n.switchLocale(code)
+    i18n.setLocale(code)
+    router?.push({ path: href(code) })
+  }
 
-    return React.createElement(
+  const renderItem = (locale: Locale) => {
+    const active = locale.code === current
+    const language = locale.iso || locale.code
+    return h(
       'li',
-      {
-        key: localeItem.code,
-        style: mergedItemStyle,
-      },
-      React.createElement(
-        'button',
+      { key: locale.code, style: { ...STYLES.item, ...customItemStyle } },
+      h(
+        'a',
         {
-          type: 'button',
-          className: `switcher-locale-${localeItem.code}`,
-          style: mergedLinkStyle,
-          onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.preventDefault()
-            e.stopPropagation()
-            handleSwitchLocale(localeItem.code)
-          },
+          className: `switcher-locale-${locale.code}`,
+          href: href(locale.code),
+          hrefLang: language,
+          lang: language,
+          dir: locale.dir,
+          style: { ...STYLES.link, ...(active ? STYLES.activeLink : null), ...customLinkStyle, ...(active ? customActiveLinkStyle : null) },
+          onClick: (event: HostMouseEvent<HTMLAnchorElement>) => select(event, locale.code),
         },
-        localeLabel(localeItem),
+        label(locale),
       ),
     )
-  })
+  }
 
-  return React.createElement(
+  return h(
     'div',
     {
-      ref: wrapperRef,
-      className: className ? `i18n-switcher-wrapper ${className}` : 'i18n-switcher-wrapper',
-      style: mergedWrapperStyle,
       ...restProps,
+      ref: wrapper,
+      className: ['i18n-switcher-wrapper', className, userClass].filter(Boolean).join(' '),
+      style: { ...STYLES.wrapper, ...customWrapperStyle, ...(style as object) },
     },
-    React.createElement(
+    h(
       'button',
       {
         type: 'button',
-        className: 'i18n-switcher-button',
-        style: mergedButtonStyle,
-        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.preventDefault()
-          e.stopPropagation()
-          toggleDropdown(e)
-        },
-        'aria-haspopup': 'true',
-        'aria-expanded': dropdownOpen,
+        className: 'i18n-switcher-button language-switcher',
+        style: { ...STYLES.button, ...customButtonStyle, ...(currentItem?.disabled ? customDisabledLinkStyle : null) },
+        'aria-expanded': open,
+        onClick: () => setOpen(!open),
       },
-      React.createElement('span', null, currentLocaleLabel()),
-      React.createElement('span', { style: mergedIconStyle }, '▼'),
+      h('span', null, getLocaleName?.() || label(currentItem ?? { code: current })),
+      ' ',
+      h('span', { style: { ...STYLES.icon, ...(open ? STYLES.openIcon : null), ...customIconStyle } }, '▾'),
     ),
-    dropdownOpen
-      ? React.createElement(
-          'ul',
-          {
-            className: 'i18n-switcher-dropdown',
-            style: mergedDropdownStyle,
-          },
-          ...dropdownItems,
-        )
+    open
+      ? h('ul', { className: 'i18n-switcher-dropdown', style: { ...STYLES.dropdown, ...customDropdownStyle } }, allLocales.filter((l) => !l.disabled).map(renderItem))
       : null,
-  ) as React.ReactElement
+  )
 }

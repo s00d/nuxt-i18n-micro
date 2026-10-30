@@ -31,7 +31,7 @@ function fixedHost(): string | undefined {
 export function getI18nServerConfig(event?: H3Event): ModuleOptionsExtend {
   const config = resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
   if (!domains) return config
-  const host = fixedHost() ?? (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
+  const host = fixedHost() || (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
   return host ? configForHost(config, host) : config
 }
 

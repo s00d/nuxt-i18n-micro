@@ -125,7 +125,8 @@ export const recipes = defineRecipes(
       AUTO_DETECT_LANGUAGE: '1',
       DOMAINS: '/',
     }),
-    'strategy-domains-prefix': app('strategy-domains-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', DOMAINS: '/' }),
+    // an empty NUXT_I18N_DOMAIN is no fixed host: the request's still decides
+    'strategy-domains-prefix': app('strategy-domains-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', DOMAINS: '/', NUXT_I18N_DOMAIN: '' }),
     'strategy-domains-pad': app('strategy-domains-pad', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',

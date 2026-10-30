@@ -1,5 +1,5 @@
 import fs, { existsSync } from 'node:fs'
-import { basename, dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
@@ -20,6 +20,7 @@ import type {
 } from '@i18n-micro/types'
 import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from './build/build'
 import {
+  domainPayloadFilter,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
@@ -877,12 +878,14 @@ declare module '#i18n-internal/payload-source' {
 
         try {
           if (existsSync(publicAssetsDir)) {
-            // a per-domain generate publishes that domain's locales only (premerged layout: <page>/<locale>/)
-            const foreign = new Set(
-              (buildConfig.linkLocales ?? []).map((l) => l.code).filter((code) => !buildConfig.locales!.some((l) => l.code === code)),
-            )
-            const published = (source: string) => !foreign.has(basename(source)) || basename(dirname(source)) === basename(publicAssetsDir)
-            fs.cpSync(publicAssetsDir, publicDir, { recursive: true, filter: published })
+            const filter = domainPayloadFilter({
+              mode: translationPayloads.mode,
+              root: publicAssetsDir,
+              served: buildConfig.locales!,
+              linkLocales: buildConfig.linkLocales,
+              fallbackLocale: options.fallbackLocale,
+            })
+            fs.cpSync(publicAssetsDir, publicDir, { recursive: true, filter })
             logger.log(`Translation payloads copied to public directory`)
 
             const compressed = compressTranslationPayloads(publicDir, nitro.options.compressPublicAssets)

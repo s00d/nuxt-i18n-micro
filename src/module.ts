@@ -217,6 +217,7 @@ function registerI18nTemplates(
   resolvedHelpersPath: string,
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
+  disabledLocales: Locale[],
 ) {
   let runtimeFullConfig = fullConfig
 
@@ -233,6 +234,8 @@ function registerI18nTemplates(
       return `import { Strategy } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
+// disabled at build: no routes and not in the config, but routing must answer for their prefix
+const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
 export function getI18nConfig() { return __fullConfig }
 
@@ -242,7 +245,7 @@ export function createI18nStrategy(router, config = __fullConfig) {
   return new Strategy({
     strategy: config.strategy,
     defaultLocale: config.defaultLocale,
-    locales: config.locales,
+    locales: [...config.locales, ...__disabledLocales],
     localizedRouteNamePrefix: config.localizedRouteNamePrefix,
     router,
     hashMode: config.hashMode,
@@ -521,7 +524,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
-    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig)
+    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig, routeGenerator.disabledLocales)
 
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)

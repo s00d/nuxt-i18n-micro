@@ -87,23 +87,23 @@ Every URL is resolved with `?q=1#top`.
 
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
-| / | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /about | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /blog/hello-world | /es [—] | /es [—] | /es [—] | /es [—] | null | null | en,de |
-| /de | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /de/about | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /de/blog/hello-world | /es [—] | /es [—] | /es [—] | /es [—] | null | null | en,de |
-| /en | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /en/ | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /de/ | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /about/ | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /de/about/ | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /missing | /es/missing?q=1#top [—] |  | /es/missing?q=1#top [null] | /es/missing?q=1#top [null] | /es/missing | /es/missing | null |
-| /de/missing | /es/missing?q=1#top [—] |  | /es/missing?q=1#top [null] | /es/missing?q=1#top [null] | null | /es/missing | null |
-| /xx/about | /es/xx/about?q=1#top [—] |  | /es/xx/about?q=1#top [null] | /es/xx/about?q=1#top [null] | /es/xx/about | /es/xx/about | null |
-| /de/de/about | /es [—] |  | /es [—] | /es [—] | null | null | en,de |
-| /es | /es/es?q=1#top [—] |  | /es/es?q=1#top [null] | /es/es?q=1#top [null] | null | null | null |
-| /es/about | /es/es/about?q=1#top [—] |  | /es/es/about?q=1#top [null] | /es/es/about?q=1#top [null] | null | null | null |
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
+| /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de |
+| /de | /de?q=1#top [localized-index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
+| /de/about | /de/about?q=1#top [localized-about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
+| /de/blog/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de |
+| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
+| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
+| /de/ | /de?q=1#top [localized-index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
+| /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
+| /de/about/ | /de/about?q=1#top [localized-about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /es/missing | /es/missing | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | /es/missing | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /es/xx/about | /es/xx/about | null |
+| /de/de/about | /de/de/about?q=1#top [—] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
+| /es | /es?q=1#top [—] |  | /es?q=1#top [null] | /es?q=1#top [null] | null | null | null |
+| /es/about | /es/about?q=1#top [—] |  | /es/about?q=1#top [null] | /es/about?q=1#top [null] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 

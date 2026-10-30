@@ -301,6 +301,8 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+    // a disabled locale is no target: the link stays on the page
+    if (this.disabledCodes.has(toLocale)) return route
     const name = named(route.name)
     const base = name ? this.baseOf(name) : null
     if (!base) {
@@ -324,7 +326,8 @@ export class I18nPathStrategy {
     return (page && page !== UNLOCALIZED && this.routeTo(locale, page.base, page.params)) || { path, fullPath: path }
   }
 
-  localeRoute(targetLocale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+  localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+    const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
     const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(routeOrPath) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : routeOrPath.name
     let target: Target | null = null

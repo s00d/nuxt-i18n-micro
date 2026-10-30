@@ -27,15 +27,22 @@ export interface RouteGeneratorOptions {
  * Merges locales by code and drops disabled ones. Nuxt concatenates a project's and its layers'
  * `locales` project first, so earlier entries win: a layer only fills the fields left unset.
  */
-function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; defaultLocale: Locale } {
+function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; disabledLocales: Locale[]; defaultLocale: Locale } {
   const byCode = new Map<string, Locale>()
   for (const locale of locales) byCode.set(locale.code, { ...locale, ...byCode.get(locale.code) })
-  const active = [...byCode.values()].filter((locale) => !locale.disabled)
-  return { locales: active, defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode } }
+  const all = [...byCode.values()]
+  const active = all.filter((locale) => !locale.disabled)
+  return {
+    locales: active,
+    disabledLocales: all.filter((locale) => locale.disabled),
+    defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode },
+  }
 }
 
 export class RouteGenerator {
   readonly locales: Locale[]
+  /** Locales switched off in the config: no routes, but the runtime must know them to answer 404. */
+  readonly disabledLocales: Locale[]
   readonly defaultLocale: Locale
   readonly strategy: Strategies
   readonly routeLocales: Record<string, string[]>
@@ -47,6 +54,7 @@ export class RouteGenerator {
   constructor(options: RouteGeneratorOptions) {
     const resolved = resolveLocales(options.locales, options.defaultLocaleCode)
     this.locales = resolved.locales
+    this.disabledLocales = resolved.disabledLocales
     this.defaultLocale = resolved.defaultLocale
     this.strategy = options.strategy
     this.routeLocales = options.routeLocales ?? {}

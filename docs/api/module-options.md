@@ -156,7 +156,7 @@ Each entry is a `Locale` object:
 | `iso` | `string` | BCP-47 tag for `<html lang>` and `hreflang` (`en-US`). |
 | `displayName` | `string` | Label in `<i18n-switcher>` and `$getLocaleName()`. |
 | `dir` | `'ltr' \| 'rtl' \| 'auto'` | `<html dir>`. |
-| `disabled` | `boolean` | Excluded from routes, payloads and switching. |
+| `disabled` | `boolean` | Excluded from routes, payloads and switching. Its prefix is a 404, and links to it stay on the page. |
 | `fallbackLocale` | `string` | Fallback for this locale; overrides the global `fallbackLocale`. |
 | `seo` | `boolean` | `false` leaves the locale out of `hreflang` and `og:locale:alternate`. |
 | `og` | `string` | `og:locale` value (`ar_AE`); default: `iso` converted. |

@@ -426,3 +426,48 @@ describe('FormatService timeZone', () => {
     expect(tokyo.formatDate(noon, 'en', { timeZone: 'UTC' })).toBe('1/1/2024')
   })
 })
+
+describe('defaults', () => {
+  it('a default of a missing key is interpolated', () => {
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, 'D {n}')).toBe('D 1')
+    expect(new TestI18n('en', {}).t('nope', undefined, 'D {n}')).toBe('D {n}')
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, true as never)).toBe(true)
+  })
+
+  it('tc answers an empty value as t does', () => {
+    const empty = new TestI18n('en', { blank: '' })
+    expect([empty.t('blank'), empty.tc('blank', 2), empty.tc('nope', 2, 'dv')]).toEqual(['', '', 'dv'])
+  })
+
+  it('resolveText gives defaultValue to a missing key in every branch', () => {
+    const branches = [{}, { number: 1 }, { plural: 1 }, { date: 0 }, { relativeDate: 0 }]
+    for (const branch of branches)
+      expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', defaultValue: 'dv', ...branch })?.template).toBe('dv')
+  })
+
+  it('a custom rule reads the default through its getter; its own default comes first', () => {
+    const rule: PluralFunc = (key, _count, _params, _locale, get) => `${get(key)}/${get(key, undefined, 'own')}`
+    expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', plural: 1, defaultValue: 'dv', customPluralRule: rule })?.template).toBe('dv/own')
+    expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', plural: 1, customPluralRule: rule })?.template).toBe('nope/own')
+  })
+
+  it('a configured plural rule gets defaultValue through tc', () => {
+    const rules = new TestI18n('en', {}, () => null)
+    expect(resolveText(rules, { keypath: 'nope', plural: 1, defaultValue: 'dv' })?.template).toBe('dv')
+  })
+})
+
+describe('FormatService clock', () => {
+  it('relative dates read the clock it was given', () => {
+    const fixed = new FormatService({ now: () => 7_200_000 })
+    expect(fixed.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+  })
+
+  it('without one, the clock is read at the call, so fake timers reach a formatter built earlier', () => {
+    const service = new FormatService()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(7_200_000)
+    expect(service.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+    vi.useRealTimers()
+  })
+})

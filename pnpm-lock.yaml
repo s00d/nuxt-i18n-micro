@@ -171,6 +171,9 @@ catalogs:
     postcss:
       specifier: ^8.5.23
       version: 8.5.28
+    preact-render-to-string:
+      specifier: ^6.8.2
+      version: 6.8.2
     publint:
       specifier: ^0.3.24
       version: 0.3.24
@@ -207,9 +210,6 @@ catalogs:
     untestutils:
       specifier: ^0.8.1
       version: 0.8.1
-    use-sync-external-store:
-      specifier: ^1.7.0
-      version: 1.7.0
     vite-plugin-dts:
       specifier: ^5.1.1
       version: 5.1.1
@@ -437,7 +437,7 @@ importers:
         version: 7.3.5(@azure/identity@4.13.3)(@azure/storage-blob@12.34.0)(@netlify/blobs@9.1.2)(@types/node@26.6.3)(@upstash/redis@1.39.0)(db0@0.4.1)(ioredis@5.11.1)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
       preact:
         specifier: 10.29.8
-        version: 10.29.8
+        version: 10.29.8(preact-render-to-string@6.8.2)
       publint:
         specifier: 'catalog:'
         version: 0.3.24
@@ -681,7 +681,10 @@ importers:
         version: 30.1.1
       preact:
         specifier: 10.29.8
-        version: 10.29.8
+        version: 10.29.8(preact-render-to-string@6.8.2)
+      preact-render-to-string:
+        specifier: 'catalog:'
+        version: 6.8.2(preact@10.29.8)
       publint:
         specifier: 'catalog:'
         version: 0.3.24
@@ -711,7 +714,7 @@ importers:
         version: link:../../types
       preact:
         specifier: 10.29.8
-        version: 10.29.8
+        version: 10.29.8(preact-render-to-string@6.8.2)
       wouter-preact:
         specifier: 'catalog:'
         version: 3.11.1(preact@10.29.8)
@@ -737,12 +740,6 @@ importers:
       '@i18n-micro/types':
         specifier: workspace:^
         version: link:../types
-      react-router-dom:
-        specifier: 7.18.4
-        version: 7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      use-sync-external-store:
-        specifier: 'catalog:'
-        version: 1.7.0(react@19.3.0)
     devDependencies:
       '@testing-library/dom':
         specifier: 'catalog:'
@@ -756,6 +753,9 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -768,6 +768,12 @@ importers:
       react:
         specifier: 19.3.0
         version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+      react-router-dom:
+        specifier: 7.18.4
+        version: 7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       vite:
         specifier: 8.3.1
         version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
@@ -801,9 +807,6 @@ importers:
       react-router-dom:
         specifier: 7.18.4
         version: 7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      use-sync-external-store:
-        specifier: 'catalog:'
-        version: 1.7.0(react@19.3.0)
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -892,6 +895,9 @@ importers:
       '@i18n-micro/core':
         specifier: workspace:^
         version: link:../core
+      '@i18n-micro/runtime':
+        specifier: workspace:^
+        version: link:../runtime
       '@i18n-micro/types':
         specifier: workspace:^
         version: link:../types
@@ -10691,6 +10697,11 @@ packages:
     resolution: {integrity: sha512-C+y9x90UElAddDZmV4qOx9W53B61PO7cIqWz2dQsWlwswuq4mr8NEwytdGKboYbQlGZ3awrkTeNvcZiZNHnQ8A==}
     engines: {node: '>=20'}
 
+  preact-render-to-string@6.8.2:
+    resolution: {integrity: sha512-Hdx7cKD3AMYgt795TdddBpUbuGEFoL/VeA6s7VrBt9Gjt0r6rCy5wMp5xkDjQ9cbKj62frHsEx1x8yV6EjoOpg==}
+    peerDependencies:
+      preact: 10.29.8
+
   preact@10.29.8:
     resolution: {integrity: sha512-ej2aVZ+vZ8WO7tvlQWRM9N63A0KzF9q4mWJfDUHgYaIofWY9hu74QdnQrjoPMmZi2/nZ5gN0bJCQF49xQqx09Q==}
     peerDependencies:
@@ -12255,11 +12266,6 @@ packages:
 
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
-
-  use-sync-external-store@1.7.0:
-    resolution: {integrity: sha512-6L+EeigHMQhdaIPNIFUKwfWJSwWFQ8gJbJ2DLOs5sDIegTwR9fRxvnM3uciHKjIZhFz+KAv2emhWMRvDmMcY8A==}
-    peerDependencies:
-      react: 19.3.0
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -18468,7 +18474,7 @@ snapshots:
 
   '@prefresh/core@1.5.9(preact@10.29.8)':
     dependencies:
-      preact: 10.29.8
+      preact: 10.29.8(preact-render-to-string@6.8.2)
 
   '@prefresh/utils@1.2.1': {}
 
@@ -18479,7 +18485,7 @@ snapshots:
       '@prefresh/core': 1.5.9(preact@10.29.8)
       '@prefresh/utils': 1.2.1
       '@rollup/pluginutils': 4.2.1
-      preact: 10.29.8
+      preact: 10.29.8(preact-render-to-string@6.8.2)
       vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
@@ -19162,7 +19168,7 @@ snapshots:
   '@testing-library/preact@3.2.4(preact@10.29.8)':
     dependencies:
       '@testing-library/dom': 8.20.1
-      preact: 10.29.8
+      preact: 10.29.8(preact-render-to-string@6.8.2)
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -26911,7 +26917,13 @@ snapshots:
 
   powershell-utils@0.2.1: {}
 
-  preact@10.29.8: {}
+  preact-render-to-string@6.8.2(preact@10.29.8):
+    dependencies:
+      preact: 10.29.8(preact-render-to-string@6.8.2)
+
+  preact@10.29.8(preact-render-to-string@6.8.2):
+    optionalDependencies:
+      preact-render-to-string: 6.8.2(preact@10.29.8)
 
   prebuild-install@7.1.3:
     dependencies:
@@ -28968,10 +28980,6 @@ snapshots:
   urlpattern-polyfill@10.1.0:
     optional: true
 
-  use-sync-external-store@1.7.0(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-
   util-deprecate@1.0.2: {}
 
   uuid-parse@1.1.0:
@@ -29987,7 +29995,7 @@ snapshots:
 
   wouter-preact@3.11.1(preact@10.29.8):
     dependencies:
-      preact: 10.29.8
+      preact: 10.29.8(preact-render-to-string@6.8.2)
       regexparam: 3.0.0
 
   wrap-ansi@6.2.0:

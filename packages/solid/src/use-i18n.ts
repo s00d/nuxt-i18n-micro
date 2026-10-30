@@ -1,57 +1,42 @@
 import type { Locale } from '@i18n-micro/types'
-import { createMemo } from 'solid-js'
-import { useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from './injection'
+import type { Accessor } from 'solid-js'
+import type { SolidI18n } from './i18n'
+import { type I18nContextValue, useI18nContextValue } from './injection'
+import type { RouteTarget } from './router/types'
 
 export interface UseI18nOptions {
   locales?: Locale[]
   defaultLocale?: string
 }
 
-export function useI18n(options?: UseI18nOptions) {
-  const i18n = useI18nContext()
-  const router = useI18nRouter()
-  const injectedLocales = useI18nLocales()
-  const injectedDefaultLocale = useI18nDefaultLocale()
+export const routePath = (target: RouteTarget): string => (typeof target === 'string' ? target : target.path || '/')
 
-  const locales = options?.locales || injectedLocales
-  const defaultLocale = options?.defaultLocale || injectedDefaultLocale
-
-  const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
-    if (!router?.resolvePath) {
-      return to
-    }
-    return router.resolvePath(to, localeCode || i18n.getLocale())
+function createApi(context: I18nContextValue, options?: UseI18nOptions) {
+  const i18n = context.i18n
+  const locales = (): Locale[] => options?.locales ?? context.locales ?? []
+  const localeRoute = (to: RouteTarget, code?: string): RouteTarget => {
+    const resolve = context.router?.resolvePath
+    return resolve ? resolve(to, code || i18n.locale) : to
   }
 
   return {
     // Direct access to instance
-    instance: i18n,
+    instance: i18n as SolidI18n,
 
-    // Locale (reactive) - use accessor to track changes
-    locale: createMemo(() => i18n.localeAccessor()),
+    // An accessor, the Solid way: `locale()` in JSX stays reactive, a plain value would not.
+    locale: i18n.localeAccessor as Accessor<string>,
 
-    // Locale helpers
-    getLocales: () => locales,
-    defaultLocale: () => defaultLocale,
-    getLocaleName: () => {
-      // Use accessor for reactivity
-      const current = locales.find((l) => l.code === i18n.localeAccessor())
-      return current?.displayName || null
-    },
+    getLocales: locales,
+    defaultLocale: (): string => options?.defaultLocale ?? context.defaultLocale ?? i18n.fallbackLocale,
+    getLocaleName: (): string | null => locales().find((l) => l.code === i18n.locale)?.displayName || null,
 
-    // Routing helpers
-    localeRoute: resolveLocalePath,
-    localePath: (to: string | { path?: string }, locale?: string): string => {
-      const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : res.path || '/'
-    },
-    switchLocale: (newLocale: string) => {
+    // Routing helpers: they read the reactive locale, so an effect or memo follows it
+    localeRoute,
+    localePath: (to: RouteTarget, locale?: string): string => routePath(localeRoute(to, locale)),
+    switchLocale: (newLocale: string): void => {
       i18n.locale = newLocale
-      if (router) {
-        const currentPath = router.getCurrentPath()
-        const newPath = resolveLocalePath(currentPath, newLocale)
-        router.push(typeof newPath === 'string' ? { path: newPath } : { path: newPath.path || '/' })
-      }
+      const router = context.router
+      if (router) router.push({ path: routePath(localeRoute(router.getCurrentPath(), newLocale)) })
     },
 
     // Translation methods (delegate to instance)
@@ -65,8 +50,8 @@ export function useI18n(options?: UseI18nOptions) {
 
     // Route management
     setRoute: i18n.setRoute.bind(i18n),
-    getRoute: i18n.getRoute.bind(i18n),
-    getLocale: () => i18n.getLocale(),
+    getRoute: (): string => i18n.currentRoute,
+    getLocale: (): string => i18n.locale,
 
     // Translation management
     addTranslations: i18n.addTranslations.bind(i18n),
@@ -75,4 +60,13 @@ export function useI18n(options?: UseI18nOptions) {
     setTranslation: i18n.setTranslation.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
   }
+}
+
+export type UseI18nReturn = ReturnType<typeof createApi>
+
+/** One object per provider; hook options make their own, and win over the provider. */
+export function useI18n(options?: UseI18nOptions): UseI18nReturn {
+  const context = useI18nContextValue()
+  if (options?.locales || options?.defaultLocale) return createApi(context, options)
+  return (context.api ??= createApi(context))
 }

@@ -24,6 +24,10 @@ export interface I18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (`td(d, 'short')`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
+  timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. */
+  now?: () => number
   /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. `localeIsoMap(locales)` builds it. */
   localeIso?: Record<string, string>
   /** Set by `fork()`: the instance whose dictionaries, formatters and rules this one shares. */
@@ -75,6 +79,8 @@ export class I18n extends BaseI18n {
       missingHandler: options.missingHandler,
       numberFormats: options.numberFormats,
       datetimeFormats: options.datetimeFormats,
+      timeZone: options.timeZone,
+      now: options.now,
       localeIso: parent?.localeIso ?? options.localeIso,
     })
 
@@ -199,8 +205,9 @@ export class I18n extends BaseI18n {
     this.clearCache()
   }
 
-  protected override onTranslationsChanged(): void {
-    this.store.notify()
+  // Only the active and the fallback locale can be read: preloading another one renders nothing.
+  protected override onTranslationsChanged(locale?: string): void {
+    if (locale === undefined || locale === this.store.getLocale() || locale === this.store.getFallbackLocale()) this.store.notify()
   }
 }
 

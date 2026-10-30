@@ -1,0 +1,54 @@
+- `"/about"`
+  - router → <a href="/de/about" style="color: red;">L</a>
+  - no router → <a href="/about">L</a>
+- `"about"`
+  - router → <a href="/de/about" style="color: red;">L</a>
+  - no router → <a href="about">L</a>
+- `"/about/"`
+  - router → <a href="/de/about" style="color: red;">L</a>
+  - no router → <a href="/about/">L</a>
+- `"/about?x=1#y"`
+  - router → <a href="/de/about?x=1#y" style="color: red;">L</a>
+  - no router → <a href="/about?x=1#y">L</a>
+- `"/about/team"`
+  - router → <a href="/de/about/team">L</a>
+  - no router → <a href="/about/team">L</a>
+- `"#top"`
+  - router → <a href="/de#top">L</a>
+  - no router → <a href="#top">L</a>
+- `"?x=1"`
+  - router → <a href="/de?x=1">L</a>
+  - no router → <a href="?x=1">L</a>
+- `"/"`
+  - router → <a href="/de">L</a>
+  - no router → <a href="/">L</a>
+- `{"path":"/a"}`
+  - router → <a href="/de/a">L</a>
+  - no router → <a href="/a">L</a>
+- `"https://e.com/x"`
+  - router → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+- `"HTTPS://e.com/x"`
+  - router → <a href="HTTPS://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="HTTPS://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+- `"mailto:a@b.c"`
+  - router → <a href="mailto:a@b.c" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="mailto:a@b.c" target="_blank" rel="noopener noreferrer">L</a>
+- `"tel:+1"`
+  - router → <a href="tel:+1" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="tel:+1" target="_blank" rel="noopener noreferrer">L</a>
+- `"report.pdf"`
+  - router → <a href="/de/report.pdf">L</a>
+  - no router → <a href="report.pdf">L</a>
+- `"index.html"`
+  - router → <a href="/de/index.html">L</a>
+  - no router → <a href="index.html">L</a>
+- `"example.com/x"`
+  - router → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>
+- `"www.example.com"`
+  - router → <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">L</a>
+- `"//cdn.e.com/y"`
+  - router → <a href="//cdn.e.com/y" target="_blank" rel="noopener noreferrer">L</a>
+  - no router → <a href="//cdn.e.com/y" target="_blank" rel="noopener noreferrer">L</a>

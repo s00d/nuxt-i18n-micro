@@ -16,8 +16,7 @@
     "@i18n-micro/types": "workspace:^",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "catalog:",
-    "use-sync-external-store": "catalog:"
+    "react-router-dom": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

@@ -5,7 +5,7 @@ import { Route, Router, useLocation, useNavigate } from '@solidjs/router'
 import type { Component, JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import App from './App'
-import { createSolidRouterAdapter } from './router-adapter'
+import { createSolidRouterAdapter } from '@i18n-micro/solid/router'
 import './index.css'
 
 import type { Locale } from '@i18n-micro/types'

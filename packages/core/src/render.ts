@@ -11,6 +11,10 @@ export interface RenderApi {
   // biome-ignore lint: `h` is heavily overloaded; a precise signature would reject it
   h: (type: any, props?: any, children?: any) => any
   Fragment: unknown
+  /** The props putting trusted markup into an element. Vue's `innerHTML` when unset. */
+  markup?: (html: string) => Record<string, unknown>
+  /** The props telling hydration that clock-dependent text may differ. Vue's `data-allow-mismatch` when unset. */
+  dated?: Record<string, unknown>
 }
 
 export type RenderSlot = (props?: Record<string, unknown>) => unknown
@@ -18,21 +22,20 @@ export type RenderSlots = Readonly<Record<string, RenderSlot | undefined>>
 
 export interface I18nTRenderProps extends ResolveTextOptions {
   tag?: string
-  defaultValue?: string
 }
 
 /** Attributes that would set the content, and with it get past the `html` prop. */
-const CONTENT_ATTRS = ['innerHTML', 'textContent', '.innerHTML', '.textContent']
+const CONTENT_ATTRS = ['innerHTML', 'textContent', '.innerHTML', '.textContent', 'dangerouslySetInnerHTML']
 
 /** A clock or time zone differs between server and browser: such text may, and Vue need not warn. */
 const ALLOW_DATE_MISMATCH = { 'data-allow-mismatch': 'text' }
 
 const isDated = (props: I18nTRenderProps): boolean => (props.date ?? props.relativeDate ?? null) !== null && (props.number ?? null) === null
 
-function elementAttrs(props: I18nTRenderProps, attrs: Record<string, unknown>): Record<string, unknown> {
+function elementAttrs(api: RenderApi, props: I18nTRenderProps, attrs: Record<string, unknown>): Record<string, unknown> {
   const dated = isDated(props)
   if (!dated && !CONTENT_ATTRS.some((name) => name in attrs)) return attrs
-  const safe: Record<string, unknown> = dated ? { ...ALLOW_DATE_MISMATCH, ...attrs } : { ...attrs }
+  const safe: Record<string, unknown> = dated ? { ...(api.dated ?? ALLOW_DATE_MISMATCH), ...attrs } : { ...attrs }
   for (const name of CONTENT_ATTRS) delete safe[name]
   return safe
 }
@@ -42,15 +45,19 @@ function elementAttrs(props: I18nTRenderProps, attrs: Record<string, unknown>): 
  * written. A slot's fragment is keyed by name and occurrence, so a locale that reorders placeholders
  * moves the slot's DOM instead of rebuilding it.
  */
-function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Record<string, unknown>, slots: RenderSlots, dated: boolean): unknown {
+export function foldTemplate(
+  renderSlot: (slot: RenderSlot, key: string) => unknown,
+  template: string,
+  params: Record<string, unknown>,
+  slots: RenderSlots,
+  textChild: (text: string) => unknown = (text) => text,
+): unknown {
   if (template.indexOf('{') === -1) return template
   const parts = tokenize(template)
   // only a template with a slot in it pays for these
   let children: unknown[] | undefined
   let seen: Map<string, number> | undefined
   let text = parts[0]!
-  // Vue checks the attribute on an element's only text, not on a text beside other nodes
-  const textChild = (value: string) => (dated ? h('span', ALLOW_DATE_MISMATCH, value) : value)
   for (let i = 1; i < parts.length; i += 2) {
     const name = parts[i]!
     const slot = ownValue(slots, name) as RenderSlot | undefined
@@ -64,8 +71,7 @@ function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Reco
     const occurrence = (seen.get(name) ?? 0) + 1
     seen.set(name, occurrence)
     if (text) children.push(textChild(text))
-    // called, not `h(slot)`: that makes the slot a component whose type changes with each slot object
-    children.push(h(Fragment, { key: `${name}:${occurrence}` }, slot({}) as never))
+    children.push(renderSlot(slot, `${name}:${occurrence}`))
     text = parts[i + 1]!
   }
   if (!children) return text
@@ -78,10 +84,18 @@ export function renderI18nT(api: RenderApi, i18n: TextHost, props: I18nTRenderPr
   const resolved = resolveText(i18n, props)
   if (resolved === null) return props.defaultValue ?? null
   const { template, params } = resolved
-  const element = elementAttrs(props, attrs)
-  if (props.html) return api.h(props.tag, { ...element, innerHTML: interpolate(template, params) })
-  if (slots.default) return api.h(props.tag, element, slots.default({ translation: interpolate(template, params) }))
-  return api.h(props.tag, element, foldTemplate(api, template, params, slots, isDated(props)))
+  const tag = props.tag ?? 'span'
+  const element = elementAttrs(api, props, attrs)
+  if (props.html) {
+    const html = interpolate(template, params)
+    return api.h(tag, { ...element, ...(api.markup ? api.markup(html) : { innerHTML: html }) })
+  }
+  if (slots.default) return api.h(tag, element, slots.default({ translation: interpolate(template, params) }))
+  // called, not `h(slot)`: that makes the slot a component whose type changes with each slot object
+  const renderSlot = (slot: RenderSlot, key: string) => api.h(api.Fragment, { key }, slot({}) as never)
+  // Vue checks the attribute on an element's only text, not on a text beside other nodes
+  const textChild = !api.dated && isDated(props) ? (text: string) => api.h('span', ALLOW_DATE_MISMATCH, text) : undefined
+  return api.h(tag, element, foldTemplate(renderSlot, template, params, slots, textChild))
 }
 
 type Style = object
@@ -159,6 +173,18 @@ const LINK_STYLE: Style = {
 const ACTIVE_LINK_STYLE: Style = { fontWeight: 'bold', color: '#007bff', cursor: 'not-allowed' }
 const ICON_STYLE: Style = { marginInlineStart: '8px', display: 'inline-block', transition: 'transform 0.3s ease' }
 const OPEN_ICON_STYLE: Style = { transform: 'rotate(180deg)' }
+
+/** One look for every switcher; the React family spreads these, Solid converts the names. */
+export const SWITCHER_STYLES = {
+  wrapper: WRAPPER_STYLE,
+  button: BUTTON_STYLE,
+  dropdown: DROPDOWN_STYLE,
+  item: ITEM_STYLE,
+  link: LINK_STYLE,
+  activeLink: ACTIVE_LINK_STYLE,
+  icon: ICON_STYLE,
+  openIcon: OPEN_ICON_STYLE,
+}
 
 const NO_STYLE: Style = {}
 const HIDDEN_STYLE: Style = { display: 'none' }
@@ -251,7 +277,6 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
           class: 'i18n-switcher-button language-switcher',
           type: 'button',
           style: { ...BUTTON_STYLE, ...props.customButtonStyle, ...(currentLocale?.disabled ? props.customDisabledLinkStyle : NO_STYLE) },
-          'aria-haspopup': 'true',
           'aria-expanded': String(isOpen),
           onClick: () => {
             open.value = !isOpen

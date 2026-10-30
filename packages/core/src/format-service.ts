@@ -7,6 +7,8 @@ export interface FormatServiceOptions {
   datetimeFormats?: DateTimeFormatsConfig
   /** IANA zone for dates; a format's own `timeZone` wins. Unset: the runtime's zone. */
   timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. Unset: `Date.now`. */
+  now?: () => number
 }
 
 /** Largest unit first: the first one that fits at least once is used. */
@@ -73,11 +75,13 @@ export class FormatService {
   private dateCache = new Map<string, Intl.DateTimeFormat>()
   private relativeCache = new Map<string, Intl.RelativeTimeFormat>()
   private timeZone?: string
+  private now?: () => number
 
   constructor(options: FormatServiceOptions = {}) {
     this.numberFormats = options.numberFormats ?? {}
     this.datetimeFormats = options.datetimeFormats ?? {}
     this.timeZone = options.timeZone
+    this.now = options.now
   }
 
   setNumberFormats(formats: NumberFormatsConfig): void {
@@ -136,7 +140,7 @@ export class FormatService {
 
   /** `3 days ago` / `in 3 days`: the largest unit that fits at least once, rounded down; `Invalid Date` like {@link formatDate}. */
   formatRelativeTime(value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions): string {
-    const seconds = (new Date(value).getTime() - Date.now()) / 1000
+    const seconds = (new Date(value).getTime() - (this.now ? this.now() : Date.now())) / 1000
     if (Number.isNaN(seconds)) return 'Invalid Date'
     const formatter = this.getRelativeTimeFormatter(locale, options)
     const size = Math.abs(seconds)

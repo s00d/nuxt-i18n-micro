@@ -5,9 +5,9 @@
 ## Output
 
 ```
-info Path: locales/backups
-info Verify paths exist and use --cwd if the project is in another directory.
-error Backup directory does not exist
+Backup directory does not exist
+  Path: <project>/locales/backups
+  Create a backup first: i18n-micro backup
 ```
 
 ## Files

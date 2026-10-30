@@ -5,14 +5,10 @@
 ## Output
 
 ```
-info
 == Completion Summary ==
-info en: 13/13 (100.00%)
-info de: 5/13 (38.46%)
-info ru: 13/13 (100.00%)
-info Combined translations: en - Total keys: 13, Translated keys: 13, Completion: 100.00%
-info Combined translations: de - Total keys: 13, Translated keys: 5, Completion: 38.46%
-info Combined translations: ru - Total keys: 13, Translated keys: 13, Completion: 100.00%
+en: 13/13 (100.00%)
+de: 5/13 (38.46%)
+ru: 13/13 (100.00%)
 ```
 
 ## Files

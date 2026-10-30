@@ -5,8 +5,7 @@
 ## Output
 
 ```
-success Created backup archive: locales/backups/<timestamp>-golden.zip
-success Backup created successfully at: locales/backups/<timestamp>-golden.zip
+Backup created: locales/backups/<timestamp>-golden.zip
 ```
 
 ## Files

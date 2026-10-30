@@ -101,6 +101,7 @@ export function normalize(text: string, projectDir: string, port = 0): string {
     .replaceAll(projectDir, '<project>')
     .replaceAll(`127.0.0.1:${port}`, '<mock>')
     .replace(ISO_STAMP, '<timestamp>')
+    // oxlint-disable-next-line no-control-regex -- ANSI colors are what this strips
     .replace(/\u001B\[[0-9;]*m/g, '')
     .replace(/[ \t]+$/gm, '')
 }
@@ -113,7 +114,7 @@ export interface MockRequest {
   text: string
 }
 
-export type MockHandler = (request: MockRequest, response: ServerResponse) => void | Promise<void>
+export type MockHandler = (request: MockRequest, response: ServerResponse) => unknown
 
 export interface MockServer {
   url: string

@@ -5,11 +5,10 @@
 ## Output
 
 ```
-success Updated 1 locales: de
-warn Found 1 conflicts
-warn   de.common.save:
-warn     Local:  "Speichern"
-warn     Remote: "Remote"
+Updated 1 locales: de
+Conflict de common.save:
+  local:  Speichern
+  remote: Remote
 ```
 
 ## Files
@@ -19,7 +18,19 @@ changed locales/de.json
 ```
 {
   "common": {
-    "save": "Remote"
+    "save": "Remote",
+    "cancel": "",
+    "extra": "Nur auf Deutsch"
+  },
+  "home": {
+    "title": "Willkommen {name}"
+  },
+  "limits": {
+    "max": 20,
+    "enabled": false,
+    "list": [
+      "x"
+    ]
   },
   "remote": {
     "only": "Neu"

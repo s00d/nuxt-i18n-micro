@@ -25,7 +25,11 @@ const remote = (dir: string, mock: MockServer, config: Record<string, unknown> =
 
 const pickInfo = (output: string) => {
   const { project } = JSON.parse(output.slice(output.indexOf('{')))
-  return { defaultLocale: project.defaultLocale, locales: project.locales.map((locale: { code: string }) => locale.code), total: project.totalLocales }
+  return {
+    defaultLocale: project.defaultLocale,
+    locales: project.locales.map((locale: { code: string }) => locale.code),
+    total: project.totalLocales,
+  }
 }
 
 const cases: GoldenCase[] = [
@@ -36,7 +40,8 @@ const cases: GoldenCase[] = [
   {
     name: 'extract-void-element',
     args: ['extract'],
-    setup: (dir) => writeFileSync(join(dir, 'pages/contact.vue'), `<template><img alt="Map" src="/m.png"><p>{{ $t('contact.title') }}</p></template>\n`),
+    setup: (dir) =>
+      writeFileSync(join(dir, 'pages/contact.vue'), `<template><img alt="Map" src="/m.png"><p>{{ $t('contact.title') }}</p></template>\n`),
   },
   {
     name: 'extract-custom-translation-dir',
@@ -97,8 +102,7 @@ const cases: GoldenCase[] = [
   { name: 'restore-list', args: ['restore'], setup: (dir) => writeFileSync(join(dir, 'locales/x.json'), '{}') },
   {
     name: 'translate-libre',
-    args: ['translate', '--service', 'libretranslate', '--token', 'k'],
-    setup: (_dir, _mock) => undefined,
+    args: ['translate', '--service', 'libretranslate', '--token', 'k', '--options', 'baseUrl:<mock>'],
   },
   { name: 'translate-unknown', args: ['translate', '--service', 'nope', '--token', 'k'] },
   { name: 'sync-remote-noconfig', args: ['sync-remote'] },
@@ -113,7 +117,8 @@ describe('golden: every command', () => {
   beforeAll(async () => {
     mock = await startMock((request, response) => {
       if (request.method === 'GET') return json(response, { de: { common: { save: 'Remote' }, remote: { only: 'Neu' } } })
-      if (request.url.startsWith('/translate')) return json(response, { translatedText: 'translated' })
+      if (request.url.startsWith('/translate'))
+        return json(response, { translatedText: JSON.parse(request.text).q.map((text: string) => `de ${text}`) })
       return json(response, { ok: true })
     })
   })
@@ -126,7 +131,8 @@ describe('golden: every command', () => {
     const before = snapshotFiles(dir)
     const requestCount = mock.requests.length
 
-    const result = await runCli(entry.args, { cwd: dir, stdin: entry.stdin })
+    const args = entry.args.map((arg) => arg.replace('<mock>', mock.url))
+    const result = await runCli(args, { cwd: dir, stdin: entry.stdin })
     const after = snapshotFiles(dir)
     const output = normalize(result.stdout + result.stderr, dir, mock.port).trim()
     const sent = mock.requests.slice(requestCount).map((request) => `${request.method} ${request.url} ${normalize(request.text, dir, mock.port)}`)

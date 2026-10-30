@@ -5,9 +5,9 @@
 ## Output
 
 ```
-info Found 6 files to process.
-info Found 6 new translations.
-success Updated translation file.
+Found 7 files to process.
+Found 4 new translations.
+Updated 2 files and locales/en.json.
 ```
 
 ## Files
@@ -47,9 +47,7 @@ changed locales/en.json
     },
     "index": {
       "hardcoded-landing-text": "Hardcoded landing text",
-      "company-logo": "Company logo",
-      "company-logo_1": "\"Company logo\"",
-      "logo-png": "\"/logo.png\""
+      "company-logo": "Company logo"
     }
   },
   "plugins": {
@@ -81,7 +79,7 @@ changed pages/index.vue
     <p>{{ $t(`dynamic.${kind}`) }}</p>
     <p>{{ $t('pages.index.hardcoded-landing-text') }}</p>
     <SiteHeader />
-    <img :alt="$t('pages.index.company-logo')" src={{ $t('pages.index.logo-png') }} />
+    <img :alt="$t('pages.index.company-logo')" src="/logo.png" />
   </main>
 </template>
 

@@ -5,11 +5,8 @@
 ## Output
 
 ```
-info Translating locale: de
-info Service: nope
-info Run i18n-micro translate and pick a supported --service value.
-info See README "Supported Translation Services" for the full list.
-error Unsupported translation service: nope
+Unsupported translation service: nope
+  Supported: ai, azure, baidu, deepl, google, libretranslate, mymemory, papago, systran, tencent, yandexcloud
 ```
 
 ## Files

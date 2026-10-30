@@ -5,9 +5,9 @@
 ## Output
 
 ```
-info Example: i18n-micro search "welcome"
-info Or scan hardcoded text: i18n-micro search --hardcodedOnly
-error Search query cannot be empty unless --hardcodedOnly is enabled
+Search query cannot be empty unless --hardcodedOnly is enabled
+  Example: i18n-micro search "welcome"
+  Or scan hardcoded text: i18n-micro search --hardcodedOnly
 ```
 
 ## Files

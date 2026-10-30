@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Exported translations to <project>/csv_exports
+Exported translations to <project>/csv_exports
 ```
 
 ## Files

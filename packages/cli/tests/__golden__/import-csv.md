@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Imported translations and saved to JSON files.
+Imported 2 translations.
 ```
 
 ## Files

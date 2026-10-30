@@ -1,14 +1,179 @@
 # extract-void-element
 
-`i18n-micro extract` -> exit 1
+`i18n-micro extract` -> exit 0
 
 ## Output
 
 ```
-info Run with --debug for a stack trace.
-error Element is missing end tag.
+Scanned 8 files, updated 9 translation files.
+Dynamic i18n key in <project>/pages/index.vue: `dynamic.${kind}`
 ```
 
 ## Files
 
-(no files changed)
+changed locales/de.json
+
+```
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "",
+    "extra": "Nur auf Deutsch"
+  },
+  "home": {
+    "title": "Willkommen {name}"
+  },
+  "limits": {
+    "max": 20,
+    "enabled": false,
+    "list": [
+      "x"
+    ]
+  },
+  "header": {
+    "brand": ""
+  },
+  "footer": {
+    "copyright": ""
+  },
+  "greeting": {
+    "hello": ""
+  }
+}
+```
+
+changed locales/en.json
+
+```
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "unused": "Unused value"
+  },
+  "home": {
+    "title": "Welcome {name}",
+    "tagline": "Fast i18n"
+  },
+  "greeting": {
+    "hello": "Hello"
+  },
+  "plural": {
+    "apples": "no apples | one apple | {count} apples"
+  },
+  "linked": "See @:common.save",
+  "spaced": "Trailing space ",
+  "limits": {
+    "max": 10,
+    "enabled": true,
+    "list": [
+      "a",
+      "b"
+    ]
+  },
+  "header": {
+    "brand": ""
+  },
+  "footer": {
+    "copyright": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/de.json
+
+```
+{
+  "post": {
+    "heading": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/en.json
+
+```
+{
+  "post": {
+    "heading": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/ru.json
+
+```
+{
+  "post": {
+    "heading": ""
+  }
+}
+```
+
+added locales/pages/contact/de.json
+
+```
+{
+  "contact": {
+    "title": ""
+  }
+}
+```
+
+added locales/pages/contact/en.json
+
+```
+{
+  "contact": {
+    "title": ""
+  }
+}
+```
+
+added locales/pages/contact/ru.json
+
+```
+{
+  "contact": {
+    "title": ""
+  }
+}
+```
+
+changed locales/ru.json
+
+```
+{
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "unused": "Не используется"
+  },
+  "home": {
+    "title": "Добро пожаловать {name}",
+    "tagline": "Быстрый i18n"
+  },
+  "greeting": {
+    "hello": "Привет"
+  },
+  "plural": {
+    "apples": "нет яблок | одно яблоко | {count} яблок"
+  },
+  "linked": "См. @:common.save",
+  "spaced": "Пробел",
+  "limits": {
+    "max": 10,
+    "enabled": true,
+    "list": [
+      "a",
+      "b"
+    ]
+  },
+  "header": {
+    "brand": ""
+  },
+  "footer": {
+    "copyright": ""
+  }
+}
+```

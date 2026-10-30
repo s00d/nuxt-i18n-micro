@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Locale-specific translations have been saved to JSON files.
-warn Dynamic i18n key detected in <project>/pages/index.vue: [TemplateLiteral]
+Scanned 7 files, updated 6 translation files.
+Dynamic i18n key in <project>/pages/index.vue: `dynamic.${kind}`
 ```
 
 ## Files
@@ -30,11 +30,14 @@ changed locales/de.json
       "x"
     ]
   },
+  "header": {
+    "brand": ""
+  },
   "footer": {
     "copyright": ""
   },
-  "header": {
-    "brand": ""
+  "greeting": {
+    "hello": ""
   }
 }
 ```
@@ -68,49 +71,16 @@ changed locales/en.json
       "b"
     ]
   },
-  "footer": {
-    "copyright": ""
-  },
   "header": {
     "brand": ""
+  },
+  "footer": {
+    "copyright": ""
   }
 }
 ```
 
-added locales/pages/_about/de.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added locales/pages/_about/en.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added locales/pages/_about/ru.json
-
-```
-{
-  "about": {
-    "title": "",
-    "more": ""
-  }
-}
-```
-
-added locales/pages/blog_/de.json
+added locales/pages/blog-slug/de.json
 
 ```
 {
@@ -120,7 +90,7 @@ added locales/pages/blog_/de.json
 }
 ```
 
-added locales/pages/blog_/en.json
+added locales/pages/blog-slug/en.json
 
 ```
 {
@@ -130,54 +100,12 @@ added locales/pages/blog_/en.json
 }
 ```
 
-added locales/pages/blog_/ru.json
+added locales/pages/blog-slug/ru.json
 
 ```
 {
   "post": {
     "heading": ""
-  }
-}
-```
-
-added locales/pages/de.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
-  }
-}
-```
-
-added locales/pages/en.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
-  }
-}
-```
-
-added locales/pages/ru.json
-
-```
-{
-  "home": {
-    "title": "",
-    "tagline": ""
-  },
-  "common": {
-    "save": ""
   }
 }
 ```
@@ -211,11 +139,11 @@ changed locales/ru.json
       "b"
     ]
   },
-  "footer": {
-    "copyright": ""
-  },
   "header": {
     "brand": ""
+  },
+  "footer": {
+    "copyright": ""
   }
 }
 ```

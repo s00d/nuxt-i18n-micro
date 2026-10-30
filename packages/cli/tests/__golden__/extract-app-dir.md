@@ -5,7 +5,8 @@
 ## Output
 
 ```
-Locale-specific translations have been saved to JSON files.
+Scanned 7 files, updated 6 translation files.
+Dynamic i18n key in <project>/app/pages/index.vue: `dynamic.${kind}`
 ```
 
 ## Files
@@ -29,11 +30,14 @@ changed locales/de.json
       "x"
     ]
   },
+  "header": {
+    "brand": ""
+  },
   "footer": {
     "copyright": ""
   },
-  "header": {
-    "brand": ""
+  "greeting": {
+    "hello": ""
   }
 }
 ```
@@ -67,11 +71,41 @@ changed locales/en.json
       "b"
     ]
   },
-  "footer": {
-    "copyright": ""
-  },
   "header": {
     "brand": ""
+  },
+  "footer": {
+    "copyright": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/de.json
+
+```
+{
+  "post": {
+    "heading": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/en.json
+
+```
+{
+  "post": {
+    "heading": ""
+  }
+}
+```
+
+added locales/pages/blog-slug/ru.json
+
+```
+{
+  "post": {
+    "heading": ""
   }
 }
 ```
@@ -105,11 +139,11 @@ changed locales/ru.json
       "b"
     ]
   },
-  "footer": {
-    "copyright": ""
-  },
   "header": {
     "brand": ""
+  },
+  "footer": {
+    "copyright": ""
   }
 }
 ```

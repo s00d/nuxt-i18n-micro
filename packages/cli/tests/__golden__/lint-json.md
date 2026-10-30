@@ -5,10 +5,6 @@
 ## Output
 
 ```
-info
-== Lint Summary ==
-info ℹ Starting translation check
-info Active rules: no-html-tags
 {
   "rulesChecked": [
     "no-html-tags"
@@ -18,7 +14,6 @@ info Active rules: no-html-tags
   "fixApplied": false,
   "issues": []
 }
-success ✔ Check completed. No issues found
 ```
 
 ## Files

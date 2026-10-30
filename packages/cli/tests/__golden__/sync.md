@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Translations have been synchronized.
+Translations have been synchronized.
 ```
 
 ## Files
@@ -32,9 +32,11 @@ changed locales/de.json
   "linked": "",
   "spaced": "",
   "limits": {
-    "max": "",
-    "enabled": "",
-    "list": ""
+    "max": 20,
+    "enabled": false,
+    "list": [
+      "x"
+    ]
   }
 }
 ```
@@ -72,9 +74,12 @@ changed locales/ru.json
   "linked": "См. @:common.save",
   "spaced": "Пробел",
   "limits": {
-    "max": "",
-    "enabled": "",
-    "list": ""
+    "max": 10,
+    "enabled": true,
+    "list": [
+      "a",
+      "b"
+    ]
   }
 }
 ```

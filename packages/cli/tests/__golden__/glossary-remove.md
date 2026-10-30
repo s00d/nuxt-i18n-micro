@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Removed 1 glossary entry.
+Removed 1 glossary entry.
 ```
 
 ## Files

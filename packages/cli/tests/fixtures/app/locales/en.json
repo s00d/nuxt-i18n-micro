@@ -19,9 +19,6 @@
   "limits": {
     "max": 10,
     "enabled": true,
-    "list": [
-      "a",
-      "b"
-    ]
+    "list": ["a", "b"]
   }
 }

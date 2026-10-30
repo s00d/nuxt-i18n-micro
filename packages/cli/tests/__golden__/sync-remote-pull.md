@@ -5,9 +5,12 @@
 ## Output
 
 ```
-info Resolve conflicts manually, or rerun with --force to prefer remote values.
-info Preview without writing: i18n-micro sync-remote --dry-run
-error Conflicts found between local and remote translations.
+Conflict de common.save:
+  local:  Speichern
+  remote: Remote
+Conflicts found between local and remote translations.
+  Resolve them, or rerun with --force to take the remote values.
+  Preview without writing: i18n-micro sync-remote --dryRun
 ```
 
 ## Files

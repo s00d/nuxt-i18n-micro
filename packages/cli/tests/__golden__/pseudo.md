@@ -5,8 +5,8 @@
 ## Output
 
 ```
-success Pseudo locale generated: en -> de
-info Updated keys: 13, skipped keys: 0
+Pseudo locale generated: en -> de
+Updated keys: 13, skipped keys: 0
 ```
 
 ## Files

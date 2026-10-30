@@ -5,11 +5,9 @@
 ## Output
 
 ```
-info
-== Hardcoded Text (Not localized) ==
-success ✔ Search completed
-warn <project>/pages/index.vue:6 -> <p>Hardcoded landing text</p>
-warn <project>/pages/index.vue:8 -> <img alt="Company logo" src="/logo.png" />
+Hardcoded text:
+  - <project>/pages/index.vue:6 -> <p>Hardcoded landing text</p>
+  - <project>/pages/index.vue:8 -> <img alt="Company logo" src="/logo.png" />
 ```
 
 ## Files

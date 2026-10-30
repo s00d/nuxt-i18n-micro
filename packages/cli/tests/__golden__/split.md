@@ -5,9 +5,9 @@
 ## Output
 
 ```
-success Split translations for locale en into 7 files
-success Split translations for locale de into 3 files
-success Split translations for locale ru into 7 files
+Split translations for locale en into 7 files
+Split translations for locale de into 3 files
+Split translations for locale ru into 7 files
 ```
 
 ## Files

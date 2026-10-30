@@ -7,8 +7,9 @@
 ```
 [
   {
-    "file": "en.json",
-    "missingInLocale": [
+    "locale": "de",
+    "file": "de.json",
+    "missing": [
       {
         "key": "common.unused",
         "defaultValue": "Unused value"
@@ -36,8 +37,9 @@
     ]
   },
   {
-    "file": "pages/index/en.json",
-    "missingInLocale": [
+    "locale": "de",
+    "file": "pages/index/de.json",
+    "missing": [
       {
         "key": "footer",
         "defaultValue": "Save"

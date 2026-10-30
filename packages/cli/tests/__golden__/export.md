@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Translations were exported to PO files.
+Exported 9 PO files to <project>/pots
 ```
 
 ## Files

@@ -5,8 +5,8 @@
 ## Output
 
 ```
-info Glossary entries (1):
-info - Save => Sichern [en -> de]
+Glossary entries (1):
+- Save => Sichern [en -> de]
 ```
 
 ## Files

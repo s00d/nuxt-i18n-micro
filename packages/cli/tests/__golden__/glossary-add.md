@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Glossary entry added.
+Glossary entry added.
 ```
 
 ## Files

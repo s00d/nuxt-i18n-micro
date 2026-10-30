@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Translation files have been formatted.
+Formatted translation files: 8 changed.
 ```
 
 ## Files

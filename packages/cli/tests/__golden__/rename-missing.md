@@ -5,9 +5,9 @@
 ## Output
 
 ```
-info Key: no.such
-info Search for the key first: i18n-micro search "<fragment>"
-error Key not found: no.such
+Key not found: no.such
+  Key: no.such
+  Search for the key first: i18n-micro search "<fragment>"
 ```
 
 ## Files

@@ -5,8 +5,8 @@
 ## Output
 
 ```
-success Key renamed: common.save -> actions.save
-info Locales updated: 3, locale refs: 2, source files: 1, source replacements: 1
+Key renamed: common.save -> actions.save
+Locales: 3, linked messages: 2, source files: 1, source replacements: 1
 ```
 
 ## Files
@@ -15,6 +15,9 @@ changed locales/de.json
 
 ```
 {
+  "actions": {
+    "save": "Speichern"
+  },
   "common": {
     "cancel": "",
     "extra": "Nur auf Deutsch"
@@ -25,12 +28,9 @@ changed locales/de.json
   "limits": {
     "max": 20,
     "enabled": false,
-    "list": {
-      "0": "x"
-    }
-  },
-  "actions": {
-    "save": "Speichern"
+    "list": [
+      "x"
+    ]
   }
 }
 ```
@@ -39,6 +39,9 @@ changed locales/en.json
 
 ```
 {
+  "actions": {
+    "save": "Save"
+  },
   "common": {
     "cancel": "Cancel",
     "unused": "Unused value"
@@ -58,13 +61,10 @@ changed locales/en.json
   "limits": {
     "max": 10,
     "enabled": true,
-    "list": {
-      "0": "a",
-      "1": "b"
-    }
-  },
-  "actions": {
-    "save": "Save"
+    "list": [
+      "a",
+      "b"
+    ]
   }
 }
 ```
@@ -73,6 +73,9 @@ changed locales/ru.json
 
 ```
 {
+  "actions": {
+    "save": "Сохранить"
+  },
   "common": {
     "cancel": "Отмена",
     "unused": "Не используется"
@@ -92,13 +95,10 @@ changed locales/ru.json
   "limits": {
     "max": 10,
     "enabled": true,
-    "list": {
-      "0": "a",
-      "1": "b"
-    }
-  },
-  "actions": {
-    "save": "Сохранить"
+    "list": [
+      "a",
+      "b"
+    ]
   }
 }
 ```

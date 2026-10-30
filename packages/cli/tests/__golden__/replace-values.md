@@ -5,7 +5,7 @@
 ## Output
 
 ```
-success Translation values have been updated. Changed keys: 2
+Translation values have been updated. Changed keys: 2
 ```
 
 ## Files

@@ -5,8 +5,8 @@
 ## Output
 
 ```
-info Run i18n-micro --help to see available commands.
-error Unknown command nope
+Unknown command nope
+  Run with --debug for a stack trace.
 ```
 
 ## Files

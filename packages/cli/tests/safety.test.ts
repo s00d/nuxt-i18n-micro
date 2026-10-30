@@ -150,6 +150,15 @@ describe('clean', () => {
     expect(readJson(dir, 'locales/en.json').plain).toBe('Plain')
   })
 
+  it('a broken fixture or a computed key in a test is no reason to stop; its keys still count', async () => {
+    dir = buildProject()
+    write(dir, 'tests/fixtures/broken.ts', 'const = \n')
+    write(dir, 'tests/a.spec.ts', `$t(name)\n$t('tail2')\n`)
+    expect((await runCli(['clean'], { cwd: dir })).code).toBe(0)
+    expect(readJson(dir, 'locales/en.json').dead).toBeUndefined()
+    expect(readJson(dir, 'locales/en.json').tail2).toBe('x')
+  })
+
   it('even under --force, a string or a data file that names a key protects it', async () => {
     dir = buildProject()
     write(dir, 'components/A.vue', `<template>{{ $t(name) }}</template>\n`)

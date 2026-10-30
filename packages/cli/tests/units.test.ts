@@ -310,6 +310,36 @@ const value: string = $t('a.script')
     expect(scanFile(sfc, 'x.vue').refs).toHaveLength(5)
   })
 
+  it.each([
+    ['CRLF', `<template>\r\n  <p>{{ $t('a.b') }}</p>\r\n</template>\r\n<script setup>\r\nconst x = $t('c.d')\r\n</script>\r\n`, 2],
+    ['script first, two scripts', `<script>\nexport default { data: () => ({ a: this.$t('o.a') }) }\n</script>\n<script setup>\nconst x = $t('o.b')\n</script>\n<template>{{ $t('o.c') }}</template>`, 3],
+    ['unicode before the key', `<template><p title="日本語🎌">{{ $t('u.a') }}</p></template>\n<script setup>\nconst s = '🎌'; $t('u.b')\n</script>`, 2],
+    ['v-bind object, v-if, slot props', `<template><C v-bind="{ title: $t('v.a') }" v-if="$t('v.b')" #item="{ x }"><p :a="[$t('v.c')]">{{ x ? $t('v.d') : $t('v.e') }}</p></C></template>`, 5],
+    ['statements in a handler', `<template><b @click="a = 1; go($t('h.a'))" /></template>`, 1],
+    ['multi-line interpolation', `<template>{{\n  $t(\n    'm.a'\n  )\n}}</template>`, 1],
+    ['tsx script', `<script setup lang="tsx">\nconst A = () => <b>{$t('t.a')}</b>\n</script>`, 1],
+  ])('positions hold: %s', (_name, sfc, count) => {
+    const { refs, unproven } = scanFile(sfc, 'x.vue')
+    expect(unproven).toEqual([])
+    expect(refs).toHaveLength(count)
+    for (const ref of refs) expect(sfc.slice(ref.start, ref.end)).toBe(ref.key)
+  })
+
+  it('a key behind an entity is found; its position is checked before any rewrite', () => {
+    const { refs } = scanFile(`<template><b :x="a &amp;&amp; $t('e.a')" /></template>`, 'x.vue')
+    expect(refs.map((ref) => ref.key)).toEqual(['e.a'])
+  })
+
+  it('Options API, member chains, optional calls', () => {
+    const code = `export default { computed: { a() { return this.$t('o.a') } }, setup() { useNuxtApp().$ts('o.b'); nuxt?.$i18n?.t?.('o.c') } }`
+    expect(keys(code, 'a.js')).toEqual(['o.a', 'o.b', 'o.c'])
+  })
+
+  it('a stray .html: a bare call is no doubt, a $t one is', () => {
+    expect(scanFile('<script>function a(e){return t(e)}</script>', 'a.html').dynamic).toEqual([])
+    expect(scanFile('{{ $t(name) }}', 'a.html').dynamic).toHaveLength(1)
+  })
+
   it('ignores comments, strings and foreign t()', () => {
     expect(keys(`// $t('no.comment')\nconst s = "$t('no.string')"\nt('no.foreign')`, 'a.ts')).toEqual([])
   })

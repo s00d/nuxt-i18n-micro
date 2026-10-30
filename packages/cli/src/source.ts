@@ -316,15 +316,17 @@ export function parseCode(code: string, lang = 'ts', strict = false): unknown | 
 }
 
 const TEXT_CALL = /(?:\$tc?s?|\$has|\btc?s?)\s*\(\s*(?:['"`]([^'"`$]+)['"`]|([^'"`)\s][^)]*))/g
+const DOLLAR_CALL = /^\$/
 const QUOTED = /['"`]([^'"`\n]+)['"`]/g
 
 /** For what no parser here reads, such as Pug templates: finding a key too many is the safe mistake. */
-function collectFromText(text: string, context: Context, base: number): void {
+function collectFromText(text: string, context: Context, base: number, bareCalls = true): void {
   const { content, file, scan } = context
   for (const match of text.matchAll(TEXT_CALL)) {
     const line = lineOf(content, base + match.index)
     if (match[1]) scan.refs.push({ key: match[1], file, line, start: -1, end: -1, guard: false })
-    else scan.dynamic.push({ file, line, expression: match[2]!.trim(), prefix: '' })
+    // Minified code in a stray .html is full of `t(e)` that means nothing here.
+    else if (bareCalls || DOLLAR_CALL.test(match[0])) scan.dynamic.push({ file, line, expression: match[2]!.trim(), prefix: '' })
   }
   for (const match of text.matchAll(QUOTED)) addLiteral(match[1]!, scan, `${file}:${lineOf(content, base + match.index)}`)
 }
@@ -471,7 +473,7 @@ export function scanFile(content: string, file: string): FileScan {
   if (content.trim() === '') return scan
   if (extension === '.vue') scanVue(content, context)
   else if (CODE_EXTENSIONS.has(extension)) scanCode(content, context)
-  else collectFromText(content, context, 0)
+  else collectFromText(content, context, 0, false)
   return scan
 }
 
@@ -562,11 +564,13 @@ function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   const page = pagesRoot && isCodeFile(file) ? pageScopeOf(file, pagesRoot, content) : null
   const test = isTestFile(config, file)
   for (const ref of found.refs) out.refs.push({ ...ref, page, test })
-  out.dynamic.push(...found.dynamic)
   for (const [text, location] of found.literals) if (!out.literals.has(text)) out.literals.set(text, location)
   for (const prefix of found.prefixes) out.prefixes.add(prefix)
-  for (const reason of found.unproven) out.unproven.push({ file, reason })
   out.files += 1
+  // A broken fixture or a computed key in a spec says nothing about what the app reads.
+  if (test) return
+  out.dynamic.push(...found.dynamic)
+  for (const reason of found.unproven) out.unproven.push({ file, reason })
 }
 
 export function scanProject(config: ProjectConfig, options: ScanOptions = {}): ProjectScan {

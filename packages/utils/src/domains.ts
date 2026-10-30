@@ -40,19 +40,22 @@ function hostDefault(own: Locale[], served: Locale[], defaultLocale: string | un
   return (enabled[0] ?? served.find((locale) => !locale.disabled))?.code
 }
 
-/** The locales that are the unprefixed default of some host, besides `defaultLocale`: their pages need unprefixed records. */
-export function hostDefaultLocales(locales: Locale[], defaultLocale: string): string[] {
+/** `locales` with `baseDefault` on the default of every host, whether the config named it or not. */
+export function withHostDefaults(locales: Locale[], defaultLocale: string): Locale[] {
   const codes = new Set<string>()
   for (const [host, own] of localesByHost(locales)) {
     const code = hostDefault(own, servedOn(host, locales), defaultLocale)
-    if (code && code !== defaultLocale) codes.add(code)
+    // a locale with no domain is no host's own
+    if (own.some((locale) => locale.code === code)) codes.add(code!)
   }
-  return [...codes]
+  return locales.map((locale) => (codes.has(locale.code) && !locale.baseDefault ? { ...locale, baseDefault: true } : locale))
 }
 
 function buildHostConfigs(config: ModuleOptionsExtend): Map<string, ModuleOptionsExtend> {
   const configs = new Map<string, ModuleOptionsExtend>()
-  const locales = config.locales ?? []
+  // ponytail: silent, unlike pinDefault; this runs in the browser too, and the docs state it
+  const pinned = config.strategy === 'prefix_except_default' || config.strategy === 'prefix_and_default'
+  const locales = (config.locales ?? []).map((locale) => (pinned && locale.baseDefault && locale.disabled ? { ...locale, disabled: false } : locale))
   for (const [host, own] of localesByHost(locales)) {
     const served = servedOn(host, locales)
     const defaultLocale = hostDefault(own, served, config.defaultLocale)

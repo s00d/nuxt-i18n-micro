@@ -6,6 +6,7 @@
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { defineEventHandler, getRequestURL } from 'h3'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
+import { domains } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 import { detectRequestLocale, getI18nServerConfig } from '../utils/locale-detector'
 import { loadTranslationsFromServer } from '../utils/server-loader'
@@ -15,7 +16,11 @@ export default defineEventHandler(async (event) => {
   const path = withoutAppBaseURL(getRequestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
 
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
-  if (isInternalPath(path, undefined, config.apiBaseUrl)) return
+  if (isInternalPath(path, undefined, config.apiBaseUrl)) {
+    // an error page renders through an internal path and still belongs to its host
+    if (domains) event.context.i18n = { config } as typeof event.context.i18n
+    return
+  }
 
   // hash + prefix: `/` has no record and the server never sees the route in the hash, so the client renders it
   if (config.hashMode && config.strategy === 'prefix' && path === '/') event.context.nuxt = { ...event.context.nuxt, noSSR: true }

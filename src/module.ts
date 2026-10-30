@@ -535,8 +535,8 @@ export default defineNuxtModule<ModuleOptions>({
     const generateDomain = process.env.NUXT_I18N_DOMAIN
     const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
     if (generateDomain && !buildConfig.domain) logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
-    if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseDefault)) {
-      logger.warn('locales[].baseDefault in a static build without NUXT_I18N_DOMAIN: the build config applies. Generate once per domain.')
+    if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseUrl)) {
+      logger.warn('locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.')
     }
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)

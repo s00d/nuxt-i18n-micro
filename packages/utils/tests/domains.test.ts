@@ -1,6 +1,6 @@
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test } from 'vitest'
-import { configForHost, hostDefaultLocales } from '../src/domains'
+import { configForHost, withHostDefaults } from '../src/domains'
 
 const locales: Locale[] = [
   { code: 'en', baseUrl: 'https://example.com/', baseDefault: true },
@@ -58,10 +58,24 @@ describe('configForHost', () => {
   })
 })
 
-describe('hostDefaultLocales', () => {
-  test('every default of a host, besides the build default', () => {
-    expect(hostDefaultLocales(locales, 'en')).toEqual(['de'])
-    expect(hostDefaultLocales([{ code: 'en', baseUrl: 'https://example.com', baseDefault: true }, { code: 'fr' }], 'en')).toEqual([])
-    expect(hostDefaultLocales([{ code: 'en' }, { code: 'fr', baseUrl: 'https://example.fr' }], 'en')).toEqual([])
+describe('withHostDefaults', () => {
+  const flagged = (list: Locale[], fallback = 'en') => withHostDefaults(list, fallback).flatMap((l) => (l.baseDefault ? [l.code] : []))
+
+  test('the default of every host is flagged, named or not', () => {
+    expect(flagged(locales)).toEqual(['en', 'de'])
+    expect(flagged([{ code: 'en', baseUrl: 'https://a.test' }, { code: 'de', baseUrl: 'https://b.test' }, { code: 'nl', baseUrl: 'https://b.test' }])).toEqual(['en', 'de'])
+    // the build default is served there: the host needs no default of its own
+    expect(flagged([{ code: 'en' }, { code: 'fr', baseUrl: 'https://example.fr' }])).toEqual([])
+  })
+})
+
+describe('a host default disabled at runtime', () => {
+  const off = (strategy: string) =>
+    ({ strategy, defaultLocale: 'en', locales: [{ code: 'en' }, { code: 'de', baseUrl: 'https://b.test', baseDefault: true, disabled: true }, { code: 'nl', baseUrl: 'https://b.test' }] }) as ModuleOptionsExtend
+
+  test('stays on under the strategies that serve it unprefixed, goes off under prefix', () => {
+    expect(configForHost(off('prefix_except_default'), 'b.test').defaultLocale).toBe('de')
+    expect(configForHost(off('prefix_and_default'), 'b.test').defaultLocale).toBe('de')
+    expect(configForHost(off('prefix'), 'b.test').defaultLocale).toBe('en')
   })
 })

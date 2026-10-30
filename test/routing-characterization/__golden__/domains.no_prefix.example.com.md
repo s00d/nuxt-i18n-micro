@@ -25,8 +25,8 @@ Every URL is resolved with `?q=1#top`.
 | /a-propos | localized-about-fr | fr | about | about | null | null | null | null |
 | /about | about | en | about | about | null | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | null | null | null | null |
-| /de-only | de-only | de | de-only | de-only | null | null | null | Locale on another domain |
-| /ueber-uns | localized-about-de | de | about | about | null | null | null | Locale on another domain |
+| /de-only | de-only | en | de-only | de-only | null | null | null | Locale on another domain |
+| /ueber-uns | localized-about-de | en | about | about | null | null | null | Locale on another domain |
 | /en | null | en | index | index | null | en | null | null |
 | /en/ | null | en | index | index | null | en | null | null |
 | /fr | null | en | index | index | null | fr | null | null |

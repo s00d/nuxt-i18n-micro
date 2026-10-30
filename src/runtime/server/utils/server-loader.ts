@@ -77,7 +77,8 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
       {
         locale,
         pageName: page,
-        locales: normalizeConfiguredLocales(config.locales),
+        // a fallback may live on another domain: its file is still this build's
+        locales: normalizeConfiguredLocales(config.linkLocales ?? config.locales),
         globalFallbackLocale: config.fallbackLocale,
         disablePageLocales: config.disablePageLocales,
       },

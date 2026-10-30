@@ -383,7 +383,7 @@ export class I18nPathStrategy {
    * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locale,
    * and a page restricted to some locales never renders in another one.
    */
-  private servedLocale(route: ResolvedRouteLike, preferred: string): string {
+  protected servedLocale(route: ResolvedRouteLike, preferred: string): string {
     const name = named(route.name)
     const entry = name ? this.index.records.get(name) : undefined
     if (!entry) return preferred
@@ -431,7 +431,7 @@ export class I18nPathStrategy {
   }
 
   /** Whether a page of its own answers the URL, in any form: no catch-all. */
-  private isOwnPage(path: string): boolean {
+  protected isOwnPage(path: string): boolean {
     const page = this.findPage(path)
     return page === UNLOCALIZED || (page !== null && !page.catchAll)
   }
@@ -618,7 +618,7 @@ export class DomainPathStrategy extends I18nPathStrategy {
 
   protected override notFoundReason(path: string): string | null {
     const { strategy, defaultLocale } = this.ctx
-    if (this.foreign.has(path.split('/')[1] ?? '') && strategy !== 'no_prefix') return 'Locale on another domain'
+    if (this.foreign.has(path.split('/')[1] ?? '') && strategy !== 'no_prefix' && !this.isOwnPage(path)) return 'Locale on another domain'
     const reason = super.notFoundReason(path)
     if (reason || this.getLocaleFromPath(path)) return reason
     const entry = this.index.records.get(named(this.probe(path)?.name) ?? '')
@@ -627,6 +627,13 @@ export class DomainPathStrategy extends I18nPathStrategy {
     // an unprefixed record of another host's default; under prefix_except_default a page this host's default also has moves to its URL
     const movable = strategy === 'prefix_except_default' && this.index.pages.get(entry.base)?.has(defaultLocale)
     return !entry.keys.includes('locale') && !entry.locales.includes(defaultLocale) && !movable ? 'Locale not allowed for this route' : null
+  }
+
+  /** A page restricted to some locales renders in one this host serves. */
+  protected override servedLocale(route: ResolvedRouteLike, preferred: string): string {
+    const locale = super.servedLocale(route, preferred)
+    if (!this.foreign.has(locale)) return locale
+    return this.index.records.get(named(route.name) ?? '')?.locales.find((code) => !this.foreign.has(code)) ?? preferred
   }
 
   override getClientRedirect(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions): string | null {

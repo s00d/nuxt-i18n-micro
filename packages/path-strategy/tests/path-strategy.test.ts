@@ -172,6 +172,34 @@ describe('switchLocaleRoute', () => {
   })
 })
 
+describe('a host of a domain build', () => {
+  const locales: Locale[] = [
+    { code: 'en', baseUrl: 'https://a.test', baseDefault: true },
+    { code: 'de', baseUrl: 'https://b.test', baseDefault: true },
+    { code: 'ru' },
+  ]
+  const onB = (strategy: Strategies) =>
+    setup(strategy, { defaultLocale: 'de', locales: locales.filter((l) => l.code !== 'en'), linkLocales: locales, domain: 'b.test' }, locales, {
+      routeLocales: { 'de-only': ['de'], '/en-ru': ['en', 'ru'] },
+      pages: [...PAGES, { path: '/en-ru', name: 'en-ru', file: 'pages/en-ru.vue' }],
+    })
+
+  test('no_prefix: a restricted page renders in a locale the host serves', () => {
+    const { i18n, at } = onB('no_prefix')
+    expect(i18n.getCurrentLocale(at('/en-ru'), 'de')).toBe('ru')
+  })
+
+  test('a real page on a foreign segment stays, a foreign prefix is a 404', () => {
+    const { i18n } = onB('prefix_except_default')
+    expect(i18n.shouldReturn404('/en/about-us')).toBe('Locale on another domain')
+  })
+
+  test('hash mode: the route goes to the other domain in the hash', () => {
+    const { i18n, at } = setup('prefix_except_default', { hashMode: true, defaultLocale: 'de', locales: locales.slice(1), linkLocales: locales, domain: 'b.test' }, locales)
+    expect(i18n.switchLocaleRoute('de', 'en', at('/ueber-uns'))).toBe('https://a.test/#/about-us')
+  })
+})
+
 describe('reading a URL', () => {
   test('getCurrentLocale / getCurrentLocaleName', () => {
     const { i18n, at } = setup('prefix_except_default')

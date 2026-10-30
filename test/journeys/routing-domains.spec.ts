@@ -68,6 +68,16 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(contentOn((await onHost(baseURL, '/', 'example.de.evil.test')).html)).toBe('en')
   })
 
+  test('an error page belongs to its host', async ({ baseURL }) => {
+    const missing = await onHost(baseURL, '/does-not-exist', DE)
+    expect(missing.status).toBe(404)
+    expect(missing.html).toMatch(/<html[^>]*lang="de_DE"/)
+    const foreign = await onHost(baseURL, '/en/contact', DE)
+    expect(foreign.status).toBe(404)
+    expect(canonicalOf(foreign.html)).toBe('https://example.de/kontakt')
+    expect(foreign.html).toMatch(/<html[^>]*lang="de_DE"/)
+  })
+
   test('browser: hydrates on each domain; links stay in the app; the switcher leaves for the other domain', async ({ page, baseURL }) => {
     await routeDomains(page, baseURL)
 

@@ -81,7 +81,7 @@ export function build(app: App, strategy: Strategies, host?: string): Built {
     getRoutes: () => router.getRoutes(),
   }
   // the runtime config keeps disabled locales; only the records leave them out
-  const all = appLocales(app)
+  const all = [...generator.locales, ...generator.disabledLocales]
   const config = { locales: all, defaultLocale: generator.defaultLocale.code } as ModuleOptionsExtend
   const hosted = host ? configForHost(config, host) : config
   const context = {

@@ -2,7 +2,7 @@
 
 Quick-start context for AI coding agents (local + Cursor Cloud) in this repository.
 
-Human docs: [README](./README.md) · [CONTRIBUTING](./.github/CONTRIBUTING.md) · [Contribution guide](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)  
+Human docs: [README](./README.md) · [CONTRIBUTING](./.github/CONTRIBUTING.md) · [Contribution guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)  
 Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-versioning.mdc`](./.cursor/rules/package-versioning.mdc)
 
 ## What this is
@@ -91,7 +91,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Build packages (no playgrounds) | `pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |
 | Full module pack | `pnpm run prepack` |
 | Regenerate API docs | `pnpm run docs:generate` |
-| Release gate helpers | `pnpm run preflight` · see `docs/guide/maintenance-commands.md` |
+| Release gate helpers | `pnpm run preflight` · see `docs/contributing/maintenance-commands.md` |
 
 Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
@@ -141,7 +141,7 @@ pnpm --filter @i18n-micro/<name> build
 
 - Architecture & conventions: `.cursorrules`
 - Routing strategies: `docs/guide/strategy.md`
-- Locales layout: `docs/guide/folder-structure.md`
-- Maintenance / audits: `docs/guide/maintenance-commands.md`
+- Locales layout: `docs/guide/translations.md`
+- Maintenance / audits: `docs/contributing/maintenance-commands.md`
 - Package READMEs: `packages/*/README.md`
 - CI build order: `.github/workflows/ci.yml`

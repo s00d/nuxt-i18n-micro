@@ -245,4 +245,4 @@ export default defineNuxtConfig({
 
 - [Performance Guide](/guide/performance) — How caching impacts performance
 - [Server-Side Translations](/guide/server-side-translations) — Using translations in server routes
-- [Firebase Deployment](/guide/firebase) — Deployment-specific cache considerations
+- [Firebase Deployment](/guide/deployment#firebase) — Deployment-specific cache considerations

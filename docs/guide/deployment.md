@@ -448,7 +448,7 @@ routeRules: {
 - [Firebase AppHosting Documentation](https://firebase.google.com/docs/app-hosting)
 - [Nitro Presets](https://nitro.unjs.io/deploy/providers/firebase)
 - [Nuxt Deployment Guide](https://nuxt.com/docs/getting-started/deployment)
-- [Module Configuration](/guide/configuration)
+- [Module Configuration](/api/module-options)
 
 ### 💡 Tips
 

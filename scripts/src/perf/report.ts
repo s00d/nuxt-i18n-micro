@@ -107,7 +107,7 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 ### Methodology notes
 
 - Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
-- **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [performance-methodology.md](./performance-methodology.md).
+- **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [benchmark methodology](/contributing/performance-methodology).
 - **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 - Load profile \`--load ${load}\`: ${loadLabel}.

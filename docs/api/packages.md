@@ -10,7 +10,7 @@ outline: 'deep'
 their own — `@i18n-micro/vue` in a plain Vue app, `@i18n-micro/core` anywhere.
 
 Each page below is generated from the API snapshot that
-[`pnpm run api:surface`](/guide/maintenance-commands#api-surface) checks against the
+[`pnpm run api:surface`](/contributing/maintenance-commands#api-surface) checks against the
 TypeScript sources, so an export cannot disappear without either this reference changing
 or CI failing.
 

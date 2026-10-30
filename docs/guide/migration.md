@@ -11,7 +11,7 @@ outline: 'deep'
 | You are migrating from…                | Guide                                            |
 | -------------------------------------- | ------------------------------------------------ |
 | `@nuxtjs/i18n` (vue-i18n based module) | **This page**                                    |
-| `nuxt-i18n-micro` v2.x                 | [Upgrading from v2.x to v3.x](/guide/v3-upgrade) |
+| `nuxt-i18n-micro` v2.x                 | [Upgrading from v2.x to v3.x](/guide/upgrade) |
 
 ## Why Migrate?
 

@@ -9,7 +9,7 @@ description: 'Runtime methods, events, translation cache, and server middleware.
 
 - [Methods](./methods.md) — `$t`, `$ts`, `$_t`, `$_ts`, locale switching, routing helpers
 - [Events](./events.md) — `i18n:register`
-- [Translations and Cache](./i18n-cache-api.md) — `TranslationStorage`, payload loading, `$clearCache`
+- [Translations and Cache](/contributing/architecture) — `TranslationStorage`, payload loading, `$clearCache`
 
 ## Server middleware
 
@@ -22,5 +22,5 @@ See the full [Server-Side Translations guide](/guide/server-side-translations) f
 
 ## Related
 
-- [Composables](/composables/) — `useI18n`, `useI18nLocale`, `useLocaleHead`
-- [Configuration Reference](/guide/configuration) — all `i18n` module options
+- [Composables](/composables/useI18n) — `useI18n`, `useI18nLocale`, `useLocaleHead`
+- [Configuration Reference](/api/module-options) — all `i18n` module options

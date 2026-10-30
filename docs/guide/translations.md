@@ -36,7 +36,7 @@ locales/
 └── ar.json
 ```
 
-To split shared vs app dictionaries without pre-merging on disk, keep `pages/` under the primary `translationDir` and put shared root files in sibling dirs listed in [`additionalTranslationDirs`](/guide/configuration#additionaltranslationdirs):
+To split shared vs app dictionaries without pre-merging on disk, keep `pages/` under the primary `translationDir` and put shared root files in sibling dirs listed in [`additionalTranslationDirs`](/api/module-options#additionaltranslationdirs):
 
 ```tree
 common/

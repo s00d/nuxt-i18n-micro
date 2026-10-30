@@ -30,7 +30,7 @@ Unlike the full Nuxt module, these packages:
 
 - **[Vue Package](./vue-package.md)** (`@i18n-micro/vue`) - For Vue 3 applications
 - **[React Package](./react-package.md)** (`@i18n-micro/react`) - For React applications
-- **[Preact Package](./preact-package.md)** (`@i18n-micro/preact`) - For Preact applications
+- **[Preact Package](/integrations/react-package#preact)** (`@i18n-micro/preact`) - For Preact applications
 - **[Solid Package](./solid-package.md)** (`@i18n-micro/solid`) - For SolidJS applications
 - **[Astro Package](./astro-package.md)** (`@i18n-micro/astro`) - For Astro applications with SSR support
 - **[VitePress Package](./vitepress-package.md)** (`@i18n-micro/vitepress`) - For VitePress docs (runtime `$t` / components / switcher)
@@ -303,7 +303,7 @@ For detailed setup instructions, see the documentation for your specific package
 
 - [Vue Package Documentation](./vue-package.md)
 - [React Package Documentation](./react-package.md)
-- [Preact Package Documentation](./preact-package.md)
+- [Preact Package Documentation](/integrations/react-package#preact)
 - [Solid Package Documentation](./solid-package.md)
 - [Astro Package Documentation](./astro-package.md)
 - [VitePress Package Documentation](./vitepress-package.md)

@@ -32,9 +32,9 @@ flowchart LR
 | Tag             | Example                                                  |
 | --------------- | -------------------------------------------------------- |
 | HTML attributes | `<html lang="en" dir="ltr">`                             |
-| Canonical       | `<link rel="canonical" href="...">`                      |
-| hreflang        | `<link rel="alternate" hreflang="en" href="...">`        |
-| x-default       | `<link rel="alternate" hreflang="x-default" href="...">` |
+| Canonical       | `<link rel="canonical" href="https://example.com/about">`                      |
+| hreflang        | `<link rel="alternate" hreflang="en" href="https://example.com/about">`        |
+| x-default       | `<link rel="alternate" hreflang="x-default" href="https://example.com/about">` |
 | Open Graph      | `<meta property="og:locale" content="en_US">`            |
 
 #### `og` per locale (`og:locale` vs BCP 47)

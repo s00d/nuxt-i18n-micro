@@ -13,9 +13,8 @@ Nothing here is written by hand, so it cannot fall behind the code — types, de
 descriptions come from the declaration itself.
 
 
-For what these options *mean* together — which combinations make sense, what changes when
-you switch strategy, worked examples — read [Configuration](/guide/configuration). This
-page is the exhaustive list; that one is the explanation.
+The tables are the exhaustive list; [Option details](#option-details) below explains each
+option with examples.
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
@@ -143,7 +142,6 @@ Parts of the module you can switch off.
 
 ## See also
 
-- [Configuration](/guide/configuration) — how these options work together
 - [Performance](/guide/performance) — what the payload options change at runtime
 - [Package APIs](/api/packages) — the exported API of every workspace package
 

@@ -176,7 +176,7 @@ You can access the playground app at `http://localhost:3000`.
 - **`pnpm run test:unit`**: Fast unit tests only, no builds (~1 s).
 - **`pnpm run test:integration`**: Suites that spawn real Nuxt builds.
 - **`pnpm run test:e2e`**: Browser journeys (`test/journeys/`) against real servers.
-- **`MUTATE_PACKAGE=<name> pnpm run test:mutation`**: Mutation score of one package (Stryker); see [Testing routing strategies](/guide/testing-strategies#mutation-testing).
+- **`MUTATE_PACKAGE=<name> pnpm run test:mutation`**: Mutation score of one package (Stryker); see [Testing routing strategies](/contributing/testing#mutation-testing).
 - **`pnpm run typecheck`**: Check TypeScript types.
 - **`pnpm run check:versions`**: Verify every changed package in `packages/*` also got a version bump (see below).
 - **`pnpm run docs:dev`**: Start the documentation site in development mode.

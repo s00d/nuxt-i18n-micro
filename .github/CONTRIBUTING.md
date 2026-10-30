@@ -4,7 +4,7 @@ Thank you for your interest in contributing! We appreciate your help in making t
 
 ## 📚 Full Documentation
 
-For detailed contribution guidelines, please visit our **[Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)**.
+For detailed contribution guidelines, please visit our **[Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)**.
 
 ## 🚀 Quick Start
 
@@ -91,7 +91,7 @@ Use our [Feature Request Template](.github/ISSUE_TEMPLATE/feature_request.md) wi
 
 ## 📚 Resources
 
-- 📖 [Full Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)
+- 📖 [Full Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)
 - 📘 [Documentation](https://s00d.github.io/nuxt-i18n-micro/)
 - ❓ [FAQ](https://s00d.github.io/nuxt-i18n-micro/guide/faq)
 - 💬 [Discussions](https://github.com/s00d/nuxt-i18n-micro/discussions)

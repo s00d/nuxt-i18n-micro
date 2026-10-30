@@ -59,4 +59,4 @@ Relates to #
 
 ---
 
-💡 See full guidelines: [Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)
+💡 See full guidelines: [Contribution Guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)

@@ -181,7 +181,7 @@ against the live URL. A green deploy job means the published package works on th
 platform's runtime — not just in a local Node server.
 
 For **local** function/edge preset checks without deploying (Nitro-style vercel handler,
-wrangler, netlify serve), see [Preset local testing](/guide/preset-local-testing).
+wrangler, netlify serve), see [Preset local testing](/contributing/release-smoke#preset-local-testing).
 
 ## Preset local testing
 
@@ -198,7 +198,7 @@ Tier 1  nuxi build --preset + canonical local runner → smoke-verify
 ```
 
 Real Vercel CDN+function deploys are optional and out of this guide — use
-[Release Smoke Checks](/guide/release-smoke) with `deploy: true` if you need a live URL.
+[Release Smoke Checks](/contributing/release-smoke) with `deploy: true` if you need a live URL.
 
 Assert layer:
 [`smoke-verify`](https://github.com/s00d/nuxt-i18n-micro/blob/main/scripts/src/commands/smoke-verify.ts)
@@ -260,6 +260,6 @@ Later runs with `--skip-pack --skip-install` only rebuild the chosen preset.
 
 ### Related
 
-- [Release Smoke Checks](/guide/release-smoke)
+- [Release Smoke Checks](/contributing/release-smoke)
 - [FAQ — Vercel SSR translations](/guide/faq)
-- [Maintenance Commands](/guide/maintenance-commands)
+- [Maintenance Commands](/contributing/maintenance-commands)

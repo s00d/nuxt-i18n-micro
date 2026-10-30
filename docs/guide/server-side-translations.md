@@ -14,7 +14,7 @@ The translations use locale messages defined in the Nuxt I18n configuration and 
 
 By default (`translationPayloads.mode: 'premerged'`), root-level files are baked into every page payload at build time as `{page}/{locale}/data.json`. The server loads the same pre-built files as the client fetches under `/{apiBaseUrl}/...`, so all keys (both shared and page-specific) are available in server handlers.
 
-With `translationPayloads.mode: 'source'`, compact source files are merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called — on **Edge** via Nitro `serverAssets`, on **Node** from the optional public copy. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api) for details.
+With `translationPayloads.mode: 'source'`, compact source files are merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called — on **Edge** via Nitro `serverAssets`, on **Node** from the optional public copy. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/contributing/architecture) for details.
 
 For a consolidated list of runtime and server APIs, see the [API Reference](/api/).
 

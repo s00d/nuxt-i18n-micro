@@ -96,7 +96,7 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 - **Average Response Time**: 583 ms — **~54% faster than `@nuxtjs/i18n` v10.6**
   :::
 
-Numbers are from the latest `--load full` fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split, real module dist). Micro stays ahead on build time, build RSS, and especially Artillery throughput; see the [methodology](/guide/performance-methodology) and [full report](/guide/performance-results).
+Numbers are from the latest `--load full` fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split, real module dist). Micro stays ahead on build time, build RSS, and especially Artillery throughput; see the [methodology](/contributing/performance-methodology) and [full report](/guide/performance-results).
 
 ## 🔑 Key Features
 

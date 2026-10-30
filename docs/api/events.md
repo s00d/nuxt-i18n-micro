@@ -35,7 +35,7 @@ The module's hooks plugin (`05.hooks.ts`, `dependsOn: ['i18n-plugin-loader']`) c
 
 Register your listener in a normal Nuxt plugin with `nuxtApp.hook('i18n:register', …)`. The hooks plugin runs after the loader is ready, so your callback is invoked when translations need to be extended.
 
-Set `hooks: false` in `nuxt.config` to disable automatic `i18n:register` calls (see [Configuration — `hooks`](/guide/configuration#hooks)).
+Set `hooks: false` in `nuxt.config` to disable automatic `i18n:register` calls (see [Configuration — `hooks`](/api/module-options#hooks)).
 
 ### 💡 Example Usage
 

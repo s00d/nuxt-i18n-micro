@@ -547,6 +547,6 @@ export default defineEventHandler(async (event) => {
 ## 📚 Related Documentation
 
 - **[Playground](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground)** - Runnable Node demo in the monorepo
-- **[Folder Structure](../guide/folder-structure.md)** - Learn about translation file organization
+- **[Folder Structure](/guide/translations)** - Learn about translation file organization
 - **[Server Side Translations](../guide/server-side-translations.md)** - Nuxt server-side usage
 - **[API Reference](../api/methods.md)** - Complete method documentation

@@ -303,5 +303,5 @@ All gates passed. Safe to release.
 `payload-budget` builds an app, so it belongs on pull requests that touch the runtime
 rather than on every push. The rest are seconds each and are cheap enough to run always.
 
-See also [Release Smoke Checks](/guide/release-smoke), which verifies the **published**
+See also [Release Smoke Checks](/contributing/release-smoke), which verifies the **published**
 package by installing it into a real app.

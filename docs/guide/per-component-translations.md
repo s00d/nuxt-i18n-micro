@@ -607,7 +607,7 @@ $defineI18nRoute({
 
 - **[Getting Started](./getting-started.md)** - Basic setup and configuration
 - **[API Reference](../api/methods.md)** - Complete method documentation
-- **[Examples](../examples.md)** - Real-world usage examples
+- **[Examples](/api/methods)** - Real-world usage examples
 
 ## Summary
 

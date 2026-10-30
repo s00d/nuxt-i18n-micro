@@ -266,7 +266,7 @@ export default defineNuxtConfig({
 })
 ```
 
-For every option, default, and example, see the dedicated [Configuration Reference](./configuration.md).
+For every option, default, and example, see the dedicated [Configuration Reference](/api/module-options).
 
 | Area              | Key options                                                                                                          |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -313,10 +313,10 @@ flowchart TB
 
 - 🚀 **HTML stays small**: dictionaries are not inlined into `nuxtApp.payload` (same default as `@nuxtjs/i18n` preload off). The client loads `/{apiBaseUrl}/.../data.json` in the plugin via `await switchContext`. See [Performance](./performance.md#server-side-load-no-html-embed).
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
-- ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](./configuration.md#translationpayloads).
+- ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](/api/module-options#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
 
-See the [Cache & Storage Architecture](../api/i18n-cache-api.md) for in-depth details.
+See the [Cache & Storage Architecture](/contributing/architecture) for in-depth details.
 
 ## 🌍 Locale State Management
 
@@ -344,8 +344,8 @@ Now that you have the basics set up, explore these advanced topics:
 - **[Per-Component Translations](./per-component-translations.md)** - Learn about `$defineI18nRoute`
 - **[Custom Language Detection](./custom-auto-detect.md)** - Programmatic locale management with `useI18nLocale()`
 - **[API Reference](../api/methods.md)** - Complete method documentation
-- **[Cache & Storage](../api/i18n-cache-api.md)** - Translation cache architecture
-- **[Examples](../examples.md)** - Real-world usage examples
+- **[Cache & Storage](/contributing/architecture)** - Translation cache architecture
+- **[Examples](/api/methods)** - Real-world usage examples
 - **[Migration Guide](./migration.md)** - Migrating from other i18n solutions or v2
 
 ## Using translations in components

@@ -285,7 +285,7 @@ Do not pass extra params as a third argument — `$tc('cart', 10, { name: 'Alice
 **Component alternative** — `<i18n-t keypath="cart" :plural="count" :params="{ name }" />` (merges `count` with `params` internally).
 
 ::: tip
-The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Configuration → plural](/guide/configuration#plural).
+The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Configuration → plural](/api/module-options#plural).
 :::
 
 ### `$mergeTranslations`

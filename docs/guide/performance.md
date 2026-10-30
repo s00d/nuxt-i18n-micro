@@ -16,7 +16,7 @@ In large-scale projects and high-traffic environments, performance bottlenecks c
 
 ## 📊 Performance Comparison
 
-We conducted a series of tests on identical fixtures via `pnpm test:performance` against **`@nuxtjs/i18n@10.6.0`**. Published numbers use `--load full` (historical Artillery window). Day-to-day default is `--load short` — same ranking, less wall time. See [methodology](/guide/performance-methodology) and [full results](/guide/performance-results).
+We conducted a series of tests on identical fixtures via `pnpm test:performance` against **`@nuxtjs/i18n@10.6.0`**. Published numbers use `--load full` (historical Artillery window). Day-to-day default is `--load short` — same ranking, less wall time. See [methodology](/contributing/performance-methodology) and [full results](/guide/performance-results).
 
 ```bash
 pnpm test:performance
@@ -137,7 +137,7 @@ Against current `@nuxtjs/i18n` **v10.6** (`--load full`, **mean of 3** consecuti
 - 🕒 **Faster builds**: ~5.0s vs ~8.2s (micro matches the plain-Nuxt baseline on this profile).
 - ⚡ **Much better under load**: ~230 vs ~126 Artillery RPS, lower average latency.
 
-Absolute numbers move with hardware load; ranking is stable across short/mid/full profiles ([methodology](/guide/performance-methodology)).
+Absolute numbers move with hardware load; ranking is stable across short/mid/full profiles ([methodology](/contributing/performance-methodology)).
 
 ## ⚙️ Key Optimizations
 
@@ -347,7 +347,7 @@ Default premerged + `publicAssets` already places `/{apiBaseUrl}/{page}/{locale}
 :::
 
 ::: warning External CDN hosts
-Setting `apiBaseServerHost` or `apiBaseClientHost` moves payload serving to that origin, which comes with its own requirements — see [Configuration → External CDN hosts](/guide/configuration#external-cdn-hosts).
+Setting `apiBaseServerHost` or `apiBaseClientHost` moves payload serving to that origin, which comes with its own requirements — see [Configuration → External CDN hosts](/api/module-options#apibaseserverhost).
 :::
 
 Or disable individual HTTP/public outputs and host payloads externally:

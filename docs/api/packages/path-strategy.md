@@ -89,7 +89,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `shared` | `private Shared` |
 | `shared_` | `private Shared \| undefined` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
-| `switchLocaleRoute` | `(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
+| `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
 | `unknownLocale` | `private RegExp \| null` |
 
 </details>

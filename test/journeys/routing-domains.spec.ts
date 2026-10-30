@@ -130,6 +130,35 @@ describe('journey: one build, two domains — prefix', () => {
     expect((await onHost(baseURL, '/', DE, { cookie: 'user-locale=en' })).location).toBe('/de')
     expect((await onHost(baseURL, '/', 'evil.test')).location).toBe('/en')
   })
+
+  test('browser: hydrates on each domain; the switcher leaves for the other domain with the prefix', async ({ page, baseURL }) => {
+    await routeDomains(page, baseURL)
+
+    // step 1: the host's locale hydrates, client navigation stays in the app (the redirect of / is checked above:
+    // Playwright does not route a redirected request)
+    await page.goto('https://example.de/de')
+    await expect(page.locator('#content')).toHaveText('de')
+    await expect(page.locator('#contact')).toHaveAttribute('href', '/de/kontakt')
+    await page.locator('#contact').click()
+    await expect(page).toHaveURL('https://example.de/de/kontakt')
+    await expect(page.locator('#content')).toHaveText('contact')
+
+    // step 2: the switcher goes to the other domain's prefixed URL
+    await page.locator('.language-switcher').click()
+    await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/en/contact')
+    await page.locator('.switcher-locale-en').click()
+    await expect(page).toHaveURL('https://example.com/en/contact')
+    await expect(page.locator('#content')).toHaveText('contact')
+
+    // step 3: $switchLocale crosses too; a locale on every host stays in the app
+    await page.goto('https://example.com/en')
+    await page.locator('#switch-de').click()
+    await expect(page).toHaveURL('https://example.de/de')
+    await page.locator('.language-switcher').click()
+    await page.locator('.switcher-locale-ru').click()
+    await expect(page).toHaveURL('https://example.de/ru')
+    await expect(page.locator('#content')).toHaveText('ru')
+  })
 })
 
 describe('journey: one build, two domains — prefix_and_default', () => {
@@ -147,6 +176,33 @@ describe('journey: one build, two domains — prefix_and_default', () => {
     // another host's URL is no duplicate of this one
     expect((await onHost(baseURL, '/kontakt', COM)).status).toBe(404)
     expect(contentOn((await onHost(baseURL, '/', COM)).html)).toBe('en')
+  })
+
+  test('browser: hydrates in both forms; links are unprefixed; the switcher leaves for the other domain', async ({ page, baseURL }) => {
+    await routeDomains(page, baseURL)
+
+    // step 1: both forms of the host default hydrate; a link from either is unprefixed
+    await page.goto('https://example.de/de')
+    await expect(page.locator('#content')).toHaveText('de')
+    await expect(page.locator('#contact')).toHaveAttribute('href', '/kontakt')
+    await page.goto('https://example.de/')
+    await expect(page.locator('#content')).toHaveText('de')
+    await page.locator('#contact').click()
+    await expect(page).toHaveURL('https://example.de/kontakt')
+    await expect(page.locator('#content')).toHaveText('contact')
+
+    // step 2: the switcher goes to the other domain, unprefixed
+    await page.locator('.language-switcher').click()
+    await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/contact')
+    await page.locator('.switcher-locale-en').click()
+    await expect(page).toHaveURL('https://example.com/contact')
+    await expect(page.locator('#content')).toHaveText('contact')
+
+    // step 3: $switchLocale crosses too
+    await page.goto('https://example.com/')
+    await page.locator('#switch-de').click()
+    await expect(page).toHaveURL('https://example.de/')
+    await expect(page.locator('#content')).toHaveText('de')
   })
 })
 

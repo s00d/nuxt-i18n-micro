@@ -11,7 +11,7 @@ duplicates (4):
   - ru common.save [ru.json]: Сохранить
   - ru footer [pages/index/ru.json]: Сохранить
 Check failed: 4 duplicates.
-  Translate what is missing: i18n-micro translate. Remove extra keys: i18n-micro sync.
+  Give each key its own text, or use one key in both places.
 ```
 
 ## Files

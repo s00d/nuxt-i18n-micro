@@ -6,7 +6,7 @@
 
 ```
 Unknown command nope
-  Run with --debug for a stack trace.
+  See i18n-micro --help
 ```
 
 ## Files

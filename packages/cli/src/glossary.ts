@@ -19,6 +19,7 @@ export function loadGlossary(path: string): Glossary {
   const entries = raw.flatMap((item): GlossaryEntry[] => {
     const entry = item as Record<string, unknown> | null
     if (typeof entry?.source !== 'string' || typeof entry.target !== 'string') return []
+    if (entry.source.trim() === '' || entry.target.trim() === '') return []
     return [{ source: entry.source, target: entry.target, from: optionalString(entry.from), to: optionalString(entry.to) }]
   })
   return { entries }

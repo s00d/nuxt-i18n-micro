@@ -4,7 +4,7 @@ import { getPath } from '../json'
 import { log } from '../log'
 import { type LocaleSet, Project, relativeFile } from '../project'
 import { scanProject, usageIndex } from '../source'
-import { deletionDoubts } from './clean'
+import { assertScanned, deletionDoubts } from './clean'
 
 export interface SyncArgs {
   cwd?: string
@@ -60,6 +60,7 @@ export default async function run(args: SyncArgs): Promise<void> {
     getPath(project.locale(code).inheritedTree(scope), key) !== undefined
   const removable = extras.filter((extra) => !isUsed(extra.key) && !inLayer(extra))
 
+  if (removable.length > 0) assertScanned(scan)
   const doubts = removable.length === 0 ? [] : [...overridden(project), ...missingReferences(project, removable), ...deletionDoubts(project, scan)]
   for (const doubt of doubts) log.warn(doubt)
   if (doubts.length > 0 && !args.force && !args.dryRun) {

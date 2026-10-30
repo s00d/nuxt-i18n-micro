@@ -112,14 +112,10 @@ function writeTemps(files: Array<[path: string, content: string | Buffer]>, opti
 }
 
 /**
- * Write a set of files all-or-nothing.
- *
- * Everything lands in temp files first, so a full disk, a bad path or a read-only file fails
- * before the first real file changes. A rename that fails later puts back what the earlier ones
- * replaced. Only killing the process between two renames can leave a mix, of whole files, and
- * the next save clears its temp files.
+ * Hard links share an inode: a rename would leave the other name behind with the old text.
+ * So a hard-linked file is written in place, and a process killed during that write can leave
+ * it cut short. Every other target is replaced whole.
  */
-/** Hard links share an inode: a rename would leave the other name behind with the old text. */
 function commit(temp: string, target: string): void {
   if ((statOf(target)?.nlink ?? 1) > 1) {
     writeFileSync(target, readFileSync(temp))
@@ -139,6 +135,14 @@ function restore(target: string, original: Buffer | null): void {
   commit(temp, target)
 }
 
+/**
+ * Write a set of files all-or-nothing.
+ *
+ * Everything lands in temp files first, so a full disk, a bad path or a read-only file fails
+ * before the first real file changes. A rename that fails later puts back what the earlier ones
+ * replaced. Only killing the process can leave a mix: of whole files between two renames, and
+ * a cut one in a hard-linked target, see `commit`. The next save clears its temp files.
+ */
 export function writeFilesAtomic(files: Array<[path: string, content: string | Buffer]>, options: WriteOptions = {}): void {
   const pending = writeTemps(files, options)
   const originals: Array<Buffer | null> = []
@@ -203,7 +207,7 @@ export function readJsonObject(path: string, options: { private?: boolean } = {}
   }
   const duplicate = findDuplicateKey(content)
   if (duplicate !== null) throw new CliError(`Duplicate key in ${path}: ${duplicate}`, { code: 'INVALID_JSON' })
-  if (content.includes('"__proto__"') && hasProtoKey(parsed as JsonObject)) {
+  if (hasProtoKey(parsed as JsonObject)) {
     throw new CliError(`A key called __proto__ in ${path} would be lost on a save.`, { code: 'INVALID_JSON' })
   }
   const unsafe = findUnsafeInteger(parsed as JsonObject)

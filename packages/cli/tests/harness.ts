@@ -31,6 +31,9 @@ export interface RunResult {
   stderr: string
 }
 
+/** A credential or `DEFAULT_LOCALE` in the shell running the tests must not reach the commands under test. */
+const quietEnv = (): NodeJS.ProcessEnv => Object.fromEntries(Object.entries(process.env).filter(([name]) => !/TOKEN|API_KEY|DEFAULT_LOCALE/.test(name)))
+
 export function runCli(
   args: string[],
   options: { cwd: string; env?: Record<string, string>; stdin?: string; timeoutMs?: number },
@@ -38,7 +41,7 @@ export function runCli(
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliBin, ...args], {
       cwd: options.cwd,
-      env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0', CI: '', ...options.env },
+      env: { ...quietEnv(), NO_COLOR: '1', FORCE_COLOR: '0', CI: '', ...options.env },
       stdio: 'pipe',
     })
     let stdout = ''

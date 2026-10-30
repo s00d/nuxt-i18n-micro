@@ -47,7 +47,7 @@ function parseTranslations(content: string | null | undefined, reason: string | 
   const parsed = JSON.parse(content) as { translations?: unknown }
   const translations = parsed.translations
   if (!Array.isArray(translations) || translations.length !== count) throw usageError(`AI: expected ${count} translations.`, ['Lower --chunkSize.'])
-  return translations.map(String)
+  return translations
 }
 
 const envKey = (name: string): string | undefined => process.env[name]?.trim() || undefined
@@ -110,12 +110,13 @@ export const aiDriver: Driver = {
     if (provider === 'gateway' && !model.includes('/'))
       throw usageError('Gateway models are written provider/model.', [`Example: --options model:${DEFAULT_GATEWAY_MODEL}`])
 
-    const key = provider === 'custom' ? token : resolveKey(provider, token)
+    // Any other name is an OpenAI-compatible server of your own, which may not want a key.
+    const named = provider === 'gateway' || provider === 'openai' || provider === 'anthropic'
+    if (!named && !baseUrl)
+      throw usageError(`Unknown AI provider "${provider}".`, ['Use gateway, openai or anthropic, or set baseUrl to an OpenAI-compatible server.'])
+    const key = named ? resolveKey(provider, token) : token
     if (provider === 'anthropic') return viaAnthropic(request, baseUrl ?? ANTHROPIC_URL, model, key)
     if (provider === 'openai') return viaChatCompletions(request, baseUrl ?? OPENAI_URL, model, key, true)
-    if (provider === 'gateway') return viaChatCompletions(request, baseUrl ?? GATEWAY_URL, model, key, false)
-    if (!baseUrl)
-      throw usageError(`Unknown AI provider "${provider}".`, ['Use gateway, openai or anthropic, or set baseUrl to an OpenAI-compatible server.'])
-    return viaChatCompletions(request, baseUrl, model, key, false)
+    return viaChatCompletions(request, baseUrl ?? GATEWAY_URL, model, key, false)
   },
 }

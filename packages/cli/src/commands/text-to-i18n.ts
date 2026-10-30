@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
 import { readJsonIfExists, readUtf8, splitList, stringifyLike, writeFilesAtomic } from '../fs'
-import { type JsonObject, flattenStrings, setPath } from '../json'
+import { type JsonObject, flattenStrings, isWritableKey, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
 import { isCodeFile, isOwnSource, isTestFile, projectFiles } from '../source'
@@ -89,7 +89,7 @@ async function askDecision(entry: NewTranslation, decisions: Decisions, reserved
 
   const edited = await ask(`New key for "${entry.value}":`)
   if (!edited || edited === entry.key) return
-  if (reserved.has(edited) || !VALID_KEY.test(edited)) {
+  if (reserved.has(edited) || !VALID_KEY.test(edited) || !isWritableKey(edited)) {
     log.warn(`Key "${edited}" is taken or not a valid key; keeping ${entry.key}.`)
     return
   }

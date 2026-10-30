@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import { findingsError, usageError } from '../errors'
 import { splitList } from '../fs'
-import { groupBy } from '../json'
+import { flattenStrings, groupBy } from '../json'
 import { log } from '../log'
 import { type LocaleSet, Project, relativeFile } from '../project'
 import { type ProjectScan, type ScopedRef, scanProject, usageDoubts } from '../source'
@@ -27,17 +27,34 @@ export interface Finding {
   detail?: string
 }
 
-const PLACEHOLDER = /\{(\w+)\}/g
-const placeholdersOf = (text: string): Set<string> => new Set(Array.from(text.matchAll(PLACEHOLDER), (match) => match[1]!))
+/** What the runtime fills in: any run without braces or spaces. */
+const PLACEHOLDER = /\{([^{}\s]+)\}/g
 
-const difference = (a: Set<string>, b: Set<string>): string[] => [...a].filter((item) => !b.has(item))
+function placeholdersOf(text: string): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const [, name] of text.matchAll(PLACEHOLDER)) counts.set(name!, (counts.get(name!) ?? 0) + 1)
+  return counts
+}
 
-function placeholderDrift(source: string, translated: string): string | null {
+/** Japanese and the like have one form, and their translation of `a | b` lost nothing. */
+function hasPluralForms(code: string): boolean {
+  try {
+    return new Intl.PluralRules(code).resolvedOptions().pluralCategories.length > 1
+  } catch {
+    return true
+  }
+}
+
+function placeholderDrift(source: string, translated: string, code: string): string | null {
   const expected = placeholdersOf(source)
   const actual = placeholdersOf(translated)
-  const lost = difference(expected, actual).map((name) => `lost {${name}}`)
-  const added = difference(actual, expected).map((name) => `added {${name}}`)
-  const plural = source.includes('|') && !translated.includes('|') ? ['lost the plural forms'] : []
+  // Plural forms repeat a placeholder as often as a language has forms, so there only its presence counts.
+  const exact = !source.includes('|') && !translated.includes('|')
+  const short = (a: Map<string, number>, b: Map<string, number>): string[] =>
+    [...a].filter(([name, count]) => (b.get(name) ?? 0) < (exact ? count : 1)).map(([name]) => name)
+  const lost = short(expected, actual).map((name) => `lost {${name}}`)
+  const added = short(actual, expected).map((name) => `added {${name}}`)
+  const plural = source.includes('|') && !translated.includes('|') && hasPluralForms(code) ? ['lost the plural forms'] : []
   const drift = [...lost, ...added, ...plural]
   return drift.length > 0 ? drift.join(', ') : null
 }
@@ -50,7 +67,7 @@ function missingAndEmpty(reference: LocaleSet, locale: LocaleSet, code: string):
       if (current === undefined) return [{ type: 'missing', locale: code, file, key, detail: String(value) }]
       if (current === '') return [{ type: 'empty', locale: code, file, key, detail: String(value) }]
       if (typeof value !== 'string' || typeof current !== 'string') return []
-      const detail = placeholderDrift(value, current)
+      const detail = placeholderDrift(value, current, code)
       return detail ? [{ type: 'placeholders', locale: code, file, key, detail }] : []
     }),
   )
@@ -84,7 +101,8 @@ function duplicates(project: Project): Finding[] {
     const locale = project.locale(code)
     const byValue = groupBy(
       locale.scopes
-        .flatMap((scope) => Object.entries(locale.strings(scope)).map(([key, value]) => ({ scope, key, value })))
+        // Own files only: the finding names a file, and a layer's text is the layer's to change.
+        .flatMap((scope) => Object.entries(flattenStrings(locale.ownTree(scope))).map(([key, value]) => ({ scope, key, value })))
         .filter((item) => item.value !== ''),
       (item) => item.value,
     )
@@ -102,6 +120,16 @@ function selectedTypes(args: CheckArgs): Set<CheckType> {
   if (unknown.length > 0) throw usageError(`Unknown check: ${unknown.join(', ')}`, [`Accepted: ${CHECK_TYPES.join(', ')}`])
   if (only.length > 0) return new Set(only as CheckType[])
   return new Set(CHECK_TYPES.filter((type) => type !== 'duplicates' || args.duplicates))
+}
+
+const FIX_HINTS: Record<CheckType, string> = {
+  missing: 'Translate what is missing: i18n-micro translate.',
+  empty: 'Translate what is missing: i18n-micro translate.',
+  extra: 'Remove extra keys: i18n-micro sync.',
+  placeholders: 'Correct the placeholders in the listed translations.',
+  undefined: 'Add the listed keys to the default locale.',
+  unused: 'Remove unused keys: i18n-micro clean.',
+  duplicates: 'Give each key its own text, or use one key in both places.',
 }
 
 export interface CheckReport {
@@ -163,8 +191,5 @@ export default async function run(args: CheckArgs): Promise<void> {
   }
   const counts = Object.entries(report.summary).filter(([, count]) => count > 0)
   const summary = counts.map(([type, count]) => `${count} ${type}`).join(', ') || 'unused keys could not be checked'
-  throw findingsError(
-    `Check failed: ${summary}.`,
-    args.json ? [] : ['Translate what is missing: i18n-micro translate. Remove extra keys: i18n-micro sync.'],
-  )
+  throw findingsError(`Check failed: ${summary}.`, args.json ? [] : [...new Set(counts.map(([type]) => FIX_HINTS[type as CheckType]))])
 }

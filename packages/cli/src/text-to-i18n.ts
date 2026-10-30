@@ -292,17 +292,18 @@ function isDataLiteral(node: AstNode, parent: AstNode | null, key: unknown): boo
 }
 
 /** Text a person would read, in code. The strings the scanner took for keys or arguments of `$t` are not. */
-function reportCode(content: string, file: string): Hardcoded[] {
-  const ast = parseCode(content, extname(file).slice(1))
+function reportCode(content: string, file: string, lang = extname(file).slice(1), firstLine = 1): Hardcoded[] {
+  const ast = parseCode(content, lang)
   if (!ast) return []
   const found: Hardcoded[] = []
-  const keyArguments = new Set(scanFile(content, file).refs.map((ref) => ref.start - 1))
+  // Named by `lang`: this may be a script block of a `.vue`, which is not a whole SFC.
+  const keyArguments = new Set(scanFile(content, `${file}.${lang}`).refs.map((ref) => ref.start - 1))
   walk(ast as Parameters<typeof walk>[0], {
     enter(raw: unknown, parent: unknown, key: unknown) {
       const node = raw as unknown as AstNode
       const text = node.type === 'JSXText' ? (node.value as string).trim() : staticString(node)
       if (!text || !isTranslatable(text) || isTechnical(text) || keyArguments.has(node.start!)) return
-      if (!isDataLiteral(node, parent as unknown as AstNode | null, key)) found.push({ file, line: lineOf(content, node.start!), text })
+      if (!isDataLiteral(node, parent as unknown as AstNode | null, key)) found.push({ file, line: lineOf(content, node.start!) + firstLine - 1, text })
     },
   })
   return found
@@ -313,11 +314,15 @@ function convertVue(content: string, file: string, keys: KeyRegistry): Conversio
   if (content.trim() === '') return out
   const { descriptor, errors } = parseSfc(content, { filename: file })
   if (errors.length > 0) throw new Error(`it does not parse: ${String((errors[0] as Error).message)}`)
+  out.code = [descriptor.script, descriptor.scriptSetup].flatMap((block) =>
+    block ? reportCode(block.content, file, block.lang ?? 'js', block.loc.start.line) : [],
+  )
   const ast = descriptor.template?.ast as unknown as TemplateNode | undefined
   if (!ast) return out
   const before = new Set(keys.created.keys())
   const run: VueRun = { magic: new MagicString(content), keys, file, content, out }
-  for (const child of ast.children ?? []) convertTemplate(child, run)
+  // The root is a node like any other, but only the block knows where it sits.
+  convertTemplate({ ...ast, loc: descriptor.template!.loc as TemplateNode['loc'] }, run)
   const converted = run.magic.toString()
   // A file that parsed before has to parse after, whatever a template held that this code did not foresee.
   if (parseSfc(converted, { filename: file }).errors.length > 0) {
@@ -330,6 +335,6 @@ function convertVue(content: string, file: string, keys: KeyRegistry): Conversio
 
 /** One source file: `.vue` templates are rewritten, anything else is only read. */
 export function convertSource(content: string, file: string, keys: KeyRegistry): Conversion {
-  if (extname(file) === '.vue') return convertVue(content, file, keys)
+  if (extname(file).toLowerCase() === '.vue') return convertVue(content, file, keys)
   return { content, mixed: [], code: reportCode(content, file) }
 }

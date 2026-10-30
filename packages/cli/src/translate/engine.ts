@@ -1,4 +1,5 @@
 import { commandFailed, usageError } from '../errors'
+import { ownValue } from '../json'
 import type { BatchRequest, Driver, DriverOptions } from './drivers'
 import { drivers, removedServices } from './drivers'
 import { isIntact, protect, restore } from './protect'
@@ -23,9 +24,9 @@ export interface EngineOptions {
 
 export function resolveDriver(service: string): Driver {
   const name = service.toLowerCase()
-  const driver = drivers[name]
+  const driver = ownValue(drivers, name)
   if (driver) return driver
-  const reason = removedServices[name]
+  const reason = ownValue(removedServices, name)
   if (reason) throw usageError(`Translation service "${service}" was removed: ${reason}`)
   throw usageError(`Unsupported translation service: ${service}`, [`Supported: ${Object.keys(drivers).join(', ')}`])
 }
@@ -133,7 +134,11 @@ export async function translateItems(
         'Nothing from this batch was written.',
       ])
     }
-    for (const [position, segment] of batch.entries()) segment.translated = translated[position]!
+    // Whatever a service answers: anything but text is reported by `assemble`, not written or dropped.
+    for (const [position, segment] of batch.entries()) {
+      const text: unknown = translated[position]
+      segment.translated = typeof text === 'string' ? text : ''
+    }
 
     const done: EngineResult = { translated: [], rejected: [] }
     for (const index of new Set(batch.map((segment) => segment.index))) {

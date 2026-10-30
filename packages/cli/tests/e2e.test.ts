@@ -790,9 +790,10 @@ describe('sync-remote', () => {
   it('a push leaves blanks out: they could clear what a translator wrote', async () => {
     fresh()
     remote()
+    handler = (_request, response) => json(response, {})
     await runCli(['sync-remote', '--no-pull', '--push'], { cwd: dir })
-    const sent = JSON.parse(mock.requests[0]!.text)
-    expect(mock.requests[0]!.method).toBe('PUT')
+    expect(mock.requests.map((request) => request.method)).toEqual(['GET', 'PUT'])
+    const sent = JSON.parse(mock.requests[1]!.text)
     expect(sent.de.common).toEqual({ save: 'Speichern', extra: 'Nur auf Deutsch' })
   })
 

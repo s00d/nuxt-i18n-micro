@@ -2,7 +2,7 @@ import { relative } from 'node:path'
 import { splitList } from '../fs'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
-import { type ScopedRef, scanProject } from '../source'
+import { type ScopedRef, isOwnSource, scanProject } from '../source'
 
 export interface ExtractArgs {
   cwd?: string
@@ -30,8 +30,11 @@ export default async function run(args: ExtractArgs): Promise<void> {
   for (const { file, line, expression, group } of scan.dynamic) if (!group) log.warn(`Dynamic i18n key in ${file}:${line}: ${expression}`)
 
   const absent = (ref: ScopedRef): boolean => reference.resolve(ref.key, ref.page ?? GLOBAL_SCOPE) === undefined
-  const added = scan.refs.filter((ref) => wanted(ref) && ref.defaultText && absent(ref) && addDefaultText(project, ref))
-  const untexted = scan.refs.filter((ref) => wanted(ref) && absent(ref))
+  // Written here, a layer's key would shadow the text its layer adds later.
+  const writable = (ref: ScopedRef): boolean => Boolean(ref.defaultText) && isOwnSource(config, ref.file)
+  const added = scan.refs.filter((ref) => wanted(ref) && writable(ref) && absent(ref) && addDefaultText(project, ref))
+  // A key that has its text and did not fit was warned about already.
+  const untexted = scan.refs.filter((ref) => wanted(ref) && !writable(ref) && absent(ref))
   const written = project.save()
 
   log.list(

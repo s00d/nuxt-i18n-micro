@@ -28,4 +28,22 @@ describe('useI18nLocale', () => {
     refs.state.value = null
     expect(getLocaleWithServerFallback()).toBeNull()
   })
+
+  test('resolveInitialLocale: the URL wins over the state and the server, then state, server, route', () => {
+    const { resolveInitialLocale } = useI18nLocale()
+    const fromRoute = () => 'en'
+    refs.state.value = 'de'
+    expect(resolveInitialLocale({ route: {}, urlLocale: 'en', serverLocale: 'de', getLocaleFromRoute: fromRoute })).toBe('en')
+    expect(refs.state.value).toBe('de')
+    expect(resolveInitialLocale({ route: {}, urlLocale: null, serverLocale: 'en', getLocaleFromRoute: fromRoute })).toBe('de')
+
+    refs.state.value = 'xx'
+    expect(resolveInitialLocale({ route: {}, urlLocale: 'de', serverLocale: 'en', getLocaleFromRoute: fromRoute })).toBe('de')
+    expect(refs.state.value).toBe('de')
+
+    refs.state.value = null
+    expect(resolveInitialLocale({ route: {}, serverLocale: 'de', getLocaleFromRoute: () => 'en' })).toBe('de')
+    refs.state.value = null
+    expect(resolveInitialLocale({ route: {}, getLocaleFromRoute: () => 'en' })).toBe('en')
+  })
 })

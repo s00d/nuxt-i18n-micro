@@ -287,12 +287,14 @@ describe('journey: basic app', () => {
       await page.click('#link-de')
       await expect(page).toHaveURL('/de/locale-page-modify')
       await expectLocaleTest(rows.de)
+      await expect(page.locator('#number-params')).toHaveText('Entfernung: 5 km')
       await expect(page.locator('#link-ru')).toHaveAttribute('href', '/ru/locale-page-modify-ru')
 
       // step 3: click #link-ru → /ru/locale-page-modify-ru with ru formatting
       await page.click('#link-ru')
       await expect(page).toHaveURL('/ru/locale-page-modify-ru')
       await expectLocaleTest(rows.ru)
+      await expect(page.locator('#number-params')).toHaveText('Расстояние: 5 km')
 
       // step 4: /locale-conf → page-level routes in localeRoute data and switchLocaleRoute; #locale-de → /de/locale-conf-modify
       // was: basic › test locale switching and content on locale-conf page

@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-14',
   i18n: {
-    locales: PERF_LOCALES.map(({ code, iso }) => ({ code, iso: iso.replace('-', '_') })),
+    locales: PERF_LOCALES.map(({ code, iso }) => ({ code, iso })),
     meta: true,
     defaultLocale: 'en',
     translationDir: 'locales',

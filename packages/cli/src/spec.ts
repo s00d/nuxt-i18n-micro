@@ -51,7 +51,7 @@ export const EXIT_CODES: ReadonlyArray<readonly [code: number, meaning: string]>
   [0, 'Done, nothing to report'],
   [
     1,
-    'Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict. A `--dryRun` of `clean`, `sync` or a `sync-remote` pull reports these and exits `0`',
+    'Findings: `check`, `lint` or `format --check` found something, `clean` or `sync` could not prove a removal safe, `export` would overwrite unimported work, `translate` left keys out, `import` or `sync-remote` met a conflict, a `sync-remote` push would drop remote text. A `--dryRun` of `clean`, `sync` or a `sync-remote` pull reports these and exits `0`',
   ],
   [2, 'Failure: bad usage, unreadable project, network or file error'],
 ]

@@ -1,7 +1,7 @@
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseCsv, stringifyCsv } from '../src/csv'
 import { globToRegExp, readJsonObject, stringifyLike, walkFiles, writeFilesAtomic } from '../src/fs'
 import { glossaryContext } from '../src/glossary'
@@ -109,6 +109,23 @@ msgstr "x"
   })
 })
 
+describe('request', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('the one-minute cap is for what a service asks, not for your own retryDelayMs', async () => {
+    vi.useFakeTimers()
+    const fetcher = vi.fn(async () => new Response('busy', { status: 503 }))
+    vi.stubGlobal('fetch', fetcher)
+    const failed = request('http://x.test', { method: 'POST', retries: 1, retryDelayMs: 90_000 }).catch((error: Error) => error.message)
+    await vi.advanceTimersByTimeAsync(90_000)
+    expect(await failed).toBe('busy')
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+})
+
 describe('csv', () => {
   it('round-trips quotes, commas and newlines', () => {
     const rows = [
@@ -117,6 +134,11 @@ describe('csv', () => {
       ['b', 'c', ''],
     ]
     expect(parseCsv(stringifyCsv(rows))).toEqual(rows)
+  })
+
+  it('tells a quote that never closes from one out of place', () => {
+    expect(() => parseCsv('a,"b\nc,d\n', 'de.csv')).toThrow('Unclosed quote in de.csv, line 1.')
+    expect(() => parseCsv('a,b"c\n', 'de.csv')).toThrow('Quote out of place in de.csv, line 1.')
   })
 
   it('accepts CRLF and skips blank lines', () => {

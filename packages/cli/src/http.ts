@@ -70,9 +70,9 @@ async function attempt(url: string, options: RequestOptions, retriesLeft: number
     throw new CliError(`Request failed: ${cause.message}`, { code: 'HTTP_ERROR', details: { URL: safeUrl(url) }, cause })
   }
   if (response.ok) return response
-  const wait = retryAfterMs(response) ?? delayMs
-  if ((once ? NOT_PROCESSED : RETRYABLE).has(response.status) && retriesLeft > 0 && wait <= MAX_WAIT_MS) {
-    await sleep(wait)
+  const asked = retryAfterMs(response)
+  if ((once ? NOT_PROCESSED : RETRYABLE).has(response.status) && retriesLeft > 0 && (asked ?? 0) <= MAX_WAIT_MS) {
+    await sleep(asked ?? delayMs)
     return attempt(url, options, retriesLeft - 1, delayMs * 2)
   }
   throw httpError(response, url, await response.text())

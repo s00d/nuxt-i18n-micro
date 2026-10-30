@@ -71,7 +71,7 @@ async function viaChatCompletions(request: BatchRequest, url: string, model: str
     ],
     response_format: { type: 'json_schema', json_schema: { name: 'translations', schema: OUTPUT_SCHEMA, ...(strict ? { strict: true } : {}) } },
   })
-  const init: RequestOptions = { method: 'POST', ...http, ...payload, headers: { ...headers, Authorization: `Bearer ${key}` } }
+  const init: RequestOptions = { method: 'POST', ...http, ...payload, headers: key ? { ...headers, Authorization: `Bearer ${key}` } : headers }
   const data = await requestJson<ChatResponse>(`${url}/chat/completions`, init)
   const choice = data.choices?.[0]
   if (choice?.message?.refusal) throw usageError(`AI refused: ${choice.message.refusal}`)
@@ -114,7 +114,7 @@ export const aiDriver: Driver = {
     const named = provider === 'gateway' || provider === 'openai' || provider === 'anthropic'
     if (!named && !baseUrl)
       throw usageError(`Unknown AI provider "${provider}".`, ['Use gateway, openai or anthropic, or set baseUrl to an OpenAI-compatible server.'])
-    const key = named ? resolveKey(provider, token) : token
+    const key = named ? resolveKey(provider, token) : token.trim()
     if (provider === 'anthropic') return viaAnthropic(request, baseUrl ?? ANTHROPIC_URL, model, key)
     if (provider === 'openai') return viaChatCompletions(request, baseUrl ?? OPENAI_URL, model, key, true)
     return viaChatCompletions(request, baseUrl ?? GATEWAY_URL, model, key, false)

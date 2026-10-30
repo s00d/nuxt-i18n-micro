@@ -126,7 +126,7 @@ export default async function run(args: TranslateArgs): Promise<void> {
           if (conflict) rejected.push(`${code}: ${key} (${conflict} already holds a value)`)
           else translated += 1
         }
-        rejected.push(...result.rejected.map((key) => `${code}: ${key} (a placeholder did not survive)`))
+        rejected.push(...result.rejected.map((key) => `${code}: ${key} (a placeholder was lost, or the answer held no text)`))
         project.save()
       })
     }

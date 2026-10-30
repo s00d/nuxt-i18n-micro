@@ -59,34 +59,46 @@ function completionOf(code: string, trees: Trees, reference: Trees): LocaleCompl
 const reportOf = (byCode: Map<string, Trees>, defaultLocale: string): LocaleCompletion[] =>
   [...byCode].map(([code, trees]) => completionOf(code, trees, byCode.get(defaultLocale)!))
 
-function git(rootDir: string, args: string[]): string {
-  return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: Number.POSITIVE_INFINITY })
+function git(rootDir: string, args: string[], input?: string): string {
+  return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', input, stdio: ['pipe', 'pipe', 'ignore'], maxBuffer: Number.POSITIVE_INFINITY })
+}
+
+const gitPathOf = (rootDir: string, path: string): string => relative(rootDir, path).split(sep).join('/')
+
+/**
+ * The object at a path of a ref, with links followed as the project loader follows them: `git show`
+ * would give a link's target as its text. `null`: no such path at that ref.
+ */
+function gitObject(rootDir: string, ref: string, path: string): { oid: string; type: string; body: string } | null {
+  const gitPath = gitPathOf(rootDir, path)
+  const answer = git(rootDir, ['cat-file', '--batch', '--follow-symlinks'], `${ref}:./${gitPath}\n`)
+  const header = answer.slice(0, answer.indexOf('\n'))
+  const found = /^(\S+) (blob|tree) \d+$/.exec(header)
+  if (found) return { oid: found[1]!, type: found[2]!, body: answer.slice(header.length + 1) }
+  if (header.endsWith(' missing') || header.startsWith('notdir ')) return null
+  // symlink, dangling or loop: what it stands for is not in that tree, and {} would read as a false gain.
+  throw validationError(`Cannot read ${gitPath} at ${ref}: it is a link to something outside that commit.`)
 }
 
 function gitShow(rootDir: string, ref: string, path: string): JsonObject {
-  const gitPath = relative(rootDir, path).split(sep).join('/')
-  const spec = `${ref}:./${gitPath}`
+  const found = gitObject(rootDir, ref, path)
+  if (!found) return {} // the file did not exist at that ref
   try {
-    git(rootDir, ['cat-file', '-e', spec])
-  } catch {
-    return {} // the file did not exist at that ref
-  }
-  const text = git(rootDir, ['show', spec])
-  try {
-    const parsed = JSON.parse(text) as unknown
+    const parsed = JSON.parse(found.body) as unknown
     return isObject(parsed) ? parsed : {}
   } catch {
     // As an empty file it would read as a false gain in completion.
-    throw validationError(`Invalid JSON at ${ref}: ${gitPath}`)
+    throw validationError(`Invalid JSON at ${ref}: ${gitPathOf(rootDir, path)}`)
   }
 }
 
 function gitPageScopes(rootDir: string, ref: string, translationDir: string): string[] {
-  const pagesDir = relative(rootDir, join(translationDir, 'pages')).split(sep).join('/')
-  const scopes = git(rootDir, ['ls-tree', '-r', '--name-only', ref, '--', `./${pagesDir}`])
+  const pages = gitObject(rootDir, ref, join(translationDir, 'pages'))
+  if (pages?.type !== 'tree') return []
+  const scopes = git(rootDir, ['ls-tree', '-r', '--name-only', pages.oid])
     .split('\n')
-    .filter((line) => line.endsWith('.json'))
-    .map((line) => line.slice(line.indexOf('pages/') + 'pages/'.length, line.lastIndexOf('/')))
+    .filter((line) => line.endsWith('.json') && line.includes('/'))
+    .map((line) => line.slice(0, line.lastIndexOf('/')))
   return [...new Set(scopes)]
 }
 

@@ -50,7 +50,7 @@ unused (22):
   - ru hero.cta [pages/index/ru.json]
 Check failed: 6 missing, 2 empty, 1 extra, 3 undefined, 22 unused.
   Translate what is missing: i18n-micro translate.
-  Remove extra keys: i18n-micro sync.
+  Review extra keys: i18n-micro sync --dryRun lists what sync would remove.
   Add the listed keys to the default locale.
   Remove unused keys: i18n-micro clean.
 ```

@@ -606,7 +606,7 @@ describe('translate', () => {
     handler = (_request, response) => json(response, { translatedText: ['Hallo', 'Tschüss'] })
     const result = await runCli(libre(), { cwd: dir })
     expect(result.code).toBe(1)
-    expect(result.stdout).toContain('a (a placeholder did not survive)')
+    expect(result.stdout).toContain('a (a placeholder was lost, or the answer held no text)')
     expect(readJson(dir, 'locales/de.json')).toEqual({ b: 'Tschüss' })
   })
 

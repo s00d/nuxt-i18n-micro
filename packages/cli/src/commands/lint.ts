@@ -42,6 +42,8 @@ function customRule(item: Record<string, unknown>): LintRule[] {
     log.warn(`Skipping lint rule "${name}": invalid pattern ${pattern}`)
     return []
   }
+  // A fix leaves no match behind, whatever the rule's own flags: the check only asks whether there is one.
+  const everywhere = new RegExp(matcher, matcher.global ? matcher.flags : `${matcher.flags}g`)
   return [
     {
       name,
@@ -51,13 +53,7 @@ function customRule(item: Record<string, unknown>): LintRule[] {
         matcher.lastIndex = 0
         return !matcher.test(value)
       },
-      fix:
-        typeof replacement === 'string'
-          ? (value) => {
-              matcher.lastIndex = 0
-              return value.replace(matcher, replacement)
-            }
-          : undefined,
+      fix: typeof replacement === 'string' ? (value) => value.replace(everywhere, replacement) : undefined,
     },
   ]
 }

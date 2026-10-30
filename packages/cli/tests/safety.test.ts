@@ -190,7 +190,7 @@ describe('clean', () => {
     write(dir, 'locales/en.json', { a: 'x' })
     const result = await runCli(['clean', '--force', '--ignore', '*.ts'], { cwd: dir })
     expect(result.code).toBe(2)
-    expect(result.stderr).toContain('refusing')
+    expect(result.stderr).toContain('so none is removed')
     expect(readJson(dir, 'locales/en.json')).toEqual({ a: 'x' })
   })
 
@@ -249,6 +249,22 @@ describe('clean', () => {
     await runCli(['clean'], { cwd: dir })
     expect(readJson(dir, 'locales/en.json').dead).toBe('Nobody reads this')
     removeProject(outside)
+  })
+
+  it('an alias is a path, not a glob: brackets do not widen it to the parent', async () => {
+    dir = buildProject()
+    const outside = join(dir, '../outside-v[2]-alias')
+    write(dir, '../outside-v[2]-alias/lib/Button.ts', 'export const x = 1\n')
+    write(dir, '../outside-sibling/Other.ts', `export const x = $t('dead')\n`)
+    write(
+      dir,
+      'nuxt.config.ts',
+      read(dir, 'nuxt.config.ts').replace('modules:', `alias: { '#ui': ${JSON.stringify(join(outside, 'lib'))} }, modules:`),
+    )
+    const { stdout } = await runCli(['check', '--only', 'unused', '--json'], { cwd: dir })
+    expect(stdout).toContain('dead')
+    removeProject(outside)
+    removeProject(join(dir, '../outside-sibling'))
   })
 
   it('a locale file that lives outside the project may feed another app: it stops', async () => {

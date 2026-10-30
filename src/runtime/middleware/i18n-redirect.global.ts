@@ -41,6 +41,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     path,
     urlLocale,
     autoDetectPath,
+    alwaysPrefixed: i18nConfig.strategy === 'prefix',
     defaultLocale,
     validLocales: getEnabledLocaleCodes(i18nConfig.locales),
     state: useState<string | null>('i18n-locale', () => null).value,

@@ -42,6 +42,7 @@ export default defineNuxtPlugin({
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const autoDetectPath = i18nConfig.autoDetectPath || '/'
     const anyPath = autoDetectPath === '*'
+    const alwaysPrefixed = i18nConfig.strategy === 'prefix'
     const redirects = i18nConfig.redirects !== false
     const cookieName = getLocaleCookieName(i18nConfig)
     const urlLocale = i18nStrategy.getLocaleFromPath(path)
@@ -63,6 +64,7 @@ export default defineNuxtPlugin({
       path,
       urlLocale,
       autoDetectPath,
+      alwaysPrefixed,
       defaultLocale,
       validLocales: getEnabledLocaleCodes(i18nConfig.locales),
       autoDetectLanguage: i18nConfig.autoDetectLanguage,

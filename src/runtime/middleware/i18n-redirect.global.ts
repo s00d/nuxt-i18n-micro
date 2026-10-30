@@ -9,6 +9,7 @@ import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
+import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {
@@ -35,8 +36,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const urlLocale = i18nStrategy.getLocaleFromPath(path)
 
   const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
-  const stored = useState<string | null>('i18n-locale', () => null).value ?? readCookie(getPreferenceCookieName(i18nConfig))
-  const preference = stored && validLocales.includes(stored) ? stored : null
+  // an invalid state does not hide a valid cookie
+  const preference = explicitLocale({
+    validLocales,
+    state: useState<string | null>('i18n-locale', () => null).value,
+    cookie: readCookie(getPreferenceCookieName(i18nConfig)),
+  })
 
   // Cookie / Accept-Language preference is gated by autoDetectPath (#242); unprefixed deep links
   // still canonicalize with the default locale (localeRoutes aliases).

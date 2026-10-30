@@ -69,7 +69,12 @@ describe('resolveLocalizedRulePaths', () => {
   test('a wildcard follows the custom paths of the pages under it', () => {
     // step 1: the prefix copy and the custom paths; a value that is only a param stays out
     // a param page keeps its param, a static page is exact: `/de/artikel-archiv` or a sibling tree gets nothing
-    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/artikel/:slug', '/de/aktuell', '/de/archiv/**'])
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual([
+      '/de/blog/**',
+      '/de/artikel/:slug',
+      '/de/aktuell',
+      '/de/archiv/**',
+    ])
     expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'en')).toEqual(['/en/blog/**'])
 
     // step 2: no_prefix has no prefix, the custom path still moves

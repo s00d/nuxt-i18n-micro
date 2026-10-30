@@ -3,7 +3,10 @@ import { getLocaleCookie } from 'untestutils/utils'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 const push = (page: Page, path: string) =>
-  page.evaluate((to) => (window as unknown as { useNuxtApp: () => { $router: { push: (path: string) => Promise<void> } } }).useNuxtApp().$router.push(to), path)
+  page.evaluate(
+    (to) => (window as unknown as { useNuxtApp: () => { $router: { push: (path: string) => Promise<void> } } }).useNuxtApp().$router.push(to),
+    path,
+  )
 
 describe('journey: no_prefix custom paths render their own locale', () => {
   test.override({ harness: 'strategy-no-prefix' })

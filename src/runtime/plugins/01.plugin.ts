@@ -53,7 +53,15 @@ export default defineNuxtPlugin({
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 
-    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale, validLocales } = useI18nLocale()
+    const {
+      locale: localeState,
+      setLocale,
+      getPreferredLocale,
+      getEffectiveLocale,
+      resolveInitialLocale,
+      isValidLocale,
+      validLocales,
+    } = useI18nLocale()
 
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const { resetPageHead } = useI18nHead()

@@ -103,7 +103,12 @@ export const recipes = defineRecipes(
       { STRATEGY: 'no_prefix', LOCALE_COOKIE: 'user-locale' },
       { i18n: { serverTranslationPreload: true, disablePageLocales: true } },
     ),
-    'strategy-hash-prefix': app('strategy-hash-prefix', 'strategy', { STRATEGY: 'prefix', AUTO_DETECT_LANGUAGE: '1' }, { router: { options: { hashMode: true } } }),
+    'strategy-hash-prefix': app(
+      'strategy-hash-prefix',
+      'strategy',
+      { STRATEGY: 'prefix', AUTO_DETECT_LANGUAGE: '1' },
+      { router: { options: { hashMode: true } } },
+    ),
     'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
     'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
 

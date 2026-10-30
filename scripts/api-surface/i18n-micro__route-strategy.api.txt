@@ -1,5 +1,6 @@
 # . (src/index.ts)
 interface GenerateOptions
+member GenerateOptions.apiBaseUrl?: string | undefined
 member GenerateOptions.customRegex?: string | RegExp | undefined
 member GenerateOptions.defaultLocale: string
 member GenerateOptions.excludePatterns?: (string | RegExp)[] | undefined
@@ -27,6 +28,7 @@ member RouteGenerator.rules: private Rules
 member RouteGenerator.strategy: Strategies
 member RouteGenerator.new: (options: RouteGeneratorOptions): RouteGenerator
 interface RouteGeneratorOptions
+member RouteGeneratorOptions.apiBaseUrl?: string | undefined
 member RouteGeneratorOptions.customRegexMatcher?: string | RegExp | undefined
 member RouteGeneratorOptions.defaultLocaleCode: string
 member RouteGeneratorOptions.excludePatterns?: (string | RegExp)[] | undefined

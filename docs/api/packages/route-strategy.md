@@ -18,22 +18,23 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `GenerateOptions` | interface | 8 members |
+| `GenerateOptions` | interface | 9 members |
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
 | `RouteGenerator` | class | 12 members |
-| `RouteGeneratorOptions` | interface | 10 members |
+| `RouteGeneratorOptions` | interface | 11 members |
 | `RouteI18nMeta` | interface | 3 members |
 | `Rules` | class | 11 members |
 
 <details>
-<summary><code>GenerateOptions</code> — 8 members</summary>
+<summary><code>GenerateOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `apiBaseUrl?` | `string \| undefined` |
 | `customRegex?` | `string \| RegExp \| undefined` |
 | `defaultLocale` | `string` |
 | `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
@@ -66,10 +67,11 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGeneratorOptions</code> — 10 members</summary>
+<summary><code>RouteGeneratorOptions</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `apiBaseUrl?` | `string \| undefined` |
 | `customRegexMatcher?` | `string \| RegExp \| undefined` |
 | `defaultLocaleCode` | `string` |
 | `excludePatterns?` | `(string \| RegExp)[] \| undefined` |

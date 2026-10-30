@@ -249,7 +249,7 @@ Where cookie / Accept-Language preference redirects may run (when `redirects` is
 - `'*'` — every path, including rewriting an explicit locale prefix
   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
 
-- any other string — exact path match (e.g. `'/welcome'`)
+- any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
 
 Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
 

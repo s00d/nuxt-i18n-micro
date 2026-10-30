@@ -54,6 +54,8 @@ Visitor prefers `de` (cookie or header), `defaultLocale: 'en'`, default `autoDet
 
 `prefix_and_default` never redirects: an unprefixed URL belongs to the default locale, and other locales live under their prefix. A visitor who prefers `en` is not redirected from `/` under `prefix_except_default`. Targets have no trailing slash (`/de`, not `/de/`) and follow custom paths (`/about` → `/de/ueber-uns`).
 
+Wherever the cookie or the header decides (the redirect from `/`, every page under `no_prefix`), the response carries `Vary: Cookie, Accept-Language`, so a CDN keeps the answers apart.
+
 ### `autoDetectPath`
 
 Where the preference sources may move a visitor:

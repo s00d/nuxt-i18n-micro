@@ -9,8 +9,8 @@ import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getLocaleCookieName, getLocaleCookieOptions, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
-import { redirectLocale } from '@i18n-micro/utils/resolve-locale'
-import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
+import { preferenceCounts, redirectLocale } from '@i18n-micro/utils/resolve-locale'
+import { appendResponseHeader, getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { applyTrailingSlash } from '../utils/trailing-slash'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRuntimeConfig, useState } from '#imports'
 
@@ -52,6 +52,14 @@ export default defineNuxtPlugin({
       setCookie(event, cookieName, locale, options)
     }
 
+    // Where the visitor decides the answer (the page under no_prefix and hashMode, else the redirect), a cache must not share it
+    const preferenceCookie = getPreferenceCookieName(i18nConfig)
+    const urlless = i18nConfig.strategy === 'no_prefix' || i18nConfig.hashMode
+    if (urlless || (redirects && preferenceCounts({ path, urlLocale, autoDetectPath, alwaysPrefixed }))) {
+      const vary = [preferenceCookie && 'Cookie', i18nConfig.autoDetectLanguage && 'Accept-Language'].filter(Boolean)
+      if (vary.length) appendResponseHeader(event, 'Vary', vary.join(', '))
+    }
+
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && !(redirects && anyPath)) writeCookie(urlLocale)
     // Under hashMode the locale lives in the hash and the hash cookie: `/` keeps its document URL.
@@ -59,7 +67,6 @@ export default defineNuxtPlugin({
 
     // Cookie / Accept-Language only count where `autoDetectPath` allows them (#242). No `query`:
     // under prefix strategies the URL decides (D1), and no_prefix never redirects.
-    const preferenceCookie = getPreferenceCookieName(i18nConfig)
     const preferred = redirectLocale({
       path,
       urlLocale,

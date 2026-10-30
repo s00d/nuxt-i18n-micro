@@ -8,9 +8,9 @@ outline: "deep"
 
 ## Project Information
 
-- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
-- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
-- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
+- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/plain-nuxt)**: ./scripts/perf-fixtures/plain-nuxt
+- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n-micro)**: ./scripts/perf-fixtures/i18n-micro
+- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n)**: ./scripts/perf-fixtures/i18n
 - **CLI**: `pnpm test:performance`
 
 ### Description
@@ -45,7 +45,7 @@ All metrics below are **means across 3 runs**.
 | Secondary pages | depth **5**, branch **6** → **7,776** leaf keys / page / locale |
 | Goal | Default CLI profile (`--locales 4 --keys 10000`); raise knobs for regression-radar loads |
 
-Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the CLI) so all three fixtures stay aligned.
+Dictionaries come from `scripts/perf-fixtures/perf-shared/runtime.json` (written by the CLI) so all three fixtures stay aligned.
 
 
 ## Dependency Versions
@@ -67,7 +67,7 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 
 > From `runtime.json` (4 locales, 16,807 index leaf keys).
 
-## Build Performance for test/fixtures/plain-nuxt
+## Build Performance for scripts/perf-fixtures/plain-nuxt
 
 - **Build Time**: 4.59 seconds
 - **Bundle Size**: 8.07 MB (code: 1.26 MB, translations: 6.8 MB)
@@ -76,7 +76,7 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 - **Max / Avg Memory**: 890.16 MB / 473.88 MB
 
 
-## Build Performance for test/fixtures/i18n
+## Build Performance for scripts/perf-fixtures/i18n
 
 - **Build Time**: 5.48 seconds
 - **Bundle Size**: 9.15 MB (code: 1.95 MB, translations: 7.21 MB)
@@ -85,7 +85,7 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 - **Max / Avg Memory**: 1325.84 MB / 670.48 MB
 
 
-## Build Performance for test/fixtures/i18n-micro
+## Build Performance for scripts/perf-fixtures/i18n-micro
 
 - **Build Time**: 4.99 seconds
 - **Bundle Size**: 8.28 MB (code: 1.48 MB, translations: 6.8 MB)

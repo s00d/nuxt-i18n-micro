@@ -6,7 +6,7 @@ import { repoRoot } from '../utils/workspace'
 import { fixtureAbsDir, fixtureSourceAbsDir, localesForNuxtConfig, type PerfFixtureDef } from './fixtures'
 import type { PerfRuntimeProfile } from './types'
 
-export const PERF_SHARED_DIR = join(repoRoot, 'test/fixtures/perf-shared')
+export const PERF_SHARED_DIR = join(repoRoot, 'scripts/perf-fixtures/perf-shared')
 export const RUNTIME_JSON = join(PERF_SHARED_DIR, 'runtime.json')
 export const LOCALE_FINGERPRINT = join(PERF_SHARED_DIR, '.locale-fingerprint')
 

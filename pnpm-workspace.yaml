@@ -6,6 +6,7 @@ packages:
   - 'docs'
   - 'scripts'
   - 'playground'
+  - 'scripts/perf-fixtures/*'
   - 'test/fixtures/**/*'
 
 catalog:

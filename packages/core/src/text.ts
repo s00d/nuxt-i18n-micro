@@ -91,8 +91,8 @@ function createLocalePlural(locale: string): LocalePlural | null {
       small,
       named,
       all: inTemplateOrder(rules.resolvedOptions().pluralCategories),
-      // `zero` past 0 (`lv`: 10, 11-19, 20) is not a zero form, so the first form says nothing there
-      unmarked: named.length >= 3 && small.lastIndexOf('zero') < 1,
+      // two categories fit the index rule; `lv`, whose `zero` also covers 10-20, has only two besides it
+      unmarked: named.length >= 3,
       shared: named.map((category) => small.indexOf(category) !== small.lastIndexOf(category)),
     }
   } catch {

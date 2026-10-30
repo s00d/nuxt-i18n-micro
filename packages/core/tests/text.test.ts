@@ -83,6 +83,20 @@ describe('plural forms', () => {
       expect(picks(template, [0, 1, 2, 5, 21], 'ru')).toEqual(forms)
     })
 
+    it('a numbered first form is no zero form', () => {
+      expect(picks('{count} a | {count} b | {count} c | {count} d', [0, 1, 2, 3, 21], 'ru')).toEqual([
+        '{count} a',
+        '{count} b',
+        '{count} c',
+        '{count} d',
+        '{count} d',
+      ])
+    })
+
+    it('two categories stay on the index rule even where one is not just 1', () => {
+      expect(picks('a | {count} b | {count} c', [0, 1, 2, 21], 'is')).toEqual(['a', '{count} b', '{count} c', '{count} c'])
+    })
+
     it('a fallback text keeps its own shape on another locale', () => {
       expect(picks('zero | one | many', [0, 1, 2, 21], 'ru')).toEqual(['zero', 'one', 'many', 'many'])
     })

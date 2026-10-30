@@ -112,6 +112,7 @@ member VueI18n.listeners: private Set<() => void>
 member VueI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member VueI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member VueI18n.locale: Ref<string, string>
+member VueI18n.localeIso: private any
 member VueI18n.lookupLocale: private any
 member VueI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member VueI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
@@ -119,6 +120,8 @@ member VueI18n.missingWarn: boolean
 member VueI18n.notifyListeners: private () => void
 member VueI18n.onTranslationsChanged: protected () => void
 member VueI18n.pluralFunc: PluralFunc
+member VueI18n.pluralLocale: () => string
+member VueI18n.pluralTag: private any
 member VueI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member VueI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member VueI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -144,6 +147,7 @@ interface VueI18nOptions
 member VueI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member VueI18nOptions.fallbackLocale?: string | undefined
 member VueI18nOptions.locale: string
+member VueI18nOptions.localeIso?: Record<string, string> | undefined
 member VueI18nOptions.messages?: Record<string, Translations> | undefined
 member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18nOptions.missingWarn?: boolean | undefined

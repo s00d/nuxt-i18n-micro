@@ -48,6 +48,7 @@ const { t, localePath } = useI18n()
 | [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
 | `$pluralFunc` | `PluralFunc` | The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. |
+| `$pluralLocale` | `() => string` | The tag `$tc` plurals by: the locale's `iso` when it has one, else its code. |
 | [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |

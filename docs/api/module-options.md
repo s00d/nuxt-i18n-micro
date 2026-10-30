@@ -50,7 +50,7 @@ Where translation files live and how keys are resolved.
 | `translationDir` | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
 | `disableWatcher` | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
 | `routesLocaleLinks` | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. For example, `{ 'about-us': 'about' }` means the `about-us` page will use translations from the `about` page instead of its own. |
-| `plural` | `PluralFunc` | ``built-in pluralization (form index by count, `Intl.PluralRules` categories where the template fits them)`` | Custom pluralization function. Receives `(key, count, params, locale, getter)` and should return the selected plural form as a string, or `null`/`undefined` to fall back to the built-in `defaultPlural` logic (so you can override only some locales). For the Nuxt module the function is serialized with `.toString()` into `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope). A file path string is **not** supported. |
+| `plural` | `PluralFunc` | ``built-in pluralization (form index by count; `=0 ` opens a template of `Intl.PluralRules` categories)`` | Custom pluralization function. Receives `(key, count, params, locale, getter)` and should return the selected plural form as a string, or `null`/`undefined` to fall back to the built-in `defaultPlural` logic (so you can override only some locales). For the Nuxt module the function is serialized with `.toString()` into `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope). A file path string is **not** supported. |
 | `disablePageLocales` | `boolean` | `false` | Disable per-page translation files. When `true`, only global translations (`{locale}.json`) are loaded; page-specific files (`pages/{page}/{locale}.json`) are not generated or loaded. |
 | `fallbackLocale` | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code. Keys missing in a locale are taken from this locale (merged into each payload when it is built or loaded); without it a missing key renders as the key itself. |
 
@@ -389,7 +389,7 @@ routesLocaleLinks: { 'products-id': 'products' },
 
 <!-- generated:option:plural — do not edit; run `pnpm run docs:generate` -->
 
-**Type** `PluralFunc` · **Default** ``built-in pluralization (form index by count, `Intl.PluralRules` categories where the template fits them)``
+**Type** `PluralFunc` · **Default** ``built-in pluralization (form index by count; `=0 ` opens a template of `Intl.PluralRules` categories)``
 
 Custom pluralization function.
 Receives `(key, count, params, locale, getter)` and should return the selected

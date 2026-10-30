@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `ReactI18n` | class | 55 members |
+| `ReactI18n` | class | 58 members |
 | `ReactI18nOptions` | interface | 9 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -1275,7 +1275,7 @@ import { /* … */ } from '@i18n-micro/react'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>ReactI18n</code> — 55 members</summary>
+<summary><code>ReactI18n</code> — 58 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1307,12 +1307,15 @@ import { /* … */ } from '@i18n-micro/react'
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `localeIso` | `private any` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): ReactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

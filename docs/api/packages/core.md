@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-91 exports across 4 entry points.
+93 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,8 +18,8 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 40 members |
-| `BaseI18nOptions` | interface | 8 members |
+| `BaseI18n` | class | 43 members |
+| `BaseI18nOptions` | interface | 9 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -37,6 +37,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
@@ -51,7 +52,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `ResolveTextOptions` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
-| `TextHost` | interface | 7 members |
+| `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `TranslationHelper` | class | 16 members |
@@ -61,7 +62,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 40 members</summary>
+<summary><code>BaseI18n</code> — 43 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -82,12 +83,15 @@ import { /* … */ } from '@i18n-micro/core'
 | `helper` | `TranslationHelper` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
+| `localeIso` | `private Record<string, string>` |
 | `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private (locale: string) => string` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
@@ -109,12 +113,13 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>BaseI18nOptions</code> — 8 members</summary>
+<summary><code>BaseI18nOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
@@ -228,12 +233,13 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>TextHost</code> — 7 members</summary>
+<summary><code>TextHost</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `getLocale` | `() => string` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale?` | `(() => string) \| undefined` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `(value: Date \| number \| string) => string` |
@@ -355,6 +361,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
@@ -365,7 +372,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `ResolveTextOptions` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
-| `TextHost` | interface | 7 members |
+| `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `Tree` | type | `Record<string, unknown>` |
@@ -377,7 +384,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 
 <code>ResolveTextOptions</code> — 9 members, identical to `ResolveTextOptions` above.
 
-<code>TextHost</code> — 7 members, identical to `TextHost` above.
+<code>TextHost</code> — 8 members, identical to `TextHost` above.
 ## `@i18n-micro/core/render`
 
 ```ts
@@ -396,7 +403,7 @@ import { /* … */ } from '@i18n-micro/core/render'
 | `SwitcherAdapter` | interface | 7 members |
 | `SwitcherProps` | interface | 9 members |
 | `SwitcherVue` | interface | 5 members |
-| `TextHost` | interface | 7 members |
+| `TextHost` | interface | 8 members |
 
 <details>
 <summary><code>I18nTRenderProps</code> — 11 members</summary>
@@ -474,6 +481,6 @@ import { /* … */ } from '@i18n-micro/core/render'
 
 </details>
 
-<code>TextHost</code> — 7 members, identical to `TextHost` above.
+<code>TextHost</code> — 8 members, identical to `TextHost` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

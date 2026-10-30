@@ -53,11 +53,14 @@ member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessage
 member I18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member I18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member I18n.locale: string
+member I18n.localeIso: private any
 member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected () => void
 member I18n.pluralFunc: PluralFunc
+member I18n.pluralLocale: () => string
+member I18n.pluralTag: private any
 member I18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member I18n.resolveRouteName: protected (routeContext?: unknown) => string

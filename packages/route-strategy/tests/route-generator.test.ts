@@ -30,6 +30,39 @@ function generate(strategy: Strategies, pages: NuxtPage[], options: Partial<Rout
 }
 
 const about: NuxtPage = { path: '/about', name: 'about', file: 'pages/about.vue' }
+
+describe('a child path outside its parent', () => {
+  test('warns once, naming the key; the routes stay as they were', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const pages: NuxtPage[] = [{ path: '/parent', name: 'parent', file: 'pages/parent.vue', children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }] }]
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { 'parent/child': { de: '/eltern/kind' } },
+      noPrefixRedirect: false,
+    })
+
+    // step 1: the page stays nested, the warning says where
+    generator.extendPages(pages)
+    expect(generator.resolveLocalizedPath('/parent/child', 'de')).toBe('/de/parent/eltern/kind')
+    expect(warn.mock.calls.map(([text]) => text)).toEqual([
+      '[i18n] globalLocaleRoutes["parent/child"].de = "/eltern/kind" is outside its parent "/parent": the page is served at "/parent/eltern/kind".',
+    ])
+
+    // step 2: a value under the parent is its URL: no warning
+    warn.mockClear()
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { 'parent/child': { de: '/parent/kind' } },
+      noPrefixRedirect: false,
+    }).extendPages([{ path: '/parent', name: 'parent', file: 'pages/parent.vue', children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }] }])
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
 const account: NuxtPage = {
   path: '/account',
   file: 'pages/account.vue',

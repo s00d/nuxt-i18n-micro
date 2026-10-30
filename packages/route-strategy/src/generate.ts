@@ -14,7 +14,7 @@
 import type { Strategies } from '@i18n-micro/types'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import type { NuxtPage } from '@nuxt/schema'
-import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey } from './paths'
+import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey, staysUnderParent } from './paths'
 import type { Rule, Rules } from './rules'
 
 export interface RouteI18nMeta {
@@ -92,6 +92,13 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return noMeta === undefined ? page : { ...page, meta: { ...page.meta, i18nNoMeta: noMeta } }
   }
 
+  const warned = new Set<string>()
+  function warnNested(key: string, locale: string, custom: string, parent: string, served: string) {
+    if (warned.has(`${key}\0${locale}`)) return
+    warned.add(`${key}\0${locale}`)
+    console.warn(`[i18n] globalLocaleRoutes["${key}"].${locale} = "${custom}" is outside its parent "${parent}": the page is served at "${served}".`)
+  }
+
   function localize(
     page: NuxtPage,
     locale: string | null,
@@ -108,6 +115,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const custom = locale && rule ? rule[locale] : undefined
     const routePath = custom === undefined ? pagePath : top ? absolute(custom) : childSegment(parentLocalized, custom)
     const localized = top ? absolute(routePath) : joinChild(parentLocalized, routePath)
+    if (custom !== undefined && !top && !staysUnderParent(parentLocalized, custom)) warnNested(key, locale!, custom, parentLocalized, localized)
     if (locale) {
       const entry = localizedPaths.get(key)
       if (entry) entry[locale] = localized

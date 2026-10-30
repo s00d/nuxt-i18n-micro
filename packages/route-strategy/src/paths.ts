@@ -64,6 +64,14 @@ export function childSegment(parentLocalizedPath: string, customValue: string): 
   return valueSegments.slice(shared).join('/')
 }
 
+/** Whether a child's custom value is its URL: an absolute value elsewhere is nested under the parent anyway. */
+export function staysUnderParent(parentLocalizedPath: string, customValue: string): boolean {
+  if (!customValue.startsWith('/')) return true
+  const parent = absolute(parentLocalizedPath)
+  const value = absolute(customValue)
+  return parent === '/' || value === parent || value.startsWith(`${parent}/`)
+}
+
 /** Percent-encoded variant of a path with non-ASCII static segments (vue-router matches either). */
 export function encodedVariant(routePath: string): string | undefined {
   if (!/[\u0080-￿]/.test(routePath)) return undefined

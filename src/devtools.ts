@@ -89,7 +89,8 @@ export function resolveTranslationFile(base: string, relative: string): string |
   const candidate = path.resolve(base, relative)
   if (!candidate.endsWith('.json') || !fs.existsSync(base) || !fs.existsSync(candidate)) return null
   const real = fs.realpathSync(candidate)
-  return isInside(fs.realpathSync(base), real) ? real : null
+  // the extension again on the resolved file: `alias.json` may link to any file inside `base`
+  return real.endsWith('.json') && isInside(fs.realpathSync(base), real) ? real : null
 }
 
 /** Whether `target` lies inside `base` (not `base` itself, not above it). */

@@ -63,7 +63,7 @@ export function useI18nLocale() {
 
   /** Locale with fallback to serverContext (for noPrefix initialization) */
   const getLocaleWithServerFallback = (serverLocale?: string | null): string | null => {
-    return localeState.value ?? preferenceCookie.value ?? serverLocale ?? null
+    return getPreferredLocale() ?? serverLocale ?? null
   }
 
   /**

@@ -143,7 +143,7 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - `$switchLocale` is typed `Promise<boolean>` and `$switchRoute` `Promise<void>`. `clearCache` is on the `useI18n()` type.
 - `routeDisableMeta` set in `nuxt.config` is honoured.
 
-- **`$helper` and `$__micro` are gone** from `useNuxtApp()` and templates. Neither was documented. `$i18n` no longer holds `helper`, `__micro` or `i18n`.
+- **`$helper` and `$__micro` are gone** from `useNuxtApp()` and templates. Neither was documented. `$i18n` no longer holds `helper`, `__micro` or `i18n`, and its `$` spellings (`useI18n().$t`) are inherited: destructuring works as before, but `{ ...useI18n() }` and `Object.keys(useI18n())` give only the bare names.
 
 - **`detectCurrentLocale` is deprecated.** It still works and is still a server auto-import; use [`useLocaleServerMiddleware(event).current`](/guide/server-side-translations), which applies the same rules.
 - **`$getI18nConfig()` no longer has `isSSG`, `hmr`, `hooks`, `noPrefixRedirect`, `routeLocales` or `routeDisableMeta`.** Only the build read them. The options themselves are unchanged. The `ModuleOptionsExtend` type drops `isSSG`.

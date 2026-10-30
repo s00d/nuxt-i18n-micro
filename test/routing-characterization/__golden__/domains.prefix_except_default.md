@@ -188,6 +188,6 @@ params: the PARAMS keys the route's records use.
 | de-only | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] |
 | index | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] |
 
-## Invariant breaks (1)
+## Invariant breaks (0)
 
-- /ueber-uns: getClientRedirect to its own locale en gives /about, switch gives undefined
+none

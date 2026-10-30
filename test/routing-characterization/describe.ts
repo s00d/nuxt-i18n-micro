@@ -466,7 +466,8 @@ function invariants(
     // the same page in its own locale: aliases and unprefixed fallbacks normalize to it
     const home = quiet(() => land(i18n.switchLocaleRoute(from, from, route, {}))).value
     const redirect = quiet(() => i18n.getClientRedirect(url, from))
-    if (redirect.value && redirect.value !== home?.path)
+    // null: the switch is an absolute link to the locale's own domain, there is no local path to compare
+    if (redirect.value && home !== null && redirect.value !== home?.path)
       out.push(`${url}: getClientRedirect to its own locale ${from} gives ${redirect.value}, switch gives ${home?.path}`)
     for (const target of locales) {
       const sw = quiet(() => land(i18n.switchLocaleRoute(from, target, route, {})))

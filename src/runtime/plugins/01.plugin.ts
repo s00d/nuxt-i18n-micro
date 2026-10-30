@@ -11,7 +11,7 @@ import type {
   Translations,
   TranslationKey,
 } from '@i18n-micro/types'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
+
 import type {
   RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
@@ -22,10 +22,11 @@ import type {
 import { shallowRef } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
-import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
+import { createI18nStrategy } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
+import { useResolvedI18nConfig } from '../utils/i18n-config'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
@@ -40,12 +41,10 @@ export default defineNuxtPlugin({
   name: 'i18n-plugin-loader',
   async setup(nuxtApp) {
     const router = useRouter()
-    const i18nStrategy = createI18nStrategy(router)
     const runtimeConfig = useRuntimeConfig()
-    const i18nConfig: ModuleOptionsExtend = resolveI18nConfigWithRuntimeOverrides(
-      getI18nConfig() as ModuleOptionsExtend,
-      runtimeConfig.public as Record<string, unknown>,
-    )
+    const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
+    // routing follows the runtime overrides too (defaultLocale, disabledLocales)
+    const i18nStrategy = createI18nStrategy(router, i18nConfig)
 
     translationStorage.configure({
       // the SSR copy is process-wide, so it is bounded like the payload cache (DEFAULT_SERVER_CACHE_SIZE)
@@ -53,7 +52,7 @@ export default defineNuxtPlugin({
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 
-    const { locale: localeState, setLocale, getLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
+    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
 
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const { resetPageHead } = useI18nHead()
@@ -72,7 +71,8 @@ export default defineNuxtPlugin({
 
     const getCurrentLocale = (route?: ResolvedRouteLike): string => {
       const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
-      return i18nStrategy.getCurrentLocale(r, getLocale() ?? null)
+      // a stored preference only when it is an enabled locale (a stale or malformed cookie is none)
+      return i18nStrategy.getCurrentLocale(r, getPreferredLocale())
     }
 
     const getPluginRouteName = (route: ResolvedRouteLike, locale: string): string => {

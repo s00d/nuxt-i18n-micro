@@ -8,14 +8,15 @@ import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
-import { getHashCookieName, getLocaleCookieName } from '@i18n-micro/utils/cookie'
+import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {
   if (!name || typeof document === 'undefined') return null
   const prefix = `${encodeURIComponent(name)}=`
   const entry = document.cookie.split('; ').find((part) => part.startsWith(prefix))
-  return entry ? decodeURIComponent(entry.slice(prefix.length)) : null
+  // a malformed cookie is absent (D2), not a throw on every navigation
+  return entry ? decodeCookieValue(entry.slice(prefix.length)) : null
 }
 
 export default defineNuxtRouteMiddleware((to, from) => {
@@ -25,7 +26,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const { $getI18nConfig: getRuntimeConfig, $i18nStrategy: i18nStrategy } = nuxtApp
 
   const i18nConfig = getRuntimeConfig()
-  if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns)) return
+  if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
   const defaultLocale = i18nConfig.defaultLocale || 'en'
   const autoDetectPath = i18nConfig.autoDetectPath || '/'
@@ -34,9 +35,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const urlLocale = i18nStrategy.getLocaleFromPath(path)
 
   const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
-  const stored =
-    useState<string | null>('i18n-locale', () => null).value ??
-    readCookie(i18nConfig.hashMode ? getHashCookieName(i18nConfig) : getLocaleCookieName(i18nConfig))
+  const stored = useState<string | null>('i18n-locale', () => null).value ?? readCookie(getPreferenceCookieName(i18nConfig))
   const preference = stored && validLocales.includes(stored) ? stored : null
 
   // Cookie / Accept-Language preference is gated by autoDetectPath (#242); unprefixed deep links

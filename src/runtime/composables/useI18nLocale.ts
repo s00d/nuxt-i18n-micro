@@ -1,9 +1,7 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { useCookie, useNuxtApp, useState } from '#app'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { useResolvedI18nConfig } from '../utils/i18n-config'
 
 type CookieRef = { value: string | null }
 
@@ -22,7 +20,8 @@ export interface ResolveInitialLocaleOptions {
  */
 export function useI18nLocale() {
   const nuxtApp = useNuxtApp()
-  const i18nConfig = resolveI18nConfigWithRuntimeOverrides((nuxtApp.$getI18nConfig?.() ?? getI18nConfig()) as ModuleOptionsExtend)
+  // the same config the plugin routes with, runtime overrides included, even before the plugin provides it
+  const i18nConfig = useResolvedI18nConfig(nuxtApp)
   const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
 
   const localeState = useState<string | null>('i18n-locale', () => null)
@@ -47,18 +46,23 @@ export function useI18nLocale() {
     }
   }
 
+  /** The preference cookie: the hash cookie under hashMode (as the server reads it). */
+  const preferenceCookie = i18nConfig.hashMode ? hashCookie : localeCookie
+
+  const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
+
   const getPreferredLocale = (): string | null => {
-    const preferred = localeState.value ?? (i18nConfig.hashMode ? hashCookie.value : localeCookie.value)
-    return preferred && validLocales.includes(preferred) ? preferred : null
+    const preferred = localeState.value ?? preferenceCookie.value
+    return isValidLocale(preferred) ? preferred : null
   }
 
   const getLocale = (): string | null => {
-    return localeState.value ?? (i18nConfig.hashMode ? hashCookie.value : localeCookie.value) ?? null
+    return localeState.value ?? preferenceCookie.value ?? null
   }
 
   /** Locale with fallback to serverContext (for noPrefix initialization) */
   const getLocaleWithServerFallback = (serverLocale?: string | null): string | null => {
-    return localeState.value ?? localeCookie.value ?? serverLocale ?? null
+    return localeState.value ?? preferenceCookie.value ?? serverLocale ?? null
   }
 
   /**
@@ -89,8 +93,6 @@ export function useI18nLocale() {
     }
     return locale ?? ''
   }
-
-  const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
 
   return {
     locale: localeState,

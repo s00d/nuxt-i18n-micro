@@ -238,6 +238,26 @@ describe('server redirects and 404', () => {
     expect(setup('prefix', {}, LOCALES).i18n.getClientRedirect('/no/page', 'de')).toBe('/de/no/page')
     expect(setup('no_prefix').i18n.getClientRedirect('/about', 'de')).toBeNull()
   })
+
+  test('a runtime-disabled locale prefix is a 404 (F1: disabledLocales reach routing)', () => {
+    // routes generated for every locale, the strategy built from the overridden config
+    const disabled = setup('prefix_except_default', { locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)) }).i18n
+    expect(disabled.shouldReturn404('/fr/about-us')).toBe('Locale disabled')
+    expect(disabled.shouldReturn404('/fr')).toBe('Locale disabled')
+    expect(disabled.shouldReturn404('/de/ueber-uns')).toBeNull()
+    expect(setup('prefix_except_default').i18n.shouldReturn404('/fr/about-us')).toBeNull()
+  })
+
+  test('getClientRedirect never leaves the origin (D3: //host, /\\host)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    onTestFinished(() => warn.mockRestore())
+    const pxd = setup('prefix_except_default').i18n
+    expect(pxd.getClientRedirect('/de//evil.example', 'en', { switchPrefixed: true })).toBe('/evil.example')
+    // the catch-all page encodes it: a path, not a host
+    expect(pxd.getClientRedirect('/de/\\evil.example', 'en', { switchPrefixed: true })).toBe('/%5Cevil.example')
+    expect(pxd.getClientRedirect('//evil.example', 'de')).toBe('/de//evil.example')
+    expect(setup('prefix').i18n.getClientRedirect('/fr//evil.example/x', 'de', { switchPrefixed: true })).toBe('/de//evil.example/x')
+  })
 })
 
 test('setRouter rebuilds the index for the new routes', () => {

@@ -87,9 +87,9 @@ export class TranslationHelper {
   mergeTranslation(locale: string, routeName: string, incoming: Translations, _force = false): void {
     const chunkKey = translationCacheKey(locale, routeName)
     // ponytail: a merge copies the chunk's top level (O(top-level keys)); fine for loads and patches, not for per-key loops.
-    const existing = this.translations.get(chunkKey) as Tree | undefined
+    const existing = (this.translations.get(chunkKey) ?? {}) as Tree
     // A fresh chunk is a top-level copy, so a caller editing its `messages` object afterwards does not reach storage.
-    const next = existing && Object.keys(existing).length ? mergeTranslationChunk(existing, incoming as Tree) : { ...(incoming as Tree) }
+    const next = mergeTranslationChunk(existing, incoming as Tree)
     this.translations.set(chunkKey, next as Translations)
   }
 

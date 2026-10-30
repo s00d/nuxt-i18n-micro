@@ -249,6 +249,9 @@ export function getI18nConfig() { return __fullConfig }
 // a constant, so a build without locale domains drops their code
 export const domains = ${domains}
 
+// a constant, so a build that keeps the locale in no cookie drops useCookie (no runtime override reaches these two)
+export const cookies = ${runtimeFullConfig.localeCookie !== null || runtimeFullConfig.hashMode}
+
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
 export function createI18nStrategy(router, config = __fullConfig) {
@@ -703,6 +706,7 @@ declare module '#build/i18n.plural.mjs' {
 
 declare module '#build/i18n.strategy.mjs' {
   export const domains: boolean
+  export const cookies: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -713,6 +717,7 @@ declare module '#i18n-internal/config' {
 
 declare module '#i18n-internal/strategy' {
   export const domains: boolean
+  export const cookies: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }

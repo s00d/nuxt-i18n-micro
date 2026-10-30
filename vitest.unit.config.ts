@@ -13,7 +13,7 @@ import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 export default defineConfig({
   test: {
     name: 'unit',
-    alias: [{ find: /^#app(\/.*)?$/, replacement: fileURLToPath(new URL('./test/unit/nuxt-app.stub.ts', import.meta.url)) }],
+    alias: [{ find: /^#(app(\/.*)?|build\/i18n\.strategy\.mjs)$/, replacement: fileURLToPath(new URL('./test/unit/nuxt-app.stub.ts', import.meta.url)) }],
     include: ['test/**/*.test.ts'],
     exclude: [...INTEGRATION_TESTS, 'test/fixtures/**'],
     // `expectTypeOf` compiles to nothing, so a type test only asserts anything when a

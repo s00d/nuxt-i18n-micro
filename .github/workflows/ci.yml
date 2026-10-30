@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
+  # every PR, whatever its base (stacked PRs target the previous branch, not main)
   pull_request:
-    branches:
-      - main
     types: [opened, synchronize, reopened, ready_for_review, closed]
 
 # Single workflow: soft checks continue after failure, Job Summary + sticky

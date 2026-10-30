@@ -13,7 +13,7 @@ export default {
   testRunner: 'vitest',
   plugins: ['@stryker-mutator/vitest-runner'],
   vitest: { configFile: `packages/${pkg}/vitest.config.ts`, dir: `packages/${pkg}` },
-  mutate: [`packages/${pkg}/src/**/*.{ts,tsx}`, `!packages/${pkg}/src/**/*.d.ts`, `!packages/${pkg}/src/**/index.ts`, `!packages/${pkg}/src/**/types.ts`],
+  mutate: [`packages/${pkg}/src/**/*.{ts,tsx}`, `!packages/${pkg}/src/**/*.d.ts`, `!packages/${pkg}/src/**/types.ts`],
   reporters: ['clear-text', 'progress', 'json'],
   jsonReporter: { fileName: `test-results/mutation/${pkg}.json` },
   tempDirName: 'test-results/.stryker-tmp',
@@ -24,7 +24,7 @@ export default {
   incrementalFile: `test-results/mutation/${pkg}.incremental.json`,
   // MUTATE_ALL_KILLERS=1: run every covering test (not just until one kills), so the report says
   // which tests catch each mutant — a test whose mutants others all catch too adds nothing
-  ...(process.env.MUTATE_ALL_KILLERS ? { disableBail: true, incremental: false } : {}),
+  ...(process.env.MUTATE_ALL_KILLERS === '1' ? { disableBail: true, incremental: false } : {}),
   concurrency: 4,
   timeoutMS: 30_000,
   thresholds: { high: 90, low: 75, break: null },

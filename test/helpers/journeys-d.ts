@@ -22,11 +22,12 @@ export async function resetHmr(files: Files, baseURL: string, pristine: PayloadV
 
 /**
  * Load a page and check one text, retried as a whole: an HMR update still in flight
- * (from a patch or a reset) can reload the document mid-load.
+ * (from a patch or a reset) can reload the document mid-load. Callers first wait for the
+ * payload API to serve `text`, so the window only covers that reload; wrong text fails fast.
  */
 export async function gotoSettled(page: Page, goto: Goto, path: string, selector: string, text: string): Promise<void> {
   await expect(async () => {
     await goto(path, { waitUntil: 'hydration' })
     await expect(page.locator(selector)).toHaveText(text, { timeout: 5_000 })
-  }).toPass({ timeout: 90_000 })
+  }).toPass({ timeout: 20_000 })
 }

@@ -3,7 +3,24 @@ import type { TreeNode } from '../types'
 /** Array elements are keyed `[]<index>`: `rows.[]0.label`, `tags.[]1`. */
 const ARRAY_PART = /^\[\](\d+)$/
 
+/**
+ * An empty array or object has no leaf to show, so it is kept as this value and restored on save.
+ * ponytail: a translation that is literally `[]` / `{}` comes back as a container, the same trade as `3` and `true`.
+ */
+const EMPTY_CONTAINER: Record<string, () => unknown> = { '[]': () => [], '{}': () => ({}) }
+
+const isEmptyContainer = (value: unknown): value is object => typeof value === 'object' && value !== null && Object.keys(value).length === 0
+
+/** A plain write, except that `__proto__` becomes an own data key (as JSON.parse makes it) instead of a prototype write. */
+function setOwn(node: Record<string | number, unknown>, key: string | number, value: unknown): void {
+  Object.defineProperty(node, key, { value, writable: true, enumerable: true, configurable: true })
+}
+
 function flattenValue(value: unknown, key: string, result: Record<string, string>): void {
+  if (isEmptyContainer(value)) {
+    setOwn(result, key, Array.isArray(value) ? '[]' : '{}')
+    return
+  }
   if (Array.isArray(value)) {
     value.forEach((item, index) => flattenValue(item, `${key}.[]${index}`, result))
     return
@@ -12,7 +29,7 @@ function flattenValue(value: unknown, key: string, result: Record<string, string
     flattenTranslations(value as Record<string, unknown>, key, result)
     return
   }
-  result[key] = value?.toString() ?? ''
+  setOwn(result, key, value?.toString() ?? '')
 }
 
 export function flattenTranslations(obj: Record<string, unknown>, parentKey = '', result: Record<string, string> = {}): Record<string, string> {
@@ -35,6 +52,7 @@ const usablePart = (part: string) => part !== '' && (!part.startsWith('[]') || A
 /** The table holds strings: restore booleans and numbers, keep blank strings as strings. */
 const parseValue = (value: unknown): unknown => {
   if (typeof value !== 'string') return value
+  if (Object.prototype.hasOwnProperty.call(EMPTY_CONTAINER, value)) return EMPTY_CONTAINER[value]!()
   if (value === 'true' || value === 'false') return value === 'true'
   return value.trim() !== '' && !Number.isNaN(Number(value)) ? Number(value) : value
 }
@@ -42,10 +60,11 @@ const parseValue = (value: unknown): unknown => {
 /** The container under `part`, created as an array when the next part is an index. */
 function childOf(node: Record<string | number, unknown>, part: string, next: string): Record<string | number, unknown> {
   const key = slot(part)
-  const existing = node[key]
+  // own keys only: an inherited `__proto__` is Object.prototype, not a container of the file
+  const existing = Object.prototype.hasOwnProperty.call(node, key) ? node[key] : undefined
   if (typeof existing === 'object' && existing !== null) return existing as Record<string | number, unknown>
   const created = ARRAY_PART.test(next) ? [] : {}
-  node[key] = created
+  setOwn(node, key, created)
   return created as Record<string | number, unknown>
 }
 
@@ -55,10 +74,9 @@ export const unflattenTranslations = <T = Record<string, unknown>>(flat: Record<
   for (const key in flat) {
     if (!Object.prototype.hasOwnProperty.call(flat, key)) continue
     const parts = key.split('.').filter(usablePart)
-    // a `__proto__` segment would write into the prototype instead of the file
-    if (parts.length === 0 || parts.includes('__proto__')) continue
+    if (parts.length === 0) continue
     const node = parts.slice(0, -1).reduce((parent, part, i) => childOf(parent, part, parts[i + 1]!), result)
-    node[slot(parts[parts.length - 1]!)] = parseValue(flat[key])
+    setOwn(node, slot(parts[parts.length - 1]!), parseValue(flat[key]))
   }
 
   return result as T

@@ -231,7 +231,11 @@ The `I18nRoutingStrategy` interface defines the contract between i18n and your r
 ```typescript
 interface I18nRoutingStrategy {
   getCurrentPath: () => string
-  linkComponent?: string | React.ComponentType<{/* ... */}>
+  linkComponent?:
+    | string
+    | React.ComponentType<{
+        /* ... */
+      }>
   push: (target: { path: string }) => void
   replace: (target: { path: string }) => void
   resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
@@ -393,7 +397,9 @@ The core i18n instance class that handles all translation logic.
 Translates a key with optional parameters and fallback value.
 
 ```typescript
-const i18n = createI18n({/* ... */})
+const i18n = createI18n({
+  /* ... */
+})
 
 // Basic translation
 i18n.t('welcome') // "Welcome"
@@ -745,7 +751,9 @@ import { createI18n, I18nProvider } from '@i18n-micro/preact'
 
 const i18n = createI18n({
   locale: 'en',
-  messages: {/* ... */},
+  messages: {
+    /* ... */
+  },
 })
 
 function App() {
@@ -895,7 +903,7 @@ Language switcher component that generates links for all available locales. Uses
 | --------------- | ----------------------------------------------------------------------------------- | -------- | ------- | -------------------------------------------------------------------- |
 | `locales`       | `Locale[]`                                                                          | ❌       | -       | Array of locale objects (uses injected locales if not provided)      |
 | `currentLocale` | `string \| (() => string)`                                                          | ❌       | -       | Current locale (uses injected locale if not provided)                |
-| `getLocaleName` | `() => string \| null`                                                              | ❌       | -       | Label for a current locale missing from `locales`                    |
+| `getLocaleName` | `() => string \| null`                                                              | ❌       | -       | Current locale label; wins over the `locales` name                   |
 | `switchLocale`  | `(locale: string) => void`                                                          | ❌       | -       | Function to switch locale (uses routing strategy if not provided)    |
 | `localeRoute`   | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route function (uses routing strategy if not provided) |
 | `customLabels`  | `Record<string, string>`                                                            | ❌       | `{}`    | Custom labels for locales                                            |

@@ -48,27 +48,39 @@ export interface CreateBridgeOptions {
   translationDir?: string
 }
 
+/** A static host (preview build) answers a POST to a missing endpoint with one of these. */
+const NO_ENDPOINT = new Set([404, 405])
+
+/** Keeps the edit in localStorage when there is no dev server to write it; without localStorage the error stands. */
+function saveLocally(filePath: string, content: TranslationContent, reason: unknown): void {
+  if (typeof localStorage === 'undefined') throw reason
+  console.warn('[i18n-bridge] No save endpoint, keeping the edit in localStorage:', reason)
+  localStorage.setItem(`i18n_save_${filePath}`, JSON.stringify(content, null, 2))
+}
+
 /**
- * POST the file to the dev server's save endpoint. Without one (a preview build) the edit is kept
- * in localStorage instead; with neither, the error reaches the caller.
+ * POST the file to the dev server's save endpoint. Only an unreachable server or a missing endpoint
+ * falls back to localStorage; an error the endpoint reports (rejected path, write failure) is thrown.
  */
 async function saveToDisk(realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
+  let response: Response
   try {
-    const response = await fetch('/__i18n_api/save', {
+    response = await fetch('/__i18n_api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file: realFilePath, content }),
     })
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-      throw new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
-    }
-    console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
-  } catch (serverError) {
-    if (typeof localStorage === 'undefined') throw serverError
-    console.warn('[i18n-bridge] Server save failed, falling back to localStorage:', serverError)
-    localStorage.setItem(`i18n_save_${filePath}`, JSON.stringify(content, null, 2))
+  } catch (networkError) {
+    return saveLocally(filePath, content, networkError)
   }
+  if (response.ok) {
+    console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
+    return
+  }
+  const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+  const error = new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
+  if (NO_ENDPOINT.has(response.status)) return saveLocally(filePath, content, error)
+  throw error
 }
 
 /**

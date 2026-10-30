@@ -548,6 +548,16 @@ describe('React app over @i18n-micro/react', () => {
     const click = new MouseEvent('click', { bubbles: true, cancelable: true })
     screen.getByText('object').dispatchEvent(click)
     expect([click.defaultPrevented, pushes]).toEqual([true, ['/en']])
+    // a provider without `locales` still knows the current locale root
+    const bare = render(
+      <I18nProvider i18n={i18n} routingStrategy={strategy}>
+        <I18nLink to="/en" activeStyle={{ color: 'red' }}>
+          bare-root
+        </I18nLink>
+      </I18nProvider>,
+    )
+    expect(screen.getByText('bare-root').hasAttribute('style')).toBe(false)
+    bare.unmount()
 
     // free switcher: custom label for fr, disabled es left out, path pushed unchanged without resolvePath
     open('free')
@@ -569,8 +579,8 @@ describe('React app over @i18n-micro/react', () => {
 
     // controlled: current locale from a function, disabled current gets the disabled style, switchLocale prop takes over
     const controlled = within('controlled', '.i18n-switcher-button')
-    // a known locale is labelled from the list; getLocaleName only names an unknown one
-    expect(controlled.textContent).toBe('Español▼')
+    // a caller's getLocaleName wins over the list name
+    expect(controlled.textContent).toBe('Spanish▼')
     expect(controlled.style.opacity).toBe('0.5')
     // a disabled locale elsewhere in the list does not style an enabled current one
     expect(within('routed', '.i18n-switcher-button').style.opacity).toBe('')
@@ -679,5 +689,30 @@ describe('React app over @i18n-micro/react', () => {
     fireEvent.click(button)
     fireEvent.click(view.container.querySelector('.switcher-locale-de'))
     expect([i18n.locale, view.container.querySelector('ul'), button.textContent]).toEqual(['de', null, 'Deutsch▼'])
+
+    // a caller `background` / `border` shorthand replaces the reset longhands, so rerenders draw no shorthand warning
+    const warn = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const shorthand = (link: React.CSSProperties, active: React.CSSProperties) => (
+      <I18nProvider i18n={i18n}>
+        <I18nSwitcher locales={locales} customLinkStyle={link} customActiveLinkStyle={active} />
+      </I18nProvider>
+    )
+    view.rerender(shorthand({ background: 'red', borderColor: 'blue' }, {}))
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    view.rerender(shorthand({ background: 'pink', borderColor: 'green' }, { background: 'yellow', borderRadius: '2px' }))
+    act(() => {
+      i18n.locale = 'en'
+    })
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+    expect(view.container.querySelector('.switcher-locale-de').getAttribute('style')).toBe(
+      'display: block; padding: 8px 12px; color: rgb(51, 51, 51); text-decoration: none; transition: background-color 0.3s ease; cursor: pointer; width: 100%; text-align: left; background: pink; border-color: green;',
+    )
+    // a caller property outside the shorthand (borderRadius) keeps the reset
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    view.rerender(shorthand({ borderRadius: '2px' }, {}))
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
+    expect(view.container.querySelector('.switcher-locale-de').style.backgroundColor).toBe('transparent')
   })
 })

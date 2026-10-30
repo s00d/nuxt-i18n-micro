@@ -84,7 +84,8 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
 
   const href = (code: string): string => {
     const router = context.router
-    const path = router?.getCurrentPath() ?? '/'
+    const path =
+      router?.getCurrentPath() ?? (typeof window === 'undefined' ? '/' : window.location.pathname + window.location.search + window.location.hash)
     if (local.localeRoute) return routePath(local.localeRoute(path, code))
     if (!router) return '#'
     return routePath(router.resolvePath ? router.resolvePath(path, code) : path)

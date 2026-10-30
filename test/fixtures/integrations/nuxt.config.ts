@@ -1,7 +1,10 @@
 import MyModule from '../../../src/module'
 
+// Third-party Nuxt modules next to the i18n one, in one build: @nuxt/content renders content/*.md through
+// pages/[key]/[...slug].vue (integrations-content.spec.ts), @nuxtjs/seo adds robots, sitemaps, site config and
+// schema.org (integrations-nuxt-seo.spec.ts, #133, #240).
 export default defineNuxtConfig({
-  modules: [MyModule, '@nuxtjs/seo'],
+  modules: [MyModule, '@nuxt/content', '@nuxtjs/seo'],
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
 
@@ -29,6 +32,7 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
       { code: 'de', iso: 'de-DE', dir: 'ltr' },
+      { code: 'cs', iso: 'cs-CZ', dir: 'ltr' },
     ],
   },
 })

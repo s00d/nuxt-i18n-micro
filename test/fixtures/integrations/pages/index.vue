@@ -12,6 +12,6 @@ const { $getLocale, $t } = useNuxtApp()
     <p id="hello">
       {{ $t('hello') }}
     </p>
-    <i18n-link id="about-link" to="/about"> About </i18n-link>
+    <i18n-link id="about-link" to="/company"> About </i18n-link>
   </div>
 </template>

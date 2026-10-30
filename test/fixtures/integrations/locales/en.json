@@ -1,4 +1,10 @@
 {
+  "hello": "Hello",
+  "aboutTitle": "About EN",
+  "nuxtSiteConfig": {
+    "name": "Site EN",
+    "description": "English site description"
+  },
   "about": {
     "title": "About Us",
     "description": "Learn more about our mission and values.",

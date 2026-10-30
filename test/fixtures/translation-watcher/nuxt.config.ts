@@ -10,7 +10,12 @@ export default defineNuxtConfig({
 
   i18n: {
     debug: true,
-    locales: [{ code: 'en' }, { code: 'de', fallbackLocale: 'en' }, { code: 'fr' }],
+    // iso and dir feed the manual useLocaleHead page (/manual-head, seo-use-locale-head.spec.ts)
+    locales: [
+      { code: 'en', iso: 'en-US', dir: 'ltr' },
+      { code: 'de', iso: 'de-DE', dir: 'ltr', fallbackLocale: 'en' },
+      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+    ],
     defaultLocale: 'en',
     fallbackLocale: 'en',
     strategy: 'prefix',
@@ -21,6 +26,7 @@ export default defineNuxtConfig({
     // locales that intentionally live only under additionalTranslationDirs.
     disableWatcher: true,
     hmr: true,
+    // meta off app-wide: the head of /manual-head comes only from useLocaleHead + useHead
     meta: false,
     ...(sourcePayloads ? { translationPayloads: { mode: 'source' as const } } : {}),
     routesLocaleLinks: {

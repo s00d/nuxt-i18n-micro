@@ -44,8 +44,8 @@ export const recipes = defineRecipes(
     'basic-pages-false': app('basic-pages-false', 'basic', { BASIC_VARIANT: 'pages-false' }),
     'basic-pages-false-no-prefix': app('basic-pages-false-no-prefix', 'basic', { BASIC_VARIANT: 'pages-false', STRATEGY: 'no_prefix' }),
     'basic-serverless': app('basic-serverless', 'basic', { BASIC_VARIANT: 'serverless' }),
-    content: app('content'),
-    'nuxt-seo': app('nuxt-seo'),
+    // @nuxt/content and @nuxtjs/seo in one app
+    integrations: app('integrations'),
     seo: app('seo'),
     // useI18nHead scenarios: pec en/fr with prerendered, ISR and SPA route rules
     'seo-use-i18n-head': app('seo-use-i18n-head', 'seo', { SEO_VARIANT: 'use-i18n-head' }),

@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-seo",
+  "name": "integrations",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,6 +11,10 @@
     "nuxt": "catalog:"
   },
   "devDependencies": {
+    "@nuxt/content": "catalog:",
     "@nuxtjs/seo": "catalog:"
+  },
+  "overrides": {
+    "nitropack": "catalog:"
   }
 }

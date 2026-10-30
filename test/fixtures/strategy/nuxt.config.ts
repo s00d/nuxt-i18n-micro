@@ -25,6 +25,8 @@ const locales = [
   { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English' },
   { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German' },
   { code: code('ru', 'ru-ru'), iso: 'ru_RU', displayName: 'Russian' },
+  // `strategy-disabled-locale`: off at build time
+  ...(process.env.DISABLED_LOCALE ? [{ code: process.env.DISABLED_LOCALE, iso: 'es_ES', disabled: true }] : []),
 ]
 const regionI18n = {
   customRegexMatcher: '[a-z]{2}-[a-z]{2}',
@@ -42,6 +44,9 @@ export default defineNuxtConfig({
     appManifest: false,
   },
   compatibilityDate: '2024-08-16',
+
+  // a wildcard over a page with custom paths (`/de/kontakt`, `/kontakt`)
+  routeRules: { '/contact/**': { headers: { 'x-section': 'contact' } } },
 
   ...(testBuildDir ? { buildDir: testBuildDir } : {}),
 

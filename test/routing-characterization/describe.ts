@@ -424,5 +424,6 @@ function adapterResolve(router: Router, to: RouteLike | string): ResolvedRouteLi
     params: r.params || {},
     query: r.query || {},
     hash: r.hash || '',
+    matched: r.matched,
   }
 }

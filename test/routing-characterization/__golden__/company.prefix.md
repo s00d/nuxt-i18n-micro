@@ -85,7 +85,7 @@ Every URL is resolved with `?q=1#top`.
 | /de/careers | /en/careers?q=1#top [localized-careers] |  | /en/careers?q=1#top [localized-careers] | /en/careers?q=1#top [localized-careers] | null | /en/careers | en,de |
 | /de/hello-world | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | null | /en/hello-world | en,de,fr |
 | /de/kontakt | /en/contact?q=1#top [localized-contact] |  | /en/contact?q=1#top [localized-contact] | /en/contact?q=1#top [localized-contact] | null | /en/contact | en,de,fr |
-| /de/old | /en/old?q=1#top [—] |  | /en/old?q=1#top [null] | /en/old?q=1#top [null] | null | /en/old | null |
+| /de/old | /de/old?q=1#top [—] |  | /en/old?q=1#top [null] | /en/old?q=1#top [null] | null | /en/old | null |
 | /de/products | /en/products?q=1#top [localized-products] |  | /en/products?q=1#top [localized-products] | /en/products?q=1#top [localized-products] | null | /en/products | en,de,fr |
 | /de/produkte/42 | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42-en?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | null | /en/products/42 | en,de,fr |
 | /de/ueber-uns | /en/about-us?q=1#top [localized-about-en] |  | /en/about-us?q=1#top [localized-about-en] | /en/about-us?q=1#top [localized-about-en] | null | /en/about-us | en,de,fr |
@@ -105,7 +105,7 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog | /en/blog?q=1#top [localized-blog] |  | /en/blog?q=1#top [localized-blog] | /en/blog?q=1#top [localized-blog] | null | /en/blog | en,de,fr |
 | /fr/contact-fr | /en/contact?q=1#top [localized-contact] |  | /en/contact?q=1#top [localized-contact] | /en/contact?q=1#top [localized-contact] | null | /en/contact | en,de,fr |
 | /fr/hello-world | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | /en/hello-world?q=1#top [localized-slug] | null | /en/hello-world | en,de,fr |
-| /fr/old | /en/old?q=1#top [—] |  | /en/old?q=1#top [null] | /en/old?q=1#top [null] | null | /en/old | null |
+| /fr/old | /fr/old?q=1#top [—] |  | /en/old?q=1#top [null] | /en/old?q=1#top [null] | null | /en/old | null |
 | /fr/products | /en/products?q=1#top [localized-products] |  | /en/products?q=1#top [localized-products] | /en/products?q=1#top [localized-products] | null | /en/products | en,de,fr |
 | /fr/produits/42 | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42-en?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | null | /en/products/42 | en,de,fr |
 | /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
@@ -140,7 +140,7 @@ Every URL is resolved with `?q=1#top`.
 | /en/careers | /de/careers?q=1#top [localized-careers] |  | /de/careers?q=1#top [localized-careers] | /de/careers?q=1#top [localized-careers] | null | /de/careers | en,de |
 | /en/contact | /de/kontakt?q=1#top [localized-contact-de] |  | /de/kontakt?q=1#top [localized-contact-de] | /de/kontakt?q=1#top [localized-contact-de] | null | /de/kontakt | en,de,fr |
 | /en/hello-world | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | null | /de/hello-world | en,de,fr |
-| /en/old | /de/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
+| /en/old | /en/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
 | /en/products | /de/products?q=1#top [localized-products] |  | /de/products?q=1#top [localized-products] | /de/products?q=1#top [localized-products] | null | /de/products | en,de,fr |
 | /en/products/42 | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42-de?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | null | /de/produkte/42 | en,de,fr |
 | /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
@@ -149,7 +149,7 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog | /de/blog?q=1#top [localized-blog] |  | /de/blog?q=1#top [localized-blog] | /de/blog?q=1#top [localized-blog] | null | /de/blog | en,de,fr |
 | /fr/contact-fr | /de/kontakt?q=1#top [localized-contact-de] |  | /de/kontakt?q=1#top [localized-contact-de] | /de/kontakt?q=1#top [localized-contact-de] | null | /de/kontakt | en,de,fr |
 | /fr/hello-world | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | /de/hello-world?q=1#top [localized-slug] | null | /de/hello-world | en,de,fr |
-| /fr/old | /de/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
+| /fr/old | /fr/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
 | /fr/products | /de/products?q=1#top [localized-products] |  | /de/products?q=1#top [localized-products] | /de/products?q=1#top [localized-products] | null | /de/products | en,de,fr |
 | /fr/produits/42 | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42-de?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | null | /de/produkte/42 | en,de,fr |
 | /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
@@ -173,7 +173,7 @@ Every URL is resolved with `?q=1#top`.
 | /de/careers | /fr [localized-index] |  | /fr [localized-index] | /fr [localized-index] | null | /en/careers | en,de |
 | /de/hello-world | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | null | /fr/hello-world | en,de,fr |
 | /de/kontakt | /fr/contact-fr?q=1#top [localized-contact-fr] |  | /fr/contact-fr?q=1#top [localized-contact-fr] | /fr/contact-fr?q=1#top [localized-contact-fr] | null | /fr/contact-fr | en,de,fr |
-| /de/old | /fr/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
+| /de/old | /de/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
 | /de/products | /fr/products?q=1#top [localized-products] |  | /fr/products?q=1#top [localized-products] | /fr/products?q=1#top [localized-products] | null | /fr/products | en,de,fr |
 | /de/produkte/42 | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42-fr?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | null | /fr/produits/42 | en,de,fr |
 | /de/ueber-uns | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | /fr/a-propos | en,de,fr |
@@ -184,7 +184,7 @@ Every URL is resolved with `?q=1#top`.
 | /en/careers | /fr [localized-index] |  | /fr [localized-index] | /fr [localized-index] | null | null | en,de |
 | /en/contact | /fr/contact-fr?q=1#top [localized-contact-fr] |  | /fr/contact-fr?q=1#top [localized-contact-fr] | /fr/contact-fr?q=1#top [localized-contact-fr] | null | /fr/contact-fr | en,de,fr |
 | /en/hello-world | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | /fr/hello-world?q=1#top [localized-slug] | null | /fr/hello-world | en,de,fr |
-| /en/old | /fr/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
+| /en/old | /en/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
 | /en/products | /fr/products?q=1#top [localized-products] |  | /fr/products?q=1#top [localized-products] | /fr/products?q=1#top [localized-products] | null | /fr/products | en,de,fr |
 | /en/products/42 | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42-fr?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | null | /fr/produits/42 | en,de,fr |
 | /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
@@ -224,7 +224,19 @@ params: the PARAMS keys the route's records use.
 | products-id | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] |
 | slug | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] |
 
-## Invariant breaks (2)
+## Invariant breaks (14)
 
 - /de/careers → fr → de: round trip ends on /de, not /de/careers?q=1#top
+- /de/old → en: switch lands on /de/old?q=1#top read as de
+- /de/old → en: switch /de/old?q=1#top ≠ localeRoute(route) /en/old?q=1#top
+- /de/old → fr: switch lands on /de/old?q=1#top read as de
+- /de/old → fr: switch /de/old?q=1#top ≠ localeRoute(route) /fr/old?q=1#top
 - /en/careers → fr → en: round trip ends on /en, not /en/careers?q=1#top
+- /en/old → de: switch lands on /en/old?q=1#top read as en
+- /en/old → de: switch /en/old?q=1#top ≠ localeRoute(route) /de/old?q=1#top
+- /en/old → fr: switch lands on /en/old?q=1#top read as en
+- /en/old → fr: switch /en/old?q=1#top ≠ localeRoute(route) /fr/old?q=1#top
+- /fr/old → en: switch lands on /fr/old?q=1#top read as fr
+- /fr/old → en: switch /fr/old?q=1#top ≠ localeRoute(route) /en/old?q=1#top
+- /fr/old → de: switch lands on /fr/old?q=1#top read as fr
+- /fr/old → de: switch /fr/old?q=1#top ≠ localeRoute(route) /de/old?q=1#top

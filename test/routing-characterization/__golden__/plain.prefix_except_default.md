@@ -69,13 +69,13 @@ Every URL is resolved with `?q=1#top`.
 | /de/blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | /blog | en,de,fr |
 | /de/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
 | /de/contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | /contact | en,de,fr |
-| /de/old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | /old | null |
+| /de/old | /de/old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | /old | null |
 | /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
 | /fr/about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,de,fr |
 | /fr/blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | /blog | en,de,fr |
 | /fr/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
 | /fr/contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | /contact | en,de,fr |
-| /fr/old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | /old | null |
+| /fr/old | /fr/old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | /old | null |
 | /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
@@ -107,8 +107,8 @@ Every URL is resolved with `?q=1#top`.
 | /fr/blog | /de/blog?q=1#top [localized-blog] |  | /de/blog?q=1#top [localized-blog] | /de/blog?q=1#top [localized-blog] | null | /de/blog | en,de,fr |
 | /fr/blog/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | null | /de/blog/hello-world | en,de,fr |
 | /fr/contact | /de/contact?q=1#top [localized-contact] |  | /de/contact?q=1#top [localized-contact] | /de/contact?q=1#top [localized-contact] | null | /de/contact | en,de,fr |
-| /fr/old | /de/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
-| /old | /de/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | /de/old | /de/old | null |
+| /fr/old | /fr/old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | null | /de/old | null |
+| /old | /old?q=1#top [—] |  | /de/old?q=1#top [null] | /de/old?q=1#top [null] | /de/old | /de/old | null |
 | /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
 | /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
 | /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
@@ -133,14 +133,14 @@ Every URL is resolved with `?q=1#top`.
 | /de/blog | /fr/blog?q=1#top [localized-blog] |  | /fr/blog?q=1#top [localized-blog] | /fr/blog?q=1#top [localized-blog] | null | /fr/blog | en,de,fr |
 | /de/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | /fr/blog/hello-world | en,de,fr |
 | /de/contact | /fr/contact?q=1#top [localized-contact] |  | /fr/contact?q=1#top [localized-contact] | /fr/contact?q=1#top [localized-contact] | null | /fr/contact | en,de,fr |
-| /de/old | /fr/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
+| /de/old | /de/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | /fr/old | null |
 | /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
 | /fr/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,de,fr |
 | /fr/blog | /fr/blog?q=1#top [localized-blog] |  | /fr/blog?q=1#top [localized-blog] | /fr/blog?q=1#top [localized-blog] | null | null | en,de,fr |
 | /fr/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
 | /fr/contact | /fr/contact?q=1#top [localized-contact] |  | /fr/contact?q=1#top [localized-contact] | /fr/contact?q=1#top [localized-contact] | null | null | en,de,fr |
 | /fr/old | /fr/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | null | null | null |
-| /old | /fr/old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | /fr/old | /fr/old | null |
+| /old | /old?q=1#top [—] |  | /fr/old?q=1#top [null] | /fr/old?q=1#top [null] | /fr/old | /fr/old | null |
 | /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
@@ -163,6 +163,17 @@ params: the PARAMS keys the route's records use.
 | contact | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] | /contact [contact] | /de/contact [localized-contact] | /fr/contact [localized-contact] |
 | index | / [index] | /de [localized-index] | /fr [localized-index] | / [index] | /de [localized-index] | /fr [localized-index] | / [index] | /de [localized-index] | /fr [localized-index] |
 
-## Invariant breaks (0)
+## Invariant breaks (12)
 
-none
+- /de/old → en: switch lands on /de/old?q=1#top read as de
+- /de/old → en: switch /de/old?q=1#top ≠ localeRoute(route) /old?q=1#top
+- /de/old → fr: switch lands on /de/old?q=1#top read as de
+- /de/old → fr: switch /de/old?q=1#top ≠ localeRoute(route) /fr/old?q=1#top
+- /fr/old → en: switch lands on /fr/old?q=1#top read as fr
+- /fr/old → en: switch /fr/old?q=1#top ≠ localeRoute(route) /old?q=1#top
+- /fr/old → de: switch lands on /fr/old?q=1#top read as fr
+- /fr/old → de: switch /fr/old?q=1#top ≠ localeRoute(route) /de/old?q=1#top
+- /old → de: switch lands on /old?q=1#top read as en
+- /old → de: switch /old?q=1#top ≠ localeRoute(route) /de/old?q=1#top
+- /old → fr: switch lands on /old?q=1#top read as en
+- /old → fr: switch /old?q=1#top ≠ localeRoute(route) /fr/old?q=1#top

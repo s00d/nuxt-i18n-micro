@@ -95,6 +95,9 @@ export const recipes = defineRecipes(
     // global URL shapes: each would break every other journey's URLs, so each is its own build
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
+    'strategy-hash-prefix': app('strategy-hash-prefix', 'strategy', { STRATEGY: 'prefix' }, { router: { options: { hashMode: true } } }),
+    'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
+    'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
 
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),

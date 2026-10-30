@@ -12,6 +12,10 @@ describe('journey: routing variants — customRegexMatcher', () => {
     // was: custom-regex › test 404 on unknown locale
     expect((await request.get('/un-kn')).status()).toBe(404)
 
+    // step 1b: a real page shaped like a locale is that page
+    await goto('/go-on', { waitUntil: 'hydration' })
+    await expect(page.locator('#go-on')).toHaveText('go-on')
+
     // step 2: open / → en text, the full code from $getLocale, every code in $getLocales
     // was: custom-regex › test index; › test plugin methods output on page (#locale, #locales, #translation)
     await goto('/', { waitUntil: 'hydration' })

@@ -25,7 +25,7 @@ export interface StrategyWalkRow {
  */
 export async function ssr(baseURL: string, path: string, headers: Record<string, string> = {}) {
   const res = await fetch(new URL(path, baseURL), { headers, redirect: 'manual' })
-  return { status: res.status, location: res.headers.get('location'), html: await res.text() }
+  return { status: res.status, location: res.headers.get('location'), headers: res.headers, html: await res.text() }
 }
 
 export async function walkStrategy(page: Page, goto: Goto, row: StrategyWalkRow) {

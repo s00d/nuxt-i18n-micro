@@ -39,7 +39,7 @@ Every URL is resolved with `?q=1#top`.
 | /en-us/go | i18n-go | en-us | go | go | null | en-us | en-us | Default locale should not have prefix |
 | /en-us/sobre | i18n-about-pt-br | en-us | about | about | null | en-us | en-us | Default locale should not have prefix |
 | /en-us/ueber-uns | i18n-about-de | en-us | about | about | null | en-us | en-us | Default locale should not have prefix |
-| /go | go | en-us | go | go | null | null | en-us | Unknown locale |
+| /go | go | en-us | go | go | null | null | en-us | null |
 | /pt-br | i18n-index | pt-br | index | index | null | pt-br | pt-br | null |
 | /pt-br/blog/hello-world | i18n-blog-slug | pt-br | blog-slug | blog-slug | null | pt-br | pt-br | null |
 | /pt-br/go | i18n-go | pt-br | go | go | null | pt-br | pt-br | null |
@@ -51,7 +51,7 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/about/ | null | pt-br | about | about | null | pt-br | pt-br | null |
 | /missing | null | en-us |  | null | null | null | en-us | null |
 | /pt-br/missing | null | pt-br |  | null | null | pt-br | pt-br | null |
-| /xx/about | null | en-us |  | null | null | null | en-us | Unknown locale |
+| /xx/about | null | en-us |  | null | null | null | en-us | null |
 | /pt-br/pt-br/about | null | pt-br |  | null | null | pt-br | pt-br | null |
 
 ## To en-us

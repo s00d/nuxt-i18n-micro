@@ -81,7 +81,7 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/about/ | /en-us/about?q=1#top [i18n-about] |  | /en-us/about?q=1#top [i18n-about] | /en-us/about?q=1#top [i18n-about] | null | /en-us/about | en-us,pt-br,de |
 | /missing | /en-us/missing?q=1#top [—] |  | /en-us/missing?q=1#top [null] | /en-us/missing?q=1#top [null] | /en-us/missing | /en-us/missing | null |
 | /pt-br/missing | /en-us/missing?q=1#top [—] |  | /en-us/missing?q=1#top [null] | /en-us/missing?q=1#top [null] | null | /en-us/missing | null |
-| /xx/about | /en-us/about?q=1#top [i18n-about] |  | /en-us/about?q=1#top [i18n-about] | /en-us/about?q=1#top [i18n-about] | /en-us/about | /en-us/about | en-us,pt-br,de |
+| /xx/about | /en-us/about?q=1#top [i18n-about] |  | /en-us/about?q=1#top [i18n-about] | /en-us/xx/about?q=1#top [null] | /en-us/xx/about | /en-us/xx/about | en-us,pt-br,de |
 | /pt-br/pt-br/about | /en-us/about?q=1#top [i18n-about] |  | /en-us/about?q=1#top [i18n-about] | /en-us/about?q=1#top [i18n-about] | null | /en-us/about | en-us,pt-br,de |
 
 ## To pt-br
@@ -114,7 +114,7 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/about/ | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
 | /missing | /pt-br/missing?q=1#top [—] |  | /pt-br/missing?q=1#top [null] | /pt-br/missing?q=1#top [null] | /pt-br/missing | /pt-br/missing | null |
 | /pt-br/missing | /pt-br/missing?q=1#top [—] |  | /pt-br/missing?q=1#top [null] | /pt-br/missing?q=1#top [null] | null | null | null |
-| /xx/about | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre | /pt-br/sobre | en-us,pt-br,de |
+| /xx/about | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/xx/about?q=1#top [null] | /pt-br/xx/about | /pt-br/xx/about | en-us,pt-br,de |
 | /pt-br/pt-br/about | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre?q=1#top [i18n-about-pt-br] | null | null | en-us,pt-br,de |
 
 ## To de
@@ -147,7 +147,7 @@ Every URL is resolved with `?q=1#top`.
 | /pt-br/about/ | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns?q=1#top [i18n-about-de] | null | /de/ueber-uns | en-us,pt-br,de |
 | /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | /de/missing | null |
 | /pt-br/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | /de/missing | null |
-| /xx/about | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns | /de/ueber-uns | en-us,pt-br,de |
+| /xx/about | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/xx/about?q=1#top [null] | /de/xx/about | /de/xx/about | en-us,pt-br,de |
 | /pt-br/pt-br/about | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns?q=1#top [i18n-about-de] | null | /de/ueber-uns | en-us,pt-br,de |
 
 ## localeRoute({ name, params }) from each home page

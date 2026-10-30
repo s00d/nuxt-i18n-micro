@@ -213,7 +213,9 @@ export class I18nPathStrategy {
       if (form === path && unlocalized.has(name)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
-      const { locale: _locale, ...params } = route!.params ?? {}
+      const { locale: urlLocale, ...params } = route!.params ?? {}
+      // a custom matcher takes any segment for a locale: `/go` is a page in another form, not the home of `go`
+      if (urlLocale && !this.codes.has(String(urlLocale))) continue
       const page = { base: entry.base, params, catchAll: entry.catchAll }
       if (!entry.catchAll) return page
       catchAll ??= page
@@ -405,10 +407,18 @@ export class I18nPathStrategy {
     return reason
   }
 
+  /** A first segment the router took for a locale, not one of ours, on a URL that is no page in any form. */
+  private isUnknownLocale(path: string, segment: string): boolean {
+    if (!this.unknownLocale?.test(segment) || this.codes.has(segment)) return false
+    if (this.probe(path)?.params?.locale !== segment) return false
+    const page = this.findPage(path)
+    return !page || page === UNLOCALIZED || page.catchAll
+  }
+
   private notFoundReason(path: string): string | null {
     const segment = path.split('/')[1] ?? ''
     if (this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix') return 'Locale disabled'
-    if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
+    if (this.isUnknownLocale(path, segment)) return 'Unknown locale'
     if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
     if (!locale) return null

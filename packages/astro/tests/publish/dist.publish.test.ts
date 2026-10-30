@@ -19,7 +19,7 @@ describe('@i18n-micro/astro dist publish smoke', () => {
     expect(getLoadedModule(mods, './client/react:import')).toBeDefined()
   })
 
-  it('leaves vue to the app: a second copy of it cannot track the app\'s effects', () => {
+  it("leaves vue to the app: a second copy of it cannot track the app's effects", () => {
     const source = readFileSync(join(packageRoot, 'dist/client/vue.js'), 'utf8')
     expect(source).toMatch(/from ['"]vue['"]/)
     expect(source).not.toContain('__v_isRef')

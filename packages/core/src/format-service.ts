@@ -5,6 +5,8 @@ export interface FormatServiceOptions {
   numberFormats?: NumberFormatsConfig
   /** Vue I18n-compatible name (`datetimeFormats`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates; a format's own `timeZone` wins. Unset: the runtime's zone. */
+  timeZone?: string
 }
 
 /** Largest unit first: the first one that fits at least once is used. */
@@ -66,10 +68,12 @@ export class FormatService {
   private numberCache = new Map<string, Intl.NumberFormat>()
   private dateCache = new Map<string, Intl.DateTimeFormat>()
   private relativeCache = new Map<string, Intl.RelativeTimeFormat>()
+  private timeZone?: string
 
   constructor(options: FormatServiceOptions = {}) {
     this.numberFormats = options.numberFormats ?? {}
     this.datetimeFormats = options.datetimeFormats ?? {}
+    this.timeZone = options.timeZone
   }
 
   setNumberFormats(formats: NumberFormatsConfig): void {
@@ -122,7 +126,8 @@ export class FormatService {
 
   formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string {
     const time = new Date(value).getTime()
-    return Number.isNaN(time) ? 'Invalid Date' : this.getDateTimeFormatter(locale, options).format(time)
+    if (Number.isNaN(time)) return 'Invalid Date'
+    return this.getDateTimeFormatter(locale, this.timeZone ? { timeZone: this.timeZone, ...options } : options).format(time)
   }
 
   /** `3 days ago` / `in 3 days`: the largest unit that fits at least once, rounded down; `Invalid Date` like {@link formatDate}. */

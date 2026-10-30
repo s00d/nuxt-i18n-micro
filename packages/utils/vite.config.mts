@@ -17,6 +17,7 @@ const libEntries = {
   'split-locale-routes': resolve(rootDir, 'src/split-locale-routes.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
+  'locale-head': resolve(rootDir, 'src/locale-head.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
   domains: resolve(rootDir, 'src/domains.ts'),

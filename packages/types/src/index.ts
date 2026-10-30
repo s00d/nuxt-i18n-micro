@@ -537,6 +537,13 @@ export interface ModuleOptions {
   numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
 
   /**
+   * IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+   * the server and in every browser; a named format's own `timeZone` wins.
+   * @default the runtime's zone
+   */
+  timeZone?: string
+
+  /**
    * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
    * Enables `$td(date, 'short')` style calls.
    *

@@ -2,7 +2,7 @@ import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, Tran
 import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
-import { defaultPlural, interpolate } from './text'
+import { clearTemplateCache, defaultPlural, interpolate } from './text'
 import { mergeTranslationLayers, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
@@ -15,6 +15,8 @@ export interface BaseI18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
+  timeZone?: string
 }
 
 /** Remembers the `locale:route` string for the last pair, so a hot `t()` neither concatenates nor rehashes. */
@@ -244,6 +246,7 @@ export abstract class BaseI18n {
   public clearCache(): void {
     this.helper.clearCache()
     this.formatter.clearCache()
+    clearTemplateCache()
     this.onTranslationsChanged()
   }
 

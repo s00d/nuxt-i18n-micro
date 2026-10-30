@@ -235,13 +235,10 @@ export default defineNuxtPlugin({
       })
     }
 
-    // START_LOCATION by the router's own hands: the one imported here can be another install's object
-    const startLocation = router.currentRoute.value
-
     router.beforeEach(async (to, from) => {
       // the first navigation opens the page the server rendered, unless it redirects: what that page set
       // came in the payload, and a component that does not run here (server-only, `hydrate-never`) will not set it again
-      const opensRenderedPage = from === startLocation && !to.redirectedFrom
+      const opensRenderedPage = nuxtApp.isHydrating && !to.redirectedFrom
       if (to.name !== from.name && !opensRenderedPage) {
         i18nRouteParams.value = {}
         pageHead.value = null

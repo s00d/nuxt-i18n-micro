@@ -61,7 +61,9 @@ export default defineNuxtPlugin({
     }
 
     // only a page speaks for the locale: not a 404, and under no_prefix `/de` is no prefix
-    const served = i18nConfig.strategy !== 'no_prefix' && useRouter().currentRoute.value.matched.length > 0
+    const router = useRouter()
+    // `pages: false`: Nuxt's stub router has no records, so nothing can be missing
+    const served = i18nConfig.strategy !== 'no_prefix' && (router.getRoutes().length === 0 || router.currentRoute.value.matched.length > 0)
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && served && !(redirects && anyPath)) writeCookie(urlLocale)
     // Under hash + prefix a document holds no route: it moves into the hash, the client takes it from there.

@@ -27,7 +27,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const { $getI18nConfig: getRuntimeConfig, $i18nStrategy: i18nStrategy } = nuxtApp
 
   const i18nConfig = getRuntimeConfig()
-  if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
+  // the first navigation of a page no server rendered has the same `from` and still has to redirect
+  const samePage = to.path === from.path && nuxtApp.payload.serverRendered
+  if (i18nConfig.redirects === false || samePage || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
   const defaultLocale = i18nConfig.defaultLocale || 'en'
   const autoDetectPath = i18nConfig.autoDetectPath || '/'

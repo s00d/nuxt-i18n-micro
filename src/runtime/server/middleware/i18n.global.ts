@@ -17,6 +17,9 @@ export default defineEventHandler(async (event) => {
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
   if (isInternalPath(path, undefined, config.apiBaseUrl)) return
 
+  // hash + prefix: `/` has no record and the server never sees the route in the hash, so the client renders it
+  if (config.hashMode && config.strategy === 'prefix' && path === '/') event.context.nuxt = { ...event.context.nuxt, noSSR: true }
+
   const locale = detectRequestLocale(event, config, 'page', path)
 
   let translations = {}

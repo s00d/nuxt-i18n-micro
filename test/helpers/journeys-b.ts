@@ -106,6 +106,27 @@ export async function pagesFalseCookieCases(page: Page, goto: Goto, baseURL: str
   await expect(page.locator('#greeting')).toHaveText('Hello')
 }
 
+/** `$switchLocale` on Nuxt's stub router, as `docs/guide/strategy.md` promises for `pages: false`. */
+export async function pagesFalseSwitch(page: Page, goto: Goto, targets: { link: string; path: string; url: string }) {
+  // step 1: the helpers answer without a record
+  await page.context().clearCookies()
+  await goto('/', { waitUntil: 'hydration' })
+  await expect(page.locator('#link-zh')).toHaveAttribute('href', targets.link)
+  await expect(page.locator('#path-zh')).toHaveText(targets.path)
+
+  // step 2: the click loads zh, stores it and moves the URL
+  await page.click('#switch-zh')
+  await expect(page.locator('#locale')).toHaveText('zh')
+  await expect(page.locator('#greeting')).toHaveText('你好')
+  await expect(page).toHaveURL(targets.url)
+  await expect.poll(() => getLocaleCookie(page)).toBe('zh')
+
+  // step 3: a reload stays there
+  await page.reload()
+  await expect(page.locator('#greeting')).toHaveText('你好')
+  await expect(page).toHaveURL(targets.url)
+}
+
 /**
  * Every localized URL of a strategy answers 200 on a direct (cookie-less) request and renders its content.
  * was: strategies-<strategy>.test.ts › nuxi build: the SSR server renders every localized URL on a direct request

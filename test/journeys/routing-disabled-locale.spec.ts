@@ -13,4 +13,14 @@ describe('journey: a locale disabled at build', () => {
     await expect(page.locator('.switcher-locale-es')).toHaveCount(0)
     await expect(page.locator('.switcher-locale-de')).toHaveAttribute('href', '/de')
   })
+
+  // was: runtime-i18n-overrides.e2e › serves enabled locale payloads and rejects disabled locales
+  test('it serves no translations: no public payload, and the handler refuses', async ({ request }) => {
+    expect((await request.get('/_locales/index/en/data.json')).status()).toBe(200)
+    for (const path of ['/_locales/index/es/data.json', '/_locales/about/es/data.json']) {
+      const res = await request.get(path)
+      expect(res.status(), path).toBe(404)
+      expect(res.statusText(), path).toBe('Locale not found')
+    }
+  })
 })

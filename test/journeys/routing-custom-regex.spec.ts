@@ -85,6 +85,10 @@ describe('journey: routing variants — customRegexMatcher', () => {
     }
     expect((await request.get('/de-de/page-b')).status()).toBe(404)
 
+    // step 2b: page-a also calls $defineI18nRoute with other paths: the config wins, those URLs serve nothing
+    // was: route-strategy advanced › should prioritize globalLocaleRoutes over filesLocaleRoutes
+    for (const url of ['/from-page-a', '/de-de/von-seite-a']) expect((await request.get(url)).status(), url).toBe(404)
+
     // step 3: a dynamic page keeps its param through $switchLocale → /ru-ru/test-4, /de-de/test-4, /test-4
     // was: custom-regex › test navigation and locale switching on news page, › … on articles page
     await goto('/test-4', { waitUntil: 'hydration' })

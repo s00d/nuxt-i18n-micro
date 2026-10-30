@@ -165,6 +165,41 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(one.storage.translations.size).toBe(1)
     expect(one.storage.translations.has(one.getCacheKey('en', 'page-c'))).toBe(true)
     expect(one.t('title')).toBe('B')
+
+    // step 3: bound 0 is no bound
+    const unbounded = new NuxtI18n({ missingWarn: false, cacheMaxSize: 0 })
+    for (let n = 0; n < 20; n++) unbounded.setChunk('en', `page-${n}`, { title: `Page ${n}` })
+    expect(unbounded.storage.translations.size).toBe(20)
+  })
+
+  // ponytail: was a time budget (a walk of a large chunk cost ~3.8 ms per navigation, a re-merge ~6.9 ms per
+  // patch); counting the objects walked is the same claim without a clock
+  test('a navigation and a patch never walk the whole chunk', () => {
+    let walked = 0
+    const counted = (depth: number): Record<string, unknown> => {
+      const entries = Array.from({ length: 6 }, (_, i) => [`n${i}`, depth ? counted(depth - 1) : `v${i}`])
+      return new Proxy(Object.fromEntries(entries), {
+        ownKeys(target) {
+          walked++
+          return Reflect.ownKeys(target)
+        },
+      })
+    }
+    const chunk = counted(3)
+    const i18n = new NuxtI18n({ missingWarn: false })
+
+    // step 1: a page with a loaded chunk, then another one
+    i18n.applySwitchContext('en', 'first', counted(3))
+    walked = 0
+    i18n.applySwitchContext('en', 'second', chunk)
+    expect(walked).toBeLessThan(10)
+
+    // step 2: a patch copies the changed path only
+    walked = 0
+    i18n.mergeTranslations({ n0: { n0: { added: 'v' } } })
+    expect(walked).toBeLessThan(10)
+    expect(i18n.t('n0.n0.added')).toBe('v')
+    expect(i18n.t('n1.n1.n1.n1')).toBe('v1')
   })
 })
 

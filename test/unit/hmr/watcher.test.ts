@@ -52,6 +52,17 @@ describe('dev translation watcher', () => {
     expect(tracker.shouldProcess(file)).toBe(true)
     expect(tracker.shouldProcess(join(root, 'gone.json'))).toBe(true)
 
+    // step 3b: a real edit counts, and so does its revert; every file has its own memory
+    writeFileSync(file, JSON.stringify({ greeting: 'Hi' }))
+    expect(tracker.shouldProcess(file)).toBe(true)
+    writeFileSync(file, JSON.stringify({ greeting: 'Hello' }))
+    expect(tracker.shouldProcess(file)).toBe(true)
+    const other = join(root, 'other.json')
+    writeFileSync(other, JSON.stringify({ greeting: 'Hello' }))
+    expect(tracker.shouldProcess(other)).toBe(true)
+    expect(tracker.shouldProcess(file)).toBe(false)
+    expect(tracker.shouldProcess(other)).toBe(false)
+
     // step 4: an unconfigured locale is ignored; a root file drops every cached dictionary
     // (other locales fall back to it); a page file drops them too
     const server = new Map([
@@ -109,6 +120,18 @@ describe('dev translation watcher', () => {
     // step 7: an edit shows on the next merge (nothing is cached between reads)
     writeFileSync(join(app, 'pages', 'about', 'en.json'), JSON.stringify({ title: 'About v2' }))
     expect(await mergeDevTranslations({ locale: 'en', pageName: 'about', readLocaleFile })).toMatchObject({ title: 'About v2' })
+
+    // step 8: a locale that only exists in an additional root still gets the fallback locale
+    writeFileSync(join(extra, 'fr.json'), JSON.stringify({ fromExtra: 'FR' }))
+    expect(
+      await mergeDevTranslations({
+        locale: 'fr',
+        pageName: 'index',
+        locales: [{ code: 'en' }, { code: 'fr' }],
+        fallbackLocale: 'en',
+        readLocaleFile,
+      }),
+    ).toMatchObject({ fromExtra: 'FR', shared: 'APP' })
   })
 
   test('the client plugin reloads through its own nuxtApp on the custom event', () => {

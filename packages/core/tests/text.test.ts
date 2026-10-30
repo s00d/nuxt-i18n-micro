@@ -281,6 +281,10 @@ describe('resolveText', () => {
     when: 'on {date}',
     ago: 'was {relativeDate}',
     rich: '<b>{name}</b>',
+    only: '{name}',
+    tree: { a: 'b' },
+    flag: true,
+    total: 7,
   }
   const i18n = () => new TestI18n('en', messages)
 
@@ -309,6 +313,20 @@ describe('resolveText', () => {
   it('formatted values beat a param of that name, and number beats plural', () => {
     expect(text(i18n(), { keypath: 'sum', number: 1500, params: { number: 'PARAM' } })).toBe('total 1,500')
     expect(text(i18n(), { keypath: 'sum', number: 2, plural: 1 })).toBe('total 2')
+  })
+
+  it('hides what is blank once interpolated, and shows what a param fills', () => {
+    expect(resolveText(i18n(), { keypath: 'only', hideIfEmpty: true, params: { name: '' } })).toBeNull()
+    expect(resolveText(i18n(), { keypath: 'only', hideIfEmpty: true, params: { name: ' ' } })).toBeNull()
+    expect(text(i18n(), { keypath: 'only', hideIfEmpty: true, params: { name: 'Z' } })).toBe('Z')
+    expect(text(i18n(), { keypath: 'only', hideIfEmpty: true })).toBe('{name}')
+  })
+
+  it('plural on a value that is no text answers the key, as tc does', () => {
+    expect(text(i18n(), { keypath: 'tree', plural: 2 })).toBe('tree')
+    expect(text(i18n(), { keypath: 'flag', plural: 2 })).toBe('flag')
+    expect(i18n().tc('tree', 2)).toBe('tree')
+    expect(text(i18n(), { keypath: 'total', plural: 2 })).toBe('7')
   })
 
   it('hides a blank text in every branch', () => {
@@ -424,5 +442,7 @@ describe('FormatService timeZone', () => {
     const tokyo = new FormatService({ timeZone: 'Asia/Tokyo' })
     expect(tokyo.formatDate(noon, 'en')).toBe('1/2/2024')
     expect(tokyo.formatDate(noon, 'en', { timeZone: 'UTC' })).toBe('1/1/2024')
+    const angeles = new FormatService({ timeZone: 'America/Los_Angeles' })
+    expect(angeles.formatDate(Date.UTC(2024, 0, 2, 3), 'en', { timeZone: undefined })).toBe('1/1/2024')
   })
 })

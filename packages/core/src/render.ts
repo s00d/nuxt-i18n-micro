@@ -190,7 +190,9 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
   const slotted = (name: string, scope?: Record<string, unknown>): unknown[] => [slots[name]?.(scope) ?? []].flat()
 
   const label = (locale: Locale): string => {
-    const known = props.customLabels?.[locale.code] || locale.displayName
+    // a locale code is free-form: `constructor` must not read an inherited member
+    const custom = props.customLabels && (ownValue(props.customLabels, locale.code) as string | undefined)
+    const known = custom || locale.displayName
     if (!known) adapter.onMissingLabel?.(locale.code)
     return known || locale.code
   }

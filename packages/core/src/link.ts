@@ -1,6 +1,6 @@
 const HAS_SCHEME = /^(?:https?:\/\/|\/\/|tel:|mailto:)/i
 /** `example.com`, `www.example.com:8080/a`: a host and port, then the end of the string or a path, query or hash. */
-const BARE_DOMAIN = /^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?::\d+)?(?:[/?#]|$)/i
+const BARE_DOMAIN = /^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}\.?(?::\d+)?(?:[/?#]|$)/i
 /** A last segment naming a file (`report.pdf`), which a bare domain would otherwise swallow. */
 const FILE_NAME =
   /^[^/?#]+\.(?:html?|php|aspx?|pdf|txt|md|csv|json|xml|ya?ml|js|mjs|css|png|jpe?g|gif|svg|webp|avif|ico|zip|gz|docx?|xlsx?|pptx?)(?:[?#]|$)/i
@@ -21,11 +21,12 @@ export const localeIsoMap = (locales: readonly { code: string; iso?: string }[])
 
 const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'
 
-/** A click the app may take over: primary button, no modifier, no `target`. The rest are the browser's (new tab, download). */
+/** A click the app may take over: primary button, no modifier, no `target`, no `download`. The rest are the browser's. */
 export function isPlainClick(event: MouseEvent): boolean {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return false
-  const target = (event.currentTarget as Element | null)?.getAttribute?.('target')
-  return !target || target === '_self'
+  const link = event.currentTarget as Element | null
+  const target = link?.getAttribute?.('target')
+  return (!target || target === '_self') && !link?.hasAttribute?.('download')
 }
 
 /** Whether two URLs name one page: query, hash and a trailing slash do not count. */

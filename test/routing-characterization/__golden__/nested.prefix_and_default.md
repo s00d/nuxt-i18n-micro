@@ -49,11 +49,11 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /account | account | en | account | account | English | null | null | null |
-| /account/orders | account-orders | en | account-orders | account-orders | English | null | null | null |
-| /account/orders/42 | account-orders-id | en | account-orders-id | account-orders-id | English | null | null | null |
-| /account/settings | account-settings | en | account-settings | account-settings | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /account | account | en | account | account | English | null | en | null |
+| /account/orders | account-orders | en | account-orders | account-orders | English | null | en | null |
+| /account/orders/42 | account-orders-id | en | account-orders-id | account-orders-id | English | null | en | null |
+| /account/settings | account-settings | en | account-settings | account-settings | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/konto | localized-account-de | de | account | account | Deutsch | de | de | null |
 | /de/konto/bestellungen | localized-account-orders-de | de | account-orders | account-orders | Deutsch | de | de | null |
@@ -78,16 +78,16 @@ Every URL is resolved with `?q=1#top`.
 | /fr/shop | localized-shop | fr | shop | shop | Français | fr | fr | null |
 | /fr/shop/shoes | localized-shop-category | fr | shop-category | shop-category | Français | fr | fr | null |
 | /fr/shop/shoes/red-boot | localized-shop-category-item | fr | shop-category-item | shop-category-item | Français | fr | fr | null |
-| /store | shop | en | shop | shop | English | null | null | null |
-| /store/shoes | shop-category | en | shop-category | shop-category | English | null | null | null |
-| /store/shoes/red-boot | shop-category-item | en | shop-category-item | shop-category-item | English | null | null | null |
+| /store | shop | en | shop | shop | English | null | en | null |
+| /store/shoes | shop-category | en | shop-category | shop-category | English | null | en | null |
+| /store/shoes/red-boot | shop-category-item | en | shop-category-item | shop-category-item | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | null | en |  | null | English | null | null | null |
+| /about/ | null | en |  | null | English | null | en | null |
 | /de/about/ | null | de |  | null | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

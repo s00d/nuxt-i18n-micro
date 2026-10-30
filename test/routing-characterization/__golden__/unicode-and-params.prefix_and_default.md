@@ -29,16 +29,16 @@ Every URL is resolved with `?q=1#top`.
 
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
-| / | index | en | index | index | English | null | null | null |
-| /about | über-uns | en | über-uns | über-uns | English | null | null | null |
-| /archive/2025 | archive-year | en | archive-year | archive-year | English | null | null | null |
+| / | index | en | index | index | English | null | en | null |
+| /about | über-uns | en | über-uns | über-uns | English | null | en | null |
+| /archive/2025 | archive-year | en | archive-year | archive-year | English | null | en | null |
 | /de | localized-index | de | index | index | Deutsch | de | de | null |
 | /de/%C3%BCber-uns | localized-über-uns | de | über-uns | über-uns | Deutsch | de | de | null |
 | /de/archiv/2025 | localized-archive-year-de | de | archive-year | archive-year | Deutsch | de | de | null |
 | /de/docs/2 | localized-docs-page | de | docs-page | docs-page | Deutsch | de | de | null |
 | /de/post-42 | localized-post-id | de | post-id | post-id | Deutsch | de | de | null |
 | /de/über-uns | localized-über-uns | de | über-uns | über-uns | Deutsch | de | de | null |
-| /docs/2 | docs-page | en | docs-page | docs-page | English | null | null | null |
+| /docs/2 | docs-page | en | docs-page | docs-page | English | null | en | null |
 | /en | localized-index | en | index | index | English | en | en | null |
 | /en/about | localized-über-uns-en | en | über-uns | über-uns | English | en | en | null |
 | /en/archive/2025 | localized-archive-year | en | archive-year | archive-year | English | en | en | null |
@@ -50,14 +50,14 @@ Every URL is resolved with `?q=1#top`.
 | /fr/documentation/2 | localized-docs-page-fr | fr | docs-page | docs-page | Français | fr | fr | null |
 | /fr/post-42 | localized-post-id | fr | post-id | post-id | Français | fr | fr | null |
 | /fr/à-propos | localized-über-uns-fr | fr | über-uns | über-uns | Français | fr | fr | null |
-| /post-42 | post-id | en | post-id | post-id | English | null | null | null |
+| /post-42 | post-id | en | post-id | post-id | English | null | en | null |
 | /en/ | localized-index | en | index | index | English | en | en | null |
 | /de/ | localized-index | de | index | index | Deutsch | de | de | null |
-| /about/ | über-uns | en | über-uns | über-uns | English | null | null | null |
+| /about/ | über-uns | en | über-uns | über-uns | English | null | en | null |
 | /de/about/ | null | de | über-uns | über-uns | Deutsch | de | de | null |
-| /missing | null | en |  | null | English | null | null | null |
+| /missing | null | en |  | null | English | null | en | null |
 | /de/missing | null | de |  | null | Deutsch | de | de | null |
-| /xx/about | null | en |  | null | English | null | null | null |
+| /xx/about | null | en |  | null | English | null | en | null |
 | /de/de/about | null | de |  | null | Deutsch | de | de | null |
 
 ## To en

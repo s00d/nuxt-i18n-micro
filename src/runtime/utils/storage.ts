@@ -37,6 +37,8 @@ function getStorageCacheControl(): CacheControl<Record<string, unknown>> {
 
 class TranslationStorage {
   private cc: CacheControl<Record<string, unknown>>
+  /** Bumped by `clear()`: a response requested before it may predate the edit the clear is for. */
+  private clears = 0
 
   constructor() {
     this.cc = getStorageCacheControl()
@@ -139,7 +141,9 @@ class TranslationStorage {
     if (cached) return cached
 
     const cacheKey = this.getCacheKey(locale, routeName)
+    const clears = this.clears
     const data = await this.fetchTranslations(locale, routeName, options)
+    if (clears !== this.clears) return this.load(locale, routeName, options)
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.
@@ -152,6 +156,7 @@ class TranslationStorage {
    * Clear cache and metadata.
    */
   clear(): void {
+    this.clears++
     this.cc.clear()
   }
 }

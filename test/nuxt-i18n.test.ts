@@ -168,6 +168,90 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
   })
 })
 
+describe('NuxtI18n: context listeners', () => {
+  test('a throwing listener stops nobody, an unsubscribed one is not called', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const calls: string[] = []
+    i18n.onContextChange(() => {
+      throw new Error('devtools')
+    })
+    const offLater = () => off()
+    i18n.onContextChange(() => {
+      calls.push('first')
+      offLater()
+    })
+    const off = i18n.onContextChange(() => calls.push('removed'))
+    i18n.onContextChange(() => calls.push('last'))
+
+    expect(() => i18n.applySwitchContext('en', 'about', { title: 'A' })).not.toThrow()
+    expect(calls).toEqual(['first', 'last'])
+    expect(i18n.t('title')).toBe('A')
+    expect(error).toHaveBeenCalledOnce()
+    error.mockRestore()
+  })
+})
+
+describe('NuxtTranslationLoader: reload', () => {
+  const setup = (data: Record<string, unknown>) => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.applySwitchContext('en', 'about', data)
+    return { i18n, loader }
+  }
+
+  test('a response requested before the reload is never installed', async () => {
+    const { i18n, loader } = setup({ title: 'Old' })
+    const responses = [deferred(), deferred()]
+    const fetchMock = vi.fn(() => responses[fetchMock.mock.calls.length - 1]!.promise)
+    vi.stubGlobal('$fetch', fetchMock)
+    try {
+      const inFlight = loader.loadAsync('en', 'about')
+      const reloading = loader.reload()
+      responses[0]!.resolve({ title: 'pre-edit' })
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+      expect(i18n.t('title')).toBe('Old')
+      responses[1]!.resolve({ title: 'fresh' })
+      await reloading
+      expect(await inFlight).toEqual({ title: 'fresh' })
+      expect(i18n.t('title')).toBe('fresh')
+      expect(translationStorage.getFromCache('en', 'about')?.data).toEqual({ title: 'fresh' })
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
+  test('a failed reload keeps the dictionary on screen', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { i18n, loader } = setup({ title: 'Hi' })
+    vi.stubGlobal('$fetch', () => Promise.reject(new Error('offline')))
+    try {
+      await loader.reload()
+      expect(i18n.t('title')).toBe('Hi')
+    } finally {
+      vi.unstubAllGlobals()
+      warn.mockRestore()
+    }
+  })
+
+  test('a reload during a transition keeps the leaving page until it unmounts', async () => {
+    const { i18n, loader } = setup({ leaving: 'A' })
+    i18n.applySwitchContext('en', 'about', { arriving: 'B' })
+    const outgoing = i18n.outgoing
+    vi.stubGlobal('$fetch', async () => ({ arriving: 'B2' }))
+    try {
+      await loader.reload()
+      expect(i18n.t('arriving')).toBe('B2')
+      expect(i18n.t('leaving')).toBe('A')
+      i18n.finishTransition(outgoing)
+      expect(i18n.has('leaving')).toBe(false)
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+})
+
 describe('NuxtTranslationLoader: loads racing navigations', () => {
   test('cache hit, reload, stale switch, invalidated switch', async () => {
     translationStorage.clear()

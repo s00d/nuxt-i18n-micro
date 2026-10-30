@@ -234,6 +234,7 @@ export class NuxtI18n extends BaseI18n {
   private notifyContextChange(reason: I18nContextChangeReason): void {
     // over a copy, each guarded: a throwing listener (devtools) must not abort a context switch
     for (const listener of [...this.contextListeners]) {
+      if (!this.contextListeners.has(listener)) continue // unsubscribed by an earlier listener
       try {
         listener(reason)
       } catch (error) {
@@ -263,6 +264,18 @@ export class NuxtI18n extends BaseI18n {
     this.setChunk(locale, routeName, data)
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
+  }
+
+  /**
+   * Swap the active dictionary for a fresh copy of the same page. Not a page change: a live
+   * transition keeps its outgoing layer, the leaving page is still on screen.
+   */
+  replaceDictionary(data: Record<string, unknown>): void {
+    this.cachedTranslations = data
+    this.setChunk(this.currentLocale, this.currentRouteName || undefined, data)
+    triggerRef(this.contextSignal)
+    this.notifyContextChange('load')
+    this.notifyContextChange('refresh')
   }
 
   /** The leaving page's chunk while it may still render, or null. */
@@ -419,7 +432,7 @@ export interface NuxtTranslationLoaderOptions {
 }
 
 export class NuxtTranslationLoader {
-  private readonly pendingLoads = new Map<string, Promise<Record<string, unknown>>>()
+  private readonly pendingLoads = new Map<string, Promise<Record<string, unknown> | null>>()
   /**
    * Monotonic token so a slower in-flight `switchContext` cannot overwrite a newer one.
    * Vue Router aborts a superseded navigation but does not cancel the guard's await.
@@ -453,7 +466,13 @@ export class NuxtTranslationLoader {
     return null
   }
 
-  loadAsync(locale: string, routeName?: string): Promise<Record<string, unknown>> {
+  /** The chunk, or `{}` when the load fails (a page without translations still renders). */
+  async loadAsync(locale: string, routeName?: string): Promise<Record<string, unknown>> {
+    return (await this.loadChunk(locale, routeName)) ?? {}
+  }
+
+  /** The loaded chunk, or null when the load failed (reported here): a reload must tell that from an empty chunk. */
+  private loadChunk(locale: string, routeName?: string): Promise<Record<string, unknown> | null> {
     const { i18n, loadOptions, isDev } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
@@ -469,7 +488,7 @@ export class NuxtTranslationLoader {
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)
-        return {}
+        return null
       } finally {
         this.pendingLoads.delete(cacheKey)
       }
@@ -488,11 +507,11 @@ export class NuxtTranslationLoader {
     const { i18n } = this.options
     const locale = i18n.getCurrentLocale()
     const routeName = i18n.getCurrentRouteName() || undefined
-    const data = await this.loadAsync(locale, routeName)
+    const data = await this.loadChunk(locale, routeName)
+    // a failed load keeps what is on screen; an empty dictionary would show raw keys
+    if (data === null) return
     if (i18n.getCurrentLocale() !== locale || (i18n.getCurrentRouteName() || undefined) !== routeName) return
-    i18n.applySwitchContext(locale, routeName, data)
-    // same page, no navigation: nothing else would drop the layer applySwitchContext kept
-    i18n.finishTransition()
+    i18n.replaceDictionary(data)
   }
 
   /**

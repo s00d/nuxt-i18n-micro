@@ -4,7 +4,7 @@ import { detectLocaleFromAcceptLanguage, parseAcceptLanguage } from '../src/acce
 import { isInternalPath } from '../src/app-path'
 import { shouldAttemptLocaleRedirect } from '../src/auto-detect-path'
 import { decodeCookieValue, getLocaleCookieOptions, getPreferenceCookieName } from '../src/cookie'
-import { explicitLocale, firstQueryValue, localeFromPath, resolveLocale } from '../src/resolve-locale'
+import { explicitLocale, firstQueryValue, localeFromPath, redirectLocale, resolveLocale } from '../src/resolve-locale'
 import { applyI18nRuntimeOverrides, createI18nConfigResolver } from '../src/runtime-config'
 
 describe('Accept-Language (F5: q, F6: matching)', () => {
@@ -42,6 +42,28 @@ describe('Accept-Language (F5: q, F6: matching)', () => {
 
   it('orders by q, stable for equal q', () => {
     expect(parseAcceptLanguage('a;q=0.5, b, c;q=0.5, d')).toEqual(['b', 'd', 'a', 'c'])
+  })
+})
+
+describe('redirectLocale: autoDetectPath gates the preference', () => {
+  const base = { defaultLocale: 'en', validLocales: ['en', 'de', 'fr'], autoDetectLanguage: true, cookie: 'de', acceptLanguage: 'fr' }
+
+  it("'*' applies cookie / Accept-Language on every path, unprefixed ones included", () => {
+    expect(redirectLocale({ ...base, path: '/about', urlLocale: null, autoDetectPath: '*' })).toBe('de')
+    expect(redirectLocale({ ...base, cookie: null, path: '/about', urlLocale: null, autoDetectPath: '*' })).toBe('fr')
+    expect(redirectLocale({ ...base, path: '/fr/about', urlLocale: 'fr', autoDetectPath: '*' })).toBe('de')
+  })
+
+  it('outside autoDetectPath an unprefixed URL keeps the default locale', () => {
+    expect(redirectLocale({ ...base, path: '/about', urlLocale: null })).toBe('en')
+    expect(redirectLocale({ ...base, path: '/', urlLocale: null })).toBe('de')
+    expect(redirectLocale({ ...base, path: '/about', urlLocale: null, autoDetectPath: 'no_prefix' })).toBe('de')
+    expect(redirectLocale({ ...base, path: '/welcome', urlLocale: null, autoDetectPath: '/welcome' })).toBe('de')
+  })
+
+  it('state before cookie; no source is the default', () => {
+    expect(redirectLocale({ ...base, state: 'fr', path: '/', urlLocale: null })).toBe('fr')
+    expect(redirectLocale({ defaultLocale: 'en', validLocales: ['en', 'de'], path: '/', urlLocale: null })).toBe('en')
   })
 })
 

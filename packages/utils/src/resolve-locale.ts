@@ -1,4 +1,5 @@
 import { detectLocaleFromAcceptLanguage } from './accept-language'
+import { shouldAttemptLocaleRedirect } from './auto-detect-path'
 
 /**
  * Every source a caller may have for the locale of a request or navigation. A caller passes only
@@ -46,6 +47,26 @@ export function resolveLocale(input: ResolveLocaleInput): string {
   const { validLocales } = input
   if (!input.autoDetectLanguage) return input.defaultLocale
   return detectLocaleFromAcceptLanguage(input.acceptLanguage ?? undefined, validLocales) ?? input.defaultLocale
+}
+
+export interface RedirectLocaleInput extends Omit<ResolveLocaleInput, 'url' | 'query' | 'queryFirst'> {
+  path: string
+  /** Locale prefix of `path`, or null. */
+  urlLocale: string | null
+  /** `ModuleOptions.autoDetectPath` (default `'/'`). */
+  autoDetectPath?: string
+}
+
+/**
+ * The locale a locale redirect aims at: `resolveLocale` over state → cookie → Accept-Language
+ * wherever `autoDetectPath` lets preference count (`'*'`: every path). Elsewhere an unprefixed URL
+ * keeps the default locale, so it still canonicalizes (`localeRoutes` aliases). The URL is not a
+ * source here: it is what the redirect may move.
+ */
+export function redirectLocale(input: RedirectLocaleInput): string {
+  const allowed = shouldAttemptLocaleRedirect(input.path, { autoDetectPath: input.autoDetectPath, hasLocalePrefix: input.urlLocale !== null })
+  if (!input.urlLocale && !allowed) return input.defaultLocale
+  return resolveLocale(input)
 }
 
 /** Locale code in the first path segment, or null. */

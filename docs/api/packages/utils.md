@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-85 exports across 19 entry points.
+87 exports across 19 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -340,12 +340,31 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `explicitLocale` | function | `(input: Omit<ResolveLocaleInput, "defaultLocale">) => string \| null` |
 | `firstQueryValue` | function | `(value: unknown) => string \| null` |
 | `localeFromPath` | function | `(path: string, validLocales: readonly string[]) => string \| null` |
+| `redirectLocale` | function | `(input: RedirectLocaleInput) => string` |
+| `RedirectLocaleInput` | interface | 9 members |
 | `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
 | `ResolveLocaleInput` | interface | 9 members |
 | `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
 | `ResolvePreferredLocaleInput` | interface | 7 members |
 | `resolveServerLocale` | function | `(input: ResolveServerLocaleInput) => string` |
 | `ResolveServerLocaleInput` | interface | 8 members |
+
+<details>
+<summary><code>RedirectLocaleInput</code> — 9 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `acceptLanguage?` | `string \| null \| undefined` |
+| `autoDetectLanguage?` | `boolean \| undefined` |
+| `autoDetectPath?` | `string \| undefined` |
+| `cookie?` | `string \| null \| undefined` |
+| `defaultLocale` | `string` |
+| `path` | `string` |
+| `state?` | `string \| null \| undefined` |
+| `urlLocale` | `string \| null` |
+| `validLocales` | `readonly string[]` |
+
+</details>
 
 <details>
 <summary><code>ResolveLocaleInput</code> — 9 members</summary>

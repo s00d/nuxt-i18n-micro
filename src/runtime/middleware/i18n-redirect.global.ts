@@ -7,9 +7,8 @@
 import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
-import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
-import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
+import { redirectLocale } from '@i18n-micro/utils/resolve-locale'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {
@@ -35,21 +34,18 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const path = to.path || '/'
   const urlLocale = i18nStrategy.getLocaleFromPath(path)
 
-  const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
-  // an invalid state does not hide a valid cookie
-  const preference = explicitLocale({
-    validLocales,
+  // Same gate and order as the server (#242): state → cookie where `autoDetectPath` allows them;
+  // an invalid state does not hide a valid cookie. The route still has the last word.
+  const preference = redirectLocale({
+    path,
+    urlLocale,
+    autoDetectPath,
+    defaultLocale,
+    validLocales: getEnabledLocaleCodes(i18nConfig.locales),
     state: useState<string | null>('i18n-locale', () => null).value,
     cookie: readCookie(getPreferenceCookieName(i18nConfig)),
   })
-
-  // Cookie / Accept-Language preference is gated by autoDetectPath (#242); unprefixed deep links
-  // still canonicalize with the default locale (localeRoutes aliases).
-  const allowed = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix: urlLocale !== null })
-  const preferred =
-    !urlLocale && (anyPath || !allowed)
-      ? defaultLocale
-      : i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference) || preference || defaultLocale
+  const preferred = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference)
 
   const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
   if (target) return navigateTo({ path: target, query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })

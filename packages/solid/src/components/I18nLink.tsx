@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { externalLinkHref } from '@i18n-micro/core'
 import { type Accessor, type Component, createMemo, type JSX, splitProps } from 'solid-js'
 import { useI18nContext, useI18nRouter } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
@@ -39,12 +40,8 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
   })
 
   // 3. Проверка на внешнюю ссылку
-  const isExternal = createMemo(() => {
-    if (typeof local.to === 'string') {
-      return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(local.to)
-    }
-    return false
-  })
+  const externalHref = createMemo(() => externalLinkHref(local.to))
+  const isExternal = createMemo(() => externalHref() !== undefined)
 
   // 4. Вычисление активного состояния
   // Важно: вызываем pathnameAccessor() внутри createMemo для правильного отслеживания изменений
@@ -92,7 +89,7 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
       // @ts-expect-error - Type conflict with Vue JSX
       (
         <a
-          href={typeof local.to === 'string' ? local.to : ''}
+          href={externalHref()}
           target="_blank"
           rel="noopener noreferrer"
           style={mergedStyle()}

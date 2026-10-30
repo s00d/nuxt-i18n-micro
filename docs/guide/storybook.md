@@ -54,8 +54,8 @@ function collect(dir: string, locale: string): Tree {
 
 for (const file of fs.readdirSync(localesDir).filter((f) => f.endsWith('.json'))) {
   const locale = path.basename(file, '.json')
-  // page keys first, root keys win
-  const merged = deepMergeTranslations(collect(path.join(localesDir, 'pages'), locale), readJson(path.join(localesDir, file)))
+  // root keys first, page keys win (as in the module's build)
+  const merged = deepMergeTranslations(readJson(path.join(localesDir, file)), collect(path.join(localesDir, 'pages'), locale))
   fs.mkdirSync(path.join(outDir, locale), { recursive: true })
   fs.writeFileSync(path.join(outDir, locale, 'data.json'), JSON.stringify(merged))
 }

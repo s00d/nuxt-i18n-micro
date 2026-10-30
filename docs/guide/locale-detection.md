@@ -73,7 +73,7 @@ The header is read as RFC 9110 defines it and matched against the locale **codes
 
 - Entries are tried by `q` value, highest first (`fr;q=0.1, de;q=0.9` → `de`). `q=0` means "not this language"; an entry with a malformed `q` is ignored. `*` matches nothing.
 - `_` is read as `-` (`en_US` = `en-US`).
-- Per entry: the exact code, then shorter forms (`de-AT` → `de`), then a regional locale of the same language (`en` → `en-US`). This does not depend on the order of `locales`.
+- Per entry: the exact code, then shorter forms (`de-AT` → `de`), then a regional locale of the same language (`en` → `en-US`). Exact and shorter forms do not depend on the order of `locales`; among several regional matches, the first in `locales` wins.
 - Scripts are never crossed: `zh-TW` and `zh-HK` imply Traditional, `zh-CN` Simplified, so `zh-CN` never matches a `zh-Hant` locale.
 - Disabled locales never match.
 

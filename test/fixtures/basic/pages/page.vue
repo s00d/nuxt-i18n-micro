@@ -81,6 +81,7 @@
 
     <div>
       <i18n-link id="external-link" to="https://www.external-link.fr"> External Link </i18n-link>
+      <i18n-link id="tel-link" to="tel:+100"> Phone </i18n-link>
     </div>
 
     <div>

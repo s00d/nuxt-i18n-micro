@@ -307,7 +307,8 @@ export interface PluginsInjections {
   $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
   /**
    * Whether a key resolves in the active locale. Use it to branch on optional copy instead of
-   * rendering a raw key.
+   * rendering a raw key. Like `$t`, it also sees the leaving page's keys during a same-locale
+   * page transition.
    */
   $has: (key: string) => boolean
   /**

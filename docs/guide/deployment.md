@@ -50,7 +50,7 @@ export default defineNuxtConfig({
 })
 ```
 
-In `source` mode the browser always fetches payloads from the server route, which merges them on request (any public copy holds the compact source tree that only the server reads). That needs a running server, so do not use `source` for a pure static site. The serverless test fixture (`test/fixtures/serverless`) runs this setup with `serveStatic: false` behind a route cache.
+In `source` mode the browser always fetches payloads from the server route, which merges them on request (any public copy holds the compact source tree that only the server reads). That needs a running server, so do not use `source` for a pure static site.
 
 ## Static site (nuxi generate)
 
@@ -74,7 +74,7 @@ These are set by the server route (and a `/_locales/**` route rule with CORS ena
 
 [`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`).
 
-The server keeps loaded payloads in a bounded in-process cache until it restarts; [Performance tuning](/guide/performance) covers its size and TTL. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
+The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSize` entries (1000 by default) that reloads an entry after `cacheTtl` when set; [Performance tuning](/guide/performance) covers both. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
 
 ## App baseURL and payload hosts
 

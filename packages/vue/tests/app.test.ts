@@ -315,7 +315,14 @@ test('I18nLink and I18nSwitcher with a hand-written routing strategy', async () 
   expect(wrapper.find('#own').attributes('href')).toBe('/')
   expect(wrapper.find('#own-path').attributes('href')).toBe('/own/x')
   expect(wrapper.findAll('.kind').map((a) => a.attributes('target'))).toEqual(['_blank', '_blank', '_blank', '_blank', undefined])
-  expect(wrapper.findAll('.kind')[4]!.attributes('href')).toBe('/de/guide.html')
+  expect(wrapper.findAll('.kind').map((link) => link.attributes('href'))).toEqual([
+    'https://cdn.example.com/a.js',
+    '//cdn.example.com/a.js',
+    'http://example.com',
+    'tel:+100',
+    '/de/guide.html',
+  ])
+  expect(wrapper.find('#mail').attributes('href')).toBe('mailto:a@b.c')
   const ext = wrapper.find('#ext')
   expect([ext.attributes('href'), ext.attributes('target'), ext.attributes('rel'), ext.attributes('style')]).toEqual([
     'https://example.com/a',

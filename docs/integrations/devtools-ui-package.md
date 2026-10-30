@@ -89,7 +89,7 @@ document.body.append(el)
 
 `getRouteCache` must return the dictionaries keyed `locale:route` (`en:index`, `en:blog-post`), which is what `i18n.storage.translations` holds. For a Vue instance use `i18n.global.getRouteCache()` and `i18n.global.subscribeToChanges(cb)`.
 
-`saveTranslation` updates the instance first, then POSTs to `<base>/save`. When there is no endpoint (a static preview build) the edit is kept in `localStorage`; any other save error restores the previous dictionary and throws.
+`saveTranslation` updates the instance first, then POSTs to `<base>/save`. When there is no endpoint (a static preview build) or the dev server cannot be reached, the edit is kept in `localStorage`; any other save error restores the previous dictionary and throws.
 
 ## API
 
@@ -97,7 +97,8 @@ document.body.append(el)
 | --- | --- |
 | `i18nDevToolsPlugin(options)` | `@i18n-micro/devtools-ui/vite` |
 | `register()`, `I18nDevToolsElement` | `@i18n-micro/devtools-ui` |
-| `createBridge(options)`, types `BridgeAdapter`, `CreateBridgeOptions`, `I18nDevToolsBridge` | `@i18n-micro/devtools-ui` (also `/bridge/create`, `/bridge`) |
+| `createBridge(options)`, types `BridgeAdapter`, `CreateBridgeOptions` | `@i18n-micro/devtools-ui` (also `/bridge/create`) |
+| type `I18nDevToolsBridge` | `@i18n-micro/devtools-ui` (also `/bridge`) |
 | `createRpcClient`, `setupRpcHost` | `@i18n-micro/devtools-ui` |
 
 Full signatures: [package reference](/api/packages/devtools-ui).

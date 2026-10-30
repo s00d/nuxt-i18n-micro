@@ -58,15 +58,15 @@ export default defineComponent({
       type: Function as PropType<PluralFunc>,
       default: null,
     },
-    /** Formats the value with `$tn` and passes it to the translation as `{number}` (`params` are not applied). */
+    /** Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. */
     number: {
       type: [Number, String] as PropType<number | string>,
     },
-    /** Formats the value with `$td` and passes it to the translation as `{date}` (`params` are not applied). */
+    /** Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. */
     date: {
       type: [Date, String, Number] as PropType<Date | string | number>,
     },
-    /** Formats the value with `$tdr` and passes it to the translation as `{relativeDate}` (`params` are not applied). */
+    /** Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. */
     relativeDate: {
       type: [Date, String, Number] as PropType<Date | string | number>,
     },

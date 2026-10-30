@@ -1,3 +1,4 @@
+import { externalLinkHref } from '@i18n-micro/core'
 import { type CSSProperties, computed, defineComponent, h, inject, type PropType } from 'vue'
 import type { VueI18n } from '../composer'
 import { I18nInjectionKey, I18nRouterKey } from '../injection'
@@ -27,16 +28,12 @@ export const I18nLink = defineComponent({
       throw new Error('[i18n-micro] I18nLink: i18n instance not found. Make sure i18n plugin is installed.')
     }
 
-    const isExternalLink = computed(() => {
-      if (typeof props.to === 'string') {
-        return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to)
-      }
-      return false
-    })
+    const externalHref = computed(() => externalLinkHref(props.to))
+    const isExternalLink = computed(() => externalHref.value !== undefined)
 
     const targetPath = computed(() => {
-      if (isExternalLink.value) {
-        return props.to as string
+      if (externalHref.value !== undefined) {
+        return externalHref.value
       }
 
       if (props.localeRoute) {

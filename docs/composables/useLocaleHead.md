@@ -49,7 +49,7 @@ useHead(metaObject)
 
 - Nothing on a route with no match (404) or with `disableMeta` for the active locale.
 - Canonical and `og:url`: `$switchLocalePath(<active locale>)`, query reduced to [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist), [`trailingSlash`](/api/module-options#trailingslash) applied.
-- `hreflang`: one link per enabled locale the page exists in, `hreflang = iso || code`, skipping locales with `seo: false`. None under `no_prefix`.
+- `hreflang`: one link per enabled locale the page exists in, `hreflang = iso || code`, skipping locales with `seo: false`; with `hreflangBaseLanguage: true` the first regional locale of a language also emits its bare-language tag. None under `no_prefix`.
 - `x-default`: the default locale's URL, unless the strategy is `no_prefix`, the default locale has `seo: false`, or the page does not exist in it.
 - `og:locale` / `og:locale:alternate`: from the locale's `og`, or its `iso` converted (`en-US` → `en_US`); skipped with a dev warning when neither works.
 

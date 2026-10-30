@@ -34,7 +34,7 @@ Which languages exist and how they appear in the URL.
 | `locales` | `Locale[]` | `[]` | List of supported locales. Each entry defines a locale code plus optional metadata (ISO, direction, display name, etc.). |
 | `strategy` | `Strategies` | `'prefix_except_default'` | URL routing strategy for locale prefixes. - `'no_prefix'` — no locale in URL; locale stored in cookie. - `'prefix_except_default'` — prefix all locales except the default. - `'prefix'` — always prefix, including the default locale. - `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix. |
 | `defaultLocale` | `string` | `'en'` | The locale to use when no locale can be determined from URL or user preferences. It is not a translation fallback: set `fallbackLocale` for that. |
-| `localeCookie` | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. Set to `null` to disable cookie-based persistence. Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided. |
+| `localeCookie` | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. Set to `null` to disable cookie-based persistence. Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit `null` in the `i18n` config block keeps it off there too. |
 | `globalLocaleRoutes` | `GlobalLocaleRoutes` | `{}` | Global route-level locale configuration. Allows restricting or customizing locale routes for specific pages without modifying their components. - `false` — exclude the route from localization. - `Record<LocaleCode, string>` — custom per-locale paths. |
 | `customRegexMatcher` | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments. Every locale code in `locales` must match this pattern, or the build fails. |
 | `noPrefixRedirect` | `boolean` | `false` | For `no_prefix` strategy: when the default locale has a custom path for a page (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to it (e.g. `/about` → `/about-us`). Pages with dynamic segments are not redirected. |
@@ -92,9 +92,9 @@ Choosing a locale for a visitor who has not picked one.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `redirects` | `boolean` | `true` | Enable automatic locale redirects (server plugin and client route middleware). When `true`, an unprefixed URL is redirected to its localized form. The locale comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise the default. |
+| `redirects` | `boolean` | `true` | Enable automatic locale redirects (server plugin and client route middleware). When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths). |
 | `autoDetectLanguage` | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. Used in combination with `autoDetectPath` to decide when detection occurs. |
-| `autoDetectPath` | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`) Outside the allowed paths an unprefixed URL still redirects to the default locale's form (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under `prefix_except_default` (`/en`) is a 404, not a redirect. |
+| `autoDetectPath` | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`) Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default locale's form (`/about` → `/en/about`). The default locale with a prefix under `prefix_except_default` (`/en`) is a 404, not a redirect. |
 
 ## Registration
 
@@ -428,7 +428,7 @@ Enables `$tn(1000, 'currency')` style calls.
 
 <!-- /generated:option:numberFormats -->
 
-Used by [`$tn`](/api/methods#tn) and `<i18n-t :number>`.
+Used by [`$tn`](/api/methods#tn).
 
 #### `datetimeFormats`
 
@@ -441,7 +441,7 @@ Enables `$td(date, 'short')` style calls.
 
 <!-- /generated:option:datetimeFormats -->
 
-Used by [`$td`](/api/methods#td) and `<i18n-t :date>`.
+Used by [`$td`](/api/methods#td).
 
 #### `disableWatcher`
 
@@ -693,8 +693,9 @@ The rules these options feed: [Locale detection](/guide/locale-detection).
 **Type** `boolean` · **Default** `true`
 
 Enable automatic locale redirects (server plugin and client route middleware).
-When `true`, an unprefixed URL is redirected to its localized form. The locale comes from
-the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise the default.
+When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale
+comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise
+the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths).
 
 <!-- /generated:option:redirects -->
 
@@ -726,8 +727,8 @@ Where cookie / Accept-Language preference redirects may run (when `redirects` is
 
 - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
 
-Outside the allowed paths an unprefixed URL still redirects to the default locale's form
-(e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under
+Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default
+locale's form (`/about` → `/en/about`). The default locale with a prefix under
 `prefix_except_default` (`/en`) is a 404, not a redirect.
 
 <!-- /generated:option:autoDetectPath -->
@@ -740,7 +741,8 @@ Outside the allowed paths an unprefixed URL still redirects to the default local
 
 Cookie name for persisting the user's locale preference across sessions.
 Set to `null` to disable cookie-based persistence.
-Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided.
+Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
+`null` in the `i18n` config block keeps it off there too.
 
 <!-- /generated:option:localeCookie -->
 

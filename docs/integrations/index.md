@@ -68,7 +68,7 @@ i18n.t('nav.home') // 'Start' (root key, still visible on the route)
 | `tdr(value, options?)` | Relative time (`3 days ago`). |
 | `has(key, routeName?)` | `true` when the active locale has the key (route or root dictionary; the fallback is not checked). |
 
-`defaultPlural` splits the value on `|` and picks the form by count: `0` → first, `1` → second, more → last.
+`defaultPlural` splits the value on `|` and picks the form at index `count`, clamped to the last one; a negative, fractional or `NaN` count picks the last form.
 
 A custom `plural` receives `(key, count, params, locale, getter)`. Read the value through `getter(key)`; do not split the key:
 

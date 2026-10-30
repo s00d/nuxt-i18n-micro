@@ -13,6 +13,8 @@ export interface ResolveInitialLocaleOptions {
   route: unknown
   /** The locale the URL names, under a strategy that has one. */
   urlLocale?: string | null
+  /** What to remember when the URL's locale is not the visitor's: under no_prefix a record names one. */
+  preference?: string | null
   serverLocale?: string | null
   getLocaleFromRoute: GetLocaleFromRoute
 }
@@ -83,13 +85,14 @@ export function useI18nLocale() {
   const resolveInitialLocale = (options: ResolveInitialLocaleOptions): string => {
     const state = isValidLocale(localeState.value) ? localeState.value : null
     const locale = options.urlLocale || state || options.serverLocale || options.getLocaleFromRoute(options.route)
-    if (locale && !state) {
+    const remembered = options.preference ?? locale
+    if (remembered && !state) {
       // On server, avoid persisting cookie during initial resolution.
       // Redirect plugin owns cookie writes for redirect flows.
       if (import.meta.server) {
-        localeState.value = locale
+        localeState.value = remembered
       } else {
-        setLocale(locale)
+        setLocale(remembered)
       }
     }
     return locale ?? ''

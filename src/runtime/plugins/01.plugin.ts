@@ -131,6 +131,7 @@ export default defineNuxtPlugin({
       route: router.currentRoute.value,
       urlLocale,
       serverLocale,
+      preference: isNoPrefixStrategy(i18nConfig.strategy!) ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
       getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
     })
     const initialRouteName = getPluginRouteName(router.currentRoute.value as unknown as ResolvedRouteLike, initialLocale)
@@ -228,7 +229,9 @@ export default defineNuxtPlugin({
           loader.invalidatePendingSwitches()
         }
 
-        if (applied && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
+        // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
+        const bound = isNoPrefixStrategy(i18nConfig.strategy!) && targetLocale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
+        if (applied && !bound && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
           setLocale(targetLocale)
         }
       } catch (e) {

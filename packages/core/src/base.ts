@@ -215,8 +215,11 @@ export abstract class BaseI18n {
 
   public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
     this.touch()
-    const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-    if (countValue === undefined || countValue === null) return defaultValue ?? key
+    const values = typeof count === 'number' ? { count } : count
+    const { count: countValue, ...params } = values
+    // as `t`: a default is interpolated, an empty one stays
+    const fallback = (): string => (defaultValue ? interpolate(defaultValue, values) : (defaultValue ?? key))
+    if (countValue === undefined || countValue === null) return fallback()
     // Missing key: `undefined` unless a default is passed, so `defaultPlural` (which calls
     // `getter(key)`) sees the miss. With params the value is interpolated for custom rules.
     const getter: Getter = (k, p, dv) => {
@@ -229,7 +232,7 @@ export abstract class BaseI18n {
     const result = this.pluralFunc(key, Number(countValue), params, locale, getter)
     if (result !== null && result !== undefined) return result
     if (this.resolveLookup(key) === null) this.warnMissing(key)
-    return defaultValue ?? key
+    return fallback()
   }
 
   /** Format a number; Vue I18n-style named formats: `tn(1000, 'currency')`. */

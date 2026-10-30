@@ -36,6 +36,29 @@ export function useStore<T>(subscribe: (listener: () => void) => () => void, rea
   return value
 }
 
+/** Preact's own rule for a number without a unit. */
+const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i
+
+const declaration = ([name, value]: [string, unknown]): string =>
+  `${name[0] === '-' ? name : name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}:${
+    typeof value === 'number' && !IS_NON_DIMENSIONAL.test(name) ? `${value}px` : value
+  }`
+
+const cssText = (style: CSSProperties | string): string =>
+  typeof style === 'string'
+    ? style
+    : Object.entries(style)
+        .filter(([, value]) => value !== null && value !== undefined)
+        .map(declaration)
+        .join(';')
+
+/** Later wins. Preact's `style` takes an object or a CSS string; a string among them makes the result one too. */
+export function mergeStyles(...styles: (CSSProperties | string | null | undefined)[]): CSSProperties | string {
+  const present = styles.filter((style) => style !== null && style !== undefined)
+  if (present.some((style) => typeof style === 'string')) return present.map(cssText).filter(Boolean).join(';')
+  return Object.assign({}, ...present)
+}
+
 export type HostNode = ComponentChildren
 export type HostElement = VNode<any> | null
 export type HostStyle = CSSProperties

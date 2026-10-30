@@ -42,7 +42,7 @@ Each package has a playground under `packages/<name>/playground` in the reposito
 | `missingHandler` | `(locale, key, routeName) => void` | — | Called instead of the warning. |
 | `numberFormats` | `Record<locale, Record<name, Intl.NumberFormatOptions>>` | — | Named formats: `tn(9.5, 'currency')`. |
 | `datetimeFormats` | `Record<locale, Record<name, Intl.DateTimeFormatOptions>>` | — | Named formats: `td(date, 'short')`. |
-| `timeZone` | `string` | runtime's zone | IANA zone for dates. Set it so server and browser render one date. |
+| `timeZone` | `string` | runtime's zone | IANA zone for `td` dates; it does not affect `tdr`. Set it so server and browser render one date. |
 | `now` | `() => number` | `Date.now` | The clock of `tdr`. Hand hydration the server's time so both render one text. |
 | `localeIso` | `Record<code, string>` | — | BCP 47 tag used for plural rules (`ua` → `uk-UA`). React, Preact and Solid take it from `iso` in the provider's `locales`. |
 
@@ -158,14 +158,14 @@ In Solid pass a function when a placeholder repeats: one node stands in one plac
 | Prop | Type | Notes |
 | --- | --- | --- |
 | `to` | `string \| { path }` | localized through the adapter's `resolvePath` |
-| `activeStyle` | style object | merged over `style` when the link is the current page or a section above it |
+| `activeStyle` | style object | merged over `style` on the current page; React, Preact and Solid also apply it to a section above |
 | `localeRoute` | function | overrides `resolvePath` for this link |
 
 External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`; a `target` or `rel` of your own wins. `onClick` always runs. A modified click, another mouse button or a `target` stays with the browser.
 
 ### `<I18nSwitcher>`
 
-A dropdown of enabled locales (`disabled: true` locales are hidden) with inline default styles. Its items are links, with `lang`, `hreflang` and `dir` from the locale. Clicking one sets the locale and calls the adapter's `push` with the localized current path; Escape or a click outside closes it.
+A dropdown of enabled locales (`disabled: true` locales are hidden) with inline default styles. Its items are links, with `lang`, `hreflang` and `dir` from the locale. By default, clicking one sets the locale and calls the adapter's `push` with the localized current path; a `switchLocale` prop replaces that action. With a `localeRoute` and no router, the browser follows the link. Escape or a click outside closes it.
 
 | Prop | Notes |
 | --- | --- |

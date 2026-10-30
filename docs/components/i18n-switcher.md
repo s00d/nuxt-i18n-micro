@@ -6,7 +6,7 @@ outline: [2, 3]
 
 # `<i18n-switcher>`
 
-`<i18n-switcher>` renders a button with the active locale and a dropdown of the other enabled locales. Use it for a ready-made language menu; build your own from [`$getLocales`](/api/methods#getlocales) and [`$switchLocalePath`](/api/methods#switchlocalepath) when you need different markup. Each entry links to the current page in that locale.
+`<i18n-switcher>` renders a button with the active locale and a dropdown of all enabled locales, including the active one. Use it for a ready-made language menu; build your own from [`$getLocales`](/api/methods#getlocales) and [`$switchLocalePath`](/api/methods#switchlocalepath) when you need different markup. Each entry links to the current page in that locale.
 
 ## Props and slots
 

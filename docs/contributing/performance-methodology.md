@@ -17,7 +17,7 @@ outline: [2, 3]
 | Packages | `@i18n-micro/*/dist`, built before the suite |
 | Load | Artillery through `@untestutils/perf` |
 
-Vite SPA output, `nuxi preview` and dev servers are not measured. The defaults are 4 locales, 10,000 leaf keys per tree and 3 consecutive runs (means reported), with paths for `prefix_except_default`.
+Vite SPA output, `nuxi preview` and dev servers are not measured. The defaults are 4 locales, a 10,000-key target (`--keys 10000`, which the fixture rounds up to a tree of 16,807 leaf keys per locale: branch 7, depth 5) and 3 consecutive runs (means reported), with paths for `prefix_except_default`.
 
 ## Load profiles
 

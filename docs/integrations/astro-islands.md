@@ -32,7 +32,7 @@ Islands translate from that object only. `t` returns the key for anything not pa
 
 ## Vue
 
-Call `provideI18n(props.i18n)` in the island's root component and `useAstroI18n()` in its children. Vue's `inject` does not see a value provided by the same component, so the root uses the state `provideI18n` returns:
+Call `provideI18n(props.i18n)` in the island's root component and `useAstroI18n()` in its children. Vue's `inject` does not see a value provided by the same component, so the hook must run in a child, not in the root:
 
 ```vue
 <!-- src/components/Counter.vue -->

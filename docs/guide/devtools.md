@@ -6,7 +6,7 @@ outline: [2, 3]
 
 # DevTools
 
-In `nuxt dev` the module adds two debugging aids: an **i18n Micro** tab in Nuxt DevTools for browsing and editing translation files, and a Vue DevTools inspector for the live locale and loaded dictionaries. Both exist only in development and add nothing to production builds. You need no setup beyond having Nuxt DevTools enabled.
+In `nuxt dev` the module adds two debugging aids: an **i18n Micro** tab in Nuxt DevTools for browsing and editing translation files, and a Vue DevTools inspector for the live locale and loaded dictionaries. Both exist only in development and add nothing to production builds. The Nuxt tab needs only Nuxt DevTools enabled; the Vue inspector also needs the Vue DevTools browser extension.
 
 ## Nuxt DevTools tab
 

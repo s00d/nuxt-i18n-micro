@@ -18,7 +18,7 @@ export default defineNuxtPlugin({
   order: -10, // before the i18n plugin (order -5)
   setup() {
     const { setLocale } = useI18nLocale()
-    const host = useRequestHeaders(['host']).host ?? ''
+    const host = (useRequestHeaders(['host']).host ?? '').split(':')[0]! // without the port
 
     if (host.endsWith('.de')) setLocale('de')
     else if (host.endsWith('.fr')) setLocale('fr')
@@ -56,7 +56,7 @@ The effect of `setLocale` depends on the [strategy](/guide/strategy):
 | `prefix`, `prefix_except_default` | On an unprefixed path where [`autoDetectPath`](/api/module-options#autodetectpath) allows redirects (by default only `/`), the server answers `302` to the German URL. A URL with a locale prefix keeps it. |
 | `prefix_and_default` | No redirect: the unprefixed URL is a valid default-locale page. |
 
-Under the prefix strategies a locale in the URL is the user's choice and your plugin does not override it. `autoDetectPath: '*'` does not change that for your plugin: the server then moves visitors by cookie and `Accept-Language` only and ignores the state. Use your plugin to choose where a visitor lands, not to rewrite links they followed.
+Under the prefix strategies a locale in the URL is the user's choice and your plugin does not override it. `autoDetectPath: '*'` is the exception: the server then moves prefixed URLs by cookie and `Accept-Language` and ignores the state, but `setLocale()` also writes the cookie when one is configured, so from the next request your plugin's choice can redirect a prefixed URL. Keep `'/'` or use `'no_prefix'` when explicit locale URLs must win. Use your plugin to choose where a visitor lands, not to rewrite links they followed.
 
 ## Respect a locale the user picked
 

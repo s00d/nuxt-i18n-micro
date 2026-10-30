@@ -71,7 +71,7 @@ const config = $getI18nConfig() // build config with overrides applied
 </script>
 ```
 
-Treat it as read-only: it is shared by every request and frozen in development. Importing the config from `#build/i18n.strategy.mjs` gives the build values without overrides.
+Treat it as read-only: on the server it is shared by every request and frozen in development; the browser copy is not frozen. Importing the config from `#build/i18n.strategy.mjs` gives the build values without overrides.
 
 ## Disabled locales and static files
 

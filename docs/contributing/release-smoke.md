@@ -25,7 +25,7 @@ The test suites run against the source; these checks install the module the way 
 - `/_locales/index/de/data.json` returns the chunk and is cacheable (not `no-store`);
 - `hreflang` alternates with `x-default`, `canonical`, `og:locale`, and `<html lang>` matching the locale.
 
-`smoke-browser --url <base>` (Playwright) adds hydration, client navigation between pages and locales with no raw key visible mid-transition, and no console errors.
+`smoke-browser --url <base>` (Playwright) adds hydration, client navigation between pages and locales with no raw key visible mid-transition, and no uncaught page errors.
 
 ## Run locally
 

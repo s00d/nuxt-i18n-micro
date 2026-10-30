@@ -222,8 +222,9 @@ export interface ModuleOptions {
 
   /**
    * Enable automatic locale redirects (server plugin and client route middleware).
-   * When `true`, an unprefixed URL is redirected to its localized form. The locale comes from
-   * the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise the default.
+   * When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale
+   * comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise
+   * the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths).
    * @default true
    */
   redirects?: boolean
@@ -331,8 +332,8 @@ export interface ModuleOptions {
    *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
    * - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
    *
-   * Outside the allowed paths an unprefixed URL still redirects to the default locale's form
-   * (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under
+   * Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default
+   * locale's form (`/about` → `/en/about`). The default locale with a prefix under
    * `prefix_except_default` (`/en`) is a 404, not a redirect.
    * @default '/'
    */
@@ -391,7 +392,8 @@ export interface ModuleOptions {
   /**
    * Cookie name for persisting the user's locale preference across sessions.
    * Set to `null` to disable cookie-based persistence.
-   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided.
+   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
+   * `null` in the `i18n` config block keeps it off there too.
    * @default null
    */
   localeCookie?: string | null

@@ -105,7 +105,7 @@ pnpm run budget:payload:update                    # record with --tolerance head
 
 ## preflight
 
-Runs every release gate, publishes nothing, and reports all results at once (the `release:*` scripts chain gates with `&&` and stop at the first failure). Gates in order: `deps-audit`, `verify-packages --publint`, `api-surface`, `docs-audit`, `docs-generate --check`, `fixtures-audit --strict`, `check-versions`, `ensure-release-source`, `ensure-npm-auth` (with `--npm`), `payload-budget` (with `--budget`).
+Runs the preflight gates, publishes nothing, and reports all results at once (the `release:*` scripts chain gates with `&&` and stop at the first failure). `release:check` also runs format, lint, typecheck, compare-published and tests, so preflight alone is not a full release check. Gates in order: `deps-audit`, `verify-packages --publint`, `api-surface`, `docs-audit`, `docs-generate --check`, `fixtures-audit --strict`, `check-versions`, `ensure-release-source`, `ensure-npm-auth` (with `--npm`), `payload-budget` (with `--budget`).
 
 ```bash
 pnpm run preflight

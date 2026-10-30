@@ -27,10 +27,10 @@ features:
     details: Each page loads one JSON dictionary (shared root keys plus its own), off the HTML payload. Missing files are created for you.
     link: /guide/translations
   - title: Build-time routing
-    details: Four prefix strategies, custom paths per locale, redirects and 404s decided by one route model the router actually serves.
+    details: Four routing strategies, custom paths per locale, redirects and 404s decided by one route model the router actually serves.
     link: /guide/strategy
   - title: SEO included
-    details: hreflang, canonical, og:locale and the html lang/dir attributes for every localized page.
+    details: Canonical URLs, html lang/dir, hreflang alternates under the prefix strategies, and og:locale for locales with an iso or og value.
     link: /guide/seo
 ---
 

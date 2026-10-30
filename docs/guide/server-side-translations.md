@@ -23,9 +23,9 @@ curl 'http://localhost:3000/api/greeting?locale=de'
 # {"message":"Hallo, Ada!"}
 ```
 
-`useTranslationServerMiddleware(event, defaultLocale?, locale?)` is async and returns `t(key, params?, defaultValue?)`. `t` returns the string, interpolates `{name}` params, and returns `defaultValue` (or the key) when the key is missing.
+`useTranslationServerMiddleware(event, defaultLocale?, locale?)` is async and returns `t(key, params?, defaultValue?)`. `t` returns the string, interpolates `{name}` params, and returns a non-empty `defaultValue`, otherwise the key, when the key is missing.
 
-`t` sees the `index` chunk only: the root files (`locales/<locale>.json`) plus `locales/pages/index/` when it exists. Keys of other pages are not loaded. For those, load the chunk yourself:
+`t` sees the `index` chunk only: the root files (`locales/<locale>.json`) plus `locales/pages/index/` when it exists (root files only with `disablePageLocales`). Keys of other pages are not loaded. For those, load the chunk yourself:
 
 ```ts
 const { data } = await loadTranslationsFromServer('de', 'about') // Translations object of the about page
@@ -74,12 +74,12 @@ Pass the third argument to skip detection, for example in a job that sends mail 
 ```ts
 export default defineEventHandler(async (event) => {
   const user = await getUser(event) // your code
-  const t = await useTranslationServerMiddleware(event, 'en', user.locale)
+  const t = await useTranslationServerMiddleware(event, undefined, user.locale)
   return sendMail(user.email, t('mail.welcome.subject'))
 })
 ```
 
-The second argument replaces `defaultLocale` for this call only. Dictionaries are cached per request and per locale, and across requests in the server's translation cache, so calling a helper several times is cheap.
+The second argument replaces `defaultLocale` for this call's detection, so it has no effect when a locale is forced. Dictionaries are cached per request and per locale, and across requests in the server's translation cache, so calling a helper several times is cheap.
 
 ## Related
 

@@ -46,7 +46,7 @@ The override is reset when the route name changes. A page that sets `disableMeta
 | `replace.xDefault` | `I18nHeadLink \| false` | Replace or remove the `x-default` link. |
 | `replace.ogLocale` | `string \| false` | Replace or remove `og:locale`. |
 | `replace.ogUrl` | `string \| false` | Replace or remove `og:url`. |
-| `replace.ogAlternates` | `string[] \| false` | Rebuild `og:locale:alternate` from these locale codes (via `og` / `iso`), or remove them. |
+| `replace.ogAlternates` | `string[] \| false` | Rebuild `og:locale:alternate` from these locale codes (via `og` / `iso`), skipping the current locale, unknown codes and codes without an `og` or `iso` value, or remove them. |
 | `disable` | `I18nHeadDisableGroup[]` | Drop generated groups: `'hreflang'` (not `x-default`), `'x-default'`, `'canonical'`, `'og'` (`og:locale` + `og:url`), `'og-alternates'`, `'html'`. |
 
 Order of application: `disable`, then `replace`, then `htmlAttrs`, `meta`, `link`.

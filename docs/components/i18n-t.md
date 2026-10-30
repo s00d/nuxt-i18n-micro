@@ -22,9 +22,9 @@ outline: [2, 3]
 | `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for content you control. |
 | `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
 | `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. |
-| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}` (`params` are not applied). |
-| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}` (`params` are not applied). |
-| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}` (`params` are not applied). |
+| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. |
+| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. |
+| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. |
 
 **\*** required.
 
@@ -34,13 +34,13 @@ outline: [2, 3]
 
 The first matching case decides the output:
 
-1. `number` — renders `$t(keypath, { number: $tn(number) })`.
-2. `date` — renders `$t(keypath, { date: $td(date) })`.
-3. `relativeDate` — renders `$t(keypath, { relativeDate: $tdr(relativeDate) })`.
+1. `number` — renders `$t(keypath, { ...params, number: $tn(number) })`.
+2. `date` — renders `$t(keypath, { ...params, date: $td(date) })`.
+3. `relativeDate` — renders `$t(keypath, { ...params, relativeDate: $tdr(relativeDate) })`.
 4. `plural` — renders `$tc(keypath, { count, ...params })`, or `customPluralRule(keypath, count, params, locale, t)` when set.
-5. Otherwise `$t(keypath, params)`: with `hideIfEmpty` an empty result renders `defaultValue` instead; `html` renders it as HTML; a `default` slot receives `{ translation }`; any other named slot replaces its `{name}` placeholder.
+5. Otherwise `$t(keypath, params)`: with `hideIfEmpty` an empty result renders `defaultValue` instead; a `default` slot receives `{ translation }` and named slots are ignored; otherwise each named slot replaces its `{name}` placeholder.
 
-In cases 1–3 `params` are not passed to the translation. Slots apply only in case 5.
+`html` applies in every case and renders the result as HTML; slots are then ignored. Slots apply only in case 5.
 
 ## Example
 

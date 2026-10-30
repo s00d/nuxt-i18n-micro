@@ -21,7 +21,7 @@ $defineI18nRoute({
 </script>
 ```
 
-Only `/en/product` and `/de/product` are generated; the page has no route in any other locale. The same can be set from `nuxt.config.ts` with [`routeLocales`](/api/module-options#routelocales).
+Only `/product` and `/de/product` are generated under the default `prefix_except_default` strategy; the page has no route in any other locale. The same can be set from `nuxt.config.ts` with [`routeLocales`](/api/module-options#routelocales).
 
 `$defineI18nRoute` is a Nuxt app injection, not a compiler macro: always take it from `useNuxtApp()` and call it with the `$`. Only `$defineI18nRoute(` is recognized by the build step.
 

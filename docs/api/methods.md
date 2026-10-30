@@ -238,7 +238,8 @@ The third argument is `defaultValue`, not params.
 ```
 
 Whether a key resolves in the active locale. Use it to branch on optional copy instead of
-rendering a raw key.
+rendering a raw key. Like `$t`, it also sees the leaving page's keys during a same-locale
+page transition.
 
 <!-- /generated:method:$has -->
 
@@ -519,7 +520,7 @@ Load translations for a page at runtime, for content whose keys are not known at
 
 <!-- /generated:method:$loadPageTranslations -->
 
-Merges into the `(locale, routeName)` chunk, loading the chunk first if needed, and updates the screen when that chunk is active.
+Merges into the in-memory `(locale, routeName)` chunk; no payload is fetched, so a chunk that is not loaded starts from these translations alone. The screen updates when that chunk is active.
 
 ```ts
 await $loadPageTranslations('en', 'about', { title: 'About us' })

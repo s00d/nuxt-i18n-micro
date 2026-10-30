@@ -135,6 +135,8 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - **`cacheTtl` counts from when an entry was stored**; reads no longer extend it.
 - **No Nitro route cache on `/{apiBaseUrl}/**`.** The `Cache-Control` headers stay. If you relied on that cache, put a CDN in front of the payload route.
 
+- **`/_locales/**` sends CORS headers only when `apiBaseClientHost` is set.** A page on another origin that fetches this app's payloads without that option now fails. Add `routeRules: { '/_locales/**': { cors: true } }` to keep it working.
+
 ### Hooks and types
 
 - **`i18n:register` is a runtime hook:** register it with `nuxtApp.hook('i18n:register', …)` in a plugin, without `@ts-expect-error`. The exported type `ModuleHooks` is renamed `ModuleRuntimeHooks`. See [Hooks](/api/events).

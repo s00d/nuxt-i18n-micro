@@ -16,9 +16,15 @@ describe('routeRules', () => {
     // step 3: the `_locales` rule: no header in dev (HMR must not be answered from a cache),
     // the configured Cache-Control in production, none when none is configured
     const revalidate = 'public, max-age=0, must-revalidate'
-    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: 'public, max-age=31536000, immutable' })).toEqual({ cors: true })
-    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: null })).toEqual({ cors: true })
-    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: revalidate })).toEqual({
+    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: 'public, max-age=31536000, immutable', crossOrigin: false })).toEqual({})
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: null, crossOrigin: false })).toEqual({})
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: revalidate, crossOrigin: false })).toEqual({
+      headers: { 'Cache-Control': revalidate },
+    })
+
+    // step 4: CORS only where a browser reads the payloads from another origin
+    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: null, crossOrigin: true })).toEqual({ cors: true })
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: revalidate, crossOrigin: true })).toEqual({
       cors: true,
       headers: { 'Cache-Control': revalidate },
     })

@@ -4,7 +4,6 @@ import { Socket } from 'node:net'
 import { expect, test, vi } from 'vitest'
 import { detectCurrentLocale } from '../../src/runtime/server/utils/locale-detector'
 
-vi.mock('#i18n-internal/strategy', () => ({ domains: undefined, getI18nConfig: () => ({}) }))
 vi.mock('#imports', () => ({ useRuntimeConfig: () => ({ app: { baseURL: '/' }, public: {} }) }))
 
 function request(url: string, headers: Record<string, string> = {}) {

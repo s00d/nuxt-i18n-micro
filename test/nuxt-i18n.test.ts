@@ -5,6 +5,24 @@ import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
 
+describe('formatterFor', () => {
+  const money = (currency: string) =>
+    ({ numberFormats: { en: { money: { style: 'currency', currency } } } }) as unknown as Parameters<typeof formatterFor>[0]
+
+  test('requests on one resolved config share one formatter', () => {
+    const config = money('USD')
+    expect(formatterFor(config)).toBe(formatterFor(config))
+  })
+
+  test('another config (runtime overrides, another host) gets its own, with its own formats', () => {
+    const usd = formatterFor(money('USD'))
+    const eur = formatterFor(money('EUR'))
+    expect(usd).not.toBe(eur)
+    expect(usd.resolveNumberFormat('en', 'money')?.currency).toBe('USD')
+    expect(eur.resolveNumberFormat('en', 'money')?.currency).toBe('EUR')
+  })
+})
+
 /** A load that resolves when the test says so: the order of navigations is what is under test. */
 function deferred() {
   let resolve!: (value: Record<string, unknown>) => void

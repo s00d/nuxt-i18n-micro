@@ -59,7 +59,7 @@ i18n-micro stats --baseRef main
 
 `extract` and `sync` never write `''` for a key without a translation. The key stays absent, so `fallbackLocale` applies at runtime, and `check` reports it. An empty string would be a defined value: it would show a blank.
 
-All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. Test code counts as usage, but `extract` and `check` do not treat its keys as ones the app needs. Test code means the root folders `tests`, `test`, `__tests__`, `e2e`, `cypress` and `playwright`, and `*.spec.ts` or `*.test.ts` files anywhere. Only the root folders are exempt from the doubts below: `pages/tests/[id].vue` is a page like any other. So are `public/` and minified files, whose code is not part of the app.
+All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. Test code counts as usage, so `clean` and `check --only unused` keep a key only a test reads. It is never a reason to add a key, though: `extract` skips such keys, and `check` does not report them as undefined. Test code means the root folders `tests`, `test`, `__tests__`, `e2e`, `cypress` and `playwright`, and `*.spec.ts` or `*.test.ts` files anywhere. Only the root folders are exempt from the doubts below: `pages/tests/[id].vue` is a page like any other. So are `public/` and minified files, whose code is not part of the app.
 
 They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()` and `useTranslationServerMiddleware()`, `<i18n-t keypath>` in templates and JSX, `<i18n-group prefix>`, and aliases such as `const { t: tr } = useI18n()`.
 
@@ -103,7 +103,7 @@ i18n-micro translate --service deepl --locale de,fr
 | `libretranslate` | LibreTranslate | Optional | `baseUrl` |
 | `yandexcloud` | Yandex Cloud Translate | API key, or IAM token with `authScheme:Bearer` | `folderId`, `model` |
 
-Options are `key:value` pairs: `--options provider:openai,model:gpt-4o-mini`. All services also take `baseUrl`, `retries`, `retryDelayMs` and `timeoutMs`.
+Options are `key:value` pairs: `--options provider:openai,model:gpt-4o-mini`. All services also take `baseUrl`, `retries`, `retryDelayMs` and `timeoutMs`. A translation request may already be billed, so it is repeated only after a `429` or `503`, and not when the service asks to wait more than a minute.
 
 Flags are visible in shell history and process lists, so prefer the environment variable for the token. The CLI masks what it knows to be secret wherever it prints it, `--debug` included: tokens, provider keys, Basic credentials, and the query and credentials of a URL you configured. A server that reformats a key before echoing it is out of its reach, so treat logs of a failed run with care.
 
@@ -145,7 +145,7 @@ i18n-micro export --format csv
 i18n-micro import --format csv --dryRun
 ```
 
-`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `export` records what it wrote in `.i18n-export.json`, in the output folder. It stops when a file has changed since then and holds translations the locale files do not have, fuzzy PO entries included; `--force` overwrites them. Ordinary edits of the locale files do not stop it. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`.
+`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `export` records what it wrote in `.i18n-export.json`, in the output folder. It stops when a file has changed since then and holds translations the locale files do not have, fuzzy PO entries included; `--force` overwrites them. Ordinary edits of the locale files do not stop it. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`. A catalog outside `pages/<page>/`, a page's catalog the last export did not write, a quote out of place in a CSV, or a page entry under `disablePageLocales` stops the import with exit `2`.
 
 For a translation platform, use its own CLI: the [Crowdin](/guide/crowdin) setup syncs the JSON files, page files included.
 
@@ -159,7 +159,7 @@ For a translation platform, use its own CLI: the [Crowdin](/guide/crowdin) setup
 
 The endpoint answers `GET` and `PUT` with a `{ locale: messages }` object. Authenticate with `auth: { username, password }`, or put a bearer token in `I18N_REMOTE_TOKEN`.
 
-A pull fills what you do not have and keeps keys only you have. If a key differs on both sides, nothing is written and the command exits `1`; `--force` takes the remote value. A locale you have not configured is skipped, a blank remote value clears nothing, and a push leaves your blanks out. `--dryRun` still reads from the endpoint, lists the changes, and neither writes nor pushes.
+A pull fills what you do not have and keeps keys only you have. If a key differs on both sides, nothing is written and the command exits `1`; `--force` takes the remote value. A locale you have not configured is skipped, a blank remote value clears nothing, and a push leaves your blanks out. A push sends the project's own keys, not those of a layer. A PUT replaces the document, so a push first reads the endpoint and stops with exit `1` when it holds text you do not have; `--force` overwrites it. An endpoint that answers `404` has nothing to lose. `--dryRun` still reads from the endpoint, lists the changes, and neither writes nor pushes.
 
 ## Moving from nuxt-i18n-micro-cli
 

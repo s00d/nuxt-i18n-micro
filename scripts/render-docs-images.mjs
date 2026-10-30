@@ -63,7 +63,7 @@ const diagrams = {
       arrow([[720, 340], [720, 396], [640, 396], [640, 420]], 'yes', [700, 372]),
       box(476, 420, 268, 76, 'Redirect to', ['state → cookie', '→ Accept-Language → default']),
       arrow([[850, 340], [850, 420]], 'no', [866, 384]),
-      box(764, 420, 172, 76, 'Default locale', ['prefix: redirect', 'except default: render']),
+      box(764, 420, 172, 76, 'Path not allowed', ['prefix: by preference', 'else: default locale']),
     ].join(''),
   ),
   'translation-pipeline': svg(

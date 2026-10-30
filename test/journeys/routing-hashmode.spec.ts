@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // J4 strategy-hashmode: the strategy fixture (pec) with router hashMode.
 describe('journey: routing variants — hash mode', () => {

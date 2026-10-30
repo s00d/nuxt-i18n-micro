@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `translation-watcher` fixture (prefix, meta: false app-wide): /manual-head calls useLocaleHead() by hand, passes
 // it to useHead and prints metaObject. The recipe is a production node server, so a render also proves Nitro traced

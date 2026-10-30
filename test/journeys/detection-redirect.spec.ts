@@ -1,5 +1,5 @@
 import { getLocaleCookie } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { ssr } from '../helpers/journeys-b.ts'
 
 // strategy fixture, pec, autoDetectPath '*', cookie user-locale, excludePatterns ['/admin']

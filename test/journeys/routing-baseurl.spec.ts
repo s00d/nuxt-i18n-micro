@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // J4 strategy-baseurl: the strategy fixture under prefix with app.baseURL '/examples' (#234).
 describe('journey: routing variants — app.baseURL + prefix', () => {

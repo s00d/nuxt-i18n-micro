@@ -1,4 +1,4 @@
-import { afterAll, describe, test } from 'untestutils/vitest'
+import { afterAll, describe, test } from '../helpers/guarded-test.ts'
 import { gotoSettled, resetHmr } from '../helpers/journeys-d'
 import { createTranslationWatcherFiles, waitForTranslationPayloadValue } from '../helpers/translation-watcher-hmr'
 import { translationWatcherTmpRoots } from '../recipes.ts'
@@ -7,7 +7,8 @@ import { translationWatcherTmpRoots } from '../recipes.ts'
 const files = createTranslationWatcherFiles(translationWatcherTmpRoots.source)
 
 describe('J10 dev HMR: translation watcher (payload mode source)', () => {
-  test.override({ harness: 'translation-watcher-source-tmp' })
+  // the payload route reads live files; the SSR chunk cache drops on the watcher event, up to ~50ms (awaitWriteFinish) later
+  test.override({ harness: 'translation-watcher-source-tmp', guardAllow: [/hydration/i] })
 
   afterAll(() => {
     files.restoreAll()

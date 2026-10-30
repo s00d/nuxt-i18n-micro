@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { enActivity, walkActivity } from '../helpers/journeys-a.ts'
 
 // J4 basic-prefix: the basic fixture under the prefix strategy, the default locale has a prefix too.

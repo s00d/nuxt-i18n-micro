@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `seo` fixture rebuilt with `i18n.trailingSlash: 'append'` (trailingSlash is global, so a second recipe).
 const pathOf = async (locator: { getAttribute: (name: string) => Promise<string | null> }, attr: string) =>

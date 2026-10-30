@@ -1,5 +1,5 @@
 import { extractJsonLd, extractSitemapLocs, parseSeoHead } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `integrations` fixture: @nuxtjs/seo and @nuxt/content in one build, prefix, en/de/cs; /company is the about page
 // (content owns /about)

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // strategy fixture, pec, REGION_CODES=1: codes en-us / de-de / ru-ru and customRegexMatcher '[a-z]{2}-[a-z]{2}'.
 // Only the steps that depend on the regex codes; the rest is pinned on `basic` and the other strategy recipes.

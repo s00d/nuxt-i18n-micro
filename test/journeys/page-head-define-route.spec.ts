@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // seo fixture, SEO_VARIANT=use-i18n-head: pec, en (en-US) / fr (fr-FR), meta true.
 // /test is restricted to en by $defineI18nRoute; /product has localeRoutes (/our-products, /nos-produits)

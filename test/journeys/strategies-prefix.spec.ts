@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { collectHydrationIssues } from 'untestutils/utils'
 import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 

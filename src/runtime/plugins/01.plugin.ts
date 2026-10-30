@@ -22,7 +22,7 @@ import type {
   RouteLocationResolvedGeneric,
 } from 'vue-router'
 import { shallowRef } from 'vue'
-import { useState } from '#app'
+import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'

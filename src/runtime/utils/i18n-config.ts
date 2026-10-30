@@ -5,7 +5,8 @@ import {
   readI18nRuntimeOverrides,
   type RuntimeI18nOverrides,
 } from '@i18n-micro/utils/runtime-config'
-import { type NuxtApp, useState } from '#app'
+import { useState } from '#app/composables/state'
+import type { NuxtApp } from '#app/nuxt'
 import { configForHost } from '@i18n-micro/utils/domains'
 import { domains, getI18nConfig } from '#build/i18n.strategy.mjs'
 

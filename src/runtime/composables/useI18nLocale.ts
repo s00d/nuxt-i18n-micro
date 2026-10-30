@@ -1,7 +1,9 @@
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
-import { useCookie, useNuxtApp, useState } from '#app'
+import { useCookie } from '#app/composables/cookie'
+import { useState } from '#app/composables/state'
+import { useNuxtApp } from '#app/nuxt'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 
 type CookieRef = { value: string | null }

@@ -1,7 +1,7 @@
 import type { I18nHeadInput } from '@i18n-micro/types'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue, watch } from 'vue'
-import { useState } from '#app'
+import { useState } from '#app/composables/state'
 
 /**
  * Register page-level overrides for i18n SEO head tags.

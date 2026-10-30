@@ -4,7 +4,9 @@ import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { buildLocaleHead, filterQuery, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { joinURL } from 'ufo'
 import { ref, unref, watch } from 'vue'
-import { useNuxtApp, useRoute, useState } from '#app'
+import { useRoute } from '#app/composables/router'
+import { useState } from '#app/composables/state'
+import { useNuxtApp } from '#app/nuxt'
 import { applyTrailingSlash } from '../utils/trailing-slash'
 
 interface UseLocaleHeadOptions {

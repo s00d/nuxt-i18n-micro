@@ -1,2 +1,2 @@
-// '#app' only exists in a Nuxt build: unit tests alias it here and vi.mock what they use.
+// '#app' and '#app/*' only exist in a Nuxt build: unit tests alias them all to this one file and vi.mock what they use.
 export {}

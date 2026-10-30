@@ -124,8 +124,8 @@ function pinDefault(base: ModuleOptionsExtend, overrides: RuntimeI18nOverrides, 
   const moved = overrides.defaultLocale !== undefined && overrides.defaultLocale !== pinned
   const disabled = overrides.disabledLocales?.includes(pinned) ?? false
   if (!moved && !disabled) return overrides
-  const what = moved ? `defaultLocale "${overrides.defaultLocale}"` : `disabling "${pinned}"`
-  warn(`[nuxt-i18n-micro] runtime ${what} is ignored: under ${base.strategy} the default locale "${pinned}" is fixed at build.`)
+  const ignored = [moved && `defaultLocale "${overrides.defaultLocale}"`, disabled && `disabledLocales entry "${pinned}"`].filter(Boolean)
+  warn(`[nuxt-i18n-micro] runtime ${ignored.join(' and ')} ignored: under ${base.strategy} the default locale "${pinned}" is fixed at build.`)
   return { ...overrides, defaultLocale: undefined, disabledLocales: overrides.disabledLocales?.filter((code) => code !== pinned) }
 }
 
@@ -161,4 +161,42 @@ export function resolveI18nConfigWithRuntimeOverrides(
   warn: (message: string) => void = defaultWarn,
 ): ModuleOptionsExtend {
   return applyI18nRuntimeOverrides(baseConfig, mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), readI18nEnvOverrides()), warn)
+}
+
+const isDev = () => {
+  try {
+    return process.env.NODE_ENV !== 'production'
+  } catch {
+    return false
+  }
+}
+
+/** Deep-freezes plain objects and arrays, in place. */
+function deepFreeze<T>(value: T): T {
+  if (value === null || typeof value !== 'object' || Object.isFrozen(value)) return value
+  Object.freeze(value)
+  for (const key of Object.keys(value)) deepFreeze((value as Record<string, unknown>)[key])
+  return value
+}
+
+/**
+ * A memoized `resolveI18nConfigWithRuntimeOverrides` for one process: env is read once, and the
+ * same config object answers while the base config and the overrides are unchanged (so warnings
+ * are logged once). That object is shared by every request: in dev it is deep-frozen, so a
+ * mutation throws instead of leaking into later requests.
+ */
+export function createI18nConfigResolver(
+  warn: (message: string) => void = defaultWarn,
+): (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend {
+  let env: RuntimeI18nOverrides | undefined
+  let memo: { base: ModuleOptionsExtend; key: string; config: ModuleOptionsExtend } | undefined
+  return (base, runtimePublic) => {
+    env ??= readI18nEnvOverrides()
+    const overrides = mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), env)
+    const key = i18nOverridesKey(overrides)
+    if (memo && memo.base === base && memo.key === key) return memo.config
+    const config = applyI18nRuntimeOverrides(base, overrides, warn)
+    memo = { base, key, config: isDev() ? deepFreeze(config) : config }
+    return memo.config
+  }
 }

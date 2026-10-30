@@ -16,6 +16,8 @@ export interface ResolveLocaleInput {
   state?: string | null
   cookie?: string | null
   acceptLanguage?: string | null
+  /** `?locale=` before the URL: the documented order of the server API helpers. */
+  queryFirst?: boolean
 }
 
 const valid = (code: string | null | undefined, validLocales: readonly string[]): code is string =>
@@ -24,14 +26,24 @@ const valid = (code: string | null | undefined, validLocales: readonly string[])
 const pick = (code: string | null | undefined, validLocales: readonly string[]) => (valid(code, validLocales) ? code : null)
 
 /**
- * The one precedence: url → query → state → cookie → Accept-Language (only with
- * `autoDetectLanguage` and no explicit source) → default. Invalid values are skipped.
+ * The first valid explicit source: url → query (query → url with `queryFirst`) → state → cookie;
+ * null when none is valid. An invalid value never hides a valid one after it.
+ */
+export function explicitLocale(input: Omit<ResolveLocaleInput, 'defaultLocale'>): string | null {
+  const { validLocales } = input
+  const first = input.queryFirst ? input.query : input.url
+  const second = input.queryFirst ? input.url : input.query
+  return pick(first, validLocales) ?? pick(second, validLocales) ?? pick(input.state, validLocales) ?? pick(input.cookie, validLocales)
+}
+
+/**
+ * The one precedence: `explicitLocale`, then Accept-Language (only with `autoDetectLanguage` and
+ * no explicit source), then the default.
  */
 export function resolveLocale(input: ResolveLocaleInput): string {
-  const { validLocales } = input
-  const explicit =
-    pick(input.url, validLocales) ?? pick(input.query, validLocales) ?? pick(input.state, validLocales) ?? pick(input.cookie, validLocales)
+  const explicit = explicitLocale(input)
   if (explicit) return explicit
+  const { validLocales } = input
   if (!input.autoDetectLanguage) return input.defaultLocale
   return detectLocaleFromAcceptLanguage(input.acceptLanguage ?? undefined, validLocales) ?? input.defaultLocale
 }

@@ -56,6 +56,7 @@ import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from '.
 import { createLocalizedPathResolver, staticPagePaths } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
+import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
 export {
@@ -484,6 +485,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
+      parentPaths: parentPagePaths(pageFiles, rootDirs),
     })
 
     const fullConfig = buildFullConfig({

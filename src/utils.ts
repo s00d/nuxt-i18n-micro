@@ -358,6 +358,12 @@ export function extractDefineI18nRouteData(content: string, filePath: string): D
   }
 }
 
+/** Route paths of the pages that can nest others: `blog.vue`, not `blog/index.vue`. */
+export function parentPagePaths(pageFiles: string[], rootDirs: string[]): string[] {
+  const candidates = pageFiles.filter((file) => !/[/\\]index\.vue$/.test(file))
+  return candidates.map((file) => pageFilePathToRoutePath(file, rootDirs.find((root) => file.startsWith(root)) ?? ''))
+}
+
 export function pageFilePathToRoutePath(pageFile: string, rootDir: string): string {
   const relative = pageFile.replace(rootDir, '').replace(/^[/\\]+/, '')
   const withoutPagesPrefix = relative.replace(/^(app[/\\])?pages[/\\]/, '')

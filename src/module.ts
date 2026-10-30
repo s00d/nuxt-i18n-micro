@@ -791,32 +791,18 @@ declare module '#i18n-internal/payload-source' {
       }
 
       const routeRules = nuxt.options.routeRules || {}
-      const strategy = options.strategy! as Strategies
 
-      if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (!shouldLocalizeRouteRulePath(originalPath)) continue
+      for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
+        const { redirect: _redirect, ...restRuleValue } = ruleValue
+        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath)) continue
 
-          routeGenerator.locales.forEach((localeObj) => {
-            const localeCode = localeObj.code
-            if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, localeCode)) {
-              return
-            }
-            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
-
-            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
-              return
-            }
-
-            const { redirect, ...restRuleValue } = ruleValue
-            if (!Object.keys(restRuleValue).length) return
-
-            nitroConfig.routeRules![localizedPath] = {
-              ...nitroConfig.routeRules![localizedPath],
-              ...restRuleValue,
-            }
+        for (const { code } of routeGenerator.locales) {
+          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, code)) continue
+          for (const localizedPath of routeGenerator.resolveLocalizedRulePaths(originalPath, code)) {
+            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) continue
+            nitroConfig.routeRules![localizedPath] = { ...nitroConfig.routeRules![localizedPath], ...restRuleValue }
             logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
-          })
+          }
         }
       }
 

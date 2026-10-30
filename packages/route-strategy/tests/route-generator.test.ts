@@ -31,6 +31,29 @@ function generate(strategy: Strategies, pages: NuxtPage[], options: Partial<Rout
 
 const about: NuxtPage = { path: '/about', name: 'about', file: 'pages/about.vue' }
 
+describe('resolveLocalizedRulePaths', () => {
+  const generator = (strategy: 'prefix' | 'no_prefix') =>
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy,
+      globalLocaleRoutes: { 'blog/[slug]': { de: '/artikel/[slug]' }, 'blog/[id]': { de: '/[id]' }, about: { de: '/ueber-uns' } },
+      noPrefixRedirect: false,
+    })
+
+  test('a wildcard follows the custom paths of the pages under it', () => {
+    // step 1: the prefix copy and the static part of the custom path; a value with no static part stays out
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/artikel/**'])
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'en')).toEqual(['/en/blog/**'])
+
+    // step 2: no_prefix has no prefix, the custom path still moves
+    expect(generator('no_prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/blog/**', '/artikel/**'])
+
+    // step 3: an exact rule is one path
+    expect(generator('prefix').resolveLocalizedRulePaths('/about', 'de')).toEqual(['/de/ueber-uns'])
+  })
+})
+
 describe('a child path outside its parent', () => {
   test('warns once, naming the key; the routes stay as they were', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

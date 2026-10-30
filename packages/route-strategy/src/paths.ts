@@ -64,6 +64,13 @@ export function childSegment(parentLocalizedPath: string, customValue: string): 
   return valueSegments.slice(shared).join('/')
 }
 
+/** The path up to its first segment with a param: `/artikel/:slug` -> `/artikel`, `/:slug` -> ``. */
+export function staticPrefix(routePath: string): string {
+  const segments = absolute(routePath).split('/')
+  const dynamic = segments.findIndex((segment) => segment.includes(':'))
+  return (dynamic === -1 ? segments : segments.slice(0, dynamic)).join('/').replace(/\/$/, '')
+}
+
 /** Whether a child's custom value is its URL: an absolute value elsewhere is nested under the parent anyway. */
 export function staysUnderParent(parentLocalizedPath: string, customValue: string): boolean {
   if (!customValue.startsWith('/')) return true

@@ -73,6 +73,16 @@ export class Rules {
     return this.noMeta.get(routeKey(fullPath)) ?? (name ? this.noMetaByName.get(name) : undefined)
   }
 
+  /** Custom paths of `locale` on the pages at or under `base` (a route key): where a wildcard rule's pages live. */
+  // ponytail: a relative child value is read as absolute; a wildcard over nested custom paths misses those children
+  customPathsUnder(base: string, locale: string): string[] {
+    const paths: string[] = []
+    for (const [key, rule] of this.rules) {
+      if ((key === base || key.startsWith(`${base}/`)) && rule && rule[locale]) paths.push(rule[locale]!)
+    }
+    return paths
+  }
+
   /** Custom path of a top-level path for a locale (nitro: prerender and routeRules). */
   customPath(fullPath: string, locale: string): string | undefined {
     const rule = this.rules.get(routeKey(fullPath))

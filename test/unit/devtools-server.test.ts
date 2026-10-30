@@ -9,6 +9,7 @@ const kit = vi.hoisted(() => ({
   localesUpdated: undefined as unknown as ReturnType<typeof vi.fn>,
   hooks: new Map<string, (event: string, file: string) => void>(),
   rootDir: '',
+  srcDir: '',
 }))
 vi.mock('@nuxt/devtools-kit', () => ({
   addCustomTab: () => {},
@@ -19,7 +20,7 @@ vi.mock('@nuxt/devtools-kit', () => ({
 vi.mock('@nuxt/kit', () => ({
   addDevServerHandler: () => {},
   useNuxt: () => ({
-    options: { rootDir: kit.rootDir, app: {} },
+    options: { rootDir: kit.rootDir, srcDir: kit.srcDir || kit.rootDir, app: {} },
     hook: (name: string, fn: (event: string, file: string) => void) => kit.hooks.set(name, fn),
   }),
 }))
@@ -29,6 +30,7 @@ beforeEach(() => {
   mkdirSync(join(kit.rootDir, 'locales'))
   writeFileSync(join(kit.rootDir, 'locales/en.json'), '{"hello":"Hello"}')
   kit.localesUpdated = vi.fn()
+  kit.srcDir = ''
   vi.useFakeTimers()
 })
 afterEach(() => {
@@ -57,4 +59,26 @@ test('a tab that is gone does not take the dev server down', async () => {
   await vi.advanceTimersByTimeAsync(200)
   expect(error).toHaveBeenCalled()
   error.mockRestore()
+})
+
+test('a watcher path is relative to srcDir, a locale folder to the root', async () => {
+  const { setupDevToolsUI } = await import('../../src/devtools')
+  kit.srcDir = join(kit.rootDir, 'src')
+  mkdirSync(join(kit.srcDir, 'locales'), { recursive: true })
+  writeFileSync(join(kit.srcDir, 'locales/en.json'), '{"hello":"Hello"}')
+  setupDevToolsUI({ translationDir: 'src/locales' } as never, [kit.rootDir])
+  kit.ready!()
+  kit.hooks.get('builder:watch')!('change', 'locales/en.json')
+  await vi.advanceTimersByTimeAsync(200)
+  expect(kit.localesUpdated).toHaveBeenCalledTimes(1)
+})
+
+test('a sibling of the locale folder sends nothing', async () => {
+  const { setupDevToolsUI } = await import('../../src/devtools')
+  kit.srcDir = kit.rootDir
+  setupDevToolsUI({ translationDir: 'locales' } as never, [kit.rootDir])
+  kit.ready!()
+  kit.hooks.get('builder:watch')!('change', join(kit.rootDir, 'locales-old/en.json'))
+  await vi.advanceTimersByTimeAsync(200)
+  expect(kit.localesUpdated).not.toHaveBeenCalled()
 })

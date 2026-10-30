@@ -1,4 +1,4 @@
-import { defaultPlural, FormatService, interpolate, resolveTranslation } from '@i18n-micro/core'
+import { defaultPlural, FormatService, interpolate, ownValue, resolveTranslation } from '@i18n-micro/core'
 import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 
 /**
@@ -8,6 +8,8 @@ export interface I18nState {
   locale: string
   /** The tag plurals go by, when it is not `locale`. */
   pluralLocale?: string
+  /** Tags of the codes that have one: `setLocale` finds the new locale's here. */
+  localeIso?: Record<string, string>
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
@@ -65,8 +67,12 @@ export function hasTranslation(state: I18nState, key: string, routeName?: string
   return lookup(state, key, routeName) !== null
 }
 
-/** `state` in another locale: the tag of the old one no longer applies. */
-export const withLocale = (state: I18nState, locale: string): I18nState => ({ ...state, locale, pluralLocale: undefined })
+/** `state` in another locale, with that locale's plural tag. */
+export const withLocale = (state: I18nState, locale: string): I18nState => ({
+  ...state,
+  locale,
+  pluralLocale: state.localeIso && (ownValue(state.localeIso, locale) as string | undefined),
+})
 
 const formatter = /*#__PURE__*/ new FormatService()
 

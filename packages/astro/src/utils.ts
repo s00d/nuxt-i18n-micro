@@ -1,4 +1,4 @@
-import { getByPath, interpolate, resolveText, setTranslationAtKey, type ResolveTextOptions } from '@i18n-micro/core'
+import { getByPath, interpolate, ownValue, resolveText, setTranslationAtKey, type ResolveTextOptions } from '@i18n-micro/core'
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { getEnabledLocaleCodes, getEnabledLocales } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
@@ -131,6 +131,11 @@ export function useI18n(astro: Astro) {
   }
 }
 
+/** What `<I18nSwitcher>` shows for a locale. A code is free-form: `constructor` must not read an inherited member. */
+export function localeLabel(locale: Locale, customLabels: Record<string, string>): string {
+  return (ownValue(customLabels, locale.code) as string | undefined) || locale.displayName || locale.code
+}
+
 /** `href` of an `<I18nLink>`: relative to the page, in `locale` (default the current one). */
 export function resolveLinkHref(astro: Astro, href: string, locale?: string): string {
   const links = hrefContext(astro)
@@ -147,7 +152,9 @@ export function resolveI18nT(astro: Astro, props: I18nTProps): string | null {
   const { defaultValue } = props
   // `t` with the default for `resolveText`, every other member from the instance
   const host = defaultValue
-    ? (Object.create(i18n, { t: { value: (key: string, params?: Params) => i18n.t(key, params, defaultValue) } }) as AstroI18n)
+    ? (Object.create(i18n, {
+        t: { value: (key: string, params?: Params, fallback?: string | null) => i18n.t(key, params, fallback ?? defaultValue) },
+      }) as AstroI18n)
     : i18n
   const text = resolveText(host, props)
   return text && interpolate(text.template, text.params)
@@ -213,7 +220,7 @@ export function useLocaleHead(astro: Astro, options: LocaleHeadOptions = {}): Lo
     seoLocales: enabled.filter((entry) => entry.seo !== false),
     hrefOf,
     canonical: joinBase(origin, withBase(path, base)),
-    xDefault: defaultEntry?.seo === false ? undefined : hrefOf(defaultLocale),
+    xDefault: defaultEntry && defaultEntry.seo !== false ? hrefOf(defaultLocale) : undefined,
     addDirAttribute,
     addSeoAttributes,
     hreflangBaseLanguage,
@@ -227,6 +234,8 @@ export interface I18nClientProps {
   locale: string
   /** The tag plurals go by: the locale's `iso` when it has one. */
   pluralLocale?: string
+  /** Tags of the codes that have one, for `setLocale`. Absent when there are none. */
+  localeIso?: Record<string, string>
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
@@ -254,11 +263,20 @@ function isProduction(): boolean {
   }
 }
 
+/** A cyclic tree has no JSON, and no size to warn about. */
+function sizeOf(tree: Translations): number {
+  try {
+    return JSON.stringify(tree).length
+  } catch {
+    return 0
+  }
+}
+
 /** Once per dictionary: the merged tree is the same object until a write. */
 function warnOversizedProps(tree: Translations): void {
   if (isProduction() || warned.has(tree)) return
   warned.add(tree)
-  const size = JSON.stringify(tree).length
+  const size = sizeOf(tree)
   if (size > PROPS_WARN_SIZE)
     console.warn(`[i18n-micro] getI18nProps() without keys puts ${size} bytes in every island's props: pass the keys the island uses.`)
 }
@@ -273,9 +291,11 @@ export function getI18nProps(astro: Pick<AstroGlobal, 'locals'>, keys?: string[]
   const currentRoute = i18n.getRoute()
   const all = i18n.resolveTranslations(currentRoute)
   if (!keys?.length) warnOversizedProps(all)
+  const localeIso = i18n.getLocaleIso()
   return {
     locale: getLocale(astro),
     pluralLocale: i18n.pluralLocale(),
+    ...(Object.keys(localeIso).length > 0 && { localeIso }),
     fallbackLocale: i18n.getFallbackLocale(),
     currentRoute,
     translations: { [currentRoute]: keys && keys.length > 0 ? pickKeys(all, keys) : all },

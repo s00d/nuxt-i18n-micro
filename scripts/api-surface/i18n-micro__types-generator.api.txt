@@ -2,6 +2,7 @@
 function formatKeyProperty: (key: string) => string
 function generateTypes: (options: GeneratorOptions) => string
 interface GeneratorOptions
+member GeneratorOptions.additionalDirs?: string[] | undefined
 member GeneratorOptions.outputFile?: string | undefined
 member GeneratorOptions.srcDir: string
 member GeneratorOptions.translationDir: string | string[]

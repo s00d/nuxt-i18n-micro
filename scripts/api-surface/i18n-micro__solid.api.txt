@@ -27,7 +27,7 @@ member FormatService.new: (options?: FormatServiceOptions | undefined): FormatSe
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const I18nContext: import("solid-js").Context<I18nContextValue | undefined>
 interface I18nContextValue
-member I18nContextValue.api?: { instance: SolidI18n; locale: import("solid-js").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string | null; localeRoute: (to: import(".").RouteTarget, code?: string) => import(".").RouteTarget; localePath: (to: import(".").RouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string | null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number | import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; clearCache: () => void; } | undefined
+member I18nContextValue.api?: { instance: SolidI18n; locale: import("solid-js").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string | null; localeRoute: (to: RouteTarget, code?: string) => RouteTarget; localePath: (to: RouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string | null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number | import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; clearCache: () => void; } | undefined
 member I18nContextValue.defaultLocale: string | undefined
 member I18nContextValue.i18n: SolidI18n
 member I18nContextValue.locales: Locale[] | undefined
@@ -1968,22 +1968,22 @@ member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
-type RouteTarget: string | { path?: string }
+type RouteTarget: string | { path?: string; }
 class SolidI18n
 member SolidI18n.activeKey: private any
 member SolidI18n.activeRootKey: private any
-member SolidI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member SolidI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member SolidI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.clear: () => void
 member SolidI18n.clearCache: () => void
 member SolidI18n.currentRoute: string
-member SolidI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../solid/src").SolidI18n & M>) => import("../../solid/src").SolidI18n & M
+member SolidI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<SolidI18n & M>) => SolidI18n & M
 member SolidI18n.fallbackKey: private any
 member SolidI18n.fallbackLocale: string
 member SolidI18n.fallbackRootKey: private any
 member SolidI18n.fallbackSignal: private Accessor<string>
-member SolidI18n.fork: (locale?: string) => import("../../solid/src").SolidI18n
+member SolidI18n.fork: (locale?: string) => SolidI18n
 member SolidI18n.formatArgs: private any
 member SolidI18n.formatter: FormatService
 member SolidI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -1995,6 +1995,7 @@ member SolidI18n.getSnapshot: () => string
 member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.hasTranslation: (key: TranslationKey) => boolean
 member SolidI18n.helper: TranslationHelper
+member SolidI18n.isReadable: private any
 member SolidI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member SolidI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member SolidI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -2008,6 +2009,7 @@ member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.onTranslationsChanged: protected (locale?: string) => void
+member SolidI18n.ownsFormatter: private any
 member SolidI18n.ownStore: protected ReactiveI18nStore
 member SolidI18n.pluralFunc: PluralFunc
 member SolidI18n.pluralLocale: () => string

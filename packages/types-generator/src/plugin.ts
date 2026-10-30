@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+import { isInsideDir } from '@i18n-micro/utils/load-dir'
 import type { Plugin } from 'vite'
 import { type GeneratorOptions, generateTypes } from './core/generator'
 
@@ -18,10 +19,10 @@ export function I18nTypesPlugin(options: GeneratorOptions): Plugin {
     name: 'i18n-micro-types-generator',
     buildStart: generate,
     configureServer(server) {
-      const dirs = [options.translationDir].flat().map((dir) => resolve(options.srcDir, dir))
+      const dirs = [...[options.translationDir].flat(), ...(options.additionalDirs ?? [])].map((dir) => resolve(options.srcDir, dir))
       let timer: ReturnType<typeof setTimeout> | undefined
       const onFile = (file: string) => {
-        if (!file.endsWith('.json') || !dirs.some((dir) => file.startsWith(dir))) return
+        if (!file.endsWith('.json') || !dirs.some((dir) => isInsideDir(file, dir))) return
         clearTimeout(timer)
         timer = setTimeout(generate, DEBOUNCE_MS)
       }

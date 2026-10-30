@@ -23,6 +23,7 @@ member BaseI18n.lookupLocale: private (locale: string, route: string, name: stri
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
 member BaseI18n.onTranslationsChanged: protected (_locale?: string) => void
+member BaseI18n.ownsFormatter: private boolean
 member BaseI18n.pluralFunc: PluralFunc
 member BaseI18n.pluralLocale: () => string
 member BaseI18n.pluralTag: private (locale: string) => string
@@ -140,6 +141,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function routeQuery: (search: string | undefined) => Record<string, string | string[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
@@ -244,6 +246,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function routeQuery: (search: string | undefined) => Record<string, string | string[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string

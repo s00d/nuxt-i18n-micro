@@ -1,6 +1,6 @@
 # @i18n-micro/types-generator
 
-Generates a declaration with every translation key from your JSON files, so `t()`, `$t()` and `<I18nT keypath>` autocomplete them. Works as a Nuxt module and as an unplugin (Vite, Rollup, webpack, esbuild).
+Generates a declaration with every translation key from your JSON files, so `t()`, `$t()` and `<I18nT keypath>` autocomplete them. Works as a Nuxt module and as a Vite or Rollup plugin.
 
 ```bash
 pnpm add -D @i18n-micro/types-generator

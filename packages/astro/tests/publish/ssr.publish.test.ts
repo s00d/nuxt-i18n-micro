@@ -201,6 +201,9 @@ describe('components', () => {
     expect(page).toMatch(/<h2[^>]*class="t"[^>]*>[^<]*&lt;b&gt;x&lt;\/b&gt;/)
     expect(page).toMatch(/<section[^>]*>[^<]*&lt;b&gt;x&lt;\/b&gt;[^<]*<\/section>/)
     expect(page).toMatch(/<em[^>]*>Fallback text<\/em>/)
+    // a hidden text leaves its default, without the tag
+    expect(page).toContain('Bare fallback')
+    expect(page).not.toMatch(/<em[^>]*>Bare fallback/)
   })
 })
 

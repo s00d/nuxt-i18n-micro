@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { createI18n, I18n, loadRootTranslations, loadTranslations } from '../src'
+import { createI18n, I18n, loadRootTranslations, loadTranslations, localeIsoMap } from '../src'
 
 let dir: string
 const write = (file: string, data: unknown) => {
@@ -177,4 +177,42 @@ describe('requests', () => {
     })
     expect(result).toEqual(['Own', 'own'])
   })
+})
+
+describe('writes inside run', () => {
+  test('a write to the shared instance tells whoever subscribed to it', async () => {
+    const i18n = createI18n({ locale: 'en', messages: { en: { a: 'A' } }, missingWarn: false })
+    const listener = vi.fn()
+    i18n.subscribe(listener)
+    i18n.run('en', () => i18n.addTranslations('en', { b: 'B' }))
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('reload', () => {
+  test('an emptied directory empties the instance, a missing one keeps what works', async () => {
+    const i18n = createI18n({ locale: 'en', translationDir: dir, missingWarn: false })
+    await i18n.loadTranslations()
+    expect(i18n.t('title')).toBe('Site')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const gone = `${dir}-gone`
+    renameSync(dir, gone)
+    await i18n.reload()
+    expect(i18n.t('title')).toBe('Site')
+    renameSync(gone, dir)
+    for (const name of readdirSync(dir)) rmSync(join(dir, name), { recursive: true })
+    await i18n.reload()
+    expect(i18n.t('title')).toBe('title')
+    expect(warn).toHaveBeenCalledTimes(1)
+  })
+})
+
+test('localeIsoMap builds what localeIso takes', () => {
+  const i18n = createI18n({
+    locale: 'ua',
+    localeIso: localeIsoMap([{ code: 'ua', iso: 'uk-UA' }]),
+    messages: { ua: { apples: 'one | few | many | other' } },
+    missingWarn: false,
+  })
+  expect(i18n.pluralLocale()).toBe('uk-UA')
 })

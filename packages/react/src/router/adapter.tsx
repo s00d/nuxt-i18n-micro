@@ -1,4 +1,4 @@
-import { localizedPath } from '@i18n-micro/core'
+import { localizedPath, routeQuery } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import { createElement } from 'react'
 import type { useLocation, useNavigate } from 'react-router-dom'
@@ -36,6 +36,6 @@ export function createReactRouterAdapter(
       navigate(target.path, { replace: true })
     },
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath, query: Object.fromEntries(new URLSearchParams(location.search)) }),
+    getRoute: () => ({ fullPath, query: routeQuery(location.search) }),
   }
 }

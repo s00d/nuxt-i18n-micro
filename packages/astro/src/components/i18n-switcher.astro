@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '@i18n-micro/types'
-import { useI18n } from '../utils'
+import { localeLabel, useI18n } from '../utils'
 
 interface Props {
   class?: string
@@ -13,13 +13,12 @@ const { class: className, activeClass = 'active', customLabels = {}, ...attrs } 
 
 const { locale: currentLocale, locales, switchLocalePath } = useI18n(Astro)
 const { search } = Astro.locals.currentUrl ?? Astro.url
-const labelOf = (locale: Locale) => customLabels[locale.code] || locale.displayName || locale.code
 
 const links = locales
   .filter((locale: Locale) => !locale.disabled)
   .map((locale: Locale) => ({
     code: locale.code,
-    label: labelOf(locale),
+    label: localeLabel(locale, customLabels),
     href: switchLocalePath(locale.code) + search,
     isActive: locale.code === currentLocale,
   }))

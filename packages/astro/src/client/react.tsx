@@ -1,4 +1,4 @@
-import React, { createContext, type Dispatch, type SetStateAction, useContext, useMemo, useState } from 'react'
+import React, { createContext, type Dispatch, type SetStateAction, useCallback, useContext, useMemo, useState } from 'react'
 import type { I18nClientProps } from '../utils'
 import { createIslandApi, type I18nState, withLocale } from './core'
 
@@ -29,6 +29,8 @@ export function useAstroI18n() {
   }
   const { state, setState } = context
   const api = useMemo(() => createIslandApi(() => state), [state])
+  const setLocale = useCallback((locale: string) => setState((current) => withLocale(current, locale)), [setState])
+  const setRoute = useCallback((currentRoute: string) => setState((current) => ({ ...current, currentRoute })), [setState])
 
   return {
     ...api,
@@ -38,7 +40,7 @@ export function useAstroI18n() {
     fallbackLocale: state.fallbackLocale,
     currentRoute: state.currentRoute,
 
-    setLocale: (locale: string) => setState((current) => withLocale(current, locale)),
-    setRoute: (currentRoute: string) => setState((current) => ({ ...current, currentRoute })),
+    setLocale,
+    setRoute,
   }
 }

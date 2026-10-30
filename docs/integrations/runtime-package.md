@@ -115,7 +115,7 @@ The instance holds one locale and one route. On a server, do not switch a shared
 | `subscribe(cb)`, `getSnapshot()` | change notifications |
 | `storage` | `{ translations: Map<'locale:route', Translations> }` |
 
-A code that is no language tag gets its plurals from `localeIso: { ua: 'uk-UA' }`; `localeIsoMap(locales)` builds that from a locale list.
+A code that is no language tag gets its plurals from `localeIso: { ua: 'uk-UA' }`; `localeIsoMap(locales)` builds that from the entries of a locale list that have an `iso`.
 
 Module exports: `createI18n`, `I18n`, `fetchJsonTranslations`, `FormatService`, `interpolate`, `localeIsoMap` and the types `I18nOptions`, `LoadFromUrlOptions`, `LoadFromUrlEntry`, `TranslationStorage`, `Translations`, `Locale`, `PluralFunc`. Full signatures: [package reference](/api/packages/runtime).
 

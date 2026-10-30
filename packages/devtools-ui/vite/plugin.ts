@@ -1,7 +1,7 @@
 import * as fs from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
-import { listTranslationFiles, parseTranslationFile } from '@i18n-micro/utils/load-dir'
+import { isInsideDir, listTranslationFiles, parseTranslationFile } from '@i18n-micro/utils/load-dir'
 import { resolveTranslationFile } from '../src/safe-path'
 import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
@@ -23,8 +23,6 @@ const DEBOUNCE_MS = 100
 
 const ICON =
   '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
-
-const FRAME_STYLE = 'width: 100%; height: 100%; border: none; background: white;'
 
 /** Bottom-right button; a click opens the devtools page in a modal, a click on the backdrop closes it. */
 const BUTTON_SCRIPT = `
@@ -69,7 +67,11 @@ function appModule(apiBase: string): string {
 import { register } from '@i18n-micro/devtools-ui'
 
 const API = ${JSON.stringify(apiBase)}
-const getJson = (route) => fetch(API + route).then((response) => response.json())
+const getJson = async (route) => {
+  const response = await fetch(API + route)
+  if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'Request failed: ' + route)
+  return response.json()
+}
 const bridge = {
   getLocalesAndTranslations: () => getJson('/translations'),
   getConfigs: () => getJson('/config'),
@@ -102,7 +104,7 @@ export default {
   init(canvas) {
     const frame = document.createElement('iframe')
     frame.src = ${JSON.stringify(PAGE_ROUTE)}
-    frame.style.cssText = ${JSON.stringify(`position: fixed; left: 5vw; right: 5vw; bottom: 70px; width: 90vw; height: 75vh; border-radius: 12px; z-index: 999999; ${FRAME_STYLE}`)}
+    frame.style.cssText = 'position: fixed; left: 5vw; right: 5vw; bottom: 70px; width: 90vw; height: 75vh; border: none; border-radius: 12px; z-index: 999999; background: white;'
     canvas.appendChild(frame)
   },
 }
@@ -192,7 +194,12 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     configureServer(server: ViteDevServer) {
       const projectRoot = server.config.root
       const localesPath = path.resolve(projectRoot, translationDir)
-      const files = () => (fs.existsSync(localesPath) ? listTranslationFiles(localesPath) : [])
+      // a symlink out of the folder is listed by the reader, but it is no translation file of this project
+      const files = () =>
+        (fs.existsSync(localesPath) ? listTranslationFiles(localesPath) : []).flatMap(({ relativePath }) => {
+          const file = resolveTranslationFile(projectRoot, translationDir, relativePath)
+          return file ? [{ relativePath, file }] : []
+        })
 
       server.middlewares.use(PAGE_ROUTE, (_req: IncomingMessage, res: ServerResponse) => {
         res.statusCode = 200
@@ -222,10 +229,8 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         `${apiBase}/translations`,
         route(server, 'GET', (_req, res) => {
           const result: Record<string, unknown> = {}
-          for (const { relativePath } of files()) {
-            // a symlink out of the folder is listed by the reader, but it is no translation file of this project
-            const file = resolveTranslationFile(projectRoot, translationDir, relativePath)
-            const content = file ? parseTranslationFile(fs.readFileSync(file, 'utf-8'), file) : null
+          for (const { relativePath, file } of files()) {
+            const content = parseTranslationFile(fs.readFileSync(file, 'utf-8'), file)
             if (content) result[relativePath] = content
           }
           sendJson(res, 200, result)
@@ -254,7 +259,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
       let timer: ReturnType<typeof setTimeout> | undefined
       const onFile = (file: string) => {
-        if (!file.endsWith('.json') || !file.startsWith(localesPath)) return
+        if (!file.endsWith('.json') || !isInsideDir(file, localesPath)) return
         clearTimeout(timer)
         timer = setTimeout(() => server.ws.send({ type: 'custom', event: UPDATE_EVENT }), DEBOUNCE_MS)
       }

@@ -55,9 +55,11 @@ function configForHost: (config: ModuleOptionsExtend, host: string) => ModuleOpt
 function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
 
 # ./load-dir (src/load-dir.ts)
-function listTranslationFiles: (dir: string) => TranslationFile[]
+function isInsideDir: (file: string, dir: string) => boolean
+function listTranslationFiles: (directory: string) => TranslationFile[]
 function loadTranslationDir: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>
 function loadTranslationDirAsync: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>
+function loadTranslationFiles: <T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>
 function parseTranslationFile: (text: string, path: string) => Dictionary | null
 interface TranslationFile
 member TranslationFile.absolutePath: string
@@ -138,7 +140,7 @@ function toTranslations: (data: unknown) => Translations
 # ./parse-path (src/parse-path.ts)
 function classifyTranslationRelativePath: (relativePath: string, disablePageLocales?: boolean) => ParsedTranslationRelativePath
 function pagePathSegmentsToRouteName: (segments: string[]) => string | null
-type ParsedTranslationRelativePath: { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
+type ParsedTranslationRelativePath: { type: 'page'; pageName: string; locale: string; } | { type: 'root'; locale: string; } | { type: 'ignore'; }
 function parseTranslationRelativePath: (relativePath: string) => ParsedTranslationRelativePath
 function storeLoadedTranslationFile: <T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void
 interface TranslationFileBuckets: <T = Record<string, unknown>>
@@ -147,7 +149,7 @@ member TranslationFileBuckets.routes: Record<string, Record<string, T>>
 
 # ./payload-fetch (src/payload-fetch.ts)
 function fetchTranslationPayloadFromHost: (config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations>
-type TranslationPayloadFetcher: <T>(path: string, options: { baseURL: string; params?: Record<string, string | number> }) => Promise<T>
+type TranslationPayloadFetcher: <T>(path: string, options: { baseURL: string; params?: Record<string, string | number>; }) => Promise<T>
 interface TranslationPayloadHostConfig
 member TranslationPayloadHostConfig.apiBaseServerHost?: string | undefined
 member TranslationPayloadHostConfig.apiBaseUrl?: string | undefined

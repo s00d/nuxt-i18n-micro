@@ -12,6 +12,7 @@ The integration bundles the dictionaries and installs the middleware:
 
 ```ts
 // astro.config.mjs
+import { defineConfig } from 'astro/config'
 import { i18nIntegration } from '@i18n-micro/astro'
 
 export default defineConfig({

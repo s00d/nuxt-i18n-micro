@@ -109,7 +109,7 @@ For Preact import `I18nProvider` and `useAstroI18n` from `@i18n-micro/astro/clie
 
 ## Persisted islands
 
-An island with `transition:persist` gets new props after a navigation. React, Preact and Vue (given a getter) follow them. In Svelte, pass them on: `$: store.set(i18n)` (with runes, `$effect(() => store.set(i18n))`).
+An island with `transition:persist` gets new props after a navigation. React, Preact and Vue (given a getter) follow them. In Svelte, keep the store and pass them on: `const store = createI18nStore(i18n)`, `const { t } = useAstroI18n(store)`, then `$: store.set(i18n)` (with runes, `$effect(() => store.set(i18n))`).
 
 ## API
 
@@ -122,7 +122,7 @@ An island with `transition:persist` gets new props after a navigation. React, Pr
 | `@i18n-micro/astro/client/svelte` | `createI18nStore(props)`, `useAstroI18n(store)` |
 | `@i18n-micro/astro/client` | the pure `translate`, `hasTranslation`, with no framework |
 
-Every `useAstroI18n` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `setLocale`, `setRoute` and the `locale`.
+Every `useAstroI18n` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `setLocale`, `setRoute` and the `locale`. An island has one merged dictionary, so its `has` is true for a key `t` can answer, also from the fallback locale; on the server `has` looks at the active locale only.
 
 ## Related
 

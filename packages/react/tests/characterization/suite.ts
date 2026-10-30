@@ -19,7 +19,7 @@ export interface GoldenHost {
 
 export function goldenSuite({ h, render, fireEvent, act, lib, adapter }: GoldenHost) {
   const { createI18n, I18nProvider, I18nT, I18nLink, I18nGroup, I18nSwitcher } = lib
-  const instance = (locale = 'en') => createI18n({ locale, fallbackLocale: 'en', messages, missingWarn: false })
+  const instance = (locale = 'en') => createI18n({ locale, fallbackLocale: 'en', messages, missingWarn: false, timeZone: 'UTC' })
   const element = ([tag, text]: SlotSpec) => h(tag, null, text)
 
   /** A component's HTML, or how it failed: a throw from render is a result here. */

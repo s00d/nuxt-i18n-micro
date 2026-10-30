@@ -344,7 +344,7 @@ member I18nGroupProps.translate?: Signalish<boolean | undefined>
 member I18nGroupProps.typeof?: Signalish<string | undefined>
 member I18nGroupProps.vocab?: Signalish<string | undefined>
 const I18nLink: (props: I18nLinkProps) => HostElement
-type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }
+type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget; activeStyle?: HostStyle; localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget; children?: HostNode; }
 function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement
 interface I18nProviderProps
 member I18nProviderProps.children?: import("preact").ComponentChildren
@@ -1088,7 +1088,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class PreactI18n
 member PreactI18n.activeKey: private any
 member PreactI18n.activeRootKey: private any
-member PreactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member PreactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.clear: () => void
@@ -1110,6 +1110,7 @@ member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.hasTranslation: (key: TranslationKey) => boolean
 member PreactI18n.helper: TranslationHelper
+member PreactI18n.isReadable: private any
 member PreactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member PreactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -1121,6 +1122,7 @@ member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected (locale?: string) => void
+member PreactI18n.ownsFormatter: private any
 member PreactI18n.ownStore: protected ReactiveI18nStore
 member PreactI18n.pluralFunc: PluralFunc
 member PreactI18n.pluralLocale: () => string
@@ -1161,7 +1163,7 @@ member PreactI18nOptions.parent?: I18n | undefined
 member PreactI18nOptions.plural?: PluralFunc | undefined
 member PreactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member PreactI18nOptions.timeZone?: string | undefined
-type RouteTarget: string | { path?: string }
+type RouteTarget: string | { path?: string; }
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface Translations
 member Translations.[string]: unknown

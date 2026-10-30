@@ -9,7 +9,10 @@ const head = useLocaleHead(Astro, { baseUrl: 'https://site.test' })
 ---
 
 <html lang={head.htmlAttrs.lang}>
-  <head>{head.link.map((link) => <link rel={link.rel} href={link.href} hreflang={link.hreflang} />)}</head>
+  <head>
+    {head.link.map((link) => <link rel={link.rel} href={link.href} hreflang={link.hreflang} />)}
+    {head.meta.map((meta) => <meta property={meta.property} content={meta.content} />)}
+  </head>
   <body>
     <p id="route">{getRoute()}</p>
     <p id="title">{t('post.title')}</p>

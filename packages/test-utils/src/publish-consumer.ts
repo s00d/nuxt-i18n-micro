@@ -2,7 +2,7 @@
  * Compiles a small app against the packed tarballs of a package and a peer version, the way a user
  * installs them: nothing in the workspace tells whether the declarations hold on the whole peer range.
  */
-import { spawnSync } from 'node:child_process'
+import { type SpawnSyncReturns, spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -27,6 +27,13 @@ export interface ConsumerOptions {
   compilerOptions: Record<string, unknown>
   /** File name → source. */
   files: Record<string, string>
+}
+
+/** What `tsc` printed. A failure with no diagnostics, a crash or a spawn error, must not read as a clean compile. */
+export function compilerOutput(result: Pick<SpawnSyncReturns<string>, 'status' | 'stdout' | 'stderr' | 'signal' | 'error'>): string {
+  const output = `${result.stdout}${result.stderr}`.trim()
+  if (result.status === 0 || output) return output
+  return `tsc failed: ${result.error?.message ?? `status ${result.status}, signal ${result.signal}`}`
 }
 
 /** Answers what `tsc` printed; an empty string is a clean compile. Throws when install itself fails. */
@@ -71,7 +78,7 @@ export function compileConsumer({ packagesDir, name, dependencies, compilerOptio
     )
     for (const [file, source] of Object.entries(files)) writeFileSync(join(root, file), source)
     const result = spawnSync(join(root, 'node_modules/.bin/tsc'), ['-p', '.'], { cwd: root, encoding: 'utf8' })
-    return `${result.stdout}${result.stderr}`.trim()
+    return compilerOutput(result)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

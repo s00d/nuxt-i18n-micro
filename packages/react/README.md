@@ -1,12 +1,12 @@
 # @i18n-micro/react
 
-React bindings for Nuxt I18n Micro: `createI18n`, `<I18nProvider>`, `useI18n()`, `<I18nT>`, `<I18nLink>`, `<I18nSwitcher>`, `<I18nGroup>`, and a React Router adapter in `@i18n-micro/react/router`.
+React bindings for Nuxt I18n Micro: `createI18n`, `<I18nProvider>`, `useI18n()`, `<I18nT>`, `<I18nLink>`, `<I18nSwitcher>`, `<I18nGroup>`, `useT`, `useLocaleSwitch`, a React Router adapter in `@i18n-micro/react/router`, and a Server Components entry in `@i18n-micro/react/server`.
 
 ```bash
 pnpm add @i18n-micro/react
 ```
 
-Peers: `react` `^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`; `react-router-dom` `^6.30.6 || ^7.0.0` (optional).
+Peers: `react` `^18.0.0 || ^19.0.0`; `react-dom` `^18.0.0 || ^19.0.0` (optional, for rendering); `react-router-dom` `^6.30.6 || ^7.0.0` (optional).
 
 ```tsx
 import { createI18n, I18nProvider, useI18n } from '@i18n-micro/react'

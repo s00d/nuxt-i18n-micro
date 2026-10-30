@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/preact`
 
-39 exports across 1 entry point.
+42 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -19,46 +19,60 @@ import { /* … */ } from '@i18n-micro/preact'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
-| `createI18n` | function | `(options: PreactI18nOptions) => PreactI18n` |
-| `createPreactRouterAdapter` | const | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("preact").Context<PreactI18n \| null>` |
-| `I18nDefaultLocaleContext` | const | `import("preact").Context<string \| null>` |
-| `I18nGroup` | const | `(props: I18nGroupProps) => VNode` |
+| `I18nConfig` | interface | 5 members |
+| `I18nConfigContext` | const | `import("preact").Context<I18nConfig \| null>` |
+| `I18nContext` | const | `import("preact").Context<I18n \| null>` |
+| `I18nGroup` | const | `(props: I18nGroupProps) => HostElement` |
 | `I18nGroupProps` | interface | 308 members |
-| `I18nLink` | const | `(props: I18nLinkProps) => VNode` |
-| `I18nLinkProps` | interface | 321 members |
-| `I18nLocalesContext` | const | `import("preact").Context<Locale[] \| null>` |
-| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact").VNode<import("preact").Attributes & { value: PreactI18n \| null; children?: ComponentChildren; }>` |
-| `I18nProviderProps` | interface | 5 members |
-| `I18nRouterContext` | const | `import("preact").Context<I18nRoutingStrategy \| null>` |
+| `I18nLink` | const | `(props: I18nLinkProps) => HostElement` |
+| `I18nLinkProps` | type | `HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget; activeStyle?: HostStyle; localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget; children?: HostNode; }` |
+| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement` |
+| `I18nProviderProps` | interface | 17 members |
 | `I18nRoutingStrategy` | interface | 6 members |
-| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => VNode` |
+| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => HostElement` |
 | `I18nSwitcherProps` | interface | 321 members |
-| `I18nT` | const | `(props: I18nTProps) => VNode \| null` |
-| `I18nTProps` | interface | 318 members |
+| `I18nT` | const | `(props: I18nTProps) => HostElement` |
+| `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
+| `I18nTProps` | interface | 319 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 58 members |
-| `PreactI18nOptions` | interface | 9 members |
+| `PreactI18n` | class | 60 members |
+| `PreactI18nOptions` | interface | 12 members |
+| `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
-| `useI18nContext` | const | `() => PreactI18n` |
+| `useI18nContext` | const | `() => I18n` |
 | `useI18nDefaultLocale` | const | `() => string \| null` |
 | `useI18nLocales` | const | `() => Locale[] \| null` |
 | `UseI18nOptions` | interface | 2 members |
 | `UseI18nReturn` | interface | 22 members |
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| null` |
+| `useLocaleSwitch` | function | `(load: (locale: string) => unknown) => [(locale: string) => Promise<void>, boolean]` |
+| `useT` | function | `(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string` |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+
+<details>
+<summary><code>I18nConfig</code> — 5 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `api` | `{ snapshot: string; value: UseI18nReturn; } \| null` |
+| `defaultLocale` | `string \| null` |
+| `locales` | `Locale[] \| null` |
+| `methods` | `{ current: TranslationMethods \| null; }` |
+| `router` | `I18nRoutingStrategy \| null` |
+
+</details>
 
 <details>
 <summary><code>I18nGroupProps</code> — 308 members</summary>
@@ -127,7 +141,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `autoCorrect?` | `Signalish<string \| undefined>` |
 | `autofocus?` | `Signalish<boolean \| undefined>` |
 | `autoFocus?` | `Signalish<boolean \| undefined>` |
-| `children?` | `((props: { prefix: string; t: (key: string, params?: Record<string, string \| number \| boolean>) => string; }) => ComponentChildren) \| undefined` |
+| `children?` | `import("preact").ComponentChildren \| ((props: { prefix: string; t: (key: string, params?: Record<string, string \| number \| boolean>) => string; }) => HostNode)` |
 | `class?` | `Signalish<string \| undefined>` |
 | `className?` | `Signalish<string \| undefined>` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
@@ -377,344 +391,27 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>I18nLinkProps</code> — 321 members</summary>
+<summary><code>I18nProviderProps</code> — 17 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `about?` | `Signalish<string \| undefined>` |
-| `accesskey?` | `Signalish<string \| undefined>` |
-| `accessKey?` | `Signalish<string \| undefined>` |
-| `activeStyle?` | `Record<string, string \| number> \| undefined` |
-| `aria-activedescendant?` | `Signalish<string \| undefined>` |
-| `aria-atomic?` | `Signalish<Booleanish \| undefined>` |
-| `aria-autocomplete?` | `Signalish<"none" \| "list" \| "inline" \| "both" \| undefined>` |
-| `aria-braillelabel?` | `Signalish<string \| undefined>` |
-| `aria-brailleroledescription?` | `Signalish<string \| undefined>` |
-| `aria-busy?` | `Signalish<Booleanish \| undefined>` |
-| `aria-checked?` | `Signalish<Booleanish \| "mixed" \| undefined>` |
-| `aria-colcount?` | `Signalish<number \| undefined>` |
-| `aria-colindex?` | `Signalish<number \| undefined>` |
-| `aria-colindextext?` | `Signalish<string \| undefined>` |
-| `aria-colspan?` | `Signalish<number \| undefined>` |
-| `aria-controls?` | `Signalish<string \| undefined>` |
-| `aria-current?` | `Signalish<Booleanish \| "time" \| "location" \| "page" \| "step" \| "date" \| undefined>` |
-| `aria-describedby?` | `Signalish<string \| undefined>` |
-| `aria-description?` | `Signalish<string \| undefined>` |
-| `aria-details?` | `Signalish<string \| undefined>` |
-| `aria-disabled?` | `Signalish<Booleanish \| undefined>` |
-| `aria-dropeffect?` | `Signalish<"none" \| "link" \| "copy" \| "execute" \| "move" \| "popup" \| undefined>` |
-| `aria-errormessage?` | `Signalish<string \| undefined>` |
-| `aria-expanded?` | `Signalish<Booleanish \| undefined>` |
-| `aria-flowto?` | `Signalish<string \| undefined>` |
-| `aria-grabbed?` | `Signalish<Booleanish \| undefined>` |
-| `aria-haspopup?` | `Signalish<Booleanish \| "dialog" \| "grid" \| "listbox" \| "menu" \| "tree" \| undefined>` |
-| `aria-hidden?` | `Signalish<Booleanish \| undefined>` |
-| `aria-invalid?` | `Signalish<Booleanish \| "grammar" \| "spelling" \| undefined>` |
-| `aria-keyshortcuts?` | `Signalish<string \| undefined>` |
-| `aria-label?` | `Signalish<string \| undefined>` |
-| `aria-labelledby?` | `Signalish<string \| undefined>` |
-| `aria-level?` | `Signalish<number \| undefined>` |
-| `aria-live?` | `Signalish<"off" \| "assertive" \| "polite" \| undefined>` |
-| `aria-modal?` | `Signalish<Booleanish \| undefined>` |
-| `aria-multiline?` | `Signalish<Booleanish \| undefined>` |
-| `aria-multiselectable?` | `Signalish<Booleanish \| undefined>` |
-| `aria-orientation?` | `Signalish<"horizontal" \| "vertical" \| undefined>` |
-| `aria-owns?` | `Signalish<string \| undefined>` |
-| `aria-placeholder?` | `Signalish<string \| undefined>` |
-| `aria-posinset?` | `Signalish<number \| undefined>` |
-| `aria-pressed?` | `Signalish<Booleanish \| "mixed" \| undefined>` |
-| `aria-readonly?` | `Signalish<Booleanish \| undefined>` |
-| `aria-relevant?` | `Signalish<"additions" \| "additions removals" \| "additions text" \| "all" \| "removals" \| "removals additions" \| "removals text" \| "text" \| "text additions" \| "text removals" \| undefined>` |
-| `aria-required?` | `Signalish<Booleanish \| undefined>` |
-| `aria-roledescription?` | `Signalish<string \| undefined>` |
-| `aria-rowcount?` | `Signalish<number \| undefined>` |
-| `aria-rowindex?` | `Signalish<number \| undefined>` |
-| `aria-rowindextext?` | `Signalish<string \| undefined>` |
-| `aria-rowspan?` | `Signalish<number \| undefined>` |
-| `aria-selected?` | `Signalish<Booleanish \| undefined>` |
-| `aria-setsize?` | `Signalish<number \| undefined>` |
-| `aria-sort?` | `Signalish<"none" \| "ascending" \| "descending" \| "other" \| undefined>` |
-| `aria-valuemax?` | `Signalish<number \| undefined>` |
-| `aria-valuemin?` | `Signalish<number \| undefined>` |
-| `aria-valuenow?` | `Signalish<number \| undefined>` |
-| `aria-valuetext?` | `Signalish<string \| undefined>` |
-| `autocapitalize?` | `Signalish<"off" \| "none" \| "on" \| "sentences" \| "words" \| "characters" \| undefined>` |
-| `autoCapitalize?` | `Signalish<"off" \| "none" \| "on" \| "sentences" \| "words" \| "characters" \| undefined>` |
-| `autocorrect?` | `Signalish<string \| undefined>` |
-| `autoCorrect?` | `Signalish<string \| undefined>` |
-| `autofocus?` | `Signalish<boolean \| undefined>` |
-| `autoFocus?` | `Signalish<boolean \| undefined>` |
-| `children?` | `ComponentChildren` |
-| `class?` | `Signalish<string \| undefined>` |
-| `className?` | `Signalish<string \| undefined>` |
-| `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
-| `datatype?` | `Signalish<string \| undefined>` |
-| `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
-| `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
-| `download?` | `any` |
-| `draggable?` | `Signalish<boolean \| undefined>` |
-| `elementtiming?` | `Signalish<string \| undefined>` |
-| `elementTiming?` | `Signalish<string \| undefined>` |
-| `enterkeyhint?` | `Signalish<"enter" \| "done" \| "go" \| "next" \| "previous" \| "search" \| "send" \| undefined>` |
-| `exportparts?` | `Signalish<string \| undefined>` |
-| `hidden?` | `Signalish<boolean \| "hidden" \| "until-found" \| undefined>` |
-| `href?` | `Signalish<string \| undefined>` |
-| `hreflang?` | `Signalish<string \| undefined>` |
-| `hrefLang?` | `Signalish<string \| undefined>` |
-| `id?` | `Signalish<string \| undefined>` |
-| `inert?` | `Signalish<boolean \| undefined>` |
-| `inlist?` | `any` |
-| `inputmode?` | `Signalish<string \| undefined>` |
-| `inputMode?` | `Signalish<string \| undefined>` |
-| `is?` | `Signalish<string \| undefined>` |
-| `itemid?` | `Signalish<string \| undefined>` |
-| `itemID?` | `Signalish<string \| undefined>` |
-| `itemprop?` | `Signalish<string \| undefined>` |
-| `itemProp?` | `Signalish<string \| undefined>` |
-| `itemref?` | `Signalish<string \| undefined>` |
-| `itemRef?` | `Signalish<string \| undefined>` |
-| `itemscope?` | `Signalish<boolean \| undefined>` |
-| `itemScope?` | `Signalish<boolean \| undefined>` |
-| `itemtype?` | `Signalish<string \| undefined>` |
-| `itemType?` | `Signalish<string \| undefined>` |
-| `jsx?` | `boolean \| undefined` |
-| `key?` | `any` |
-| `lang?` | `Signalish<string \| undefined>` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
-| `media?` | `Signalish<string \| undefined>` |
-| `nonce?` | `Signalish<string \| undefined>` |
-| `onAbort?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAbortCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationEnd?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationEndCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationIteration?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationIterationCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationStart?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAnimationStartCapture?` | `AnimationEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAuxClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onAuxClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBlur?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBlurCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCancel?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlay?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayThrough?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCanPlayThroughCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onChange?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onChangeCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onClose?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCommand?` | `CommandEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionEnd?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionEndCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionStart?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionStartCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionUpdate?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCompositionUpdateCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onContextMenu?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onContextMenuCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCopy?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCopyCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCut?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onCutCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDblClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDblClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDrag?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnd?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEndCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnter?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragEnterCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragExit?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragExitCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragLeave?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragLeaveCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragOver?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragOverCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragStart?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDragStartCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDrop?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDropCapture?` | `DragEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDurationChange?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onDurationChangeCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEmptied?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEmptiedCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEncrypted?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEncryptedCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEnded?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEndedCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEnterPictureInPicture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onEnterPictureInPictureCapture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onError?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onErrorCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocus?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusIn?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusInCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusOut?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFocusOutCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFormData?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onFormDataCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onGotPointerCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalid?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalidCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyDown?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyDownCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyPress?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyPressCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyUp?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onKeyUpCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLeavePictureInPicture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLeavePictureInPictureCapture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoad?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedData?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedDataCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedMetadata?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadedMetadataCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadStart?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLoadStartCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLostPointerCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onLostPointerCaptureCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseDown?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseDownCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseEnter?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseEnterCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseLeave?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseLeaveCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseMove?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseMoveCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOut?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOutCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOver?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseOverCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseUp?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onMouseUpCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPaste?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPasteCapture?` | `ClipboardEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPause?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPauseCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlay?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlayCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlaying?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPlayingCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerCancel?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerCancelCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerDown?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerDownCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerEnter?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerEnterCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerLeave?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerLeaveCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerMove?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerMoveCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOut?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOutCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOver?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerOverCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerUp?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onPointerUpCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onProgress?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onProgressCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onRateChange?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onRateChangeCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onReset?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onResetCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onResize?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onResizeCapture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScroll?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollEnd?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollEndCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollSnapChange?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollSnapChangeCapture?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollSnapChanging?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollSnapChangingCapture?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSearch?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSearchCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeeked?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeekedCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeeking?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSeekingCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSelect?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSelectCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onStalled?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onStalledCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmit?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmitCapture?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSuspend?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSuspendCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTimeUpdate?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTimeUpdateCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchCancel?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchCancelCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchEnd?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchEndCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchMove?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchMoveCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchStart?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTouchStartCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionCancel?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionEnd?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionEndCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionRun?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionStart?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
-| `onVolumeChange?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onVolumeChangeCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWaiting?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWaitingCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWheel?` | `WheelEventHandler<HTMLAnchorElement> \| undefined` |
-| `onWheelCapture?` | `WheelEventHandler<HTMLAnchorElement> \| undefined` |
-| `part?` | `Signalish<string \| undefined>` |
-| `ping?` | `Signalish<string \| undefined>` |
-| `popover?` | `Signalish<boolean \| "auto" \| "hint" \| "manual" \| undefined>` |
-| `prefix?` | `Signalish<string \| undefined>` |
-| `property?` | `Signalish<string \| undefined>` |
-| `ref?` | `Ref<HTMLAnchorElement> \| undefined` |
-| `referrerpolicy?` | `Signalish<HTMLAttributeReferrerPolicy \| undefined>` |
-| `referrerPolicy?` | `Signalish<HTMLAttributeReferrerPolicy \| undefined>` |
-| `rel?` | `Signalish<string \| undefined>` |
-| `resource?` | `Signalish<string \| undefined>` |
-| `results?` | `Signalish<number \| undefined>` |
-| `role?` | `Signalish<AriaRole \| undefined>` |
-| `slot?` | `Signalish<string \| undefined>` |
-| `spellcheck?` | `Signalish<boolean \| undefined>` |
-| `style?` | `Signalish<string \| CSSProperties \| undefined>` |
-| `tabindex?` | `Signalish<number \| undefined>` |
-| `tabIndex?` | `Signalish<number \| undefined>` |
-| `target?` | `Signalish<HTMLAttributeAnchorTarget \| undefined>` |
-| `title?` | `Signalish<string \| undefined>` |
-| `to` | `string \| { path?: string; }` |
-| `translate?` | `Signalish<boolean \| undefined>` |
-| `type?` | `Signalish<string \| undefined>` |
-| `typeof?` | `Signalish<string \| undefined>` |
-| `vocab?` | `Signalish<string \| undefined>` |
-
-</details>
-
-<details>
-<summary><code>I18nProviderProps</code> — 5 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `children?` | `ComponentChildren` |
+| `children?` | `import("preact").ComponentChildren` |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `defaultLocale?` | `string \| undefined` |
-| `i18n` | `PreactI18n` |
+| `fallbackLocale?` | `string \| undefined` |
+| `i18n?` | `I18n \| undefined` |
+| `locale?` | `string \| undefined` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
@@ -725,10 +422,10 @@ import { /* … */ } from '@i18n-micro/preact'
 | --- | --- |
 | `getCurrentPath` | `() => string` |
 | `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
-| `linkComponent?` | `string \| React.ComponentType<{ [key: string]: unknown; href: string; children?: React.ReactNode; style?: React.CSSProperties; className?: string; }> \| undefined` |
+| `linkComponent?` | `string \| HostComponent<{ [key: string]: unknown; href: string; children?: HostNode; style?: HostStyle; className?: string; }> \| undefined` |
 | `push` | `(target: { path: string; }) => void` |
 | `replace` | `(target: { path: string; }) => void` |
-| `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
+| `resolvePath?` | `((to: RouteTarget, locale: string) => RouteTarget) \| undefined` |
 
 </details>
 
@@ -805,15 +502,15 @@ import { /* … */ } from '@i18n-micro/preact'
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `currentLocale?` | `string \| (() => string) \| undefined` |
-| `customActiveLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customButtonStyle?` | `Record<string, string \| number> \| undefined` |
-| `customDisabledLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customDropdownStyle?` | `Record<string, string \| number> \| undefined` |
-| `customIconStyle?` | `Record<string, string \| number> \| undefined` |
-| `customItemStyle?` | `Record<string, string \| number> \| undefined` |
+| `customActiveLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customButtonStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customDisabledLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customDropdownStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customIconStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customItemStyle?` | `import("preact").CSSProperties \| undefined` |
 | `customLabels?` | `Record<string, string> \| undefined` |
-| `customLinkStyle?` | `Record<string, string \| number> \| undefined` |
-| `customWrapperStyle?` | `Record<string, string \| number> \| undefined` |
+| `customLinkStyle?` | `import("preact").CSSProperties \| undefined` |
+| `customWrapperStyle?` | `import("preact").CSSProperties \| undefined` |
 | `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
@@ -844,7 +541,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `jsx?` | `boolean \| undefined` |
 | `key?` | `any` |
 | `lang?` | `Signalish<string \| undefined>` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
+| `localeRoute?` | `((to: RouteTarget, locale?: string) => RouteTarget) \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `nonce?` | `Signalish<string \| undefined>` |
 | `onAbort?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -1062,7 +759,7 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>I18nTProps</code> — 318 members</summary>
+<summary><code>I18nTProps</code> — 319 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1128,15 +825,16 @@ import { /* … */ } from '@i18n-micro/preact'
 | `autoCorrect?` | `Signalish<string \| undefined>` |
 | `autofocus?` | `Signalish<boolean \| undefined>` |
 | `autoFocus?` | `Signalish<boolean \| undefined>` |
-| `children?` | `undefined` |
+| `children?` | `import("preact").ComponentChildren \| ((props: { translation: string; }) => HostNode)` |
 | `class?` | `Signalish<string \| undefined>` |
 | `className?` | `Signalish<string \| undefined>` |
+| `components?` | `Record<string, I18nTComponent> \| undefined` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `customPluralRule?` | `PluralFunc \| undefined` |
+| `customPluralRule?` | `PluralFunc \| null \| undefined` |
 | `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
-| `date?` | `string \| number \| Date \| undefined` |
+| `date?` | `string \| number \| Date \| null \| undefined` |
 | `defaultValue?` | `string \| undefined` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
 | `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
@@ -1169,7 +867,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `keypath` | `string` |
 | `lang?` | `Signalish<string \| undefined>` |
 | `nonce?` | `Signalish<string \| undefined>` |
-| `number?` | `string \| number \| undefined` |
+| `number?` | `string \| number \| null \| undefined` |
 | `onAbort?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onAbortCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onAnimationEnd?` | `AnimationEventHandler<HTMLElement> \| undefined` |
@@ -1363,14 +1061,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onWaitingCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onWheel?` | `WheelEventHandler<HTMLElement> \| undefined` |
 | `onWheelCapture?` | `WheelEventHandler<HTMLElement> \| undefined` |
-| `params?` | `Record<string, string \| number \| boolean> \| undefined` |
+| `params?` | `Params \| undefined` |
 | `part?` | `Signalish<string \| undefined>` |
-| `plural?` | `string \| number \| undefined` |
+| `plural?` | `string \| number \| null \| undefined` |
 | `popover?` | `Signalish<boolean \| "auto" \| "hint" \| "manual" \| undefined>` |
 | `prefix?` | `Signalish<string \| undefined>` |
 | `property?` | `Signalish<string \| undefined>` |
 | `ref?` | `Ref<HTMLElement> \| undefined` |
-| `relativeDate?` | `string \| number \| Date \| undefined` |
+| `relativeDate?` | `string \| number \| Date \| null \| undefined` |
 | `resource?` | `Signalish<string \| undefined>` |
 | `results?` | `Signalish<number \| undefined>` |
 | `role?` | `Signalish<AriaRole \| undefined>` |
@@ -1379,7 +1077,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `style?` | `Signalish<string \| CSSProperties \| undefined>` |
 | `tabindex?` | `Signalish<number \| undefined>` |
 | `tabIndex?` | `Signalish<number \| undefined>` |
-| `tag?` | `keyof JSX.IntrinsicElements \| undefined` |
+| `tag?` | `keyof import("preact").JSX.IntrinsicElements \| undefined` |
 | `title?` | `Signalish<string \| undefined>` |
 | `translate?` | `Signalish<boolean \| undefined>` |
 | `typeof?` | `Signalish<string \| undefined>` |
@@ -1409,18 +1107,19 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 58 members</summary>
+<summary><code>PreactI18n</code> — 60 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
+| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("@i18n-micro/runtime").I18n & M>) => import("@i18n-micro/runtime").I18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
@@ -1435,6 +1134,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isReadable` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -1445,8 +1145,8 @@ import { /* … */ } from '@i18n-micro/preact'
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
-| `new` | `(options: I18nOptions): PreactI18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `new` | `(options: I18nOptions): I18n` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -1475,19 +1175,22 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>PreactI18nOptions</code> — 9 members</summary>
+<summary><code>PreactI18nOptions</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
@@ -1519,11 +1222,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeName?: string) => boolean` |
 | `locale` | `string` |
-| `localePath?` | `((to: string \| { path?: string; }, locale?: string) => string) \| undefined` |
-| `localeRoute?` | `((to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }) \| undefined` |
+| `localePath` | `(to: RouteTarget, locale?: string) => string` |
+| `localeRoute` | `(to: RouteTarget, locale?: string) => RouteTarget` |
 | `setLocale` | `(locale: string) => void` |
 | `setRoute` | `(routeName: string) => void` |
-| `switchLocale?` | `((locale: string) => void) \| undefined` |
+| `switchLocale` | `(locale: string) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `(value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string` |
@@ -1532,5 +1235,17 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string` |
 
 </details>
+## `@i18n-micro/preact/router`
+
+```ts
+import { /* … */ } from '@i18n-micro/preact/router'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `I18nRoutingStrategy` | interface | 6 members |
+
+<code>I18nRoutingStrategy</code> — 6 members, identical to `I18nRoutingStrategy` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

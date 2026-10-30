@@ -5,7 +5,7 @@ import { createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, type SolidI18n, useI18n } from '../src'
-import { I18nContext, I18nDefaultLocaleContext, I18nLocalesContext, useI18nContext, useI18nDefaultLocale, useI18nLocales } from '../src/injection'
+import { useI18nContext, useI18nDefaultLocale, useI18nLocales } from '../src/injection'
 
 const locales: Locale[] = [
   { code: 'en', iso: 'en-US', displayName: 'English' },
@@ -85,6 +85,9 @@ test('translations load after mount and every reader re-renders: t in JSX, I18nT
   expect(i18n.currentRoute).toBe('index')
   expect(i18n.fallbackLocale).toBe('en')
   expect(i18n.getFallbackLocale()).toBe('en')
+  // the mount itself counted: the provider's `iso` moved the plural tag
+  expect(changes).toHaveBeenCalledTimes(1)
+  changes.mockClear()
   i18n.addTranslations('en', en)
   // merge is the default: a second, partial load keeps the rest
   i18n.addTranslations('en', { greeting: en.greeting })
@@ -147,7 +150,7 @@ test('translations load after mount and every reader re-renders: t in JSX, I18nT
 })
 
 test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows the locale in both modes', () => {
-  const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, de }, missingWarn: false })
+  const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, de }, missingWarn: false, timeZone: 'UTC' })
   const now = Date.now()
   const $ = mountApp(i18n, () => (
     <div>
@@ -168,8 +171,12 @@ test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows 
       <I18nT id="tc-default" keypath="nope" plural={2} defaultValue="none" />
       <I18nT id="plain" keypath="greeting" params={{ name: '<i>x</i>' }} />
       <I18nT id="missing" keypath="gone" defaultValue="fallback text" />
-      <I18nT id="hidden" keypath="blank" hideIfEmpty defaultValue="nothing here" />
-      <I18nT id="hidden-html" keypath="blank" hideIfEmpty defaultValue="empty" html />
+      <p id="hidden">
+        <I18nT keypath="blank" hideIfEmpty defaultValue="nothing here" />
+      </p>
+      <p id="hidden-html">
+        <I18nT keypath="blank" hideIfEmpty defaultValue="empty" html />
+      </p>
       <span id="gone">
         <I18nT keypath="blank" hideIfEmpty />
       </span>
@@ -188,8 +195,8 @@ test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows 
   expect(html('tc-default')).toBe('<span id="tc-default">none</span>')
   expect(html('plain')).toBe('<span id="plain">Hello, &lt;i&gt;x&lt;/i&gt;!</span>')
   expect(html('missing')).toBe('<span id="missing">fallback text</span>')
-  expect(html('hidden')).toBe('<span id="hidden">nothing here</span>')
-  expect(html('hidden-html')).toBe('<span id="hidden-html">empty</span>')
+  expect(html('hidden')).toBe('<p id="hidden">nothing here</p>')
+  expect(html('hidden-html')).toBe('<p id="hidden-html">empty</p>')
   expect(html('gone')).toBe('<span id="gone"></span>')
   expect(html('blank-shown')).toBe('<span id="blank-shown">   </span>')
 
@@ -234,11 +241,11 @@ test('I18nSwitcher driven by props and links without a router', () => {
   ))
   const button = () => $('button')
 
-  // without a router: links are plain anchors, active against window.location
+  // without a router: links are plain anchors, nothing says what is active
   expect($('#plain').getAttribute('href')).toBe('/about')
   expect($('#plain').getAttribute('style')).toBeNull()
   expect($('#here').getAttribute('href')).toBe('/')
-  expect($('#here').getAttribute('style')).toBe('margin: 1px; color: red;')
+  expect($('#here').getAttribute('style')).toBe('margin: 1px;')
   expect($('#mail').getAttribute('target')).toBe('_blank')
   expect($('#bare').getAttribute('href')).toBe('/')
   const click = new MouseEvent('click', { bubbles: true, cancelable: true })
@@ -247,16 +254,16 @@ test('I18nSwitcher driven by props and links without a router', () => {
 
   // a disabled current locale gets the disabled style on the button and is still named
   expect(button().getAttribute('style')).toContain('opacity: 0.3;')
-  expect(button().textContent).toBe('Українська▼')
+  expect(button().textContent).toBe('Українська ▾')
   button().click()
   expect([...document.querySelectorAll('.i18n-switcher-dropdown a')].map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-    ['EN', '/'],
-    ['Deutsch', '/'],
+    ['EN', '#'],
+    ['Deutsch', '#'],
   ])
   ;($('.switcher-locale-de') as HTMLElement).click()
   expect(i18n.getLocale()).toBe('de')
   expect(button().getAttribute('style')).not.toContain('opacity')
-  expect(button().textContent).toBe('Deutsch▼')
+  expect(button().textContent).toBe('Deutsch ▾')
 
   // props take over: own locale list, current locale, name, route builder and switch handler
   setProps({
@@ -266,11 +273,12 @@ test('I18nSwitcher driven by props and links without a router', () => {
     switchLocale: switched,
     localeRoute: (_to: string, locale?: string) => (locale === 'en' ? { path: '/en' } : {}),
   })
-  expect(button().textContent).toBe('pt▼')
+  // a caller's name wins over the list, as in React and Preact
+  expect(button().textContent).toBe('Custom name ▾')
   button().click()
   expect([...document.querySelectorAll('.i18n-switcher-dropdown a')].map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
     ['EN', '/en'],
-    ['pt', '#'],
+    ['pt', '/'],
   ])
   ;($('.switcher-locale-en') as HTMLElement).click()
   // the handler owns the switch: the instance locale is untouched
@@ -278,14 +286,14 @@ test('I18nSwitcher driven by props and links without a router', () => {
   expect(i18n.getLocale()).toBe('de')
 
   setProps({ ...props(), currentLocale: 'xx' })
-  expect(button().textContent).toBe('Custom name▼')
+  expect(button().textContent).toBe('Custom name ▾')
   setProps({ ...props(), getLocaleName: () => null })
-  expect(button().textContent).toBe('xx▼')
+  expect(button().textContent).toBe('xx ▾')
   setProps({ locales: [{ code: 'en' }] })
-  expect(button().textContent).toBe('de▼')
-  // a current locale missing from the list is named after the active one when that is listed
+  expect(button().textContent).toBe('de ▾')
+  // a current locale missing from the list is its code
   setProps({ currentLocale: 'xx' })
-  expect(button().textContent).toBe('Deutsch▼')
+  expect(button().textContent).toBe('xx ▾')
 })
 
 test('misuse fails loudly with a pointer to the fix', () => {
@@ -306,16 +314,15 @@ test('misuse fails loudly with a pointer to the fix', () => {
 
   expect(tryRender(() => <I18nT keypath="a" />)).toBe('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
   const withI18n = (use: () => unknown) => () => (
-    <I18nContext.Provider value={i18n}>
+    <I18nProvider i18n={i18n}>
       <Probe use={use} />
-    </I18nContext.Provider>
+    </I18nProvider>
   )
+  // a bare provider is enough: what it lacks is empty, not an error
   expect(tryRender(withI18n(useI18nContext))).toBeUndefined()
-  expect(tryRender(withI18n(useI18nLocales))).toBe('[i18n-micro] I18nLocalesContext not found. Make sure I18nLocalesContext is provided.')
-  expect(tryRender(withI18n(useI18nDefaultLocale))).toBe(
-    '[i18n-micro] I18nDefaultLocaleContext not found. Make sure I18nDefaultLocaleContext is provided.',
-  )
-  expect(tryRender(withI18n(useI18n))).toBe('[i18n-micro] I18nLocalesContext not found. Make sure I18nLocalesContext is provided.')
+  expect(tryRender(withI18n(useI18nLocales))).toBeUndefined()
+  expect(tryRender(withI18n(useI18nDefaultLocale))).toBeUndefined()
+  expect(tryRender(withI18n(useI18n))).toBeUndefined()
   // a nested provider without locales/defaultLocale keeps the outer ones
   expect(
     tryRender(() => (
@@ -337,13 +344,9 @@ test('misuse fails loudly with a pointer to the fix', () => {
   let api!: ReturnType<typeof useI18n>
   expect(
     tryRender(() => (
-      <I18nContext.Provider value={i18n}>
-        <I18nLocalesContext.Provider value={locales}>
-          <I18nDefaultLocaleContext.Provider value="en">
-            <Probe use={() => (api = useI18n({ locales: [{ code: 'x' }], defaultLocale: 'x' }))} />
-          </I18nDefaultLocaleContext.Provider>
-        </I18nLocalesContext.Provider>
-      </I18nContext.Provider>
+      <I18nProvider i18n={i18n} locales={locales} defaultLocale="en">
+        <Probe use={() => (api = useI18n({ locales: [{ code: 'x' }], defaultLocale: 'x' }))} />
+      </I18nProvider>
     )),
   ).toBeUndefined()
   expect(api.getLocales()).toEqual([{ code: 'x' }])

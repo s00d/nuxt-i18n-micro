@@ -42,6 +42,9 @@ Each package has a playground under `packages/<name>/playground` in the reposito
 | `missingHandler` | `(locale, key, routeName) => void` | — | Called instead of the warning. |
 | `numberFormats` | `Record<locale, Record<name, Intl.NumberFormatOptions>>` | — | Named formats: `tn(9.5, 'currency')`. |
 | `datetimeFormats` | `Record<locale, Record<name, Intl.DateTimeFormatOptions>>` | — | Named formats: `td(date, 'short')`. |
+| `timeZone` | `string` | runtime's zone | IANA zone for `td` dates; it does not affect `tdr`. Set it so server and browser render one date. |
+| `now` | `() => number` | `Date.now` | The clock of `tdr`. Hand hydration the server's time so both render one text. |
+| `localeIso` | `Record<code, string>` | — | BCP 47 tag used for plural rules (`ua` → `uk-UA`). React, Preact and Solid take it from `iso` in the provider's `locales`. |
 
 The dictionaries live in `i18n.storage.translations`, a `Map` keyed `locale:route` (`en:index`, `en:about`).
 
@@ -89,7 +92,7 @@ The SPA packages do not depend on a router. A router adapter (`I18nRoutingStrate
 
 | Member | Required | Used by |
 | --- | --- | --- |
-| `getCurrentPath(): string` | yes | active link check, `switchLocale` |
+| `getCurrentPath(): string` | yes | active link check (by page, query and hash do not count), `switchLocale` (keeps them) |
 | `push({ path }): void` | yes | `switchLocale`, `<I18nLink>` without `linkComponent`, `<I18nSwitcher>` |
 | `replace({ path }): void` | yes | — |
 | `resolvePath(to, locale)` | no | `localePath`, `localeRoute`, `<I18nLink>`; without it paths are returned as is |
@@ -107,7 +110,7 @@ const locales = ['en', 'de']
 const stripLocale = (path: string) => path.replace(/^\/(en|de)(?=\/|$)/, '') || '/'
 
 export const historyAdapter: I18nRoutingStrategy = {
-  getCurrentPath: () => window.location.pathname,
+  getCurrentPath: () => window.location.pathname + window.location.search + window.location.hash,
   push: ({ path }) => window.history.pushState({}, '', path),
   replace: ({ path }) => window.history.replaceState({}, '', path),
   resolvePath: (to, locale) => {
@@ -132,26 +135,37 @@ Vue, React, Preact and Solid ship the same four components. Their props match; R
 | `date` | `Date \| string \| number` | passes `td(date)` as `{date}` |
 | `relativeDate` | `Date \| string \| number` | passes `tdr(relativeDate)` as `{relativeDate}` |
 | `tag` | `string` | wrapper element, default `span` |
-| `html` | `boolean` | render the value as HTML; only for trusted strings |
-| `defaultValue` | `string` | rendered when `hideIfEmpty` hides an empty value |
+| `html` | `boolean` | render the translation as HTML; it must be trusted, params are escaped |
+| `defaultValue` | `string` | stands in for a missing key, and is rendered bare when `hideIfEmpty` hides an empty value |
 | `hideIfEmpty` | `boolean` | render nothing for an empty translation |
 | `customPluralRule` | `PluralFunc` | plural rule for this element |
 
-Only one formatting prop applies, checked in this order: `number`, `date`, `relativeDate`, `plural`. In Vue, named slots replace `{placeholder}`s in the value.
+Only one formatting prop applies, checked in this order: `number`, `date`, `relativeDate`, `plural`.
+
+#### Rich text
+
+A `{placeholder}` can hold an element. In Vue it is a named slot; in React, Preact and Solid the `components` prop gives elements, or functions returning one, by name. Either way it beats a param of the same name, works in every branch, and survives a locale that reorders the placeholders.
+
+```tsx
+// { "terms": "I accept the {link} of {company}" }
+<I18nT keypath="terms" params={{ company: 'ACME' }} components={{ link: <a href="/terms">terms</a> }} />
+```
+
+In Solid pass a function when a placeholder repeats: one node stands in one place. `children` replace the text, as a function they get `{ translation }`, like Vue's default slot. `html` ignores all of these.
 
 ### `<I18nLink>`
 
 | Prop | Type | Notes |
 | --- | --- | --- |
 | `to` | `string \| { path }` | localized through the adapter's `resolvePath` |
-| `activeStyle` | style object | applied when the current path equals the link path |
+| `activeStyle` | style object | merged over `style` on the current page; React, Preact and Solid also apply it to a section above |
 | `localeRoute` | function | overrides `resolvePath` for this link |
 
-External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`.
+External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`; a `target` or `rel` of your own wins. `onClick` always runs. A modified click, another mouse button or a `target` stays with the browser.
 
 ### `<I18nSwitcher>`
 
-A dropdown of enabled locales (`disabled: true` locales are hidden) with inline default styles. Clicking a locale sets it and calls the adapter's `push` with the localized current path.
+A dropdown of enabled locales (`disabled: true` locales are hidden) with inline default styles. Its items are links, with `lang`, `hreflang` and `dir` from the locale. By default, clicking one sets the locale and calls the adapter's `push` with the localized current path; a `switchLocale` prop replaces that action. With a `localeRoute` and no router, the browser follows the link. Escape or a click outside closes it.
 
 | Prop | Notes |
 | --- | --- |

@@ -14,6 +14,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -29,8 +30,8 @@ const I18nGroup: import("vue").DefineComponent<I18nGroupProps, {}, {}, {}, {}, i
 const I18nInjectionKey: InjectionKey<VueI18n>
 const I18nLink: import("vue").DefineComponent<import("vue").ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string | { path?: string; }>; default: undefined; }; }>, () => import("vue").VNode<import("vue").RendererNode, import("vue").RendererElement, { [key: string]: any; }>, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string | { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { activeStyle: CSSProperties; localeRoute: (to: I18nRouteTarget, locale?: string) => string | { path?: string; }; }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>
 const I18nLocalesKey: InjectionKey<Locale[]>
-type I18nPlugin: Plugin & { global: VueI18n setRoutingStrategy: (strategy: I18nRoutingStrategy) => void }
-type I18nRouteTarget: string | { path?: string; name?: string | symbol; params?: object; query?: object; hash?: string }
+type I18nPlugin: Plugin & { global: VueI18n; setRoutingStrategy: (strategy: I18nRoutingStrategy) => void; }
+type I18nRouteTarget: string | { path?: string; name?: string | symbol; params?: object; query?: object; hash?: string; }
 interface I18nRoutingStrategy
 member I18nRoutingStrategy.getCurrentPath: () => string
 member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
@@ -89,6 +90,7 @@ member VueI18n._locale: private Ref<string, string>
 member VueI18n._revision: private Ref<number, number>
 member VueI18n.activeKey: private any
 member VueI18n.activeRootKey: private any
+member VueI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member VueI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member VueI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member VueI18n.clearCache: () => void

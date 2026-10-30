@@ -399,6 +399,13 @@ describe('resolveText', () => {
       expect(seen).toEqual(['=0 нет | яблоко | яблока | яблок', '=0 нет | яблоко | яблока | яблок'])
     })
 
+    it('an empty default means none, as in t: a miss answers the key', () => {
+      const none: PluralFunc = () => null
+      expect(text(new TestI18n('en', messages, none), { keypath: 'nope', plural: 2, defaultValue: '' })).toBe('nope')
+      expect(text(new TestI18n('en', messages), { keypath: 'nope', plural: 2, defaultValue: '' })).toBe('nope')
+      expect(text(new TestI18n('en', messages, none), { keypath: 'nope', plural: 2, defaultValue: 'Fallback' })).toBe('Fallback')
+    })
+
     it('null falls back to the default rule, the marker included', () => {
       const custom = new TestI18n('ru', messages, rule)
       expect(custom.tc('ruApples', 21)).toBe('яблоко')
@@ -424,6 +431,15 @@ describe('the plural locale of an instance', () => {
     expect(text(new IsoI18n(), { keypath: 'x', plural: 21 })).toBe('21 яблуко')
   })
 
+  it('addLocaleIso merges over the option and plurals follow it', () => {
+    const i18n = new IsoI18n()
+    i18n.addLocaleIso({ de: 'de-AT' })
+    expect(i18n.pluralLocale()).toBe('uk-UA')
+    i18n.addLocaleIso({ ua: 'en-US' })
+    expect(i18n.pluralLocale()).toBe('en-US')
+    expect(i18n.tc('x', 21)).toBe('21 яблука')
+  })
+
   it('a custom rule keeps getting the code, and its null falls back by iso', () => {
     const codes: string[] = []
     const rule: PluralFunc = (_k, _c, _p, locale) => {
@@ -444,5 +460,60 @@ describe('FormatService timeZone', () => {
     expect(tokyo.formatDate(noon, 'en', { timeZone: 'UTC' })).toBe('1/1/2024')
     const angeles = new FormatService({ timeZone: 'America/Los_Angeles' })
     expect(angeles.formatDate(Date.UTC(2024, 0, 2, 3), 'en', { timeZone: undefined })).toBe('1/1/2024')
+  })
+})
+
+describe('defaults', () => {
+  it('a default of a missing key is interpolated', () => {
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, 'D {n}')).toBe('D 1')
+    expect(new TestI18n('en', {}).t('nope', undefined, 'D {n}')).toBe('D {n}')
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, true as never)).toBe(true)
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, '')).toBe('nope')
+  })
+
+  it('tc answers an empty value as t does', () => {
+    const empty = new TestI18n('en', { blank: '' })
+    expect([empty.t('blank'), empty.tc('blank', 2), empty.tc('nope', 2, 'dv')]).toEqual(['', '', 'dv'])
+  })
+
+  it('resolveText gives defaultValue to a missing key in every branch', () => {
+    const branches = [{}, { number: 1 }, { plural: 1 }, { date: 0 }, { relativeDate: 0 }]
+    for (const branch of branches)
+      expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', defaultValue: 'dv', ...branch })?.template).toBe('dv')
+  })
+
+  it('a custom rule reads the default through its getter; its own default comes first', () => {
+    const rule: PluralFunc = (key, _count, _params, _locale, get) => `${get(key)}/${get(key, undefined, 'own')}`
+    expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', plural: 1, defaultValue: 'dv', customPluralRule: rule })?.template).toBe('dv/own')
+    expect(resolveText(new TestI18n('en', {}), { keypath: 'nope', plural: 1, customPluralRule: rule })?.template).toBe('nope/own')
+  })
+
+  it('a configured plural rule gets defaultValue through tc', () => {
+    const rules = new TestI18n('en', {}, () => null)
+    expect(resolveText(rules, { keypath: 'nope', plural: 1, defaultValue: 'dv' })?.template).toBe('dv')
+    expect(text(rules, { keypath: 'nope', plural: 2, params: { who: 'Al' }, defaultValue: 'dv {who} {count}' })).toBe('dv Al 2')
+  })
+
+  it('tc interpolates a default as t does', () => {
+    const none = new TestI18n('en', {})
+    expect(none.tc('nope', { count: 2, who: 'Al' }, 'dv {who} {count}')).toBe('dv Al 2')
+    expect(none.tc('nope', { who: 'Al' }, 'dv {who}')).toBe('dv Al')
+    expect(none.tc('nope', 2, '')).toBe('')
+    expect(none.tc('nope', 2)).toBe('nope')
+  })
+})
+
+describe('FormatService clock', () => {
+  it('relative dates read the clock it was given', () => {
+    const fixed = new FormatService({ now: () => 7_200_000 })
+    expect(fixed.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+  })
+
+  it('without one, the clock is read at the call, so fake timers reach a formatter built earlier', () => {
+    const service = new FormatService()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(7_200_000)
+    expect(service.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+    vi.useRealTimers()
   })
 })

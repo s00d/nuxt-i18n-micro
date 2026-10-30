@@ -6,7 +6,7 @@ import dts from 'vite-plugin-dts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
   // only the entry declarations at the top of the output dir (index.d.ts, router.d.ts)
-  const entry = ['index.d.ts', 'router.d.ts'].includes(basename(filePath))
+  const entry = ['index.d.ts', 'router.d.ts', 'server.d.ts'].includes(basename(filePath))
   if (!entry || resolve(dirname(filePath)) !== resolve(import.meta.dirname, 'dist/react')) {
     return { filePath, content }
   }
@@ -16,7 +16,16 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
   return { filePath, content }
 }
 
+const output = (format: 'es' | 'cjs', extension: string) => ({
+  format,
+  exports: 'named' as const,
+  chunkFileNames: `[name]-[hash].${extension}`,
+  // RSC: hooks and context live behind this boundary; `server` must stay outside it
+  banner: (chunk: { isEntry: boolean; name: string }) => (chunk.isEntry && chunk.name !== 'server' ? "'use client';" : ''),
+})
+
 export default defineConfig({
+  resolve: { alias: { '#host': resolve(import.meta.dirname, 'src/host.ts') } },
   plugins: [
     react(),
     dts({
@@ -40,6 +49,7 @@ export default defineConfig({
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
         router: resolve(import.meta.dirname, 'src/router/index.ts'),
+        server: resolve(import.meta.dirname, 'src/server.ts'),
       },
       name: 'I18nMicroReact',
       formats: ['es', 'cjs'],
@@ -53,14 +63,11 @@ export default defineConfig({
         'react/jsx-runtime',
         'react-router-dom',
         '@i18n-micro/core',
+        '@i18n-micro/core/render',
         '@i18n-micro/runtime',
         '@i18n-micro/types',
-        'use-sync-external-store',
-        'use-sync-external-store/shim',
       ],
-      output: {
-        exports: 'named',
-      },
+      output: [output('es', 'mjs'), output('cjs', 'cjs')],
     },
     outDir: 'dist/react',
     emptyOutDir: true,

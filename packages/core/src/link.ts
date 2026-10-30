@@ -19,6 +19,33 @@ export function externalLinkHref(to: unknown): string | undefined {
 export const localeIsoMap = (locales: readonly { code: string; iso?: string }[]): Record<string, string> =>
   Object.fromEntries(locales.flatMap(({ code, iso }) => (iso ? [[code, iso]] : [])))
 
+/** A query part that does not decode stays as written: `URLSearchParams` would put U+FFFD in it. */
+const decodeQueryPart = (part: string): string => {
+  try {
+    return decodeURIComponent(part)
+  } catch {
+    return part
+  }
+}
+
+/**
+ * The `query` of a route from a search string, as vue-router parses it: `?tag=a&tag=b` gives
+ * `{ tag: ['a', 'b'] }`, `?flag` gives `{ flag: null }`. An empty pair (`?a&&b`) counts for nothing.
+ */
+export function routeQuery(search: string | undefined): Record<string, string | null | (string | null)[]> {
+  const values = new Map<string, (string | null)[]>()
+  for (const pair of (search ?? '').replace(/^\?/, '').split('&').filter(Boolean)) {
+    const text = pair.replace(/\+/g, ' ')
+    const equals = text.indexOf('=')
+    const key = decodeQueryPart(equals < 0 ? text : text.slice(0, equals))
+    const parsed = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))
+    const known = values.get(key)
+    if (known) known.push(parsed)
+    else values.set(key, [parsed])
+  }
+  return Object.fromEntries([...values].map(([key, list]) => [key, list.length > 1 ? list : list[0]!]))
+}
+
 const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'
 
 /** A click the app may take over: primary button, no modifier, no `target`, no `download`. The rest are the browser's. */
@@ -31,3 +58,32 @@ export function isPlainClick(event: MouseEvent): boolean {
 
 /** Whether two URLs name one page: query, hash and a trailing slash do not count. */
 export const isSamePage = (a: string, b: string): boolean => pathOf(a) === pathOf(b)
+
+/**
+ * Whether a link to `link` is active on `current`: the same page, or a section above it. A locale
+ * root (`/de`) is above every page of that locale, so it needs the same page.
+ */
+export function isActiveLink(current: string, link: string, localeCodes: readonly string[]): boolean {
+  const here = pathOf(current)
+  const target = pathOf(link)
+  if (here === target) return true
+  return here.startsWith(`${target}/`) && !localeCodes.some((code) => target === `/${code}`)
+}
+
+/**
+ * `to` in `locale` for a prefix-except-default router: a leading locale segment is replaced, or
+ * dropped for the default locale. Query and hash stay as they are.
+ */
+export function localizedPath(to: string | { path?: string }, locale: string, localeCodes: readonly string[], defaultLocale: string): string {
+  const path = typeof to === 'string' ? to : to.path || '/'
+  const end = path.search(/[?#]/)
+  // `#top`, `?x=1`: this page, in this locale
+  if (end === 0) return path
+  const pathname = end === -1 ? path : path.slice(0, end)
+  const suffix = end === -1 ? '' : path.slice(end)
+  const segments = pathname.split('/').filter(Boolean)
+  if (localeCodes.includes(segments[0]!)) segments.shift()
+  const clean = segments.join('/')
+  if (locale === defaultLocale) return `/${clean}${suffix}`
+  return `/${locale}${clean && `/${clean}`}${suffix}`
+}

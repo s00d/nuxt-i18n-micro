@@ -27,7 +27,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `JsonRpcEvent` | interface | 3 members |
 | `JsonRpcRequest` | interface | 4 members |
 | `JsonRpcResponse` | interface | 4 members |
-| `JSONValue` | type | `string \| null \| number \| boolean \| { [key: string]: JSONValue }` |
+| `JSONValue` | type | `string \| null \| number \| boolean \| { [key: string]: JSONValue; }` |
 | `LocaleData` | type | `Record<string, TranslationContent>` |
 | `register` | function | `() => void` |
 | `setupRpcHost` | function | `(iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void` |
@@ -138,7 +138,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge'
 | --- | --- | --- |
 | `BRIDGE_INTERFACE_MODULE` | const | `true` |
 | `I18nDevToolsBridge` | interface | 4 members |
-| `JSONValue` | type | `string \| null \| number \| boolean \| { [key: string]: JSONValue }` |
+| `JSONValue` | type | `string \| null \| number \| boolean \| { [key: string]: JSONValue; }` |
 | `LocaleData` | type | `Record<string, TranslationContent>` |
 | `TranslationContent` | interface | 1 members |
 

@@ -21,10 +21,10 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
-| `FormatService` | class | 20 members |
+| `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 58 members |
-| `I18nOptions` | interface | 9 members |
+| `I18n` | class | 60 members |
+| `I18nOptions` | interface | 12 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
 | `LoadFromUrlOptions` | interface | 3 members |
@@ -35,15 +35,16 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `Translations` | interface | 1 members |
 | `TranslationStorage` | interface | 1 members |
 
-<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 58 members</summary>
+<summary><code>I18n</code> — 60 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
+| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
@@ -64,6 +65,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isReadable` | `private (locale: string) => boolean` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -75,7 +77,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -103,7 +105,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 
 </details>
 
-<code>I18nOptions</code> — 9 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+<code>I18nOptions</code> — 12 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 
 <details>
 <summary><code>LoadFromUrlEntry</code> — 4 members</summary>

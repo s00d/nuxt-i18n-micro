@@ -23,6 +23,12 @@ export interface I18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (`td(d, 'short')`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
+  timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. */
+  now?: () => number
+  /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. */
+  localeIso?: Record<string, string>
 }
 
 export class I18n extends BaseI18n {
@@ -41,6 +47,9 @@ export class I18n extends BaseI18n {
       missingHandler: options.missingHandler,
       numberFormats: options.numberFormats,
       datetimeFormats: options.datetimeFormats,
+      timeZone: options.timeZone,
+      now: options.now,
+      localeIso: options.localeIso,
     })
 
     this.storage = storage
@@ -102,7 +111,15 @@ export class I18n extends BaseI18n {
     for (const [locale, translations] of Object.entries(messages ?? {})) this.helper.mergeTranslation(locale, 'index', translations)
     for (const [routeName, locales] of Object.entries(routeMessages ?? {}))
       for (const [locale, translations] of Object.entries(locales)) this.helper.mergeTranslation(locale, routeName, translations)
-    this.onTranslationsChanged()
+    const loaded = [...Object.keys(messages ?? {}), ...Object.values(routeMessages ?? {}).flatMap((locales) => Object.keys(locales))]
+    if (loaded.some((locale) => this.isReadable(locale))) this.store.notify()
+  }
+
+  /** Text on screen follows a new plural tag. A render passes `notify: false`: it must not wake other components. */
+  public override addLocaleIso(localeIso: Record<string, string>, notify = true): void {
+    const before = this.pluralLocale()
+    super.addLocaleIso(localeIso)
+    if (notify && this.pluralLocale() !== before) this.store.notify()
   }
 
   public async loadFromUrl(url: string, options: LoadFromUrlOptions = {}): Promise<void> {
@@ -136,8 +153,13 @@ export class I18n extends BaseI18n {
     this.clearCache()
   }
 
-  protected override onTranslationsChanged(): void {
-    this.store.notify()
+  // Only the active and the fallback locale can be read: preloading another one renders nothing.
+  private isReadable(locale: string): boolean {
+    return locale === this.store.getLocale() || locale === this.store.getFallbackLocale()
+  }
+
+  protected override onTranslationsChanged(locale?: string): void {
+    if (locale === undefined || this.isReadable(locale)) this.store.notify()
   }
 }
 

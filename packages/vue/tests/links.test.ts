@@ -36,6 +36,18 @@ async function app(path: string, locale: string, render: () => unknown, setup: (
   return { wrapper, router, strategy, i18n }
 }
 
+test('I18nSwitcher with a custom localeRoute and no router leaves the link to the browser', async () => {
+  const i18n = createI18n({ locale: 'en', messages: { en: {} }, locales, defaultLocale: 'en' })
+  const localeRoute = (to: string, code?: string) => `/${code}${new URL(to, 'http://x').pathname}`
+  const wrapper = mount(I18nSwitcher, { props: { localeRoute: localeRoute as never }, global: { plugins: [i18n] }, attachTo: document.body })
+  await wrapper.find('button').trigger('click')
+  const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+  wrapper.find('.switcher-locale-de').element.dispatchEvent(click)
+  expect(click.defaultPrevented).toBe(false)
+  expect(i18n.global.locale.value).toBe('de')
+  wrapper.unmount()
+})
+
 describe('router adapter', () => {
   test('resolves names, keeps query and hash, leaves a bare hash on this page', async () => {
     const { strategy, wrapper } = await app('/de/about?q=1', 'de', () => null)

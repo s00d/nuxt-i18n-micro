@@ -17,6 +17,8 @@ export interface BaseI18nOptions {
   datetimeFormats?: DateTimeFormatsConfig
   /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
   timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. */
+  now?: () => number
   /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. */
   localeIso?: Record<string, string>
 }
@@ -69,7 +71,7 @@ export abstract class BaseI18n {
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
-  private readonly localeIso: Record<string, string>
+  private localeIso: Record<string, string>
   private activeKey = new ChunkKey()
   private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()
@@ -97,6 +99,11 @@ export abstract class BaseI18n {
 
   private pluralTag(locale: string): string {
     return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
+  }
+
+  /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
+  public addLocaleIso(localeIso: Record<string, string>): void {
+    this.localeIso = { ...this.localeIso, ...localeIso }
   }
 
   /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
@@ -162,8 +169,11 @@ export abstract class BaseI18n {
     return layers.reduce((lower, upper) => this.resolveTranslationTree(lower as Tree, upper as Tree))
   }
 
-  /** Called after every write (load, merge, set, clear): the one place adapters bump their reactivity. */
-  protected onTranslationsChanged(): void {}
+  /**
+   * Called after every write (load, merge, set, clear): the one place adapters bump their reactivity.
+   * `locale` is set when one locale's chunk was written, unset when anything may have changed.
+   */
+  protected onTranslationsChanged(_locale?: string): void {}
 
   protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
     return { locale: this.getLocale(), routeName: this.resolveRouteName(routeContext) }
@@ -191,7 +201,10 @@ export abstract class BaseI18n {
     const value = this.resolveLookup(key, routeContext)
     if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
-      return (defaultValue || key) as CleanTranslation
+      // not always a string: modules call `$t(key, params, true)`
+      return (
+        defaultValue && typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key
+      ) as CleanTranslation
     }
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
@@ -202,8 +215,11 @@ export abstract class BaseI18n {
 
   public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
     this.touch()
-    const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-    if (countValue === undefined || countValue === null) return defaultValue ?? key
+    const values = typeof count === 'number' ? { count } : count
+    const { count: countValue, ...params } = values
+    // as `t`: a default is interpolated, an empty one stays
+    const fallback = (): string => (defaultValue ? interpolate(defaultValue, values) : (defaultValue ?? key))
+    if (countValue === undefined || countValue === null) return fallback()
     // Missing key: `undefined` unless a default is passed, so `defaultPlural` (which calls
     // `getter(key)`) sees the miss. With params the value is interpolated for custom rules.
     const getter: Getter = (k, p, dv) => {
@@ -216,7 +232,7 @@ export abstract class BaseI18n {
     const result = this.pluralFunc(key, Number(countValue), params, locale, getter)
     if (result !== null && result !== undefined) return result
     if (this.resolveLookup(key) === null) this.warnMissing(key)
-    return defaultValue ?? key
+    return fallback()
   }
 
   /** Format a number; Vue I18n-style named formats: `tn(1000, 'currency')`. */
@@ -282,7 +298,7 @@ export abstract class BaseI18n {
   private write(locale: string, routeName: string, translations: Translations, merge: boolean): void {
     if (merge) this.helper.mergeTranslation(locale, routeName, translations)
     else this.helper.setTranslations(locale, translations, routeName)
-    this.onTranslationsChanged()
+    this.onTranslationsChanged(locale)
   }
 
   /** Attach framework-specific helpers onto this instance (`localizePath`, …). */

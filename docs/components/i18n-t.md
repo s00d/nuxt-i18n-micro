@@ -42,6 +42,7 @@ The first matching case decides the output:
 
 `null` counts as not set. In every case:
 
+- `defaultValue` stands in for a missing key, in every branch.
 - `hideIfEmpty` renders `defaultValue` instead of a blank result.
 - `html` renders the result as HTML. `params` are escaped, the translation is not; slots are ignored.
 - A `default` slot receives `{ translation }`, and named slots are ignored.

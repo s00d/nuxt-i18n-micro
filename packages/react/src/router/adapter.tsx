@@ -1,8 +1,16 @@
+import { localizedPath, routeQuery } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
-import React from 'react'
+import { createElement } from 'react'
 import type { useLocation, useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import type { I18nRoutingStrategy } from './types'
+import type { I18nRoutingStrategy } from '../injection'
+
+interface LinkProps {
+  href: string
+  [key: string]: unknown
+}
+
+const RouterLink = ({ href, ...rest }: LinkProps) => createElement(Link, { to: href, ...rest })
 
 /**
  * Factory for React Router adapter
@@ -15,74 +23,19 @@ export function createReactRouterAdapter(
   location: ReturnType<typeof useLocation>,
   navigate: ReturnType<typeof useNavigate>,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map((loc) => loc.code)
-
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
-  }
+  const codes = locales.map((locale) => locale.code)
+  const fullPath = `${location.pathname}${location.search}${location.hash}`
 
   return {
-    linkComponent: ((props: {
-      href: string
-      children?: React.ReactNode
-      className?: string
-      style?: React.CSSProperties
-      [key: string]: unknown
-    }) => {
-      const { href, children, className, style, ...restProps } = props
-      return React.createElement(
-        Link,
-        {
-          to: href,
-          className,
-          style,
-          ...restProps,
-        },
-        children,
-      )
-    }) as React.ComponentType<{
-      href: string
-      children?: React.ReactNode
-      style?: React.CSSProperties
-      className?: string
-      [key: string]: unknown
-    }>,
-
-    getCurrentPath: () => location.pathname,
-
-    push: (target: { path: string }) => {
+    linkComponent: RouterLink,
+    getCurrentPath: () => fullPath,
+    push: (target) => {
       navigate(target.path)
     },
-
-    replace: (target: { path: string }) => {
+    replace: (target) => {
       navigate(target.path, { replace: true })
     },
-
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
-
-    getRoute: () => ({
-      fullPath: location.pathname,
-      query: Object.fromEntries(new URLSearchParams(location.search)),
-    }),
+    resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
+    getRoute: () => ({ fullPath, query: routeQuery(location.search) }),
   }
 }

@@ -7,7 +7,6 @@ import { render } from 'solid-js/web'
 import { afterEach, expect, test } from 'vitest'
 import { createI18n, I18nLink, I18nProvider, I18nSwitcher, I18nT, useI18n } from '../src'
 import { createSolidRouterAdapter } from '../src/router'
-import { I18nContext, I18nDefaultLocaleContext, I18nLocalesContext, I18nRouterContext } from '../src/injection'
 import type { I18nRoutingStrategy } from '../src/router/types'
 
 const locales: Locale[] = [
@@ -108,8 +107,8 @@ test('a visitor browses, switches language from code and from the switcher, and 
 
   // the switcher: closed by default, label from customLabels, opens on click
   const button = container.querySelector('button.i18n-switcher-button') as HTMLButtonElement
-  expect(button.textContent).toBe('DE▼')
-  expect(button.getAttribute('aria-haspopup')).toBe('true')
+  expect(button.textContent).toBe('DE ▾')
+  expect(button.hasAttribute('aria-haspopup')).toBe(false)
   expect(button.getAttribute('aria-expanded')).toBe('false')
   expect(container.querySelector('.i18n-switcher-dropdown')).toBeNull()
   button.click()
@@ -117,7 +116,7 @@ test('a visitor browses, switches language from code and from the switcher, and 
   // the disabled locale (fr) is not offered; hrefs point at the same page in each locale
   // default styles: the active locale bold and blue, the others plain
   expect(container.querySelector('.i18n-switcher-dropdown')!.getAttribute('style')).toBe(
-    'position: absolute; top: 100%; left: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
+    'position: absolute; top: 100%; inset-inline-start: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
   )
   expect(container.querySelector('.i18n-switcher-dropdown li')!.getAttribute('style')).toBe('margin: 0px; padding: 0px;')
   expect(container.querySelector('.switcher-locale-de')!.getAttribute('style')).toBe(
@@ -146,7 +145,7 @@ test('a visitor browses, switches language from code and from the switcher, and 
   expect(container.querySelector('.i18n-switcher-dropdown')).toBeNull()
   expect(history.get()).toBe('/ar/products')
   expect(h1()).toBe('كل المنتجات')
-  expect(button.textContent).toBe('العربية▼')
+  expect(button.textContent).toBe('العربية ▾')
 
   // back to the default locale: the prefix is dropped
   button.click()
@@ -242,15 +241,9 @@ test('the switcher and links with a hand-written strategy that has no router lin
   const container = document.body.appendChild(document.createElement('div'))
   dispose = render(
     () => (
-      <I18nContext.Provider value={i18n}>
-        <I18nLocalesContext.Provider value={locales}>
-          <I18nDefaultLocaleContext.Provider value="en">
-            <I18nRouterContext.Provider value={strategy}>
-              <App />
-            </I18nRouterContext.Provider>
-          </I18nDefaultLocaleContext.Provider>
-        </I18nLocalesContext.Provider>
-      </I18nContext.Provider>
+      <I18nProvider i18n={i18n} locales={locales} defaultLocale="en" routingStrategy={strategy}>
+        <App />
+      </I18nProvider>
     ),
     container,
   )
@@ -298,12 +291,12 @@ test('the switcher and links with a hand-written strategy that has no router lin
     'padding: 4px 12px; font-size: 16px; cursor: pointer; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: space-between; color: green;',
   )
   const icon = () => button.querySelectorAll('span')[1]!.getAttribute('style')
-  expect(icon()).toBe('margin-left: 8px; display: inline-block; transition: transform 0.3s ease; opacity: 0.5;')
+  expect(icon()).toBe('margin-inline-start: 8px; display: inline-block; transition: transform 0.3s ease; opacity: 0.5;')
   button.click()
   expect(icon()).toContain('transform: rotate(180deg);')
   const dropdown = el('sw').querySelector('ul')!
   expect(dropdown.getAttribute('style')).toBe(
-    'position: absolute; top: 0px; left: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
+    'position: absolute; top: 0px; inset-inline-start: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
   )
   expect(dropdown.querySelector('li')!.getAttribute('style')).toBe('margin: 0px; padding: 2px;')
   expect(el('sw').querySelector('.switcher-locale-en')!.getAttribute('style')).toBe(
@@ -323,7 +316,7 @@ test('the switcher and links with a hand-written strategy that has no router lin
   expect(i18n.getLocale()).toBe('en')
   expect(pushed).toEqual(['/de/', '/en/'])
   expect(el('about').getAttribute('href')).toBe('/en/about/')
-  expect(button.textContent).toBe('English▼')
+  expect(button.textContent).toBe('English ▾')
 
   // the switcher's own localeRoute wins over the strategy, '/' when it gives no path
   const sw2 = el('sw2').querySelector('button')!

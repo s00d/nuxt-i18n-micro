@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-93 exports across 4 entry points.
+101 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,19 +18,20 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 43 members |
-| `BaseI18nOptions` | interface | 9 members |
+| `BaseI18n` | class | 44 members |
+| `BaseI18nOptions` | interface | 10 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
 | `escapeHtml` | const | `(text: string) => string` |
 | `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
-| `FormatService` | class | 20 members |
-| `FormatServiceOptions` | interface | 3 members |
+| `FormatService` | class | 21 members |
+| `FormatServiceOptions` | interface | 4 members |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
+| `isActiveLink` | function | `(current: string, link: string, localeCodes: readonly string[]) => boolean` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
 | `isPlainClick` | function | `(event: MouseEvent) => boolean` |
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
@@ -38,6 +39,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
+| `localizedPath` | function | `(to: string \| { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
@@ -49,8 +51,9 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveCachedTranslation` | function | `(tree: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `ResolvedText` | interface | 2 members |
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
-| `ResolveTextOptions` | interface | 9 members |
+| `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
@@ -62,12 +65,13 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 43 members</summary>
+<summary><code>BaseI18n</code> — 44 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private ChunkKey` |
 | `activeRootKey` | `private ChunkKey` |
+| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
 | `clearCache` | `() => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M` |
 | `fallbackKey` | `private ChunkKey` |
@@ -88,7 +92,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
-| `onTranslationsChanged` | `protected () => void` |
+| `onTranslationsChanged` | `protected (_locale?: string) => void` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private (locale: string) => string` |
@@ -113,7 +117,7 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>BaseI18nOptions</code> — 9 members</summary>
+<summary><code>BaseI18nOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -122,6 +126,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `localeIso?` | `Record<string, string> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `storage?` | `TranslationStorage \| undefined` |
@@ -130,7 +135,7 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>FormatService</code> — 20 members</summary>
+<summary><code>FormatService</code> — 21 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -146,6 +151,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
 | `new` | `(options?: FormatServiceOptions): FormatService` |
+| `now?` | `private (() => number) \| undefined` |
 | `numberCache` | `private Map<string, Intl.NumberFormat>` |
 | `numberFormats` | `private NumberFormatsConfig` |
 | `relativeCache` | `private Map<string, Intl.RelativeTimeFormat>` |
@@ -158,11 +164,12 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>FormatServiceOptions</code> — 3 members</summary>
+<summary><code>FormatServiceOptions</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `timeZone?` | `string \| undefined` |
 
@@ -216,12 +223,13 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>ResolveTextOptions</code> — 9 members</summary>
+<summary><code>ResolveTextOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `customPluralRule?` | `PluralFunc \| null \| undefined` |
 | `date?` | `string \| number \| Date \| null \| undefined` |
+| `defaultValue?` | `string \| undefined` |
 | `hideIfEmpty?` | `boolean \| undefined` |
 | `html?` | `boolean \| undefined` |
 | `keypath` | `string` |
@@ -355,6 +363,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
+| `isActiveLink` | function | `(current: string, link: string, localeCodes: readonly string[]) => boolean` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
 | `isPlainClick` | function | `(event: MouseEvent) => boolean` |
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
@@ -362,6 +371,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
+| `localizedPath` | function | `(to: string \| { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
@@ -369,8 +379,9 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ResolvedText` | interface | 2 members |
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
-| `ResolveTextOptions` | interface | 9 members |
+| `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
@@ -382,7 +393,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 
 <code>ResolvedText</code> — 2 members, identical to `ResolvedText` above.
 
-<code>ResolveTextOptions</code> — 9 members, identical to `ResolveTextOptions` above.
+<code>ResolveTextOptions</code> — 10 members, identical to `ResolveTextOptions` above.
 
 <code>TextHost</code> — 8 members, identical to `TextHost` above.
 ## `@i18n-micro/core/render`
@@ -394,15 +405,17 @@ import { /* … */ } from '@i18n-micro/core/render'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `createLocaleSwitcher` | function | `(vue: SwitcherVue, adapter: SwitcherAdapter, props: SwitcherProps, slots: RenderSlots) => () => unknown` |
+| `foldTemplate` | function | `(renderSlot: (slot: RenderSlot, key: string) => unknown, template: string, params: Record<string, unknown>, slots: RenderSlots, textChild?: (text: string) => unknown) => unknown` |
 | `I18nTRenderProps` | interface | 11 members |
-| `RenderApi` | interface | 2 members |
+| `RenderApi` | interface | 4 members |
 | `renderI18nT` | function | `(api: RenderApi, i18n: TextHost, props: I18nTRenderProps, slots: RenderSlots, attrs: Record<string, unknown>) => unknown` |
 | `RenderSlot` | type | `(props?: Record<string, unknown>) => unknown` |
 | `RenderSlots` | type | `Readonly<Record<string, RenderSlot \| undefined>>` |
-| `ResolveTextOptions` | interface | 9 members |
-| `SwitcherAdapter` | interface | 7 members |
+| `ResolveTextOptions` | interface | 10 members |
+| `SWITCHER_STYLES` | const | `{ wrapper: object; button: object; dropdown: object; item: object; link: object; activeLink: object; icon: object; openIcon: object; }` |
+| `SwitcherAdapter` | interface | 8 members |
 | `SwitcherProps` | interface | 9 members |
-| `SwitcherVue` | interface | 5 members |
+| `SwitcherVue` | interface | 7 members |
 | `TextHost` | interface | 8 members |
 
 <details>
@@ -425,22 +438,25 @@ import { /* … */ } from '@i18n-micro/core/render'
 </details>
 
 <details>
-<summary><code>RenderApi</code> — 2 members</summary>
+<summary><code>RenderApi</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `dated?` | `Record<string, unknown> \| undefined` |
 | `Fragment` | `unknown` |
 | `h` | `(type: any, props?: any, children?: any) => any` |
+| `markup?` | `((html: string) => Record<string, unknown>) \| undefined` |
 
 </details>
 
-<code>ResolveTextOptions</code> — 9 members, identical to `ResolveTextOptions` above.
+<code>ResolveTextOptions</code> — 10 members, identical to `ResolveTextOptions` above.
 
 <details>
-<summary><code>SwitcherAdapter</code> — 7 members</summary>
+<summary><code>SwitcherAdapter</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `browserNavigates?` | `(() => boolean) \| undefined` |
 | `href` | `(code: string) => string` |
 | `keepList?` | `boolean \| undefined` |
 | `locale` | `() => string` |
@@ -469,12 +485,14 @@ import { /* … */ } from '@i18n-micro/core/render'
 </details>
 
 <details>
-<summary><code>SwitcherVue</code> — 5 members</summary>
+<summary><code>SwitcherVue</code> — 7 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `dated?` | `Record<string, unknown> \| undefined` |
 | `Fragment` | `unknown` |
 | `h` | `(type: any, props?: any, children?: any) => any` |
+| `markup?` | `((html: string) => Record<string, unknown>) \| undefined` |
 | `onMounted` | `(hook: () => void) => void` |
 | `onUnmounted` | `(hook: () => void) => void` |
 | `ref` | `<T>(value: T) => { value: T; }` |

@@ -1,135 +1,71 @@
-// @ts-nocheck
-import { externalLinkHref } from '@i18n-micro/core'
-import { type Accessor, type Component, createMemo, type JSX, splitProps } from 'solid-js'
-import { useI18nContext, useI18nRouter } from '../injection'
-import type { I18nRoutingStrategy } from '../router/types'
+import { externalLinkHref, isActiveLink, isPlainClick } from '@i18n-micro/core'
+import { type Component, createMemo, type JSX, mergeProps, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
+import { useI18nContextValue } from '../injection'
+import type { RouteTarget } from '../router/types'
+import { routePath, useI18n } from '../use-i18n'
+import { mergeStyles } from './merge-styles'
 
-interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
-  to: string | { path?: string }
-  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
+export interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
+  to: RouteTarget
+  localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget
   activeStyle?: JSX.CSSProperties
 }
 
+/** Solid's two handler shapes: a function, or `[function, data]`. */
+function callHandler(handler: I18nLinkProps['onClick'], event: Parameters<ClickHandler>[0]): void {
+  if (typeof handler === 'function') handler(event)
+  else if (handler) handler[0](handler[1], event)
+}
+
+type ClickHandler = JSX.EventHandler<HTMLAnchorElement, MouseEvent>
+
 export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
-  const router = useI18nRouter()
-  const i18n = useI18nContext()
-  // Разделяем пропсы: явно выделяем style, чтобы объединить его с activeStyle
-  const [local, others] = splitProps(props, ['to', 'localeRoute', 'activeStyle', 'style', 'children'])
+  // the provider's props are reactive: `context.router` is read where it is used
+  const context = useI18nContextValue()
+  const i18n = context.i18n
+  const api = useI18n()
+  const [local, others] = splitProps(props, ['to', 'localeRoute', 'activeStyle', 'style', 'onClick'])
 
-  // 1. Получаем accessor для текущего пути из роутера
-  const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
-  const pathnameAccessor = extendedRouter?.getCurrentPathAccessor
-
-  // 2. Вычисление целевого пути (href) - реактивно отслеживает изменения локали
-  const targetPath = createMemo(() => {
-    // Используем реактивный accessor для отслеживания изменений локали
-    const currentLocale = i18n.localeAccessor()
-    let result: string
-    if (local.localeRoute) {
-      const res = local.localeRoute(local.to, currentLocale)
-      result = typeof res === 'string' ? res : res?.path || '/'
-    } else if (router?.resolvePath) {
-      const res = router.resolvePath(local.to, currentLocale)
-      result = typeof res === 'string' ? res : res?.path || '/'
-    } else if (typeof local.to === 'string') {
-      result = local.to
-    } else {
-      result = (local.to as { path?: string })?.path || '/'
-    }
-    return result
-  })
-
-  // 3. Проверка на внешнюю ссылку
   const externalHref = createMemo(() => externalLinkHref(local.to))
-  const isExternal = createMemo(() => externalHref() !== undefined)
+  const target = createMemo(() => routePath((local.localeRoute ?? api.localeRoute)(local.to, i18n.locale)))
 
-  // 4. Вычисление активного состояния
-  // Важно: вызываем pathnameAccessor() внутри createMemo для правильного отслеживания изменений
   const isActive = createMemo(() => {
-    if (isExternal()) {
-      return false
-    }
-
-    // Получаем текущий путь - вызываем accessor внутри createMemo для реактивности
-    const current = pathnameAccessor
-      ? pathnameAccessor() // Вызов accessor внутри createMemo отслеживает изменения
-      : router
-        ? router.getCurrentPath()
-        : typeof window !== 'undefined'
-          ? window.location.pathname
-          : '/'
-    const target = targetPath()
-
-    // Нормализация для сравнения (убираем слэш в конце, если это не корень)
-    const normCurrent = current === '/' ? '/' : current.replace(/\/$/, '')
-    const normTarget = target === '/' ? '/' : target.replace(/\/$/, '')
-
-    return normCurrent === normTarget
+    const router = context.router
+    if (!router || !local.activeStyle || externalHref() !== undefined) return false
+    // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
+    const codes = [i18n.locale, api.defaultLocale(), i18n.fallbackLocale, ...api.getLocales().map((l) => l.code)]
+    return isActiveLink(router.getCurrentPath(), target(), codes)
   })
 
-  // 5. Объединение стилей - используем isActive напрямую для реактивности
-  const mergedStyle = createMemo(() => {
-    const baseStyle = local.style || {}
-    // Вызываем isActive() внутри createMemo для отслеживания изменений
-    const active = isActive()
-    const activeStyle = active ? local.activeStyle || {} : {}
+  const handleClick: ClickHandler = (event) => {
+    callHandler(local.onClick, event)
+    const router = context.router
+    if (!router || externalHref() !== undefined || !isPlainClick(event)) return
+    event.preventDefault()
+    router.push({ path: target() })
+  }
 
-    // SolidJS умеет работать с объектами стилей корректно при слиянии
-    return {
-      ...(typeof baseStyle === 'object' ? baseStyle : {}),
-      ...(typeof activeStyle === 'object' ? activeStyle : {}),
-    } as JSX.CSSProperties
+  const usesRouterLink = () => externalHref() === undefined && context.router?.linkComponent !== undefined
+
+  const merged = mergeProps(others, {
+    get href() {
+      return externalHref() ?? target()
+    },
+    get style() {
+      return isActive() ? mergeStyles(local.style, local.activeStyle) : local.style
+    },
+    // a router link handles its own clicks
+    get onClick() {
+      return usesRouterLink() ? local.onClick : handleClick
+    },
+    get target() {
+      return externalHref() === undefined ? undefined : (others.target ?? '_blank')
+    },
+    get rel() {
+      return externalHref() === undefined ? undefined : (others.rel ?? 'noopener noreferrer')
+    },
   })
 
-  // Используем linkComponent из роутера, если доступен
-  const LinkComponent = router?.linkComponent
-
-  if (isExternal()) {
-    return (
-      // @ts-expect-error - Type conflict with Vue JSX
-      (
-        <a
-          href={externalHref()}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={mergedStyle()}
-          {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
-        >
-          {local.children}
-        </a>
-      ) as unknown as JSX.Element
-    )
-  }
-
-  // Если есть linkComponent из роутера (например, A из @solidjs/router), используем его
-  if (LinkComponent) {
-    return (
-      // @ts-expect-error - Type conflict with router component types
-      (
-        <LinkComponent href={targetPath()} style={mergedStyle()} {...(others as unknown as Record<string, unknown>)}>
-          {local.children}
-        </LinkComponent>
-      ) as unknown as JSX.Element
-    )
-  }
-
-  // Fallback на нативный <a> с onClick обработчиком
-  return (
-    // @ts-expect-error - Type conflict with Vue JSX
-    (
-      <a
-        href={targetPath()}
-        style={mergedStyle()}
-        {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
-        onClick={(e: MouseEvent) => {
-          if (router && !isExternal()) {
-            e.preventDefault()
-            router.push({ path: targetPath() })
-          }
-        }}
-      >
-        {local.children}
-      </a>
-    ) as unknown as JSX.Element
-  )
+  return <Dynamic component={usesRouterLink() ? context.router!.linkComponent! : 'a'} {...merged} />
 }

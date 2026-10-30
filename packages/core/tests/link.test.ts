@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { externalLinkHref, isPlainClick, isSamePage } from '../src/link'
+import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, routeQuery } from '../src/link'
+
+describe('routeQuery', () => {
+  it.each([
+    ['', {}],
+    ['?a=1', { a: '1' }],
+    ['?tag=a&tag=b&tag=c&x=1', { tag: ['a', 'b', 'c'], x: '1' }],
+    ['?a=&a=', { a: ['', ''] }],
+    ['?flag', { flag: null }],
+    ['?flag=', { flag: '' }],
+    ['?a&a=1&&b', { a: [null, '1'], b: null }],
+    ['?q=a+b%20c', { q: 'a b c' }],
+    ['?q=%2B', { q: '+' }],
+    // as vue-router: a value that does not decode stays as written, with no U+FFFD
+    ['?a=%E0%A4%A&b=%E0%A4%A5', { a: '%E0%A4%A', b: 'थ' }],
+    ['?%E0%A4%A=1', { '%E0%A4%A': '1' }],
+    ['?a=%zz', { a: '%zz' }],
+  ])('%s', (search, query) => {
+    expect(routeQuery(search)).toEqual(query)
+  })
+
+  it('a key named like a prototype member stays a plain own key', () => {
+    const query = routeQuery('?__proto__=x&constructor=y')
+    expect(Object.getPrototypeOf(query)).toBe(Object.prototype)
+    expect(Object.keys(query)).toEqual(['__proto__', 'constructor'])
+  })
+})
 
 describe('externalLinkHref', () => {
   it.each([
@@ -89,5 +115,49 @@ describe('isPlainClick', () => {
     { download: 'report.pdf' },
   ])('not with %j', (init) => {
     expect(isPlainClick(click(init))).toBe(false)
+  })
+})
+
+describe('isActiveLink', () => {
+  it.each([
+    ['/about', '/about', true],
+    ['/about/', '/about', true],
+    ['/about?x=1#y', '/about', true],
+    ['/about', '/about?x=1', true],
+    ['/about/team', '/about', true],
+    ['/about-us', '/about', false],
+    ['/about', '/about/team', false],
+    ['/de', '/de', true],
+    ['/de/about', '/de', false],
+    ['/about', '/', false],
+    ['/', '/', true],
+  ])('%s with a link to %s: %s', (current, link, active) => {
+    expect(isActiveLink(current, link, ['en', 'de'])).toBe(active)
+  })
+})
+
+describe('localizedPath', () => {
+  const codes = ['en', 'de', 'fr']
+  it.each([
+    ['/', 'en', '/'],
+    ['/', 'de', '/de'],
+    ['/about', 'de', '/de/about'],
+    ['about', 'de', '/de/about'],
+    ['/de', 'en', '/'],
+    ['/de/about', 'fr', '/fr/about'],
+    ['/de?x=1', 'en', '/?x=1'],
+    ['/de#top', 'fr', '/fr#top'],
+    ['/de/a?x=1#y', 'fr', '/fr/a?x=1#y'],
+    ['/about?next=/de/x', 'de', '/de/about?next=/de/x'],
+    ['/deutsch', 'en', '/deutsch'],
+    ['#top', 'de', '#top'],
+    ['?x=1', 'en', '?x=1'],
+  ])('%s in %s is %s', (to, locale, path) => {
+    expect(localizedPath(to, locale, codes, 'en')).toBe(path)
+  })
+
+  it('takes a location object', () => {
+    expect(localizedPath({ path: '/de/a' }, 'en', codes, 'en')).toBe('/a')
+    expect(localizedPath({}, 'de', codes, 'en')).toBe('/de')
   })
 })

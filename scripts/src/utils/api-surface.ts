@@ -59,6 +59,8 @@ const flat = (text: string): string =>
     .replace(/\s+/g, ' ')
     .trim()
 
+const printer = ts.createPrinter({ removeComments: true })
+
 function kindOf(symbol: ts.Symbol): string {
   for (const [flag, name] of KIND_BY_FLAG) {
     if (symbol.flags & flag) return name
@@ -86,7 +88,7 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
     const declaration = symbol.declarations?.[0]
     const body =
       declaration && ts.isTypeAliasDeclaration(declaration)
-        ? flat(declaration.type.getText())
+        ? flat(printer.printNode(ts.EmitHint.Unspecified, declaration.type, declaration.getSourceFile()))
         : flat(checker.typeToString(checker.getDeclaredTypeOfSymbol(symbol), undefined, FORMAT_FLAGS))
     // Consumers write `ScopedKey<'errors'>`, so the parameter list is part of what they
     // depend on — carried in the signature, because a path containing spaces cannot be
@@ -277,6 +279,8 @@ export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSur
       // the React, Preact and Solid component contracts were absent from their snapshots.
       jsx: ts.JsxEmit.Preserve,
       allowJs: true,
+      // the React and Preact sources are one: each package answers this import with its own file
+      paths: { '#host': [join(pkgDir, 'src/host.ts')] },
     },
   )
   const checker = program.getTypeChecker()

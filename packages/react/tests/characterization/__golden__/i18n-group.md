@@ -1,0 +1,3 @@
+- plain → <div class="i18n-group">Deep 1</div>
+- groupClass → <div class="i18n-group g">Deep 1</div>
+- className → <div class="i18n-group g u">Deep 1</div>

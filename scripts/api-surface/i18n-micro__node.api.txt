@@ -13,6 +13,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -26,6 +27,7 @@ type Getter: (key: TranslationKey, params?: Record<string, string | number | boo
 class I18n
 member I18n.activeKey: private any
 member I18n.activeRootKey: private any
+member I18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member I18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member I18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member I18n.clear: () => void
@@ -47,6 +49,7 @@ member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: TranslationHelper
+member I18n.isReadable: private any
 member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -58,7 +61,7 @@ member I18n.localeIso: private any
 member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
-member I18n.onTranslationsChanged: protected () => void
+member I18n.onTranslationsChanged: protected (locale?: string) => void
 member I18n.pluralFunc: PluralFunc
 member I18n.pluralLocale: () => string
 member I18n.pluralTag: private any
@@ -91,12 +94,15 @@ member I18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
+member I18nOptions.localeIso?: Record<string, string> | undefined
 member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.now?: (() => number) | undefined
 member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member I18nOptions.timeZone?: string | undefined
 member I18nOptions.translationDir?: string | undefined
 function interpolate: (template: string, params: Params) => string
 interface LoadedTranslations

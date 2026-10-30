@@ -5,6 +5,7 @@ member AstroI18n._fallbackLocale: private string
 member AstroI18n._locale: private string
 member AstroI18n.activeKey: private any
 member AstroI18n.activeRootKey: private any
+member AstroI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.clearCache: () => void
@@ -32,7 +33,7 @@ member AstroI18n.lookupLocale: private any
 member AstroI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member AstroI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member AstroI18n.missingWarn: boolean
-member AstroI18n.onTranslationsChanged: protected () => void
+member AstroI18n.onTranslationsChanged: protected (_locale?: string) => void
 member AstroI18n.pluralFunc: PluralFunc
 member AstroI18n.pluralLocale: () => string
 member AstroI18n.pluralTag: private any
@@ -84,6 +85,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any

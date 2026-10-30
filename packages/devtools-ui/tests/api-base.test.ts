@@ -15,7 +15,12 @@ test('the devtools page calls the endpoints under the configured base', () => {
   const plugin = i18nDevToolsPlugin({ base: '/dev/i18n' }) as { configureServer: (server: ViteDevServer) => void }
   plugin.configureServer(server as unknown as ViteDevServer)
 
-  expect([...routes.keys()].filter((route) => route.startsWith('/dev/i18n/'))).toEqual(['/dev/i18n/config', '/dev/i18n/files', '/dev/i18n/file', '/dev/i18n/save'])
+  expect([...routes.keys()].filter((route) => route.startsWith('/dev/i18n/'))).toEqual([
+    '/dev/i18n/config',
+    '/dev/i18n/files',
+    '/dev/i18n/file',
+    '/dev/i18n/save',
+  ])
   let html = ''
   routes.get('/__i18n_devtools.html')!({}, { setHeader: () => {}, end: (body) => (html = body) })
   expect(html).toContain('const API = "/dev/i18n";')

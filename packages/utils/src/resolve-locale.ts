@@ -21,13 +21,16 @@ export interface ResolveLocaleInput {
 const valid = (code: string | null | undefined, validLocales: readonly string[]): code is string =>
   typeof code === 'string' && validLocales.includes(code)
 
+const pick = (code: string | null | undefined, validLocales: readonly string[]) => (valid(code, validLocales) ? code : null)
+
 /**
  * The one precedence: url → query → state → cookie → Accept-Language (only with
  * `autoDetectLanguage` and no explicit source) → default. Invalid values are skipped.
  */
 export function resolveLocale(input: ResolveLocaleInput): string {
   const { validLocales } = input
-  const explicit = [input.url, input.query, input.state, input.cookie].find((code) => valid(code, validLocales))
+  const explicit =
+    pick(input.url, validLocales) ?? pick(input.query, validLocales) ?? pick(input.state, validLocales) ?? pick(input.cookie, validLocales)
   if (explicit) return explicit
   if (!input.autoDetectLanguage) return input.defaultLocale
   return detectLocaleFromAcceptLanguage(input.acceptLanguage ?? undefined, validLocales) ?? input.defaultLocale

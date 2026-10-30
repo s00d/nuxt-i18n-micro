@@ -1,6 +1,6 @@
 # company · no_prefix
 
-typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction
+typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one routeRules redirect
 
 locales: en, de, fr · default: en
 
@@ -18,6 +18,7 @@ locales: en, de, fr · default: en
 | legal-imprint | /legal/imprint |  |  |
 | careers | /careers |  |  |
 | slug | /:slug(.*)* |  |  |
+| — | /old |  |  |
 | localized-about-en | /about-us |  |  |
 | localized-about-de | /ueber-uns |  |  |
 | localized-about-fr | /a-propos |  |  |
@@ -49,6 +50,7 @@ Every URL is resolved with `?q=1#top`.
 | /hello-world | slug | en | slug | slug | English | null | null | null |
 | /kontakt | localized-contact-de | en | contact | contact | English | null | null | null |
 | /legal/imprint | legal-imprint | en | legal-imprint | legal-imprint | English | null | null | null |
+| /old | null | en |  | null | English | null | null | null |
 | /products | products | en | products | products | English | null | null | null |
 | /products/42 | products-id | en | products-id | products-id | English | null | null | null |
 | /produits/42 | localized-products-id-fr | en | products-id | products-id | English | null | null | null |
@@ -83,6 +85,7 @@ Every URL is resolved with `?q=1#top`.
 | /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
 | /kontakt | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
 | /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
 | /products/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
 | /produits/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
@@ -117,6 +120,7 @@ Every URL is resolved with `?q=1#top`.
 | /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
 | /kontakt | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | null | null | en,de,fr |
 | /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
 | /products/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
 | /produits/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
@@ -151,6 +155,7 @@ Every URL is resolved with `?q=1#top`.
 | /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
 | /kontakt | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | null | null | en,de,fr |
 | /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
 | /products/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |
 | /produits/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |

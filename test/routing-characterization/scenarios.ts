@@ -28,6 +28,9 @@ export interface App {
   routesLocaleLinks?: Record<string, string>
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string
+  hashMode?: boolean
+  /** A `routeRules` redirect with no page: Nuxt adds an unnamed stub record for `/old`. */
+  hasStub?: boolean
   noPrefixRedirect?: boolean
   excludePatterns?: string[]
   /** params used to build concrete URLs of dynamic routes */
@@ -53,12 +56,15 @@ export const PARAMS: Record<string, string | string[]> = {
 export const APPS: App[] = [
   {
     name: 'plain',
-    description: 'small site without any custom path',
+    description: 'small site without any custom path, one routeRules redirect',
     files: ['index.vue', 'about.vue', 'contact.vue', 'blog/index.vue', 'blog/[slug].vue'],
+    hasStub: true,
   },
   {
     name: 'company',
-    description: 'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction',
+    description:
+      'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one routeRules redirect',
+    hasStub: true,
     files: [
       'index.vue',
       'about.vue',
@@ -154,8 +160,8 @@ export const APPS: App[] = [
   },
   {
     name: 'options',
-    description: 'hyphenated locale codes, custom route-name prefix, custom locale regex, noPrefixRedirect, excluded paths',
-    files: ['index.vue', 'about.vue', 'blog/[slug].vue', 'api-docs.vue'],
+    description: 'hyphenated locale codes, custom route-name prefix, custom locale regex with a page shaped like a locale, noPrefixRedirect, excluded paths',
+    files: ['index.vue', 'about.vue', 'go.vue', 'blog/[slug].vue', 'api-docs.vue'],
     locales: [
       { code: 'en-us', iso: 'en-US' },
       { code: 'pt-br', iso: 'pt-BR' },
@@ -192,6 +198,23 @@ export const APPS: App[] = [
       page: { localeRoutes: { en: '/page/:id', de: '/page/:id' } },
       'product/[...slug]': { localeRoutes: { de: '/produkte//[...slug]' } },
     },
+  },
+  {
+    name: 'hash-mode',
+    description: 'router hashMode: the locale is not read from the URL',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue'],
+    hashMode: true,
+    globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+  },
+  {
+    name: 'disabled-locale',
+    description: 'a locale disabled in the config: no records, the strategy still knows it',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue'],
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+      { code: 'es', iso: 'es-ES', disabled: true },
+    ],
   },
   {
     name: 'multi-domain',

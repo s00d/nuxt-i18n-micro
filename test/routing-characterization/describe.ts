@@ -17,6 +17,8 @@ interface Built {
   router: Router
   i18n: PathStrategy
   locales: string[]
+  /** Disabled locales: the strategy knows them, nothing serves them. */
+  disabled: string[]
   defaultLocale: string
   strategy: Strategies
 }
@@ -32,6 +34,8 @@ function applyAliases(pages: NuxtPage[], aliases: Record<string, string[]>) {
 export function build(app: App, strategy: Strategies): Built {
   const pages = pagesFromFiles(app.files)
   if (app.aliases) applyAliases(pages, app.aliases)
+  // what Nuxt adds for a `routeRules` redirect without a page: unnamed, with a stub component
+  if (app.hasStub) pages.push({ _sync: true, path: '/old', file: 'component-stub' } as NuxtPage)
 
   const routeLocales: Record<string, string[]> = { ...app.routeLocales }
   const filesLocaleRoutes: GlobalLocaleRoutes = {}
@@ -69,11 +73,18 @@ export function build(app: App, strategy: Strategies): Built {
   const i18n = createPathStrategy({
     strategy,
     defaultLocale: generator.defaultLocale.code,
-    locales: generator.locales,
+    // the runtime config keeps disabled locales; only the records leave them out
+    locales: appLocales(app),
     localizedRouteNamePrefix,
     router: adapter,
+    hashMode: app.hashMode,
+    customRegexMatcher: app.customRegexMatcher,
   })
-  return { pages, router, i18n, locales: generator.locales.map((l) => l.code), defaultLocale: generator.defaultLocale.code, strategy }
+  const locales = generator.locales.map((l) => l.code)
+  const disabled = appLocales(app)
+    .filter((l) => l.disabled)
+    .map((l) => l.code)
+  return { pages, router, i18n, locales, disabled, defaultLocale: generator.defaultLocale.code, strategy }
 }
 
 // ---------- capture ----------
@@ -160,7 +171,7 @@ function concreteUrls(router: Router, locales: string[]): string[] {
   return [...urls].sort()
 }
 
-function edgeUrls(locales: string[], defaultLocale: string): string[] {
+function edgeUrls(locales: string[], disabled: string[], defaultLocale: string): string[] {
   const other = locales.find((l) => l !== defaultLocale)!
   return [
     '/',
@@ -174,6 +185,7 @@ function edgeUrls(locales: string[], defaultLocale: string): string[] {
     `/${other}/missing`,
     '/xx/about',
     `/${other}/${other}/about`,
+    ...disabled.flatMap((code) => [`/${code}`, `/${code}/about`]),
   ]
 }
 
@@ -201,9 +213,9 @@ export function describeApp(app: App, strategy: Strategies): string {
     const pages = (e as { pages?: NuxtPage[] }).pages
     return `${header}\n\n**${(e as Error).message}**\n\n${pages ? routesSection(pages) : ''}\n`
   }
-  const { pages, router, i18n, locales, defaultLocale } = built
+  const { pages, router, i18n, locales, disabled, defaultLocale } = built
   const concrete = concreteUrls(router, locales)
-  const urls = [...new Set([...concrete, ...edgeUrls(locales, defaultLocale)])]
+  const urls = [...new Set([...concrete, ...edgeUrls(locales, disabled, defaultLocale)])]
   const resolved = urls.map((url) => ({ url, route: adapterResolve(router, `${url}?q=1#top`) }))
 
   const readRows = resolved.map(({ url, route }) => {
@@ -240,7 +252,7 @@ export function describeApp(app: App, strategy: Strategies): string {
     )}`,
   ]
 
-  for (const target of locales) {
+  for (const target of [...locales, ...disabled]) {
     const rows = resolved.map(({ url, route }) => {
       const from = i18n.getCurrentLocale(route)
       const i18nRouteParams = Object.keys(route.params ?? {}).some((k) => k !== 'locale')

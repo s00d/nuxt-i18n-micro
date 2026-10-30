@@ -1,6 +1,6 @@
 # plain · no_prefix
 
-small site without any custom path
+small site without any custom path, one routeRules redirect
 
 locales: en, de, fr · default: en
 
@@ -13,6 +13,7 @@ locales: en, de, fr · default: en
 | contact | /contact |  |  |
 | blog | /blog |  |  |
 | blog-slug | /blog/:slug() |  |  |
+| — | /old |  |  |
 
 ## Reading a URL
 
@@ -25,6 +26,7 @@ Every URL is resolved with `?q=1#top`.
 | /blog | blog | en | blog | blog | English | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
 | /contact | contact | en | contact | contact | English | null | null | null |
+| /old | null | en |  | null | English | null | null | null |
 | /en | null | en | index | index | English | en | null | null |
 | /en/ | null | en | index | index | English | en | null | null |
 | /de | null | en | index | index | English | de | null | null |
@@ -45,6 +47,7 @@ Every URL is resolved with `?q=1#top`.
 | /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
 | /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
 | /contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
@@ -65,6 +68,7 @@ Every URL is resolved with `?q=1#top`.
 | /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
 | /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-de?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
 | /contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
@@ -85,6 +89,7 @@ Every URL is resolved with `?q=1#top`.
 | /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
 | /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-fr?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
 | /contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /old | /old?q=1#top [—] |  | /old?q=1#top [null] | /old?q=1#top [null] | null | null | null |
 | /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |

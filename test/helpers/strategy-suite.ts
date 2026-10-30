@@ -17,6 +17,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { stripVTControlCharacters } from 'node:util'
 import { afterAll, expect, test } from 'vitest'
 import { isolatedBuild } from './isolated-build'
 import { getFreePort } from './port'
@@ -106,7 +107,13 @@ export function registerStrategySuite(strategy: StrategyName): void {
     await rm(generated.buildDir, { recursive: true, force: true })
     const output = await build('generate', generated)
     expect(output).not.toContain('Exiting due to prerender errors')
-    expect(output).not.toMatch(/├─ \/ .*\[404\]/)
+    // every crawled route that failed (the fixture sets failOnError: false, so generate still
+    // succeeds): Nitro logs `├─ <route> (<n>ms)` with its error on the next `│ └──` line
+    const log = stripVTControlCharacters(output)
+    // the route list is in the captured output, or the check below would pass on nothing
+    expect(log).toMatch(/├─ \/\S* \(\d+ms\)/)
+    const failed = [...log.matchAll(/├─ (\S+) \(\d+ms\)\n\s*│ [├└]── ([^\n]+)/g)].map(([, route, error]) => `${route}: ${error}`)
+    expect(failed).toEqual([])
 
     // step 2: each URL is a static page rendering its locale / page content
     for (const [path, content] of Object.entries(routes)) {

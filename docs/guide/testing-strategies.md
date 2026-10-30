@@ -64,7 +64,7 @@ Browser e2e runs through [untestutils](https://github.com/s00d/untestutils) and 
 - **Recipes** — `test/recipes.ts` names one build per fixture variant (`app('strategy-prefix', 'strategy', { STRATEGY: 'prefix' })`). Builds are hashed by fixture dir + `src/`, cached in `test/.untestutils/builds` (CI caches that dir) and started once per run.
 - **Journeys** — `test/journeys/*.spec.ts`. One spec walks one real flow on one fixture: visit, browse, switch locale, reload, detection, head. Each step has a `// step n: action → assert` comment, and a `// was: <old spec › test>` comment where an older assertion was folded in.
 - **One harness per file** — `test.override({ harness: '<recipe>' })` at the top of the `describe`. A second harness in the same file would reach the first one's server, so split such journeys into their own files.
-- **Stability rules** — no `waitForTimeout`, no `networkidle`; statuses come from `request.get(path, { maxRedirects: 0 })`; no optional `if` assertions; console collectors are armed before the first `goto`. Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
+- **Stability rules** — no `waitForTimeout`, no `networkidle`; statuses come from `request.get(path)`, with `{ maxRedirects: 0 }` where the redirect itself is checked; no optional `if` assertions; console collectors are armed before the first `goto`. Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
 - **Never write inside the repo tree** — specs that edit locale files (dev HMR) or a config (`storage-cwd`) run on a temp copy from `tmpFixture()` in `test/helpers/tmp-fixture.ts`, so a parallel build never hashes a patched fixture.
 
 ## Mutation testing
@@ -76,6 +76,6 @@ MUTATE_PACKAGE=core pnpm run test:mutation                      # score; JSON re
 MUTATE_PACKAGE=core MUTATE_ALL_KILLERS=1 pnpm run test:mutation # record every test that kills each mutant
 ```
 
-With `MUTATE_ALL_KILLERS=1` the JSON report lists every killing test per mutant. A test that kills nothing another test does not also kill adds nothing: delete it. Package tests are kept to that minimal set, and new tests are written as scenarios (set up like a real app, act, assert, act again) rather than one-line checks.
+With `MUTATE_ALL_KILLERS=1` the JSON report lists every killing test per mutant. A test whose killed mutants are all also killed by other tests can be deleted. Package tests are kept to a small set (greedy set cover) that still kills every mutant any test kills, and new tests are written as scenarios (set up like a real app, act, assert, act again) rather than one-line checks.
 
 See also [Testing the module](/guide/testing).

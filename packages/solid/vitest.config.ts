@@ -12,7 +12,8 @@ export default defineConfig({
     {
       name: 'no-jest-dom-setup',
       config(config: { test?: { setupFiles?: string | string[] } }) {
-        if (config.test) config.test.setupFiles = []
+        const files = config.test?.setupFiles
+        if (config.test && files) config.test.setupFiles = [files].flat().filter((file) => !file.includes('jest-dom'))
       },
     },
   ],

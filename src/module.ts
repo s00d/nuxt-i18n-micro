@@ -53,7 +53,7 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver } from './localized-paths'
+import { createLocalizedPathResolver, staticPagePaths } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
@@ -718,6 +718,8 @@ declare module '#i18n-internal/payload-source' {
 
     /** The localized pages, as the app's router will hold them: prerender asks the runtime strategy about them. */
     let generatedPages: NuxtPage[] = []
+    /** The pages as written, without params: generate seeds every locale of them, linked or not. */
+    let staticPaths: string[] = []
     const createBuildStrategy = () =>
       createLocalizedPathResolver(generatedPages, {
         strategy: options.strategy!,
@@ -745,6 +747,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       addDataRoutes(pages)
+      staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages
     })
@@ -890,6 +893,7 @@ declare module '#i18n-internal/payload-source' {
       if (isSSG) {
         // `/` itself is kept so a static host still answers the bare root (the redirect stub).
         if (prerendered('/')) routesSet.add('/')
+        for (const path of staticPaths) if (prerendered(path)) routesSet.add(path)
         for (const locale of routeGenerator.locales) {
           const localizedRoot = localize.path('/', locale.code)
           if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)

@@ -3,7 +3,11 @@ import { createNuxtBridge } from '../../client/bridge/nuxt-bridge'
 
 function fakeClient() {
   let clientFunctions: { localesUpdated(data: unknown): void }
-  const rpc = { getLocalesAndTranslations: vi.fn(async () => ({ 'en.json': {} })), getConfigs: vi.fn(async () => ({})), saveTranslationContent: vi.fn() }
+  const rpc = {
+    getLocalesAndTranslations: vi.fn(async () => ({ 'en.json': {} })),
+    getConfigs: vi.fn(async () => ({})),
+    saveTranslationContent: vi.fn(),
+  }
   const client = {
     devtools: {
       extendClientRpc: (_namespace: string, functions: typeof clientFunctions) => {

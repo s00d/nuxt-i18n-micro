@@ -123,7 +123,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `Ref<string, string>` |
-| `localeIso` | `private any` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private any` |
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |

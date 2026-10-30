@@ -31,7 +31,19 @@ export default defineConfig({
     },
     rollupOptions: {
       // Внешние зависимости
-      external: [/^@i18n-micro\//, /^node:/, /^virtual:/, 'astro', 'vue', 'svelte/store', 'react', 'react/jsx-runtime', 'preact', 'preact/hooks', 'preact/jsx-runtime'],
+      external: [
+        /^@i18n-micro\//,
+        /^node:/,
+        /^virtual:/,
+        'astro',
+        'vue',
+        'svelte/store',
+        'react',
+        'react/jsx-runtime',
+        'preact',
+        'preact/hooks',
+        'preact/jsx-runtime',
+      ],
       // Массив output заменяет собой formats
       output: [
         // 1. ESM Сборка (Основная + Клиент)

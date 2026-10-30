@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-98 exports across 21 entry points.
+103 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -144,6 +144,29 @@ import { /* … */ } from '@i18n-micro/utils/domains'
 | `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
+## `@i18n-micro/utils/load-dir`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/load-dir'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `listTranslationFiles` | function | `(dir: string) => TranslationFile[]` |
+| `loadTranslationDir` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
+| `loadTranslationDirAsync` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>` |
+| `parseTranslationFile` | function | `(text: string, path: string) => Dictionary \| null` |
+| `TranslationFile` | interface | 2 members |
+
+<details>
+<summary><code>TranslationFile</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `absolutePath` | `string` |
+| `relativePath` | `string` |
+
+</details>
 ## `@i18n-micro/utils/locale-head`
 
 ```ts

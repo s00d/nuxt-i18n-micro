@@ -126,8 +126,7 @@ test('reload: the old dictionaries answer until the new ones are in, and a broke
 })
 
 describe('requests', () => {
-  const site = () =>
-    createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en: { hi: 'Hello' }, de: { hi: 'Hallo' } }, missingWarn: false })
+  const site = () => createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en: { hi: 'Hello' }, de: { hi: 'Hallo' } }, missingWarn: false })
   const tick = () => new Promise((resolve) => setTimeout(resolve, 1))
 
   test('overlapping requests each see their own locale, on the shared instance too', async () => {

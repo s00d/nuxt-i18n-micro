@@ -75,7 +75,8 @@ export function refererUrl(context: RequestContext): URL | null {
  * ponytail: without a `Referer` (a `no-referrer` policy) it renders in the default locale, and on a
  * dynamic page its route name comes from the URL; route patterns in the config would settle that.
  */
-const isPartOfPage = (pattern: string | undefined): boolean => pattern?.startsWith('/_server-islands/') === true || pattern?.startsWith('/_actions/') === true
+const isPartOfPage = (pattern: string | undefined): boolean =>
+  pattern?.startsWith('/_server-islands/') === true || pattern?.startsWith('/_actions/') === true
 
 /** The route's pattern, a `[locale]` param replaced by its value so the locale drops out of the name. */
 function pagePattern(context: RequestContext, locales: string[]): string | undefined {

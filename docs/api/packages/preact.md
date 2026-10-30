@@ -46,8 +46,8 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 58 members |
-| `PreactI18nOptions` | interface | 9 members |
+| `PreactI18n` | class | 60 members |
+| `PreactI18nOptions` | interface | 11 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
@@ -1409,7 +1409,7 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 58 members</summary>
+<summary><code>PreactI18n</code> — 60 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1424,6 +1424,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
+| `fork` | `(locale?: string) => import("../../preact/src").PreactI18n` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -1441,12 +1442,13 @@ import { /* … */ } from '@i18n-micro/preact'
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
-| `localeIso` | `private any` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): PreactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -1458,7 +1460,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
-| `store` | `private any` |
+| `store` | `protected ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -1475,17 +1477,19 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 
 <details>
-<summary><code>PreactI18nOptions</code> — 9 members</summary>
+<summary><code>PreactI18nOptions</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `parent?` | `I18n \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 

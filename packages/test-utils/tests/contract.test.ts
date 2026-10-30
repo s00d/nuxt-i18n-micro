@@ -59,19 +59,41 @@ describe.each(SCENES)('locale %s, route %s', (locale, route) => {
 
   test('t, ts, has', () => {
     for (const key of KEYS) {
-      expect(answer(() => b.t(key)), `t(${key})`).toEqual(answer(() => a.t(key)))
-      expect(answer(() => b.t(key, undefined, '')), `t(${key}, '')`).toEqual(answer(() => a.t(key, undefined, '')))
-      expect(answer(() => b.t(key, undefined, 'D')), `t(${key}, D)`).toEqual(answer(() => a.t(key, undefined, 'D')))
-      expect(answer(() => b.ts(key, undefined, 'D')), `ts(${key})`).toEqual(answer(() => a.ts(key, undefined, 'D')))
-      expect(answer(() => b.has(key)), `has(${key})`).toEqual(answer(() => a.has(key)))
-      for (const params of PARAMS) expect(answer(() => b.t(key, params as never)), `t(${key}, params)`).toEqual(answer(() => a.t(key, params as never)))
+      expect(
+        answer(() => b.t(key)),
+        `t(${key})`,
+      ).toEqual(answer(() => a.t(key)))
+      expect(
+        answer(() => b.t(key, undefined, '')),
+        `t(${key}, '')`,
+      ).toEqual(answer(() => a.t(key, undefined, '')))
+      expect(
+        answer(() => b.t(key, undefined, 'D')),
+        `t(${key}, D)`,
+      ).toEqual(answer(() => a.t(key, undefined, 'D')))
+      expect(
+        answer(() => b.ts(key, undefined, 'D')),
+        `ts(${key})`,
+      ).toEqual(answer(() => a.ts(key, undefined, 'D')))
+      expect(
+        answer(() => b.has(key)),
+        `has(${key})`,
+      ).toEqual(answer(() => a.has(key)))
+      for (const params of PARAMS)
+        expect(
+          answer(() => b.t(key, params as never)),
+          `t(${key}, params)`,
+        ).toEqual(answer(() => a.t(key, params as never)))
     }
   })
 
   test('tc', () => {
     for (const count of COUNTS) {
       for (const key of ['apples', 'cars', 'items', 'single', 'nope']) {
-        expect(answer(() => b.tc(key, count as never)), `tc(${key}, ${String(count)})`).toEqual(answer(() => a.tc(key, count as never)))
+        expect(
+          answer(() => b.tc(key, count as never)),
+          `tc(${key}, ${String(count)})`,
+        ).toEqual(answer(() => a.tc(key, count as never)))
       }
     }
     expect(answer(() => b.tc('apples', { count: null } as never))).toEqual(answer(() => a.tc('apples', { count: null } as never)))

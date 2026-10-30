@@ -112,7 +112,7 @@ member VueI18n.listeners: private Set<() => void>
 member VueI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member VueI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member VueI18n.locale: Ref<string, string>
-member VueI18n.localeIso: private any
+member VueI18n.localeIso: protected Record<string, string>
 member VueI18n.lookupLocale: private any
 member VueI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member VueI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined

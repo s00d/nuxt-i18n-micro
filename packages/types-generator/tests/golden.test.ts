@@ -22,7 +22,10 @@ afterEach(() => {
 })
 
 test('types-generator characterization', async () => {
-  write('en.json', '{"hello":"Hello","a":{"b":"AB","c":{"d":"D"}},"n":1,"yes":true,"nil":null,"list":["x"],"empty":{},"__proto__":{"evil":"x"},"flat.key":"F"}')
+  write(
+    'en.json',
+    '{"hello":"Hello","a":{"b":"AB","c":{"d":"D"}},"n":1,"yes":true,"nil":null,"list":["x"],"empty":{},"__proto__":{"evil":"x"},"flat.key":"F"}',
+  )
   write('de.json', '{"onlyDe":"x"}')
   write('pages/about/en.json', '{"title":"About"}')
   write('notes/meta.json', '{"notATranslation":true}')

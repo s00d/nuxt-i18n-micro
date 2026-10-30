@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/node`
 
-15 exports across 1 entry point.
+16 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -22,14 +22,15 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 62 members |
-| `I18nOptions` | interface | 11 members |
+| `I18n` | class | 67 members |
+| `I18nOptions` | interface | 13 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `Translations` | interface | 1 members |
@@ -37,7 +38,7 @@ import { /* … */ } from '@i18n-micro/node'
 <code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 62 members</summary>
+<summary><code>I18n</code> — 67 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -53,6 +54,8 @@ import { /* … */ } from '@i18n-micro/node'
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
+| `fork` | `(locale?: string) => import("../../node/src").I18n` |
+| `forked` | `private boolean` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -71,12 +74,13 @@ import { /* … */ } from '@i18n-micro/node'
 | `loadTranslations` | `(dir?: string) => Promise<void>` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
-| `localeIso` | `private any` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -86,10 +90,12 @@ import { /* … */ } from '@i18n-micro/node'
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
+| `run` | `<T>(locale: string, fn: (i18n: I18n) => T) => T` |
+| `scope` | `private AsyncLocalStorage<I18n>` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
-| `store` | `private any` |
+| `store` | `protected ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -107,7 +113,7 @@ import { /* … */ } from '@i18n-micro/node'
 </details>
 
 <details>
-<summary><code>I18nOptions</code> — 11 members</summary>
+<summary><code>I18nOptions</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -115,10 +121,12 @@ import { /* … */ } from '@i18n-micro/node'
 | `disablePageLocales?` | `boolean \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `parent?` | `I18n \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `translationDir?` | `string \| undefined` |

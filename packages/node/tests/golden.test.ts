@@ -51,14 +51,26 @@ async function report(): Promise<string> {
 
   rec.section('instance')
   const i18n = createI18n({ locale: 'en', translationDir: dir, missingWarn: false })
-  rec.value('load', await i18n.loadTranslations().then(() => 'ok', (error: Error) => error.message))
+  rec.value(
+    'load',
+    await i18n.loadTranslations().then(
+      () => 'ok',
+      (error: Error) => error.message,
+    ),
+  )
   rec.run('t', () => [i18n.t('hello'), i18n.t('a.b'), i18n.t('title', undefined, undefined, 'about')])
   i18n.locale = 'de'
   rec.run('t de', () => i18n.t('hello'))
   rec.run('has', () => [i18n.has('hello'), i18n.hasTranslation('title')])
   write('en.json', '{"hello":"Changed"}')
   i18n.locale = 'en'
-  rec.value('reload', await i18n.reload().then(() => 'ok', (error: Error) => error.message))
+  rec.value(
+    'reload',
+    await i18n.reload().then(
+      () => 'ok',
+      (error: Error) => error.message,
+    ),
+  )
   rec.run('after reload', () => [i18n.t('hello'), i18n.t('a.b')])
   return rec.toString()
 }

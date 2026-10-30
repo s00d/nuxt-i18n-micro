@@ -73,24 +73,24 @@
     "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
+    "@nuxt/kit": "catalog:",
+    "@nuxt/schema": "catalog:",
     "@types/node": "catalog:",
     "publint": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:",
-    "@nuxt/kit": "catalog:",
-    "@nuxt/schema": "catalog:"
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "@nuxt/kit": "catalog:"
-  },
-  "engines": {
-    "node": ">=20"
   },
   "peerDependenciesMeta": {
     "@nuxt/kit": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

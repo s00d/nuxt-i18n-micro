@@ -146,7 +146,9 @@ export function resolveI18nT(astro: Astro, props: I18nTProps): string | null {
   const i18n = getI18n(astro)
   const { defaultValue } = props
   // `t` with the default for `resolveText`, every other member from the instance
-  const host = defaultValue ? (Object.create(i18n, { t: { value: (key: string, params?: Params) => i18n.t(key, params, defaultValue) } }) as AstroI18n) : i18n
+  const host = defaultValue
+    ? (Object.create(i18n, { t: { value: (key: string, params?: Params) => i18n.t(key, params, defaultValue) } }) as AstroI18n)
+    : i18n
   const text = resolveText(host, props)
   return text && interpolate(text.template, text.params)
 }

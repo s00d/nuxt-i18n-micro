@@ -85,7 +85,11 @@ test('integration publishes its config as a virtual module', () => {
   const setup = (opts: Parameters<typeof i18nIntegration>[0]) => {
     const updateConfig = vi.fn()
     const it = i18nIntegration(opts)
-    ;(it.hooks['astro:config:setup'] as (p: unknown) => void)({ updateConfig, addMiddleware: vi.fn(), config: { root: new URL('file:///app/'), base: '/' } })
+    ;(it.hooks['astro:config:setup'] as (p: unknown) => void)({
+      updateConfig,
+      addMiddleware: vi.fn(),
+      config: { root: new URL('file:///app/'), base: '/' },
+    })
     const plugin = updateConfig.mock.calls[0]![0].vite.plugins[0]
     expect(plugin.name).toBe('vite-plugin-i18n-micro-config')
     expect(plugin.resolveId('other')).toBeUndefined()
@@ -333,9 +337,14 @@ test('a site loads its locales dir; requests through the middleware get a per-re
 
   // 4. unknown locale in locals → head is empty, page helper defaults apply
   const bare = { url: new URL('http://site.test/'), params: {}, locals: {} } as unknown as AstroGlobal
-  expect(useLocaleHead({ ...bare, locals: { locale: 'xx', defaultLocale: 'en', locales } } as unknown as AstroGlobal)).toEqual({ htmlAttrs: {}, link: [], meta: [] })
+  expect(useLocaleHead({ ...bare, locals: { locale: 'xx', defaultLocale: 'en', locales } } as unknown as AstroGlobal)).toEqual({
+    htmlAttrs: {},
+    link: [],
+    meta: [],
+  })
   expect(getLocales(bare)).toEqual([])
-  for (const read of [getI18n, getLocale, getDefaultLocale]) expect(() => read(bare)).toThrow('i18n instance not found. Make sure i18n middleware is configured.')
+  for (const read of [getI18n, getLocale, getDefaultLocale])
+    expect(() => read(bare)).toThrow('i18n instance not found. Make sure i18n middleware is configured.')
 })
 
 test('without a routing strategy the middleware and helpers fall back to plain path parsing', async () => {

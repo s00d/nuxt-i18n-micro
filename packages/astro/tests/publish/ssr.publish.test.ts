@@ -47,14 +47,18 @@ const links = (page: string, id: string) => {
   const block = page.match(new RegExp(`id="${id}"[\\s\\S]*?</(?:nav|div)>`))?.[0] ?? ''
   return [...block.matchAll(/<a href="([^"]*)"/g)].map((match) => match[1])
 }
-const decode = (value: string) => value.replace(/&quot;/g, '"').replace(/&#34;/g, '"').replace(/&amp;/g, '&')
+const decode = (value: string) =>
+  value
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&amp;/g, '&')
 /** The island's own URL, as the deferred script of the page fetches it. */
 const islandUrl = (page: string) => decode(page).match(/(\/[^'"`\s]*_server-islands\/[^'"`\s]+)/)?.[1]
 
 beforeAll(async () => {
   build()
   build({ I18N_BASE: '/docs' })
-  servers = [await start('dist', PORT), await start('dist-base', BASE_PORT)]
+  servers = [await start('dist', PORT), await start('dist/base', BASE_PORT)]
 }, 300_000)
 
 afterAll(() => {
@@ -228,7 +232,10 @@ describe('the main entry on an edge runtime', () => {
     const require = createRequire(join(packageRoot, 'package.json'))
     const esbuild = require(require.resolve('esbuild', { paths: [packageRoot, join(packageRoot, '../..')] })) as typeof import('esbuild')
     const output = esbuild.buildSync({
-      stdin: { contents: `export { createI18n, createI18nMiddleware } from ${JSON.stringify(join(packageRoot, 'dist/index.mjs'))}`, resolveDir: packageRoot },
+      stdin: {
+        contents: `export { createI18n, createI18nMiddleware } from ${JSON.stringify(join(packageRoot, 'dist/index.mjs'))}`,
+        resolveDir: packageRoot,
+      },
       bundle: true,
       format: 'esm',
       platform: 'neutral',

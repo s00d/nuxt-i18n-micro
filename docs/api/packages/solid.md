@@ -121,7 +121,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
-| `localeIso` | `private any` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |

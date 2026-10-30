@@ -11,7 +11,7 @@ const base = process.env.I18N_BASE
 
 export default defineConfig({
   output: 'server',
-  ...(base ? { base, outDir: './dist-base' } : {}),
+  ...(base ? { base, outDir: './dist/base' } : {}),
   adapter: node({
     mode: 'standalone',
   }),

@@ -11,7 +11,17 @@ afterEach(() => {
 
 test('the devtools page calls the endpoints under the configured base', () => {
   const routes = new Map<string, (req: unknown, res: { end: (body: string) => void; setHeader: () => void }) => void>()
-  const server = { config: { root: '/app' }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
+  const server = {
+    config: { root: '/app' },
+    watcher: {
+      add: () => {},
+      on() {
+        return this
+      },
+    },
+    ws: { send: () => {} },
+    middlewares: { use: (route: string, handler: never) => routes.set(route, handler) },
+  }
   const plugin = i18nDevToolsPlugin({ base: '/dev/i18n' }) as { configureServer: (server: ViteDevServer) => void; load: (id: string) => string }
   plugin.configureServer(server as unknown as ViteDevServer)
 
@@ -27,7 +37,17 @@ test('the devtools page calls the endpoints under the configured base', () => {
 
 test("base '/' puts the endpoints at the root, never at a protocol-relative `//files`", async () => {
   const routes = new Map<string, (req: unknown, res: { end: (body: string) => void; setHeader: () => void }) => void>()
-  const server = { config: { root: '/app' }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
+  const server = {
+    config: { root: '/app' },
+    watcher: {
+      add: () => {},
+      on() {
+        return this
+      },
+    },
+    ws: { send: () => {} },
+    middlewares: { use: (route: string, handler: never) => routes.set(route, handler) },
+  }
   const plugin = i18nDevToolsPlugin({ base: '/' }) as { configureServer: (server: ViteDevServer) => void; load: (id: string) => string }
   plugin.configureServer(server as unknown as ViteDevServer)
 

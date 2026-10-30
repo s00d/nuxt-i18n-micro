@@ -18,7 +18,17 @@ function project() {
   writeFileSync(join(root, 'locales/en.json'), '{}')
   symlinkSync(join(root, 'outside'), join(root, 'locales/escape'))
   const routes = new Map<string, Handler>()
-  const server = { config: { root }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
+  const server = {
+    config: { root },
+    watcher: {
+      add: () => {},
+      on() {
+        return this
+      },
+    },
+    ws: { send: () => {} },
+    middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) },
+  }
   const plugin = i18nDevToolsPlugin({ translationDir: 'locales' }) as { configureServer: (server: ViteDevServer) => void }
   plugin.configureServer(server as unknown as ViteDevServer)
   return { root, routes }
@@ -94,12 +104,26 @@ test('a translationDir out of the project reaches nothing, by `../` or by a syml
 test('config reports the locales found in translationDir and the configured default', async () => {
   const { root, routes } = project()
   writeFileSync(join(root, 'locales/de.json'), '{}')
-  const server = { config: { root }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
+  const server = {
+    config: { root },
+    watcher: {
+      add: () => {},
+      on() {
+        return this
+      },
+    },
+    ws: { send: () => {} },
+    middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) },
+  }
   const plugin = i18nDevToolsPlugin({ translationDir: 'locales', defaultLocale: 'en' }) as { configureServer: (server: ViteDevServer) => void }
   plugin.configureServer(server as unknown as ViteDevServer)
 
   const config = await new Promise((done) => {
-    void routes.get('/__i18n_api/config')!({ method: 'GET', headers: { host: 'localhost' } }, { setHeader: () => {}, end: (body: string) => done(JSON.parse(body)) }, () => {})
+    void routes.get('/__i18n_api/config')!(
+      { method: 'GET', headers: { host: 'localhost' } },
+      { setHeader: () => {}, end: (body: string) => done(JSON.parse(body)) },
+      () => {},
+    )
   })
 
   expect(config).toEqual({ defaultLocale: 'en', fallbackLocale: 'en', locales: [{ code: 'de' }, { code: 'en' }], translationDir: 'locales' })

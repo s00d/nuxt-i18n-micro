@@ -1400,6 +1400,7 @@ member PreactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisT
 member PreactI18n.fallbackKey: private any
 member PreactI18n.fallbackLocale: string
 member PreactI18n.fallbackRootKey: private any
+member PreactI18n.fork: (locale?: string) => import("../../preact/src").PreactI18n
 member PreactI18n.formatArgs: private any
 member PreactI18n.formatter: FormatService
 member PreactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -1417,11 +1418,12 @@ member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeM
 member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
-member PreactI18n.localeIso: private any
+member PreactI18n.localeIso: protected Record<string, string>
 member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected () => void
+member PreactI18n.ownStore: protected ReactiveI18nStore
 member PreactI18n.pluralFunc: PluralFunc
 member PreactI18n.pluralLocale: () => string
 member PreactI18n.pluralTag: private any
@@ -1433,7 +1435,7 @@ member PreactI18n.resolveTranslationTree: protected (lower: Record<string, unkno
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member PreactI18n.storage: TranslationStorage
-member PreactI18n.store: private any
+member PreactI18n.store: protected ReactiveI18nStore
 member PreactI18n.subscribe: (listener: () => void) => () => void
 member PreactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member PreactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -1451,10 +1453,12 @@ interface PreactI18nOptions
 member PreactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member PreactI18nOptions.fallbackLocale?: string | undefined
 member PreactI18nOptions.locale: string
+member PreactI18nOptions.localeIso?: Record<string, string> | undefined
 member PreactI18nOptions.messages?: Record<string, Translations> | undefined
 member PreactI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18nOptions.missingWarn?: boolean | undefined
 member PreactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member PreactI18nOptions.parent?: I18n | undefined
 member PreactI18nOptions.plural?: PluralFunc | undefined
 member PreactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})

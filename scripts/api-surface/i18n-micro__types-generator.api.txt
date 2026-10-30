@@ -1,14 +1,12 @@
 # . (src/index.ts)
-function flattenKeys: (obj: Record<string, unknown>, prefix?: string) => string[]
 function formatKeyProperty: (key: string) => string
-function generateTypes: (options: GeneratorOptions) => Promise<string>
+function generateTypes: (options: GeneratorOptions) => string
 interface GeneratorOptions
 member GeneratorOptions.outputFile?: string | undefined
 member GeneratorOptions.srcDir: string
-member GeneratorOptions.translationDir: string
-function getTypesString: (options: GeneratorOptions) => Promise<string>
-const I18nTypesPlugin: import("unplugin").UnpluginInstance<GeneratorOptions, boolean>
-function isPlainTranslationObject: (value: unknown) => value is Record<string, unknown>
+member GeneratorOptions.translationDir: string | string[]
+function getTypesString: (options: GeneratorOptions) => string
+function I18nTypesPlugin: (options: GeneratorOptions) => Plugin
 
 # ./nuxt (src/nuxt.ts)
 value default: import("@nuxt/schema").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>

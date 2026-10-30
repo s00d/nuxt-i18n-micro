@@ -25,7 +25,10 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
 /** The directory's dictionaries and the files they came from, for the integration's build. */
 export function readTranslationDir(options: { translationDir: string; rootDir: URL; disablePageLocales?: boolean }) {
   const dir = resolve(fileURLToPath(options.rootDir), options.translationDir)
-  return { messages: loadTranslationDir<Translations>(dir, options.disablePageLocales), files: listTranslationFiles(dir).map((file) => file.absolutePath) }
+  return {
+    messages: loadTranslationDir<Translations>(dir, options.disablePageLocales),
+    files: listTranslationFiles(dir).map((file) => file.absolutePath),
+  }
 }
 
 /** Load a directory into an instance, replacing the chunks it finds. */

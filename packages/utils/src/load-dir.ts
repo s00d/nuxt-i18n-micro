@@ -90,11 +90,18 @@ function toBuckets<T extends Dictionary>(files: TranslationFile[], read: Array<D
 /** Reads `dir` into root and route buckets. */
 export function loadTranslationDir<T extends Dictionary = Dictionary>(dir: string, disablePageLocales = false): TranslationFileBuckets<T> {
   const files = listTranslationFiles(dir)
-  return toBuckets<T>(files, files.map((file) => readSync(file.absolutePath)), disablePageLocales)
+  return toBuckets<T>(
+    files,
+    files.map((file) => readSync(file.absolutePath)),
+    disablePageLocales,
+  )
 }
 
 /** {@link loadTranslationDir} for a running server: file contents are read without blocking it. */
-export async function loadTranslationDirAsync<T extends Dictionary = Dictionary>(dir: string, disablePageLocales = false): Promise<TranslationFileBuckets<T>> {
+export async function loadTranslationDirAsync<T extends Dictionary = Dictionary>(
+  dir: string,
+  disablePageLocales = false,
+): Promise<TranslationFileBuckets<T>> {
   const files = listTranslationFiles(dir)
   return toBuckets<T>(files, await Promise.all(files.map((file) => readAsync(file.absolutePath))), disablePageLocales)
 }

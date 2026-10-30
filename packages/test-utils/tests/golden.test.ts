@@ -75,7 +75,11 @@ function report(): string {
   rec.run('except default', () => [ctx.localePath('/x', 'en'), ctx.localePath('/x', 'de')])
   ctx.strategy = 'no_prefix'
   rec.run('no prefix', () => ctx.localePath('/x', 'de'))
-  rec.run('strategy stub', () => [ctx.i18nStrategy.getLocaleFromPath('/de/x'), ctx.i18nStrategy.getLocaleFromPath('/x'), ctx.i18nStrategy.localeRoute('de', '/x')])
+  rec.run('strategy stub', () => [
+    ctx.i18nStrategy.getLocaleFromPath('/de/x'),
+    ctx.i18nStrategy.getLocaleFromPath('/x'),
+    ctx.i18nStrategy.localeRoute('de', '/x'),
+  ])
 
   rec.section('state')
   const fake = ctx.createFake()

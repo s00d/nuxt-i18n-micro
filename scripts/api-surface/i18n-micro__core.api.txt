@@ -17,7 +17,7 @@ member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
-member BaseI18n.localeIso: private Record<string, string>
+member BaseI18n.localeIso: protected Record<string, string>
 member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
@@ -45,7 +45,9 @@ member BaseI18n.write: private (locale: string, routeName: string, translations:
 member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
+member BaseI18nOptions.formatter?: FormatService | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
+member BaseI18nOptions.helper?: TranslationHelper | undefined
 member BaseI18nOptions.localeIso?: Record<string, string> | undefined
 member BaseI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18nOptions.missingWarn?: boolean | undefined

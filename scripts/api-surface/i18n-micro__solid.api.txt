@@ -147,7 +147,7 @@ member SolidI18n.loadRouteTranslationsCore: (locale: string, routeName: string, 
 member SolidI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member SolidI18n.locale: string
 member SolidI18n.localeAccessor: Accessor<string>
-member SolidI18n.localeIso: private any
+member SolidI18n.localeIso: protected Record<string, string>
 member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean

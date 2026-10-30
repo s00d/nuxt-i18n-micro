@@ -3,7 +3,11 @@ import { createAstroRouterAdapter, createI18n, createI18nMiddleware, getI18nProp
 import { translatePlural, withLocale } from '../src/client/core'
 import { resolveI18nT, resolveLinkHref } from '../src/utils'
 
-const locales = [{ code: 'en', iso: 'en-US' }, { code: 'de', iso: 'de-DE' }, { code: 'fr', iso: 'fr-FR', disabled: true }]
+const locales = [
+  { code: 'en', iso: 'en-US' },
+  { code: 'de', iso: 'de-DE' },
+  { code: 'fr', iso: 'fr-FR', disabled: true },
+]
 
 function site() {
   return createI18n({
@@ -167,7 +171,11 @@ describe('server islands and actions', () => {
   })
 
   test('under a base too', async () => {
-    const { locals } = await run('/docs/_server-islands/Late', { ...island, headers: { referer: 'http://site.test/docs/de/about' } }, { base: '/docs' })
+    const { locals } = await run(
+      '/docs/_server-islands/Late',
+      { ...island, headers: { referer: 'http://site.test/docs/de/about' } },
+      { base: '/docs' },
+    )
     expect(locals.locale).toBe('de')
   })
 

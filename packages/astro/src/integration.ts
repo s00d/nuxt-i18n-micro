@@ -107,7 +107,8 @@ function astroI18nConfig(options: I18nIntegrationOptions, config: AstroConfig) {
 /** Astro integration for i18n-micro: publishes the config and dictionaries, and installs the middleware. */
 export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration {
   const moved = MOVED_OPTIONS.find((key) => (options as unknown as Record<string, unknown>)[key] !== undefined)
-  if (moved) throw new Error(`[i18n-micro] i18nIntegration no longer takes "${moved}": pass it to createI18n / createI18nMiddleware in src/middleware.ts`)
+  if (moved)
+    throw new Error(`[i18n-micro] i18nIntegration no longer takes "${moved}": pass it to createI18n / createI18nMiddleware in src/middleware.ts`)
 
   return {
     name: '@i18n-micro/astro',

@@ -19,7 +19,7 @@ import { /* … */ } from '@i18n-micro/core'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `BaseI18n` | class | 43 members |
-| `BaseI18nOptions` | interface | 9 members |
+| `BaseI18nOptions` | interface | 11 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -83,7 +83,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `helper` | `TranslationHelper` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `localeIso` | `private Record<string, string>` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
@@ -113,12 +113,14 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>BaseI18nOptions</code> — 9 members</summary>
+<summary><code>BaseI18nOptions</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `formatter?` | `FormatService \| undefined` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
+| `helper?` | `TranslationHelper \| undefined` |
 | `localeIso?` | `Record<string, string> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |

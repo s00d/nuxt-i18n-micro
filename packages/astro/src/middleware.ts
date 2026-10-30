@@ -67,7 +67,11 @@ export function detectLocale(
   routingStrategy?: I18nRoutingStrategy | null,
   autoDetect = true,
 ): string {
-  const strategy = completeStrategy(routingStrategy, locales.map((code) => ({ code })), defaultLocale)
+  const strategy = completeStrategy(
+    routingStrategy,
+    locales.map((code) => ({ code })),
+    defaultLocale,
+  )
   return resolveLocale({
     defaultLocale,
     validLocales: locales,

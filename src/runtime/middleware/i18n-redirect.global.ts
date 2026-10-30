@@ -36,6 +36,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const anyPath = autoDetectPath === '*'
   const path = to.path || '/'
   const urlLocale = i18nStrategy.getLocaleFromPath(path)
+  // only `'*'` moves a prefixed URL (`getClientRedirect`): nothing to read for it
+  if (urlLocale && !anyPath) return
 
   // Same gate and order as the server (#242): state → cookie where `autoDetectPath` allows them;
   // an invalid state does not hide a valid cookie. The route still has the last word.

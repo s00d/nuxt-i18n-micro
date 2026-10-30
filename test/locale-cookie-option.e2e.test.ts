@@ -22,6 +22,22 @@ async function strategySource(i18n: Record<string, unknown>, overrides: Record<s
   }
 }
 
+/** The route middleware the module registers. */
+async function middlewareNames(i18n: Record<string, unknown>): Promise<string[]> {
+  const nuxt = await loadNuxt({
+    cwd: rootDir,
+    ready: true,
+    overrides: { modules: [moduleEntry], pages: false, i18n: { locales: [{ code: 'en' }], ...i18n } as never },
+  })
+  try {
+    const app = { middleware: [] as { name: string }[] }
+    await nuxt.callHook('app:resolve', app as never)
+    return app.middleware.map((entry) => entry.name)
+  } finally {
+    await nuxt.close()
+  }
+}
+
 /** The `localeCookie` the module resolves: what goes into the generated config. */
 async function resolvedCookie(i18n: Record<string, unknown>): Promise<unknown> {
   return JSON.parse(/"localeCookie":(null|"[^"]*")/.exec(await strategySource(i18n))![1]!)
@@ -40,6 +56,11 @@ describe('localeCookie option', () => {
 
   it('stays off by default under the prefix strategies', async () => {
     expect(await resolvedCookie({ strategy: 'prefix' })).toBeNull()
+  })
+
+  it('registers no client redirect under no_prefix: it never has a URL to move', async () => {
+    expect(await middlewareNames({ strategy: 'prefix' })).toContain('i18n-redirect')
+    expect(await middlewareNames({ strategy: 'no_prefix' })).not.toContain('i18n-redirect')
   })
 
   it('keeps useCookie in the build only when a cookie can be used', async () => {

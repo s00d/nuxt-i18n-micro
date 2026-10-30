@@ -605,7 +605,8 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.redirects !== false && options.plugin !== false) {
+    // no_prefix: no URL names a locale, so there is nothing to redirect (`getClientRedirect`)
+    if (options.redirects !== false && options.plugin !== false && options.strategy !== 'no_prefix') {
       addRouteMiddleware({
         name: 'i18n-redirect',
         path: resolver.resolve('./runtime/middleware/i18n-redirect.global'),

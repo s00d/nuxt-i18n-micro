@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { useNuxtApp, useRoute } from '#imports'
+import { useNuxtApp } from '#imports'
 
 /**
  * Scopes a block of markup to one translation prefix, so nested keys are written
@@ -21,9 +21,7 @@ const props = defineProps({
   groupClass: { type: String, default: '' },
 })
 
-const { $_t } = useNuxtApp()
-const route = useRoute()
-const $t = $_t(route)
+const { $t } = useNuxtApp()
 
 const translate = (key, params = {}) => $t(`${props.prefix}.${key}`, params)
 </script>

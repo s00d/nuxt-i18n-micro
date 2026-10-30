@@ -81,7 +81,10 @@ const T_CASES: [string, MountOptions][] = [
   ['slots repeated', { props: { keypath: 'repeat' }, slots: { a: slotA } }],
   ['slots at the edges', { props: { keypath: 'edges' }, slots: { a: slotA, b: slotB } }],
   ['unknown slot', { props: { keypath: 'order' }, slots: { z: slotA } }],
-  ['default slot', { props: { keypath: 'greeting', params: { name: 'Z' } }, slots: { default: ({ translation }: { translation: string }) => h('u', translation) } }],
+  [
+    'default slot',
+    { props: { keypath: 'greeting', params: { name: 'Z' } }, slots: { default: ({ translation }: { translation: string }) => h('u', translation) } },
+  ],
   ['unicode names, params', { props: { keypath: 'uni', params: { имя: 'И', 'first-name': 'F' } } }],
   ['unicode names, slots', { props: { keypath: 'uni' }, slots: { имя: slotA, 'first-name': slotB } }],
   ['proto, no params', { props: { keypath: 'proto' } }],
@@ -154,7 +157,10 @@ describe('components characterization', () => {
   })
 
   test('i18n-group', async () => {
-    const options: MountOptions = { props: { prefix: 'nested', groupClass: 'g' }, slots: { default: ({ t }: { t: (k: string, p?: object) => string }) => t('deep', { x: 1 }) } }
+    const options: MountOptions = {
+      props: { prefix: 'nested', groupClass: 'g' },
+      slots: { default: ({ t }: { t: (k: string, p?: object) => string }) => t('deep', { x: 1 }) },
+    }
     const lines = [
       `- vue → ${htmlOf(() => mountVue(I18nGroup, messages, options))}`,
       `- nuxt → ${htmlOf(() => mountNuxt(NuxtGroup, messages, options))}`,

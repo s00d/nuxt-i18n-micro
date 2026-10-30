@@ -1,67 +1,11 @@
 <template>
-  <div :style="[wrapperStyle, customWrapperStyle]">
-    <!-- @slot Content before the button that opens the dropdown. -->
-    <slot name="before-button" />
-
-    <button
-      class="language-switcher"
-      :style="[buttonStyle, customButtonStyle, currentLocaleDisabled ? customDisabledLinkStyle : {}]"
-      @click="toggleDropdown"
-    >
-      <!-- @slot Content before the active locale label inside the button. -->
-      <slot name="before-selected-locale" />
-      {{ currentLocaleLabel }}
-      <!-- @slot Content after the active locale label inside the button. -->
-      <slot name="after-selected-locale" />
-      <span :style="[iconStyle, dropdownOpen ? openIconStyle : {}, customIconStyle]">&#9662;</span>
-    </button>
-
-    <!-- @slot Content between the button and the dropdown panel. -->
-    <slot name="before-dropdown" />
-
-    <ul v-show="dropdownOpen" :style="[dropdownStyle, customDropdownStyle]">
-      <!-- @slot Content at the top of the dropdown, above the locale list. -->
-      <slot name="before-dropdown-items" />
-
-      <li v-for="locale in locales" :key="locale.code" :style="[itemStyle, customItemStyle]">
-        <!-- @slot Content before each locale entry. -->
-        <slot name="before-item" :locale="locale" />
-
-        <NuxtLink
-          :class="`switcher-locale-${locale.code}`"
-          :to="$switchLocalePath(locale.code)"
-          :style="[
-            linkStyle,
-            locale.code === currentLocale ? activeLinkStyle : {},
-            customLinkStyle,
-            locale.code === currentLocale ? customActiveLinkStyle : {},
-          ]"
-          :hreflang="locale.iso || locale.code"
-          @click="switchLocale(locale.code)"
-        >
-          <!-- @slot Content before a locale's label inside its link. -->
-          <slot name="before-link-content" :locale="locale" />
-          {{ localeLabel(locale) }}
-          <!-- @slot Content after a locale's label inside its link. -->
-          <slot name="after-link-content" :locale="locale" />
-        </NuxtLink>
-
-        <!-- @slot Content after each locale entry. -->
-        <slot name="after-item" :locale="locale" />
-      </li>
-
-      <!-- @slot Content at the bottom of the dropdown, below the locale list. -->
-      <slot name="after-dropdown-items" />
-    </ul>
-
-    <!-- @slot Content after the dropdown panel. -->
-    <slot name="after-dropdown" />
-  </div>
+  <component :is="render" />
 </template>
 
 <script lang="ts" setup>
+import { createLocaleSwitcher, type RenderSlots } from '@i18n-micro/core/render'
 import type { CSSProperties } from 'vue'
-import { computed, ref } from 'vue'
+import { Fragment, h, onMounted, onUnmounted, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 type LocaleCode = string
@@ -82,6 +26,7 @@ interface Locale {
  *
  * It ships small inline default styles; each `custom*Style` prop is merged on top of the
  * matching part, and the slots add markup around it. Locales with `disabled: true` are not listed.
+ * A click on a link is one navigation; with a modifier key it is the browser's (a new tab).
  */
 defineOptions({ name: 'I18nSwitcher' })
 
@@ -118,99 +63,52 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
+const slots = defineSlots<{
+  /** Content before the button that opens the dropdown. */
+  'before-button'?: () => unknown
+  /** Content before the active locale label inside the button. */
+  'before-selected-locale'?: () => unknown
+  /** Content after the active locale label inside the button. */
+  'after-selected-locale'?: () => unknown
+  /** Content between the button and the dropdown panel. */
+  'before-dropdown'?: () => unknown
+  /** Content at the top of the dropdown, above the locale list. */
+  'before-dropdown-items'?: () => unknown
+  /** Content before each locale entry. */
+  'before-item'?: (scope: { locale: Locale }) => unknown
+  /** Content before a locale's label inside its link. */
+  'before-link-content'?: (scope: { locale: Locale }) => unknown
+  /** Content after a locale's label inside its link. */
+  'after-link-content'?: (scope: { locale: Locale }) => unknown
+  /** Content after each locale entry. */
+  'after-item'?: (scope: { locale: Locale }) => unknown
+  /** Content at the bottom of the dropdown, below the locale list. */
+  'after-dropdown-items'?: () => unknown
+  /** Content after the dropdown panel. */
+  'after-dropdown'?: () => unknown
+}>()
+
 const { $switchLocalePath, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
-// Keep `$getLocales()` complete for SEO/meta; the switcher only shows switchable locales.
-const allLocales = computed(() => $getLocales() ?? [])
-const locales = computed(() => allLocales.value.filter((locale: Locale) => !locale.disabled))
-const currentLocale = computed(() => $getLocale())
-const currentLocaleDisabled = computed(() => allLocales.value.some((l: Locale) => l.code === currentLocale.value && l.disabled))
-const currentLocaleName = computed(() => $getLocaleName())
-const dropdownOpen = ref(false)
 
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value
-}
-
-const localeLabel = (locale: Locale) => {
-  const current = props.customLabels[locale.code] || locale.displayName
-  if (!current && import.meta.dev) {
-    console.warn(
-      `[i18n-switcher] No label for "${locale.code}" — set a customLabels entry or a displayName in nuxt.config.i18n. Falling back to the code.`,
-    )
-  }
-  // The code, not nothing: an unlabelled locale used to render an empty button, and the
-  // framework packages already fall back this way.
-  return current || locale.code
-}
-
-const currentLocaleLabel = computed(() =>
-  localeLabel({
-    code: currentLocale.value,
-    displayName: currentLocaleName.value ?? undefined,
-  }),
+const render = createLocaleSwitcher(
+  { h, Fragment, ref, onMounted, onUnmounted },
+  {
+    // `$getLocales()` stays complete for SEO/meta; the switcher lists only the enabled ones
+    locales: () => ($getLocales() ?? []) as Locale[],
+    locale: () => $getLocale(),
+    localeName: () => $getLocaleName(),
+    href: (code) => $switchLocalePath(code),
+    select: (code) => void $switchLocale(code),
+    // in the server HTML, for crawlers
+    keepList: true,
+    onMissingLabel: (code) => {
+      if (!import.meta.dev) return
+      console.warn(
+        `[i18n-switcher] No label for "${code}" — set a customLabels entry or a displayName in nuxt.config.i18n. Falling back to the code.`,
+      )
+    },
+  },
+  props,
+  slots as RenderSlots,
 )
-
-const switchLocale = (code: string) => {
-  toggleDropdown()
-  $switchLocale(code)
-}
-
-// Default Styles
-const wrapperStyle: CSSProperties = {
-  position: 'relative',
-  display: 'inline-block',
-}
-
-const buttonStyle: CSSProperties = {
-  padding: '4px 12px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  backgroundColor: '#fff',
-  border: '1px solid #333',
-  transition: 'background-color 0.3s ease',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}
-
-const dropdownStyle: CSSProperties = {
-  position: 'absolute',
-  top: '100%',
-  left: '0',
-  zIndex: '10',
-  backgroundColor: '#fff',
-  border: '1px solid #333',
-  listStyle: 'none',
-  padding: '0',
-  margin: '4px 0 0 0',
-}
-
-const itemStyle: CSSProperties = {
-  margin: '0',
-  padding: '0',
-}
-
-const linkStyle: CSSProperties = {
-  display: 'block',
-  padding: '8px 12px',
-  color: '#333',
-  textDecoration: 'none',
-  transition: 'background-color 0.3s ease',
-}
-
-const activeLinkStyle: CSSProperties = {
-  fontWeight: 'bold',
-  color: '#007bff',
-  // Current locale is not a meaningful switch target
-  cursor: 'not-allowed',
-}
-
-const iconStyle: CSSProperties = {
-  marginLeft: '8px',
-  transition: 'transform 0.3s ease',
-}
-
-const openIconStyle: CSSProperties = {
-  transform: 'rotate(180deg)',
-}
 </script>

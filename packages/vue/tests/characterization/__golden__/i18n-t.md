@@ -26,11 +26,11 @@
   - vue → <span>Hello, {name}!</span>
   - nuxt → <span>Hello, {name}!</span>
 - `param looks like a slot`
-  - vue → <span><i>B</i> then {b}</span>
-  - nuxt → <span><i>B</i> then {b}</span>
+  - vue → <span>{b} then <i>B</i></span>
+  - nuxt → <span>{b} then <i>B</i></span>
 - `param and slot same name`
-  - vue → <span>P then {b}</span>
-  - nuxt → <span>P then {b}</span>
+  - vue → <span><b>A</b> then {b}</span>
+  - nuxt → <span><b>A</b> then {b}</span>
 - `slots in order`
   - vue → <span><b>A</b> then <i>B</i></span>
   - nuxt → <span><b>A</b> then <i>B</i></span>
@@ -38,8 +38,8 @@
   - vue → <span><i>B</i> then <b>A</b></span>
   - nuxt → <span><i>B</i> then <b>A</b></span>
 - `slots repeated`
-  - vue → <span><b>A</b> and {a}</span>
-  - nuxt → <span><b>A</b> and {a}</span>
+  - vue → <span><b>A</b> and <b>A</b></span>
+  - nuxt → <span><b>A</b> and <b>A</b></span>
 - `slots at the edges`
   - vue → <span><b>A</b><i>B</i></span>
   - nuxt → <span><b>A</b><i>B</i></span>
@@ -50,8 +50,8 @@
   - vue → <span><u>Hello, Z!</u></span>
   - nuxt → <span><u>Hello, Z!</u></span>
 - `unicode names, params`
-  - vue → <span>{имя} {first-name}</span>
-  - nuxt → <span>{имя} {first-name}</span>
+  - vue → <span>И F</span>
+  - nuxt → <span>И F</span>
 - `unicode names, slots`
   - vue → <span><b>A</b> <i>B</i></span>
   - nuxt → <span><b>A</b> <i>B</i></span>
@@ -65,8 +65,8 @@
   - vue → <span><b>3</b> new</span>
   - nuxt → <span><b>3</b> new</span>
 - `html, hostile param`
-  - vue → <span>Hello, <img src="x" onerror="alert(1)">!</span>
-  - nuxt → <span>Hello, <img src="x" onerror="alert(1)">!</span>
+  - vue → <span>Hello, &lt;img src=x onerror=alert(1)&gt;!</span>
+  - nuxt → <span>Hello, &lt;img src=x onerror=alert(1)&gt;!</span>
 - `text, hostile param`
   - vue → <span>Hello, &lt;img src=x&gt;!</span>
   - nuxt → <span>Hello, &lt;img src=x&gt;!</span>
@@ -77,8 +77,8 @@
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
 - `textContent attr`
-  - vue → <span>x</span>
-  - nuxt → <span>x</span>
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
 - `hideIfEmpty blank`
   - vue → (nothing)
   - nuxt → (nothing)
@@ -89,11 +89,11 @@
   - vue → (nothing)
   - nuxt → (nothing)
 - `hideIfEmpty number`
-  - vue → <span>   </span>
-  - nuxt → <span>   </span>
+  - vue → (nothing)
+  - nuxt → (nothing)
 - `hideIfEmpty plural`
-  - vue → <span></span>
-  - nuxt → <span></span>
+  - vue → (nothing)
+  - nuxt → (nothing)
 - `blank shown`
   - vue → <span>   </span>
   - nuxt → <span>   </span>
@@ -110,35 +110,35 @@
   - vue → <span>2 apples</span>
   - nuxt → <span>2 apples</span>
 - `plural 1.5`
-  - vue → <span>one apple</span>
-  - nuxt → <span>one apple</span>
+  - vue → <span>1.5 apples</span>
+  - nuxt → <span>1.5 apples</span>
 - `plural "abc"`
   - vue → <span>NaN apples</span>
   - nuxt → <span>NaN apples</span>
 - `plural null`
-  - vue → throws TypeError: Cannot read properties of null (reading 'toString')
-  - nuxt → throws TypeError: Cannot read properties of null (reading 'toString')
+  - vue → <span>no apples | one apple | {count} apples</span>
+  - nuxt → <span>no apples | one apple | {count} apples</span>
 - `plural + slot`
-  - vue → <span>2 items in {link}</span>
-  - nuxt → <span>2 items in {link}</span>
+  - vue → <span>2 items in <b>A</b></span>
+  - nuxt → <span>2 items in <b>A</b></span>
 - `plural + html`
-  - vue → <span><b><i></i></b><i> new</i></span>
-  - nuxt → <span><b><i></i></b><i> new</i></span>
+  - vue → <span><b>&lt;i&gt;</b> new</span>
+  - nuxt → <span><b>&lt;i&gt;</b> new</span>
 - `plural missing + default`
   - vue → <span>nope</span>
   - nuxt → <span>nope</span>
 - `plural ru 1`
+  - vue → <span>яблоко</span>
+  - nuxt → <span>яблоко</span>
+- `plural ru 2`
   - vue → <span>яблока</span>
   - nuxt → <span>яблока</span>
-- `plural ru 2`
-  - vue → <span>яблок</span>
-  - nuxt → <span>яблок</span>
 - `plural ru 5`
   - vue → <span>яблок</span>
   - nuxt → <span>яблок</span>
 - `plural ru 21`
-  - vue → <span>яблок</span>
-  - nuxt → <span>яблок</span>
+  - vue → <span>яблоко</span>
+  - nuxt → <span>яблоко</span>
 - `plural ru zero-first 0`
   - vue → <span>нет яблок</span>
   - nuxt → <span>нет яблок</span>
@@ -158,8 +158,8 @@
   - vue → <span>en:4:nope:{}</span>
   - nuxt → <span>en:4:nope:{}</span>
 - `customPluralRule fraction`
-  - vue → <span>en:1:no apples | one apple | {count} apples:{}</span>
-  - nuxt → <span>en:1:no apples | one apple | {count} apples:{}</span>
+  - vue → <span>en:1.5:no apples | one apple | {count} apples:{}</span>
+  - nuxt → <span>en:1.5:no apples | one apple | {count} apples:{}</span>
 - `customPluralRule html`
   - vue → <span><b>x</b></span>
   - nuxt → <span><b>x</b></span>
@@ -173,23 +173,23 @@
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
 - `number + same-name param`
-  - vue → <span>n=PARAM</span>
+  - vue → <span>n=5</span>
   - nuxt → <span>n=5</span>
 - `number + slot`
-  - vue → <span>n=5 {link}</span>
-  - nuxt → <span>n=5 {link}</span>
+  - vue → <span>n=5 <b>A</b></span>
+  - nuxt → <span>n=5 <b>A</b></span>
 - `date`
-  - vue → <span>d=1/15/2024</span>
-  - nuxt → <span>d=1/15/2024</span>
+  - vue → <span data-allow-mismatch="text">d=1/15/2024</span>
+  - nuxt → <span data-allow-mismatch="text">d=1/15/2024</span>
 - `date null`
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
 - `date + same-name param`
-  - vue → <span>d=PARAM</span>
-  - nuxt → <span>d=1/15/2024</span>
+  - vue → <span data-allow-mismatch="text">d=1/15/2024</span>
+  - nuxt → <span data-allow-mismatch="text">d=1/15/2024</span>
 - `relativeDate`
-  - vue → <span>r=2 hours ago</span>
-  - nuxt → <span>r=2 hours ago</span>
+  - vue → <span data-allow-mismatch="text">r=2 hours ago</span>
+  - nuxt → <span data-allow-mismatch="text">r=2 hours ago</span>
 - `relativeDate null`
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>

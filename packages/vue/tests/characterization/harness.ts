@@ -52,6 +52,7 @@ export function wireNuxtApp(i18n: NuxtI18n, extra: Record<string, unknown> = {})
     $_t: () => i18n.tForRoute(route),
     $t: i18n.t.bind(i18n),
     $tc: i18n.tc.bind(i18n),
+    $pluralFunc: i18n.pluralFunc,
     $tn: i18n.tn.bind(i18n),
     $td: i18n.td.bind(i18n),
     $tdr: i18n.tdr.bind(i18n),

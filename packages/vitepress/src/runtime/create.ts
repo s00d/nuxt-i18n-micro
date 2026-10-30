@@ -1,6 +1,6 @@
 import type { Locale, PluralFunc, Translations } from '@i18n-micro/types'
 
-import { createI18n as createVueI18n, type I18nPlugin } from '@i18n-micro/vue'
+import { createI18n as createVueI18n, type I18nPlugin, type VueI18nOptions } from '@i18n-micro/vue'
 import type { App, Ref } from 'vue'
 import { createVitePressRouterAdapter, type PathMethods, type VitePressRouterAdapter, type VitePressRouterLike } from '../router/adapter'
 
@@ -19,6 +19,9 @@ export interface CreateI18nOptions {
   routeMessages?: Record<string, Record<string, Translations>>
   plural?: PluralFunc
   missingWarn?: boolean
+  numberFormats?: VueI18nOptions['numberFormats']
+  datetimeFormats?: VueI18nOptions['datetimeFormats']
+  timeZone?: string
   missingHandler?: (locale: string, key: string, routeName: string) => void
   /**
    * Sync i18n locale from the VitePress URL path on every navigation.
@@ -76,6 +79,9 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
     plural: options.plural,
     missingWarn: options.missingWarn,
     missingHandler: options.missingHandler,
+    numberFormats: options.numberFormats,
+    datetimeFormats: options.datetimeFormats,
+    timeZone: options.timeZone,
     locales,
     defaultLocale,
   })

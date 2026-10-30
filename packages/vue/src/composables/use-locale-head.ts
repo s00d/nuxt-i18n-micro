@@ -1,32 +1,10 @@
 import type { Locale } from '@i18n-micro/types'
-import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
-import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
+import { buildLocaleHead, filterQuery, joinBase, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { inject, ref } from 'vue'
 import { I18nDefaultLocaleKey, I18nRouterKey } from '../injection'
+import { currentFullPath, pathOf } from '../router/path'
 import type { I18nRoutingStrategy } from '../router/types'
 import { useI18n } from '../use-i18n'
-
-interface MetaLink {
-  [key: string]: string | undefined
-  rel: string
-  href: string
-  hreflang?: string
-}
-
-interface MetaTag {
-  [key: string]: string
-  property: string
-  content: string
-}
-
-interface MetaObject {
-  htmlAttrs: {
-    lang?: string
-    dir?: 'ltr' | 'rtl' | 'auto'
-  }
-  link: MetaLink[]
-  meta: MetaTag[]
-}
 
 export interface UseLocaleHeadOptions {
   addDirAttribute?: boolean
@@ -40,197 +18,50 @@ export interface UseLocaleHeadOptions {
   hreflangBaseLanguage?: boolean
 }
 
+const isAbsolute = (href: string): boolean => href.startsWith('http://') || href.startsWith('https://')
+
 export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
   const { addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/', hreflangBaseLanguage = false } = options
 
-  const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
-  const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
+  const { getLocale, getLocales, localeRoute } = useI18n()
+  const routing = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
   // inject() only works during setup, and updateMeta is documented to run from a watcher
-  const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
+  const defaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
 
-  const metaObject = ref<MetaObject>({
-    htmlAttrs: {},
-    link: [],
-    meta: [],
-  })
-
-  function filterQuery(fullPath: string, whitelist: string[]): string {
-    const url = new URL(fullPath, 'http://localhost')
-    const params = new URLSearchParams(url.search)
-    const filtered: Record<string, string> = {}
-    for (const key of whitelist) {
-      if (params.has(key)) {
-        filtered[key] = params.get(key) as string
-      }
-    }
-    const filteredParams = new URLSearchParams(filtered)
-    return filteredParams.toString() ? `${url.pathname}?${filteredParams.toString()}` : url.pathname
-  }
+  const metaObject = ref<LocaleHead>({ htmlAttrs: {}, link: [], meta: [] })
 
   function updateMeta(canonicalQueryWhitelist: string[] = []) {
-    if (!routerStrategy) {
+    if (!routing) {
       metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
       return
     }
 
-    const locale = getLocale()
     const allLocales = getLocales()
-    const currentLocaleObj = allLocales.find((loc: Locale) => loc.code === locale)
+    const locale = allLocales.find((loc: Locale) => loc.code === getLocale())
+    if (!locale) return
 
-    if (!currentLocaleObj) {
-      return
+    const base = typeof baseUrl === 'function' ? baseUrl() : baseUrl
+    const here = routing.getCurrentPath()
+    const kept = filterQuery(currentFullPath(routing), canonicalQueryWhitelist)
+    const query = kept.slice(kept.search(/\?|$/))
+    const hrefOf = (code: string): string => {
+      const path = pathOf(localeRoute(here, code) as string | { path?: string })
+      if (!path) return ''
+      return `${isAbsolute(path) ? path : joinBase(base, path)}${query}`
     }
+    const defaultLocaleSeo = allLocales.find((loc: Locale) => loc.code === defaultLocale)?.seo !== false
 
-    const currentIso = currentLocaleObj.iso || locale
-    const currentOg = resolveOgLocale(currentLocaleObj)
-    const currentDir = currentLocaleObj.dir || 'auto'
-
-    // the canonical keeps whitelisted query params, so prefer the route's fullPath (with query)
-    let fullPath = routerStrategy.getRoute?.().fullPath ?? routerStrategy.getCurrentPath()
-    if (!fullPath.startsWith('/')) {
-      fullPath = `/${fullPath}`
-    }
-
-    const pathSegments = (fullPath.split(/[?#]/)[0] ?? '').split('/').filter(Boolean)
-    const matchedLocale = allLocales.find((localeItem: Locale) => pathSegments[0] === localeItem.code)
-
-    let localizedPath = fullPath
-    let canonicalPath: string
-
-    let ogUrl: string
-    const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-
-    if (matchedLocale) {
-      const rest = fullPath.slice(matchedLocale.code.length + 1)
-      localizedPath = rest.startsWith('/') ? rest : `/${rest}`
-      canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist)
-      const localePrefix = `/${locale}`
-      ogUrl = `${baseUrlValue}${localePrefix}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
-    } else {
-      canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist)
-      ogUrl = `${baseUrlValue}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
-    }
-
-    const htmlAttrs = {
-      lang: currentIso,
-      ...(addDirAttribute ? { dir: currentDir } : {}),
-    }
-
-    if (!addSeoAttributes) {
-      metaObject.value = { htmlAttrs, link: [], meta: [] }
-      return
-    }
-
-    const alternateLocales = allLocales.filter((loc: Locale) => !loc.disabled && loc.seo !== false)
-
-    if (!currentOg) {
-      warnUnresolvedOgLocale(currentLocaleObj, { tag: 'og:locale' })
-    }
-
-    const ogLocaleMeta: MetaTag | null = currentOg
-      ? {
-          [identifierAttribute]: 'i18n-og',
-          property: 'og:locale',
-          content: currentOg,
-        }
-      : null
-
-    const ogUrlMeta: MetaTag = {
-      [identifierAttribute]: 'i18n-og-url',
-      property: 'og:url',
-      content: ogUrl,
-    }
-
-    const alternateOgLocalesMeta = alternateLocales
-      .filter((loc: Locale) => loc.code !== locale)
-      .map((loc: Locale) => {
-        const ogAlt = resolveOgLocale(loc)
-        if (!ogAlt) {
-          warnUnresolvedOgLocale(loc, { tag: 'og:locale:alternate' })
-          return null
-        }
-        return {
-          [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
-          property: 'og:locale:alternate',
-          content: ogAlt,
-        }
-      })
-      .filter((meta): meta is MetaTag => meta !== null)
-
-    const canonicalLink: MetaLink = {
-      [identifierAttribute]: 'i18n-can',
-      rel: 'canonical',
-      href: ogUrl,
-    }
-
-    const alternateLinks: MetaLink[] = (() => {
-      if (!i18nLocaleRoute || !routerStrategy) {
-        return []
-      }
-
-      const hrefByCode = new Map<string, string>()
-      const currentPath = routerStrategy.getCurrentPath()
-
-      for (const loc of alternateLocales) {
-        const switchedPathResult = i18nLocaleRoute(currentPath, loc.code)
-        const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : switchedPathResult?.path || '/'
-        if (!switchedPath) continue
-
-        let href: string
-        if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
-          href = switchedPath
-        } else {
-          const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-          href = `${baseUrlValue}${switchedPath.startsWith('/') ? '' : '/'}${switchedPath}`
-        }
-        hrefByCode.set(String(loc.code), href)
-      }
-
-      return resolveHreflangAlternates(alternateLocales, { hreflangBaseLanguage }).flatMap(({ hreflang, localeCode }) => {
-        const href = hrefByCode.get(localeCode)
-        if (!href) return []
-        return [
-          {
-            [identifierAttribute]: `i18n-alternate-${hreflang}`,
-            rel: 'alternate',
-            href,
-            hreflang,
-          } satisfies MetaLink,
-        ]
-      })
-    })()
-
-    // Generate x-default hreflang link pointing to the default locale's URL.
-    // x-default tells search engines which URL to show when none of the
-    // specified languages match the user's browser settings.
-    let xDefaultLink: MetaLink | null = null
-    const defaultLocObj = injectedDefaultLocale ? allLocales.find((l: Locale) => l.code === injectedDefaultLocale) : undefined
-    if (i18nLocaleRoute && routerStrategy && injectedDefaultLocale && defaultLocObj?.seo !== false) {
-      const currentPath = routerStrategy.getCurrentPath()
-      const defaultPathResult = i18nLocaleRoute(currentPath, injectedDefaultLocale)
-      const defaultPath = typeof defaultPathResult === 'string' ? defaultPathResult : defaultPathResult?.path || '/'
-      if (defaultPath) {
-        let xDefaultHref: string
-        if (defaultPath.startsWith('http://') || defaultPath.startsWith('https://')) {
-          xDefaultHref = defaultPath
-        } else {
-          const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-          xDefaultHref = `${baseUrlValue}${defaultPath.startsWith('/') ? '' : '/'}${defaultPath}`
-        }
-        xDefaultLink = {
-          [identifierAttribute]: 'i18n-xd',
-          rel: 'alternate',
-          href: xDefaultHref,
-          hreflang: 'x-default',
-        }
-      }
-    }
-
-    metaObject.value = {
-      htmlAttrs,
-      meta: [...(ogLocaleMeta ? [ogLocaleMeta] : []), ogUrlMeta, ...alternateOgLocalesMeta],
-      link: [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])],
-    }
+    metaObject.value = buildLocaleHead({
+      locale,
+      seoLocales: allLocales.filter((loc: Locale) => !loc.disabled && loc.seo !== false),
+      hrefOf,
+      canonical: hrefOf(locale.code),
+      xDefault: defaultLocale && defaultLocaleSeo ? hrefOf(defaultLocale) : undefined,
+      addDirAttribute,
+      addSeoAttributes,
+      identifierAttribute,
+      hreflangBaseLanguage,
+    })
   }
 
   return {

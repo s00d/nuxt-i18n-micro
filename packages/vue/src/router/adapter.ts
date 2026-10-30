@@ -1,7 +1,7 @@
 import type { Locale } from '@i18n-micro/types'
-import type { Router } from 'vue-router'
+import type { RouteLocationRaw, Router } from 'vue-router'
 import { RouterLink } from 'vue-router'
-import type { I18nRoutingStrategy } from './types'
+import type { I18nRoutingStrategy, I18nRouteTarget } from './types'
 
 /**
  * Factory for Vue Router adapter
@@ -11,11 +11,21 @@ import type { I18nRoutingStrategy } from './types'
 export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
   const localeCodes = locales.map((loc) => loc.code)
 
+  /** A target as a URL: a location goes through the router, so `name`, `query` and `hash` count. */
+  const urlOf = (to: I18nRouteTarget): string => {
+    if (typeof to !== 'string') return router.resolve(to as RouteLocationRaw).fullPath
+    // `#top`, `?x=1`: relative to this page
+    return /^[?#]/.test(to) ? `${router.currentRoute.value.path}${to}` : to
+  }
+
   /**
-   * Path resolution logic (add prefix or not)
+   * Path resolution logic (add prefix or not); the query and hash stay as they are
    */
-  const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : to.path || '/'
+  const resolvePath = (to: I18nRouteTarget, locale: string): string => {
+    const url = urlOf(to)
+    const cut = url.search(/[?#]/)
+    const path = cut === -1 ? url : url.slice(0, cut)
+    const extras = cut === -1 ? '' : url.slice(cut)
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
@@ -28,11 +38,11 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
 
     // If default locale - return clean path
     if (locale === defaultLocale) {
-      return cleanPath
+      return `${cleanPath}${extras}`
     }
 
     // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
+    return `/${locale}${cleanPath === '/' ? '' : cleanPath}${extras}`
   }
 
   return {
@@ -51,7 +61,7 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
       router.replace(target.path).catch(() => {})
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath,
 
     getRoute: () => ({
       fullPath: router.currentRoute.value.fullPath,

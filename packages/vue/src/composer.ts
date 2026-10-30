@@ -13,6 +13,8 @@ export interface VueI18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (`td(d, 'short')`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
+  timeZone?: string
 }
 
 export class VueI18n extends BaseI18n {
@@ -37,6 +39,7 @@ export class VueI18n extends BaseI18n {
       missingHandler: options.missingHandler,
       numberFormats: options.numberFormats,
       datetimeFormats: options.datetimeFormats,
+      timeZone: options.timeZone,
     })
 
     this.storage = storage
@@ -120,7 +123,14 @@ export class VueI18n extends BaseI18n {
   }
 
   private notifyListeners(): void {
-    this.listeners.forEach((cb) => cb())
+    // over a copy, each guarded: one throwing listener must not stop a write or the others
+    for (const listener of [...this.listeners]) {
+      try {
+        listener()
+      } catch (error) {
+        console.error('[i18n-micro] change listener failed:', error)
+      }
+    }
   }
 
   public getStorage(): TranslationStorage {

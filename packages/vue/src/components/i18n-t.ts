@@ -1,164 +1,46 @@
+import { renderI18nT, type RenderSlots } from '@i18n-micro/core/render'
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import { defineComponent, h, inject, type PropType, type VNode } from 'vue'
+import { type FunctionalComponent, Fragment, h, inject, type PropType } from 'vue'
 import type { VueI18n } from '../composer'
 import { I18nInjectionKey } from '../injection'
 
-export const I18nT = defineComponent({
-  name: 'I18nT',
+export interface I18nTProps {
+  keypath: TranslationKey
+  plural?: number | string | null
+  tag?: string
+  params?: Record<string, string | number | boolean>
+  defaultValue?: string
+  html?: boolean
+  hideIfEmpty?: boolean
+  customPluralRule?: PluralFunc | null
+  number?: number | string | null
+  date?: Date | string | number | null
+  relativeDate?: Date | string | number | null
+}
+
+const renderApi = { h, Fragment }
+
+/** Stateless, so functional: no instance per translation on a page of them. */
+const render: FunctionalComponent<I18nTProps> = (props, { slots, attrs }) => {
+  const i18n = inject<VueI18n>(I18nInjectionKey)
+  if (!i18n) throw new Error('[i18n-micro] I18nT: i18n instance not found. Make sure i18n plugin is installed.')
+  return renderI18nT(renderApi, i18n, props, slots as RenderSlots, attrs) as ReturnType<FunctionalComponent>
+}
+
+export const I18nT = /*#__PURE__*/ Object.assign(render, {
+  displayName: 'I18nT',
   inheritAttrs: false,
   props: {
-    keypath: {
-      type: String as PropType<TranslationKey>,
-      required: true,
-    },
-    plural: {
-      type: [Number, String] as PropType<number | string>,
-    },
-    tag: {
-      type: String as PropType<string>,
-      default: 'span',
-    },
-    params: {
-      type: Object as PropType<Record<string, string | number | boolean>>,
-      default: () => ({}),
-    },
-    defaultValue: {
-      type: String as PropType<string>,
-      default: '',
-    },
-    html: {
-      type: Boolean as PropType<boolean>,
-      default: false,
-    },
-    hideIfEmpty: {
-      type: Boolean as PropType<boolean>,
-      default: false,
-    },
-    customPluralRule: {
-      type: Function as PropType<PluralFunc>,
-      default: null,
-    },
-    number: {
-      type: [Number, String] as PropType<number | string>,
-    },
-    date: {
-      type: [Date, String, Number] as PropType<Date | string | number>,
-    },
-    relativeDate: {
-      type: [Date, String, Number] as PropType<Date | string | number>,
-    },
-  },
-  setup(props, { slots, attrs }) {
-    const i18n = inject<VueI18n>(I18nInjectionKey)
-
-    if (!i18n) {
-      throw new Error('[i18n-micro] I18nT: i18n instance not found. Make sure i18n plugin is installed.')
-    }
-
-    return () => {
-      const options: Record<string, string | number | boolean> = {}
-      const route = i18n.getRoute()
-      // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
-      const safeAttrs = { ...(attrs as Record<string, unknown>) }
-      delete safeAttrs.innerHTML
-      const renderText = (translation: string) =>
-        props.html ? h(props.tag, { ...safeAttrs, innerHTML: translation }) : h(props.tag, safeAttrs, translation)
-
-      // Handle number formatting
-      if (props.number !== undefined) {
-        const numberValue = Number(props.number)
-        const formattedNumber = i18n.tn(numberValue)
-        const translation = i18n.t(props.keypath, { number: formattedNumber, ...props.params }, undefined, route)
-        return renderText(String(translation ?? ''))
-      }
-
-      // Handle date formatting
-      if (props.date !== undefined) {
-        const formattedDate = i18n.td(props.date)
-        const translation = i18n.t(props.keypath, { date: formattedDate, ...props.params }, undefined, route)
-        return renderText(String(translation ?? ''))
-      }
-
-      // Handle relative date formatting
-      if (props.relativeDate !== undefined) {
-        const formattedRelativeDate = i18n.tdr(props.relativeDate)
-        const translation = i18n.t(props.keypath, { relativeDate: formattedRelativeDate, ...props.params }, undefined, route)
-        return renderText(String(translation ?? ''))
-      }
-
-      // Handle pluralization
-      if (props.plural !== undefined) {
-        const count = Number.parseInt(props.plural.toString(), 10)
-        if (props.customPluralRule) {
-          const translation = props.customPluralRule(
-            props.keypath,
-            count,
-            props.params,
-            i18n.locale.value,
-            (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
-          )
-          return renderText(translation || '')
-        } else {
-          const translation = i18n.tc(props.keypath, { count, ...props.params })
-          return renderText(translation)
-        }
-      }
-
-      // Regular translation
-      const translation = (i18n.t(props.keypath, { ...props.params, ...options }, undefined, route) ?? '').toString()
-
-      if (props.hideIfEmpty && !translation.trim()) {
-        return props.defaultValue ?? null
-      }
-
-      if (props.html) {
-        return renderText(translation)
-      }
-
-      // Handle slots
-      if (slots.default) {
-        return h(props.tag, safeAttrs, slots.default({ translation }))
-      }
-
-      // Handle named slots for interpolation. Locales can order placeholders differently from the
-      // slot declarations, so place each slot by its position in the translation.
-      const children: (string | VNode)[] = []
-      let lastIndex = 0
-
-      const placements = Object.entries(slots)
-        .filter(([slotName]) => slotName !== 'default')
-        .map(([slotName, slotFn]) => {
-          const placeholder = `{${slotName}}`
-          return { placeholder, slotFn, index: translation.indexOf(placeholder) }
-        })
-        .filter(({ index }) => index !== -1)
-        .sort((a, b) => a.index - b.index)
-
-      for (const { placeholder, slotFn, index } of placements) {
-        if (index > lastIndex) {
-          children.push(translation.slice(lastIndex, index))
-        }
-
-        if (slotFn) {
-          children.push(h(slotFn))
-        }
-
-        lastIndex = index + placeholder.length
-      }
-
-      if (lastIndex < translation.length) {
-        children.push(translation.slice(lastIndex))
-      }
-
-      if (slots.default) {
-        return h(props.tag, safeAttrs, slots.default({ children }))
-      }
-
-      if (children.length > 0) {
-        return h(props.tag, safeAttrs, children)
-      }
-
-      return h(props.tag, safeAttrs, translation)
-    }
+    keypath: { type: String as PropType<TranslationKey>, required: true },
+    plural: { type: [Number, String] as PropType<number | string | null> },
+    tag: { type: String, default: 'span' },
+    params: { type: Object as PropType<Record<string, string | number | boolean>> },
+    defaultValue: { type: String, default: '' },
+    html: { type: Boolean, default: false },
+    hideIfEmpty: { type: Boolean, default: false },
+    customPluralRule: { type: Function as PropType<PluralFunc>, default: null },
+    number: { type: [Number, String] as PropType<number | string | null> },
+    date: { type: [Date, String, Number] as PropType<Date | string | number | null> },
+    relativeDate: { type: [Date, String, Number] as PropType<Date | string | number | null> },
   },
 })

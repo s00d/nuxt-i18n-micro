@@ -8,6 +8,7 @@ import type {
   MissingHandler,
   ModuleOptionsExtend,
   Params,
+  PluralFunc,
   Translations,
   TranslationKey,
 } from '@i18n-micro/types'
@@ -76,6 +77,7 @@ export default defineNuxtPlugin({
       getCustomMissingHandler: () => customMissingHandler.value,
       numberFormats: i18nConfig.numberFormats,
       datetimeFormats: i18nConfig.datetimeFormats,
+      timeZone: i18nConfig.timeZone,
     })
 
     const getCurrentLocale = (route?: ResolvedRouteLike): string => {
@@ -330,6 +332,8 @@ export interface PluginsInjections {
    * `count`.
    */
   $tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string
+  /** The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. */
+  $pluralFunc: PluralFunc
   /**
    * Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
    * from the config.

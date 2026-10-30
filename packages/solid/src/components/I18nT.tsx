@@ -34,6 +34,9 @@ const OWN_PROPS = [
 /** Attributes that would set the content, and with it get past the `html` prop. */
 const CONTENT_ATTRS = ['innerHTML', 'textContent', 'dangerouslySetInnerHTML', 'prop:innerHTML', 'prop:textContent'] as const
 
+/** What JSX itself draws as nothing: no children, not empty ones. */
+const isUnset = (children: unknown): boolean => children === undefined || children === null || typeof children === 'boolean'
+
 function toSlots(components: I18nTProps['components']): RenderSlots {
   const slots: Record<string, RenderSlot> = Object.create(null)
   for (const name of Object.keys(components ?? {})) {
@@ -45,38 +48,37 @@ function toSlots(components: I18nTProps['components']): RenderSlots {
 
 export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
   const i18n = useI18nContext()
-  const owner = getOwner()
   const [local, , attrs] = splitProps(props, OWN_PROPS, CONTENT_ATTRS as never)
 
-  const resolved = createMemo(() => resolveText(i18n, local))
+  const resolved = createMemo(() => {
+    // a custom rule may read only its `locale` argument, which core takes untracked
+    i18n.localeAccessor()
+    return resolveText(i18n, local)
+  })
   const text = (): string => {
     const { template, params } = resolved()!
     return interpolate(template, params)
   }
 
-  // A locale that reorders placeholders moves these nodes: each is built once, outside the memo that reruns.
-  const slotNodes = new Map<string, unknown>()
-  let builtFrom: I18nTProps['components']
+  // A locale that reorders placeholders moves these nodes: each is built once, under this memo, whose
+  // rerun on new `components` disposes what the old slots created.
+  const slotScope = createMemo(() => ({ slots: toSlots(local.components), nodes: new Map<string, unknown>(), owner: getOwner() }))
   const renderSlot = (slot: RenderSlot, key: string): unknown => {
-    if (!slotNodes.has(key))
-      slotNodes.set(
+    const { nodes, owner } = slotScope()
+    if (!nodes.has(key))
+      nodes.set(
         key,
         runWithOwner(owner, () => untrack(() => slot({}))),
       )
-    return slotNodes.get(key)
+    return nodes.get(key)
   }
 
-  const components = createMemo(() => local.components)
   const content = (): JSX.Element => {
     const children = local.children
     if (typeof children === 'function') return children({ translation: text() })
-    if (children !== undefined) return children
+    if (!isUnset(children)) return children
     const { template, params } = resolved()!
-    if (components() !== builtFrom) {
-      builtFrom = components()
-      slotNodes.clear()
-    }
-    return foldTemplate(renderSlot, template, params, toSlots(components())) as JSX.Element
+    return foldTemplate(renderSlot, template, params, slotScope().slots) as JSX.Element
   }
 
   // a static tag skips `Dynamic`: one memo per element less

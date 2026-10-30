@@ -6,7 +6,8 @@ import { I18nContext } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
 
 export interface I18nProviderProps {
-  i18n: SolidI18n
+  /** Without it, the outer provider's instance. */
+  i18n?: SolidI18n
   locales?: Locale[]
   defaultLocale?: string
   routingStrategy?: I18nRoutingStrategy
@@ -17,7 +18,9 @@ export const I18nProvider: ParentComponent<I18nProviderProps> = (props): JSX.Ele
   const outer = useContext(I18nContext)
   const value = {
     get i18n() {
-      return props.i18n
+      const i18n = props.i18n ?? outer?.i18n
+      if (!i18n) throw new Error('[i18n-micro] I18nProvider needs an `i18n` instance or an outer provider.')
+      return i18n
     },
     get locales() {
       return props.locales ?? outer?.locales
@@ -30,7 +33,7 @@ export const I18nProvider: ParentComponent<I18nProviderProps> = (props): JSX.Ele
     },
   }
   createComputed(() => {
-    if (props.locales) props.i18n.setLocaleIso(localeIsoMap(props.locales))
+    if (props.locales) value.i18n.addLocaleIso(localeIsoMap(props.locales))
   })
   return <I18nContext.Provider value={value}>{props.children}</I18nContext.Provider>
 }

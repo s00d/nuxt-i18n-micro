@@ -17,8 +17,8 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 26 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 16 |
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 21 |
-| [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact`, `@i18n-micro/preact/router` | 41 |
-| [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/client`, `@i18n-micro/react/router`, `@i18n-micro/react/server` | 89 |
+| [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact`, `@i18n-micro/preact/router` | 42 |
+| [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/client`, `@i18n-micro/react/router`, `@i18n-micro/react/server` | 91 |
 | [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 12 |
 | [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 17 |
 | [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid`, `@i18n-micro/solid/router` | 39 |

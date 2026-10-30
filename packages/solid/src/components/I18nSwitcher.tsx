@@ -148,6 +148,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
                     hreflang={language}
                     lang={language}
                     dir={locale.dir}
+                    aria-current={active() ? 'page' : undefined}
                     style={{
                       ...LINK_STYLE,
                       ...(active() ? ACTIVE_LINK_STYLE : undefined),

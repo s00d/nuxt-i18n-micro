@@ -1,12 +1,14 @@
 import { externalLinkHref, isActiveLink, isPlainClick } from '@i18n-micro/core'
-import { h, type HostAnchorAttrs, type HostElement, type HostMouseEvent, type HostStyle } from '#host'
+import { h, type HostAnchorAttrs, type HostElement, type HostMouseEvent, type HostNode, type HostStyle } from '#host'
 import { routePath, useI18n } from '../context'
 import { type RouteTarget, useI18nRouter } from '../injection'
 
-export interface I18nLinkProps extends HostAnchorAttrs<HTMLAnchorElement> {
+// a type, not an interface: Preact 11's anchor attributes are a union alias
+export type I18nLinkProps = HostAnchorAttrs<HTMLAnchorElement> & {
   to: RouteTarget
   activeStyle?: HostStyle
   localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget
+  children?: HostNode
 }
 
 export const I18nLink = (props: I18nLinkProps): HostElement => {

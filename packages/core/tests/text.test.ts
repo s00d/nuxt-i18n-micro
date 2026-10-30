@@ -432,6 +432,7 @@ describe('defaults', () => {
     expect(new TestI18n('en', {}).t('nope', { n: 1 }, 'D {n}')).toBe('D 1')
     expect(new TestI18n('en', {}).t('nope', undefined, 'D {n}')).toBe('D {n}')
     expect(new TestI18n('en', {}).t('nope', { n: 1 }, true as never)).toBe(true)
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, '')).toBe('nope')
   })
 
   it('tc answers an empty value as t does', () => {

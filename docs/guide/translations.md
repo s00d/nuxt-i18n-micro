@@ -33,6 +33,8 @@ locales/
 
 ## What a page sees
 
+![Lookup order of a page dictionary](/diagrams/page-dictionary.svg)
+
 A page's dictionary is its root file merged with its page file, deeply (every level). The page file wins on a clash:
 
 ```json
@@ -94,6 +96,8 @@ Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a w
 | Keys inline in a page component | `$defineI18nRoute({ locales: { en: { … } } })`, see [Page config](/guide/per-component-translations) |
 
 ## How a page loads its dictionary
+
+![From locale files to $t](/diagrams/translation-pipeline.svg)
 
 The module builds one payload per page and locale: `/{apiBaseUrl}/{page}/{locale}/data.json` (`/_locales/about/de/data.json` by default).
 

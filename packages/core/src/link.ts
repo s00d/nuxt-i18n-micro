@@ -19,15 +19,21 @@ export function externalLinkHref(to: unknown): string | undefined {
 export const localeIsoMap = (locales: readonly { code: string; iso?: string }[]): Record<string, string> =>
   Object.fromEntries(locales.flatMap(({ code, iso }) => (iso ? [[code, iso]] : [])))
 
-/** The `query` of a route from a search string: `?tag=a&tag=b` gives `{ tag: ['a', 'b'] }`, as vue-router parses it. */
-export function routeQuery(search: string | undefined): Record<string, string | string[]> {
-  const params = new URLSearchParams(search)
-  return Object.fromEntries(
-    [...new Set(params.keys())].map((key) => {
-      const values = params.getAll(key)
-      return [key, values.length > 1 ? values : values[0]!]
-    }),
-  )
+/**
+ * The `query` of a route from a search string, as vue-router parses it: `?tag=a&tag=b` gives
+ * `{ tag: ['a', 'b'] }`, `?flag` gives `{ flag: null }`.
+ */
+export function routeQuery(search: string | undefined): Record<string, string | null | (string | null)[]> {
+  // URLSearchParams answers one entry per non-empty pair, in order; only the raw pair says `?a` from `?a=`
+  const pairs = (search ?? '').replace(/^\?/, '').split('&').filter(Boolean)
+  const values = new Map<string, (string | null)[]>()
+  ;[...new URLSearchParams(search)].forEach(([key, value], index) => {
+    const parsed = pairs[index]!.includes('=') ? value : null
+    const known = values.get(key)
+    if (known) known.push(parsed)
+    else values.set(key, [parsed])
+  })
+  return Object.fromEntries([...values].map(([key, list]) => [key, list.length > 1 ? list : list[0]!]))
 }
 
 const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'

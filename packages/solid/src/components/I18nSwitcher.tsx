@@ -92,7 +92,8 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
 
   const select = (event: MouseEvent, code: string): void => {
     if (!isPlainClick(event)) return
-    event.preventDefault()
+    // a custom `localeRoute` with nothing to navigate: `href` is a real page, the browser's to follow
+    if (local.switchLocale || context.router || !local.localeRoute) event.preventDefault()
     setOpen(false)
     if (local.switchLocale) return local.switchLocale(code)
     if (!local.localeRoute) return i18n.switchLocale(code)

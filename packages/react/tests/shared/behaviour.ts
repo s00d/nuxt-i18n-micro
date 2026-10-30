@@ -665,6 +665,26 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect([pushes, i18n.locale]).toEqual([[], 'en'])
     })
 
+    test('a custom localeRoute with no router leaves the link to the browser', () => {
+      const i18n = instance()
+      const localeRoute = (to: string, code: string) => `/${code}${to}`
+      const { container } = render(h(I18nProvider, { i18n, locales }, h(I18nSwitcher, { localeRoute })))
+      fireEvent.click(container.querySelector('button')!)
+      const item = container.querySelector('.switcher-locale-de')!
+      expect(item.getAttribute('href')).toBe('/de/')
+      expect(fireEvent.click(item)).toBe(true)
+      expect(i18n.locale).toBe('de')
+    })
+
+    test('switchLocale keeps the click, with or without a router', () => {
+      const switchLocale = vi.fn()
+      const localeRoute = (to: string, code: string) => `/${code}${to}`
+      const { container } = render(h(I18nProvider, { i18n: instance(), locales }, h(I18nSwitcher, { localeRoute, switchLocale })))
+      fireEvent.click(container.querySelector('button')!)
+      expect(fireEvent.click(container.querySelector('.switcher-locale-de')!)).toBe(false)
+      expect(switchLocale).toHaveBeenCalledWith('de')
+    })
+
     test('a switch keeps the query and hash', () => {
       const pushes: string[] = []
       const strategy = {

@@ -141,7 +141,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
-function routeQuery: (search: string | undefined) => Record<string, string | string[]>
+function routeQuery: (search: string | undefined) => Record<string, string | null | (string | null)[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
@@ -246,7 +246,7 @@ member ResolveTextOptions.params?: Params | undefined
 member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
-function routeQuery: (search: string | undefined) => Record<string, string | string[]>
+function routeQuery: (search: string | undefined) => Record<string, string | null | (string | null)[]>
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
@@ -298,6 +298,7 @@ member ResolveTextOptions.plural?: string | number | null | undefined
 member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 const SWITCHER_STYLES: { wrapper: object; button: object; dropdown: object; item: object; link: object; activeLink: object; icon: object; openIcon: object; }
 interface SwitcherAdapter
+member SwitcherAdapter.browserNavigates?: (() => boolean) | undefined
 member SwitcherAdapter.href: (code: string) => string
 member SwitcherAdapter.keepList?: boolean | undefined
 member SwitcherAdapter.locale: () => string

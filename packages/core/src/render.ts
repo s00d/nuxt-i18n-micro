@@ -123,6 +123,8 @@ export interface SwitcherAdapter {
   href(code: string): string
   /** The one navigation of a plain click; a modified click is left to the browser. */
   select(code: string): void
+  /** The click is the browser's: `href` is a real page and nothing here navigates. `select` still runs. */
+  browserNavigates?(): boolean
   /** Render the closed list too, so server HTML holds the links. */
   keepList?: boolean
   onMissingLabel?(code: string): void
@@ -225,7 +227,7 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
 
   const select = (event: MouseEvent, code: string) => {
     if (!isPlainClick(event)) return
-    event.preventDefault()
+    if (!adapter.browserNavigates?.()) event.preventDefault()
     open.value = false
     adapter.select(code)
   }

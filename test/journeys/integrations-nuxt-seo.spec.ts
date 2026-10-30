@@ -54,7 +54,10 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
       expect(body).toContain('<urlset')
       const locs = extractSitemapLocs(body)
       expect(locs.length).toBeGreaterThan(0)
-      expect(locs.some((loc) => /\/(en|de|cs)(\/|$)/.test(new URL(loc).pathname)), path).toBe(true)
+      expect(
+        locs.some((loc) => /\/(en|de|cs)(\/|$)/.test(new URL(loc).pathname)),
+        path,
+      ).toBe(true)
     }
 
     // step 3: GET /en/company → html lang, hreflangs on site.url, translated title and description

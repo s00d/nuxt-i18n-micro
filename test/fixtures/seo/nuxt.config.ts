@@ -15,7 +15,7 @@ const seoI18n = {
     { code: 'ru', iso: 'ru_RU', displayName: 'Russian', seo: false },
     // og:locale formats: fr derives fr_FR from iso, ar has an explicit og, zh-Hans cannot be mapped (no og:locale)
     { code: 'fr', iso: 'fr-FR', displayName: 'French' },
-    { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl', displayName: 'Arabic' },
+    { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl' as const, displayName: 'Arabic' },
     { code: 'zh', iso: 'zh-Hans', displayName: 'Chinese' },
   ],
   strategy: 'prefix' as const,

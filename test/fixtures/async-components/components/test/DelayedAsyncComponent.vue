@@ -46,7 +46,7 @@ onMounted(() => {
   // Симулируем задержку загрузки
   setTimeout(() => {
     isLoading.value = false
-  }, 1000)
+  }, 3000)
 })
 </script>
 

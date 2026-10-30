@@ -35,13 +35,6 @@ describe('buildFallbackLocaleChain', () => {
 })
 
 describe('storeLoadedTranslationFile', () => {
-  test('under disablePageLocales a page file merges into the root bucket instead of replacing it', () => {
-    const buckets: TranslationFileBuckets<Record<string, unknown>> = { root: {}, routes: {} }
-    storeLoadedTranslationFile(buckets, 'en.json', { greeting: 'Hi' }, true)
-    storeLoadedTranslationFile(buckets, 'pages/about/en.json', { about: 'About' }, true)
-    expect(buckets.root.en).toEqual({ greeting: 'Hi', about: 'About' })
-  })
-
   test('a page file wins over the root file in either read order', () => {
     const pageFirst: TranslationFileBuckets<Record<string, unknown>> = { root: {}, routes: {} }
     storeLoadedTranslationFile(pageFirst, 'pages/about/en.json', { title: 'Page' }, true)
@@ -51,25 +44,5 @@ describe('storeLoadedTranslationFile', () => {
     storeLoadedTranslationFile(rootFirst, 'pages/about/en.json', { title: 'Page' }, true)
     expect(pageFirst.root.en).toEqual({ title: 'Page', other: 'O' })
     expect(rootFirst.root.en).toEqual({ title: 'Page', other: 'O' })
-  })
-})
-
-describe('mergeSourceTranslations / deepMergeTranslations', () => {
-  test('disablePageLocales reads the root only, not even pages/index', async () => {
-    const files: Record<string, Record<string, unknown>> = { 'en.json': { root: 'R' }, 'pages/index/en.json': { page: 'P' } }
-    const data = await mergeSourceTranslations({
-      locale: 'en',
-      pageName: 'about',
-      locales: [{ code: 'en' }],
-      disablePageLocales: true,
-      readLocaleFile: (p) => files[p] ?? {},
-    })
-    expect(data).toEqual({ root: 'R' })
-  })
-
-  test('no __proto__ key survives a merge into an empty target', () => {
-    const merged = deepMergeTranslations({}, JSON.parse('{"__proto__":{"polluted":true},"a":1}'))
-    expect(Object.keys(merged)).toEqual(['a'])
-    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
   })
 })

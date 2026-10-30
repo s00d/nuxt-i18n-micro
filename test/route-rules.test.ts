@@ -1,48 +1,26 @@
 import { describe, expect, test } from 'vitest'
 import { buildTranslationPayloadRouteRule, shouldLocalizeRouteRulePath } from '../src/route-rules'
 
-describe('routeRules localization', () => {
-  test.each(['/', '/about', '/products/**', '/blog/:slug', '/tools/_assets', '/apiary', '/apiary/**'])(
-    'localizes public route rule %s',
-    (routeRulePath) => {
-      expect(shouldLocalizeRouteRulePath(routeRulePath)).toBe(true)
-    },
-  )
-
-  test.each(['/api', '/api/users', '/api/**', '/_nuxt/**', '/_locales/**', '/__nuxt_content/**', '/__sitemap__/**'])(
-    'skips internal route rule %s',
-    (routeRulePath) => {
-      expect(shouldLocalizeRouteRulePath(routeRulePath)).toBe(false)
-    },
-  )
-
-  test('localizes root path', () => {
-    expect(shouldLocalizeRouteRulePath('/')).toBe(true)
-  })
-})
-
-describe('translation payload route rule', () => {
-  const immutable = 'public, max-age=31536000, immutable'
-  const revalidate = 'public, max-age=0, must-revalidate'
-
-  test('sets no header in dev, so HMR is not answered from a cache', () => {
-    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: immutable })).toEqual({ cors: true })
-  })
-
-  test('never turns on the Nitro route cache (keyed by the full URL: unbounded)', () => {
-    for (const cacheControl of [revalidate, immutable, null]) {
-      expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl })).not.toHaveProperty('cache')
+describe('routeRules', () => {
+  test('page rules are localized, internal ones are not; the payload rule carries only the given policy', () => {
+    // step 1: user pages (prefix look-alikes such as /apiary included) get a localized copy
+    for (const path of ['/', '/about', '/products/**', '/blog/:slug', '/tools/_assets', '/apiary', '/apiary/**']) {
+      expect(shouldLocalizeRouteRulePath(path)).toBe(true)
     }
-  })
 
-  test('passes through the policy it is given', () => {
+    // step 2: api, build assets, payloads and other modules' internals stay as written
+    for (const path of ['/api', '/api/users', '/api/**', '/_nuxt/**', '/_locales/**', '/__nuxt_content/**', '/__sitemap__/**']) {
+      expect(shouldLocalizeRouteRulePath(path)).toBe(false)
+    }
+
+    // step 3: the `_locales` rule: no header in dev (HMR must not be answered from a cache),
+    // the configured Cache-Control in production, none when none is configured
+    const revalidate = 'public, max-age=0, must-revalidate'
+    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: 'public, max-age=31536000, immutable' })).toEqual({ cors: true })
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: null })).toEqual({ cors: true })
     expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: revalidate })).toEqual({
       cors: true,
       headers: { 'Cache-Control': revalidate },
     })
-  })
-
-  test('sets no header when caching is switched off entirely', () => {
-    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: null })).toEqual({ cors: true })
   })
 })

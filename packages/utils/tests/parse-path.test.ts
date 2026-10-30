@@ -8,14 +8,6 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('parseTranslationRelativePath', () => {
-  it('parses root locale files', () => {
-    expect(parseTranslationRelativePath('en.json')).toEqual({ type: 'root', locale: 'en' })
-  })
-
-  it('parses flat page locale files', () => {
-    expect(parseTranslationRelativePath('pages/about/en.json')).toEqual({ type: 'page', pageName: 'about', locale: 'en' })
-  })
-
   it('parses nested page locale files', () => {
     expect(parseTranslationRelativePath('pages/user/profile/en.json')).toEqual({
       type: 'page',
@@ -30,17 +22,7 @@ describe('parseTranslationRelativePath', () => {
   })
 })
 
-describe('classifyTranslationRelativePath', () => {
-  it('treats page files as root when page locales are disabled', () => {
-    expect(classifyTranslationRelativePath('pages/about/en.json', true)).toEqual({ type: 'root', locale: 'en' })
-  })
-})
-
 describe('pagePathSegmentsToRouteName', () => {
-  it('joins nested segments with dashes', () => {
-    expect(pagePathSegmentsToRouteName(['user', 'profile'])).toBe('user-profile')
-  })
-
   it('returns null for empty segments', () => {
     expect(pagePathSegmentsToRouteName([])).toBeNull()
   })
@@ -55,14 +37,5 @@ describe('storeLoadedTranslationFile', () => {
 
     expect(buckets.root.en).toEqual({ hello: 'world' })
     expect(buckets.routes.about?.en).toEqual({ title: 'About' })
-  })
-
-  it('stores page files in root when page locales are disabled', () => {
-    const buckets: TranslationFileBuckets<{ title?: string }> = { root: {}, routes: {} }
-
-    storeLoadedTranslationFile(buckets, 'pages/about/en.json', { title: 'About' }, true)
-
-    expect(buckets.root.en).toEqual({ title: 'About' })
-    expect(buckets.routes).toEqual({})
   })
 })

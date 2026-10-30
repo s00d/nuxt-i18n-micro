@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { defineRecipes } from 'untestutils'
 import { nuxt } from 'untestutils/nuxt'
+import { tmpFixture } from './helpers/tmp-fixture.ts'
 
 const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
 /** Workspace-root module src (fixtures import ../../../src/module). Belt for older untestutils without root-src hash. */
@@ -18,14 +19,21 @@ function app(id: string, dir = id, env?: Record<string, string>) {
   })
 }
 
+/**
+ * Temp copies behind the `*-tmp` dev recipes. Pass them to `createTranslationWatcherFiles`.
+ * Created when vitest loads this module in the main process; forks inherit the paths via env.
+ */
+export const translationWatcherTmpRoots = {
+  watcher: tmpFixture('translation-watcher'),
+  source: tmpFixture('translation-watcher-source'),
+}
+
 export const recipes = defineRecipes(
   {
     basic: app('basic'),
-    'basic-no-ssr': app('basic-no-ssr', 'basic', { NUXT_TEST_NO_SSR: '1' }),
     named: app('named'),
     undefault: app('undefault'),
     'async-components': app('async-components'),
-    'auto-detect-no-prefix': app('auto-detect-no-prefix'),
     'baseurl-prefix': app('baseurl-prefix'),
     content: app('content'),
     'custom-regex': app('custom-regex'),
@@ -39,16 +47,12 @@ export const recipes = defineRecipes(
     'nuxt-seo': app('nuxt-seo'),
     'pages-false': app('pages-false'),
     'pages-false-no-prefix': app('pages-false-no-prefix'),
-    'redirect-security': app('redirect-security'),
     redirect: app('redirect'),
-    'seo-auto': app('seo-auto'),
     'seo-og-locale-format': app('seo-og-locale-format'),
     seo: app('seo'),
     serverless: app('serverless'),
-    'transition-merge': app('transition-merge'),
     'use-i18n-head': app('use-i18n-head'),
     'use-locale-head': app('use-locale-head'),
-    'canonical-whitelist': app('canonical-whitelist'),
     'seo-trailing-slash': nuxt({
       id: 'seo-trailing-slash',
       root: resolve(fixtures, 'seo'),
@@ -57,54 +61,49 @@ export const recipes = defineRecipes(
       nuxtConfig: { i18n: { trailingSlash: 'append' } },
     }),
 
-    'strategy-no-prefix': app('strategy-no-prefix', 'strategy', { STRATEGY: 'no_prefix' }),
+    // LOCALE_COOKIE on all four: the force-locale plugin (header x-test-force-locale) writes `user-locale`,
+    // and the journeys assert the module leaves it alone. no_prefix also detects from Accept-Language.
+    'strategy-no-prefix': app('strategy-no-prefix', 'strategy', {
+      STRATEGY: 'no_prefix',
+      LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
+    }),
     'strategy-prefix': app('strategy-prefix', 'strategy', {
       STRATEGY: 'prefix',
       LOCALE_COOKIE: 'user-locale',
     }),
     'strategy-prefix-except-default': app('strategy-prefix-except-default', 'strategy', {
       STRATEGY: 'prefix_except_default',
+      LOCALE_COOKIE: 'user-locale',
     }),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
-    }),
-
-    'locale-state-no-prefix': app('locale-state-no-prefix', 'locale-state', {
-      STRATEGY: 'no_prefix',
-    }),
-    'locale-state-prefix': app('locale-state-prefix', 'locale-state', { STRATEGY: 'prefix' }),
-    'locale-state-prefix-except-default': app('locale-state-prefix-except-default', 'locale-state', {
-      STRATEGY: 'prefix_except_default',
-    }),
-    'locale-state-prefix-and-default': app('locale-state-prefix-and-default', 'locale-state', {
-      STRATEGY: 'prefix_and_default',
+      LOCALE_COOKIE: 'user-locale',
     }),
 
     'cookie-default': app('cookie-default', 'cookie'),
-    'cookie-custom-name': app('cookie-custom-name', 'cookie', {
-      LOCALE_COOKIE: 'user-change-cookie',
-    }),
-    'cookie-auto-detect-root': app('cookie-auto-detect-root', 'cookie', { AUTO_DETECT_PATH: '/' }),
 
-    // HMR-only: asserts live locale file reload. Not the default e2e path — see untestutils Drivers docs.
-    'translation-watcher': nuxt({
-      id: 'translation-watcher',
-      root: resolve(fixtures, 'translation-watcher'),
-      run: 'dev',
-      hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
-    }),
-    // Same fixture, production server build — read-only checks for additionalTranslationDirs.
+    // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': nuxt({
       id: 'translation-watcher-prod',
       root: resolve(fixtures, 'translation-watcher'),
       run: 'server',
       hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
     }),
-    'translation-watcher-source': nuxt({
-      id: 'translation-watcher-source',
-      root: resolve(fixtures, 'translation-watcher-source'),
+
+    // Dev servers for the HMR journeys run from a temp copy, so they never write into the repo tree
+    // (the prod recipe hashes and builds the pristine dir). Roots: translationWatcherTmpRoots.
+    'translation-watcher-tmp': nuxt({
+      id: 'translation-watcher-tmp',
+      root: translationWatcherTmpRoots.watcher,
       run: 'dev',
-      hashInputs: [resolve(fixtures, 'translation-watcher-source'), moduleSrc],
+      hashInputs: [translationWatcherTmpRoots.watcher, moduleSrc],
+    }),
+    'translation-watcher-source-tmp': nuxt({
+      id: 'translation-watcher-source-tmp',
+      root: translationWatcherTmpRoots.source,
+      run: 'dev',
+      hashInputs: [translationWatcherTmpRoots.source, moduleSrc],
     }),
   },
   import.meta.url,

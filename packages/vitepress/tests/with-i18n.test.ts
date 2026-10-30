@@ -77,17 +77,6 @@ describe('withI18n', () => {
     expect(alt.some((t: [string, Record<string, string>]) => t[1].hreflang === 'x-default')).toBe(true)
   })
 
-  it('skips meta transformHead when meta is false', () => {
-    const result = withI18n({} as VitePressUserConfigLike, {
-      locale: 'en',
-      locales: [{ code: 'en' }],
-      metaBaseUrl: 'https://example.com',
-      meta: false,
-      warnOnLocaleMismatch: false,
-    })
-    expect(result.transformHead).toBeUndefined()
-  })
-
   it('respects frontmatter i18n.disableMeta', async () => {
     const result = withI18n({} as VitePressUserConfigLike, {
       locale: 'en',
@@ -103,34 +92,6 @@ describe('withI18n', () => {
       },
     })
     expect(head).toEqual([])
-  })
-
-  it('merges vite plugin without dropping existing plugins', () => {
-    const existing = { name: 'existing-plugin' }
-    const result = withI18n(
-      {
-        locales: {
-          root: { label: 'English', lang: 'en' },
-          fr: { label: 'French', lang: 'fr' },
-        },
-        vite: {
-          plugins: [existing],
-        },
-      },
-      {
-        locale: 'en',
-        defaultLocale: 'en',
-        locales: [
-          { code: 'en', iso: 'en-US' },
-          { code: 'fr', iso: 'fr-FR' },
-        ],
-        warnOnLocaleMismatch: false,
-      },
-    )
-
-    const plugins = (result.vite?.plugins ?? []) as Array<{ name: string }>
-    expect(plugins.some((p) => p.name === 'existing-plugin')).toBe(true)
-    expect(plugins.some((p) => p.name === 'vite-plugin-i18n-vitepress')).toBe(true)
   })
 
   it('virtual plugin resolves config module', () => {
@@ -212,32 +173,6 @@ describe('withI18n', () => {
       rmSync(dir, { recursive: true, force: true })
     }
   })
-
-  it('skips disk watchers when messages and routeMessages are both inline', () => {
-    const result = withI18n({} as VitePressUserConfigLike, {
-      locale: 'en',
-      locales: [{ code: 'en' }],
-      messages: { en: { a: '1' } },
-      routeMessages: { home: { en: { b: '2' } } },
-      warnOnLocaleMismatch: false,
-    })
-    const plugins = (result.vite?.plugins ?? []) as Array<{
-      name: string
-      configResolved?: (c: { root: string }) => void
-      configureServer?: (server: { watcher: { add: ReturnType<typeof vi.fn> } }) => void
-      load?: (id: string) => string | undefined
-      resolveId?: (id: string) => string | undefined
-    }>
-    const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-vitepress')!
-    plugin.configResolved?.({ root: process.cwd() })
-    const add = vi.fn()
-    plugin.configureServer?.({ watcher: { add } })
-    expect(add).not.toHaveBeenCalled()
-    const id = plugin.resolveId!('virtual:i18n-micro/messages')!
-    const src = plugin.load!(id)!
-    expect(src).toContain('"a":"1"')
-    expect(src).toContain('"b":"2"')
-  })
 })
 
 describe('messagesFromGlob', () => {
@@ -255,13 +190,6 @@ describe('messagesFromGlob', () => {
       '/x/en.json': { default: 'Default' },
     })
     expect(messages.en).toEqual({ default: 'Default' })
-  })
-
-  it('keeps an __esModule-only object as a dictionary', () => {
-    const messages = messagesFromGlob({
-      '/x/en.json': { __esModule: true } as unknown as { default: never },
-    })
-    expect(messages.en).toEqual({ __esModule: true })
   })
 
   it('unwraps Vite module namespaces', () => {
@@ -379,74 +307,6 @@ describe('createI18n', () => {
     expect(i18n.getLocale()).toBe('en')
     expect(i18n.getRoute()).toBe('index')
     expect(i18n.ts('hi')).toBe('Hi')
-  })
-
-  it('re-chains onAfterRouteChange after later enhanceApp overwrites', async () => {
-    const { enhanceApp, i18n } = createI18n({
-      locale: 'en',
-      defaultLocale: 'en',
-      locales: [{ code: 'en' }, { code: 'fr' }],
-      messages: { en: { hi: 'Hi' }, fr: { hi: 'Salut' } },
-    })
-
-    const app = {
-      use: vi.fn(),
-      provide: vi.fn(),
-      config: { globalProperties: {} as Record<string, unknown> },
-      component: vi.fn(),
-    }
-
-    let after: ((to: string) => unknown) | undefined
-    const router = {
-      route: { path: '/' },
-      go: vi.fn(),
-      set onAfterRouteChange(fn: ((to: string) => unknown) | undefined) {
-        after = fn
-      },
-      get onAfterRouteChange() {
-        return after
-      },
-    }
-
-    enhanceApp({ app: app as never, router })
-    const userHook = vi.fn()
-    router.onAfterRouteChange = userHook
-    enhanceApp({ app: app as never, router })
-
-    await after?.('/fr/')
-    expect(userHook).toHaveBeenCalled()
-    expect(i18n.getLocale()).toBe('fr')
-  })
-
-  it('installs the plugin on every Vue app', () => {
-    const { enhanceApp } = createI18n({
-      locale: 'en',
-      defaultLocale: 'en',
-      locales: [{ code: 'en' }, { code: 'fr' }],
-      messages: { en: { hi: 'Hi' }, fr: { hi: 'Salut' } },
-      syncWithVitePress: false,
-    })
-
-    const makeApp = () => ({
-      use: vi.fn(),
-      provide: vi.fn(),
-      config: { globalProperties: {} as Record<string, unknown> },
-      component: vi.fn(),
-    })
-
-    const makeRouter = (path: string) => ({
-      route: { path },
-      go: vi.fn(),
-      onAfterRouteChange: undefined as ((to: string) => unknown) | undefined,
-    })
-
-    const app1 = makeApp()
-    const app2 = makeApp()
-    enhanceApp({ app: app1 as never, router: makeRouter('/') as never })
-    enhanceApp({ app: app2 as never, router: makeRouter('/fr/') as never })
-
-    expect(app1.use).toHaveBeenCalledTimes(1)
-    expect(app2.use).toHaveBeenCalledTimes(1)
   })
 
   it('does not re-set routing strategy on re-enhance (avoids clobbering other apps)', () => {

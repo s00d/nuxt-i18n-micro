@@ -3,8 +3,6 @@ import MyModule from '../../../src/module'
 export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
-  // `basic-no-ssr` variant builds the same app as an SPA (see FIXTURE_VARIANTS).
-  ...(process.env.NUXT_TEST_NO_SSR ? { ssr: false } : {}),
   routeRules: {
     '/client': { ssr: false },
     '/old-product': { redirect: '/page' },

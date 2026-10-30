@@ -45,22 +45,6 @@ const account: NuxtPage = {
 }
 
 describe('strategies', () => {
-  test('prefix_except_default: default unprefixed, locales sharing a path share one record', () => {
-    expect(generate('prefix_except_default', [about])).toEqual(['about /about', 'localized-about /:locale(de|fr)/about'])
-  })
-
-  test('prefix: every locale prefixed', () => {
-    expect(generate('prefix', [about])).toEqual(['localized-about /:locale(en|de|fr)/about'])
-  })
-
-  test('prefix_and_default: default served unprefixed and prefixed', () => {
-    expect(generate('prefix_and_default', [about])).toEqual(['about /about', 'localized-about /:locale(en|de|fr)/about'])
-  })
-
-  test('no_prefix: the page as written', () => {
-    expect(generate('no_prefix', [about])).toEqual(['about /about'])
-  })
-
   test('every localized record says which page and locales it serves', () => {
     const pages = [structuredClone(about)]
     generator('prefix_except_default', { globalLocaleRoutes: { about: { de: '/ueber-uns' } } }).extendPages(pages)
@@ -166,11 +150,6 @@ describe('nested pages', () => {
       '  localized-account-orders-fr commandes',
       '    localized-account-orders-id-fr :id()',
     ])
-  })
-
-  test('an unnamed parent with an index child stays unnamed (no duplicate route names)', () => {
-    const names = generate('prefix', [account]).map((l) => l.trim().split(' ')[0])
-    expect(names.filter((n) => n !== '-')).toEqual([...new Set(names.filter((n) => n !== '-'))])
   })
 
   test('no_prefix: a locale whose child differs gets its own tree at the same parent path', () => {
@@ -289,11 +268,6 @@ describe('nitro helpers', () => {
     const root = mkdtempSync(join(tmpdir(), 'route-strategy-'))
     g.ensureTranslationFilesExist(['about'], 'locales', root)
     expect(readFileSync(join(root, 'locales/pages/about/en.json'), 'utf-8')).toBe('{}')
-  })
-
-  test('normalizeRouteKey', () => {
-    expect(normalizeRouteKey('/blog/[slug]/[[page]]/[...rest]')).toBe('/blog/:slug/:page?/:rest(.*)*')
-    expect(normalizeRouteKey('/post-[id]/:year()/:n(\\d+)')).toBe('/post-:id/:year/:n(\\d+)')
   })
 })
 

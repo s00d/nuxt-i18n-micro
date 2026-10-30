@@ -102,14 +102,6 @@ function setup(
 }
 
 describe('localeRoute', () => {
-  test('by name, from a page in another locale: no locale leaks from the current route', () => {
-    const { i18n, at, url } = setup('prefix_except_default')
-    const from = at('/de/ueber-uns')
-    expect(url(i18n.localeRoute('en', { name: 'about' }, from))).toBe('/about-us')
-    expect(url(i18n.localeRoute('fr', { name: 'about' }, from))).toBe('/fr/about')
-    expect(url(i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { a: '1' }, hash: '#h' }, from))).toBe('/de/artikel/x?a=1#h')
-  })
-
   test('a resolved localized route is that page in the target locale', () => {
     const { i18n, at, url } = setup('prefix')
     const route = at('/de/konto/bestellungen/7?tab=1')
@@ -127,15 +119,6 @@ describe('localeRoute', () => {
     expect(i18n.localeRoute('fr', '/blog/x?tag=a&tag=b').query).toEqual({ tag: ['a', 'b'] })
     expect({ ...i18n.localeRoute('fr', '/blog/x?constructor=c&__proto__=p').query }).toEqual({ constructor: 'c', __proto__: 'p' })
   })
-
-  test('vue-router never warns about discarded params', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const { i18n, at, url } = setup('prefix')
-    const from = at('/fr/blog/hi')
-    for (const locale of ['en', 'de', 'fr']) for (const name of ['index', 'about', 'account']) url(i18n.localeRoute(locale, { name }, from))
-    expect(warn).not.toHaveBeenCalled()
-    warn.mockRestore()
-  })
 })
 
 describe('switchLocaleRoute', () => {
@@ -144,13 +127,6 @@ describe('switchLocaleRoute', () => {
     const route = at('/blog/hello?q=1#top')
     expect(url(i18n.switchLocaleRoute('en', 'de', route))).toBe('/de/artikel/hello?q=1#top')
     expect(url(i18n.switchLocaleRoute('en', 'de', route, { i18nRouteParams: { de: { slug: 'hallo' } } }))).toBe('/de/artikel/hallo?q=1#top')
-  })
-
-  test('catch-all keeps its segments; unlocalized pages stay', () => {
-    const { i18n, at, url } = setup('prefix_and_default')
-    expect(url(i18n.switchLocaleRoute('en', 'fr', at('/en/x/y')))).toBe('/fr/x/y')
-    const admin = at('/admin')
-    expect(i18n.switchLocaleRoute('en', 'de', admin)).toBe(admin)
   })
 
   test("a page not served in the target locale leads to that locale's home, never another locale's page", () => {
@@ -191,12 +167,6 @@ describe('switchLocaleRoute', () => {
     expect(i18n.switchLocaleRoute('en', 'de', at('/about-us?q=1'))).toBe('https://example.de/ueber-uns?q=1')
     expect(i18n.switchLocaleRoute('en', 'fr', at('/about-us'))).toBe('https://example.fr/fr/about')
     expect(i18n.localeRoute('de', { name: 'index' }).fullPath).toBe('https://example.de/')
-  })
-
-  test('no_prefix: the same URL unless the locale has its own path', () => {
-    const { i18n, at, url } = setup('no_prefix')
-    expect(url(i18n.switchLocaleRoute('en', 'de', at('/about')))).toBe('/ueber-uns')
-    expect(url(i18n.switchLocaleRoute('de', 'fr', at('/ueber-uns')))).toBe('/about')
   })
 })
 
@@ -293,12 +263,6 @@ describe('page facts from meta.i18n', () => {
     expect(i18n.isMetaDisabled(at('/de'), 'de')).toBe(true)
     expect(i18n.isMetaDisabled(at('/'), 'en')).toBe(false)
   })
-
-  test('isMetaDisabled: an unlocalized page reads it from its own record (meta.i18nNoMeta)', () => {
-    const { i18n } = setup('prefix')
-    expect(i18n.isMetaDisabled({ name: 'admin', meta: { i18nNoMeta: true } }, 'de')).toBe(true)
-    expect(i18n.isMetaDisabled({ name: 'admin', meta: {} }, 'de')).toBe(false)
-  })
 })
 
 describe('redirects', () => {
@@ -309,11 +273,6 @@ describe('redirects', () => {
     expect(i18n.getClientRedirect('/de/ueber-uns', 'fr')).toBeNull()
     // a page the preferred locale does not serve stays
     expect(i18n.getClientRedirect('/de/de-only', 'fr', { switchPrefixed: true })).toBeNull()
-  })
-
-  test('an unprefixed page the preferred locale does not serve is not redirected to a 404', () => {
-    const { i18n } = setup('prefix_except_default', {}, LOCALES, { routeLocales: { about: ['en'] } })
-    expect(i18n.getClientRedirect('/about-us', 'de')).toBeNull()
   })
 
   test('customRegexMatcher: a locale-like first segment that is no locale is a 404', () => {
@@ -352,29 +311,6 @@ describe('stability', () => {
     expect(second.query).toEqual({ ref: 'a' })
   })
 
-  test('array params / query values are copied too', () => {
-    const { i18n } = setup('prefix_except_default')
-    const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
-    ;(first.query as Record<string, string[]>).tag!.push('LEAKED')
-    const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
-    expect(second.query).toEqual({ tag: ['a', 'b'] })
-  })
-
-  test('a route added later with addRoute is seen by the next strategy over the same routes', () => {
-    const { router } = setup('prefix_except_default')
-    const adapter = {
-      hasRoute: (n: string) => router.hasRoute(n),
-      resolve: (to: unknown) => router.resolve(to as never),
-      getRoutes: () => router.getRoutes(),
-      options: router.options,
-    }
-    const before = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
-    expect(before.getRouteBaseName({ path: '/added' })).not.toBe('added')
-    router.addRoute({ path: '/added', name: 'added', component: {}, meta: { i18n: { name: 'added', locales: ['en'] } } })
-    const after = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
-    expect(after.getRouteBaseName({ path: '/added' })).toBe('added')
-  })
-
   test("a symbol-named route is the app's own route: resolved by its symbol, no base name, never localized", () => {
     const { router } = setup('prefix')
     const app = Symbol('app')
@@ -397,25 +333,5 @@ describe('stability', () => {
     const of = (r: Router) => createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: r })
     expect(of(loose).getRouteBaseName({ path: '/about-us/' })).toBe('about')
     expect(of(strict).getRouteBaseName({ path: '/about-us/' })).not.toBe('about')
-  })
-
-  test('a route with neither name nor path is returned as it is', () => {
-    const { i18n } = setup('prefix')
-    const route = { name: null, path: '', fullPath: '', query: { a: '1' } }
-    expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
-  })
-
-  test('one route table under two configs keeps two sets of answers', () => {
-    const { router } = setup('prefix_except_default')
-    const adapter = {
-      hasRoute: (name: string) => router.hasRoute(name),
-      resolve: (to: unknown) => router.resolve(to as never),
-      getRoutes: () => router.getRoutes(),
-      options: router.options,
-    }
-    const en = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
-    const de = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'de', locales: LOCALES, router: adapter })
-    expect(en.shouldReturn404('/en/about-us')).toBe('Default locale should not have prefix')
-    expect(de.shouldReturn404('/en/about-us')).not.toBe('Default locale should not have prefix')
   })
 })

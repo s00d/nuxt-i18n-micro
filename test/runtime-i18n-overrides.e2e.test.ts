@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { $fetch as nuxtFetch, setup } from '@nuxt/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 // Untyped: Nitro MatchedRoutes on `/_locales/:page/:locale/...` → TS2321.
 const $fetch = nuxtFetch as (url: string, opts?: object) => Promise<unknown>
@@ -35,19 +35,17 @@ describe('runtime i18n overrides (Nuxt runtimeConfig)', async () => {
     },
   })
 
-  it('uses overridden defaultLocale for SSR page rendering', async () => {
+  test('runtimeConfig overrides the default locale and disables fr', async () => {
+    // step 1: SSR / renders de (the overridden default), root and page keys
     const html = (await $fetch('/', { responseType: 'text' })) as string
-
     expect(html).toContain('<p id="locale">de</p>')
     expect(html).toContain('Hallo Welt')
     expect(html).toContain('Startseite')
-  })
 
-  it('serves enabled locale payloads and rejects disabled locales', async () => {
-    const dePayload = (await $fetch('/_locales/index/de/data.json')) as Record<string, string>
-    expect(dePayload.hello).toBe('Hallo Welt')
-    expect(dePayload.pageTitle).toBe('Startseite')
+    // step 2: the de payload is served
+    expect(await $fetch('/_locales/index/de/data.json')).toMatchObject({ hello: 'Hallo Welt', pageTitle: 'Startseite' })
 
+    // step 3: fr, disabled at runtime, is a 404
     await expect($fetch('/_locales/index/fr/data.json')).rejects.toMatchObject({
       statusCode: 404,
       statusMessage: expect.stringContaining('Locale not found'),

@@ -76,9 +76,11 @@ catalog:
   '@testing-library/react': ^16.3.3
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
-  untestutils: ^0.7.1
-  '@untestutils/nuxt': ^0.7.1
-  '@untestutils/perf': ^0.7.1
+  untestutils: ^0.8.1
+  '@stryker-mutator/core': ^10.1.1
+  '@stryker-mutator/vitest-runner': ^10.1.1
+  '@untestutils/nuxt': ^0.8.1
+  '@untestutils/perf': ^0.8.1
   # Exact only (no ^/~). Vue peer is `typescript: "*"`; caret/`npm i` pollution → TS7, then `pnpm i` "restores" 6.
   # Root `pnpm.overrides.typescript` must be the same literal — see deps-audit EXACT_CATALOG_PINS.
   typescript: 6.0.3

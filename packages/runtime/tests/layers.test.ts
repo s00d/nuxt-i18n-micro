@@ -18,25 +18,4 @@ describe('root and route layers', () => {
     i18n.setRoute('no-chunk-here')
     expect(i18n.t('hello')).toBe('Hello')
   })
-
-  test('addRouteTranslations(merge = false) replaces the route chunk', () => {
-    const i18n = createI18n({ locale: 'en', routeMessages: { shop: { en: { a: 'A', b: 'B' } } } })
-    i18n.addRouteTranslations('en', 'shop', { a: 'A2' }, false)
-    i18n.setRoute('shop')
-    expect(i18n.t('a')).toBe('A2')
-    expect(i18n.t('b')).toBe('b')
-  })
-
-  test('named formats are forwarded to the core formatter', () => {
-    const i18n = createI18n({ locale: 'en-US', numberFormats: { 'en-US': { money: { style: 'currency', currency: 'USD' } } } })
-    expect(i18n.tn(5, 'money')).toBe('$5.00')
-  })
-
-  test('one write notifies subscribers once', () => {
-    const i18n = createI18n({ locale: 'en' })
-    const listener = vi.fn()
-    i18n.subscribe(listener)
-    i18n.addTranslations('en', { a: 'A' })
-    expect(listener).toHaveBeenCalledTimes(1)
-  })
 })

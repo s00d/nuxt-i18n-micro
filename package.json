@@ -92,6 +92,7 @@
     "format:check": "oxfmt --check src packages test client playground scripts/src build.config.ts",
     "test": "vitest run",
     "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:unit:types": "vitest run --config vitest.unit.config.ts --typecheck.only",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:packages": "vitest run --config vitest.packages.config.ts",
@@ -138,7 +139,8 @@
     "budget:payload:update": "pnpm -C scripts cli payload-budget --update",
     "preflight": "pnpm -C scripts cli preflight",
     "docs:generate": "pnpm -C scripts cli docs-generate",
-    "docs:generate:check": "pnpm -C scripts cli docs-generate --check"
+    "docs:generate:check": "pnpm -C scripts cli docs-generate --check",
+    "test:mutation": "stryker run stryker.config.mjs"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
@@ -164,6 +166,8 @@
     "@nuxt/schema": "catalog:",
     "@nuxt/test-utils": "catalog:",
     "@playwright/test": "catalog:",
+    "@stryker-mutator/core": "catalog:",
+    "@stryker-mutator/vitest-runner": "catalog:",
     "@types/node": "catalog:",
     "@untestutils/nuxt": "catalog:",
     "@untestutils/perf": "catalog:",

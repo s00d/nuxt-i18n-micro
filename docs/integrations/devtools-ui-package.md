@@ -1,27 +1,20 @@
 ---
-title: 'DevTools UI Package (`@i18n-micro/devtools-ui`)'
-description: 'Standalone DevTools UI and Vite plugin.'
+title: 'DevTools UI'
+description: 'A translation editor for Vite dev servers, and a bridge that connects it to any @i18n-micro instance.'
 outline: 'deep'
 ---
 
-# DevTools UI Package (`@i18n-micro/devtools-ui`)
+# DevTools UI
 
-The `@i18n-micro/devtools-ui` package provides a standalone development tools interface for managing translations. It includes a Vite plugin for automatic integration and a universal bridge system for framework-agnostic i18n support.
+`@i18n-micro/devtools-ui` is the translation editor from the Nuxt DevTools tab, packaged as a web component with a Vite plugin. Add it to a Vue, React, Preact, Solid or Astro project to browse and edit the JSON files in your translation folder from the browser during development. Nuxt apps already have it in [Nuxt DevTools](/guide/devtools).
 
-## Overview
-
-`@i18n-micro/devtools-ui` is a self-contained package that provides:
-
-- **Vite Plugin** - Automatic button injection and API endpoints
-- **Universal Bridge** - Framework-agnostic bridge creation for any i18n implementation
-- **Web Component** - Custom element for the DevTools UI
-- **File Operations** - List, load, and save translation files via API
-
-## Installation
-
-Install the package using your preferred package manager:
+## Install
 
 ::: code-group
+
+```bash [pnpm]
+pnpm add -D @i18n-micro/devtools-ui
+```
 
 ```bash [npm]
 npm install -D @i18n-micro/devtools-ui
@@ -31,351 +24,86 @@ npm install -D @i18n-micro/devtools-ui
 yarn add -D @i18n-micro/devtools-ui
 ```
 
-```bash [pnpm]
-pnpm add -D @i18n-micro/devtools-ui
-```
-
-```bash [bun]
-bun add -D @i18n-micro/devtools-ui
-```
-
 :::
 
-## Quick Start
+No peer dependencies.
 
-### Vite Plugin Setup
+## Setup
 
-The easiest way to use DevTools is through the Vite plugin, which automatically injects a floating button and provides all necessary API endpoints:
-
-```typescript
+```ts
+// vite.config.ts (or the `vite` key of astro.config.mjs)
 import { defineConfig } from 'vite'
 import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 
 export default defineConfig({
-  plugins: [
-    // ... other plugins
-    i18nDevToolsPlugin({
-      base: '/__i18n_api', // Optional: API endpoint base path (default: '/__i18n_api')
-      translationDir: 'src/locales', // Optional: translation files directory
-      injectButton: true, // Optional: automatically inject floating button (default: true)
-    }),
-  ],
+  plugins: [i18nDevToolsPlugin({ translationDir: 'src/locales' })],
 })
 ```
 
-### Plugin Options
+| Option | Default | Notes |
+| --- | --- | --- |
+| `translationDir` | `'src/locales'` | Folder with the JSON files, relative to the Vite root. |
+| `base` | `'/__i18n_api'` | Base path of the API endpoints. |
+| `injectButton` | `true` | Add a floating button to pages served through Vite's `index.html` transform. |
+| `defaultLocale` | first locale file in `translationDir` | Reported by `/config`. |
+| `fallbackLocale` | `defaultLocale` | Reported by `/config`. |
 
-```typescript
-interface DevToolsPluginOptions {
-  base?: string // API endpoint base path (default: '/__i18n_api')
-  translationDir?: string // Translation files directory (default: 'src/locales')
-  injectButton?: boolean // Automatically inject floating button (default: true)
-}
-```
+The plugin runs on the dev server only (`apply: 'serve'`); a production build contains nothing from it. The button opens `/__i18n_devtools.html`, which reads and saves files through the plugin's endpoints:
 
-## Features
+| Endpoint | Does |
+| --- | --- |
+| `GET <base>/files` | `{ files, structure }`: every `.json` under `translationDir` |
+| `GET <base>/file?path=en.json` | `{ success, content, path }`; 404 for anything but an existing `.json` inside `translationDir` |
+| `POST <base>/save` | body `{ file, content }`; overwrites an existing `.json` inside `translationDir`, 403 for anything else. It never creates a file |
+| `GET <base>/config` | `{ defaultLocale, fallbackLocale, locales, translationDir }`; `locales` come from the root files in `translationDir` |
 
-### Automatic Button Injection
+Saving only writes the file. An app that imports the JSON through Vite gets it through HMR; for edits applied to the running instance directly, use a bridge.
 
-The plugin automatically injects a floating button in the bottom right corner of your application:
+## Bridge to a live instance
 
-- **Smart Hiding** - Button hides when cursor is far away (>200px)
-- **Partial Visibility** - Even when hidden, a small part remains visible for easy access
-- **Smooth Animations** - Transitions and hover effects for better UX
-- **Auto-show on Hover** - Button fully appears when you hover over the visible part
+To embed the editor in your own page and have edits applied to the running instance at once, create a bridge from an adapter and pass it to the `<i18n-devtools-ui>` element:
 
-### API Endpoints
+```ts
+import { createBridge, register } from '@i18n-micro/devtools-ui'
+import { i18n, locales } from './i18n' // a runtime, React, Preact or Solid instance
 
-The plugin provides the following API endpoints:
+register() // defines <i18n-devtools-ui> once
 
-#### `GET /__i18n_api/files`
-
-Get list of all translation files and directory structure.
-
-**Response:**
-
-```json
-{
-  "files": ["en.json", "fr.json", "pages/home/en.json"],
-  "structure": {
-    "en.json": "en.json",
-    "fr.json": "fr.json",
-    "pages": {
-      "home": {
-        "en.json": "pages/home/en.json"
-      }
-    }
-  }
-}
-```
-
-#### `GET /__i18n_api/file?path=...`
-
-Load a specific translation file.
-
-**Query Parameters:**
-
-- `path` - Relative path to the translation file (e.g., `en.json` or `pages/home/en.json`)
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "content": {
-    "welcome": "Welcome",
-    "hello": "Hello"
-  },
-  "path": "en.json"
-}
-```
-
-#### `POST /__i18n_api/save`
-
-Save translation content to a file.
-
-**Request Body:**
-
-```json
-{
-  "file": "en.json",
-  "content": {
-    "welcome": "Welcome",
-    "hello": "Hello"
-  }
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true
-}
-```
-
-#### `GET /__i18n_api/config`
-
-Get i18n configuration.
-
-**Response:**
-
-```json
-{
-  "defaultLocale": "en",
-  "fallbackLocale": "en",
-  "locales": [{ "code": "en", "displayName": "English", "iso": "en-US" }],
-  "translationDir": "src/locales"
-}
-```
-
-## Universal Bridge
-
-The package provides a universal bridge creation function that works with any i18n implementation:
-
-```typescript
-import { createBridge } from '@i18n-micro/devtools-ui'
-import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
-
-// Create an adapter for your i18n instance
-const adapter: BridgeAdapter = {
-  getRouteCache: () => i18nInstance.cache.route,
-  addTranslations: (locale, content, merge) => {
-    i18nInstance.addTranslations(locale, content, merge)
-  },
-  addRouteTranslations: (locale, routeName, content, merge) => {
-    i18nInstance.addRouteTranslations(locale, routeName, content, merge)
-  },
-  subscribe: (callback) => {
-    return i18nInstance.subscribe(callback)
-  },
-  getCurrentLocale: () => i18nInstance.locale,
-  getFallbackLocale: () => i18nInstance.fallbackLocale,
-}
-
-// Create bridge
 const bridge = createBridge({
-  adapter,
-  locales: localesConfig,
+  adapter: {
+    getRouteCache: () => Object.fromEntries(i18n.storage.translations),
+    addTranslations: (locale, content, merge) => i18n.addTranslations(locale, content, merge),
+    addRouteTranslations: (locale, route, content, merge) => i18n.addRouteTranslations(locale, route, content, merge),
+    subscribe: (cb) => i18n.subscribe(cb),
+    getCurrentLocale: () => i18n.locale,
+  },
+  locales,
   defaultLocale: 'en',
   translationDir: 'src/locales',
-  base: '/__i18n_api', // Optional: the plugin's `base`, where saves are POSTed (default: '/__i18n_api')
 })
+
+const el = document.createElement('i18n-devtools-ui') as HTMLElement & { bridge: typeof bridge }
+el.bridge = bridge
+document.body.append(el)
 ```
 
-### Bridge Adapter Interface
+`getRouteCache` must return the dictionaries keyed `locale:route` (`en:index`, `en:blog-post`), which is what `i18n.storage.translations` holds. For a Vue instance use `i18n.global.getRouteCache()` and `i18n.global.subscribeToChanges(cb)`.
 
-```typescript
-interface BridgeAdapter {
-  // Get translations cache
-  // Keys are in format "locale:routeName" (e.g., "en:index", "en:home")
-  getRouteCache: () => Record<string, TranslationContent>
+`saveTranslation` updates the instance first, then POSTs to `<base>/save`. When there is no endpoint (a static preview build) or the dev server cannot be reached, the edit is kept in `localStorage`; any other save error restores the previous dictionary and throws.
 
-  // Add or update translations for a locale
-  addTranslations: (locale: string, content: TranslationContent, merge: boolean) => void
+## API
 
-  // Add or update route-specific translations
-  addRouteTranslations: (locale: string, routeName: string, content: TranslationContent, merge: boolean) => void
+| Export | Entry |
+| --- | --- |
+| `i18nDevToolsPlugin(options)` | `@i18n-micro/devtools-ui/vite` |
+| `register()`, `I18nDevToolsElement` | `@i18n-micro/devtools-ui` |
+| `createBridge(options)`, types `BridgeAdapter`, `CreateBridgeOptions` | `@i18n-micro/devtools-ui` (also `/bridge/create`) |
+| type `I18nDevToolsBridge` | `@i18n-micro/devtools-ui` (also `/bridge`) |
+| `createRpcClient`, `setupRpcHost` | `@i18n-micro/devtools-ui` |
 
-  // Subscribe to changes in translations
-  subscribe: (callback: () => void) => () => void
+Full signatures: [package reference](/api/packages/devtools-ui).
 
-  // Get current locale (optional)
-  getCurrentLocale?: () => string
+## Related
 
-  // Get fallback locale (optional)
-  getFallbackLocale?: () => string
-}
-```
-
-## Web Component
-
-The package exports a custom element that can be used directly:
-
-```typescript
-import { register } from '@i18n-micro/devtools-ui'
-
-// Register the custom element
-register()
-
-// Create and use the element
-const element = document.createElement('i18n-devtools-ui')
-element.bridge = bridge
-document.body.appendChild(element)
-```
-
-## Framework Integration
-
-### Vue
-
-```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-
-export default defineConfig({
-  plugins: [
-    vue(),
-    i18nDevToolsPlugin({
-      translationDir: 'src/locales',
-    }),
-  ],
-})
-```
-
-### React
-
-```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    i18nDevToolsPlugin({
-      translationDir: 'src/locales',
-    }),
-  ],
-})
-```
-
-### Solid
-
-```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-
-export default defineConfig({
-  plugins: [
-    solidPlugin(),
-    i18nDevToolsPlugin({
-      translationDir: 'src/locales',
-    }),
-  ],
-})
-```
-
-### Astro
-
-```javascript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-
-export default defineConfig({
-  vite: {
-    plugins: [
-      i18nDevToolsPlugin({
-        translationDir: 'src/locales',
-      }),
-    ],
-  },
-})
-```
-
-## Security
-
-The plugin includes security measures:
-
-- **Path Traversal Prevention** - All file paths are validated to ensure they stay within the project root
-- **File Extension Validation** - Only `.json` files can be saved
-- **Project Root Validation** - Files can only be accessed within the configured project root
-
-## Development vs Production
-
-- **Development Only** - The plugin only works in development mode (`apply: 'serve'`)
-- **No Production Impact** - The plugin is automatically excluded from production builds
-- **Zero Runtime Overhead** - No code is included in production bundles
-
-## TypeScript Support
-
-The package provides full TypeScript support:
-
-```typescript
-import type { I18nDevToolsBridge, BridgeAdapter, CreateBridgeOptions, TranslationContent, LocaleData } from '@i18n-micro/devtools-ui'
-```
-
-## Examples
-
-### Custom Bridge Implementation
-
-```typescript
-import { createBridge } from '@i18n-micro/devtools-ui'
-import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
-
-class CustomI18n {
-  private cache = {
-    root: {},
-    route: {},
-  }
-
-  addTranslations(locale: string, content: Record<string, unknown>) {
-    this.cache.root[locale] = content
-  }
-
-  subscribe(callback: () => void) {
-    // Your subscription logic
-    return () => {} // unsubscribe
-  }
-}
-
-const customI18n = new CustomI18n()
-
-const adapter: BridgeAdapter = {
-  getRouteCache: () => customI18n.cache.route,
-  addTranslations: (locale, content) => {
-    customI18n.addTranslations(locale, content)
-  },
-  addRouteTranslations: () => {}, // Not implemented
-  subscribe: (callback) => customI18n.subscribe(callback),
-}
-
-const bridge = createBridge({
-  adapter,
-  locales: [{ code: 'en', displayName: 'English' }],
-  defaultLocale: 'en',
-})
-```
-
-## Resources
-
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
-
-## License
-
-MIT
+- [Nuxt DevTools](/guide/devtools) — the same editor inside Nuxt
+- [Frameworks](./) — the instance and its `storage`

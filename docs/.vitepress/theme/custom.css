@@ -1,10 +1,72 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
+/* The brand green comes from the logo; everything else stays neutral. */
+:root {
+  --vp-c-brand-1: #0e7f5e;
+  --vp-c-brand-2: #12966f;
+  --vp-c-brand-3: #1f9b72;
+  --vp-c-brand-soft: rgba(50, 186, 140, 0.14);
 
-/* Hero logo — без рамки, только сам SVG */
+  --vp-c-divider: #e7ebe9;
+  --vp-c-gutter: #eff2f1;
+
+  --vp-button-brand-bg: #0e7f5e;
+  --vp-button-brand-hover-bg: #12966f;
+  --vp-button-brand-active-bg: #0b6b4f;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(115deg, #0b6b4f 10%, #32ba8c 90%);
+
+  --vp-code-font-size: 0.875em;
+  --ni18n-radius: 10px;
+}
+
+.dark {
+  --vp-c-brand-1: #5fe0ae;
+  --vp-c-brand-2: #32ba8c;
+  --vp-c-brand-3: #1f9b72;
+  --vp-c-brand-soft: rgba(50, 186, 140, 0.16);
+
+  --vp-c-bg: #0c1211;
+  --vp-c-bg-alt: #0a0f0e;
+  --vp-c-bg-elv: #121a18;
+  --vp-c-bg-soft: #141c1a;
+
+  --vp-c-divider: #212b28;
+  --vp-c-gutter: #0a0f0e;
+
+  --vp-button-brand-bg: #1f9b72;
+  --vp-button-brand-hover-bg: #32ba8c;
+  --vp-button-brand-active-bg: #187a5a;
+
+  --vp-home-hero-name-background: linear-gradient(115deg, #f4faf7 15%, #5fe0ae 95%);
+}
+
+::selection {
+  background: var(--vp-c-brand-soft);
+}
+
+/* Home */
+.VPHome .VPHero .name,
+.VPHome .VPHero .text {
+  letter-spacing: -0.03em;
+}
+
+.VPHome .VPHero .tagline {
+  max-width: 34em;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.VPHome .VPHero .image-bg {
+  width: 280px;
+  height: 280px;
+  background-image: radial-gradient(closest-side, rgba(50, 186, 140, 0.28), transparent);
+  filter: blur(36px);
+}
+
 .VPHome .VPHero .image-src {
-  width: min(240px, 100%);
-  max-width: min(240px, 100%) !important;
-  max-height: min(240px, 100%) !important;
+  width: min(220px, 100%);
+  max-width: min(220px, 100%) !important;
+  max-height: min(220px, 100%) !important;
   height: auto;
   padding: 0;
   background: transparent;
@@ -12,76 +74,172 @@
   box-shadow: none;
 }
 
-/* Custom Ask AI trigger — covers Mintlify built-in button (closed Shadow DOM, no hide API) */
+.VPFeature {
+  background: transparent !important;
+  border-color: var(--vp-c-divider);
+  border-radius: var(--ni18n-radius);
+  transition: border-color 0.2s ease;
+}
+
+.VPFeature.link:hover {
+  border-color: var(--vp-c-brand-3);
+}
+
+.VPFeature .icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: var(--vp-c-brand-soft);
+}
+
+.VPFeature .title {
+  letter-spacing: -0.01em;
+}
+
+/* Page text */
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  letter-spacing: -0.02em;
+}
+
+.vp-doc h2 {
+  border-top: none;
+  margin-top: 44px;
+  padding-top: 0;
+}
+
+.vp-doc a {
+  text-decoration-color: color-mix(in srgb, var(--vp-c-brand-1) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.vp-doc img {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: var(--ni18n-radius);
+}
+
+/* Code */
+.vp-doc div[class*='language-'] {
+  border-radius: var(--ni18n-radius);
+  border: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc :not(pre) > code {
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+/* Tables: lines between rows, no stripes */
+.vp-doc table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.vp-doc th {
+  background: transparent;
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.vp-doc th,
+.vp-doc td {
+  border: none;
+  border-bottom: 1px solid var(--vp-c-divider);
+  padding: 10px 12px;
+}
+
+.vp-doc tr,
+.vp-doc tr:nth-child(2n) {
+  background: transparent;
+}
+
+.vp-doc td:first-child,
+.vp-doc th:first-child {
+  padding-left: 0;
+}
+
+/* Wide tables scroll inside the page, the page itself never does */
+@media (max-width: 767px) {
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Callouts */
+.vp-doc .custom-block {
+  border: none;
+  border-left: 3px solid var(--vp-c-divider);
+  border-radius: 0 8px 8px 0;
+  background: var(--vp-c-bg-soft);
+}
+
+.vp-doc .custom-block.tip {
+  border-left-color: var(--vp-c-brand-2);
+}
+
+.vp-doc .custom-block.warning {
+  border-left-color: var(--vp-c-warning-1);
+}
+
+.vp-doc .custom-block.danger {
+  border-left-color: var(--vp-c-danger-1);
+}
+
+/* Navigation */
+.VPNavBar:not(.home.top) .content-body,
+.VPNavBar:not(.home.top) .divider-line {
+  backdrop-filter: saturate(160%) blur(10px);
+}
+
+.VPSidebarItem.is-active > .item .link > .text {
+  font-weight: 600;
+}
+
+/* Ask AI (covers Mintlify's built-in button: closed Shadow DOM, no hide API) */
 .ni18n-ask-ai {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: 20px;
+  bottom: 20px;
   z-index: 50;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   margin: 0;
-  padding: 12px 18px;
-  border: none;
+  padding: 9px 14px;
+  border: 1px solid var(--vp-c-divider);
   border-radius: 999px;
-  background: #32ba8c;
-  color: #fff;
-  font: 600 14px/1 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-  letter-spacing: -0.01em;
+  background: var(--vp-c-bg-elv);
+  color: var(--vp-c-text-1);
+  font: 500 13px/1 var(--vp-font-family-base);
   cursor: pointer;
-  box-shadow:
-    0 10px 28px rgba(26, 80, 81, 0.28),
-    0 2px 8px rgba(50, 186, 140, 0.35);
-  transition:
-    transform 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.15s ease;
 }
 
 .ni18n-ask-ai:hover {
-  background: #2aa67c;
-  transform: translateY(-1px);
-  box-shadow:
-    0 14px 32px rgba(26, 80, 81, 0.32),
-    0 4px 12px rgba(50, 186, 140, 0.4);
-}
-
-.ni18n-ask-ai:active {
-  transform: translateY(0);
+  border-color: var(--vp-c-brand-3);
 }
 
 .ni18n-ask-ai:focus-visible {
-  outline: 2px solid #1a5051;
+  outline: 2px solid var(--vp-c-brand-2);
   outline-offset: 3px;
 }
 
-.dark .ni18n-ask-ai:focus-visible {
-  outline-color: #5fe0ae;
-}
-
 .ni18n-ask-ai__icon {
-  font-size: 15px;
+  color: var(--vp-c-brand-2);
+  font-size: 13px;
   line-height: 1;
-}
-
-.dark .ni18n-ask-ai {
-  background: #32ba8c;
-  color: #0b1f1c;
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(95, 224, 174, 0.25);
-}
-
-.dark .ni18n-ask-ai:hover {
-  background: #5fe0ae;
 }
 
 @media (max-width: 640px) {
   .ni18n-ask-ai {
     right: 16px;
     bottom: 16px;
-    padding: 11px 16px;
   }
 }
-

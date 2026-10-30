@@ -1,28 +1,20 @@
 ---
-title: 'Types Generator (`@i18n-micro/types-generator`)'
-description: 'Generate TypeScript types from locale JSON.'
+title: 'Types generator'
+description: 'Generate TypeScript autocomplete for translation keys from your JSON files, in Nuxt or any Vite project.'
 outline: 'deep'
 ---
 
-# 🔧 Types Generator (`@i18n-micro/types-generator`)
+# Types generator
 
-The `@i18n-micro/types-generator` package provides automatic TypeScript type generation for translation keys. It analyzes your JSON translation files and generates strict types, enabling full type-safety and autocomplete support for translation keys.
+`@i18n-micro/types-generator` reads every JSON file in your translation folder and writes a declaration that lists all keys. Add it when you want your editor to suggest keys in `t()`, `$t()` and `<I18nT keypath>`. It works as a Nuxt module and as a Vite (unplugin) plugin, and regenerates when a file changes.
 
-## 📖 Overview
-
-`@i18n-micro/types-generator` is an optional dev dependency that enhances your development experience by:
-
-- 🔍 **Automatic Type Generation** - Scans JSON translation files and generates TypeScript types
-- ✅ **Type Safety** - Prevents typos and invalid translation keys at compile time
-- 🎯 **Autocomplete Support** - Full IDE autocomplete for translation keys
-- 🔄 **Hot Reload** - Automatically regenerates types when translation files change
-- 🚀 **Zero Runtime Overhead** - Types are compile-time only, no impact on bundle size
-
-## 🚀 Installation
-
-Install the package as a dev dependency:
+## Install
 
 ::: code-group
+
+```bash [pnpm]
+pnpm add -D @i18n-micro/types-generator
+```
 
 ```bash [npm]
 npm install -D @i18n-micro/types-generator
@@ -32,52 +24,35 @@ npm install -D @i18n-micro/types-generator
 yarn add -D @i18n-micro/types-generator
 ```
 
-```bash [pnpm]
-pnpm add -D @i18n-micro/types-generator
-```
-
-```bash [bun]
-bun add -D @i18n-micro/types-generator
-```
-
 :::
 
-## 🎯 Quick Start
+Peer dependency: `@nuxt/kit` `^3.18.1 || ^4.5.2`. Only the `/nuxt` entry imports it; in a Vite-only project the peer warning can be ignored.
 
-### For Nuxt Projects
+## Nuxt
 
-Add the module to your `nuxt.config.ts`:
-
-```typescript
-import { defineNuxtConfig } from 'nuxt/config'
-
+```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-    '@i18n-micro/types-generator/nuxt', // Add types generator
-  ],
+  modules: ['nuxt-i18n-micro', '@i18n-micro/types-generator/nuxt'],
   i18n: {
-    defaultLocale: 'en',
     locales: [
       { code: 'en', iso: 'en-US' },
-      { code: 'fr', iso: 'fr-FR' },
+      { code: 'de', iso: 'de-DE' },
     ],
-    translationDir: 'locales', // Path to your translation files
+    defaultLocale: 'en',
+    translationDir: 'locales',
   },
 })
 ```
 
-The generator will automatically:
+The module writes `.nuxt/types/i18n-micro.d.ts` and Nuxt adds it to the type context; nothing to include by hand. It reads `i18nTypes.translationDir`, else `i18n.translationDir`, else `'locales'`, relative to the project root. Editing a JSON file under that folder regenerates the types in `nuxi dev`. `i18nTypes.outputFile` is ignored in Nuxt (a warning says so).
 
-- Scan all JSON files in your `locales` directory
-- Generate types in `.nuxt/types/i18n-micro.d.ts` (via Nuxt `addTypeTemplate`)
-- Watch for changes and regenerate types automatically
+## Vite
 
-### For Vue/Vite Projects
+`I18nTypesPlugin` is an unplugin: call `.vite()` (or `.rollup()`, `.webpack()`, `.esbuild()`):
 
-Add the plugin to your `vite.config.ts`:
-
-```typescript
+```ts
+// vite.config.ts
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { I18nTypesPlugin } from '@i18n-micro/types-generator'
@@ -85,285 +60,61 @@ import { I18nTypesPlugin } from '@i18n-micro/types-generator'
 export default defineConfig({
   plugins: [
     vue(),
-    I18nTypesPlugin({
-      srcDir: 'src',
-      translationDir: 'locales',
-      outputFile: 'src/i18n-types.d.ts', // Optional: custom output path
+    I18nTypesPlugin.vite({
+      srcDir: process.cwd(),
+      translationDir: 'src/locales',
+      outputFile: 'src/i18n-micro.d.ts',
     }),
   ],
 })
 ```
 
-Make sure to include the generated file in your `tsconfig.json`:
+| Option | Required | Notes |
+| --- | --- | --- |
+| `srcDir` | yes | Base directory; `translationDir` is resolved against it. |
+| `translationDir` | yes | Folder with the JSON files (subfolders such as `pages/` included). |
+| `outputFile` | no | Where to write the declaration; default `<srcDir>/i18n-micro.d.ts`. |
 
-```json
-{
-  "include": ["src/**/*", "src/i18n-types.d.ts"]
-}
-```
+The plugin generates once at build start and, unless `NODE_ENV` is `production`, watches the folder and regenerates 300 ms after a change. Make sure your `tsconfig.json` `include` covers the output file.
 
-## 📁 Translation File Structure
+## Use the keys
 
-The generator supports both flat and nested translation structures:
+The generated file augments `DefineLocaleMessage` in `@i18n-micro/types`, which turns `TranslationKey` into your keys:
 
-```
-locales/
-  en.json
-  fr.json
-  pages/
-    home/
-      en.json
-      fr.json
-    about/
-      en.json
-      fr.json
-```
-
-**Example `locales/en.json`:**
-
-```json
-{
-  "greeting": "Hello, {name}!",
-  "header": {
-    "title": "Welcome",
-    "subtitle": "Subtitle"
-  },
-  "errors": {
-    "404": "Not found",
-    "500": "Server error"
-  },
-  "apples": "no apples | one apple | {count} apples"
-}
-```
-
-The generator will create types for all keys, including nested ones:
-
-```typescript
-// Generated types
+```ts
 declare module '@i18n-micro/types' {
   export interface DefineLocaleMessage {
-    greeting: string
-    'header.title': string
-    'header.subtitle': string
-    'errors.404': string
-    'errors.500': string
-    apples: string
+    'nav.home': string
+    'profile.title': string
   }
 }
 ```
 
-## 💡 Usage
+Keys from every locale and every page file are merged into one list. `TranslationKey` is the union of those keys plus any string, so you get autocomplete, not errors: a misspelled or dynamic key still compiles. Params and return values are not typed.
 
-Once types are generated, you get full type safety:
+For dynamic keys under a known prefix, `ScopedKey<'prefix'>` narrows to the matching keys:
 
-```typescript
-import { useI18n } from '@i18n-micro/vue'
-
-const { t } = useI18n()
-
-// ✅ Type-safe: autocomplete works
-t('greeting', { name: 'World' })
-t('header.title')
-t('errors.404')
-
-// ❌ Type error: key doesn't exist
-t('invalid.key') // Error: Argument of type '"invalid.key"' is not assignable
-```
-
-### Nuxt-Specific Note
-
-**In Nuxt projects, type safety works only with the `useI18n` composable.** The generated types are applied to the composable's return value, ensuring type safety when using `t()`, `ts()`, `tc()`, and `has()` methods.
-
-```typescript
-// ✅ Correct: Using useI18n composable
-<script setup lang="ts">
-import { useI18n } from '#imports'
-
-const { t } = useI18n()
-t('greeting') // Type-safe with autocomplete
-</script>
-
-// ❌ Not type-safe: Direct access to $i18n or other methods
-// Type safety is only available through the useI18n composable
-```
-
-## 🔄 Dynamic Keys
-
-Sometimes you need to use dynamic keys (e.g., based on user input or API responses). The generator provides a `ScopedKey` helper type for safe dynamic key usage.
-
-### Why Not Runtime Type Guards?
-
-**Runtime type guards are not recommended** for i18n-micro because:
-
-1. **Bundle Size** - Generating a JavaScript array of all keys would bloat your bundle
-2. **Performance** - Runtime checks add unnecessary overhead
-3. **Philosophy** - i18n-micro is designed to be lightweight and fast
-
-### The TypeScript Way: Type Assertions
-
-For dynamic keys, use TypeScript's type assertion:
-
-```typescript
-import type { TranslationKey, ScopedKey } from '@i18n-micro/types'
-
-// ❌ Type error: dynamic key
-const status = 'pending'
-t(`status.${status}`) // Error: string is not assignable to TranslationKey
-
-// ✅ Solution 1: Type assertion (if you're sure the key exists)
-t(`status.${status}` as TranslationKey)
-
-// ✅ Solution 2: ScopedKey helper (safer, checks prefix exists)
-function getStatusText(status: string) {
-  return t(`status.${status}` as ScopedKey<'status'>)
-  // TypeScript verifies that keys starting with 'status.' exist
-}
-
-// ✅ Solution 3: Runtime check with has()
-if (has(`status.${status}`)) {
-  t(`status.${status}` as TranslationKey)
-}
-```
-
-### ScopedKey Helper
-
-The `ScopedKey<Scope>` type allows you to narrow dynamic keys by prefix:
-
-```typescript
+```ts
 import type { ScopedKey } from '@i18n-micro/types'
 
-// Assuming you have keys: 'errors.404', 'errors.500', 'btn.save'
-
-function getErrorText(code: string) {
-  // ✅ Safer than plain TranslationKey
-  // TypeScript verifies that 'errors.*' keys exist
-  return t(`errors.${code}` as ScopedKey<'errors'>)
-}
-
-// ❌ Type error: 'btn' prefix doesn't match 'errors'
-function getErrorTextWrong(code: string) {
-  return t(`errors.${code}` as ScopedKey<'btn'>) // Error
-}
+const statusText = (status: string) => t(`status.${status}` as ScopedKey<'status'>)
 ```
 
-## ⚙️ Configuration
+`TranslationKey` and `ScopedKey` come from `@i18n-micro/types` (React, Preact and Solid re-export `TranslationKey`; Vue does not).
 
-### Nuxt Module Options
+## API
 
-```typescript
-export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro', '@i18n-micro/types-generator/nuxt'],
-  i18nTypes: {
-    translationDir: 'locales', // defaults to `i18n.translationDir` or `'locales'`
-  },
-})
-```
+| Export | Entry | Notes |
+| --- | --- | --- |
+| `I18nTypesPlugin` | `@i18n-micro/types-generator` | unplugin: `.vite()`, `.rollup()`, `.webpack()`, `.esbuild()` |
+| `generateTypes(options)` | `@i18n-micro/types-generator` | writes the file, returns its path |
+| `getTypesString(options)` | `@i18n-micro/types-generator` | returns the declaration without writing |
+| `flattenKeys(obj)`, `formatKeyProperty(key)`, `isPlainTranslationObject(value)` | `@i18n-micro/types-generator` | helpers |
+| Nuxt module (`configKey: 'i18nTypes'`) | `@i18n-micro/types-generator/nuxt` | option `translationDir` |
 
-Generated output is always `.nuxt/types/i18n-micro.d.ts` (Nuxt `addTypeTemplate`). For a custom path, use the Vite plugin or `generateTypes({ outputFile })` — there is no `outputFile` option on the Nuxt module.
+Full signatures: [package reference](/api/packages/types-generator).
 
-### Vite Plugin Options
+## Related
 
-```typescript
-I18nTypesPlugin({
-  srcDir: 'src', // Source directory
-  translationDir: 'locales', // Translation files directory
-  outputFile: 'src/i18n-types.d.ts', // Output file path
-})
-```
-
-## 🎨 Advanced Usage
-
-### Handling Route-Specific Translations
-
-The generator automatically includes keys from route-specific translation files:
-
-```
-locales/
-  en.json                    # Root-level translations
-  pages/
-    home/
-      en.json               # Route-specific translations
-    about/
-      en.json
-```
-
-All keys from both root-level and route-specific files are included in the generated types.
-
-### Disabling Page Locales
-
-If you use `disablePageLocales: true` in your i18n config, the generator will treat all files (including those in `pages/`) as root-level translations.
-
-## 🐛 Troubleshooting
-
-### Types Not Updating
-
-1. **Check file paths** - Ensure `translationDir` points to the correct directory
-2. **Restart TypeScript server** - In VS Code: `Cmd/Ctrl + Shift + P` → "TypeScript: Restart TS Server"
-3. **Check tsconfig.json** - Ensure the generated file is included
-
-### Type Errors After Adding Keys
-
-1. **Regenerate types** - The generator should auto-regenerate, but you can manually trigger it
-2. **Check JSON syntax** - Invalid JSON files are skipped with a warning
-3. **Restart dev server** - Sometimes needed for changes to take effect
-
-### Autocomplete Not Working
-
-1. **Verify file inclusion** - Check that the generated `.d.ts` file is in your `tsconfig.json` include
-2. **Check module augmentation** - Ensure the generated file uses `declare module '@i18n-micro/types'`
-3. **TypeScript version** - Requires TypeScript 4.1+ for template literal types
-4. **pnpm** - With `nuxt-i18n-micro` installed, `@i18n-micro/types` is hoisted into Nuxt `typescript.hoist` so augmentation merges correctly without a separate direct dependency. Run `nuxi prepare` after upgrading the module if paths look stale.
-
-## 📚 API Reference
-
-### `generateTypes(options: GeneratorOptions)`
-
-Manually generate types (useful for scripts or CI):
-
-```typescript
-import { generateTypes } from '@i18n-micro/types-generator'
-
-await generateTypes({
-  srcDir: './src',
-  translationDir: 'locales',
-  outputFile: './src/i18n-types.d.ts',
-})
-```
-
-### `flattenKeys(obj: Record<string, unknown>, prefix?: string)`
-
-Utility function to flatten nested translation objects:
-
-```typescript
-import { flattenKeys } from '@i18n-micro/types-generator'
-
-const keys = flattenKeys({
-  header: { title: 'Title' },
-  footer: { copyright: 'Copyright' },
-})
-// Returns: ['header.title', 'footer.copyright']
-```
-
-## 🔍 How It Works
-
-1. **Scanning** - Uses `globby` to find all `**/*.json` files in the translation directory
-2. **Parsing** - Parses each JSON file and extracts all keys using recursive flattening
-3. **Deduplication** - Combines keys from all files into a unique set
-4. **Generation** - Creates a `.d.ts` file with `declare module` augmentation
-5. **Watching** - In dev mode, watches for file changes and regenerates types
-
-The generated file uses TypeScript's module augmentation to extend `DefineLocaleMessage` in `@i18n-micro/types`, which automatically updates the `TranslationKey` type throughout your project.
-
-## 🎯 Best Practices
-
-1. **Keep translations organized** - Use nested objects for related keys
-2. **Use consistent naming** - Follow a naming convention (e.g., `errors.*`, `buttons.*`)
-3. **Leverage ScopedKey** - Use `ScopedKey` for dynamic keys instead of plain assertions
-4. **Check types in CI** - Run type checking in your CI pipeline
-5. **Don't edit generated files** - The `.d.ts` file is auto-generated and will be overwritten
-
-## 🔗 Related Documentation
-
-- [Vue Package](./vue-package.md) - Vue integration
-- [Astro Package](./astro-package.md) - Astro integration
-- [Getting Started](../guide/getting-started.md) - Nuxt setup
+- [Frameworks](./#typed-keys)
+- [Translations](/guide/translations) — folder layout the generator scans

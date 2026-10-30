@@ -1,14 +1,14 @@
 ---
-title: '`useLocaleHead` Composable'
-description: 'SEO meta tags and head attrs for localized routes.'
-outline: 'deep'
+title: 'useLocaleHead'
+description: 'useLocaleHead builds the i18n SEO tags (lang, dir, canonical, hreflang, og:locale) as an object you pass to useHead.'
+outline: [2, 3]
 ---
 
-# 🌍 `useLocaleHead` Composable
+# `useLocaleHead`
 
-The `useLocaleHead` composable is a utility in `Nuxt I18n Micro` that helps you manage SEO attributes and HTML meta tags for localized routes. It dynamically generates attributes for the `lang` and `dir` of the HTML document and creates `meta` and `link` tags to improve the SEO of your localized content.
+`useLocaleHead()` builds the i18n head tags for the current route: `lang` and `dir` on `<html>`, a canonical link, `hreflang` alternates with `x-default`, `og:url`, `og:locale` and `og:locale:alternate`. Use it when you set [`meta: false`](/api/module-options#meta) and manage `useHead` yourself; with `meta: true` the module already registers these tags, and per-page changes go through [`useI18nHead`](/composables/useI18nHead).
 
-## ⚙️ Options
+## Signature
 
 <!-- generated:symbol:useLocaleHead — do not edit; run `pnpm run docs:generate` -->
 
@@ -35,176 +35,35 @@ useHead(metaObject)
 
 <!-- /generated:symbol:useLocaleHead -->
 
-## 🛠️ Return Values
+## Options
 
-The `useLocaleHead` composable returns a reactive object and an updater function you should
-call when source data changes. Both shapes are in the signature above, generated from the
-source.
+| Option | Default | Description |
+| --- | --- | --- |
+| `addDirAttribute` | `true` | Set `dir` on `<html>` from the locale's `dir` (`'auto'` when it has none). |
+| `identifierAttribute` | `'id'` | Attribute that keys each tag (`i18n-can`, `i18n-og`, `i18n-alternate-<hreflang>`, …), so updates replace tags instead of adding them. |
+| `addSeoAttributes` | `true` | Emit canonical, `hreflang` and `og:` tags. `false` keeps only `htmlAttrs`. |
+| `baseUrl` | `'/'` | Origin joined to every URL. Keep `'/'` for relative URLs; pass `'https://example.com'` for absolute ones. |
+| `autoUpdate` | `true` | Rebuild `metaObject` when the route or the `i18n-locale` state changes. |
 
-### `metaObject`
+## What it emits
 
-Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
+- Nothing on a route with no match (404) or with `disableMeta` for the active locale.
+- Canonical and `og:url`: `$switchLocalePath(<active locale>)`, query reduced to [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist), [`trailingSlash`](/api/module-options#trailingslash) applied.
+- `hreflang`: one link per enabled locale the page exists in, `hreflang = iso || code`, skipping locales with `seo: false`; with `hreflangBaseLanguage: true` the first regional locale of a language also emits its bare-language tag. None under `no_prefix`.
+- `x-default`: the default locale's URL, unless the strategy is `no_prefix`, the default locale has `seo: false`, or the page does not exist in it.
+- `og:locale` / `og:locale:alternate`: from the locale's `og`, or its `iso` converted (`en-US` → `en_US`); skipped with a dev warning when neither works.
 
-- **Example**:
-  ```js
-  const { metaObject } = useLocaleHead()
-  useHead(metaObject)
-  ```
-
-### `updateMeta`
-
-Recomputes `metaObject` based on current route, locale and config. With
-`autoUpdate: true` (default for manual usage) this runs on route **and** locale
-changes. With `autoUpdate: false` (used by `02.meta`), call it yourself when
-inputs change.
-
-- **Example**:
-  ```js
-  const { metaObject, updateMeta } = useLocaleHead()
-  useHead(metaObject)
-  watch(
-    () => route.fullPath,
-    () => updateMeta(),
-    { immediate: true },
-  )
-  ```
-
-### Accessing `link` and `meta`
-
-The `link` and `meta` arrays are accessible via `metaObject.value`:
-
-- **Example**:
-  ```js
-  const { metaObject, updateMeta } = useLocaleHead()
-  updateMeta()
-  console.log(metaObject.value.link)
-  // Output: [{ id: 'i18n-can', rel: 'canonical', href: 'https://example.com/about' }, ...]
-  console.log(metaObject.value.meta)
-  // Output: [{ id: 'i18n-og', property: 'og:locale', content: 'en_US' }, ...]
-  ```
-
-## 🛠️ Example Usages
-
-### Basic Usage
-
-Generate locale-specific head attributes with default options.
-
-```js
-const head = useLocaleHead()
-```
-
-### Customize Identifier Attribute
-
-Use a custom identifier attribute for the generated tags.
-
-```js
-const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
-```
-
-### Disable SEO Attributes
-
-Generate head attributes without adding SEO-related meta and link tags.
-
-```js
-const head = useLocaleHead({ addSeoAttributes: false })
-```
-
-### Specify a Base URL
-
-Set a custom base URL for canonical and alternate URLs.
-
-```js
-const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
-```
-
-## 🚀 Additional Features
-
-### SEO Meta and Link Tags
-
-When `addSeoAttributes` is enabled, the composable automatically generates the following tags:
-
-- `og:locale` for the current locale (`language_TERRITORY`, underscore). Derived from `locale.og` or converted from `locale.iso` when possible.
-- `og:url` for the canonical URL of the page.
-- `og:locale:alternate` for alternate language versions.
-- `rel="canonical"` and `rel="alternate"` links for SEO optimization.
-- `hreflang="x-default"` link pointing to the default locale's URL. This tells search engines which URL to show users whose language doesn't match any of the defined locales.
-
-### Dynamic Locale and Direction
-
-The composable dynamically determines the `lang` and `dir` attributes based on the current route's locale, ensuring that your HTML document is correctly configured for international users.
-
-### Handling Localized Routes
-
-If your routes are prefixed with locale codes (e.g., `/en/about`), the composable intelligently adjusts the full path for generating URLs, ensuring that SEO attributes are accurate and relevant.
-
-This composable simplifies the process of optimizing your Nuxt application for international audiences, ensuring that your site is well-prepared for global search engines and users.
-
-## 🛠️ Example Usage
-
-The following example demonstrates how to use the `useLocaleHead` composable within a Vue component with default settings:
-
-```vue
-<script setup>
-import { useRoute, watch } from '#imports'
-const route = useRoute()
-const { metaObject, updateMeta } = useLocaleHead({
-  addDirAttribute: true,
-  identifierAttribute: 'id',
-  addSeoAttributes: true,
-})
-useHead(metaObject)
-watch(
-  () => route.fullPath,
-  () => updateMeta(),
-  { immediate: true },
-)
-</script>
-```
-
-### Explanation of the Code
-
-- **`useLocaleHead` Composable**: This composable is called in the `<script setup>` section and returns an object containing `htmlAttrs`, `meta`, and `link`.
-
-- **`<html>` Tag**: The `lang` and `dir` attributes for the HTML document are dynamically determined based on the current locale and are applied to the `<html>` tag.
-
-- **`<head>` Section**:
-  - **Meta Tags**: SEO-related meta tags are generated, including `og:locale`, `og:url`, and `rel="canonical"` and `rel="alternate"` tags to specify alternate language versions of the page.
-  - **Link Tags**: Canonical links, links to alternate language versions, and the `hreflang="x-default"` link (pointing to the default locale URL) are included.
-
-- **`<body>` Section**: The main content of the page is displayed here. In this example, a simple header and paragraph are used.
-
-### 📝 Notes
-
-1. **Attributes**: The attributes used (`lang`, `dir`, `rel`, `href`, `hreflang`, `property`, `content`) are extracted from the object returned by `useLocaleHead`.
-
-2. **SEO Tags Generation**: If the `addSeoAttributes` option is set to `true`, the composable automatically generates SEO tags for the current locale.
-
-3. **Base URL**: You can set your custom base URL using the `baseUrl` option to correctly generate canonical and alternate links.
-
-This example demonstrates how easy it is to integrate `useLocaleHead` into your application's components to ensure correct SEO attributes and improve the search engine indexing of localized pages.
-
-## 🧩 Customization & Lifecycle
-
-- With `autoUpdate: true` (default), `useLocaleHead` watches the route and `i18n-locale` state and refreshes `metaObject`.
-- With `autoUpdate: false` (what `02.meta` uses), call `updateMeta()` yourself when inputs change:
+## Example
 
 ```ts
-// plugins/02.meta.ts
-export default defineNuxtPlugin(() => {
-  const route = useRoute()
-  const localeState = useState<string | null>('i18n-locale', () => null)
-  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com', autoUpdate: false })
-  useHead(metaObject)
-  if (import.meta.server) updateMeta()
-  else
-    watch(
-      () => [route.fullPath, localeState.value] as const,
-      () => updateMeta(),
-      { immediate: true },
-    )
-})
+// app.vue, with i18n.meta: false
+const { metaObject } = useLocaleHead({ baseUrl: 'https://example.com' })
+useHead(metaObject)
 ```
 
-## When to use `useI18nHead` instead
+`build()` returns the same object without the ref: `useHead(() => build())` stays reactive without a watcher.
 
-When `meta: true` (the default), prefer [`useI18nHead`](/composables/useI18nHead) for **per-page** overrides (custom hreflang, extra `og:title`, partial disable). Use `useLocaleHead` directly only when `meta: false` or you manage `useHead` yourself.
+## Related
+
+- [SEO](/guide/seo) — base URL resolution, `metaBaseUrl`, per-locale `seo` / `og`
+- [`useI18nHead`](/composables/useI18nHead) — per-page overrides

@@ -1,3 +1,4 @@
+export { externalLinkHref } from './link'
 export {
   isNoPrefixStrategy,
   isPrefixAndDefaultStrategy,

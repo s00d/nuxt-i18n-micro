@@ -7,7 +7,7 @@ outline: 'deep'
 # `@i18n-micro/devtools-ui`
 
 25 exports across 4 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
 ## `@i18n-micro/devtools-ui`

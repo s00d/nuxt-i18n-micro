@@ -1,26 +1,47 @@
 ---
-title: 'API Reference'
-description: 'Runtime methods, events, translation cache, and server middleware.'
+title: 'API reference'
+description: 'Map of the nuxt-i18n-micro reference: module options, helpers, hooks, composables, components and package APIs.'
 ---
 
-# API Reference
+# API reference
 
-## Runtime API
+This section lists every option, helper, hook, composable and component of the Nuxt module, plus the exported API of each `@i18n-micro/*` package. Use it to look up a signature or a default; the [Guide](/guide/getting-started) explains how to use them. Most tables here are generated from the source, so they match the code.
 
-- [Methods](./methods.md) — `$t`, `$ts`, `$_t`, `$_ts`, locale switching, routing helpers
-- [Events](./events.md) — `i18n:register`
-- [Translations and Cache](./i18n-cache-api.md) — `TranslationStorage`, payload loading, `$clearCache`
+## Nuxt module
 
-## Server middleware
+| Page | Covers |
+| --- | --- |
+| [Module options](/api/module-options) | Every `i18n` key in `nuxt.config`, with type and default |
+| [Helpers](/api/methods) | `$t`, `$tc`, `$tn`, `$td`, `$localePath`, `$switchLocale`, `$defineI18nRoute` and the rest |
+| [Hooks](/api/events) | The `i18n:register` runtime hook |
 
-Server handlers use dedicated middleware (not the client `$t` helpers):
+## Composables
 
-- [`useTranslationServerMiddleware`](/guide/server-side-translations#-using-translations-in-server-handlers) — translate in API routes and server handlers
-- [`useLocaleServerMiddleware`](/guide/server-side-translations#-using-locale-information-in-server-handlers) — read detected locale and metadata
+| Composable | Use it for |
+| --- | --- |
+| [`useI18n`](/composables/useI18n) | The helpers in `<script setup>` |
+| [`useI18nLocale`](/composables/useI18nLocale) | Locale state and cookie in a custom detection plugin |
+| [`useI18nHead`](/composables/useI18nHead) | Per-page overrides of the generated SEO tags |
+| [`useLocaleHead`](/composables/useLocaleHead) | The SEO tags as an object, for your own `useHead` |
 
-See the full [Server-Side Translations guide](/guide/server-side-translations) for setup, locale detection priority, and examples.
+## Components
+
+| Component | Renders |
+| --- | --- |
+| [`<i18n-t>`](/components/i18n-t) | One translation, with plural, formatting and slot interpolation |
+| [`<i18n-link>`](/components/i18n-link) | A `NuxtLink` to the localized route |
+| [`<i18n-switcher>`](/components/i18n-switcher) | A locale dropdown |
+| [`<i18n-group>`](/components/i18n-group) | A block with a shared key prefix |
+
+## Server
+
+Nitro handlers use `useTranslationServerMiddleware` and `useLocaleServerMiddleware`, not the client helpers. See [Server routes](/guide/server-side-translations).
+
+## Packages
+
+[Package APIs](/api/packages) lists the exports of every `@i18n-micro/*` package, one generated page each.
 
 ## Related
 
-- [Composables](/composables/) — `useI18n`, `useI18nLocale`, `useLocaleHead`
-- [Configuration Reference](/guide/configuration) — all `i18n` module options
+- [Getting started](/guide/getting-started)
+- [Framework packages](/integrations/)

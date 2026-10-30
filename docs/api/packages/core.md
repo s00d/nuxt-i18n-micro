@@ -6,8 +6,8 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-58 exports across 3 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
+60 exports across 3 entry points.
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
 ## `@i18n-micro/core`
@@ -24,6 +24,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
+| `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
 | `FormatService` | class | 19 members |
 | `FormatServiceOptions` | interface | 2 members |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
@@ -288,6 +289,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | --- | --- | --- |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `defaultPlural` | const | `PluralFunc` |
+| `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |

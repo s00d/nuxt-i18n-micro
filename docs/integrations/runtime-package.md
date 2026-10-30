@@ -1,141 +1,124 @@
 ---
-title: 'Runtime Package'
-description: 'Vanilla TS/JS i18n with @i18n-micro/runtime.'
+title: 'Runtime'
+description: 'Framework-agnostic createI18n for browsers, workers and edge runtimes with @i18n-micro/runtime.'
 outline: 'deep'
 ---
 
-# 🌐 Runtime Package
+# Runtime
 
-Use `@i18n-micro/runtime` for framework-agnostic i18n in the browser, workers, or any environment that can load messages in memory or via `fetch`. No filesystem APIs.
+`@i18n-micro/runtime` is the framework-agnostic i18n instance: dictionaries, `t()`, plurals, `Intl` formatting and a change subscription, with no `fs` and no framework. Use it in plain TypeScript, a web worker, an edge function, or as the base of your own binding. The React, Preact and Node packages extend this same class.
 
-For Node/CLI apps that read JSON from disk, use [`@i18n-micro/node`](./nodejs-package) — it extends this package with `loadTranslations(dir)`.
+## Install
 
-::: tip Playground
-[`packages/runtime/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/runtime/playground) — `pnpm -C packages/runtime dev`
-:::
+::: code-group
 
-## 📦 Installation
-
-```bash
+```bash [pnpm]
 pnpm add @i18n-micro/runtime
-# or
+```
+
+```bash [npm]
 npm install @i18n-micro/runtime
-# or
+```
+
+```bash [yarn]
 yarn add @i18n-micro/runtime
 ```
 
-## 🚀 Quick Start
+:::
 
-```typescript
+No peer dependencies. For translation files on disk use [`@i18n-micro/node`](./nodejs-package).
+
+## Setup
+
+```ts
 import { createI18n } from '@i18n-micro/runtime'
 
 const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
   messages: {
-    en: {
-      greeting: 'Hello, {name}!',
-      apples: 'no apples|one apple|{count} apples',
-    },
-    de: {
-      greeting: 'Hallo, {name}!',
-    },
-  },
-})
-
-console.log(i18n.t('greeting', { name: 'John' })) // "Hello, John!"
-console.log(i18n.tc('apples', 5)) // "5 apples"
-
-i18n.locale = 'de'
-console.log(i18n.t('greeting', { name: 'Hans' })) // "Hallo, Hans!"
-```
-
-## 📂 Loading Messages
-
-### Inline `messages` / `routeMessages`
-
-```typescript
-const i18n = createI18n({
-  locale: 'en',
-  messages: {
-    en: { welcome: 'Welcome' },
+    en: { greeting: 'Hello, {name}!', apples: 'no apples | one apple | {count} apples' },
+    de: { greeting: 'Hallo, {name}!' },
   },
   routeMessages: {
-    home: {
-      en: { title: 'Home' },
-    },
+    about: { en: { title: 'About us' } },
   },
 })
-
-i18n.setRoute('home')
-i18n.t('title') // "Home"
-i18n.t('welcome') // "Welcome" (from root)
 ```
 
-### Remote JSON via `fetch`
+All options (`plural`, `missingWarn`, `missingHandler`, `numberFormats`, `datetimeFormats`) are listed in [the instance](./#create-i18n-options).
 
-```typescript
+## Translate
+
+```ts
+i18n.t('greeting', { name: 'Ada' }) // 'Hello, Ada!'
+i18n.tc('apples', 5) // '5 apples'
+i18n.tn(1234.5) // '1,234.5'
+
+i18n.setRoute('about')
+i18n.t('title') // 'About us' (route dictionary)
+i18n.t('greeting', { name: 'Ada' }) // 'Hello, Ada!' (root, still visible)
+```
+
+Load more dictionaries later:
+
+```ts
+i18n.loadMessages({ fr: { greeting: 'Bonjour, {name} !' } }, { about: { fr: { title: 'À propos' } } })
+i18n.addTranslations('fr', { nav: { home: 'Accueil' } }) // deep merge; pass false to replace
+
 await i18n.loadFromUrl('/locales/fr.json', { locale: 'fr' })
-await i18n.loadFromUrl('/locales/pages/home/fr.json', { locale: 'fr', routeName: 'home' })
-
+await i18n.loadFromUrl('/locales/pages/about/fr.json', { locale: 'fr', routeName: 'about' })
 await i18n.loadFromUrls([
   { url: '/locales/en.json', locale: 'en' },
   { url: '/locales/de.json', locale: 'de' },
 ])
 ```
 
-Or load later:
+`loadFromUrl` uses `fetch` (pass `init` for headers) and throws on a non-OK response. `loadFromUrls` loads one after another.
 
-```typescript
-i18n.loadMessages({ en: { hello: 'Hi' } }, { about: { en: { title: 'About' } } })
+## Switch locale
+
+```ts
+i18n.locale = 'de'
+i18n.t('greeting', { name: 'Ada' }) // 'Hallo, Ada!'
 ```
 
-## 🔔 Subscribe (vanilla UI updates)
+Locale, route and dictionary changes notify subscribers, which is how framework bindings re-render:
 
-Locale / route / translation changes notify listeners (same store used by framework adapters):
-
-```typescript
+```ts
 const stop = i18n.subscribe(() => {
-  document.getElementById('label')!.textContent = i18n.t('welcome')
+  document.querySelector('#greeting')!.textContent = i18n.t('greeting', { name: 'Ada' }) as string
 })
-
-i18n.locale = 'de'
-// …
+i18n.locale = 'fr'
 stop()
 ```
 
-## 🔧 API Overview
+`getSnapshot()` returns a string that changes on every notification (for `useSyncExternalStore`-style stores).
 
-### `createI18n(options): I18n`
+## Per request
 
-| Option            | Type                                           | Description                  |
-| ----------------- | ---------------------------------------------- | ---------------------------- |
-| `locale`          | `string`                                       | Current locale               |
-| `fallbackLocale?` | `string`                                       | Fallback (default: `locale`) |
-| `messages?`       | `Record<string, Translations>`                 | Root messages by locale      |
-| `routeMessages?`  | `Record<string, Record<string, Translations>>` | Route → locale → messages    |
-| `plural?`         | `PluralFunc`                                   | Custom pluralization         |
-| `missingWarn?`    | `boolean`                                      | Warn on missing keys         |
-| `missingHandler?` | `(locale, key, routeName) => void`             | Custom missing handler       |
+The instance holds one locale and one route. On a server, do not switch a shared instance per request: two concurrent requests would see each other's locale. Create one instance per locale at startup and pass the route as the fourth argument of `t()`, or create a short-lived instance per request. [Node.js](./nodejs-package#per-request) shows both.
 
-### Instance methods
+## API
 
-- `t` / `tc` / `tn` / `td` / `tdr` / `ts` / `has` — translation & formatting (from `@i18n-micro/core`)
-- `locale` / `fallbackLocale` / `setRoute` / `currentRoute`
-- `loadMessages` / `loadFromUrl` / `loadFromUrls`
-- `addTranslations` / `addRouteTranslations` / `hasTranslation` / `clear`
-- `subscribe` / `getSnapshot`
-- `storage` — underlying `TranslationStorage` map
+| Member | Notes |
+| --- | --- |
+| `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has` | see [Translate and format](./#translate-and-format) |
+| `locale`, `fallbackLocale` | get/set |
+| `currentRoute`, `setRoute(name)`, `getRoute()` | active route, default `'index'` |
+| `loadMessages(messages?, routeMessages?)` | merge many locales and routes at once |
+| `addTranslations(locale, tree, merge = true)`, `addRouteTranslations(locale, route, tree, merge = true)` | |
+| `loadFromUrl(url, { locale?, routeName?, init? })`, `loadFromUrls(entries)` | `fetch` JSON |
+| `hasTranslation(key)` | active locale, any route (unlike `has`, which checks the active route and root) |
+| `setTranslation(key, value)`, `resolveTranslations()` | write one key; read the merged tree |
+| `clear()`, `clearCache()` | drop every dictionary |
+| `subscribe(cb)`, `getSnapshot()` | change notifications |
+| `storage` | `{ translations: Map<'locale:route', Translations> }` |
 
-`hasTranslation(key)` scans all route buckets for the active locale (legacy node behavior). Prefer `has(key)` / `has(key, routeName)` when you need route-scoped checks.
+Module exports: `createI18n`, `I18n`, `fetchJsonTranslations`, `FormatService`, `interpolate` and the types `I18nOptions`, `LoadFromUrlOptions`, `LoadFromUrlEntry`, `TranslationStorage`, `Translations`, `Locale`, `PluralFunc`. Full signatures: [package reference](/api/packages/runtime).
 
-See also the generated [API reference](/api/packages/runtime).
+## Related
 
-## 🔗 Related Packages
-
-| Package                                                             | Use when                     |
-| ------------------------------------------------------------------- | ---------------------------- |
-| [`@i18n-micro/runtime`](/api/packages/runtime)                      | Vanilla browser / TS / JS    |
-| [`@i18n-micro/node`](./nodejs-package)                              | Node with filesystem locales |
-| [`@i18n-micro/vue`](./vue-package) / [`react`](./react-package) / … | Framework UI bindings        |
-| [`@i18n-micro/core`](/api/packages/core)                            | Low-level `BaseI18n` only    |
+- [Frameworks](./) — options, lookup order, plurals
+- [Node.js](./nodejs-package) — load translation files from disk
+- [React and Preact](./react-package) — bindings built on this instance

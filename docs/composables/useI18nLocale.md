@@ -1,9 +1,12 @@
 ---
 title: 'useI18nLocale'
-description: 'Centralized locale state, cookies, and sync.'
+description: 'useI18nLocale reads and writes the locale state and the locale cookie — the entry point for custom locale detection.'
+outline: [2, 3]
 ---
 
-# useI18nLocale
+# `useI18nLocale`
+
+`useI18nLocale()` gives access to the locale the app has chosen: the `i18n-locale` state and the locale cookie. Use it in a plugin that detects the locale itself (domain, user profile, header) instead of writing `useState('i18n-locale')` or the cookie by hand. Its validity checks use the enabled locales, runtime overrides included.
 
 ## Signature
 
@@ -18,103 +21,47 @@ Combines useState('i18n-locale'), locale cookie, and sync utilities.
 
 <!-- /generated:symbol:useI18nLocale -->
 
-## Usage
+## Returned values
 
-```vue
-<script setup>
-const {
-  locale,
-  localeCookie,
-  hashCookie,
-  validLocales,
-  getPreferredLocale,
-  getLocale,
-  getLocaleWithServerFallback,
-  getEffectiveLocale,
-  resolveInitialLocale,
-  setLocale,
-  syncLocale,
-  isValidLocale,
-} = useI18nLocale()
+| Member | Type | Description |
+| --- | --- | --- |
+| `locale` | `Ref<string \| null>` | The `useState('i18n-locale')` ref. |
+| `localeCookie` | `Ref<string \| null>` | The [`localeCookie`](/api/module-options#localecookie) cookie; a plain `{ value: null }` when the option is `null`. |
+| `hashCookie` | `Ref<string \| null>` | The `hash-locale` cookie under hash routing; `{ value: null }` otherwise. |
+| `validLocales` | `string[]` | Codes of the enabled locales. |
+| `setLocale(locale)` | `(locale: string \| null) => void` | Write the state and the cookies. Does not validate and does not load translations. |
+| `syncLocale(locale)` | `(locale: string \| null) => void` | Write the cookies only. |
+| `getLocale()` | `() => string \| null` | State, then the preference cookie (hash cookie under hash routing). Not validated. |
+| `getPreferredLocale()` | `() => string \| null` | The first **valid** of state and preference cookie, or `null`. |
+| `getLocaleWithServerFallback(serverLocale?)` | `(serverLocale?: string \| null) => string \| null` | State, cookie, then `serverLocale`. |
+| `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string` | The state under hash routing when set; otherwise `getLocaleFromRoute(route)`. |
+| `resolveInitialLocale(options)` | `(options: ResolveInitialLocaleOptions) => string` | `options.urlLocale`, then a valid state, then `options.serverLocale`, then the route's locale. Stores the result in the state when the state is not valid; on the client it also writes the cookie. |
+| `isValidLocale(locale)` | `(locale) => locale is string` | Whether `locale` is in `validLocales`. |
 
-// Set locale (updates state and cookies)
-setLocale('de')
+The cookies last one year, with `path: '/'` and `sameSite: 'lax'`.
 
-// Get current locale (state → cookie)
-const current = getLocale()
-
-// Get valid preferred locale
-const preferred = getPreferredLocale()
-</script>
-```
-
-## API
-
-| Property/Method                                 | Type                                | Description                                                                          |
-| ----------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `locale`                                        | `Ref<string \| null>`               | Reactive locale state (`useState('i18n-locale')`)                                    |
-| `localeCookie`                                  | `Ref`                               | Locale cookie (when `localeCookie` option is enabled)                                |
-| `hashCookie`                                    | `Ref`                               | Cookie used when `hashMode` is active                                                |
-| `validLocales`                                  | `string[]`                          | Enabled locale codes from module config (excludes `disabled`)                        |
-| `getLocale()`                                   | `() => string \| null`              | Current locale: state → cookie (or hash cookie in hash mode)                         |
-| `getPreferredLocale()`                          | `() => string \| null`              | Locale from state/cookie **validated** against `validLocales`, or `null`             |
-| `getLocaleWithServerFallback(serverLocale?)`    | `(serverLocale?) => string \| null` | State → cookie → optional server context (used during `no_prefix` init)              |
-| `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string`             | Locale for loading translations: hash mode prefers state; otherwise reads from route |
-| `resolveInitialLocale(options)`                 | `(options) => string`               | Resolves locale: state → `serverLocale` → route; syncs state when needed             |
-| `setLocale(locale)`                             | `(locale: string \| null) => void`  | Set locale and sync to cookies                                                       |
-| `syncLocale(locale)`                            | `(locale: string \| null) => void`  | Sync cookies only (no state update)                                                  |
-| `isValidLocale(locale)`                         | `(locale) => boolean`               | Check if string is in `validLocales`                                                 |
-
-### `resolveInitialLocale` options
-
-```typescript
-interface ResolveInitialLocaleOptions {
-  route: unknown
-  serverLocale?: string | null
-  getLocaleFromRoute: (route?: unknown) => string
-}
-```
-
-Used internally by the main plugin on startup. Custom plugins can call it when implementing alternative detection flows.
-
-### `getEffectiveLocale`
-
-```typescript
-const { getEffectiveLocale } = useI18nLocale()
-const { $getLocale } = useNuxtApp()
-
-const locale = getEffectiveLocale(route, (r) => $getLocale(r))
-```
-
-Returns the locale used to load translations and format messages for a given route object.
-
-## Programmatic Locale Setting
-
-Prefer `useI18nLocale()` over direct `useState('i18n-locale')` usage:
+## Example
 
 ```ts
-// plugins/i18n-loader.server.ts
-import { defineNuxtPlugin } from '#imports'
-
+// plugins/locale-from-domain.server.ts
 export default defineNuxtPlugin({
-  name: 'i18n-custom-loader',
+  name: 'locale-from-domain',
   enforce: 'pre',
-  order: -10,
-
   setup() {
-    const { setLocale } = useI18nLocale()
-    const detectedLocale = 'ja' // Your detection logic here
-    setLocale(detectedLocale)
+    const { setLocale, isValidLocale } = useI18nLocale()
+    const host = useRequestURL().hostname // e.g. de.example.com
+    const code = host.split('.')[0]
+    if (isValidLocale(code)) setLocale(code)
   },
 })
 ```
 
-::: tip `setLocale()` vs `$switchLocale()`
-`setLocale()` updates locale preference (state + cookie) only. To also reload the active translation context on the client, use `$switchLocale()` from `useNuxtApp()` or `useI18n()`. This matters especially for `no_prefix`, where the URL does not change. See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-without-changing-the-url).
-:::
+The module's loader plugin reads the state when it starts, so a plugin that sets it must run first (`enforce: 'pre'`). How the state competes with the URL, the cookie and `Accept-Language`: [Locale detection](/guide/locale-detection). Full walkthrough: [Custom detection](/guide/custom-auto-detect).
 
-## See Also
+`setLocale()` does not switch the translations on screen. To change the locale of the current page, call [`$switchLocale()`](/api/methods#switchlocale).
 
-- [Custom Language Detection](/guide/custom-auto-detect) — configuring auto-detection
-- [Strategy](/guide/strategy) — routing strategies and locale priority
-- [Methods — useI18nLocale section](/api/methods#-usei18nlocale-composable) — overlap with runtime plugin API
+## Related
+
+- [Custom detection](/guide/custom-auto-detect)
+- [Locale detection](/guide/locale-detection)
+- [`useI18n`](/composables/useI18n)

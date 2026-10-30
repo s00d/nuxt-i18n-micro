@@ -1,16 +1,14 @@
 ---
-title: '`<i18n-switcher>` Component'
-description: 'Dropdown component for switching app locales.'
-outline: 'deep'
+title: '<i18n-switcher>'
+description: 'The <i18n-switcher> component is a dropdown of the enabled locales, each linking to the current page in that locale.'
+outline: [2, 3]
 ---
 
-# 🌍 `<i18n-switcher>` Component
+# `<i18n-switcher>`
 
-The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dropdown interface for switching between different locales in your application. This component is highly customizable, allowing seamless integration with your application's design and layout.
+`<i18n-switcher>` renders a button with the active locale and a dropdown of all enabled locales, including the active one. Use it for a ready-made language menu; build your own from [`$getLocales`](/api/methods#getlocales) and [`$switchLocalePath`](/api/methods#switchlocalepath) when you need different markup. Each entry links to the current page in that locale.
 
-Locales with `disabled: true` are **omitted** from the dropdown (they remain available via `$getLocales()` for SEO / head tags). Only switchable locales get `NuxtLink` + `hreflang`.
-
-## ⚙️ Props
+## Props and slots
 
 <!-- generated:component:i18n-switcher — do not edit; run `pnpm run docs:generate` -->
 
@@ -44,73 +42,29 @@ Locales with `disabled: true` are **omitted** from the dropdown (they remain ava
 
 <!-- /generated:component:i18n-switcher -->
 
-Every part is unstyled by default: the `custom*Style` props take inline style objects, and
-the slots below replace the markup entirely when styling is not enough.
+## Behaviour
 
-## 🛠️ Example Usages
+- Lists every locale without `disabled: true`, the active one included.
+- Each entry is a `NuxtLink` to `$switchLocaleRoute(code)` with `hreflang = iso || code` and class `switcher-locale-<code>`; a click also calls `$switchLocale(code)` and closes the dropdown.
+- Label: `customLabels[code]`, then the locale's `displayName`, then the code (with a dev warning).
+- Styles: small inline defaults (bordered white button and panel, the active entry bold and blue). Each `custom*Style` prop is applied after the default of its part. The button has class `language-switcher`.
 
-### Basic Usage
-
-```vue
-<template>
-  <i18n-switcher />
-</template>
-```
-
-This renders a locale switcher with default styling and behavior.
-
-### Custom Labels and Inline Styles
+## Example
 
 ```vue
 <template>
   <i18n-switcher
-    :customLabels="{ en: 'English', fr: 'Français' }"
-    :customWrapperStyle="{ backgroundColor: '#f8f9fa', padding: '10px' }"
-    :customButtonStyle="{ backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }"
-    :customDropdownStyle="{ border: '1px solid #007bff', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }"
-    :customItemStyle="{ margin: '5px 0', padding: '5px' }"
-    :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"
-    :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"
-    :customIconStyle="{ fontSize: '20px', color: '#007bff' }"
-  />
+    :custom-labels="{ en: 'English', de: 'Deutsch' }"
+    :custom-button-style="{ borderRadius: '4px' }"
+  >
+    <template #before-link-content="{ locale }">
+      <img :src="`/flags/${locale.code}.svg`" alt="" width="16" />
+    </template>
+  </i18n-switcher>
 </template>
 ```
 
-This example demonstrates a fully customized locale switcher with custom labels and inline styles.
+## Related
 
-## 🔌 Slots
-
-Every visual part of the switcher can be replaced. The slots are listed with the props
-table above; each one takes template content:
-
-```vue
-<i18n-switcher>
-  <template #before-button>
-    <span>🌐</span>
-  </template>
-
-  <template #before-item="{ locale }">
-    <img :src="`/flags/${locale.code}.svg`" :alt="locale.code">
-  </template>
-
-  <template #after-dropdown-items>
-    <a href="/help/languages">Missing a language?</a>
-  </template>
-</i18n-switcher>
-```
-
-Slots whose name ends in `-item`, `-link-content` or starts with `before-item` receive the
-`locale` object they belong to.
-
-## 🎨 Styles Overview
-
-The `<i18n-switcher>` component comes with basic styles defined using inline styles that can easily be overridden by passing custom styles via props. Here’s a brief overview of the default styling:
-
-- **Wrapper**: Controls the positioning of the dropdown.
-- **Button**: Styles the dropdown toggle button.
-- **Dropdown**: Styles the dropdown list.
-- **Items**: Styles each item in the list.
-- **Links**: Styles the links inside each item.
-- **Icon**: Styles the dropdown indicator icon.
-
-You can customize these styles by passing custom styles through the respective props, ensuring that the locale switcher integrates seamlessly into your application's UI.
+- [`$switchLocale`](/api/methods#switchlocale)
+- [`<i18n-link>`](/components/i18n-link)

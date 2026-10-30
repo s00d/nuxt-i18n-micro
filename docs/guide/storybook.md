@@ -1,151 +1,78 @@
 ---
-title: 'Storybook Integration Guide'
-description: 'Use nuxt-i18n-micro with Storybook.'
+title: Storybook
+description: Render components that use $t in Storybook for Nuxt by serving pre-merged translation payloads as static files.
+outline: [2, 3]
 ---
 
-# 🌐 Storybook Integration Guide
+# Storybook
 
-## 📖 Introduction
+Storybook for Nuxt (`@nuxtjs/storybook`) runs your components with the Nuxt app, but without the Nitro server that normally serves translation payloads. To make `$t` work in stories, write the payloads Storybook would fetch into a static folder before it starts. A complete project is in [s00d/nuxtjs-storybook-i18n-micro](https://github.com/s00d/nuxtjs-storybook-i18n-micro).
 
-Integrating **Nuxt**, **Storybook**, and **nuxt-i18n-micro** into your project allows you to build a robust, localized application with a component-driven development approach. This guide provides a step-by-step walkthrough on setting up these tools together, including configuration, localization, and Storybook integration.
+## Nuxt config
 
-## 🛠 Nuxt Configuration
-
-To enable localization and Storybook in your Nuxt project, configure your `nuxt.config.ts` file as follows:
-
-### 📄 `nuxt.config.ts`
-
-```typescript
-// https://nuxt.com/docs/api/configuration/nuxt-config
+```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
-  modules: [
-    'nuxt-i18n-micro', // Localization module
-    '@nuxtjs/storybook', // Storybook module
-  ],
-
+  modules: ['nuxt-i18n-micro', '@nuxtjs/storybook'],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN', displayName: 'English' },
-      { code: 'de', iso: 'de_DE', displayName: 'German' },
+      { code: 'en', iso: 'en-US', displayName: 'English' },
+      { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
     ],
-    strategy: 'prefix',
+    defaultLocale: 'en',
   },
 })
 ```
 
-## 🛠 Storybook Configuration
+## Write the payloads
 
-To integrate Storybook with Nuxt and nuxt-i18n-micro, configure the `.storybook/main.ts` file, add `mergeTranslations` and `staticDirs`.
+The browser loads `/_locales/<page>/<locale>/data.json`. Stories have no page route, so they load the `index` payload. Build one per locale that holds every page's keys plus the root keys:
 
-### 📄 `.storybook/main.ts`
-
-```typescript
-import type { StorybookConfig } from '@storybook-vue/nuxt'
+```ts
+// .storybook/main.ts
 import fs from 'node:fs'
 import path from 'node:path'
+import type { StorybookConfig } from '@storybook-vue/nuxt'
+import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 
-type TranslationValue = string | number | boolean | TranslationStructure | unknown | null
-interface TranslationStructure {
-  [key: string]: TranslationValue
+type Tree = Record<string, unknown>
+
+const localesDir = path.join(__dirname, '../locales')
+const outDir = path.join(__dirname, '../storybook_locales/_locales/index')
+
+const readJson = (file: string): Tree => JSON.parse(fs.readFileSync(file, 'utf-8'))
+
+/** Every `<locale>.json` below `dir`, deep-merged. */
+function collect(dir: string, locale: string): Tree {
+  if (!fs.existsSync(dir)) return {}
+  return fs.readdirSync(dir, { withFileTypes: true }).reduce<Tree>((acc, entry) => {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) return deepMergeTranslations(acc, collect(full, locale))
+    return entry.name === `${locale}.json` ? deepMergeTranslations(acc, readJson(full)) : acc
+  }, {})
 }
 
-const localesRoot = 'locales'
-
-function mergeAllTranslations(target: TranslationStructure, ...sources: TranslationStructure[]): TranslationStructure {
-  return sources.reduce((acc, source) => {
-    for (const [key, value] of Object.entries(source)) {
-      acc[key] = value
-    }
-    return acc
-  }, target)
+for (const file of fs.readdirSync(localesDir).filter((f) => f.endsWith('.json'))) {
+  const locale = path.basename(file, '.json')
+  // root keys first, page keys win (as in the module's build)
+  const merged = deepMergeTranslations(readJson(path.join(localesDir, file)), collect(path.join(localesDir, 'pages'), locale))
+  fs.mkdirSync(path.join(outDir, locale), { recursive: true })
+  fs.writeFileSync(path.join(outDir, locale, 'data.json'), JSON.stringify(merged))
 }
-
-const getLocales = (): string[] => {
-  const localesDir = path.join(__dirname, '../', localesRoot)
-  try {
-    return fs
-      .readdirSync(localesDir)
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => path.basename(file, '.json'))
-  } catch (error) {
-    console.error('Error reading locales directory:', error)
-    return []
-  }
-}
-
-const mergeTranslations = () => {
-  const localesDir = path.join(__dirname, '../', localesRoot)
-  const outputDir = path.join(__dirname, '../storybook_locales/_locales/index')
-  const locales = getLocales()
-
-  const collectAllTranslations = (dir: string, lang: string): TranslationStructure => {
-    let translations: TranslationStructure = {}
-    const entries = fs.readdirSync(dir, { withFileTypes: true })
-
-    for (const entry of entries) {
-      const entryPath = path.join(dir, entry.name)
-      if (entry.isDirectory()) {
-        translations = mergeAllTranslations(translations, collectAllTranslations(entryPath, lang))
-      } else if (entry.isFile() && entry.name === `${lang}.json`) {
-        const content = JSON.parse(fs.readFileSync(entryPath, 'utf-8'))
-        translations = mergeAllTranslations(translations, content)
-      }
-    }
-    return translations
-  }
-
-  locales.forEach((lang) => {
-    // 1. Collect all page translations
-    let merged = collectAllTranslations(path.join(localesDir, 'pages'), lang)
-
-    // 2. Add root-level translations with priority
-    const generalFilePath = path.join(localesDir, `${lang}.json`)
-    if (fs.existsSync(generalFilePath)) {
-      const generalContent = JSON.parse(fs.readFileSync(generalFilePath, 'utf-8'))
-      merged = mergeAllTranslations(merged, generalContent)
-    }
-
-    // 3. Save result
-    const outputPath = path.join(outputDir, `${lang}/data.json`)
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-    fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2))
-  })
-}
-
-mergeTranslations()
 
 const config: StorybookConfig = {
-  stories: ['../components/**/*.mdx', '../components/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
-  staticDirs: ['../storybook_locales'],
-  addons: ['@storybook/addon-essentials', '@chromatic-com/storybook', '@storybook/addon-interactions'],
-  framework: {
-    name: '@storybook-vue/nuxt',
-    options: {},
-  },
+  stories: ['../components/**/*.stories.@(ts|tsx|mdx)'],
+  staticDirs: ['../storybook_locales'], // serves /_locales/index/<locale>/data.json
+  framework: { name: '@storybook-vue/nuxt', options: {} },
 }
+
 export default config
 ```
 
-## 🚀 Example Projects
+`deepMergeTranslations` comes from `@i18n-micro/utils` (add it to your dev dependencies); it merges nested keys at any depth, like the module's own build. Add `storybook_locales/` to `.gitignore`.
 
-For complete examples, check out these projects:
+## Related
 
-1. **[Nuxt + Storybook + i18n Example on GitHub](https://github.com/s00d/nuxtjs-storybook-i18n-micro)**  
-   This repository demonstrates how to integrate Nuxt, Storybook, and nuxt-i18n-micro. It includes setup instructions and configuration details.
-
-2. **[Storybook for Nuxt Documentation](https://storybook.nuxtjs.org/getting-started/setup)**  
-   The official documentation for setting up Storybook with Nuxt. It provides detailed steps and best practices.
-
-3. **[Interactive Example on StackBlitz](https://stackblitz.com/~/github.com/s00d/nuxtjs-storybook-i18n-micro)**  
-   Explore a live example of Nuxt, Storybook, and nuxt-i18n-micro integration directly in your browser.
-
-<div>
- <iframe
-   src="https://stackblitz.com/github/s00d/nuxtjs-storybook-i18n-micro?embed=1"
-   width="100%"
-   height="500px"
-   style="border: none;"
- ></iframe>
-</div>
+- [Testing your app](/guide/testing)
+- [Translation files](/guide/translations)
+- [@nuxtjs/storybook](https://storybook.nuxtjs.org/getting-started/setup)

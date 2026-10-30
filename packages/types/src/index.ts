@@ -83,14 +83,14 @@ export interface Locale {
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */
   displayName?: string
   /**
-   * Per-locale base URL for SEO meta tags.
-   * Useful for multi-domain setups where each locale lives on its own domain
-   * (e.g. `'https://en.example.com'`).
+   * Origin of this locale's own domain (e.g. `'https://de.example.com'`), for multi-domain setups.
+   * Links into this locale (`$localePath`, `$switchLocalePath`, the switcher, `hreflang`) become
+   * absolute URLs on that origin, and switching to it navigates there.
    */
   baseUrl?: string
   /**
-   * When `true`, this locale is treated as the "base default" for the domain
-   * specified in `baseUrl`. Affects canonical URL generation in multi-domain setups.
+   * With `baseUrl`: drop this locale's `/<code>` prefix from those absolute URLs, because the
+   * domain already names the locale (`https://de.example.com/about`, not `…/de/about`).
    */
   baseDefault?: boolean
   /**
@@ -103,7 +103,7 @@ export interface Locale {
 }
 
 /**
- * Per-page i18n configuration declared via `defineI18nRoute()` in page components.
+ * Per-page i18n configuration declared via `$defineI18nRoute()` in page components.
  */
 export interface DefineI18nRouteConfig {
   /**
@@ -214,15 +214,17 @@ export interface ModuleOptions {
   hreflangBaseLanguage?: boolean
 
   /**
-   * Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls.
+   * Register the plugin that provides `$defineI18nRoute()` at runtime. The build reads
+   * `$defineI18nRoute()` calls in pages either way.
    * @default true
    */
   define?: boolean
 
   /**
-   * Enable automatic locale-based redirects.
-   * When `true`, visitors are redirected to their preferred locale (detected from cookie,
-   * `Accept-Language` header, or the default) on the first visit.
+   * Enable automatic locale redirects (server plugin and client route middleware).
+   * When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale
+   * comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise
+   * the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths).
    * @default true
    */
   redirects?: boolean
@@ -257,7 +259,7 @@ export interface ModuleOptions {
 
   /**
    * The locale to use when no locale can be determined from URL or user preferences.
-   * Also used as the fallback locale for missing translations when `fallbackLocale` is not set.
+   * It is not a translation fallback: set `fallbackLocale` for that.
    * @default 'en'
    */
   defaultLocale?: string
@@ -330,7 +332,9 @@ export interface ModuleOptions {
    *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
    * - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
    *
-   * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
+   * Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default
+   * locale's form (`/about` → `/en/about`). The default locale with a prefix under
+   * `prefix_except_default` (`/en`) is a 404, not a redirect.
    * @default '/'
    */
   autoDetectPath?: string
@@ -379,8 +383,8 @@ export interface ModuleOptions {
 
   /**
    * Global fallback locale code.
-   * When a translation key is missing in the active locale, the module looks it up
-   * in this locale before returning the key itself.
+   * Keys missing in a locale are taken from this locale (merged into each payload when it is
+   * built or loaded); without it a missing key renders as the key itself.
    * @default undefined (no fallback; returns the raw key)
    */
   fallbackLocale?: string
@@ -388,7 +392,8 @@ export interface ModuleOptions {
   /**
    * Cookie name for persisting the user's locale preference across sessions.
    * Set to `null` to disable cookie-based persistence.
-   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided.
+   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
+   * `null` in the `i18n` config block keeps it off there too.
    * @default null
    */
   localeCookie?: string | null
@@ -418,14 +423,15 @@ export interface ModuleOptions {
 
   /**
    * Custom regular expression (or its string source) for matching locale codes in URL segments.
-   * All locale codes defined in `locales` must match this pattern, or a warning is emitted.
+   * Every locale code in `locales` must match this pattern, or the build fails.
    * @default undefined (uses built-in pattern based on locale codes)
    */
   customRegexMatcher?: string | RegExp
 
   /**
-   * For `no_prefix` strategy: enable redirect from a locale-prefixed URL
-   * (e.g. `/en/about`) to the unprefixed version (`/about`).
+   * For `no_prefix` strategy: when the default locale has a custom path for a page
+   * (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to it
+   * (e.g. `/about` → `/about-us`). Pages with dynamic segments are not redirected.
    * @default false
    */
   noPrefixRedirect?: boolean
@@ -446,9 +452,11 @@ export interface ModuleOptions {
   trailingSlash?: 'append' | 'remove'
 
   /**
-   * URL patterns (strings or RegExp) to exclude from i18n processing entirely.
-   * Matching routes won't get locale prefixes, redirects, or translation loading.
-   * Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.
+   * Paths to leave out of i18n routing: a string is a path prefix (`/admin` covers `/admin/x`)
+   * or a `*` / `?` glob; a RegExp is tested against the path. Matching pages get no locale
+   * variants, no locale redirect or 404, and are dropped from prerender; they still render with
+   * translations. `/api`, `/_nuxt`, `/__*`, the translations route and common static files
+   * (sitemap, robots.txt, favicon, assets by extension) are always excluded.
    * @default undefined
    */
   excludePatterns?: (string | RegExp)[]
@@ -461,21 +469,21 @@ export interface ModuleOptions {
   localizedRouteNamePrefix?: string
 
   /**
-   * Per-route locale restrictions, extracted from `defineI18nRoute()` calls.
+   * Per-route locale restrictions, extracted at build time from `$defineI18nRoute()` calls.
    * Maps a route path (e.g. `'/about'`) to an array of allowed locale codes.
    * Routes not listed have no restrictions (all locales allowed).
    */
   routeLocales?: Record<string, string[]>
 
   /**
-   * Per-route meta tag disabling, extracted from `defineI18nRoute()` calls.
-   * Maps a route path to `true` (disable all meta) or an array of locale codes
-   * for which meta should be disabled.
+   * Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array
+   * of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()`
+   * calls at build time are added to it.
    */
   routeDisableMeta?: Record<string, boolean | string[]>
 
   /**
-   * Show console warnings when a translation key is missing.
+   * Show console warnings when a translation key is missing (development build, in the browser).
    * @default true
    */
   missingWarn?: boolean
@@ -553,9 +561,9 @@ export interface ModuleOptions {
   /**
    * Value used for cache-busting translation requests (`?v=...`).
    *
-   * When not provided, the module falls back to `Date.now()` (non-deterministic).
-   * For reproducible/rolling deployments, set this to a stable value
-   * (e.g. a git SHA or build number).
+   * When not provided, the module uses a hash of the translation files, so the value changes
+   * only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns
+   * cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself.
    *
    * @example
    * i18n: { dateBuild: 'e3b0c442' }

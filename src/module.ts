@@ -340,7 +340,10 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    if (options.strategy === 'no_prefix' && !options.localeCookie) {
+    // defu drops a null, so `options` cannot tell an opt-out from "not set": read the user's config.
+    // ponytail: a null in `modules: [[name, opts]]` or under a layer's i18n block is still lost that way.
+    const cookieOptOut = (nuxt.options as { i18n?: ModuleOptions }).i18n?.localeCookie === null
+    if (options.strategy === 'no_prefix' && !options.localeCookie && !cookieOptOut) {
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }

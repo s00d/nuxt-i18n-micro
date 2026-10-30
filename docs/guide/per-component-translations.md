@@ -1,616 +1,97 @@
 ---
-title: 'Per-Component Translations'
-description: 'Per-component translations with $defineI18nRoute.'
-outline: 'deep'
+title: Page config
+description: Restrict a page to some locales, give it custom paths, inline translations or no SEO tags with $defineI18nRoute.
+outline: [2, 3]
 ---
 
-# 📖 Per-Component Translations
+# Page config
 
-Learn how to define translations directly within Vue components using `$defineI18nRoute` for modular and maintainable localization.
+`$defineI18nRoute` sets i18n options for one page from inside the page itself. Use it when a page exists only in some locales, needs its own localized path, carries a few translations of its own, or must not get hreflang/canonical tags. The module reads the call at build time and bakes it into the generated routes.
 
-## 📖 Overview
-
-Per-Component Translations in `Nuxt I18n Micro` allows you to define translations directly within specific components or pages using the `$defineI18nRoute` function. This approach is ideal for managing localized content that is unique to individual components, providing a more modular and maintainable method for handling translations.
-
-## 🚀 Quick Start
-
-### Basic Usage
+## Restrict a page to some locales
 
 ```vue
-<template>
-  <div>
-    <h1>{{ $t('greeting') }}</h1>
-    <p>{{ $t('farewell') }}</p>
-  </div>
-</template>
-
+<!-- pages/product/index.vue -->
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
-
-const { $defineI18nRoute, $t } = useNuxtApp()
+const { $defineI18nRoute } = useNuxtApp()
 
 $defineI18nRoute({
-  locales: {
-    en: { greeting: 'Hello', farewell: 'Goodbye' },
-    fr: { greeting: 'Bonjour', farewell: 'Au revoir' },
-    de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
-  },
+  locales: ['en', 'de'],
 })
 </script>
 ```
 
-### Required Setup (`script setup`)
+Only `/product` and `/de/product` are generated under the default `prefix_except_default` strategy; the page has no route in any other locale. The same can be set from `nuxt.config.ts` with [`routeLocales`](/api/module-options#routelocales).
 
-`$defineI18nRoute` is a Nuxt app injection, not a global macro.  
-Always get it from `useNuxtApp()` before calling it.
+`$defineI18nRoute` is a Nuxt app injection, not a compiler macro: always take it from `useNuxtApp()` and call it with the `$`. Only `$defineI18nRoute(` is recognized by the build step.
 
-```ts
-import { useNuxtApp } from '#imports'
+## Add inline translations
 
+Pass an object instead of an array. Its keys are the allowed locales, its values are merged into the page's dictionary for the active locale.
+
+```vue
+<script setup lang="ts">
 const { $defineI18nRoute } = useNuxtApp()
-```
 
-## 🏗️ Build-Time Route Meta
-
-At build time, a Vite unplugin scans page `.vue` files for `defineI18nRoute(...)` / `$defineI18nRoute(...)` calls and extracts locale restrictions, `localeRoutes`, and `disableMeta` into route metadata used by `@i18n-micro/route-strategy`.
-
-- **Build**: unplugin (`src/unplugin-define-i18n-route.ts`) runs during Vite transform and writes `i18n-route-meta.json` under the Nuxt build directory
-- **Runtime**: the define plugin (`03.define.ts`) still exposes `$defineI18nRoute` in `script setup` for dev and inline configuration
-
-You normally only call `$defineI18nRoute` in pages — the module handles build-time extraction automatically.
-
-## 🔧 `$defineI18nRoute` Function
-
-The `$defineI18nRoute` function configures route behavior based on the current locale, offering a versatile solution to:
-
-- Control access to specific routes based on available locales
-- Provide translations for specific locales
-- Set custom routes for different locales
-- Control meta tag generation
-
-### How It Works
-
-```mermaid
-flowchart TB
-    A["$defineI18nRoute({...})"] --> B{locales type?}
-
-    B -->|Array| C["['en', 'fr', 'de']"]
-    B -->|Object| D["{en: {...}, fr: {...}}"]
-
-    C --> E{Locale allowed?}
-    D --> F[Merge translations]
-    F --> E
-
-    E -->|No| G["❌ 404 / Redirect"]
-    E -->|Yes| H{Has localeRoutes?}
-
-    H -->|Yes| I[Apply custom path]
-    H -->|No| J[Use default path]
-
-    I --> K["✅ Route ready"]
-    J --> K
-    K --> L["$t() available"]
-```
-
-### Method Signature
-
-```typescript
-const { $defineI18nRoute } = useNuxtApp();
-$defineI18nRoute(routeDefinition: DefineI18nRouteConfig);
-```
-
-### Parameters
-
-| Parameter      | Type                                       | Description                        |
-| -------------- | ------------------------------------------ | ---------------------------------- |
-| `locales`      | `string[] \| Record<string, Translations>` | Available locales for the route    |
-| `localeRoutes` | `Record<string, string>`                   | Custom routes for specific locales |
-| `disableMeta`  | `boolean \| string[]`                      | Control i18n meta tag generation   |
-
-### Detailed Parameter Descriptions
-
-#### `locales`
-
-Defines which locales are available for the route:
-
-::: code-group
-
-```typescript [Array Format]
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'], // Simple array of locale codes
-})
-```
-
-```typescript [Object Format]
-$defineI18nRoute({
-  locales: {
-    en: { greeting: 'Hello', farewell: 'Goodbye' },
-    fr: { greeting: 'Bonjour', farewell: 'Au revoir' },
-    de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
-    ru: {}, // Russian locale allowed but no translations provided
-  },
-})
-```
-
-:::
-
-#### `localeRoutes`
-
-Allows custom routes for specific locales:
-
-```typescript
-$defineI18nRoute({
-  localeRoutes: {
-    en: '/welcome',
-    fr: '/bienvenue',
-    de: '/willkommen',
-    ru: '/privet', // Custom route path for Russian locale
-  },
-})
-```
-
-#### `disableMeta`
-
-Controls i18n meta tag generation:
-
-::: code-group
-
-```typescript [Disable All Meta]
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  disableMeta: true, // Disables all i18n meta tags
-})
-```
-
-```typescript [Disable Specific Locales]
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  disableMeta: ['en', 'fr'], // Only English and French won't have meta tags
-})
-```
-
-:::
-
-## 💡 Use Cases
-
-### 1. Controlling Access Based on Locales
-
-Define which locales are allowed for specific routes:
-
-```typescript
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'], // Only these locales are allowed for this route
-})
-```
-
-### 2. Providing Component-Specific Translations
-
-Use the `locales` object to provide specific translations for each route:
-
-```typescript
-$defineI18nRoute({
-  locales: {
-    en: {
-      greeting: 'Hello',
-      farewell: 'Goodbye',
-      description: 'Welcome to our application',
-    },
-    fr: {
-      greeting: 'Bonjour',
-      farewell: 'Au revoir',
-      description: 'Bienvenue dans notre application',
-    },
-    de: {
-      greeting: 'Hallo',
-      farewell: 'Auf Wiedersehen',
-      description: 'Willkommen in unserer Anwendung',
-    },
-  },
-})
-```
-
-### 3. Custom Routing for Locales
-
-Define custom paths for specific locales:
-
-```typescript
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  localeRoutes: {
-    en: '/welcome',
-    fr: '/bienvenue',
-    de: '/willkommen',
-  },
-})
-```
-
-### 4. Disabling Meta Tags
-
-Control SEO meta tag generation for specific routes or locales:
-
-```typescript
-// Disable meta tags for all locales
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  disableMeta: true,
-})
-
-// Disable meta tags only for specific locales
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  disableMeta: ['en', 'fr'],
-})
-```
-
-## ✅ Supported Configuration Formats
-
-The `$defineI18nRoute` parser supports various JavaScript configurations:
-
-### Static Configurations
-
-::: code-group
-
-```typescript [Static Arrays]
-$defineI18nRoute({
-  locales: ['en', 'de', 'fr'],
-})
-```
-
-```typescript [Static Objects]
 $defineI18nRoute({
   locales: {
     en: { greeting: 'Hello' },
     de: { greeting: 'Hallo' },
+    fr: {}, // allowed, no inline keys
   },
-  localeRoutes: {
-    en: '/welcome',
-    de: '/willkommen',
-  },
-})
-```
-
-:::
-
-### Dynamic Configurations
-
-::: code-group
-
-```typescript [Variables and Functions]
-const locales = ['en', 'de', 'fr']
-const routes = { en: '/welcome', de: '/willkommen' }
-
-$defineI18nRoute({
-  locales: locales,
-  localeRoutes: routes,
-})
-```
-
-```typescript [Template Literals]
-const prefix = 'api'
-
-$defineI18nRoute({
-  locales: [`${prefix}-en`, `${prefix}-de`],
-  localeRoutes: {
-    [`${prefix}-en`]: `/api/welcome`,
-    [`${prefix}-de`]: `/api/willkommen`,
-  },
-})
-```
-
-:::
-
-### Advanced Configurations
-
-::: code-group
-
-```typescript [Spread Operator]
-const baseLocales = ['en', 'de']
-const additionalLocales = ['fr', 'es']
-
-$defineI18nRoute({
-  locales: [...baseLocales, ...additionalLocales],
-})
-```
-
-```typescript [Array of Objects]
-$defineI18nRoute({
-  locales: [
-    { code: 'en', name: 'English' },
-    { code: 'de', name: 'German' },
-  ],
-})
-```
-
-:::
-
-### Conditional Logic
-
-```typescript
-$defineI18nRoute({
-  locales: process.env.NODE_ENV === 'production' ? ['en', 'de'] : ['en', 'de', 'fr', 'es'],
-})
-```
-
-### Complex Nested Objects
-
-```typescript
-$defineI18nRoute({
-  locales: {
-    'en-us': {
-      region: 'US',
-      currency: 'USD',
-      format: {
-        date: 'MM/DD/YYYY',
-        time: '12h',
-      },
-    },
-    'de-de': {
-      region: 'DE',
-      currency: 'EUR',
-      format: {
-        date: 'DD.MM.YYYY',
-        time: '24h',
-      },
-    },
-  },
-})
-```
-
-### Comments and Formatting
-
-```typescript
-$defineI18nRoute({
-  // Supported locales for this component
-  locales: [
-    'en', // English
-    'de', // German
-    'fr', // French
-  ],
-  // Custom routes for each locale
-  localeRoutes: {
-    en: '/welcome',
-    de: '/willkommen',
-    fr: '/bienvenue',
-  },
-})
-```
-
-## ❌ Not Supported
-
-The parser has limitations and cannot handle:
-
-- **External imports** (`import` statements)
-- **Async/await functions**
-- **Class methods**
-- **Complex control flow** (loops, try-catch, switch)
-- **Arrow functions** in configuration
-- **Generator functions**
-
-## 📝 Complete Example
-
-Here's a comprehensive example showing all features:
-
-```vue
-<template>
-  <div class="welcome-page">
-    <header>
-      <h1>{{ $t('title') }}</h1>
-      <p>{{ $t('subtitle') }}</p>
-    </header>
-
-    <main>
-      <section>
-        <h2>{{ $t('features.title') }}</h2>
-        <ul>
-          <li v-for="feature in $t('features.list')" :key="feature">
-            {{ feature }}
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>{{ $t('contact.title') }}</h2>
-        <p>{{ $t('contact.description') }}</p>
-        <a :href="$t('contact.email')">{{ $t('contact.email') }}</a>
-      </section>
-    </main>
-
-    <footer>
-      <p>{{ $t('footer.copyright') }}</p>
-    </footer>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { useNuxtApp } from '#imports'
-
-const { $defineI18nRoute, $t } = useNuxtApp()
-
-// Define comprehensive i18n route configuration
-$defineI18nRoute({
-  locales: {
-    en: {
-      title: 'Welcome to Our Platform',
-      subtitle: 'The best solution for your needs',
-      features: {
-        title: 'Key Features',
-        list: ['High Performance', 'Easy to Use', 'Scalable Architecture'],
-      },
-      contact: {
-        title: 'Get in Touch',
-        description: "We'd love to hear from you",
-        email: 'mailto:contact@example.com',
-      },
-      footer: {
-        copyright: '© 2024 Example Company. All rights reserved.',
-      },
-    },
-    fr: {
-      title: 'Bienvenue sur Notre Plateforme',
-      subtitle: 'La meilleure solution pour vos besoins',
-      features: {
-        title: 'Fonctionnalités Clés',
-        list: ['Haute Performance', 'Facile à Utiliser', 'Architecture Évolutive'],
-      },
-      contact: {
-        title: 'Contactez-Nous',
-        description: 'Nous aimerions avoir de vos nouvelles',
-        email: 'mailto:contact@example.com',
-      },
-      footer: {
-        copyright: '© 2024 Example Company. Tous droits réservés.',
-      },
-    },
-    de: {
-      title: 'Willkommen auf Unserer Plattform',
-      subtitle: 'Die beste Lösung für Ihre Bedürfnisse',
-      features: {
-        title: 'Hauptfunktionen',
-        list: ['Hohe Leistung', 'Einfach zu Verwenden', 'Skalierbare Architektur'],
-      },
-      contact: {
-        title: 'Kontaktieren Sie Uns',
-        description: 'Wir würden gerne von Ihnen hören',
-        email: 'mailto:contact@example.com',
-      },
-      footer: {
-        copyright: '© 2024 Example Company. Alle Rechte vorbehalten.',
-      },
-    },
-  },
-  localeRoutes: {
-    en: '/welcome',
-    fr: '/bienvenue',
-    de: '/willkommen',
-  },
-  disableMeta: false, // Enable SEO meta tags
 })
 </script>
 
-<style scoped>
-.welcome-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-section {
-  margin-bottom: 2rem;
-}
-
-footer {
-  text-align: center;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid #eee;
-}
-</style>
+<template>
+  <h1>{{ $t('greeting') }}</h1>
+</template>
 ```
 
-## ⚡ Performance Considerations
+Inline translations ship inside the page component for every locale. Prefer [page translation files](/guide/translations) for anything larger than a few keys; keep inline keys for self-contained pages and components.
 
-Embedding translations in Single File Components (SFCs) can impact performance:
+## Set localized paths
 
-### Potential Issues
-
-- **Increased file size**: All locales reside in the SFC, unlike separate translation files that enable locale-aware loading
-- **Slower rendering**: In-file translations are processed at runtime
-- **Memory usage**: All translations are loaded regardless of the current locale
-
-### Best Practices
-
-- **Use page-by-page translations** for optimal performance
-- **Reserve component-level translations** for specific cases like:
-  - Reusable components published on npm
-  - Translations unsuitable for root-level files
-  - Components that need to be self-contained
-
-### Performance vs Modularity
-
-Balance your project's needs when choosing an approach:
-
-```mermaid
-flowchart TB
-    subgraph Approaches["Translation Approaches"]
-        G["🌍 Root-Level Files<br/>⭐⭐⭐⭐⭐ Performance<br/>⭐⭐⭐ Modularity"]
-        P["📄 Page-Specific<br/>⭐⭐⭐⭐ Performance<br/>⭐⭐⭐⭐ Modularity"]
-        C["🧩 Component-Level<br/>⭐⭐ Performance<br/>⭐⭐⭐⭐⭐ Modularity"]
-    end
-
-    G -->|Best for| G1[Most applications]
-    P -->|Best for| P1[Large applications]
-    C -->|Best for| C1[Reusable npm packages]
-
-    style G fill:#2ed573
-    style P fill:#ffa502
-    style C fill:#ff6b6b
-```
-
-| Approach             | Performance | Modularity | Use Case            |
-| -------------------- | ----------- | ---------- | ------------------- |
-| **Root-Level Files** | ⭐⭐⭐⭐⭐  | ⭐⭐⭐     | Most applications   |
-| **Page-Specific**    | ⭐⭐⭐⭐    | ⭐⭐⭐⭐   | Large applications  |
-| **Component-Level**  | ⭐⭐        | ⭐⭐⭐⭐⭐ | Reusable components |
-
-## 🎯 Best Practices
-
-### 1. Keep Translations Close to Components
-
-Define translations directly within the relevant component to keep localized content organized and maintainable.
-
-### 2. Use Locale Objects for Flexibility
-
-Utilize the object format for the `locales` property when specific translations or access control based on locales are required.
-
-### 3. Document Custom Routes
-
-Clearly document any custom routes set for different locales to maintain clarity and simplify development and maintenance.
-
-### 4. Consider Performance Impact
-
-Evaluate whether component-level translations are necessary for your use case, considering the performance implications.
-
-### 5. Use TypeScript
-
-Leverage TypeScript for better type safety and IntelliSense support:
-
-```typescript
-interface ComponentTranslations {
-  title: string
-  subtitle: string
-  features: {
-    title: string
-    list: string[]
-  }
-}
-
+```ts
 $defineI18nRoute({
-  locales: {
-    en: {
-      title: 'Welcome',
-      subtitle: 'Subtitle',
-      features: {
-        title: 'Features',
-        list: ['Feature 1', 'Feature 2'],
-      },
-    } as ComponentTranslations,
+  locales: ['en', 'de'],
+  localeRoutes: {
+    en: '/welcome',
+    de: '/willkommen',
   },
 })
 ```
 
-## 📚 Related Topics
+With `prefix_except_default` and `defaultLocale: 'en'` this produces `/welcome` and `/de/willkommen`. A `path` inside an inline locale object does the same: `locales: { de: { path: '/willkommen' } }`. Dynamic params, nested routes and the config-level alternative are covered in [Localized paths](/guide/custom-locale-routes).
 
-- **[Getting Started](./getting-started.md)** - Basic setup and configuration
-- **[API Reference](../api/methods.md)** - Complete method documentation
-- **[Examples](../examples.md)** - Real-world usage examples
+## Turn off SEO tags
 
-## Summary
+```ts
+$defineI18nRoute({
+  disableMeta: true, // no hreflang, canonical or og:locale tags on this page
+})
 
-The Per-Component Translations feature, powered by the `$defineI18nRoute` function, offers a powerful and flexible way to manage localization within your Nuxt application. By allowing localized content and routing to be defined at the component level, it helps create a highly customized and user-friendly experience tailored to the language and regional preferences of your audience.
+$defineI18nRoute({
+  disableMeta: ['de'], // only the de version has no tags
+})
+```
 
-Choose the approach that best fits your project's needs, considering both performance requirements and maintainability concerns.
+The config-level alternative is [`routeDisableMeta`](/api/module-options#routedisablemeta). What the tags are is on the [SEO](/guide/seo) page.
+
+## What the build can read
+
+The build step finds the call in each page file and evaluates its argument without running your app. It works when the config is:
+
+- a literal object (strings, arrays, nested objects, template literals, ternaries on `process.env.NODE_ENV`);
+- built from constants declared in the same `<script setup>` (`const locales = ['en', 'de']`, spreads included);
+- an array of objects with a `code` field (`[{ code: 'en' }, { code: 'de' }]`).
+
+It cannot read values imported from another module, or anything that needs your app at runtime (composables, `await`, fetched data). In that case the build logs `Ignored the $defineI18nRoute() config in <file>` and the page keeps the default locales and routes.
+
+At runtime the call only merges the inline translations for the current locale and re-merges them when the locale changes. `locales`, `localeRoutes` and `disableMeta` take effect only through the build, so changing them needs a rebuild (the dev server rebuilds on save).
+
+## Related
+
+- [Localized paths](/guide/custom-locale-routes)
+- [Translation files](/guide/translations)
+- [SEO](/guide/seo)
+- [`$defineI18nRoute` reference](/api/methods)

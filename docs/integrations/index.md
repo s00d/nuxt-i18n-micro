@@ -1,328 +1,187 @@
 ---
-title: 'Integrations'
-description: 'Vue, React, Preact, Solid, Astro, Runtime, and Node packages.'
+title: 'Frameworks'
+description: 'Which @i18n-micro package to use outside Nuxt, and the instance, router adapter and component model they share.'
 outline: 'deep'
 ---
 
-# Integrations
+# Frameworks
 
-The `@i18n-micro` packages are lightweight, framework-specific versions of Nuxt I18n Micro designed for integration into various frameworks and environments. These packages provide core internationalization functionality with a minimal footprint, focusing on essential translation features and basic components.
+The `@i18n-micro/*` packages bring the translation core of Nuxt I18n Micro to Vue, React, Preact, Solid, Astro, VitePress and plain JavaScript. Use them when your app is not a Nuxt app, or when a script or server outside Nuxt needs the same translation files. Every package shares one instance model, one router adapter contract and the same four components, described once on this page.
 
-## Overview
+## Packages
 
-These integration packages are **miniature versions** of the full Nuxt I18n Micro module, containing only the essential functionality needed for internationalization:
+| Stack | Package | Page |
+| --- | --- | --- |
+| Vue 3 SPA | `@i18n-micro/vue` (+ `@i18n-micro/vue/router`) | [Vue](./vue-package) |
+| React | `@i18n-micro/react` (+ `@i18n-micro/react/router`) | [React and Preact](./react-package) |
+| Preact | `@i18n-micro/preact` | [React and Preact](./react-package#preact) |
+| SolidJS | `@i18n-micro/solid` (+ `@i18n-micro/solid/router`) | [Solid](./solid-package) |
+| Astro (SSR, islands) | `@i18n-micro/astro` | [Astro](./astro-package), [Astro islands](./astro-islands) |
+| VitePress | `@i18n-micro/vitepress` | [VitePress](./vitepress-package) |
+| Browser or edge, no framework | `@i18n-micro/runtime` | [Runtime](./runtime-package) |
+| Node.js server, CLI | `@i18n-micro/node` | [Node.js](./nodejs-package) |
+| Typed keys (Vite or Nuxt) | `@i18n-micro/types-generator` | [Types generator](./types-generator) |
+| Translation editor in dev | `@i18n-micro/devtools-ui` | [DevTools UI](./devtools-ui-package) |
 
-- **Core Translation Features** - Basic translation methods, pluralization, and formatting
-- **Essential Components** - A small set of UI components for common i18n tasks
-- **Router Adapter Pattern** - Flexible routing integration through adapter abstraction
-- **TypeScript Support** - Full type definitions for type-safe development
+`@i18n-micro/core`, `@i18n-micro/types` and `@i18n-micro/utils` are installed with these packages; you rarely import them directly. Signatures of every export are on the generated [package reference](/api/packages).
 
-Unlike the full Nuxt module, these packages:
+Each package has a playground under `packages/<name>/playground` in the repository.
 
-- Do not include framework-specific routing logic
-- Require you to implement a router adapter for routing features
-- Focus on translation functionality rather than framework integration
-- Are designed to be lightweight and framework-agnostic where possible
+## The instance {#create-i18n-options}
 
-## Available Packages
+`createI18n(options)` returns one instance that holds the dictionaries, the current locale and the current route. The options are the same in every package:
 
-### Framework Packages
+| Option | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `locale` | `string` | required | Active locale. |
+| `fallbackLocale` | `string` | `locale` | Looked up when a key is missing in `locale`. |
+| `messages` | `Record<locale, Translations>` | `{}` | Root dictionaries (`'index'` route). |
+| `routeMessages` | `Record<route, Record<locale, Translations>>` | `{}` | Route dictionaries. Runtime, React, Preact, Node and VitePress only. |
+| `plural` | `PluralFunc` | `defaultPlural` | Custom plural rule. |
+| `missingWarn` | `boolean` | `true` | Dev-only `console.warn` in the browser for a missing key. |
+| `missingHandler` | `(locale, key, routeName) => void` | — | Called instead of the warning. |
+| `numberFormats` | `Record<locale, Record<name, Intl.NumberFormatOptions>>` | — | Named formats: `tn(9.5, 'currency')`. |
+| `datetimeFormats` | `Record<locale, Record<name, Intl.DateTimeFormatOptions>>` | — | Named formats: `td(date, 'short')`. |
 
-- **[Vue Package](./vue-package.md)** (`@i18n-micro/vue`) - For Vue 3 applications
-- **[React Package](./react-package.md)** (`@i18n-micro/react`) - For React applications
-- **[Preact Package](./preact-package.md)** (`@i18n-micro/preact`) - For Preact applications
-- **[Solid Package](./solid-package.md)** (`@i18n-micro/solid`) - For SolidJS applications
-- **[Astro Package](./astro-package.md)** (`@i18n-micro/astro`) - For Astro applications with SSR support
-- **[VitePress Package](./vitepress-package.md)** (`@i18n-micro/vitepress`) - For VitePress docs (runtime `$t` / components / switcher)
+The dictionaries live in `i18n.storage.translations`, a `Map` keyed `locale:route` (`en:index`, `en:about`).
 
-### Utility Packages
+A key is looked up in the current route's dictionary, then in the root dictionary, first for `locale`, then for `fallbackLocale`. A missing key returns the key itself (or the `defaultValue` you pass).
 
-- **[Runtime Package](./runtime-package.md)** (`@i18n-micro/runtime`) - Vanilla TypeScript/JavaScript (browser + any fetch-capable runtime)
-- **[Node.js Package](./nodejs-package.md)** (`@i18n-micro/node`) - Node.js filesystem loader on top of runtime
-- **[Types Generator](./types-generator.md)** (`@i18n-micro/types-generator`) - For generating TypeScript types from translation files
-- **[DevTools UI Package](./devtools-ui-package.md)** (`@i18n-micro/devtools-ui`) - Development tools for managing translations
-
-## Playgrounds
-
-Each integration ships a small app under `packages/<name>/playground` so you can see wiring end-to-end (createI18n / provider, router adapter, components, locale switch) without building a project from scratch. Clone the monorepo, `pnpm install`, then run the package’s `dev` script.
-
-| Package   | Playground                                                                                                         | Run from monorepo root                      |
-| --------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| Vue       | [`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground)             | `pnpm -C packages/vue dev`                  |
-| React     | [`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground)         | `pnpm -C packages/react dev`                |
-| Preact    | [`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground)       | `pnpm -C packages/preact dev`               |
-| Solid     | [`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground)         | `pnpm -C packages/solid dev`                |
-| Astro     | [`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground)         | `pnpm -C packages/astro dev`                |
-| VitePress | [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground) | `pnpm -C packages/vitepress/playground dev` |
-| Runtime   | [`packages/runtime/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/runtime/playground)     | `pnpm -C packages/runtime dev`              |
-| Node.js   | [`packages/node/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground)           | `pnpm -C packages/node dev`                 |
-
-## Core Components
-
-All framework packages include the following essential components:
-
-### `<I18nT>`
-
-A translation component that renders translated text with support for:
-
-- **Parameter interpolation** - Replace placeholders with dynamic values
-- **Pluralization** - Automatic plural form selection based on count
-- **Number formatting** - Format numbers according to locale
-- **Date formatting** - Format dates and relative times
-- **HTML rendering** - Optional HTML content rendering
-- **Default values** - Fallback text when translation is missing
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nT keypath="greeting" :params="{ name: 'World' }" />
+```ts
+i18n.addTranslations('en', { nav: { home: 'Home' } }) // root, deep-merged
+i18n.addRouteTranslations('en', 'about', { title: 'About us' }) // route chunk
+i18n.addTranslations('en', { nav: { home: 'Start' } }, false) // replace instead of merge
+i18n.setRoute('about')
+i18n.t('title') // 'About us'
+i18n.t('nav.home') // 'Start' (root key, still visible on the route)
 ```
 
-```tsx
-// React
-<I18nT keypath="greeting" params={{ name: 'World' }} />
-```
+### Translate and format
 
-```tsx
-// Solid
-<I18nT keypath="greeting" params={{ name: 'World' }} />
-```
+| Method | Returns |
+| --- | --- |
+| `t(key, params?, defaultValue?, routeName?)` | The value (string, number, object) with `{param}` interpolated. |
+| `ts(...)` | Same as `t`, as a string. |
+| `tc(key, count \| params, defaultValue?)` | Plural form. |
+| `tn(value, options \| name)` | `Intl.NumberFormat` in the active locale. |
+| `td(value, options \| name)` | `Intl.DateTimeFormat`. |
+| `tdr(value, options?)` | Relative time (`3 days ago`). |
+| `has(key, routeName?)` | `true` when the active locale has the key (route or root dictionary; the fallback is not checked). |
 
-```astro
-<!-- Astro -->
-<I18nT keypath="greeting" params={{ name: 'World' }} />
-```
+`defaultPlural` splits the value on `|` and picks the form at index `count`, clamped to the last one; a negative, fractional or `NaN` count picks the last form.
 
-### `<I18nLink>`
+A custom `plural` receives `(key, count, params, locale, getter)`. Read the value through `getter(key)`; do not split the key:
 
-A localized link component that automatically handles locale prefixes in URLs. Features:
+```ts
+import type { PluralFunc } from '@i18n-micro/vue'
 
-- **Automatic path localization** - Adds/removes locale prefixes based on routing strategy
-- **Active state detection** - Highlights the current route
-- **External link support** - Automatically detects and handles external URLs
-- **Router integration** - Uses router adapter's link component when available
-- **Custom styling** - Supports active and hover states
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nLink to="/about" active-class="active">
-  About Us
-</I18nLink>
-```
-
-```tsx
-// React
-<I18nLink to="/about" activeStyle={{ fontWeight: 'bold' }}>
-  About Us
-</I18nLink>
-```
-
-```tsx
-// Solid
-<I18nLink to="/about" activeStyle={{ fontWeight: 'bold' }}>
-  About Us
-</I18nLink>
-```
-
-```astro
-<!-- Astro -->
-<I18nLink href="/about" class="nav-link">
-  About Us
-</I18nLink>
-```
-
-### `<I18nSwitcher>`
-
-A language switcher component that provides a dropdown or list interface for changing locales. Features:
-
-- **Automatic locale list** - Generates options from configured locales
-- **Current locale highlighting** - Visually indicates the active language
-- **Custom labels** - Support for custom display names per locale
-- **Router integration** - Automatically navigates to localized paths
-- **Accessibility** - Proper ARIA attributes and keyboard navigation
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nSwitcher />
-```
-
-```tsx
-// React
-<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
-```
-
-```tsx
-// Solid
-<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
-```
-
-```astro
-<!-- Astro -->
-<I18nSwitcher />
-```
-
-### `<I18nGroup>`
-
-A component for grouping translations with a common prefix, useful for organizing translations by page or feature. Features:
-
-- **Prefix scoping** - Automatically prepends prefix to all translation keys within the group
-- **Nested groups** - Support for nested translation groups
-- **Clean organization** - Helps maintain organized translation structures
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> <!-- Uses "home.title" -->
-  <I18nT keypath="description" /> <!-- Uses "home.description" -->
-</I18nGroup>
-```
-
-```tsx
-// React
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> {/* Uses "home.title" */}
-  <I18nT keypath="description" /> {/* Uses "home.description" */}
-</I18nGroup>
-```
-
-```tsx
-// Solid
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> {/* Uses "home.title" */}
-  <I18nT keypath="description" /> {/* Uses "home.description" */}
-</I18nGroup>
-```
-
-```astro
-<!-- Astro -->
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> <!-- Uses "home.title" -->
-  <I18nT keypath="description" /> <!-- Uses "home.description" -->
-</I18nGroup>
-```
-
-### DevTools Integration
-
-All framework packages support DevTools integration through the `@i18n-micro/devtools-ui` Vite plugin. See the [DevTools UI Package documentation](./devtools-ui-package.md) for details.
-
-## Shared `createI18n` options {#create-i18n-options}
-
-Every framework package is created the same way — only the options type is named after
-the framework (`ReactI18nOptions`, `SolidI18nOptions`, and so on). The options themselves
-are identical:
-
-| Property         | Type                                                       | Required | Default          | Description                                    |
-| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
-| `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
-| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
-| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial root translation messages by locale    |
-| `routeMessages`  | `Record<string, Record<string, Translations>>`             | ❌       | -                | Route-scoped messages (`route → locale → msgs`), via `@i18n-micro/runtime` |
-| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
-| `missingWarn`    | `boolean`                                                  | ❌       | `true`           | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
-
-Anything beyond these is framework-specific and documented on that package's page.
-
-## Router Adapter Abstraction
-
-All framework packages use a **router adapter pattern** to decouple i18n functionality from specific router implementations. This design allows:
-
-- **Flexibility** - Use any router library or no router at all
-- **Framework independence** - Keep routing logic in your application, not in the i18n package
-- **Lightweight core** - The i18n package remains small and focused
-
-### Implementing a Router Adapter
-
-To use routing features, you need to implement the `I18nRoutingStrategy` interface:
-
-```typescript
-interface I18nRoutingStrategy {
-  getCurrentPath: () => string
-  linkComponent?: Component
-  push: (target: { path: string }) => void
-  replace: (target: { path: string }) => void
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
-  getRoute?: () => { fullPath: string; query: Record<string, unknown> }
+const plural: PluralFunc = (key, count, params, _locale, getter) => {
+  const value = getter(key)
+  if (typeof value !== 'string') return null
+  const forms = value.split('|').map((form) => form.trim())
+  return (count === 1 ? forms[0] : forms[1] ?? forms[0])!.replace('{count}', String(count))
 }
 ```
 
-Each package documentation includes complete examples of implementing adapters for popular routers:
+## Router adapter
 
-- **Vue**: Vue Router adapter example
-- **React**: React Router adapter example
-- **Solid**: Solid Router adapter example
-- **Astro**: File-based routing adapter example
+The SPA packages do not depend on a router. A router adapter (`I18nRoutingStrategy`) tells them how to read the current path, navigate and build a localized path. The built-in adapters prefix every locale except `defaultLocale` (`/about`, `/de/about`).
 
-## Core Features
+| Member | Required | Used by |
+| --- | --- | --- |
+| `getCurrentPath(): string` | yes | active link check, `switchLocale` |
+| `push({ path }): void` | yes | `switchLocale`, `<I18nLink>` without `linkComponent`, `<I18nSwitcher>` |
+| `replace({ path }): void` | yes | — |
+| `resolvePath(to, locale)` | no | `localePath`, `localeRoute`, `<I18nLink>`; without it paths are returned as is |
+| `linkComponent` | no | `<I18nLink>` renders it (e.g. `RouterLink`) instead of `<a>` |
+| `getRoute()` | no | `{ fullPath, query }` for SEO helpers |
 
-All packages share these core features:
+`push` and `replace` are required in Vue, React, Preact and Solid. Astro has its own, server-side adapter with optional `push`/`replace` (see [Astro](./astro-package#router-adapter)).
 
-### Translation Methods
+A minimal adapter for any history-based router:
 
-- `t()` - Basic translation with parameter interpolation
-- `ts()` - Translation that always returns a string
-- `tc()` - Pluralization-aware translation
-- `tn()` - Number formatting
-- `td()` - Date formatting
-- `tdr()` - Relative time formatting
-- `has()` - Check if translation key exists
+```ts
+import type { I18nRoutingStrategy } from '@i18n-micro/react'
 
-### Locale Management
+const locales = ['en', 'de']
+const stripLocale = (path: string) => path.replace(/^\/(en|de)(?=\/|$)/, '') || '/'
 
-- **Locale switching** - Change current locale programmatically
-- **Fallback locale** - Automatic fallback when translation is missing
-- **Route-specific translations** - Page-level translation organization
-- **Translation caching** - Intelligent caching for performance
+export const historyAdapter: I18nRoutingStrategy = {
+  getCurrentPath: () => window.location.pathname,
+  push: ({ path }) => window.history.pushState({}, '', path),
+  replace: ({ path }) => window.history.replaceState({}, '', path),
+  resolvePath: (to, locale) => {
+    const path = stripLocale(typeof to === 'string' ? to : to.path || '/')
+    return locale === 'en' ? path : `/${locale}${path === '/' ? '' : path}`
+  },
+}
+```
 
-### TypeScript Support
+## Components
 
-All packages provide:
+Vue, React, Preact and Solid ship the same four components. Their props match; React, Preact and Solid pass other props through to the root element.
 
-- Full TypeScript definitions
-- Type-safe translation keys (with types generator)
-- IntelliSense support in IDEs
-- Compile-time error checking
+### `<I18nT>`
 
-## Getting Started
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `keypath` | `string` | required |
+| `params` | `object` | interpolation values |
+| `plural` | `number \| string` | renders `tc(keypath, count)` |
+| `number` | `number \| string` | passes `tn(number)` as `{number}` |
+| `date` | `Date \| string \| number` | passes `td(date)` as `{date}` |
+| `relativeDate` | `Date \| string \| number` | passes `tdr(relativeDate)` as `{relativeDate}` |
+| `tag` | `string` | wrapper element, default `span` |
+| `html` | `boolean` | render the value as HTML; only for trusted strings |
+| `defaultValue` | `string` | rendered when `hideIfEmpty` hides an empty value |
+| `hideIfEmpty` | `boolean` | render nothing for an empty translation |
+| `customPluralRule` | `PluralFunc` | plural rule for this element |
 
-1. **Skim a playground** - Open the [table above](#playgrounds) for your stack to see a full setup
-2. **Choose your package** - Select the package for your framework
-3. **Install the package** - Use your preferred package manager
-4. **Read the documentation** - Each package has detailed setup instructions
-5. **Implement router adapter** - If you need routing features, implement the adapter
-6. **Start translating** - Use components and methods to add translations
+Only one formatting prop applies, checked in this order: `number`, `date`, `relativeDate`, `plural`. In Vue, named slots replace `{placeholder}`s in the value.
 
-For detailed setup instructions, see the documentation for your specific package:
+### `<I18nLink>`
 
-- [Vue Package Documentation](./vue-package.md)
-- [React Package Documentation](./react-package.md)
-- [Preact Package Documentation](./preact-package.md)
-- [Solid Package Documentation](./solid-package.md)
-- [Astro Package Documentation](./astro-package.md)
-- [VitePress Package Documentation](./vitepress-package.md)
-- [VitePress Package Documentation](./vitepress-package.md)
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `to` | `string \| { path }` | localized through the adapter's `resolvePath` |
+| `activeStyle` | style object | applied when the current path equals the link path |
+| `localeRoute` | function | overrides `resolvePath` for this link |
 
-## Comparison with Nuxt Module
+External URLs (`https://`, `mailto:`, `tel:`) render as `<a target="_blank" rel="noopener noreferrer">`.
 
-| Feature                | Nuxt Module    | Integration Packages                  |
-| ---------------------- | -------------- | ------------------------------------- |
-| Translation methods    | ✅             | ✅                                    |
-| Components             | ✅             | ✅ (subset)                           |
-| Router integration     | ✅ (automatic) | ✅ (via adapter)                      |
-| SSR support            | ✅             | ✅ (Astro / VitePress prerender)      |
-| DevTools               | ✅             | ✅                                    |
-| Auto locale detection  | ✅             | ✅ (Astro primarily)                  |
-| SEO meta tags          | ✅             | ✅ (Astro primarily)                  |
-| File-based routing     | ✅             | ❌ (VitePress uses its own `locales`) |
-| Nuxt-specific features | ✅             | ❌                                    |
+### `<I18nSwitcher>`
 
-## License
+A dropdown of enabled locales (`disabled: true` locales are hidden) with inline default styles. Clicking a locale sets it and calls the adapter's `push` with the localized current path.
 
-MIT
+| Prop | Notes |
+| --- | --- |
+| `locales`, `currentLocale`, `getLocaleName` | override the provided values |
+| `switchLocale(code)` | replaces the built-in switch |
+| `localeRoute` | replaces `resolvePath` |
+| `customLabels` | `{ de: 'DE' }` |
+| `customWrapperStyle`, `customButtonStyle`, `customDropdownStyle`, `customItemStyle`, `customLinkStyle`, `customActiveLinkStyle`, `customDisabledLinkStyle`, `customIconStyle` | style overrides |
+
+### `<I18nGroup>`
+
+A `<div class="i18n-group">` that hands a prefixed `t` to its children. It does **not** prefix `<I18nT>` or `t()` calls inside it; only the `t` it passes down is prefixed.
+
+| Prop | Notes |
+| --- | --- |
+| `prefix` | required, e.g. `'profile'` |
+| `groupClass` | extra class on the wrapper |
+
+The prefixed `t` comes through a scoped slot in Vue (`v-slot="{ t }"`) and a render-prop child in React, Preact and Solid (`{({ t }) => …}`).
+
+## Typed keys
+
+`t()` accepts any string. To get autocomplete for your keys, generate a declaration with the [types generator](./types-generator). Keys are suggested, not enforced, and params are not typed.
+
+## Compared with the Nuxt module
+
+The packages have no file-based routing, no server middleware and no translation loader: you decide when to load JSON (`import`, `fetch`, or `@i18n-micro/node` on the server) and which router adapter to use. Locale detection, SEO meta and route generation are Nuxt features; Astro has its own middleware for detection and `useLocaleHead` for SEO.
+
+## Related
+
+- [Package reference](/api/packages) — every export and signature
+- [Translations](/guide/translations) — the file layout these packages read
+- [Getting started with Nuxt](/guide/getting-started)

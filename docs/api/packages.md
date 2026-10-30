@@ -1,25 +1,19 @@
 ---
 title: 'Package APIs'
-description: 'The exported API of every workspace package, read at build time from the snapshots CI checks against the source.'
-outline: 'deep'
+description: 'The exported API of every @i18n-micro/* package, generated from the API snapshots CI checks against the source.'
+outline: [2, 3]
 ---
 
 # Package APIs
 
-`nuxt-i18n-micro` is built from a set of small packages, most of which are usable on
-their own — `@i18n-micro/vue` in a plain Vue app, `@i18n-micro/core` anywhere.
-
-Each page below is generated from the API snapshot that
-[`pnpm run api:surface`](/guide/maintenance-commands#api-surface) checks against the
-TypeScript sources, so an export cannot disappear without either this reference changing
-or CI failing.
+The Nuxt module is built from small `@i18n-micro/*` packages, and most of them work on their own: `@i18n-micro/vue` in a Vue app, `@i18n-micro/core` anywhere. Use these pages to look up what a package exports, per entry point. Each page is generated from the snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface) checks against the TypeScript sources, so an export cannot change without CI noticing.
 
 <!-- generated:packages-index — do not edit; run `pnpm run docs:generate` -->
 
 | Package | Entry points | Exports |
 | --- | --- | --- |
 | [`@i18n-micro/astro`](/api/packages/astro) | `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue` | 58 |
-| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 58 |
+| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 60 |
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 25 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 20 |
@@ -37,8 +31,8 @@ or CI failing.
 
 <!-- /generated:packages-index -->
 
-## See also
+## Related
 
-- [Integrations](/integrations/) — guides for using these packages in each framework
-- [Module Options](/api/module-options) — options accepted by the Nuxt module
-- [Methods](/api/methods) — the runtime helpers available inside components
+- [Framework packages](/integrations/) — setup guides for each package
+- [Module options](/api/module-options) — options of the Nuxt module
+- [Helpers](/api/methods) — runtime helpers of the Nuxt module

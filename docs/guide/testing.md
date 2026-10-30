@@ -1,170 +1,133 @@
 ---
-title: 'Testing `Nuxt I18n Micro` Module'
-description: 'Test i18n behavior in your Nuxt app.'
-outline: 'deep'
+title: Testing your app
+description: Unit-test components that use $t with @i18n-micro/test-utils and Vitest, and check localized pages end to end.
+outline: [2, 3]
 ---
 
-# 🧪 Testing `Nuxt I18n Micro` Module
+# Testing your app
 
-## 📖 Introduction to Testing
+Components that call `useI18n()` need an i18n instance in unit tests. `@i18n-micro/test-utils` gives you a fake `useI18n()` with real translation, plural and formatting logic, so you can mount a component with your own dictionaries and no Nuxt server. For routing and redirects, run the real module end to end with `@nuxt/test-utils`.
 
-Testing the `Nuxt I18n Micro` module is crucial to ensure that your application's localization features work as expected. This documentation will guide you through setting up the testing environment, creating mock configurations for vitest, and writing tests for your components. For a practical example, you can refer to the [example project on GitHub](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils/example).
+This page is about testing your application. How this repository tests the module itself is on [Testing the module](/contributing/testing).
 
-See [Testing routing strategies](/guide/testing-strategies) for how this repository runs its own suites — the `unit` / `integration` / `e2e` Vitest projects, the per-strategy files (`test/strategies-*.test.ts`), and generate regressions.
+## Install
 
-## 🛠️ Setting Up the Testing Environment
+::: code-group
 
-### 1. Install `@i18n-micro/test-utils`
-
-```bash
-npm install @i18n-micro/test-utils --save-dev
+```bash [pnpm]
+pnpm add -D @i18n-micro/test-utils @nuxt/test-utils vitest @vue/test-utils happy-dom
 ```
 
-### 2. Create a Mock Configuration File
+```bash [npm]
+npm install -D @i18n-micro/test-utils @nuxt/test-utils vitest @vue/test-utils happy-dom
+```
 
-Prefer `setupNuxtI18nMock` — isolated state, optional factory seeds, and auto-`beforeEach` reseed. Keep `mockNuxtImport` in this file so `@nuxt/test-utils` can transform it:
+:::
 
-```typescript
+## Mock useI18n
+
+```ts
 // tests/unit-setup.ts
-
 import { setupNuxtI18nMock } from '@i18n-micro/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, vi } from 'vitest'
 
-const { i18n, useI18n, setTranslationsFromJson } = setupNuxtI18nMock({
-  spy: vi.fn,
-  beforeEach,
-  // optional: translations: { welcome: 'Welcome' },
+export const { i18n, useI18n, setTranslationsFromJson } = setupNuxtI18nMock({
+  spy: vi.fn, // every method becomes a vi.fn, so you can assert calls
+  beforeEach, // reset state and reseed `translations` before each test
+  translations: { welcome: 'Welcome' },
 })
 
 mockNuxtImport('useI18n', () => useI18n)
-
-export { i18n, setTranslationsFromJson }
 ```
 
-`createFakeI18n({ spy, translations, strategy, isolated })` remains available for lower-level setups. Pass `{ spy: vi.fn }` for Vitest spies; omit `spy` for plain functions.
-
-### 3. Configure Vitest
-
-```typescript
+```ts
 // vitest.config.ts
-
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
   test: {
-    watch: false,
+    environment: 'nuxt',
     setupFiles: ['./tests/unit-setup.ts'],
-    include: ['./**/*.spec.ts'],
   },
 })
 ```
 
-## 🧪 Writing Tests
+Keep `mockNuxtImport` in the setup file: `@nuxt/test-utils` has to transform it. `setupNuxtI18nMock` uses a private translation cache, so parallel test files do not share state.
 
-### Example Component
+## Write a test
 
 ```vue
+<!-- components/Greeting.vue -->
 <script setup lang="ts">
 const { $t } = useI18n()
-
-const props = defineProps({
-  message: {
-    type: String,
-    default: null,
-  },
-})
-
-// Test to see that $t works in script setup as well as the template
-const message = props.message || $t('defaultMessage')
 </script>
 
 <template>
-  <div>
-    <p>Test from component: {{ $t('welcome') }}</p>
-    <p data-testid="message">Test message from props: {{ message }}</p>
-  </div>
+  <p>{{ $t('welcome') }}</p>
 </template>
 ```
 
-### Test File
+```ts
+// tests/greeting.spec.ts
+import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { expect, it } from 'vitest'
+import Greeting from '~/components/Greeting.vue'
+import de from '~/locales/de.json'
+import { i18n, setTranslationsFromJson } from './unit-setup'
 
-```typescript
-// tests/unit/example.spec.ts
+it('renders the German greeting', async () => {
+  await setTranslationsFromJson('de', de)
+  i18n.setLocale('de')
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import ExampleComponent from '@/components/ExampleComponent.vue'
-import fs from 'fs'
-import path from 'path'
-import { setTranslationsFromJson } from './unit-setup'
+  const wrapper = await mountSuspended(Greeting)
+  expect(wrapper.text()).toBe('Willkommen') // de.json: { "welcome": "Willkommen" }
+})
+```
 
-describe('ExampleComponent', () => {
-  beforeEach(async () => {
-    const fileContent = fs.readFileSync(path.join(__dirname, '../../locales/en-GB.json')).toString()
-    await setTranslationsFromJson('en', JSON.parse(fileContent))
+The fake exposes the same methods as the real `useI18n()` (`$t`, `$tc`, `$tn`, `$td`, `$has`, `$localePath`, …, with and without `$`) plus setters for tests: `setLocale`, `setLocales`, `setDefaultLocale`, `setRouteName`, `setTranslationsFromJson`, `loadPageTranslations`, `mergeTranslations`, `setMissingHandler`.
+
+`$localePath` and `$switchLocalePath` are stubs that prefix the path according to the `strategy` option (no real router). Test real links and redirects end to end.
+
+## Lower-level helpers
+
+| Helper | Use it for |
+| --- | --- |
+| `createIsolatedFakeI18n(options)` | An isolated fake without the Nuxt `useI18n` wiring, e.g. for plain `@vue/test-utils` `mount` with `global.mocks`. |
+| `createFakeI18n(options)` | A fake on the shared module cache (call `resetI18n()` in `beforeEach`), or isolated with `isolated: true`. |
+| `createI18nTestContext(options)` | The context behind both, when you need several fakes. |
+| `t`, `tc`, `ts`, `tn`, `td`, `tdr`, `has` | Direct calls on the shared context, for testing plain functions. |
+
+The factory helpers above accept `locale`, `defaultLocale`, `locales`, `routeName`, `strategy`, `translations` and `messages` (dictionaries per locale). A complete example project lives in [`packages/test-utils/example`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils/example).
+
+## End-to-end tests
+
+Routing, redirects, SEO tags and payload loading need the real module. Start your app with `@nuxt/test-utils/e2e`:
+
+```ts
+// tests/e2e/locales.test.ts
+import { $fetch, fetch, setup } from '@nuxt/test-utils/e2e'
+import { describe, expect, it } from 'vitest'
+
+describe('locales', async () => {
+  await setup({ server: true })
+
+  it('serves the German page', async () => {
+    expect(await $fetch('/de')).toContain('lang="de-DE"')
   })
 
-  it('renders the welcome message correctly', () => {
-    const wrapper = mount(ExampleComponent)
-    expect(wrapper.text()).toContain('Test from component: Welcome')
-  })
-
-  it('renders the default message correctly', () => {
-    const wrapper = mount(ExampleComponent)
-    expect(wrapper.find('[data-testid="message"]').text()).toContain('Test message from props: Default Message')
-  })
-
-  it('renders the custom message correctly', () => {
-    const wrapper = mount(ExampleComponent, {
-      props: {
-        message: 'Custom Message',
-      },
-    })
-    expect(wrapper.find('[data-testid="message"]').text()).toContain('Test message from props: Custom Message')
+  it('redirects / for a German browser', async () => {
+    const res = await fetch('/', { headers: { 'accept-language': 'de' }, redirect: 'manual' })
+    expect(res.headers.get('location')).toBe('/de')
   })
 })
 ```
 
-## 📝 Best Practices for Testing
+The second test assumes `prefix` (or `prefix_except_default` with another default locale); see [Locale detection](/guide/locale-detection) for when `/` redirects.
 
-- **🔧 Mock i18n Functions:** Prefer `setupNuxtI18nMock` + `mockNuxtImport('useI18n', () => useI18n)`.
-- **♻️ Isolation:** The harness uses a private cache; for shared helpers call `resetI18n()` in `beforeEach`.
-- **⚙️ Use Vitest for Unit Tests:** Pair with `@nuxt/test-utils` (`mountSuspended` / `renderSuspended`) or `@vue/test-utils`.
-- **📚 Document Your Tests:** Clearly document the purpose and expected outcomes of each test.
+## Related
 
-## 📊 i18n Utility Methods
-
-Below is a table describing the main helpers from `@i18n-micro/test-utils`.
-
-| Method                                                  | Description                                                                |
-| ------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `setupNuxtI18nMock(options?)`                           | Isolated fake + `useI18n` factory; pass `beforeEach` to auto-reseed.       |
-| `createIsolatedFakeI18n(options?)`                      | Isolated fake without Nuxt wiring.                                         |
-| `createI18nTestContext(options?)`                       | Low-level context (`t`, path stubs, `createFake`).                         |
-| `resetI18n(options?)`                                   | Clears the **shared** translation cache and restores default locale state. |
-| `createFakeI18n({ spy?, translations?, strategy?, … })` | Builds a `useI18n()`-shaped mock (`$t` + `t` + `helper`).                  |
-| `t(key, params, defaultValue)`                          | Translates a key with optional parameters and a default value.             |
-| `tc(key, params, defaultValue)`                         | Translates a key with pluralization support.                               |
-| `_t(route)` / `_ts(route)`                              | Bind `t` / `ts` to another route name (`$_t` / `$_ts`).                    |
-| `setTranslationsFromJson(locale, translations)`         | Loads translations from a JSON object for a specific locale.               |
-| `loadPageTranslations(locale, routeName, translations)` | Loads a page-specific dictionary chunk.                                    |
-| `setMissingHandler(handler)`                            | Callback for unresolved keys (`null` to clear).                            |
-| `getLocale()` / `setLocale(val)`                        | Read / set the current locale.                                             |
-| `getLocaleName()` / `setLocaleName(val)`                | Read / set the current locale display name.                                |
-| `getLocales()` / `setLocales(val)`                      | Read / set the locale list.                                                |
-| `defaultLocale()` / `setDefaultLocale(val)`             | Read / set the default locale.                                             |
-| `getRouteName()`                                        | Returns the current route name used for page translations.                 |
-| `setRouteName(val)`                                     | Sets the route name (`settRouteName` kept as a typo alias).                |
-| `ts(key, params, defaultValue)`                         | Translates a key and returns the result as a string.                       |
-| `tn(value, options?)`                                   | Formats a number with inline `Intl.NumberFormatOptions`.                   |
-| `td(value, options?)`                                   | Formats a date with inline `Intl.DateTimeFormatOptions`.                   |
-| `tdr(value, options?)`                                  | Formats a relative time with `Intl.RelativeTimeFormat`.                    |
-| `has(key)`                                              | Checks if a translation key exists.                                        |
-| `resolveTranslations()`                                 | Returns the active translation tree for the current locale and route.      |
-| `setTranslation(key, value)`                            | Replaces the value at `key` in the active dictionary (replace, not merge). |
-| `mergeTranslations(newTranslations)`                    | Merges translations into the active locale at runtime.                     |
-| `localePath(to, locale?)`                               | Prefix stub: `'/en/about'` (respects `strategy`; no real vue-router).      |
-| `switchLocalePath(locale)`                              | Stub path for the last `localePath` target — **does not** change locale.   |
-
-By following these steps, you can effectively test the `Nuxt I18n Micro` module and ensure that your application's localization features work as expected.
+- [Testing the module](/contributing/testing)
+- [`useI18n`](/composables/useI18n)
+- [Locale detection](/guide/locale-detection)
+- [Storybook](/guide/storybook)

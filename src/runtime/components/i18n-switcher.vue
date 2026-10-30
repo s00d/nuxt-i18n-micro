@@ -80,8 +80,8 @@ interface Locale {
  * A locale switcher: a button showing the current locale and a dropdown of the rest,
  * each linking to the equivalent route in that locale.
  *
- * Every visual part is unstyled by default and can be replaced through a slot or styled
- * through the matching `custom*Style` prop.
+ * It ships small inline default styles; each `custom*Style` prop is merged on top of the
+ * matching part, and the slots add markup around it. Locales with `disabled: true` are not listed.
  */
 defineOptions({ name: 'I18nSwitcher' })
 

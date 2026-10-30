@@ -1,16 +1,74 @@
+import { readdirSync } from 'node:fs'
 import llmstxt from 'vitepress-plugin-llms'
-import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
+import { writeRedirectStubs } from './redirect-stubs'
+import { redirectTarget } from './redirects'
 import { SITE, transformHead } from './seo'
 
 const docsBase = process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/'
 
+// `docs:generate` writes one page per workspace package, so the list is read from disk
+// and a new package appears without touching this file.
+const packagePages = readdirSync(new URL('../api/packages/', import.meta.url))
+  .filter((file) => file.endsWith('.md'))
+  .map((file) => file.replace(/\.md$/, ''))
+  .sort()
+
+// One file per release, newest first; a new `news/vX.Y.Z.md` appears here without touching this file.
+const versionParts = (page: string) => page.slice(1).split('.').map(Number)
+const newsPages = readdirSync(new URL('../news/', import.meta.url))
+  .filter((file) => file.endsWith('.md') && file !== 'index.md')
+  .map((file) => file.replace(/\.md$/, ''))
+  .sort((a, b) => {
+    const [x, y] = [versionParts(a), versionParts(b)]
+    return y[0]! - x[0]! || y[1]! - x[1]! || y[2]! - x[2]!
+  })
+
+/** `/api/`, `/composables/` and `/components/` are one reference with one sidebar. */
+const apiSidebar = [
+  {
+    text: 'Nuxt module',
+    items: [
+      { text: 'Overview', link: '/api/' },
+      { text: 'Module options', link: '/api/module-options' },
+      { text: 'Helpers ($t, $localePath, …)', link: '/api/methods' },
+      { text: 'Hooks', link: '/api/events' },
+    ],
+  },
+  {
+    text: 'Composables',
+    base: '/composables',
+    items: [
+      { text: 'useI18n', link: '/useI18n' },
+      { text: 'useI18nLocale', link: '/useI18nLocale' },
+      { text: 'useI18nHead', link: '/useI18nHead' },
+      { text: 'useLocaleHead', link: '/useLocaleHead' },
+    ],
+  },
+  {
+    text: 'Components',
+    base: '/components',
+    items: [
+      { text: 'i18n-t', link: '/i18n-t' },
+      { text: 'i18n-link', link: '/i18n-link' },
+      { text: 'i18n-switcher', link: '/i18n-switcher' },
+      { text: 'i18n-group', link: '/i18n-group' },
+    ],
+  },
+  {
+    text: 'Packages',
+    base: '/api',
+    collapsed: true,
+    items: [{ text: 'Package APIs', link: '/packages' }, ...packagePages.map((slug) => ({ text: `@i18n-micro/${slug}`, link: `/packages/${slug}` }))],
+  },
+]
+
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(
   withChartjs(
-    withMermaid({
+    {
       vite: {
         plugins: [
           // Publishes the docs in the form an LLM can actually read: `/llms.txt` as an
@@ -36,7 +94,6 @@ export default withFolderTree(
             output: {
               manualChunks(id) {
                 if (id.includes('chart.js')) return 'chartjs'
-                if (id.includes('mermaid')) return 'mermaid'
                 if (id.includes('vitepress-plugin-folder-tree')) return 'folder-tree'
                 if (id.includes('vitepress-plugin-chartjs')) return 'vp-chartjs'
               },
@@ -53,6 +110,13 @@ export default withFolderTree(
       base: docsBase,
 
       transformHead,
+
+      // A link to a moved page still works: the redirect map sends it on.
+      ignoreDeadLinks: [(url: string) => redirectTarget(url) !== undefined],
+
+      buildEnd(site) {
+        writeRedirectStubs(site.outDir, site.site.base)
+      },
 
       sitemap: {
         hostname: 'https://s00d.github.io',
@@ -134,88 +198,13 @@ new MutationObserver(() => {
           provider: 'local',
         },
         // https://vitepress.dev/reference/default-theme-config
+        // One entry per audience, no dropdowns: each opens its own sidebar.
         nav: [
-          { text: 'Home', link: '/' },
+          { text: 'Guide', link: '/guide/getting-started' },
+          { text: 'Frameworks', link: '/integrations/' },
+          { text: 'API', link: '/api/' },
+          { text: 'Contributing', link: '/contributing/' },
           { text: 'News', link: '/news' },
-          {
-            text: 'Guide',
-            items: [
-              { text: 'Getting Started', link: '/guide/getting-started' },
-              { text: 'Configuration', link: '/guide/configuration' },
-              { text: 'Using', link: '/guide/using' },
-              { text: 'Firebase Deployment', link: '/guide/firebase' },
-              { text: 'Performance', link: '/guide/performance' },
-              { text: 'Performance methodology', link: '/guide/performance-methodology' },
-              { text: 'Performance Test Results', link: '/guide/performance-results' },
-              { text: 'Folder Structure', link: '/guide/folder-structure' },
-              { text: 'Layers', link: '/guide/layers' },
-              { text: 'SEO', link: '/guide/seo' },
-              { text: 'Migration from nuxt-i18n', link: '/guide/migration' },
-              { text: 'Upgrade to v3', link: '/guide/v3-upgrade' },
-              { text: 'Contribution', link: '/guide/contribution' },
-              { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
-              { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
-              { text: 'Per Component Translations', link: '/guide/per-component-translations' },
-              { text: 'Crowdin Integration', link: '/guide/crowdin' },
-              { text: 'FAQ', link: '/guide/faq' },
-              { text: 'Server Side Translations', link: '/guide/server-side-translations' },
-              { text: 'Strategy', link: '/guide/strategy' },
-              { text: 'DevTools', link: '/guide/devtools' },
-              { text: 'Testing', link: '/guide/testing' },
-              { text: 'Preset local testing', link: '/guide/preset-local-testing' },
-              { text: 'Storybook', link: '/guide/storybook' },
-              { text: 'Custom Auto Detect', link: '/guide/custom-auto-detect' },
-              { text: 'Runtime Overrides', link: '/guide/runtime-overrides' },
-              { text: 'Excluding Static Files', link: '/guide/excluding-static-files' },
-              { text: 'CLI Tool', link: '/guide/cli' },
-            ],
-          },
-          {
-            text: 'Integrations',
-            items: [
-              { text: 'Overview', link: '/integrations/' },
-              { text: 'Vue Package', link: '/integrations/vue-package' },
-              { text: 'React Package', link: '/integrations/react-package' },
-              { text: 'Preact Package', link: '/integrations/preact-package' },
-              { text: 'Solid Package', link: '/integrations/solid-package' },
-              { text: 'Astro Package', link: '/integrations/astro-package' },
-              { text: 'VitePress Package', link: '/integrations/vitepress-package' },
-              { text: 'Runtime Package', link: '/integrations/runtime-package' },
-              { text: 'Node.js Package', link: '/integrations/nodejs-package' },
-              { text: 'Types Generator', link: '/integrations/types-generator' },
-              { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
-            ],
-          },
-          {
-            text: 'API',
-            items: [
-              { text: 'Overview', link: '/api/' },
-              { text: 'Methods', link: '/api/methods' },
-              { text: 'Events', link: '/api/events' },
-              { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
-            ],
-          },
-          { text: 'Examples', link: '/examples' },
-          {
-            text: 'Components',
-            items: [
-              { text: 'Overview', link: '/components/' },
-              { text: 'i18n-t', link: '/components/i18n-t' },
-              { text: 'i18n-switcher', link: '/components/i18n-switcher' },
-              { text: 'i18n-link', link: '/components/i18n-link' },
-              { text: 'i18n-group', link: '/components/i18n-group' },
-            ],
-          },
-          {
-            text: 'Composables',
-            items: [
-              { text: 'Overview', link: '/composables/' },
-              { text: 'useI18n', link: '/composables/useI18n' },
-              { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
-              { text: 'useI18nHead', link: '/composables/useI18nHead' },
-              { text: 'useI18nLocale', link: '/composables/useI18nLocale' },
-            ],
-          },
           {
             text: pkg.version,
             items: [
@@ -237,130 +226,114 @@ new MutationObserver(() => {
         },
 
         sidebar: {
-          '/integrations/': [
-            {
-              text: 'Integrations',
-              base: '/integrations',
-              items: [
-                { text: 'Overview', link: '/' },
-                { text: 'Vue Package', link: '/vue-package' },
-                { text: 'React Package', link: '/react-package' },
-                { text: 'Preact Package', link: '/preact-package' },
-                { text: 'Solid Package', link: '/solid-package' },
-                { text: 'Astro Package', link: '/astro-package' },
-                { text: 'VitePress Package', link: '/vitepress-package' },
-                { text: 'Runtime Package', link: '/runtime-package' },
-                { text: 'Node.js Package', link: '/nodejs-package' },
-                { text: 'Types Generator', link: '/types-generator' },
-                { text: 'Devtools Package', link: '/devtools-ui-package' },
-              ],
-            },
-          ],
           '/guide/': [
             {
-              text: 'Guide',
+              text: 'Getting started',
               base: '/guide',
               items: [
-                { text: 'Getting Started', link: '/getting-started' },
-                { text: 'Configuration', link: '/configuration' },
-                { text: 'Folder Structure', link: '/folder-structure' },
-                { text: 'Routing Strategy', link: '/strategy' },
-                {
-                  text: 'Usage',
-                  collapsed: true,
-                  items: [
-                    { text: 'Translating Content', link: '/using' },
-                    { text: 'Per Component Translations', link: '/per-component-translations' },
-                    { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
-                    { text: 'Custom Auto Detect', link: '/custom-auto-detect' },
-                    { text: 'Runtime Overrides', link: '/runtime-overrides' },
-                    { text: 'Layers', link: '/layers' },
-                  ],
-                },
-                {
-                  text: 'SEO & URLs',
-                  collapsed: true,
-                  items: [
-                    { text: 'SEO', link: '/seo' },
-                    { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
-                    { text: 'Excluding Static Files', link: '/excluding-static-files' },
-                  ],
-                },
-                {
-                  text: 'Performance & Deployment',
-                  collapsed: true,
-                  items: [
-                    { text: 'Performance', link: '/performance' },
-                    { text: 'Benchmark Results', link: '/performance-results' },
-                    { text: 'Server Side Translations', link: '/server-side-translations' },
-                    { text: 'Firebase Deployment', link: '/firebase' },
-                    { text: 'Release Smoke Checks', link: '/release-smoke' },
-                    { text: 'Preset local testing', link: '/preset-local-testing' },
-                    { text: 'Maintenance Commands', link: '/maintenance-commands' },
-                  ],
-                },
-                {
-                  text: 'Tooling',
-                  collapsed: true,
-                  items: [
-                    { text: 'CLI Tool', link: '/cli' },
-                    { text: 'DevTools', link: '/devtools' },
-                    { text: 'Testing Your App', link: '/testing' },
-                    { text: 'Storybook', link: '/storybook' },
-                    { text: 'Crowdin Integration', link: '/crowdin' },
-                  ],
-                },
-                {
-                  text: 'Migration & Help',
-                  collapsed: true,
-                  items: [
-                    { text: 'Migration from nuxt-i18n', link: '/migration' },
-                    { text: 'Upgrade to v3', link: '/v3-upgrade' },
-                    { text: 'FAQ', link: '/faq' },
-                    { text: 'Contribution', link: '/contribution' },
-                    { text: 'Testing the Module', link: '/testing-strategies' },
-                  ],
-                },
+                { text: 'Getting started', link: '/getting-started' },
+                { text: 'Migrating from @nuxtjs/i18n', link: '/migration' },
+                { text: 'Upgrading', link: '/upgrade' },
+              ],
+            },
+            {
+              text: 'Concepts',
+              base: '/guide',
+              items: [
+                { text: 'Translation files', link: '/translations' },
+                { text: 'Routing strategies', link: '/strategy' },
+                { text: 'Locale detection', link: '/locale-detection' },
+              ],
+            },
+            {
+              text: 'Guides',
+              base: '/guide',
+              items: [
+                { text: 'Page config', link: '/per-component-translations' },
+                { text: 'Localized paths', link: '/custom-locale-routes' },
+                { text: 'Custom locale detection', link: '/custom-auto-detect' },
+                { text: 'SEO', link: '/seo' },
+                { text: 'Server routes and API', link: '/server-side-translations' },
+                { text: 'Excluding paths', link: '/excluding-static-files' },
+                { text: 'Layers and domains', link: '/layers' },
+                { text: 'Runtime overrides', link: '/runtime-overrides' },
+              ],
+            },
+            {
+              text: 'Deploy and performance',
+              base: '/guide',
+              items: [
+                { text: 'Deployment', link: '/deployment' },
+                { text: 'Performance tuning', link: '/performance' },
+                { text: 'Benchmarks', link: '/performance-results' },
+              ],
+            },
+            {
+              text: 'Testing and tools',
+              base: '/guide',
+              items: [
+                { text: 'Testing your app', link: '/testing' },
+                { text: 'DevTools', link: '/devtools' },
+                { text: 'CLI', link: '/cli' },
+                { text: 'Crowdin', link: '/crowdin' },
+                { text: 'Storybook', link: '/storybook' },
+              ],
+            },
+            {
+              text: 'Help',
+              base: '/guide',
+              items: [{ text: 'FAQ', link: '/faq' }],
+            },
+          ],
+          '/integrations/': [
+            {
+              text: 'Overview',
+              base: '/integrations',
+              items: [{ text: 'Packages and shared concepts', link: '/' }],
+            },
+            {
+              text: 'Frameworks',
+              base: '/integrations',
+              items: [
+                { text: 'Vue', link: '/vue-package' },
+                { text: 'React and Preact', link: '/react-package' },
+                { text: 'Solid', link: '/solid-package' },
+                { text: 'Astro', link: '/astro-package' },
+                { text: 'Astro islands', link: '/astro-islands' },
+              ],
+            },
+            {
+              text: 'Other runtimes',
+              base: '/integrations',
+              items: [
+                { text: 'VitePress', link: '/vitepress-package' },
+                { text: 'Runtime', link: '/runtime-package' },
+                { text: 'Node.js', link: '/nodejs-package' },
+              ],
+            },
+            {
+              text: 'Tooling',
+              base: '/integrations',
+              items: [
+                { text: 'Types generator', link: '/types-generator' },
+                { text: 'DevTools UI', link: '/devtools-ui-package' },
               ],
             },
           ],
-          '/api/': [
+          '/api/': apiSidebar,
+          '/composables/': apiSidebar,
+          '/components/': apiSidebar,
+          '/contributing/': [
             {
-              text: 'API',
-              base: '/api',
+              text: 'Contributing',
+              base: '/contributing',
               items: [
-                { text: 'Overview', link: '/' },
-                { text: 'Methods', link: '/methods' },
-                { text: 'Events', link: '/events' },
-                { text: 'Translations and Cache', link: '/i18n-cache-api' },
-                { text: 'Module Options', link: '/module-options' },
-                { text: 'Package APIs', link: '/packages' },
-              ],
-            },
-          ],
-          '/components/': [
-            {
-              text: 'Components',
-              base: '/components',
-              items: [
-                { text: 'Overview', link: '/' },
-                { text: 'i18n-t Component', link: '/i18n-t' },
-                { text: 'i18n-switcher Component', link: '/i18n-switcher' },
-                { text: 'i18n-link Component', link: '/i18n-link' },
-                { text: 'i18n-group Component', link: '/i18n-group' },
-              ],
-            },
-          ],
-          '/composables/': [
-            {
-              text: 'Composables',
-              base: '/composables',
-              items: [
-                { text: 'Overview', link: '/' },
-                { text: 'useI18n', link: '/useI18n' },
-                { text: 'useLocaleHead', link: '/useLocaleHead' },
-                { text: 'useI18nHead', link: '/useI18nHead' },
-                { text: 'useI18nLocale', link: '/useI18nLocale' },
+                { text: 'Contributing', link: '/' },
+                { text: 'Architecture', link: '/architecture' },
+                { text: 'Testing the module', link: '/testing' },
+                { text: 'Maintenance commands', link: '/maintenance-commands' },
+                { text: 'Release smoke and presets', link: '/release-smoke' },
+                { text: 'Benchmark methodology', link: '/performance-methodology' },
               ],
             },
           ],
@@ -368,20 +341,15 @@ new MutationObserver(() => {
             {
               text: 'News',
               base: '/news',
-              items: [{ text: 'Release notes', link: '/' }],
+              items: [
+                { text: 'All releases', link: '/' },
+                ...newsPages.map((page) => ({ text: page, link: `/${page}` })),
+              ],
             },
           ],
         },
 
         socialLinks: [{ icon: 'github', link: 'https://github.com/s00d/nuxt-i18n-micro' }],
-      },
-
-      // Mermaid configuration
-      mermaid: {
-        theme: 'default',
-      },
-      mermaidPlugin: {
-        class: 'mermaid-chart',
       },
 
       // Chart.js configuration
@@ -396,6 +364,6 @@ new MutationObserver(() => {
           'rgba(153, 102, 255, 0.8)',
         ],
       },
-    }),
+    },
   ),
 )

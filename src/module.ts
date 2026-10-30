@@ -5,6 +5,7 @@ import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-mic
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { buildFullConfigSource } from './config-template'
 import type {
   Getter,
   GlobalLocaleRoutes,
@@ -229,10 +230,9 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      const fullConfigJson = JSON.stringify(runtimeFullConfig)
       return `import { Strategy } from '${resolvedStrategyPath}'
 
-const __fullConfig = ${fullConfigJson}
+const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
 
 export function getI18nConfig() { return __fullConfig }
 

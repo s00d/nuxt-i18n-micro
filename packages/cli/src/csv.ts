@@ -15,7 +15,9 @@ export function parseCsv(content: string, name = 'the CSV'): string[][] {
   let openedAt = 0
 
   const malformed = (index: number): Error =>
-    validationError(`Quote out of place in ${name}, line ${content.slice(0, index).split('\n').length}.`, ['A quote inside a field is written "a ""b"" c".'])
+    validationError(`Quote out of place in ${name}, line ${content.slice(0, index).split('\n').length}.`, [
+      'A quote inside a field is written "a ""b"" c".',
+    ])
 
   const endCell = (): void => {
     row.push(cell)

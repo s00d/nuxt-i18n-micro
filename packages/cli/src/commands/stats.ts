@@ -102,7 +102,9 @@ function treesAtRef(project: Project, ref: string): Map<string, Trees> {
   const { rootDir, translationDir } = project.config
   assertRef(rootDir, ref)
   // The current side has no pages under `disablePageLocales`, so the baseline must not either.
-  const scopes = project.config.disablePageLocales ? [] : [...new Set([...project.reference.pageScopes, ...gitPageScopes(rootDir, ref, translationDir)])]
+  const scopes = project.config.disablePageLocales
+    ? []
+    : [...new Set([...project.reference.pageScopes, ...gitPageScopes(rootDir, ref, translationDir)])]
   return new Map(
     project.codes.map((code) => [
       code,

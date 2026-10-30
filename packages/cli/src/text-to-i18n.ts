@@ -303,7 +303,8 @@ function reportCode(content: string, file: string, lang = extname(file).slice(1)
       const node = raw as unknown as AstNode
       const text = node.type === 'JSXText' ? (node.value as string).trim() : staticString(node)
       if (!text || !isTranslatable(text) || isTechnical(text) || keyArguments.has(node.start!)) return
-      if (!isDataLiteral(node, parent as unknown as AstNode | null, key)) found.push({ file, line: lineOf(content, node.start!) + firstLine - 1, text })
+      if (!isDataLiteral(node, parent as unknown as AstNode | null, key))
+        found.push({ file, line: lineOf(content, node.start!) + firstLine - 1, text })
     },
   })
   return found

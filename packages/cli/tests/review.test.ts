@@ -90,7 +90,8 @@ describe('sync-remote', () => {
   it('a push stops on text only the remote holds', async () => {
     project(FILES)
     remote()
-    handler = (request, response) => json(response, request.method === 'GET' ? { en: { a: 'x', only: 'theirs' }, de: { blank: 'Text' }, fr: { b: 'c' } } : {})
+    handler = (request, response) =>
+      json(response, request.method === 'GET' ? { en: { a: 'x', only: 'theirs' }, de: { blank: 'Text' }, fr: { b: 'c' } } : {})
     const result = await runCli(push, { cwd: dir })
     expect(result.code).toBe(1)
     expect(puts()).toBe(0)
@@ -176,7 +177,11 @@ describe('lint', () => {
   const rules = (rule: Record<string, string>): string => JSON.stringify({ customRegexRules: [rule] })
 
   it('--fix counts what is still wrong after the fixes', async () => {
-    project({ 'locales/en.json': { a: 'foo' }, 'locales/de.json': {}, '.i18n-lintrc.json': rules({ name: 'r', pattern: 'foo', replacement: 'foo!' }) })
+    project({
+      'locales/en.json': { a: 'foo' },
+      'locales/de.json': {},
+      '.i18n-lintrc.json': rules({ name: 'r', pattern: 'foo', replacement: 'foo!' }),
+    })
     const result = await runCli(['lint', '--fix'], { cwd: dir })
     expect(result.code).toBe(1)
     expect(result.stdout).not.toContain('No issues remain')
@@ -201,7 +206,12 @@ describe('lint', () => {
 
 describe('export and import', () => {
   it('a catalog of a page that went away does not bring it back', async () => {
-    project({ 'locales/en.json': { a: 'x' }, 'locales/de.json': {}, 'locales/pages/old/en.json': { p: 'q' }, 'locales/pages/old/de.json': { p: 'r' } })
+    project({
+      'locales/en.json': { a: 'x' },
+      'locales/de.json': {},
+      'locales/pages/old/en.json': { p: 'q' },
+      'locales/pages/old/de.json': { p: 'r' },
+    })
     await runCli(['export'], { cwd: dir })
     removeProject(join(dir, 'locales/pages'))
     expect((await runCli(['export'], { cwd: dir })).code).toBe(0)
@@ -216,7 +226,11 @@ describe('export and import', () => {
     await runCli(['export', '--format', 'csv'], { cwd: dir })
     const manifest = readJson(dir, 'csv_exports/.i18n-export.json')
     for (const name of ['en.csv', 'de.csv']) {
-      expect(manifest[name]).toBe(createHash('sha256').update(read(dir, `csv_exports/${name}`)).digest('hex'))
+      expect(manifest[name]).toBe(
+        createHash('sha256')
+          .update(read(dir, `csv_exports/${name}`))
+          .digest('hex'),
+      )
     }
   })
 
@@ -371,7 +385,10 @@ describe('translate', () => {
       response.setHeader('retry-after', '86400')
       json(response, { error: 'later' }, 429)
     }
-    const result = await runCli(['translate', '--service', 'libretranslate', '--options', `baseUrl:${mock.url},retries:2`], { cwd: dir, timeoutMs: 8000 })
+    const result = await runCli(['translate', '--service', 'libretranslate', '--options', `baseUrl:${mock.url},retries:2`], {
+      cwd: dir,
+      timeoutMs: 8000,
+    })
     expect(result.code).toBe(2)
     expect(mock.requests).toHaveLength(1)
   })
@@ -398,7 +415,10 @@ describe('check', () => {
   })
 
   it('a language with one plural form keeps one form', async () => {
-    project({ 'locales/en.json': { c: 'one | many' }, 'locales/ja.json': { c: 'x' }, 'locales/de.json': { c: 'x' } }, `{ locales: ['en', 'ja', 'de'], defaultLocale: 'en' }`)
+    project(
+      { 'locales/en.json': { c: 'one | many' }, 'locales/ja.json': { c: 'x' }, 'locales/de.json': { c: 'x' } },
+      `{ locales: ['en', 'ja', 'de'], defaultLocale: 'en' }`,
+    )
     const { findings } = JSON.parse((await runCli(['check', '--only', 'placeholders', '--json'], { cwd: dir })).stdout)
     expect(findings.map((finding: { locale: string }) => finding.locale)).toEqual(['de'])
   })
@@ -505,7 +525,13 @@ describe('search', () => {
 
   it('--onlyUnused keeps an override next to a layer key, as clean removes it', async () => {
     project(
-      { ...BASE, 'base/locales/en.json': { k: 'layer' }, 'locales/en.json': { used: 'x' }, 'locales/de.json': { k: 'override' }, 'pages/a.vue': `<template>{{ $t('used') }}</template>\n` },
+      {
+        ...BASE,
+        'base/locales/en.json': { k: 'layer' },
+        'locales/en.json': { used: 'x' },
+        'locales/de.json': { k: 'override' },
+        'pages/a.vue': `<template>{{ $t('used') }}</template>\n`,
+      },
       undefined,
       LAYERED,
     )

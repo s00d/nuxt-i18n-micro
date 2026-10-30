@@ -3,7 +3,19 @@ import { dirname, join, relative, resolve, sep } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { notFoundError, usageError, validationError } from './errors'
 import { matchLineEnding, readJsonIfExists, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
-import { type JsonObject, type JsonValue, deletePath, flatten, flattenStrings, getPath, isObject, ownValue, pathConflict, setPath, sortKeys } from './json'
+import {
+  type JsonObject,
+  type JsonValue,
+  deletePath,
+  flatten,
+  flattenStrings,
+  getPath,
+  isObject,
+  ownValue,
+  pathConflict,
+  setPath,
+  sortKeys,
+} from './json'
 import { type ProjectConfig, loadProjectConfig } from './nuxt'
 
 /** Not a word: a page may be called `global`. */

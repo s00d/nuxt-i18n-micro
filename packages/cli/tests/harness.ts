@@ -32,7 +32,8 @@ export interface RunResult {
 }
 
 /** A credential or `DEFAULT_LOCALE` in the shell running the tests must not reach the commands under test. */
-const quietEnv = (): NodeJS.ProcessEnv => Object.fromEntries(Object.entries(process.env).filter(([name]) => !/TOKEN|API_KEY|DEFAULT_LOCALE/.test(name)))
+const quietEnv = (): NodeJS.ProcessEnv =>
+  Object.fromEntries(Object.entries(process.env).filter(([name]) => !/TOKEN|API_KEY|DEFAULT_LOCALE/.test(name)))
 
 export function runCli(
   args: string[],

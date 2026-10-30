@@ -231,9 +231,7 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
     rootDir,
     srcDir: config.srcDir ?? rootDir,
     translationDir,
-    translationDirs: [...new Set([...additionalDirs, ...primaryDirs])].sort(
-      (a, b) => Number(a === translationDir) - Number(b === translationDir),
-    ),
+    translationDirs: [...new Set([...additionalDirs, ...primaryDirs])].sort((a, b) => Number(a === translationDir) - Number(b === translationDir)),
     additionalDirs,
     layerRoots: roots,
     pagesDirs: [...new Set(layers.map((layer) => resolve(layer.srcDir ?? layer.rootDir!, layer.dir?.pages ?? 'pages')))],

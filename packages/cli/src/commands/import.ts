@@ -96,7 +96,9 @@ export default async function run(args: ImportArgs): Promise<void> {
   // An empty cell says nothing about the existing value.
   const filled = entries.filter((entry) => entry.value !== '')
   if (project.config.disablePageLocales && filled.some((entry) => entry.scope !== GLOBAL_SCOPE)) {
-    throw validationError('disablePageLocales is on: the app would never read page translations.', ['Remove the page entries, or turn the option off.'])
+    throw validationError('disablePageLocales is on: the app would never read page translations.', [
+      'Remove the page entries, or turn the option off.',
+    ])
   }
   const conflicts = filled.flatMap(({ code, scope, key, value }) => {
     const conflict = project.locale(code).set(key, value, scope)

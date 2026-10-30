@@ -63,7 +63,8 @@ function sharedLocaleFiles(config: ProjectConfig): string[] {
 
 /** Nothing scanned proves nothing: no flag changes that. */
 export function assertScanned(scan: ProjectScan): void {
-  if (scan.files === 0) throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
+  if (scan.files === 0)
+    throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
 }
 
 const describe = ({ code, scope, key }: UnusedKey): string => `${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`

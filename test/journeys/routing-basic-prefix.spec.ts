@@ -44,10 +44,10 @@ describe('journey: routing variants — basic under prefix', () => {
     expect((await request.get('/en/old-product')).status()).toBe(404)
     expect((await request.get('/de/old-product')).status()).toBe(404)
 
-    // step 3: a client navigation to it follows the rule too
+    // step 3: a client navigation keeps its URL: no /en/old-product
     await goto('/en', { waitUntil: 'hydration' })
     await page.evaluate(() => (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } } }).useNuxtApp().$router.push('/old-product'))
-    await expect(page).toHaveURL('/en/page')
+    await expect(page).toHaveURL('/old-product')
   })
 
   test('activity slug tree under /en', async ({ page, goto }) => {

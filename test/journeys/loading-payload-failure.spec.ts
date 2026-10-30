@@ -56,7 +56,8 @@ describe('J8 translation loading: a chunk fails on the client', () => {
   })
 
   test('a failed first chunk is loaded again on the way back', async ({ page, goto, guard }) => {
-    guard.allow(FAILED_PAYLOAD)
+    // the server rendered the texts, the browser has none to hydrate them with
+    guard.allow(FAILED_PAYLOAD, /Hydration completed but contains mismatches/)
     await page.route('**/_locales/index/en/**', (route) => route.abort())
 
     // step 1: open /en with its chunk failing → the browser has no dictionary for it

@@ -164,6 +164,11 @@ export default defineNuxtPlugin({
       return i18nStrategy.getRouteBaseName(selectedRoute as unknown as ResolvedRouteLike, selectedLocale) ?? ''
     }
 
+    const hydrated = shallowRef(false)
+    nuxtApp.hooks.hookOnce('app:suspense:resolve', () => {
+      hydrated.value = true
+    })
+
     const {
       helper,
       switchContext,
@@ -185,7 +190,8 @@ export default defineNuxtPlugin({
       setMissingHandler: (handler) => {
         customMissingHandler.value = handler
       },
-      isHydrating: () => nuxtApp.isHydrating === true,
+      // a ref: a link rendered without the hash gets it back when hydration ends
+      isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
     })
 
     if (import.meta.dev && import.meta.client) {

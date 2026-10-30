@@ -23,8 +23,8 @@
 - `GET / {"cookie":"xx","acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"cookie":"en","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"de","prerendered":true}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{}}
-- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
-- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
+- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":"Referer, Cookie, Accept-Language","locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
+- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
 - `GET /de {"cookie":"en","referer":"https://elsewhere.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
 - `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
 - `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}
@@ -58,8 +58,8 @@
 - `GET / {"cookie":"xx","acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"cookie":"en","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"de","prerendered":true}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{}}
-- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
-- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
+- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":"Referer, Cookie, Accept-Language","locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
+- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
 - `GET /de {"cookie":"en","referer":"https://elsewhere.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
 - `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
 - `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}

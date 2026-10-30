@@ -5,7 +5,7 @@
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Translations } from '@i18n-micro/types'
-import { listTranslationFiles, loadTranslationDir } from '@i18n-micro/utils/load-dir'
+import { listTranslationFiles, loadTranslationDir, loadTranslationFiles } from '@i18n-micro/utils/load-dir'
 import type { TranslationFileBuckets } from '@i18n-micro/utils/parse-path'
 
 export interface LoadTranslationsOptions {
@@ -25,9 +25,11 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
 /** The directory's dictionaries and the files they came from, for the integration's build. */
 export function readTranslationDir(options: { translationDir: string; rootDir: URL; disablePageLocales?: boolean }) {
   const dir = resolve(fileURLToPath(options.rootDir), options.translationDir)
+  const files = listTranslationFiles(dir)
   return {
-    messages: loadTranslationDir<Translations>(dir, options.disablePageLocales),
-    files: listTranslationFiles(dir).map((file) => file.absolutePath),
+    messages: loadTranslationFiles<Translations>(files, options.disablePageLocales),
+    // the folder too: with no file yet, it is what a first one reloads through
+    files: [dir, ...files.map((file) => file.absolutePath)],
   }
 }
 
@@ -36,6 +38,7 @@ export function loadTranslationsIntoI18n(
   i18n: {
     addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
     addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
+    keepMessages?: (messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void
   },
   options: LoadTranslationsOptions,
 ): void {
@@ -44,4 +47,5 @@ export function loadTranslationsIntoI18n(
   for (const [routeName, routeTranslations] of Object.entries(routes)) {
     for (const [locale, translations] of Object.entries(routeTranslations)) i18n.addRouteTranslations(locale, routeName, translations, false)
   }
+  i18n.keepMessages?.(root, routes)
 }

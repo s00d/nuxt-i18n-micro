@@ -25,6 +25,7 @@ const { locale } = useI18n(Astro)
       <I18nT keypath="greeting" params={{ name: '<b>x</b>' }} html tag="section" />
       <I18nT keypath="apples" plural={5} />
       <I18nT keypath="nope" defaultValue="Fallback text" tag="em" />
+      <I18nT keypath="blank" hideIfEmpty defaultValue="Bare fallback" tag="em" />
     </div>
   </body>
 </html>

@@ -313,8 +313,9 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   site.locale = 'fr'
   expect(site.t('extra')).toBe('extra')
   page.clearCache()
-  expect(page.t('title')).toBe('title')
+  expect(page.t('title')).toBe('À propos')
   expect(page.t('more')).toBe('more')
+  expect(page.t('extra')).toBe('extra')
 
   // 2. /about — no prefix → default locale; a fresh clone does not see request 1's writes
   const en = await request(mw, '/about')

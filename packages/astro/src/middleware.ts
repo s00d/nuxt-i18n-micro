@@ -162,8 +162,8 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     const hinted = autoDetect && home && !switched
     const preference = { cookies: context.cookies, headers: context.request.headers, localeCookie, autoDetect: true }
     const preferred = hinted ? preferredLocale(path, routing, preference) : locale
-    // the home page is a redirect or not depending on the cookie and the header, and a part of a page on its Referer: shared caches key on them
-    const vary = partOfPage ? 'Referer' : hinted ? varyOn : null
+    // the home page is a redirect or not depending on the cookie and the header, a part of a page and a switch on the Referer: shared caches key on them
+    const vary = [partOfPage || switched ? 'Referer' : '', autoDetect && home ? varyOn : ''].filter(Boolean).join(', ') || null
     const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, routing) : path
     if (target !== path) return withVary(context.redirect(withBase(target, base) + url.search, 302), vary)
 
@@ -196,10 +196,11 @@ function requestLocals(globalI18n: AstroI18n, request: I18nRequest, routing: I18
   }
 }
 
-/** A locale's home: the strategy's path for `/` in that locale. */
-function homeOf(locale: string, { strategy }: I18nRouting): string {
+/** A locale's home: the strategy's path for `/` in that locale, else `/<locale>` (an unprefixed URL is the default locale's). */
+function homeOf(locale: string, { strategy, defaultLocale }: I18nRouting): string {
   const resolved = strategy.resolvePath!('/', locale)
-  return (typeof resolved === 'string' ? resolved : resolved.path) || '/'
+  const path = typeof resolved === 'string' ? resolved : resolved.path
+  return path || (locale === defaultLocale ? '/' : `/${locale}`)
 }
 
 function withVary(response: Response, vary: string | null): Response {

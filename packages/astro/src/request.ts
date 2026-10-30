@@ -97,7 +97,11 @@ function pagePattern(context: RequestContext, locales: string[]): string | undef
   if (!pattern) return undefined
   const first = /^\/\[([^\].]+)\]/.exec(pattern)
   const value = first ? params?.[first[1]!] : undefined
-  return value && locales.includes(value) ? `/${value}${pattern.slice(first![0].length)}` : pattern
+  if (!value) return pattern
+  const rest = pattern.slice(first![0].length)
+  if (locales.includes(value)) return `/${value}${rest}`
+  // a disabled locale still matches `[locale]`: it is no part of the page's name
+  return first![1] === 'locale' ? rest || '/' : pattern
 }
 
 /**
@@ -149,13 +153,14 @@ export function isPageView(context: RequestContext, response: Response): boolean
 /** A scheme this router has no business with: `sms:`, `ftp:`, `javascript:`. `externalLinkHref` handles the common ones. */
 const SCHEME = /^[a-z][a-z\d+.-]*:/i
 
-/** `/a/b/../c` → `/a/c`, or a `../` would climb out of the locale prefix once one is added. */
+/** `/a/b/../c` → `/a/c`, or a `../` would climb out of the locale prefix once one is added. `%2e` counts: a browser reads it as a dot. */
 function withoutDots(path: string): string {
-  if (!path.includes('/.')) return path
+  if (!/\/(\.|%2e)/i.test(path)) return path
   const kept: string[] = []
   for (const segment of path.split('/')) {
-    if (segment === '..') kept.pop()
-    else if (segment !== '.' && segment !== '') kept.push(segment)
+    const plain = segment.replace(/%2e/gi, '.')
+    if (plain === '..') kept.pop()
+    else if (plain !== '.' && segment !== '') kept.push(segment)
   }
   return `/${kept.join('/')}`
 }
@@ -177,7 +182,7 @@ export function localizeHref(href: string, locale: string, context: HrefContext)
   const { strategy, codes, defaultLocale, base, from = '/' } = context
   const cut = href.search(/[?#]/)
   const raw = cut === -1 ? href : href.slice(0, cut)
-  const path = withoutDots(raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${from === '/' ? '' : from}/${raw}`)
+  const path = withoutDots(raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${from.replace(/\/+$/, '')}/${raw}`)
   const localized = strategy.localizePath!(path, locale, codes, defaultLocale)
   const slash = raw.length > 1 && raw.endsWith('/') && !localized.endsWith('/') ? '/' : ''
   return `${withBase(localized + slash, base)}${cut === -1 ? '' : href.slice(cut)}`

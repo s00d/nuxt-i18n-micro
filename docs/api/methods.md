@@ -385,7 +385,8 @@ $switchRoute({ name: 'about' }, 'de') // switch to de
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
 ```
 
-Resolve a path in the given locale, or the active one.
+Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`
+or `tel:` scheme comes back as is: do not pass user input as a link target unchecked.
 
 <!-- /generated:method:$localePath -->
 

@@ -22,7 +22,9 @@ member I18nPathStrategy.getStrategy: () => Strategies
 member I18nPathStrategy.hasPrefix: private (locale: string) => boolean
 member I18nPathStrategy.home: private (locale: string) => Target
 member I18nPathStrategy.index: private Index
+member I18nPathStrategy.isDisabledPrefix: private (path: string, segment: string) => boolean
 member I18nPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
+member I18nPathStrategy.isOwnPage: private (path: string) => boolean
 member I18nPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
 member I18nPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
 member I18nPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
@@ -105,7 +107,9 @@ member Strategy.getStrategy: () => Strategies
 member Strategy.hasPrefix: private (locale: string) => boolean
 member Strategy.home: private (locale: string) => Target
 member Strategy.index: private Index
+member Strategy.isDisabledPrefix: private (path: string, segment: string) => boolean
 member Strategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
+member Strategy.isOwnPage: private (path: string) => boolean
 member Strategy.isUnknownLocale: private (path: string, segment: string) => boolean
 member Strategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
 member Strategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null

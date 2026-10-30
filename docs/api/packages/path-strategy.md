@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `I18nPathStrategy` | class | 41 members |
+| `I18nPathStrategy` | class | 43 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }` |
 | `PathStrategyContext` | interface | 8 members |
 | `ResolvedRouteLike` | interface | 8 members |
@@ -28,7 +28,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `Strategy` | class | 41 members |
+| `Strategy` | class | 43 members |
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <details>
@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>I18nPathStrategy</code> — 41 members</summary>
+<summary><code>I18nPathStrategy</code> — 43 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -64,7 +64,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `hasPrefix` | `private (locale: string) => boolean` |
 | `home` | `private (locale: string) => Target` |
 | `index` | `private Index` |
+| `isDisabledPrefix` | `private (path: string, segment: string) => boolean` |
 | `isMetaDisabled` | `(route: RouteLike, locale: string) => boolean` |
+| `isOwnPage` | `private (path: string) => boolean` |
 | `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
 | `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string, _currentRoute?: ResolvedRouteLike) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
@@ -171,7 +173,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 
-<code>Strategy</code> — 41 members, identical to `I18nPathStrategy` above.
+<code>Strategy</code> — 43 members, identical to `I18nPathStrategy` above.
 
 <details>
 <summary><code>SwitchLocaleOptions</code> — 1 members</summary>

@@ -45,5 +45,10 @@ describe('useI18nLocale', () => {
     expect(resolveInitialLocale({ route: {}, serverLocale: 'de', getLocaleFromRoute: () => 'en' })).toBe('de')
     refs.state.value = null
     expect(resolveInitialLocale({ route: {}, getLocaleFromRoute: () => 'en' })).toBe('en')
+
+    // a URL bound to a locale renders it, the state keeps the visitor's
+    refs.state.value = null
+    expect(resolveInitialLocale({ route: {}, urlLocale: 'de', preference: 'en', getLocaleFromRoute: fromRoute })).toBe('de')
+    expect(refs.state.value).toBe('en')
   })
 })

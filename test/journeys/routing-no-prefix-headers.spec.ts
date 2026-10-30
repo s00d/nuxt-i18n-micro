@@ -6,7 +6,7 @@ describe('journey: no_prefix responses', () => {
 
   test('one URL for every visitor: Vary, no cookie from a 404, route rules on custom paths', async ({ baseURL }) => {
     // step 1: every page depends on the visitor
-    for (const path of ['/', '/contact']) {
+    for (const path of ['/', '/contact', '/administrator']) {
       const res = await ssr(baseURL, path)
       expect(res.headers.get('vary'), path).toContain('Cookie')
       expect(res.headers.get('vary'), path).toContain('Accept-Language')

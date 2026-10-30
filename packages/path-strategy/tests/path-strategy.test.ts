@@ -314,6 +314,45 @@ describe('redirects', () => {
   })
 })
 
+describe('an unnamed page from a module', () => {
+  test('is served under its prefix', () => {
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages: [...PAGES.slice(0, 2), { path: '/from-module', file: 'mod.vue' }] })
+    expect(i18n.shouldReturn404('/de/from-module')).toBeNull()
+  })
+})
+
+describe('a request-shaped path', () => {
+  test.each(['//evil.example', '/\\evil.example', '//evil.example/x?y=1'])('%s stays on this origin in every locale', (path) => {
+    const { i18n } = setup('prefix_except_default')
+    for (const locale of ['en', 'de']) {
+      const result = i18n.localeRoute(locale, path)
+      expect(result.fullPath ?? result.path).toMatch(/^\/[^/\\]/)
+    }
+  })
+})
+
+describe('a page on the segment of a disabled locale', () => {
+  const locales = [...LOCALES, { code: 'es', disabled: true }]
+  const pages: NuxtPage[] = [...PAGES.slice(0, 2), { path: '/es', name: 'es-page', file: 'pages/es.vue' }]
+
+  test('stays a page; the prefix without one is a 404', () => {
+    // step 1: pec serves it unprefixed
+    const pec = setup('prefix_except_default', {}, locales, { pages }).i18n
+    expect(pec.shouldReturn404('/es')).toBeNull()
+    expect(pec.shouldReturn404('/es/about')).toBe('Locale disabled')
+
+    // step 2: prefix has it under the locales, so the unprefixed URL moves there
+    const prefix = setup('prefix', {}, locales, { pages }).i18n
+    expect(prefix.shouldReturn404('/es')).toBeNull()
+    expect(prefix.getClientRedirect('/es', 'de')).toBe('/de/es')
+  })
+
+  test('a catch-all does not count as a page', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    expect(i18n.shouldReturn404('/es')).toBe('Locale disabled')
+  })
+})
+
 describe('shared route table', () => {
   test('strategies over the same routes (one per SSR request) share the index and the URL caches', () => {
     const first = setup('prefix_except_default')

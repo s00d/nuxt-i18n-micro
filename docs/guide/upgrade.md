@@ -33,11 +33,12 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **Under `prefix` an unprefixed URL keeps the visitor's locale.** With cookie `de`, `/about` and a plain `<NuxtLink to="/about">` go to `/de/about`, on every path, whatever `autoDetectPath` says.
 - **Under `no_prefix` a custom path renders its own locale** (`/ueber-uns` is German with any preference), and a restricted page renders in a locale it serves.
 - **A `routeRules` redirect without a page is not localized.** `/de/old` was an empty 200, now it is a 404: add a rule for the prefixed path if you need one.
-- **Route rules reach custom paths.** `/blog/**` also applies to `/de/artikel/**` when `blog/[slug]` has that path, and rules are copied under `no_prefix` too.
+- **Route rules reach custom paths.** `/blog/**` also applies to `/de/artikel/:slug` when `blog/[slug]` has that path, and rules are copied under `no_prefix` too. A static sibling such as `/de/artikel/news` matches that pattern as well.
 - **A locale with `disabled: true` answers 404 on its prefix** at once, and links to it stay on the page.
 - **Canonical and `hreflang` include `app.baseURL`** when the origin comes from the request. `metaBaseUrl` and `site.url` stay as written.
 - **An unlocalized page has no `hreflang` or `og:locale:alternate`.**
-- **`$localePath` and `$localeRoute` return an external URL as is.**
+- **`$localePath` and `$localeRoute` return a string with an `http(s):`, `mailto:` or `tel:` scheme as is**, so do not pass an unchecked value (a `?next=` parameter) to them as a link target. `//host` and bare names like `x.com` stay paths, on this origin in every locale.
+- **`$switchRoute` stays in the app.** Only a locale's own `baseUrl` leaves it; any other string is a path.
 - **`customRegexMatcher` no longer 404s a real page** whose first segment looks like a locale.
 - **`nuxi generate` prerenders every static page in every locale**, linked or not: more files in the output.
 - **`$switchLocale` resolves `true` or `false`** (it resolved nothing), `false` when the locale's dictionary did not apply.

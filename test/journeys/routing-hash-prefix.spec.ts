@@ -17,6 +17,8 @@ describe('journey: routing variants — hash mode + prefix', () => {
       const res = await ssr(baseURL, path!)
       expect(res.status, path).toBe(302)
       expect(res.location, path).toBe(target)
+      // the redirect is the same for every visitor
+      expect(res.headers.get('vary') ?? '', path).not.toContain('Accept-Language')
     }
 
     // step 2: open / → /#/en, en
@@ -28,6 +30,14 @@ describe('journey: routing variants — hash mode + prefix', () => {
     await page.click('#switch-de')
     await expect(page).toHaveURL(/\/#\/de$/)
     await expect(page.locator('#locale')).toHaveText('de')
+    await expect(page.locator('#content')).toHaveText('de')
+  })
+
+  test('a first visit takes the browser language', async ({ page, goto }) => {
+    // step 1: no cookie, browser in German → /#/de
+    await page.addInitScript(() => Object.defineProperty(navigator, 'languages', { get: () => ['de-DE', 'de'] }))
+    await goto('/', { waitUntil: 'hydration' })
+    await expect(page).toHaveURL(/\/#\/de$/)
     await expect(page.locator('#content')).toHaveText('de')
   })
 

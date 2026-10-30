@@ -31,23 +31,54 @@ function generate(strategy: Strategies, pages: NuxtPage[], options: Partial<Rout
 
 const about: NuxtPage = { path: '/about', name: 'about', file: 'pages/about.vue' }
 
+describe('unnamed pages', () => {
+  const generate = (page: NuxtPage) => {
+    const pages = [page]
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes: {},
+      noPrefixRedirect: false,
+    }).extendPages(pages)
+    return pages.map((p) => p.path)
+  }
+
+  test("Nuxt's route-rule stub stays as written, a module's page is localized", () => {
+    expect(generate({ path: '/old', file: '/nuxt/dist/pages/runtime/component-stub.js', _sync: true } as NuxtPage)).toEqual(['/old'])
+    expect(generate({ path: '/from-module', file: '/mod/page.vue' })).toEqual(['/:locale(en|de)/from-module'])
+  })
+})
+
 describe('resolveLocalizedRulePaths', () => {
   const generator = (strategy: 'prefix' | 'no_prefix') =>
     new RouteGenerator({
       locales: [{ code: 'en' }, { code: 'de' }],
       defaultLocaleCode: 'en',
       strategy,
-      globalLocaleRoutes: { 'blog/[slug]': { de: '/artikel/[slug]' }, 'blog/[id]': { de: '/[id]' }, about: { de: '/ueber-uns' } },
+      globalLocaleRoutes: {
+        'blog/[slug]': { de: '/artikel/[slug]' },
+        'blog/[id]': { de: '/[id]' },
+        'blog/latest': { de: '/aktuell' },
+        'blog/[...rest]': { de: '/archiv/[...rest]' },
+        about: { de: '/ueber-uns' },
+      },
       noPrefixRedirect: false,
     })
 
   test('a wildcard follows the custom paths of the pages under it', () => {
-    // step 1: the prefix copy and the static part of the custom path; a value with no static part stays out
-    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/artikel/**'])
+    // step 1: the prefix copy and the custom paths; a value that is only a param stays out
+    // a param page keeps its param, a static page is exact: `/de/artikel-archiv` or a sibling tree gets nothing
+    expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual([
+      '/de/blog/**',
+      '/de/artikel/:slug',
+      '/de/aktuell',
+      '/de/archiv/**',
+    ])
     expect(generator('prefix').resolveLocalizedRulePaths('/blog/**', 'en')).toEqual(['/en/blog/**'])
 
     // step 2: no_prefix has no prefix, the custom path still moves
-    expect(generator('no_prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/blog/**', '/artikel/**'])
+    expect(generator('no_prefix').resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/blog/**', '/artikel/:slug', '/aktuell', '/archiv/**'])
 
     // step 3: an exact rule is one path
     expect(generator('prefix').resolveLocalizedRulePaths('/about', 'de')).toEqual(['/de/ueber-uns'])

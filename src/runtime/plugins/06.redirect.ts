@@ -30,6 +30,16 @@ export default defineNuxtPlugin({
     const i18nConfig = getRuntimeConfig()
     const url = getRequestURL(event)
     const path = withoutAppBaseURL(url.pathname, useRuntimeConfig().app.baseURL)
+    const alwaysPrefixed = i18nConfig.strategy === 'prefix'
+    const preferenceCookie = getPreferenceCookieName(i18nConfig)
+    const varyOnVisitor = () => {
+      const vary = [preferenceCookie && 'Cookie', i18nConfig.autoDetectLanguage && 'Accept-Language'].filter(Boolean)
+      if (vary.length) appendResponseHeader(event, 'Vary', vary.join(', '))
+    }
+    // No locale in the URL: the visitor decides the page, excluded ones too (hash + prefix never renders here)
+    const urlless = i18nConfig.strategy === 'no_prefix' || (i18nConfig.hashMode && !alwaysPrefixed)
+    if (urlless) varyOnVisitor()
+
     // Internals / static assets / Content (`/__nuxt_content`) are never 404'd or redirected.
     if (isInternalPath(path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
@@ -42,7 +52,6 @@ export default defineNuxtPlugin({
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const autoDetectPath = i18nConfig.autoDetectPath || '/'
     const anyPath = autoDetectPath === '*'
-    const alwaysPrefixed = i18nConfig.strategy === 'prefix'
     const redirects = i18nConfig.redirects !== false
     const cookieName = getLocaleCookieName(i18nConfig)
     const urlLocale = i18nStrategy.getLocaleFromPath(path)
@@ -52,16 +61,14 @@ export default defineNuxtPlugin({
       setCookie(event, cookieName, locale, options)
     }
 
-    // Where the visitor decides the answer (the page under no_prefix and hashMode, else the redirect), a cache must not share it
-    const preferenceCookie = getPreferenceCookieName(i18nConfig)
-    const urlless = i18nConfig.strategy === 'no_prefix' || i18nConfig.hashMode
-    if (urlless || (redirects && preferenceCounts({ path, urlLocale, autoDetectPath, alwaysPrefixed }))) {
-      const vary = [preferenceCookie && 'Cookie', i18nConfig.autoDetectLanguage && 'Accept-Language'].filter(Boolean)
-      if (vary.length) appendResponseHeader(event, 'Vary', vary.join(', '))
-    }
+    // Where the visitor decides the redirect, a cache must not share the answer. prefix_and_default never moves an unprefixed URL.
+    const redirectable = redirects && !urlless && !i18nConfig.hashMode && (urlLocale || i18nConfig.strategy !== 'prefix_and_default')
+    if (redirectable && preferenceCounts({ path, urlLocale, autoDetectPath, alwaysPrefixed })) varyOnVisitor()
 
     // only a page speaks for the locale: not a 404, and under no_prefix `/de` is no prefix
-    const served = i18nConfig.strategy !== 'no_prefix' && useRouter().currentRoute.value.matched.length > 0
+    const router = useRouter()
+    // `pages: false`: Nuxt's stub router has no records, so nothing can be missing
+    const served = i18nConfig.strategy !== 'no_prefix' && (router.getRoutes().length === 0 || router.currentRoute.value.matched.length > 0)
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && served && !(redirects && anyPath)) writeCookie(urlLocale)
     // Under hash + prefix a document holds no route: it moves into the hash, the client takes it from there.

@@ -5,7 +5,6 @@ import {
   resolveCachedTranslation,
   setTranslationAtKey,
   translationCacheKey,
-  externalLinkHref,
   type BaseI18nOptions,
   type TranslationStorage,
 } from '@i18n-micro/core'
@@ -60,6 +59,9 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
   if (result.hash) out.hash = result.hash
   return out as unknown as RouteLocationResolved
 }
+
+/** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
+const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
 
 /** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
 function switchedPath(switched: RouteLike | string): string {
@@ -598,9 +600,6 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
   }
 
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
-    const external = externalLinkHref(to)
-    if (external) return navigateTo(external, { redirectCode: 200, external: true })
-
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
@@ -609,8 +608,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     const from = typeof to === 'string' ? i18nStrategy.localeRoute(fromLocale, to) : (to ?? currentRoute)
     const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
 
+    // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
-    if (/^https?:\/\//.test(url)) return navigateTo(url, { redirectCode: 200, external: true })
+    const domain = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl?.replace(/\/+$/, '')
+    if (domain && url.startsWith(`${domain}/`)) return navigateTo(url, { redirectCode: 200, external: true })
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
@@ -690,15 +691,13 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
-      const external = externalLinkHref(to)
-      if (external) return toRouteLocationResolved({ path: external, fullPath: external })
+      if (typeof to === 'string' && URL_SCHEME.test(to)) return toRouteLocationResolved({ path: to, fullPath: to })
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return toRouteLocationResolved(result)
     },
     localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
-      const external = externalLinkHref(to)
-      if (external) return external
+      if (typeof to === 'string' && URL_SCHEME.test(to)) return to
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return applyTrailingSlash((result.fullPath ?? result.path ?? '') as string, i18nConfig.trailingSlash)

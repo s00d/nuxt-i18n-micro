@@ -188,6 +188,12 @@ describe('restrictions and unlocalized pages', () => {
     ])
   })
 
+  test('a page under a custom apiBaseUrl is internal, like one under _locales', () => {
+    const pages: NuxtPage[] = [{ name: 'x', path: '/custom/x', file: '/x.vue' }]
+    expect(generate('prefix', pages, { apiBaseUrl: 'custom' })).toEqual(['x /custom/x'])
+    expect(generate('prefix', pages)).not.toContain('x /custom/x')
+  })
+
   test('false, excludePatterns and redirect-only pages are kept as written', () => {
     const pages: NuxtPage[] = [about, { path: '/admin', name: 'admin', file: 'pages/admin.vue' }, { path: '/old', redirect: '/about' }]
     expect(generate('prefix', pages, { globalLocaleRoutes: { admin: false }, excludePatterns: ['/about'] })).toEqual([

@@ -34,6 +34,7 @@ export interface GenerateOptions {
   namePrefix: string
   customRegex?: string | RegExp
   excludePatterns?: (string | RegExp)[]
+  apiBaseUrl?: string
   noPrefixRedirect: boolean
 }
 
@@ -186,7 +187,11 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
   const localized: NuxtPage[] = []
   for (const page of pages) {
     const pagePath = page.path ?? ''
-    if ((page.redirect && !page.file) || isInternalPath(pagePath, options.excludePatterns) || info(page, '', true).rule === false) {
+    if (
+      (page.redirect && !page.file) ||
+      isInternalPath(pagePath, options.excludePatterns, options.apiBaseUrl) ||
+      info(page, '', true).rule === false
+    ) {
       unprefixed.push(unlocalized(page))
       continue
     }

@@ -499,6 +499,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta,
       noPrefixRedirect: options.noPrefixRedirect!,
       excludePatterns: options.excludePatterns,
+      apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
     })
@@ -541,7 +542,8 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.hooks) {
+    // 05, 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
+    if (options.plugin && options.hooks) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/05.hooks'),
         name: 'i18n-plugin-hooks',
@@ -549,7 +551,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.meta) {
+    if (options.plugin && options.meta) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/02.meta'),
         name: 'i18n-plugin-meta',
@@ -575,12 +577,14 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    addPlugin({
-      src: resolver.resolve('./runtime/plugins/06.redirect'),
-      mode: 'server',
-      name: 'i18n-plugin-redirect',
-      order: 10,
-    })
+    if (options.plugin) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/06.redirect'),
+        mode: 'server',
+        name: 'i18n-plugin-redirect',
+        order: 10,
+      })
+    }
 
     if (options.redirects !== false && options.plugin !== false) {
       addRouteMiddleware({
@@ -901,7 +905,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       for (const route of routesSet) {
-        if (isInternalPath(route, options.excludePatterns)) routesSet.delete(route)
+        if (isInternalPath(route, options.excludePatterns, apiBaseUrl)) routesSet.delete(route)
       }
 
       for (const route of routesSet) {

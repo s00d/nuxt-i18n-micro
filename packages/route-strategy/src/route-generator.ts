@@ -17,6 +17,8 @@ export interface RouteGeneratorOptions {
   routeDisableMeta?: Record<string, boolean | string[]>
   noPrefixRedirect: boolean
   excludePatterns?: (string | RegExp)[]
+  /** The translations route (`_locales` by default): pages under it stay unlocalized. */
+  apiBaseUrl?: string
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string | RegExp
 }
@@ -65,6 +67,7 @@ export class RouteGenerator {
         namePrefix: this.options.localizedRouteNamePrefix ?? 'localized-',
         customRegex: this.options.customRegexMatcher,
         excludePatterns: this.options.excludePatterns,
+        apiBaseUrl: this.options.apiBaseUrl,
         noPrefixRedirect: this.options.noPrefixRedirect,
       },
       this.localizedPaths,

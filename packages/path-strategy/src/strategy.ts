@@ -629,6 +629,14 @@ export class DomainPathStrategy extends I18nPathStrategy {
     return !entry.keys.includes('locale') && !entry.locales.includes(defaultLocale) && !movable ? 'Locale not allowed for this route' : null
   }
 
+  /** A link `localeRoute` made absolute reads as the page it shows, so it switches like any route. */
+  override switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions): RouteLike | string {
+    const url = route.fullPath ?? ''
+    const origin = this.ctx.locales.map((locale) => locale.baseUrl?.replace(/\/+$/, '')).find((base) => base && url.startsWith(`${base}/`))
+    const own = origin ? this.probe(url.slice(origin.length).replace(/^\/#/, '')) : null
+    return super.switchLocaleRoute(fromLocale, toLocale, own ?? route, options)
+  }
+
   /** A page restricted to some locales renders in one this host serves. */
   protected override servedLocale(route: ResolvedRouteLike, preferred: string): string {
     const locale = super.servedLocale(route, preferred)

@@ -191,6 +191,32 @@ describe('switchLocaleRoute', () => {
   })
 })
 
+describe('a route read back from an absolute link, on a host no locale lives on', () => {
+  const locales: Locale[] = [
+    { code: 'en', baseUrl: 'https://a.test', baseDefault: true },
+    { code: 'de', baseUrl: 'https://b.test/shop', baseDefault: true },
+    { code: 'fr' },
+  ]
+
+  test('the page of the link switches like any route (what $switchRoute does with a path)', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const from = i18n.localeRoute('en', '/about-us?q=1') as ResolvedRouteLike
+    expect(from.fullPath).toBe('https://a.test/about-us?q=1')
+    expect(i18n.switchLocaleRoute('en', 'fr', from)).toMatchObject({ fullPath: '/fr/about?q=1' })
+    expect(i18n.switchLocaleRoute('en', 'de', from)).toBe('https://b.test/shop/ueber-uns?q=1')
+  })
+
+  test('per-locale params still apply; an origin no locale has is left alone', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const from = i18n.localeRoute('de', '/blog/x') as ResolvedRouteLike
+    expect(from.fullPath).toMatch(/^https:\/\/b\.test\/shop\//)
+    const switched = i18n.switchLocaleRoute('de', 'fr', from, { i18nRouteParams: { fr: { slug: 'y' } } })
+    expect(switched).toMatchObject({ fullPath: expect.stringMatching(/\/y$/) })
+    const other = { name: undefined, path: 'https://other.test/about-us', fullPath: 'https://other.test/about-us' }
+    expect(String((i18n.switchLocaleRoute('en', 'fr', other) as ResolvedRouteLike).fullPath)).not.toContain('about-us/')
+  })
+})
+
 describe('a host of a domain build', () => {
   const locales: Locale[] = [
     { code: 'en', baseUrl: 'https://a.test', baseDefault: true },

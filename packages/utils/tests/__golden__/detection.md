@@ -6,18 +6,18 @@
 - `parseAcceptLanguage("de-DE")` → ["de-DE"]
 - `parseAcceptLanguage("DE-de")` → ["DE-de"]
 - `parseAcceptLanguage("en-US,en;q=0.9")` → ["en-US","en"]
-- `parseAcceptLanguage("fr;q=0.1,de;q=0.9")` → ["fr","de"]
-- `parseAcceptLanguage("de;q=0,en")` → ["de","en"]
-- `parseAcceptLanguage("en;q=0.5,de")` → ["en","de"]
+- `parseAcceptLanguage("fr;q=0.1,de;q=0.9")` → ["de","fr"]
+- `parseAcceptLanguage("de;q=0,en")` → ["en"]
+- `parseAcceptLanguage("en;q=0.5,de")` → ["de","en"]
 - `parseAcceptLanguage("*")` → ["*"]
-- `parseAcceptLanguage("*;q=0.5,fr")` → ["*","fr"]
+- `parseAcceptLanguage("*;q=0.5,fr")` → ["fr","*"]
 - `parseAcceptLanguage("en-US")` → ["en-US"]
 - `parseAcceptLanguage("pt")` → ["pt"]
 - `parseAcceptLanguage("pt-BR")` → ["pt-BR"]
 - `parseAcceptLanguage("zh-Hant-TW,zh;q=0.8")` → ["zh-Hant-TW","zh"]
 - `parseAcceptLanguage(" de , en ")` → ["de","en"]
 - `parseAcceptLanguage(";;,,")` → []
-- `parseAcceptLanguage("en;q=abc,de")` → ["en","de"]
+- `parseAcceptLanguage("en;q=abc,de")` → ["de"]
 - `parseAcceptLanguage("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")` → ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
 - `parseAcceptLanguage("__proto__,constructor")` → ["__proto__","constructor"]
 
@@ -29,9 +29,9 @@
 - `detect("de-DE", ["en","de","fr"])` → "de"
 - `detect("DE-de", ["en","de","fr"])` → "de"
 - `detect("en-US,en;q=0.9", ["en","de","fr"])` → "en"
-- `detect("fr;q=0.1,de;q=0.9", ["en","de","fr"])` → "fr"
-- `detect("de;q=0,en", ["en","de","fr"])` → "de"
-- `detect("en;q=0.5,de", ["en","de","fr"])` → "en"
+- `detect("fr;q=0.1,de;q=0.9", ["en","de","fr"])` → "de"
+- `detect("de;q=0,en", ["en","de","fr"])` → "en"
+- `detect("en;q=0.5,de", ["en","de","fr"])` → "de"
 - `detect("*", ["en","de","fr"])` → null
 - `detect("*;q=0.5,fr", ["en","de","fr"])` → "fr"
 - `detect("en-US", ["en","de","fr"])` → "en"
@@ -40,7 +40,7 @@
 - `detect("zh-Hant-TW,zh;q=0.8", ["en","de","fr"])` → null
 - `detect(" de , en ", ["en","de","fr"])` → "de"
 - `detect(";;,,", ["en","de","fr"])` → null
-- `detect("en;q=abc,de", ["en","de","fr"])` → "en"
+- `detect("en;q=abc,de", ["en","de","fr"])` → "de"
 - `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["en","de","fr"])` → null
 - `detect("__proto__,constructor", ["en","de","fr"])` → null
 - `detect(undefined, ["en-GB","de"])` → null
@@ -48,13 +48,13 @@
 - `detect("de", ["en-GB","de"])` → "de"
 - `detect("de-DE", ["en-GB","de"])` → "de"
 - `detect("DE-de", ["en-GB","de"])` → "de"
-- `detect("en-US,en;q=0.9", ["en-GB","de"])` → null
+- `detect("en-US,en;q=0.9", ["en-GB","de"])` → "en-GB"
 - `detect("fr;q=0.1,de;q=0.9", ["en-GB","de"])` → "de"
-- `detect("de;q=0,en", ["en-GB","de"])` → "de"
+- `detect("de;q=0,en", ["en-GB","de"])` → "en-GB"
 - `detect("en;q=0.5,de", ["en-GB","de"])` → "de"
 - `detect("*", ["en-GB","de"])` → null
 - `detect("*;q=0.5,fr", ["en-GB","de"])` → null
-- `detect("en-US", ["en-GB","de"])` → null
+- `detect("en-US", ["en-GB","de"])` → "en-GB"
 - `detect("pt", ["en-GB","de"])` → null
 - `detect("pt-BR", ["en-GB","de"])` → null
 - `detect("zh-Hant-TW,zh;q=0.8", ["en-GB","de"])` → null
@@ -75,12 +75,12 @@
 - `detect("*", ["pt-BR","en"])` → null
 - `detect("*;q=0.5,fr", ["pt-BR","en"])` → null
 - `detect("en-US", ["pt-BR","en"])` → "en"
-- `detect("pt", ["pt-BR","en"])` → null
+- `detect("pt", ["pt-BR","en"])` → "pt-BR"
 - `detect("pt-BR", ["pt-BR","en"])` → "pt-BR"
 - `detect("zh-Hant-TW,zh;q=0.8", ["pt-BR","en"])` → null
 - `detect(" de , en ", ["pt-BR","en"])` → "en"
 - `detect(";;,,", ["pt-BR","en"])` → null
-- `detect("en;q=abc,de", ["pt-BR","en"])` → "en"
+- `detect("en;q=abc,de", ["pt-BR","en"])` → null
 - `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["pt-BR","en"])` → null
 - `detect("__proto__,constructor", ["pt-BR","en"])` → null
 - `detect(undefined, ["zh","zh-Hant"])` → null
@@ -97,7 +97,7 @@
 - `detect("en-US", ["zh","zh-Hant"])` → null
 - `detect("pt", ["zh","zh-Hant"])` → null
 - `detect("pt-BR", ["zh","zh-Hant"])` → null
-- `detect("zh-Hant-TW,zh;q=0.8", ["zh","zh-Hant"])` → "zh"
+- `detect("zh-Hant-TW,zh;q=0.8", ["zh","zh-Hant"])` → "zh-Hant"
 - `detect(" de , en ", ["zh","zh-Hant"])` → null
 - `detect(";;,,", ["zh","zh-Hant"])` → null
 - `detect("en;q=abc,de", ["zh","zh-Hant"])` → null

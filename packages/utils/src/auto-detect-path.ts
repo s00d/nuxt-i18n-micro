@@ -24,6 +24,8 @@ export function shouldAttemptLocaleRedirect(path: string, options: { autoDetectP
     return normalized === '/'
   }
 
-  const target = mode.startsWith('/') ? mode : `/${mode}`
+  const slashed = mode.startsWith('/') ? mode : `/${mode}`
+  // `/welcome/` and `/welcome` name the same page
+  const target = slashed.length > 1 && slashed.endsWith('/') ? slashed.slice(0, -1) : slashed
   return normalized === target || normalized === `${target}/`
 }

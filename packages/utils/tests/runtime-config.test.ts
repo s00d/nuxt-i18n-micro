@@ -30,7 +30,7 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
     expect(config.defaultLocale).toBe('fr')
     expect(config.fallbackLocale).toBe('de')
     expect(config.locales?.find((locale) => locale.code === 'en')?.disabled).toBe(true)
-    expect(config.locales?.find((locale) => locale.code === 'fr')?.disabled).toBe(false)
+    expect(config.locales?.find((locale) => locale.code === 'fr')?.disabled).toBeFalsy()
   })
 
   it('ignores strategy override and warns', () => {

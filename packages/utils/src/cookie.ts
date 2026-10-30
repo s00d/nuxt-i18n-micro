@@ -23,7 +23,25 @@ export function getHashCookieName(config: ModuleOptionsExtend): string | null {
 }
 
 /**
- * Returns standard options for locale/hash cookies.
+ * The cookie that holds the visitor's locale preference: the hash cookie under hashMode, else the
+ * locale cookie. Server and client read the same one.
+ */
+export function getPreferenceCookieName(config: ModuleOptionsExtend): string | null {
+  return config.hashMode ? getHashCookieName(config) : getLocaleCookieName(config)
+}
+
+/** A cookie value, or null when it is not valid percent-encoding (a malformed cookie is absent). */
+export function decodeCookieValue(value: string): string | null {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Returns standard options for locale/hash cookies. `decode` keeps a malformed cookie from
+ * throwing in Nuxt's `useCookie`.
  */
 export function getLocaleCookieOptions() {
   const date = new Date()
@@ -35,5 +53,6 @@ export function getLocaleCookieOptions() {
     path: '/',
     watch: true,
     sameSite: 'lax' as const,
+    decode: decodeCookieValue,
   }
 }

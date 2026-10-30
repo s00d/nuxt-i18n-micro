@@ -33,6 +33,7 @@ const apiSidebar = [
     items: [
       { text: 'Overview', link: '/api/' },
       { text: 'Module options', link: '/api/module-options' },
+      { text: 'CLI commands', link: '/api/cli' },
       { text: 'Helpers ($t, $localePath, …)', link: '/api/methods' },
       { text: 'Hooks', link: '/api/events' },
     ],

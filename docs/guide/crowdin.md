@@ -45,7 +45,7 @@ Run both in CI to keep files current. Downloaded files land in your repository l
 
 ## Before uploading
 
-Clean the sources first so translators do not work on dead keys: [`i18n-micro clean`](/guide/cli#keep-locales-in-sync) removes unused keys, `i18n-micro validate` reports gaps after a download.
+Clean the sources first so translators do not work on dead keys: [`i18n-micro clean`](/api/cli#clean) removes unused keys, `i18n-micro validate` reports gaps after a download.
 
 ## Related
 

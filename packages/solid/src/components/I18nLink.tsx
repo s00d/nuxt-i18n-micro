@@ -1,9 +1,10 @@
 import { externalLinkHref, isActiveLink, isPlainClick } from '@i18n-micro/core'
 import { type Component, createMemo, type JSX, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
-import { useI18nContext, useI18nRouter } from '../injection'
+import { useI18nContextValue } from '../injection'
 import type { RouteTarget } from '../router/types'
 import { routePath, useI18n } from '../use-i18n'
+import { mergeStyles } from './merge-styles'
 
 export interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: RouteTarget
@@ -20,15 +21,17 @@ function callHandler(handler: I18nLinkProps['onClick'], event: Parameters<ClickH
 type ClickHandler = JSX.EventHandler<HTMLAnchorElement, MouseEvent>
 
 export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
-  const i18n = useI18nContext()
+  // the provider's props are reactive: `context.router` is read where it is used
+  const context = useI18nContextValue()
+  const i18n = context.i18n
   const api = useI18n()
-  const router = useI18nRouter()
   const [local, others] = splitProps(props, ['to', 'localeRoute', 'activeStyle', 'style', 'onClick'])
 
   const externalHref = createMemo(() => externalLinkHref(local.to))
   const target = createMemo(() => routePath((local.localeRoute ?? api.localeRoute)(local.to, i18n.locale)))
 
   const isActive = createMemo(() => {
+    const router = context.router
     if (!router || !local.activeStyle || externalHref() !== undefined) return false
     // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
     const codes = [i18n.locale, api.defaultLocale(), i18n.fallbackLocale, ...api.getLocales().map((l) => l.code)]
@@ -37,19 +40,20 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
 
   const handleClick: ClickHandler = (event) => {
     callHandler(local.onClick, event)
+    const router = context.router
     if (!router || externalHref() !== undefined || !isPlainClick(event)) return
     event.preventDefault()
     router.push({ path: target() })
   }
 
-  const usesRouterLink = () => externalHref() === undefined && router?.linkComponent !== undefined
+  const usesRouterLink = () => externalHref() === undefined && context.router?.linkComponent !== undefined
 
   const merged = mergeProps(others, {
     get href() {
       return externalHref() ?? target()
     },
     get style() {
-      return isActive() ? { ...(local.style as object), ...local.activeStyle } : local.style
+      return isActive() ? mergeStyles(local.style, local.activeStyle) : local.style
     },
     // a router link handles its own clicks
     get onClick() {
@@ -63,5 +67,5 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     },
   })
 
-  return <Dynamic component={usesRouterLink() ? router!.linkComponent! : 'a'} {...merged} />
+  return <Dynamic component={usesRouterLink() ? context.router!.linkComponent! : 'a'} {...merged} />
 }

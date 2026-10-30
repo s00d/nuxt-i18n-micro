@@ -1,4 +1,4 @@
-import { localizedPath } from '@i18n-micro/core'
+import { localizedPath, routeQuery } from '@i18n-micro/core'
 import type { I18nRoutingStrategy } from '@i18n-micro/preact'
 import type { Locale } from '@i18n-micro/types'
 import { Link } from 'wouter-preact'
@@ -19,6 +19,6 @@ export function createWouterAdapter(
     push: (target) => navigate(target.path),
     replace: (target) => navigate(target.path, { replace: true }),
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath: fullPath(), query: Object.fromEntries(new URLSearchParams(window.location.search)) }),
+    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(window.location.search) }),
   }
 }

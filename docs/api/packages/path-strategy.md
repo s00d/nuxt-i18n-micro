@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
 | `DomainPathStrategy` | class | 45 members |
 | `I18nPathStrategy` | class | 44 members |
-| `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }` |
+| `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
 | `PathStrategyContext` | interface | 10 members |
 | `ResolvedRouteLike` | interface | 8 members |
 | `RouteI18nMeta` | interface | 3 members |

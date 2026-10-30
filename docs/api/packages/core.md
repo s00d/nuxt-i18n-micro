@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-99 exports across 4 entry points.
+101 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -53,6 +53,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
 | `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| string[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |
@@ -383,6 +384,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
 | `ResolveTextOptions` | interface | 10 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| string[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
 | `tokenize` | function | `(template: string) => readonly string[]` |

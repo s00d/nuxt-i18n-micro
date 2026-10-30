@@ -108,12 +108,12 @@ export abstract class BaseI18n {
     return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
   }
 
-  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
   /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
   public addLocaleIso(localeIso: Record<string, string>): void {
     this.localeIso = { ...this.localeIso, ...localeIso }
   }
 
+  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
   public pluralLocale(): string {
     return this.pluralTag(this.getLocale())
   }

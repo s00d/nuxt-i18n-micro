@@ -1,4 +1,4 @@
-import { localizedPath } from '@i18n-micro/core'
+import { localizedPath, routeQuery } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import { A, type Location, type useNavigate } from '@solidjs/router'
 import type { ComponentProps, JSX } from 'solid-js'
@@ -49,6 +49,6 @@ export function createSolidRouterAdapter(
       navigate(target.path, { replace: true })
     },
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath: fullPath(), query: Object.fromEntries(new URLSearchParams(location.search)) }),
+    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(location.search) }),
   }
 }

@@ -25,6 +25,7 @@ export const useI18nContextValue = (): I18nContextValue => {
 }
 
 export const useI18nContext = (): SolidI18n => useI18nContextValue().i18n
+// One read at setup. A component that follows a provider's changes reads `useI18n().getLocales()`, or the context, inside a memo.
 export const useI18nLocales = (): Locale[] | undefined => useContext(I18nContext)?.locales
 export const useI18nDefaultLocale = (): string | undefined => useContext(I18nContext)?.defaultLocale
 export const useI18nRouter = (): I18nRoutingStrategy | undefined => useContext(I18nContext)?.router

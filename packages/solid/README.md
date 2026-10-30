@@ -1,6 +1,6 @@
 # @i18n-micro/solid
 
-SolidJS bindings for Nuxt I18n Micro: the runtime instance with one signal over it (`createI18n`), `<I18nProvider>`, `useI18n()`, four components, and a `@solidjs/router` adapter in `@i18n-micro/solid/router`.
+SolidJS bindings for Nuxt I18n Micro: the runtime instance with signals over its store (`createI18n`), `<I18nProvider>`, `useI18n()`, four components, and a `@solidjs/router` adapter in `@i18n-micro/solid/router`.
 
 ```bash
 pnpm add @i18n-micro/solid

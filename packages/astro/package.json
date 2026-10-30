@@ -115,8 +115,8 @@
   },
   "peerDependencies": {
     "astro": "catalog:",
-    "preact": "catalog:",
-    "react": "catalog:",
+    "preact": "^10.27.2 || ^11.0.0-0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "svelte": "catalog:",
     "vue": "catalog:"
   },

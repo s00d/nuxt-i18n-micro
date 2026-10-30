@@ -19,6 +19,17 @@ export function externalLinkHref(to: unknown): string | undefined {
 export const localeIsoMap = (locales: readonly { code: string; iso?: string }[]): Record<string, string> =>
   Object.fromEntries(locales.flatMap(({ code, iso }) => (iso ? [[code, iso]] : [])))
 
+/** The `query` of a route from a search string: `?tag=a&tag=b` gives `{ tag: ['a', 'b'] }`, as vue-router parses it. */
+export function routeQuery(search: string | undefined): Record<string, string | string[]> {
+  const params = new URLSearchParams(search)
+  return Object.fromEntries(
+    [...new Set(params.keys())].map((key) => {
+      const values = params.getAll(key)
+      return [key, values.length > 1 ? values : values[0]!]
+    }),
+  )
+}
+
 const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'
 
 /** A click the app may take over: primary button, no modifier, no `target`, no `download`. The rest are the browser's. */

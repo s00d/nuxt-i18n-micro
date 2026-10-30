@@ -198,6 +198,36 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.storage.translations.size).toBeGreaterThan(0)
   })
 
+  test('loadMessages notifies only when a loaded locale can be read', () => {
+    const i18n = createI18n({ locale: 'en', fallbackLocale: 'de', messages })
+    const listener = vi.fn()
+    i18n.subscribe(listener)
+    const snapshot = i18n.getSnapshot()
+    i18n.loadMessages({ fr: { welcome: 'Bienvenue' } }, { about: { fr: { welcome: 'Bienvenue' } } })
+    i18n.loadMessages()
+    expect(listener).not.toHaveBeenCalled()
+    expect(i18n.getSnapshot()).toBe(snapshot)
+    i18n.loadMessages({ fr: { a: 'A' }, en: { a: 'A' } })
+    i18n.loadMessages(undefined, { about: { de: { a: 'A' } } })
+    expect(listener).toHaveBeenCalledTimes(2)
+  })
+
+  test('addLocaleIso notifies when the active plural tag moves, unless told not to', () => {
+    const i18n = createI18n({ locale: 'ua', messages })
+    const listener = vi.fn()
+    i18n.subscribe(listener)
+    const snapshot = i18n.getSnapshot()
+    i18n.addLocaleIso({ fr: 'fr-FR' })
+    i18n.addLocaleIso({ ua: 'uk-UA' }, false)
+    expect(i18n.pluralLocale()).toBe('uk-UA')
+    i18n.addLocaleIso({ ua: 'uk-UA' })
+    expect(listener).not.toHaveBeenCalled()
+    expect(i18n.getSnapshot()).toBe(snapshot)
+    i18n.addLocaleIso({ ua: 'ru-RU' })
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(i18n.getSnapshot()).not.toBe(snapshot)
+  })
+
   test('a write notifies only when the locale can be read', () => {
     const i18n = createI18n({ locale: 'en', fallbackLocale: 'de', messages })
     const listener = vi.fn()

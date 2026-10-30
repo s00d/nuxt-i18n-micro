@@ -1,6 +1,6 @@
 import { foldTemplate, type RenderSlot, type RenderSlots } from '@i18n-micro/core/render'
 import { interpolate, resolveText, type ResolveTextOptions } from '@i18n-micro/core'
-import { type Component, createMemo, getOwner, type JSX, mergeProps, runWithOwner, splitProps, untrack } from 'solid-js'
+import { type Component, createMemo, createRoot, getOwner, type JSX, mergeProps, onCleanup, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { useI18nContext } from '../injection'
 
@@ -60,25 +60,50 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
     return interpolate(template, params)
   }
 
-  // A locale that reorders placeholders moves these nodes: each is built once, under this memo, whose
-  // rerun on new `components` disposes what the old slots created.
-  const slotScope = createMemo(() => ({ slots: toSlots(local.components), nodes: new Map<string, unknown>(), owner: getOwner() }))
+  // A locale that reorders placeholders moves these nodes: each is built once, in a root of its own,
+  // and disposed when the template drops it or new `components` replace the slots.
+  const slotScope = createMemo(() => {
+    const nodes = new Map<string, { node: unknown; dispose: () => void }>()
+    onCleanup(() => {
+      for (const built of nodes.values()) built.dispose()
+    })
+    return { slots: toSlots(local.components), nodes, owner: getOwner() }
+  })
   const renderSlot = (slot: RenderSlot, key: string): unknown => {
     const { nodes, owner } = slotScope()
     if (!nodes.has(key))
       nodes.set(
         key,
-        runWithOwner(owner, () => untrack(() => slot({}))),
+        createRoot((dispose) => ({ node: slot({}), dispose }), owner),
       )
-    return nodes.get(key)
+    return nodes.get(key)!.node
+  }
+  const foldSlots = (): unknown => {
+    const { template, params } = resolved()!
+    const { slots, nodes } = slotScope()
+    const used = new Set<string>()
+    const folded = foldTemplate(
+      (slot, key) => {
+        used.add(key)
+        return renderSlot(slot, key)
+      },
+      template,
+      params,
+      slots,
+    )
+    for (const [key, built] of nodes) {
+      if (used.has(key)) continue
+      built.dispose()
+      nodes.delete(key)
+    }
+    return folded
   }
 
   const content = (): JSX.Element => {
     const children = local.children
     if (typeof children === 'function') return children({ translation: text() })
     if (!isUnset(children)) return children
-    const { template, params } = resolved()!
-    return foldTemplate(renderSlot, template, params, slotScope().slots) as JSX.Element
+    return foldSlots() as JSX.Element
   }
 
   // a static tag skips `Dynamic`: one memo per element less

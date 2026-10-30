@@ -172,7 +172,15 @@ export class I18n extends BaseI18n {
     for (const [locale, translations] of Object.entries(messages ?? {})) this.helper.mergeTranslation(locale, 'index', translations)
     for (const [routeName, locales] of Object.entries(routeMessages ?? {}))
       for (const [locale, translations] of Object.entries(locales)) this.helper.mergeTranslation(locale, routeName, translations)
-    this.onTranslationsChanged()
+    const loaded = [...Object.keys(messages ?? {}), ...Object.values(routeMessages ?? {}).flatMap((locales) => Object.keys(locales))]
+    if (loaded.some((locale) => this.isReadable(locale))) this.store.notify()
+  }
+
+  /** Text on screen follows a new plural tag. A render passes `notify: false`: it must not wake other components. */
+  public override addLocaleIso(localeIso: Record<string, string>, notify = true): void {
+    const before = this.pluralLocale()
+    super.addLocaleIso(localeIso)
+    if (notify && this.pluralLocale() !== before) this.store.notify()
   }
 
   public async loadFromUrl(url: string, options: LoadFromUrlOptions = {}): Promise<void> {
@@ -208,10 +216,14 @@ export class I18n extends BaseI18n {
   }
 
   // Only the active and the fallback locale can be read: preloading another one renders nothing.
+  private isReadable(locale: string): boolean {
+    const { ownStore } = this
+    return locale === ownStore.getLocale() || locale === ownStore.getFallbackLocale()
+  }
+
   // `ownStore`: the write landed in this instance, so its subscribers hear it, also inside a request of `run`.
   protected override onTranslationsChanged(locale?: string): void {
-    const { ownStore } = this
-    if (locale === undefined || locale === ownStore.getLocale() || locale === ownStore.getFallbackLocale()) ownStore.notify()
+    if (locale === undefined || this.isReadable(locale)) this.ownStore.notify()
   }
 }
 

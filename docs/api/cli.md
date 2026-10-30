@@ -234,7 +234,7 @@ Export locale files to PO or CSV, with the default-locale text as the source
 | --- | --- | --- |
 | `--format` | `po` | File format: po, csv |
 | `--dir` | `pots` for po, `csv_exports` for csv | Output directory, relative to the project |
-| `--force` | `false` | Overwrite translations in the output that were never imported |
+| `--force` | `false` | Overwrite files changed since the last export and never imported |
 
 ```bash
 i18n-micro export --format csv

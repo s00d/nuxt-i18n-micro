@@ -52,14 +52,14 @@ i18n-micro stats --baseRef main
 | Command | What it does |
 | --- | --- |
 | `extract` | Lists the keys the code uses that have no text yet. A default text, as in `$t('key', {}, 'Welcome')`, goes to the default locale. |
-| `sync` | Removes keys the default locale does not have. It stops like `clean` does, and also when the default locale has nothing to compare with. Try `--dryRun` first. |
+| `sync` | Removes keys the default locale does not have. When it would remove a key, it stops like `clean` does, and also when the default locale has nothing to compare with. With nothing to remove it never stops, so `$t(item.label)` alone is no reason for `--force`. Try `--dryRun` first. |
 | `clean` | Removes keys nothing uses. Try `--dryRun` first. |
 | `search` | Finds keys and values, and shows where each key is used. |
 | `stats` | Completion per locale; `--baseRef main` compares with a git ref. |
 
 `extract` and `sync` never write `''` for a key without a translation. The key stays absent, so `fallbackLocale` applies at runtime, and `check` reports it. An empty string would be a defined value: it would show a blank.
 
-All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. Test code counts as usage, but `extract` and `check` do not treat its keys as ones the app needs. Test code means the root folders `tests`, `test`, `__tests__`, `e2e`, `cypress` and `playwright`, and `*.spec.ts` or `*.test.ts` files anywhere. Only the root folders are exempt from the doubts below: `pages/tests/[id].vue` is a page like any other.
+All of them read the whole project, not a fixed list of folders: templates and scripts through a parser, `.html` and Pug as text, every layer, and folders outside the root that an alias or `components` points at. `node_modules`, build output and the locale files are skipped; add your own with `--ignore 'legacy/**,*.stories.ts'`. Test code counts as usage, but `extract` and `check` do not treat its keys as ones the app needs. Test code means the root folders `tests`, `test`, `__tests__`, `e2e`, `cypress` and `playwright`, and `*.spec.ts` or `*.test.ts` files anywhere. Only the root folders are exempt from the doubts below: `pages/tests/[id].vue` is a page like any other. So are `public/` and minified files, whose code is not part of the app.
 
 They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()` and `useTranslationServerMiddleware()`, `<i18n-t keypath>` in templates and JSX, `<i18n-group prefix>`, and aliases such as `const { t: tr } = useI18n()`.
 
@@ -77,7 +77,7 @@ They understand `$t`, `$ts`, `$tc`, `$has`, `$_t(route)`, `t()` from `useI18n()`
 
 - a key is fully computed, as in `$t(name)`, `<i18n-t :keypath="name" />` or `<i18n-t v-bind="props" />`;
 - `$t` is passed around as a value, as in `items.map($t)`;
-- a function called `t` of unknown origin gets a computed argument: it may be a wrapper around the real one;
+- a function called `t` gets a computed argument and comes from a parameter, an import or a call: it may be a wrapper around the real one. A function the same file defines does not count: a wrapper would have its own call inside;
 - a source file does not parse;
 - no file uses any key at all, which usually means it is looking in the wrong place;
 - a locale file is a symlink out of the project, so another app may read it.
@@ -105,7 +105,7 @@ i18n-micro translate --service deepl --locale de,fr
 
 Options are `key:value` pairs: `--options provider:openai,model:gpt-4o-mini`. All services also take `baseUrl`, `retries`, `retryDelayMs` and `timeoutMs`.
 
-Flags are visible in shell history and process lists, so prefer the environment variable for the token. Tokens, provider keys and credentials in a URL are masked in everything the CLI prints, `--debug` included.
+Flags are visible in shell history and process lists, so prefer the environment variable for the token. The CLI masks what it knows to be secret wherever it prints it, `--debug` included: tokens, provider keys, Basic credentials, and the query and credentials of a URL you configured. A server that reformats a key before echoing it is out of its reach, so treat logs of a failed run with care.
 
 The `ai` service follows a glossary. When `.i18n-glossary.json` exists it is used without a flag; `--glossaryFile` picks another file.
 
@@ -145,7 +145,7 @@ i18n-micro export --format csv
 i18n-micro import --format csv --dryRun
 ```
 
-`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `export` stops rather than overwrite translations that were never imported; `--force` overwrites them. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`.
+`export` writes every key of every locale, including untranslated ones, with the default-locale text as the source: a `Source` column in CSV, a `#.` comment in PO. Without `--dir`, PO goes to `pots` and CSV to `csv_exports`. `export` records what it wrote in `.i18n-export.json`, in the output folder. It stops when a file has changed since then and holds translations the locale files do not have, fuzzy PO entries included; `--force` overwrites them. Ordinary edits of the locale files do not stop it. `import` merges, skips empty cells, and skips PO entries marked `fuzzy`. A key that would overwrite a value, or a value over a whole group of keys, is listed and left out, and the command exits `1`.
 
 For a translation platform, use its own CLI: the [Crowdin](/guide/crowdin) setup syncs the JSON files, page files included.
 
@@ -198,7 +198,8 @@ Changed behaviour:
 - `clean` keeps a key used anywhere, in any scope, and stops when usage cannot be proven. `--include` and `--exclude` choose what may be removed.
 - `sync` stops the same way, and when the default locale has no keys to compare with. `--force` overrides it. It also stops when `DEFAULT_LOCALE` chose another reference than `nuxt.config`.
 - Single-dash long flags and stray arguments are errors: `clean -dryRun` no longer runs `clean`.
-- A read-only file, bytes that are not UTF-8, a repeated key and an integer above 2^53 stop a command: a save would lose them.
+- A read-only file, or a file that is not UTF-8, cannot be saved: the command stops before it changes anything. Reading such a file is fine. A repeated key, a key called `__proto__` and an integer above 2^53 stop a command, because a save would lose them.
+- A flag that needs a value and is followed by another flag is an error; write `--flag=--value` for a value that starts with a dash. A boolean flag takes only `true` or `false`.
 - `export` stops rather than overwrite translations that were never imported.
 - Exit codes are `0`, `1` and `2`; failures used to be `1`, and `diff` and `check-duplicates` always `0`.
 - `lint --fix` no longer leaves `.bak` files.

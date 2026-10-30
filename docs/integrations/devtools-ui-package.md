@@ -62,6 +62,7 @@ In Astro, add the integration instead of the plugin. It adds an app to the dev t
 
 ```ts
 // astro.config.mjs
+import { defineConfig } from 'astro/config'
 import { i18nDevToolsIntegration } from '@i18n-micro/devtools-ui/vite'
 
 export default defineConfig({

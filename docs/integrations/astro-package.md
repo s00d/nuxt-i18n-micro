@@ -30,7 +30,7 @@ Peer dependencies: `astro` `^5.0.0 || ^6.0.0 || ^7.0.0`. Optional, only for [isl
 
 ## Setup
 
-Add the integration. It bundles your dictionaries into the server and installs the middleware, so there is nothing else to write:
+Add the integration. It bundles your dictionaries into the server and installs the middleware, so no `src/middleware.ts` is needed:
 
 ```ts
 // astro.config.mjs
@@ -73,7 +73,7 @@ The dictionaries become code at build time: the server reads no disk, so it runs
 | `missingWarn` | `false` | |
 | `middleware` | `true` | `false`: write the middleware yourself, see below. |
 
-Every value is published in `virtual:i18n-micro/config` (`config.base` is Astro's `base`, `config.localeCodes` the enabled codes), the dictionaries in `virtual:i18n-micro/messages`.
+The runtime settings are published in `virtual:i18n-micro/config` (`config.base` is Astro's `base`, `config.localeCodes` the enabled codes), the dictionaries in `virtual:i18n-micro/messages`.
 
 ### Your own middleware
 
@@ -152,7 +152,7 @@ Import them from `@i18n-micro/astro/<name>` (or `@i18n-micro/astro/components/<n
 
 | Component | Props |
 | --- | --- |
-| `i18n-t` | `keypath`, `params`, `plural`, `number`, `date`, `relativeDate`, `tag` (`span`, any tag), `html`, `hideIfEmpty`, `defaultValue`; other attributes pass through. With `html` the translation is rendered as HTML and `params` are escaped |
+| `i18n-t` | `keypath`, `params`, `plural`, `number`, `date`, `relativeDate`, `tag` (`span`, any tag), `html`, `hideIfEmpty`, `defaultValue`; other attributes pass through. With `html` the result of every branch is rendered as HTML and `params` are escaped. There are no slots |
 | `i18n-link` | `href`, `locale` (target locale, default current), `class`; other attributes pass through. External URLs, `#hash` and `?query` stay as written; a route keeps its query, hash and trailing slash |
 | `i18n-switcher` | `class`, `activeClass` (`'active'`), `customLabels`; renders links to the current page in each enabled locale, with its query |
 | `i18n-group` | none that change output: a `<div>` around its slot, no prefix |

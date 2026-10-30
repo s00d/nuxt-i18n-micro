@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 44 members |
+| `BaseI18n` | class | 45 members |
 | `BaseI18nOptions` | interface | 12 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
@@ -64,7 +64,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 44 members</summary>
+<summary><code>BaseI18n</code> — 45 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -92,6 +92,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `onTranslationsChanged` | `protected (_locale?: string) => void` |
+| `ownsFormatter` | `private boolean` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private (locale: string) => string` |

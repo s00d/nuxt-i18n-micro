@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 68 members |
+| `I18n` | class | 69 members |
 | `I18nOptions` | interface | 15 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -38,7 +38,7 @@ import { /* … */ } from '@i18n-micro/node'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 68 members</summary>
+<summary><code>I18n</code> — 69 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -51,11 +51,11 @@ import { /* … */ } from '@i18n-micro/node'
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
 | `disablePageLocales` | `private boolean` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../node/src").I18n & M>) => import("../../node/src").I18n & M` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
-| `fork` | `(locale?: string) => import("../../node/src").I18n` |
+| `fork` | `(locale?: string) => I18n` |
 | `forked` | `private boolean` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
@@ -81,6 +81,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |

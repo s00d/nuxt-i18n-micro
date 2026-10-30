@@ -1121,6 +1121,7 @@ member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected (locale?: string) => void
+member PreactI18n.ownsFormatter: private any
 member PreactI18n.ownStore: protected ReactiveI18nStore
 member PreactI18n.pluralFunc: PluralFunc
 member PreactI18n.pluralLocale: () => string

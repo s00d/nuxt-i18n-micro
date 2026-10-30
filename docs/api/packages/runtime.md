@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 61 members |
+| `I18n` | class | 62 members |
 | `I18nOptions` | interface | 13 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
@@ -39,7 +39,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 61 members</summary>
+<summary><code>I18n</code> — 62 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -51,7 +51,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
@@ -79,6 +79,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |

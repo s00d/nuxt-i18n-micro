@@ -20,15 +20,16 @@ import { /* … */ } from '@i18n-micro/types-generator'
 | --- | --- | --- |
 | `formatKeyProperty` | function | `(key: string) => string` |
 | `generateTypes` | function | `(options: GeneratorOptions) => string` |
-| `GeneratorOptions` | interface | 3 members |
+| `GeneratorOptions` | interface | 4 members |
 | `getTypesString` | function | `(options: GeneratorOptions) => string` |
 | `I18nTypesPlugin` | function | `(options: GeneratorOptions) => Plugin` |
 
 <details>
-<summary><code>GeneratorOptions</code> — 3 members</summary>
+<summary><code>GeneratorOptions</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalDirs?` | `string[] \| undefined` |
 | `outputFile?` | `string \| undefined` |
 | `srcDir` | `string` |
 | `translationDir` | `string \| string[]` |

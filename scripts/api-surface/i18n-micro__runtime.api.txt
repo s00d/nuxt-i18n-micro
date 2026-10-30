@@ -34,7 +34,7 @@ member I18n.addTranslations: (locale: string, translations: Translations, merge?
 member I18n.clear: () => void
 member I18n.clearCache: () => void
 member I18n.currentRoute: string
-member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M
+member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M
 member I18n.fallbackKey: private any
 member I18n.fallbackLocale: string
 member I18n.fallbackRootKey: private any
@@ -61,6 +61,7 @@ member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected (locale?: string) => void
+member I18n.ownsFormatter: private any
 member I18n.ownStore: protected ReactiveI18nStore
 member I18n.pluralFunc: PluralFunc
 member I18n.pluralLocale: () => string

@@ -1033,6 +1033,7 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
@@ -2146,6 +2147,7 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
@@ -2259,7 +2261,7 @@ member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => voi
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
 member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
-const I18nT: ({ i18n, ...props }: ServerI18nTProps) => import("./host").HostElement
+const I18nT: ({ i18n, ...props }: ServerI18nTProps) => HostElement
 type I18nTComponent: HostNode | (() => HostNode)
 function interpolate: (template: string, params: Params) => string
 class ReactI18n
@@ -2298,6 +2300,7 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string

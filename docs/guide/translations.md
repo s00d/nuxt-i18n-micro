@@ -33,7 +33,7 @@ locales/
 
 ## What a page sees
 
-![Lookup order of a page dictionary](/diagrams/page-dictionary.svg)
+![Lookup order for a key on /about in de: pages/about/de.json, de.json, pages/about/en.json, en.json. They merge into one about/de/data.json that $t reads](/diagrams/page-dictionary.svg)
 
 A page's dictionary is its root file merged with its page file, deeply (every level). The page file wins on a clash:
 
@@ -97,7 +97,7 @@ Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a w
 
 ## How a page loads its dictionary
 
-![From locale files to $t](/diagrams/translation-pipeline.svg)
+![Locale JSON files are built into a payload tree, stored in public/ on Node or in server assets on Edge, read by a server loader, then used by $t on the server and fetched for $t in the browser](/diagrams/translation-pipeline.svg)
 
 The module builds one payload per page and locale: `/{apiBaseUrl}/{page}/{locale}/data.json` (`/_locales/about/de/data.json` by default).
 

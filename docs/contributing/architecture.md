@@ -10,7 +10,7 @@ This page follows a translation from the JSON file in `locales/` to `$t()` on sc
 
 ## Overview
 
-![From locale files to $t](/diagrams/translation-pipeline.svg)
+![Locale JSON files are built into a payload tree, stored in public/ on Node or in server assets on Edge, read by a server loader, then used by $t on the server and fetched for $t in the browser](/diagrams/translation-pipeline.svg)
 
 ## Build
 

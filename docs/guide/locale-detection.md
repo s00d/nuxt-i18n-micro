@@ -27,7 +27,7 @@ The first source that names an **enabled** locale wins. An invalid or malformed 
 
 So under a prefix strategy the URL decides what a page shows; the preference sources (3–5) only decide where a visitor is **redirected**, and only on the paths `autoDetectPath` allows. Under `no_prefix` there is nothing to redirect, and the preference sources decide what the page shows.
 
-![How the page locale is decided](/diagrams/locale-detection.svg)
+![Decision flow: a locale prefix in the URL renders that locale. Without one, no_prefix renders from the preference sources, prefix_and_default renders the default locale, and prefix or prefix_except_default redirect by preference when autoDetectPath allows the path](/diagrams/locale-detection.svg)
 
 ## Redirects per strategy
 

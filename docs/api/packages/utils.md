@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-109 exports across 24 entry points.
+110 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -202,6 +202,7 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `mergeTranslationsFromFallbackChain` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown>, relativePathForLocale: (localeCode: string) => string) => Record<string, unknown>` |
 | `mergeTranslationsFromFallbackChainAsync` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>` |
 | `normalizeConfiguredLocales` | function | `(locales: Array<string \| Locale> \| undefined) => SourceLocaleInfo[]` |
+| `PREMERGED_ROOT_PAGE` | const | `"__root"` |
 | `resolveSourcePageName` | function | `(pageName: string, disablePageLocales?: boolean) => string` |
 | `SourceLocaleInfo` | interface | 2 members |
 | `toPremergedStorageKey` | function | `(pageName: string, locale: string) => string` |

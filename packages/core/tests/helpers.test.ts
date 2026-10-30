@@ -7,7 +7,6 @@ import {
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
   mergeTranslationChunk,
-  mergeTranslationChunkInPlace,
   mergeTranslationLayers,
   resolveTranslation,
   setTranslationAtKey,
@@ -81,6 +80,15 @@ describe('Helpers', () => {
     test('returns undefined for nullish root or empty path', () => {
       expect(getByPath(null, 'flat')).toBeUndefined()
       expect(getByPath(data, '')).toBeUndefined()
+    })
+
+    test('reads array items by index but never array or prototype members', () => {
+      const tree = { list: ['a', 'b'] }
+      expect(getByPath(tree, 'list.1')).toBe('b')
+      expect(getByPath(tree, 'list.length')).toBeUndefined()
+      expect(getByPath(tree, 'list.map')).toBeUndefined()
+      expect(getByPath(tree, 'toString')).toBeUndefined()
+      expect(getByPath(tree, 'list.__proto__')).toBeUndefined()
     })
   })
 
@@ -255,38 +263,25 @@ describe('Helpers', () => {
     })
   })
 
-  describe('mergeTranslationChunkInPlace', () => {
-    test('mutates target with incoming winning by default', () => {
-      const target: Record<string, unknown> = { a: 1, b: 1 }
-      mergeTranslationChunkInPlace(target, { b: 2, c: 3 })
-      expect(target).toEqual({ a: 1, b: 2, c: 3 })
-    })
-
-    test('preserves existing keys when preserveExisting is true', () => {
-      const target: Record<string, unknown> = { a: 1, b: 1 }
-      mergeTranslationChunkInPlace(target, { b: 2, c: 3 }, { preserveExisting: true })
-      expect(target).toEqual({ a: 1, b: 1, c: 3 })
-    })
-
-    test('deep-merges nested objects in place without cloning the root', () => {
+  describe('mergeTranslationChunk immutability', () => {
+    test('copies only the nodes on the patch path and leaves both inputs untouched', () => {
       const nav = { about: 'About', home: 'Home' }
-      const target: Record<string, unknown> = { nav }
-      mergeTranslationChunkInPlace(target, { nav: { extra: 'E' } })
-      expect(target.nav).toBe(nav)
-      expect(target).toEqual({ nav: { about: 'About', home: 'Home', extra: 'E' } })
+      const other = { x: 1 }
+      const existing: Record<string, unknown> = { nav, other }
+      const incoming = { nav: { extra: 'E' } }
+      const merged = mergeTranslationChunk(existing, incoming)
+      expect(merged).toEqual({ nav: { about: 'About', home: 'Home', extra: 'E' }, other: { x: 1 } })
+      expect(existing).toEqual({ nav: { about: 'About', home: 'Home' }, other: { x: 1 } })
+      expect(incoming).toEqual({ nav: { extra: 'E' } })
+      expect(merged.other).toBe(other)
+      expect(merged.nav).not.toBe(nav)
     })
 
-    test('replaces arrays and type changes rather than merging them', () => {
-      const target: Record<string, unknown> = { items: ['a', 'b'], a: { b: '1' } }
-      mergeTranslationChunkInPlace(target, { items: ['c'], a: 'flat' })
-      expect(target).toEqual({ items: ['c'], a: 'flat' })
-    })
-
-    test('ignores a key that would reach the prototype chain', () => {
-      const target: Record<string, unknown> = { a: '1' }
-      mergeTranslationChunkInPlace(target, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
-      expect(target).toEqual({ a: '1', b: '2' })
-      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    test('a later merge does not write into a subtree an earlier merge took from the caller', () => {
+      const first = { sec: { a: 1 } }
+      const once = mergeTranslationChunk({ root: 1 }, first)
+      mergeTranslationChunk(once, { sec: { b: 2 } })
+      expect(first).toEqual({ sec: { a: 1 } })
     })
   })
 

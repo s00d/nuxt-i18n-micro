@@ -49,18 +49,8 @@ export class AstroI18n extends BaseI18n {
     }
   }
 
-  private cloneStorage(source: TranslationStorage): TranslationStorage {
-    const translations = new Map<string, Translations>()
-    for (const [key, value] of source.translations) {
-      translations.set(key, { ...value })
-    }
-    return { translations }
-  }
-
   public clone(newLocale?: string): AstroI18n {
-    const isolatedStorage = this.cloneStorage(this.storage)
-
-    return new AstroI18n({
+    const copy = new AstroI18n({
       locale: newLocale || this._locale,
       fallbackLocale: this._fallbackLocale,
       plural: this.pluralFunc,
@@ -68,8 +58,11 @@ export class AstroI18n extends BaseI18n {
       missingHandler: this.missingHandler,
       numberFormats: this.formatter.getNumberFormats(),
       datetimeFormats: this.formatter.getDateTimeFormats(),
-      _storage: isolatedStorage,
+      // A new Map over the same trees is isolation enough: core never mutates a stored tree.
+      _storage: { translations: new Map(this.storage.translations) },
     })
+    copy.initialMessages = this.initialMessages
+    return copy
   }
 
   get locale(): string {

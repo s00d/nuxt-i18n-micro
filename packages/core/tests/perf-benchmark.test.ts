@@ -22,7 +22,7 @@ import {
   isPrefixStrategy,
   withPrefixStrategy,
 } from '../src/helpers'
-import { useTranslationHelper } from '../src/translation'
+import { useTranslationHelper } from '../src/storage'
 import { afterAll, describe, expect, test } from 'vitest'
 
 const ITERATIONS_FAST = 50_000

@@ -1,0 +1,148 @@
+## formatNumber
+
+- `formatNumber(1234567.891, en-US, undefined)` → "1,234,567.891"
+- `formatNumber(1234567.891, en-US, {})` → "1,234,567.891"
+- `formatNumber(1234567.891, en-US, {"style":"percent"})` → "123,456,789%"
+- `formatNumber(1234567.891, en-US, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "1,234,567.89"
+- `formatNumber(1234567.891, en-US, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "1,234,567.89"
+- `formatNumber(1234567.891, en-US, {"notation":"compact"})` → "1.2M"
+- `formatNumber(1234567.891, de-DE, undefined)` → "1.234.567,891"
+- `formatNumber(1234567.891, de-DE, {})` → "1.234.567,891"
+- `formatNumber(1234567.891, de-DE, {"style":"percent"})` → "123.456.789 %"
+- `formatNumber(1234567.891, de-DE, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "1.234.567,89"
+- `formatNumber(1234567.891, de-DE, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "1.234.567,89"
+- `formatNumber(1234567.891, de-DE, {"notation":"compact"})` → "1,2 Mio."
+- `formatNumber(1234567.891, fr, undefined)` → "1 234 567,891"
+- `formatNumber(1234567.891, fr, {})` → "1 234 567,891"
+- `formatNumber(1234567.891, fr, {"style":"percent"})` → "123 456 789 %"
+- `formatNumber(1234567.891, fr, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "1 234 567,89"
+- `formatNumber(1234567.891, fr, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "1 234 567,89"
+- `formatNumber(1234567.891, fr, {"notation":"compact"})` → "1,2 M"
+- `formatNumber(1234567.891, ar-EG, undefined)` → "١٬٢٣٤٬٥٦٧٫٨٩١"
+- `formatNumber(1234567.891, ar-EG, {})` → "١٬٢٣٤٬٥٦٧٫٨٩١"
+- `formatNumber(1234567.891, ar-EG, {"style":"percent"})` → "١٢٣٬٤٥٦٬٧٨٩٪؜"
+- `formatNumber(1234567.891, ar-EG, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "١٬٢٣٤٬٥٦٧٫٨٩"
+- `formatNumber(1234567.891, ar-EG, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "١٬٢٣٤٬٥٦٧٫٨٩"
+- `formatNumber(1234567.891, ar-EG, {"notation":"compact"})` → "١٫٢ مليون"
+- `formatNumber(1234567.891, ja, undefined)` → "1,234,567.891"
+- `formatNumber(1234567.891, ja, {})` → "1,234,567.891"
+- `formatNumber(1234567.891, ja, {"style":"percent"})` → "123,456,789%"
+- `formatNumber(1234567.891, ja, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "1,234,567.89"
+- `formatNumber(1234567.891, ja, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "1,234,567.89"
+- `formatNumber(1234567.891, ja, {"notation":"compact"})` → "123万"
+- `formatNumber(1, "xx-invalid-??")` → throws RangeError: Incorrect locale information provided
+- `formatNumber(1, "en", {style:"currency"})` → throws TypeError: Currency code is required with currency style.
+
+## formatter cache
+
+- `same options object → same formatter` → true
+- `key order irrelevant` → true
+- `undefined vs {}` → true
+- `different locale` → false
+- `date undefined vs {}` → true
+- `relative cache` → true
+
+## named formats
+
+- `resolveNumberFormat(en, money)` → {"style":"currency","currency":"USD"}
+- `resolveDateTimeFormat(en, day)` → {"weekday":"long","timeZone":"UTC"}
+- `resolveNumberFormat(en-GB, money)` → {"style":"currency","currency":"USD"}
+- `resolveDateTimeFormat(en-GB, day)` → {"weekday":"long","timeZone":"UTC"}
+- `resolveNumberFormat(pt-BR, money)` → {"style":"currency","currency":"BRL"}
+- `resolveDateTimeFormat(pt-BR, day)` → undefined
+- `resolveNumberFormat(pt, money)` → undefined
+- `resolveDateTimeFormat(pt, day)` → undefined
+- `resolveNumberFormat(en, nope)` → undefined
+- `resolveDateTimeFormat(en, day)` → {"weekday":"long","timeZone":"UTC"}
+- `resolveNumberFormat(zz, money)` → undefined
+- `resolveDateTimeFormat(zz, day)` → undefined
+- `getNumberFormats()` → {"en":{"money":{"style":"currency","currency":"USD"}},"pt-BR":{"money":{"style":"currency","currency":"BRL"}}}
+- `getDateTimeFormats()` → {"en":{"day":{"weekday":"long","timeZone":"UTC"}}}
+- `after setNumberFormats resolve(en, plain)` → {"useGrouping":false}
+- `after setNumberFormats resolve(en, money)` → undefined
+- `after setDateTimeFormats resolve(en, day)` → undefined
+- `new FormatService() formats` → [{},{}]
+
+## formatDate
+
+- `formatDate(1709251199000, en-US, UTC)` → "2/29/2024"
+- `formatDate(1709251199000, de-DE, UTC)` → "29.2.2024"
+- `formatDate("2024-02-29", en-US, UTC)` → "2/29/2024"
+- `formatDate("2024-02-29", de-DE, UTC)` → "29.2.2024"
+- `formatDate("2024-02-29T10:00:00Z", en-US, UTC)` → "2/29/2024"
+- `formatDate("2024-02-29T10:00:00Z", de-DE, UTC)` → "29.2.2024"
+- `formatDate("2000-01-01T00:00:00.000Z", en-US, UTC)` → "1/1/2000"
+- `formatDate("2000-01-01T00:00:00.000Z", de-DE, UTC)` → "1.1.2000"
+- `formatDate(0, en-US, UTC)` → "1/1/1970"
+- `formatDate(0, de-DE, UTC)` → "1.1.1970"
+- `formatDate(-1, en-US, UTC)` → "12/31/1969"
+- `formatDate(-1, de-DE, UTC)` → "31.12.1969"
+- `formatDate("", en-US, UTC)` → "Invalid Date"
+- `formatDate("", de-DE, UTC)` → "Invalid Date"
+- `formatDate("not a date", en-US, UTC)` → "Invalid Date"
+- `formatDate("not a date", de-DE, UTC)` → "Invalid Date"
+- `formatDate(NaN, en-US, UTC)` → "Invalid Date"
+- `formatDate(NaN, de-DE, UTC)` → "Invalid Date"
+- `formatDate(Infinity, en-US, UTC)` → "Invalid Date"
+- `formatDate(Infinity, de-DE, UTC)` → "Invalid Date"
+- `formatDate(0, en, {dateStyle:"full", timeZone:"UTC"})` → "Thursday, January 1, 1970"
+
+## formatRelativeTime (now fixed)
+
+- `past 0s (en)` → "in 0 seconds"
+- `future 0s (en)` → "in 0 seconds"
+- `past 0.4s (en)` → "in 0 seconds"
+- `future 0.4s (en)` → "in 0 seconds"
+- `past 1s (en)` → "1 second ago"
+- `future 1s (en)` → "in 1 second"
+- `past 30s (en)` → "30 seconds ago"
+- `future 30s (en)` → "in 30 seconds"
+- `past 59s (en)` → "59 seconds ago"
+- `future 59s (en)` → "in 59 seconds"
+- `past 60s (en)` → "1 minute ago"
+- `future 60s (en)` → "in 1 minute"
+- `past 61s (en)` → "1 minute ago"
+- `future 61s (en)` → "in 1 minute"
+- `past 3599s (en)` → "59 minutes ago"
+- `future 3599s (en)` → "in 59 minutes"
+- `past 3600s (en)` → "1 hour ago"
+- `future 3600s (en)` → "in 1 hour"
+- `past 7200s (en)` → "2 hours ago"
+- `future 7200s (en)` → "in 2 hours"
+- `past 86399s (en)` → "23 hours ago"
+- `future 86399s (en)` → "in 23 hours"
+- `past 86400s (en)` → "1 day ago"
+- `future 86400s (en)` → "in 1 day"
+- `past 518400s (en)` → "6 days ago"
+- `future 518400s (en)` → "in 6 days"
+- `past 604800s (en)` → "7 days ago"
+- `future 604800s (en)` → "in 7 days"
+- `past 2505600s (en)` → "29 days ago"
+- `future 2505600s (en)` → "in 29 days"
+- `past 2592000s (en)` → "1 month ago"
+- `future 2592000s (en)` → "in 1 month"
+- `past 2678400s (en)` → "1 month ago"
+- `future 2678400s (en)` → "in 1 month"
+- `past 31449600s (en)` → "12 months ago"
+- `future 31449600s (en)` → "in 12 months"
+- `past 31536000s (en)` → "1 year ago"
+- `future 31536000s (en)` → "in 1 year"
+- `past 94608000s (en)` → "3 years ago"
+- `future 94608000s (en)` → "in 3 years"
+- `past 1 day {"numeric":"auto"}` → "yesterday"
+- `future 1 day {"numeric":"auto"}` → "tomorrow"
+- `now {"numeric":"auto"}` → "now"
+- `past 1 day {"style":"short"}` → "1 day ago"
+- `future 1 day {"style":"short"}` → "in 1 day"
+- `now {"style":"short"}` → "in 0 sec."
+- `past 1 day {"style":"narrow","numeric":"auto"}` → "yesterday"
+- `future 1 day {"style":"narrow","numeric":"auto"}` → "tomorrow"
+- `now {"style":"narrow","numeric":"auto"}` → "now"
+- `past 3 hours (de)` → "vor 3 Stunden"
+- `past 3 hours (ru)` → "3 часа назад"
+- `past 3 hours (ja)` → "3 時間前"
+- `relative(new Date(now - 2 days))` → "2 days ago"
+- `relative(ISO string 1 hour ago)` → "1 hour ago"
+- `relative("garbage")` → "Invalid Date"
+- `relative(NaN)` → "Invalid Date"
+- `after clearCache formatNumber` → "1.5"

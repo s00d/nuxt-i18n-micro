@@ -71,6 +71,12 @@ export function toSourceStorageKey(relativePath: string): string {
  * Premerged page/locale payload key — matches the client URL path under `apiBaseUrl`
  * (`{page}/{locale}/data.json`, e.g. `index/en/data.json` → `/_locales/index/en/data.json`).
  */
+/**
+ * Premerged payload of the root dictionary alone (with fallbacks): what a page without its own
+ * `pages/<name>/` folder shows, instead of an empty dictionary.
+ */
+export const PREMERGED_ROOT_PAGE = '__root'
+
 export function toPremergedStorageKey(pageName: string, locale: string): string {
   const page = pageName.replace(/^\/+|\/+$/g, '') || 'index'
   return toSourceStorageKey(`${page}/${locale}/data.json`)

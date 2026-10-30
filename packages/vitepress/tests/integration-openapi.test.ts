@@ -339,16 +339,16 @@ describe('openapi integration: locales + SEO coexistence', () => {
 })
 
 describe('openapi integration: wrong setRoute must not eat root UI', () => {
-  it('forced deep route without page dict hides root until set back to index', () => {
+  it('a deep route without a page dict still reads the root UI', () => {
     const i18n = createI18n({
       locale: 'ru',
       defaultLocale: 'en',
       locales,
       messages: uiMessages,
     })
-    // Simulate bad setRoute(deep) without page messages — root keys disappear
+    // a route chunk that does not exist falls through to the root chunk
     i18n.i18n.setRoute('petstore-pets-getPetById')
-    expect(i18n.i18n.t('try_it_out')).toBe('try_it_out')
+    expect(i18n.i18n.ts('try_it_out')).toBe('Попробовать')
     i18n.i18n.setRoute('index')
     expect(i18n.i18n.ts('try_it_out')).toBe('Попробовать')
   })

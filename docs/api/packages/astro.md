@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 54 members |
+| `AstroI18n` | class | 53 members |
 | `AstroI18nOptions` | interface | 9 members |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -59,21 +59,24 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 54 members</summary>
+<summary><code>AstroI18n</code> — 53 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `_currentRoute` | `private string` |
 | `_fallbackLocale` | `private string` |
 | `_locale` | `private string` |
+| `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
 | `clone` | `(newLocale?: string) => AstroI18n` |
-| `cloneStorage` | `private (source: TranslationStorage) => TranslationStorage` |
-| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../astro/src").AstroI18n & M>) => import("../../astro/src").AstroI18n & M` |
+| `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `fallbackRootKey` | `private any` |
+| `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
@@ -82,25 +85,20 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getRoute` | `() => string` |
 | `getRouteTranslations` | `(locale: string, routeName: string) => Translations \| null` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `TranslationHelper` |
 | `initialMessages` | `private Record<string, Translations>` |
-| `invalidatePin` | `protected () => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `lookupLocale` | `private any` |
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: AstroI18nOptions): AstroI18n` |
 | `onTranslationsChanged` | `protected () => void` |
-| `pinnedCacheKey` | `private any` |
-| `pinnedGeneration` | `private any` |
-| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
-| `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
@@ -117,6 +115,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 

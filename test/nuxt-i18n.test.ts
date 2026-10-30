@@ -29,6 +29,18 @@ describe('NuxtI18n', () => {
     expect(i18n.t('common.fromB')).toBe('From B')
   })
 
+  it('a transition that ends after the next navigation does not drop the page still leaving', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { a: 'A' })
+    i18n.applySwitchContext('en', 'page-b', { b: 'B' })
+    const leavingA = i18n.outgoing
+    i18n.applySwitchContext('en', 'page-c', { c: 'C' })
+    i18n.finishTransition(leavingA)
+    expect(i18n.t('b')).toBe('B')
+    i18n.finishTransition(i18n.outgoing)
+    expect(i18n.has('b')).toBe(false)
+  })
+
   it('keeps deeply nested outgoing keys visible during a same-locale transition', () => {
     // The failure this pins: both chunks share the `page` namespace, so a one-level merge
     // replaced it wholesale and the outgoing page's own subtree vanished mid-transition —

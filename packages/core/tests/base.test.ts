@@ -343,6 +343,15 @@ describe('BaseI18n', () => {
     })
   })
 
+  describe('tc() missing key', () => {
+    test('reports a missing plural key to the missing handler, like t()', () => {
+      const missingHandler = vi.fn()
+      const i18n = new TestI18n('en', 'en', 'index', { missingHandler })
+      expect(i18n.tc('nope', 2)).toBe('nope')
+      expect(missingHandler).toHaveBeenCalledWith('en', 'nope', 'index')
+    })
+  })
+
   describe('tn() method', () => {
     test('should format number with default locale', () => {
       const i18n = new TestI18n('en', 'en', 'index')

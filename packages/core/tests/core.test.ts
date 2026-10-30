@@ -117,16 +117,56 @@ describe('Translation Helper', () => {
     expect(helper.getTranslation('en', 'index', 'greeting')).toBe('Hi')
   })
 
-  test('setCache installs a sparse leaf map for a chunk', () => {
-    const helper = useTranslationHelper()
+  test('lookups read writes made straight to the storage Map', () => {
+    const storage = { translations: new Map() }
+    const helper = useTranslationHelper(storage)
     helper.setTranslations('en', { greeting: 'Hello' }, 'index')
+    expect(helper.getTranslation('en', 'index', 'greeting')).toBe('Hello')
+    storage.translations.set('en:index', { greeting: 'Direct' })
+    expect(helper.getTranslation('en', 'index', 'greeting')).toBe('Direct')
+    storage.translations.clear()
+    expect(helper.getTranslation('en', 'index', 'greeting')).toBeNull()
+  })
 
-    const leaf = new Map<string, unknown>([['greeting', 'FromLeaf']])
-    helper.setCache('en', 'index', leaf)
+  test('merging into a cloned storage leaves the source storage untouched', () => {
+    const source = useTranslationHelper()
+    source.loadTranslations('en', { nav: { home: 'Home' } })
+    const clone = useTranslationHelper({ translations: new Map(source.translations) })
+    clone.mergeTranslation('en', 'index', { nav: { home: 'Clone', extra: 'X' } })
+    expect(clone.getTranslation('en', 'index', 'nav.home')).toBe('Clone')
+    expect(source.getTranslation('en', 'index', 'nav.home')).toBe('Home')
+    expect(source.getTranslation('en', 'index', 'nav.extra')).toBeNull()
+  })
 
-    expect(helper.getTranslation('en', 'index', 'greeting')).toBe('FromLeaf')
-    // Nested tree unchanged
-    expect(helper.getCache('en', 'index')).toEqual({ greeting: 'Hello' })
+  test('a polluted Object.prototype never answers a lookup', () => {
+    const helper = useTranslationHelper()
+    helper.loadTranslations('en', { nav: { home: 'Home' } })
+    const proto = Object.prototype as Record<string, unknown>
+    proto.polluted = 'EVIL'
+    try {
+      expect(helper.getTranslation('en', 'index', 'polluted')).toBeNull()
+      expect(helper.getTranslation('en', 'index', 'nav.polluted')).toBeNull()
+    } finally {
+      delete proto.polluted
+    }
+  })
+
+  test('editing the messages object after loading does not reach storage', () => {
+    const helper = useTranslationHelper()
+    const messages: Record<string, unknown> = { hello: 'Hello' }
+    helper.loadTranslations('en', messages)
+    messages.hello = 'Mutated'
+    expect(helper.getTranslation('en', 'index', 'hello')).toBe('Hello')
+  })
+
+  test('merges never mutate the trees callers passed in', () => {
+    const helper = useTranslationHelper()
+    const messages = { nav: { home: 'Home' } }
+    helper.setTranslations('en', messages)
+    helper.mergeTranslation('en', 'index', { nav: { about: 'About' } })
+    helper.mergeTranslation('en', 'index', { nav: { more: 'More' } })
+    expect(messages).toEqual({ nav: { home: 'Home' } })
+    expect(helper.getTranslation('en', 'index', 'nav')).toEqual({ home: 'Home', about: 'About', more: 'More' })
   })
 
   test('deepClone creates a deep copy of objects', () => {

@@ -1,4 +1,4 @@
-import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
+import { BaseI18n, type DateTimeFormatsConfig, type NumberFormatsConfig, type TranslationStorage } from '@i18n-micro/core'
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 import { type Ref, shallowRef } from 'vue'
 
@@ -9,6 +9,10 @@ export interface VueI18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  /** Named number formats per locale (`tn(n, 'currency')`). */
+  numberFormats?: NumberFormatsConfig
+  /** Named datetime formats per locale (`td(d, 'short')`). */
+  datetimeFormats?: DateTimeFormatsConfig
 }
 
 export class VueI18n extends BaseI18n {
@@ -31,6 +35,8 @@ export class VueI18n extends BaseI18n {
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
     })
 
     this.storage = storage
@@ -39,11 +45,7 @@ export class VueI18n extends BaseI18n {
     this._currentRoute = shallowRef('index')
     this._revision = shallowRef(0)
 
-    if (options.messages) {
-      for (const [lang, msgs] of Object.entries(options.messages)) {
-        this.helper.loadTranslations(lang, msgs)
-      }
-    }
+    for (const [lang, msgs] of Object.entries(options.messages ?? {})) this.helper.loadTranslations(lang, msgs)
   }
 
   get locale(): Ref<string> {
@@ -91,27 +93,20 @@ export class VueI18n extends BaseI18n {
   }
 
   public addTranslations(locale: string, translations: Translations, merge = true): void {
-    super.loadTranslationsCore(locale, translations, merge)
-    this._revision.value++
-    this.notifyListeners()
+    this.loadTranslationsCore(locale, translations, merge)
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-    this._revision.value++
-    this.notifyListeners()
+    this.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {
-    this.helper.mergeTranslation(locale, routeName, translations, true)
-    this._revision.value++
-    this.notifyListeners()
+    this.loadRouteTranslationsCore(locale, routeName, translations, true)
   }
 
-  public override clearCache(): void {
-    super.clearCache()
-    this._revision.value++
-    this.notifyListeners()
+  /** Every read depends on the revision, so `computed(() => t(key))` re-runs after a write. */
+  protected override touch(): void {
+    void this._revision.value
   }
 
   protected override onTranslationsChanged(): void {

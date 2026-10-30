@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync, symlinkSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { repairNosticsFormatters } from '../src/perf/repair-nostics-formatters'
 
 const temporary: string[] = []
@@ -41,8 +41,11 @@ describe('repairNosticsFormatters', () => {
     mkdirSync(serverNm, { recursive: true })
     symlinkSync('.real-nostics', join(serverNm, 'nostics'))
 
-    // Fixture cannot resolve nuxt/nostics — expect graceful false, not a join()-misplaced write.
+    // Fixture cannot resolve nuxt/nostics — expect graceful false (and its warning), not a join()-misplaced write.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect(repairNosticsFormatters(root)).toBe(false)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('could not resolve nostics'))
+    warn.mockRestore()
     expect(existsSync(join(realPkg, 'dist/formatters'))).toBe(false)
   })
 

@@ -94,15 +94,6 @@ function generateI18nTypes(): string {
   return `
 import type { PluginsInjections } from "nuxt-i18n-micro";
 
-declare module 'vue/types/vue' {
-  interface Vue extends PluginsInjections { }
-}
-
-declare module '@nuxt/types' {
-  interface NuxtAppOptions extends PluginsInjections { }
-  interface Context extends PluginsInjections { }
-}
-
 declare module '#app' {
   interface NuxtApp extends PluginsInjections { }
 }
@@ -349,8 +340,9 @@ export default defineNuxtModule<ModuleOptions>({
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }
+    // info, not warn: this is the default configuration, so a warning fired for every app
     if (options.strategy !== 'no_prefix' && options.redirects !== false && !options.localeCookie) {
-      logger.warn(
+      logger.info(
         'Redirects are enabled but localeCookie is not set. ' +
           "Locale-based redirects will not remember user's locale preference across page reloads. " +
           "Set `localeCookie: 'user-locale'` to enable cookie-based locale persistence for redirects.",

@@ -98,11 +98,13 @@ member VitePressUserConfigLike.transformPageData?: ((...args: any[]) => any) | u
 member VitePressUserConfigLike.vite?: { [key: string]: unknown; plugins?: Plugin[] | Plugin[][]; ssr?: { noExternal?: string | true | Array<string | RegExp>; [key: string]: unknown; }; } | undefined
 member VitePressUserConfigLike.[string]: unknown
 interface VueI18nOptions
+member VueI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member VueI18nOptions.fallbackLocale?: string | undefined
 member VueI18nOptions.locale: string
 member VueI18nOptions.messages?: Record<string, Translations> | undefined
 member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18nOptions.missingWarn?: boolean | undefined
+member VueI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member VueI18nOptions.plural?: PluralFunc | undefined
 interface WithI18nOptions
 member WithI18nOptions.base?: string | undefined
@@ -203,6 +205,7 @@ member BuildVitePressLocalesOptions.localeKeyToCode?: Record<string, string> | u
 function createI18n: (options: CreateI18nOptions) => NodeI18n
 interface CreateI18nOptions
 member CreateI18nOptions.base?: string | undefined
+member CreateI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member CreateI18nOptions.defaultLocale?: string | undefined
 member CreateI18nOptions.disablePageLocales?: boolean | undefined
 member CreateI18nOptions.fallbackLocale?: string | undefined
@@ -212,16 +215,19 @@ member CreateI18nOptions.locales?: Locale[] | string[] | undefined
 member CreateI18nOptions.messages?: Record<string, Translations> | undefined
 member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member CreateI18nOptions.missingWarn?: boolean | undefined
+member CreateI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member CreateI18nOptions.plural?: PluralFunc | undefined
 member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member CreateI18nOptions.translationDir?: string | undefined
 interface I18nOptions
+member I18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
 member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nOptions.translationDir?: string | undefined

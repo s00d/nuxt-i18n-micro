@@ -1,8 +1,12 @@
 # . (src/index.ts)
 class BaseI18n
+member BaseI18n.activeKey: private ChunkKey
+member BaseI18n.activeRootKey: private ChunkKey
 member BaseI18n.clearCache: () => void
-member BaseI18n.ensurePinnedChunk: protected (locale: string, routeName: string) => void
 member BaseI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M
+member BaseI18n.fallbackKey: private ChunkKey
+member BaseI18n.fallbackRootKey: private ChunkKey
+member BaseI18n.formatArgs: private <O extends object>(kind: "number" | "datetime", [keyOrOptions, localeOrOverrides, overrides]: FormatArgs<O>) => [string, O | undefined]
 member BaseI18n.formatter: FormatService
 member BaseI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
 member BaseI18n.getFallbackLocale: () => string
@@ -10,21 +14,16 @@ member BaseI18n.getLocale: () => string
 member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member BaseI18n.getRoute: () => string
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
-member BaseI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-member BaseI18n.invalidatePin: protected () => void
+member BaseI18n.helper: TranslationHelper
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
 member BaseI18n.onTranslationsChanged: protected () => void
-member BaseI18n.pinnedCacheKey: private string
-member BaseI18n.pinnedGeneration: private number
-member BaseI18n.pinnedTree: private Record<string, unknown> | null
 member BaseI18n.pluralFunc: PluralFunc
-member BaseI18n.resolveDateTimeFormatArgs: private (keyOrOptions?: string | Intl.DateTimeFormatOptions, localeOrOverrides?: string | Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions | undefined; }
 member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
-member BaseI18n.resolveNumberFormatArgs: private (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member BaseI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
@@ -39,6 +38,7 @@ member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member BaseI18n.write: private (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -48,7 +48,7 @@ member BaseI18nOptions.missingWarn?: boolean | undefined
 member BaseI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member BaseI18nOptions.plural?: PluralFunc | undefined
 member BaseI18nOptions.storage?: TranslationStorage | undefined
-function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void
+function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
@@ -75,17 +75,17 @@ member FormatService.new: (options?: FormatServiceOptions): FormatService
 interface FormatServiceOptions
 member FormatServiceOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member FormatServiceOptions.numberFormats?: NumberFormatsConfig | undefined
-function getByPath: (obj: Record<string, unknown> | null | undefined, path: string) => unknown
-function hasTranslationValue: (obj: Record<string, unknown> | null | undefined, key: string) => boolean
+function getByPath: (obj: Tree | null | undefined, path: string) => unknown
+function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
-function isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
-function isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
-function isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
-function isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
-function mergeTranslationChunk: (existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>
+const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
+const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
+const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
+function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
-function mergeTranslationLayers: (lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>
+function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 type NumberFormatsConfig: Record<string, Record<string, Intl.NumberFormatOptions>>
 interface ReactiveI18nStore
 member ReactiveI18nStore.getFallbackLocale: () => string
@@ -97,13 +97,35 @@ member ReactiveI18nStore.setFallbackLocale: (locale: string) => void
 member ReactiveI18nStore.setLocale: (locale: string) => void
 member ReactiveI18nStore.setRoute: (routeName: string) => void
 member ReactiveI18nStore.subscribe: (listener: () => void) => () => void
-function resolveTranslation: (obj: Record<string, unknown> | null | undefined, key: string) => unknown | null
-function setTranslationAtKey: (tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>
+interface ReactiveI18nStoreOptions
+member ReactiveI18nStoreOptions.fallbackLocale?: string | undefined
+member ReactiveI18nStoreOptions.locale: string
+member ReactiveI18nStoreOptions.route?: string | undefined
+function resolveCachedTranslation: (tree: Tree | null | undefined, key: string) => unknown | null
+function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 function translationCacheKey: (locale: string, routeName?: string) => string
+class TranslationHelper
+member TranslationHelper.clearCache: () => void
+member TranslationHelper.getCache: (locale: string, routeName: string) => Translations | undefined
+member TranslationHelper.getTranslation: <T = unknown>(locale: string, routeName: string, key: string) => T | null
+member TranslationHelper.hasCache: (locale: string, routeName: string) => boolean
+member TranslationHelper.hasPageTranslation: (locale: string, routeName: string) => boolean
+member TranslationHelper.hasTranslation: (locale: string, key: string) => boolean
+member TranslationHelper.lastLeaves: private Map<string, unknown>
+member TranslationHelper.lastTree: private Translations | undefined
+member TranslationHelper.leavesOf: private (tree: Translations) => Map<string, unknown>
+member TranslationHelper.loadPageTranslations: (locale: string, routeName: string, data: Translations) => void
+member TranslationHelper.loadTranslations: (locale: string, data: Translations, routeName?: string) => void
+member TranslationHelper.lookup: (chunkKey: string, key: string) => unknown | null
+member TranslationHelper.mergeTranslation: (locale: string, routeName: string, incoming: Translations, _force?: boolean) => void
+member TranslationHelper.setTranslations: (locale: string, data: Translations, routeName?: string) => void
+member TranslationHelper.translations: Map<string, Translations>
+member TranslationHelper.new: (storage?: TranslationStorage | undefined): TranslationHelper
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
-function useTranslationHelper: (storage?: TranslationStorage) => { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-function withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
+function useTranslationHelper: (storage?: TranslationStorage) => TranslationHelper
+const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./devtools (src/devtools.ts)
 function buildInspectorState: (snapshot: I18nDevtoolsStateSnapshot) => Record<string, Array<{ key: string; value: unknown; editable?: boolean; }>>
@@ -136,21 +158,20 @@ member I18nDevtoolsStateSnapshot.strategy?: string | undefined
 function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }
 
 # ./helpers (src/helpers.ts)
-function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void
+function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 const defaultPlural: PluralFunc
-function getByPath: (obj: Record<string, unknown> | null | undefined, path: string) => unknown
-function hasTranslationValue: (obj: Record<string, unknown> | null | undefined, key: string) => boolean
+function getByPath: (obj: Tree | null | undefined, path: string) => unknown
+function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
-function isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
-function isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
-function isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
-function isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
-function mergeTranslationChunk: (existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>
-function mergeTranslationChunkInPlace: (target: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => void
+const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
+const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
+const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
+function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
-function mergeTranslationLayers: (lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>
-function resolveTranslation: (obj: Record<string, unknown> | null | undefined, key: string) => unknown | null
-function setTranslationAtKey: (tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>
+function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
+function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
+function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 function translationCacheKey: (locale: string, routeName?: string) => string
-function withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
+const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"

@@ -1,5 +1,4 @@
 import { I18n as RuntimeI18n, type I18nOptions as RuntimeI18nOptions } from '@i18n-micro/runtime'
-import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
 import { loadTranslations } from './loader'
 
 export interface I18nOptions extends RuntimeI18nOptions {
@@ -28,20 +27,8 @@ export class I18n extends RuntimeI18n {
 
     const { root, routes } = await loadTranslations(targetDir, this.disablePageLocales)
 
-    // Load root translations as index (base for all pages)
-    for (const [locale, translations] of Object.entries(root)) {
-      this.helper.mergeTranslation(locale, 'index', translations, true)
-    }
-
-    // Load page translations with index (base) baked in
-    for (const [routeName, routeLocales] of Object.entries(routes)) {
-      for (const [locale, translations] of Object.entries(routeLocales)) {
-        const base = this.helper.getCache(locale, 'index')
-        this.helper.loadPageTranslations(locale, routeName, mergeRouteTranslationsWithRoot(base, translations))
-      }
-    }
-
-    this.onTranslationsChanged()
+    // root keys resolve from the root chunk; route chunks hold only their own keys
+    this.loadMessages(root, routes)
   }
 
   public async reload(): Promise<void> {

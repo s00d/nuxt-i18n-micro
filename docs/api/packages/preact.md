@@ -47,7 +47,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PreactI18n` | class | 55 members |
-| `PreactI18nOptions` | interface | 7 members |
+| `PreactI18nOptions` | interface | 9 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
@@ -1413,14 +1413,18 @@ import { /* … */ } from '@i18n-micro/preact'
 
 | Member | Type |
 | --- | --- |
+| `activeKey` | `private any` |
+| `activeRootKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
-| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
+| `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `fallbackRootKey` | `private any` |
+| `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
@@ -1430,26 +1434,21 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `invalidatePin` | `protected () => void` |
+| `helper` | `TranslationHelper` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
+| `lookupLocale` | `private any` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): PreactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
-| `pinnedCacheKey` | `private any` |
-| `pinnedGeneration` | `private any` |
-| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
-| `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
@@ -1468,19 +1467,22 @@ import { /* … */ } from '@i18n-micro/preact'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `write` | `private any` |
 
 </details>
 
 <details>
-<summary><code>PreactI18nOptions</code> — 7 members</summary>
+<summary><code>PreactI18nOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 

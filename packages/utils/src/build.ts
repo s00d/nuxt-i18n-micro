@@ -2,6 +2,7 @@ import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } f
 import { dirname, join } from 'node:path'
 import { globby } from 'globby'
 import { deepMergeTranslations, deepMergeTranslationsRecursive } from './deep-merge'
+import { PREMERGED_ROOT_PAGE } from './merge-source'
 
 export interface PreMergeLocaleInfo {
   code: string
@@ -161,6 +162,9 @@ export async function preMergeLocales(
       }
     }
   }
+
+  // Root alone, for pages without their own folder (premerged has no file for them otherwise).
+  pageMap.set(`pages/${PREMERGED_ROOT_PAGE}`, new Map([...rootMap].map(([locale, data]) => [locale, { ...data }])))
 
   for (const [context, localeMap] of pageMap) {
     // Source dirs are `pages/{page}`; emit client URL layout `{page}/{locale}/data.json`.

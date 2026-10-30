@@ -1,0 +1,6 @@
+- `initial` → {"snapshot":"en:index:0","locale":"en","fallback":"en","route":"index"}
+- `unsubscribe returns` → true
+- `events` → ["a:de:index:1","b:de:index:1","a:de:index:2","b:de:index:2","a:de:index:3","b:de:index:3","a:de:about:4","b:de:about:4","a:de:about:5","b:de:about:5","b:fr:about:6"]
+- `final` → {"snapshot":"fr:about:6","locale":"fr","fallback":"en","route":"about"}
+- `with fallback and route` → "en:home:0 de"
+- `listener removing itself during notify` → ["self","other","other"]

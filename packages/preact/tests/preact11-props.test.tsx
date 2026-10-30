@@ -16,6 +16,7 @@ import { I18nLocalesContext } from '../src/injection'
  */
 describe('Preact 11-compatible component props', () => {
   const i18n = createI18n({
+    missingWarn: false,
     locale: 'en',
     messages: {
       en: {

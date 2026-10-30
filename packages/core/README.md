@@ -1,183 +1,83 @@
 # @i18n-micro/core
 
-`@i18n-micro/core` is the core module for handling translations, routing, and formatting in a Nuxt.js application. It provides utilities for managing translations, interpolating placeholders, formatting numbers, dates, and relative times, and handling locale-specific routing. This module is designed to work seamlessly with `nuxt-i18n-micro` and its associated utilities.
-
-## Installation
-
-You can install `@i18n-micro/core` using npm or yarn:
+Translation core shared by every `@i18n-micro/*` adapter and `nuxt-i18n-micro`: translation storage, `t` / `tc` / `tn` / `td` / `tdr` / `has`, interpolation, plurals and cached `Intl` formatters. No runtime dependencies (`@i18n-micro/types` is types only), about 3.4 KB min+gzip.
 
 ```bash
 npm install @i18n-micro/core
 ```
 
-or
+## Entries
 
-```bash
-yarn add @i18n-micro/core
-```
+| Entry                       | What                                                                                                                                                                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@i18n-micro/core`          | `BaseI18n`, `useTranslationHelper` / `TranslationHelper`, `FormatService`, `createReactiveI18nStore`, and everything in `/helpers`                                                                                                                        |
+| `@i18n-micro/core/helpers`  | Pure functions: `interpolate`, `defaultPlural`, `getByPath`, `resolveTranslation`, `hasTranslationValue`, `setTranslationAtKey`, `mergeTranslationChunk`, `mergeTranslationLayers`, `collectTranslationPaths`, `translationCacheKey`, strategy predicates |
+| `@i18n-micro/core/devtools` | Vue DevTools inspector tree builders                                                                                                                                                                                                                      |
 
-### `BaseI18n.extend`
+## Storage model
 
-Attach framework-specific helpers onto any i18n instance (used by `@i18n-micro/vitepress` for path methods):
+Translations live in a `TranslationStorage` — a `Map` of chunks keyed `locale:route` (`en:index`, `de:about`), each a nested tree.
+
+- **Stored trees are never mutated.** A merge copies the nodes on the patch's paths and stores a new root. Objects you pass in, objects `t()` / `getCache()` return, route chunks that share subtrees and cloned storages (`new Map(storage.translations)`) all stay as they were.
+- **Lookups always start from the Map.** Writes made straight to `storage.translations`, or by another instance sharing the storage, are seen at once. Resolved keys are cached per tree object, so replace a chunk rather than editing a stored tree in place.
 
 ```ts
-i18n.extend({
-  localizePath(path: string, locale: string) {
-    /* … */
-  },
-})
+import { useTranslationHelper } from '@i18n-micro/core'
+
+const helper = useTranslationHelper()
+helper.loadTranslations('en', { greeting: 'Hello, {name}!', nav: { home: 'Home' } })
+helper.mergeTranslation('en', 'index', { nav: { about: 'About' } }) // deep merge, nav.home kept
+helper.loadPageTranslations('en', 'about', { title: 'About us' })
+
+helper.getTranslation('en', 'index', 'nav.about') // 'About'
+helper.hasTranslation('en', 'title') // true (any route of `en`)
 ```
 
-## Usage
+## `BaseI18n`
 
-This package provides several utilities for managing translations, formatting, and routing:
+Adapters extend it and supply the current state:
 
-1. **`useTranslationHelper`**: A helper for managing translations, including loading, caching, and retrieving translations.
-2. **`interpolate`**: A utility for interpolating placeholders in translation strings with dynamic values.
-3. **`FormatService`**: A service for formatting numbers, dates, and relative times.
-4. **`RouteService`**: A service for handling locale-specific routing and route localization.
+```ts
+import { BaseI18n } from '@i18n-micro/core'
 
-### Example
+class MyI18n extends BaseI18n {
+  locale = 'en'
+  route = 'index'
+  getLocale() {
+    return this.locale
+  }
+  getFallbackLocale() {
+    return 'en'
+  }
+  getRoute() {
+    return this.route
+  }
+}
 
-Here’s an example of how you might use these utilities in your Nuxt.js project:
-
-```typescript
-import { useTranslationHelper, interpolate, FormatService, RouteService } from '@i18n-micro/core'
-
-// Initialize the translation helper
-const translationHelper = useTranslationHelper()
-
-// Load translations for a specific locale
-translationHelper.loadTranslations('en', {
-  greeting: 'Hello, {name}!',
-  nested: {
-    message: 'This is a nested message.',
-  },
-})
-
-// Load page-specific translations for a specific locale
-translationHelper.loadPageTranslations('en', 'home', {
-  welcome: 'Welcome to the home page!',
-})
-
-// Retrieve a translation for a specific locale
-const greeting = translationHelper.getTranslation<string>('en', 'index', 'greeting')
-console.log(greeting) // 'Hello, {name}!'
-
-// Interpolate placeholders
-const interpolatedGreeting = interpolate(greeting!, { name: 'John' })
-console.log(interpolatedGreeting) // 'Hello, John!'
-
-// Format numbers, dates, and relative times
-const formatService = new FormatService()
-const formattedNumber = formatService.formatNumber(123456.789, 'en-US')
-const formattedDate = formatService.formatDate(new Date(), 'en-US')
-const formattedRelativeTime = formatService.formatRelativeTime(new Date(), 'en-US')
-
-console.log(formattedNumber) // '123,456.789'
-console.log(formattedDate) // '10/5/2023'
-console.log(formattedRelativeTime) // 'just now'
-
-// Handle locale-specific routing
-const routeService = new RouteService(i18nConfig, router, hashLocaleDefault, noPrefixDefault, navigateTo, setCookie)
-
-const localizedRoute = routeService.getLocalizedRoute('/about', currentRoute, 'en')
-console.log(localizedRoute) // Localized route object
+const i18n = new MyI18n({ numberFormats: { en: { currency: { style: 'currency', currency: 'USD' } } } })
+i18n.loadTranslationsCore('en', { apples: 'no apples | one apple | {count} apples' }, true)
+i18n.tc('apples', 5) // '5 apples'
+i18n.tn(1234.5, 'currency') // '$1,234.50'
 ```
 
-## API Reference
+- `t(key, params?, default?, route?)` — the active locale, then the fallback locale; a missing key returns `default || key` and goes to `missingHandler` (or a dev `console.warn` in the browser).
+- `has(key, route?)` — whether the active locale itself defines `key` (not the fallback).
+- `tc(key, count | params, default?)` — plural. `defaultPlural` picks form `count` for a whole non-negative count and the last form otherwise; a custom `plural` returning `null` falls back to it.
+- `tn` / `td` — Vue I18n-style named formats (`tn(n, 'currency')`, `td(d, 'short', 'de')`); a named format falls back through shorter tags (`zh-Hant-TW` → `zh-Hant` → `zh`).
+- `tdr(date)` — `3 days ago` / `in 3 days`; `Invalid Date` for an invalid date.
+- `setTranslation(key, value)` — replaces the value at `key` in the active chunk; `resolveTranslations()` — the merged tree `t()` reads from.
+- `extend(methods)` — attaches framework helpers onto the instance.
 
-### `useTranslationHelper`
+## `FormatService`
 
-#### Methods
+Caches one `Intl.NumberFormat` / `DateTimeFormat` / `RelativeTimeFormat` per locale and options (key order does not matter) and resolves named formats.
 
-- **`hasCache(locale: string, page: string): boolean`**:
-  Checks if translations for a specific route and locale are cached.
-- **`getCache(locale: string, routeName: string): Map<string, Translations | unknown> | undefined`**:
-  Retrieves the cache for a specific route and locale.
-- **`setCache(locale: string, routeName: string, cache: Map<string, unknown>): void`**:
-  Installs a sparse leaf lookup map for a chunk (does not flatten or replace the nested tree).
-- **`mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false): void`**:
-  Merges new translations into the cache for a specific route and locale.
-- **`hasPageTranslation(locale: string, routeName: string): boolean`**:
-  Checks if translations for a specific route and locale are loaded.
-- **`hasTranslation(locale: string, key: string): boolean`**:
-  Checks if a translation exists for the given key and locale.
-- **`getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null`**:
-  Retrieves a translation for the given key, route, and locale.
-- **`loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void>`**:
-  Loads translations for a specific route and locale.
-- **`loadTranslations(locale: string, translations: Translations): Promise<void>`**:
-  Loads global translations for the specified locale.
-
-### `interpolate`
-
-#### Function
-
-```typescript
-interpolate(template: string, params: Params): string
+```ts
+const formats = new FormatService()
+formats.formatNumber(1234.5, 'de-DE') // '1.234,5'
+formats.formatRelativeTime(Date.now() + 86_400_000, 'en', { numeric: 'auto' }) // 'tomorrow'
 ```
-
-- **`template`**: The translation string with placeholders (e.g., `'Hello, {name}!'`).
-- **`params`**: An object containing key-value pairs for interpolation (e.g., `{ name: 'John' }`).
-
-#### Example
-
-```typescript
-const result = interpolate('Hello, {name}!', { name: 'John' })
-console.log(result) // 'Hello, John!'
-```
-
-### `FormatService`
-
-#### Methods
-
-- **`formatNumber(value: number, locale: string, options?: Intl.NumberFormatOptions): string`**:
-  Formats a number according to the specified locale and options.
-- **`formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string`**:
-  Formats a date according to the specified locale and options.
-- **`formatRelativeTime(value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions): string`**:
-  Formats a relative time (e.g., "2 hours ago") according to the specified locale and options.
-
-### `RouteService`
-
-#### Methods
-
-- **`getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string`**:
-  Returns the current locale based on the route or configuration.
-- **`getCurrentName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string | null`**:
-  Returns the display name of the current locale.
-- **`getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale: string): string`**:
-  Returns the route name without the locale suffix.
-- **`getFullPathWithBaseUrl(currentLocale: Locale, route: RouteLocationRaw): string`**:
-  Returns the full path with the base URL for the specified locale.
-- **`switchLocaleRoute(fromLocale: string, toLocale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, i18nRouteParams: I18nRouteParams): RouteLocationRaw`**:
-  Switches the locale for the specified route.
-- **`getLocalizedRoute(to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, route: RouteLocationNormalizedLoaded, locale?: string): RouteLocationResolved`**:
-  Returns a localized route for the specified locale.
-- **`updateCookies(toLocale: string): void`**:
-  Updates cookies with the new locale.
-- **`getCurrentRoute(): RouteLocationNormalizedLoaded`**:
-  Returns the current route.
-- **`switchLocaleLogic(toLocale: string, i18nRouteParams: I18nRouteParams, route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string)`**:
-  Handles the logic for switching locales and navigating to the new route.
-- **`resolveLocalizedRoute(to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath | string, locale?: string): RouteLocationResolved`**:
-  Resolves a localized route for the specified locale.
-
-## Contributing
-
-If you find any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/s00d/nuxt-i18n-micro).
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/s00d/nuxt-i18n-micro/blob/main/LICENSE) file for more details.
-
----
-
-For more information, visit the [GitHub repository](https://github.com/s00d/nuxt-i18n-micro).
-
-## Author
-
-- **Name**: s00d
-- **Email**: Virus191288@gmail.com
-- **Website**: [https://s00d.github.io/](https://s00d.github.io/)
+MIT — see [LICENSE](https://github.com/s00d/nuxt-i18n-micro/blob/main/LICENSE).

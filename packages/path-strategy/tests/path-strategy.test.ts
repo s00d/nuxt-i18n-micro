@@ -5,7 +5,7 @@
 import { RouteGenerator } from '@i18n-micro/route-strategy'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
 import { createPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
 
@@ -165,6 +165,9 @@ describe('switchLocaleRoute', () => {
 
   test('an unmatched URL (a 404 page) switches to the same URL in the target locale', () => {
     const pages = PAGES.filter((p) => p.name !== 'slug')
+    // `at()` resolves a URL no record matches: vue-router's "No match" warning is expected here
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    onTestFinished(() => warn.mockRestore())
     const pad = setup('prefix_and_default', {}, LOCALES, { pages })
     expect(pad.i18n.switchLocaleRoute('de', 'fr', pad.at('/de/x/y?q=1')).fullPath).toBe('/fr/x/y?q=1')
     const pxd = setup('prefix_except_default', {}, LOCALES, { pages })

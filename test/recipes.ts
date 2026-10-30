@@ -58,6 +58,7 @@ export const recipes = defineRecipes(
       STRATEGY: 'no_prefix',
       LOCALE_COOKIE: 'user-locale',
       AUTO_DETECT_LANGUAGE: '1',
+      EXCLUDE_PATTERNS: '/administrator',
     }),
     'strategy-prefix': app('strategy-prefix', 'strategy', {
       STRATEGY: 'prefix',
@@ -95,7 +96,14 @@ export const recipes = defineRecipes(
     // global URL shapes: each would break every other journey's URLs, so each is its own build
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
-    'strategy-hash-prefix': app('strategy-hash-prefix', 'strategy', { STRATEGY: 'prefix' }, { router: { options: { hashMode: true } } }),
+    // disablePageLocales: every page loads the index chunk, the one serverTranslationPreload detects without the route
+    'strategy-no-prefix-preload': app(
+      'strategy-no-prefix-preload',
+      'strategy',
+      { STRATEGY: 'no_prefix', LOCALE_COOKIE: 'user-locale' },
+      { i18n: { serverTranslationPreload: true, disablePageLocales: true } },
+    ),
+    'strategy-hash-prefix': app('strategy-hash-prefix', 'strategy', { STRATEGY: 'prefix', AUTO_DETECT_LANGUAGE: '1' }, { router: { options: { hashMode: true } } }),
     'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
     'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
 

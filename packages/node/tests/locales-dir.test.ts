@@ -4,6 +4,18 @@ import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { createI18n, I18n, loadRootTranslations, loadTranslations } from '../src'
 
+// Node 24 removed `dirent.path`, Node 20.0-20.11 has no `parentPath`: `drop` picks the one a test takes away.
+const direntField = vi.hoisted(() => ({ drop: null as 'path' | 'parentPath' | null }))
+vi.mock('node:fs/promises', async (original) => {
+  const actual = await original<typeof import('node:fs/promises')>()
+  const readdir = async (...args: Parameters<typeof actual.readdir>) => {
+    const entries = (await actual.readdir(...args)) as unknown as object[]
+    if (!direntField.drop) return entries
+    return entries.map((entry) => Object.defineProperty(entry, direntField.drop!, { value: undefined }))
+  }
+  return { ...actual, readdir }
+})
+
 let dir: string
 const write = (file: string, data: unknown) => {
   const full = join(dir, file)
@@ -24,6 +36,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  direntField.drop = null
   rmSync(dir, { recursive: true, force: true })
   vi.restoreAllMocks()
 })
@@ -112,4 +125,11 @@ test('an explicit dir wins over translationDir; a missing dir is quiet, a bad on
   await bare.reload()
   expect(warn.mock.calls).toEqual([['[i18n-node] No translation directory specified'], ['[i18n-node] No translation directory specified']])
   expect(bare.t('kept')).toBe('Kept')
+})
+
+test.each(['path', 'parentPath'] as const)('loads the directory on a Node whose Dirent has no %s', async (field) => {
+  direntField.drop = field
+  const { root, routes } = await loadTranslations(dir)
+  expect(root.en).toMatchObject({ title: 'Site' })
+  expect(routes.about?.de).toEqual({ title: 'Über uns' })
 })

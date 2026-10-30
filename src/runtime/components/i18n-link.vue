@@ -10,7 +10,8 @@
 </template>
 
 <script lang="ts" setup>
-import { externalLinkHref } from '@i18n-micro/core'
+import { externalLinkHref, isSamePage } from '@i18n-micro/core'
+import type { CSSProperties } from 'vue'
 import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
 import { useNuxtApp, useRoute } from '#imports'
@@ -27,7 +28,7 @@ interface Props {
   /** Target route. Localized automatically; an external URL is passed through unchanged. */
   to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
   /** Inline style applied while the link points at the current route. */
-  activeStyle?: Partial<CSSStyleValue>
+  activeStyle?: CSSProperties
 }
 
 const props = defineProps<Props>()
@@ -39,9 +40,9 @@ const isExternalLink = computed(() => externalHref.value !== undefined)
 const localizedPath = computed(() => (isExternalLink.value ? '' : $localePath(props.to)))
 
 // compared as paths: a router.resolve per render matched the URL against every record
-const isActive = computed(() => !isExternalLink.value && route.path === localizedPath.value.split(/[?#]/)[0])
+const isActive = computed(() => !isExternalLink.value && isSamePage(route.path, localizedPath.value))
 
-const computedStyle = computed((): Partial<CSSStyleValue> => {
+const computedStyle = computed((): CSSProperties => {
   return isActive.value ? { ...props.activeStyle } : {}
 })
 </script>

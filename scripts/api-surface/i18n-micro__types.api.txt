@@ -83,6 +83,7 @@ member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptions.serverTranslationPreload?: boolean | undefined
 member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.timeZone?: string | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
@@ -138,6 +139,7 @@ member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModuleOptionsExtend.strategy?: Strategies | undefined
+member ModuleOptionsExtend.timeZone?: string | undefined
 member ModuleOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptionsExtend.translationDir?: string | undefined
 member ModuleOptionsExtend.translationPayloadMode?: "premerged" | "source" | undefined
@@ -194,6 +196,7 @@ member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | unde
 member ModulePrivateOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModulePrivateOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
+member ModulePrivateOptionsExtend.timeZone?: string | undefined
 member ModulePrivateOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModulePrivateOptionsExtend.translationDir: string
 member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined

@@ -12,6 +12,9 @@ export const config: {
   disablePageLocales: boolean
   localeKeyToCode: Record<string, string>
   base?: string
+  numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
+  datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>>
+  timeZone?: string
 } = {
   defaultLocale: 'en',
   fallbackLocale: 'en',

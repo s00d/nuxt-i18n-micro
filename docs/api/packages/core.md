@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-60 exports across 3 entry points.
+93 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,31 +18,42 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 40 members |
-| `BaseI18nOptions` | interface | 7 members |
+| `BaseI18n` | class | 43 members |
+| `BaseI18nOptions` | interface | 9 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
+| `escapeHtml` | const | `(text: string) => string` |
 | `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
-| `FormatService` | class | 19 members |
-| `FormatServiceOptions` | interface | 2 members |
+| `FormatService` | class | 20 members |
+| `FormatServiceOptions` | interface | 3 members |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
+| `isPlainClick` | function | `(event: MouseEvent) => boolean` |
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
+| `isSamePage` | const | `(a: string, b: string) => boolean` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
+| `ownValue` | function | `(obj: object, key: string) => unknown` |
+| `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `ReactiveI18nStoreOptions` | interface | 3 members |
 | `resolveCachedTranslation` | function | `(tree: Tree \| null \| undefined, key: string) => unknown \| null` |
+| `ResolvedText` | interface | 2 members |
+| `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
+| `ResolveTextOptions` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
+| `TextHost` | interface | 8 members |
+| `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `TranslationHelper` | class | 16 members |
 | `TranslationStorage` | interface | 1 members |
@@ -51,7 +62,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 40 members</summary>
+<summary><code>BaseI18n</code> — 43 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -72,12 +83,15 @@ import { /* … */ } from '@i18n-micro/core'
 | `helper` | `TranslationHelper` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
+| `localeIso` | `private Record<string, string>` |
 | `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
+| `pluralLocale` | `() => string` |
+| `pluralTag` | `private (locale: string) => string` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
@@ -99,22 +113,24 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>BaseI18nOptions</code> — 7 members</summary>
+<summary><code>BaseI18nOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
+| `localeIso?` | `Record<string, string> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `storage?` | `TranslationStorage \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
 <details>
-<summary><code>FormatService</code> — 19 members</summary>
+<summary><code>FormatService</code> — 20 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -137,16 +153,18 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveNumberFormat` | `(locale: string, key: string) => Intl.NumberFormatOptions \| undefined` |
 | `setDateTimeFormats` | `(formats: DateTimeFormatsConfig) => void` |
 | `setNumberFormats` | `(formats: NumberFormatsConfig) => void` |
+| `timeZone?` | `private string \| undefined` |
 
 </details>
 
 <details>
-<summary><code>FormatServiceOptions</code> — 2 members</summary>
+<summary><code>FormatServiceOptions</code> — 3 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `timeZone?` | `string \| undefined` |
 
 </details>
 
@@ -184,6 +202,49 @@ import { /* … */ } from '@i18n-micro/core'
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
 | `route?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>ResolvedText</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `params` | `Params` |
+| `template` | `string` |
+
+</details>
+
+<details>
+<summary><code>ResolveTextOptions</code> — 9 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `customPluralRule?` | `PluralFunc \| null \| undefined` |
+| `date?` | `string \| number \| Date \| null \| undefined` |
+| `hideIfEmpty?` | `boolean \| undefined` |
+| `html?` | `boolean \| undefined` |
+| `keypath` | `string` |
+| `number?` | `string \| number \| null \| undefined` |
+| `params?` | `Params \| undefined` |
+| `plural?` | `string \| number \| null \| undefined` |
+| `relativeDate?` | `string \| number \| Date \| null \| undefined` |
+
+</details>
+
+<details>
+<summary><code>TextHost</code> — 8 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `getLocale` | `() => string` |
+| `pluralFunc` | `PluralFunc` |
+| `pluralLocale?` | `(() => string) \| undefined` |
+| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
+| `td` | `(value: Date \| number \| string) => string` |
+| `tdr` | `(value: Date \| number \| string) => string` |
+| `tn` | `(value: number) => string` |
 
 </details>
 
@@ -289,23 +350,137 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | --- | --- | --- |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `defaultPlural` | const | `PluralFunc` |
+| `escapeHtml` | const | `(text: string) => string` |
 | `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
+| `isPlainClick` | function | `(event: MouseEvent) => boolean` |
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
+| `isSamePage` | const | `(a: string, b: string) => boolean` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
+| `ownValue` | function | `(obj: object, key: string) => unknown` |
+| `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
+| `ResolvedText` | interface | 2 members |
+| `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
+| `ResolveTextOptions` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
+| `TextHost` | interface | 8 members |
+| `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `Tree` | type | `Record<string, unknown>` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.
+
+<code>ResolvedText</code> — 2 members, identical to `ResolvedText` above.
+
+<code>ResolveTextOptions</code> — 9 members, identical to `ResolveTextOptions` above.
+
+<code>TextHost</code> — 8 members, identical to `TextHost` above.
+## `@i18n-micro/core/render`
+
+```ts
+import { /* … */ } from '@i18n-micro/core/render'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createLocaleSwitcher` | function | `(vue: SwitcherVue, adapter: SwitcherAdapter, props: SwitcherProps, slots: RenderSlots) => () => unknown` |
+| `I18nTRenderProps` | interface | 11 members |
+| `RenderApi` | interface | 2 members |
+| `renderI18nT` | function | `(api: RenderApi, i18n: TextHost, props: I18nTRenderProps, slots: RenderSlots, attrs: Record<string, unknown>) => unknown` |
+| `RenderSlot` | type | `(props?: Record<string, unknown>) => unknown` |
+| `RenderSlots` | type | `Readonly<Record<string, RenderSlot \| undefined>>` |
+| `ResolveTextOptions` | interface | 9 members |
+| `SwitcherAdapter` | interface | 7 members |
+| `SwitcherProps` | interface | 9 members |
+| `SwitcherVue` | interface | 5 members |
+| `TextHost` | interface | 8 members |
+
+<details>
+<summary><code>I18nTRenderProps</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `customPluralRule?` | `PluralFunc \| null \| undefined` |
+| `date?` | `string \| number \| Date \| null \| undefined` |
+| `defaultValue?` | `string \| undefined` |
+| `hideIfEmpty?` | `boolean \| undefined` |
+| `html?` | `boolean \| undefined` |
+| `keypath` | `string` |
+| `number?` | `string \| number \| null \| undefined` |
+| `params?` | `Params \| undefined` |
+| `plural?` | `string \| number \| null \| undefined` |
+| `relativeDate?` | `string \| number \| Date \| null \| undefined` |
+| `tag?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>RenderApi</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `Fragment` | `unknown` |
+| `h` | `(type: any, props?: any, children?: any) => any` |
+
+</details>
+
+<code>ResolveTextOptions</code> — 9 members, identical to `ResolveTextOptions` above.
+
+<details>
+<summary><code>SwitcherAdapter</code> — 7 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `href` | `(code: string) => string` |
+| `keepList?` | `boolean \| undefined` |
+| `locale` | `() => string` |
+| `localeName?` | `(() => string \| null) \| undefined` |
+| `locales` | `() => Locale[]` |
+| `onMissingLabel?` | `((code: string) => void) \| undefined` |
+| `select` | `(code: string) => void` |
+
+</details>
+
+<details>
+<summary><code>SwitcherProps</code> — 9 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `customActiveLinkStyle?` | `object \| undefined` |
+| `customButtonStyle?` | `object \| undefined` |
+| `customDisabledLinkStyle?` | `object \| undefined` |
+| `customDropdownStyle?` | `object \| undefined` |
+| `customIconStyle?` | `object \| undefined` |
+| `customItemStyle?` | `object \| undefined` |
+| `customLabels?` | `Record<string, string> \| undefined` |
+| `customLinkStyle?` | `object \| undefined` |
+| `customWrapperStyle?` | `object \| undefined` |
+
+</details>
+
+<details>
+<summary><code>SwitcherVue</code> — 5 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `Fragment` | `unknown` |
+| `h` | `(type: any, props?: any, children?: any) => any` |
+| `onMounted` | `(hook: () => void) => void` |
+| `onUnmounted` | `(hook: () => void) => void` |
+| `ref` | `<T>(value: T) => { value: T; }` |
+
+</details>
+
+<code>TextHost</code> — 8 members, identical to `TextHost` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

@@ -1,34 +1,11 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
-import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
-import { joinURL, parseURL, withQuery } from 'ufo'
+import { buildLocaleHead, filterQuery, type LocaleHead } from '@i18n-micro/utils/locale-head'
+import { joinURL } from 'ufo'
 import { ref, unref, watch } from 'vue'
 import { useNuxtApp, useRoute, useState } from '#app'
 import { applyTrailingSlash } from '../utils/trailing-slash'
-
-interface MetaLink {
-  [key: string]: string | undefined
-  rel: string
-  href: string
-  hreflang?: string
-}
-
-interface MetaTag {
-  [key: string]: string
-  property: string
-  content: string
-}
-
-interface MetaObject {
-  htmlAttrs: {
-    lang?: string
-    dir?: 'ltr' | 'rtl' | 'auto'
-  }
-  link: MetaLink[]
-  meta: MetaTag[]
-}
 
 interface UseLocaleHeadOptions {
   /** Set `dir` on `<html>` from the locale's direction. */
@@ -68,44 +45,17 @@ export const useLocaleHead = ({
 }: UseLocaleHeadOptions = {}) => {
   const nuxtApp = useNuxtApp()
   const route = useRoute()
-  const metaObject = ref<MetaObject>({
+  const metaObject = ref<LocaleHead>({
     htmlAttrs: {},
     link: [],
     meta: [],
   })
 
-  function filterQuery(fullPath: string, whitelist: string[]): string {
-    const { pathname, search } = parseURL(fullPath)
-    const params = new URLSearchParams(search)
-    const filtered: Record<string, string> = {}
-    for (const key of whitelist) {
-      if (params.has(key)) {
-        filtered[key] = params.get(key) as string
-      }
-    }
-    return withQuery(pathname, filtered)
-  }
+  const empty = (): LocaleHead => ({ htmlAttrs: {}, link: [], meta: [] })
 
-  function filterLocalizedHref(pathOrUrl: string, whitelist: string[]): string {
-    if (!pathOrUrl) return ''
-
-    const parsed = parseURL(pathOrUrl)
-    const filteredPath = filterQuery(pathOrUrl, whitelist)
-
-    // Keep absolute locale URLs absolute (multi-domain mode).
-    if (parsed.protocol && parsed.host) {
-      return `${parsed.protocol}//${parsed.host}${filteredPath}`
-    }
-
-    return filteredPath
-  }
-
-  const empty = (): MetaObject => ({ htmlAttrs: {}, link: [], meta: [] })
-
-  function build(): MetaObject {
+  function build(): LocaleHead {
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
-    const { canonicalQueryWhitelist } = i18nConfig
-    const strategy = i18nConfig.strategy
+    const { canonicalQueryWhitelist, strategy, trailingSlash } = i18nConfig
     const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
     const i18nStrategy = nuxtApp.$i18nStrategy
     const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
@@ -113,19 +63,12 @@ export const useLocaleHead = ({
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
     if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return empty()
-    const switchLocalePath = $switchLocalePath
+
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
     // an unlocalized page has one URL: alternates would all point at it
     const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : []
-
-    const currentIso = currentLocale.iso || locale
-    const currentOg = resolveOgLocale(currentLocale)
-    const missingWarn = i18nConfig.missingWarn ?? true
-    const currentDir = currentLocale.dir || 'auto'
-
     const whitelist = canonicalQueryWhitelist ?? []
-    const trailingSlash = i18nConfig.trailingSlash
 
     /**
      * Absolute SEO href from `$switchLocalePath` (path or locale `baseUrl` URL).
@@ -134,121 +77,34 @@ export const useLocaleHead = ({
      */
     const toSeoHref = (pathOrUrl: string): string => {
       if (!pathOrUrl) return ''
-      let href: string
-      if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
-        href = filterLocalizedHref(pathOrUrl, whitelist)
-      } else {
-        const filteredPath = filterLocalizedHref(pathOrUrl, whitelist)
-        href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
-      }
-      return applyTrailingSlash(href, trailingSlash)
+      const filtered = filterQuery(pathOrUrl, whitelist)
+      const absolute = filtered.startsWith('http://') || filtered.startsWith('https://')
+      return applyTrailingSlash(absolute ? filtered : joinURL(unref(baseUrl), filtered.startsWith('/') ? filtered : `/${filtered}`), trailingSlash)
     }
 
-    // Canonical / og:url share `$switchLocalePath` with hreflang (incl. NuxtLink trailingSlash).
-    const ogUrl = toSeoHref(switchLocalePath(locale) || route.fullPath)
-
-    const htmlAttrs = {
-      lang: currentIso,
-      ...(addDirAttribute ? { dir: currentDir } : {}),
-    }
-
-    // 404 routes keep the language, but must not emit SEO tags
-    if (!addSeoAttributes || route.matched.length === 0) return { htmlAttrs, link: [], meta: [] }
-
-    // Locales included in hreflang / og:locale:alternate (omit `seo: false`)
-    const localesForSeo = locales.filter((loc: Locale) => loc.seo !== false)
-
-    if (!currentOg) {
-      warnUnresolvedOgLocale(currentLocale, { missingWarn, tag: 'og:locale' })
-    }
-
-    const ogLocaleMeta = currentOg
-      ? {
-          [identifierAttribute]: 'i18n-og',
-          property: 'og:locale',
-          content: currentOg,
-        }
-      : null
-
-    const ogUrlMeta = {
-      [identifierAttribute]: 'i18n-og-url',
-      property: 'og:url',
-      content: ogUrl,
-    }
-
-    const alternateOgLocalesMeta = localesForSeo
-      .filter((loc: Locale) => loc.code !== locale)
-      .map((loc: Locale) => {
-        const ogAlt = resolveOgLocale(loc)
-        if (!ogAlt) {
-          warnUnresolvedOgLocale(loc, { missingWarn, tag: 'og:locale:alternate' })
-          return null
-        }
-        return {
-          [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
-          property: 'og:locale:alternate',
-          content: ogAlt,
-        }
-      })
-      .filter((meta): meta is MetaTag => meta !== null)
-
-    const canonicalLink = {
-      [identifierAttribute]: 'i18n-can',
-      rel: 'canonical',
-      href: ogUrl,
-    }
-
+    const hrefOf = (code: string): string => toSeoHref($switchLocalePath(code))
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
-
-    const alternateLinks = isNoPrefixStrategy(strategy!)
-      ? []
-      : (() => {
-          const hrefByCode = new Map<string, string>()
-          for (const loc of localesForSeo) {
-            const switchedPath = switchLocalePath(loc.code)
-            if (!switchedPath) continue
-            hrefByCode.set(String(loc.code), toSeoHref(switchedPath))
-          }
-
-          return resolveHreflangAlternates(localesForSeo, {
-            hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
-          }).flatMap(({ hreflang, localeCode }) => {
-            const href = hrefByCode.get(localeCode)
-            if (!href) return []
-            return [
-              {
-                [identifierAttribute]: `i18n-alternate-${hreflang}`,
-                rel: 'alternate',
-                href,
-                hreflang,
-              } satisfies MetaLink,
-            ]
-          })
-        })()
-
-    // Generate x-default hreflang link pointing to the default locale's URL.
-    // x-default tells search engines which URL to show when none of the
-    // specified languages match the user's browser settings.
-    let xDefaultLink: MetaLink | null = null
+    const noPrefix = isNoPrefixStrategy(strategy!)
     // x-default only when the page exists in the default locale (else it would point at another page)
-    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && pageLocales?.includes(defaultLocale)) {
-      const defaultSwitchedPath = switchLocalePath(defaultLocale)
-      if (defaultSwitchedPath) {
-        xDefaultLink = {
-          [identifierAttribute]: 'i18n-xd',
-          rel: 'alternate',
-          href: toSeoHref(defaultSwitchedPath),
-          hreflang: 'x-default',
-        }
-      }
-    }
+    const hasXDefault = !noPrefix && defaultLocaleObj?.seo !== false && pageLocales?.includes(defaultLocale)
 
-    return {
-      htmlAttrs,
-      meta: [...(ogLocaleMeta ? [ogLocaleMeta] : []), ogUrlMeta, ...alternateOgLocalesMeta],
-      link: [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])],
-    }
+    return buildLocaleHead({
+      locale: currentLocale,
+      // omit `seo: false`
+      seoLocales: locales.filter((loc: Locale) => loc.seo !== false),
+      hrefOf,
+      // canonical / og:url share `$switchLocalePath` with hreflang (incl. NuxtLink trailingSlash)
+      canonical: toSeoHref($switchLocalePath(locale) || route.fullPath),
+      xDefault: hasXDefault ? hrefOf(defaultLocale) : undefined,
+      alternates: !noPrefix,
+      addDirAttribute,
+      // 404 routes keep the language, but must not emit SEO tags
+      addSeoAttributes: addSeoAttributes && route.matched.length > 0,
+      identifierAttribute,
+      hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
+      missingWarn: i18nConfig.missingWarn ?? true,
+    })
   }
 
   function updateMeta() {

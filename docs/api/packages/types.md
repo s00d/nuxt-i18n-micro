@@ -32,9 +32,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 50 members |
-| `ModuleOptionsExtend` | interface | 55 members |
-| `ModulePrivateOptionsExtend` | interface | 54 members |
+| `ModuleOptions` | interface | 51 members |
+| `ModuleOptionsExtend` | interface | 56 members |
+| `ModulePrivateOptionsExtend` | interface | 55 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -119,7 +119,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 50 members</summary>
+<summary><code>ModuleOptions</code> — 51 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -167,6 +167,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `timeZone?` | `string \| undefined` |
 | `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir?` | `string \| undefined` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
@@ -177,7 +178,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 55 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 56 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -229,6 +230,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `timeZone?` | `string \| undefined` |
 | `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir?` | `string \| undefined` |
 | `translationPayloadMode?` | `"premerged" \| "source" \| undefined` |
@@ -240,7 +242,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 54 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -292,6 +294,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `timeZone?` | `string \| undefined` |
 | `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir` | `string` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |

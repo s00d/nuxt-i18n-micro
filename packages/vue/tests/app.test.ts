@@ -217,13 +217,13 @@ test('I18nT renders numbers, dates, plurals, HTML, slots and empty values', asyn
   const html = (id: string) => wrapper!.find(`#${id}`).html()
 
   expect(html('num')).toBe('<span id="num">Price: 1,500</span>')
-  expect(html('date')).toBe('<span id="date">Posted 5/1/2024</span>')
-  expect(html('rel')).toBe('<span id="rel">Updated 2 hours ago</span>')
+  expect(html('date')).toBe('<span data-allow-mismatch="text" id="date">Posted 5/1/2024</span>')
+  expect(html('rel')).toBe('<span data-allow-mismatch="text" id="rel">Updated 2 hours ago</span>')
   expect(html('html')).toBe('<p id="html"><b>3</b> new</p>')
   expect(html('text')).toBe('<span id="text">&lt;b&gt;3&lt;/b&gt; new</span>')
   expect(html('rule')).toBe('<span id="rule">en:4:Hello, Z!</span>')
   expect(html('rule-empty')).toBe('<span id="rule-empty"></span>')
-  expect(html('plain')).toBe('<span id="plain">Hello, <i>x</i>!</span>')
+  expect(html('plain')).toBe('<span id="plain">Hello, &lt;i&gt;x&lt;/i&gt;!</span>')
   expect(wrapper.text()).toContain('nothing here')
   expect(html('named')).toBe('<label id="named">Accept <a>terms</a> and <b>policy</b>.</label>')
   expect(html('slot')).toBe('<span id="slot">[Hello, S!]</span>')
@@ -236,8 +236,8 @@ test('I18nT renders numbers, dates, plurals, HTML, slots and empty values', asyn
   i18n.global.locale.value = 'de'
   await flushPromises()
   expect(html('num')).toBe('<span id="num">Price: 1.500</span>')
-  expect(html('date')).toBe('<span id="date">Posted 1.5.2024</span>')
-  expect(html('rel')).toBe('<span id="rel">Updated vor 2 Stunden</span>')
+  expect(html('date')).toBe('<span data-allow-mismatch="text" id="date">Posted 1.5.2024</span>')
+  expect(html('rel')).toBe('<span data-allow-mismatch="text" id="rel">Updated vor 2 Stunden</span>')
   expect(html('rule')).toBe('<span id="rule">de:4:Hallo, Z!</span>')
 })
 
@@ -349,15 +349,15 @@ test('I18nLink and I18nSwitcher with a hand-written routing strategy', async () 
   )
   expect(button.attributes('type')).toBe('button')
   expect(button.findAll('span')[1]!.attributes('style')).toBe(
-    'margin-left: 8px; display: inline-block; transition: transform 0.3s ease; opacity: 0.5;',
+    'margin-inline-start: 8px; display: inline-block; transition: transform 0.3s ease; opacity: 0.5;',
   )
-  expect(wrapper.find('.i18n-switcher-wrapper').text()).toBe('bbflag:Deutschas▼bdad')
+  expect(wrapper.find('.i18n-switcher-wrapper').text()).toBe('bbflag:Deutsch as▾bdad')
 
   await button.trigger('click')
   expect(button.findAll('span')[1]!.attributes('style')).toContain('transform: rotate(180deg);')
   const dropdown = wrapper.find('.i18n-switcher-dropdown')
   expect(dropdown.attributes('style')).toBe(
-    'position: absolute; top: 0px; left: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
+    'position: absolute; top: 0px; inset-inline-start: 0px; z-index: 1000; background-color: rgb(255, 255, 255); border: 1px solid rgb(51, 51, 51); list-style: none; padding: 0px; margin: 4px 0px 0px; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);',
   )
   expect(dropdown.findAll('li').map((li) => li.text())).toEqual(['first', 'bi-enen=English!ai-en', 'bi-dede=Deutsch!ai-de', 'last'])
   expect(dropdown.findAll('li')[1]!.attributes('style')).toBe('margin: 0px; padding: 2px;')
@@ -380,7 +380,7 @@ test('I18nLink and I18nSwitcher with a hand-written routing strategy', async () 
   expect(i18n.global.getLocale()).toBe('en')
   expect(push).toHaveBeenLastCalledWith({ path: '/en/' })
   expect(wrapper.find('#about').attributes('href')).toBe('/en/about#team')
-  expect(button.text()).toBe('flag:Englishas▼')
+  expect(button.text()).toBe('flag:English as▾')
 
   // switchLocale from code pushes the path the strategy resolves
   api.switchLocale('de')
@@ -396,6 +396,8 @@ test('I18nLink and I18nSwitcher with a hand-written routing strategy', async () 
 })
 
 test('I18nSwitcher driven by props: own locales, current locale, label and switch handler', async () => {
+  // an earlier test left a hash, and the switcher keeps the page's
+  window.history.replaceState(null, '', '/')
   const i18n = setup({ locale: 'uk', messages: { en, de } })
   const switched = vi.fn()
   const routeTo = vi.fn((to: string | { path?: string }, locale?: string) => (locale === 'en' ? { path: `/${locale}` } : {}))
@@ -409,7 +411,7 @@ test('I18nSwitcher driven by props: own locales, current locale, label and switc
   const button = () => wrapper!.find('button')
 
   // a disabled current locale still names itself on the button and gets the disabled style
-  expect(button().text()).toBe('Українська▼')
+  expect(button().text()).toBe('Українська ▾')
   expect(button().attributes('style')).toContain('color: teal; opacity: 0.3;')
   await button().trigger('click')
   expect(wrapper.findAll('.i18n-switcher-dropdown a').map((a) => a.text())).toEqual(['English', 'pt'])
@@ -417,7 +419,7 @@ test('I18nSwitcher driven by props: own locales, current locale, label and switc
 
   props.value = { ...props.value, currentLocale: () => 'pt', getLocaleName: () => 'Custom name', switchLocale: switched, localeRoute: routeTo }
   await flushPromises()
-  expect(button().text()).toBe('pt▼')
+  expect(button().text()).toBe('pt ▾')
   expect(button().attributes('style')).not.toContain('opacity')
   expect(wrapper.find('.switcher-locale-en').attributes('href')).toBe('/en')
   expect(wrapper.find('.switcher-locale-pt').attributes('href')).toBe('#')
@@ -429,14 +431,14 @@ test('I18nSwitcher driven by props: own locales, current locale, label and switc
 
   props.value = { ...props.value, currentLocale: 'xx', locales: [{ code: 'en' }] }
   await flushPromises()
-  expect(button().text()).toBe('Custom name▼')
+  expect(button().text()).toBe('Custom name ▾')
   props.value = { ...props.value, getLocaleName: () => null }
   await flushPromises()
-  expect(button().text()).toBe('xx▼')
+  expect(button().text()).toBe('xx ▾')
   // a current locale missing from the list is named after the active one when that is listed
   props.value = { locales: [{ code: 'uk', displayName: 'Українська' }], currentLocale: 'xx' }
   await flushPromises()
-  expect(button().text()).toBe('Українська▼')
+  expect(button().text()).toBe('Українська ▾')
 })
 
 test('I18nSwitcher with a router strategy and its own localeRoute; useLocaleHead without a router', async () => {
@@ -523,11 +525,11 @@ test('useLocaleHead options: whitelisted query, relative paths, absolute alterna
     ],
     link: [
       { key: 'i18n-can', rel: 'canonical', href: 'https://example.com/shop?page=2&sort=asc' },
-      { key: 'i18n-alternate-en', rel: 'alternate', href: 'https://example.com/shop', hreflang: 'en' },
-      { key: 'i18n-alternate-en-US', rel: 'alternate', href: 'https://example.com/shop', hreflang: 'en-US' },
-      { key: 'i18n-alternate-de', rel: 'alternate', href: 'https://de.example.com/shop', hreflang: 'de' },
-      { key: 'i18n-alternate-de-DE', rel: 'alternate', href: 'https://de.example.com/shop', hreflang: 'de-DE' },
-      { key: 'i18n-xd', rel: 'alternate', href: 'https://example.com/shop', hreflang: 'x-default' },
+      { key: 'i18n-alternate-en', rel: 'alternate', href: 'https://example.com/shop?page=2&sort=asc', hreflang: 'en' },
+      { key: 'i18n-alternate-en-US', rel: 'alternate', href: 'https://example.com/shop?page=2&sort=asc', hreflang: 'en-US' },
+      { key: 'i18n-alternate-de', rel: 'alternate', href: 'https://de.example.com/shop?page=2&sort=asc', hreflang: 'de' },
+      { key: 'i18n-alternate-de-DE', rel: 'alternate', href: 'https://de.example.com/shop?page=2&sort=asc', hreflang: 'de-DE' },
+      { key: 'i18n-xd', rel: 'alternate', href: 'https://example.com/shop?page=2&sort=asc', hreflang: 'x-default' },
     ],
   })
   // 'xx' has no og locale: warned about and skipped

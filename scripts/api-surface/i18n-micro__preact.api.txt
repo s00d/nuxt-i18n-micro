@@ -23,6 +23,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const I18nContext: import("preact").Context<PreactI18n | null>
@@ -1378,6 +1379,7 @@ member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptions.serverTranslationPreload?: boolean | undefined
 member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.timeZone?: string | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
@@ -1415,11 +1417,14 @@ member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeM
 member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
+member PreactI18n.localeIso: private any
 member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected () => void
 member PreactI18n.pluralFunc: PluralFunc
+member PreactI18n.pluralLocale: () => string
+member PreactI18n.pluralTag: private any
 member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string

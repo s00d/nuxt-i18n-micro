@@ -40,6 +40,7 @@ export default defineConfig({
         '@i18n-micro/utils/parse-path',
         '@i18n-micro/utils/deep-merge',
         '@i18n-micro/utils/resolve-hreflang',
+        '@i18n-micro/utils/locale-head',
         '@i18n-micro/utils/resolve-og-locale',
         '@i18n-micro/utils/merge-i18n-head',
         '@i18n-micro/vue',

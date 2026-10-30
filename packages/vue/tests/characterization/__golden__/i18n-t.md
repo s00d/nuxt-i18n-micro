@@ -1,0 +1,210 @@
+- `plain`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `missing`
+  - vue → <span>nope</span>
+  - nuxt → <span>nope</span>
+- `missing + defaultValue`
+  - vue → <span>nope</span>
+  - nuxt → <span>nope</span>
+- `nested`
+  - vue → <span>Deep 1</span>
+  - nuxt → <span>Deep 1</span>
+- `object value`
+  - vue → <span>[object Object]</span>
+  - nuxt → <span>[object Object]</span>
+- `number value`
+  - vue → <span>7</span>
+  - nuxt → <span>7</span>
+- `tag + attrs`
+  - vue → <p id="x" class="c">Hello</p>
+  - nuxt → <p id="x" class="c">Hello</p>
+- `params`
+  - vue → <span>Hello, Z!</span>
+  - nuxt → <span>Hello, Z!</span>
+- `param missing`
+  - vue → <span>Hello, {name}!</span>
+  - nuxt → <span>Hello, {name}!</span>
+- `param looks like a slot`
+  - vue → <span>{b} then <i>B</i></span>
+  - nuxt → <span>{b} then <i>B</i></span>
+- `param and slot same name`
+  - vue → <span><b>A</b> then {b}</span>
+  - nuxt → <span><b>A</b> then {b}</span>
+- `slots in order`
+  - vue → <span><b>A</b> then <i>B</i></span>
+  - nuxt → <span><b>A</b> then <i>B</i></span>
+- `slots reordered`
+  - vue → <span><i>B</i> then <b>A</b></span>
+  - nuxt → <span><i>B</i> then <b>A</b></span>
+- `slots repeated`
+  - vue → <span><b>A</b> and <b>A</b></span>
+  - nuxt → <span><b>A</b> and <b>A</b></span>
+- `slots at the edges`
+  - vue → <span><b>A</b><i>B</i></span>
+  - nuxt → <span><b>A</b><i>B</i></span>
+- `unknown slot`
+  - vue → <span>{a} then {b}</span>
+  - nuxt → <span>{a} then {b}</span>
+- `default slot`
+  - vue → <span><u>Hello, Z!</u></span>
+  - nuxt → <span><u>Hello, Z!</u></span>
+- `unicode names, params`
+  - vue → <span>И F</span>
+  - nuxt → <span>И F</span>
+- `unicode names, slots`
+  - vue → <span><b>A</b> <i>B</i></span>
+  - nuxt → <span><b>A</b> <i>B</i></span>
+- `proto, no params`
+  - vue → <span>{__proto__} {constructor} {toString}</span>
+  - nuxt → <span>{__proto__} {constructor} {toString}</span>
+- `proto, slots object has no such slot`
+  - vue → <span>{__proto__} {constructor} {toString}</span>
+  - nuxt → <span>{__proto__} {constructor} {toString}</span>
+- `html`
+  - vue → <span><b>3</b> new</span>
+  - nuxt → <span><b>3</b> new</span>
+- `html, hostile param`
+  - vue → <span>Hello, &lt;img src=x onerror=alert(1)&gt;!</span>
+  - nuxt → <span>Hello, &lt;img src=x onerror=alert(1)&gt;!</span>
+- `text, hostile param`
+  - vue → <span>Hello, &lt;img src=x&gt;!</span>
+  - nuxt → <span>Hello, &lt;img src=x&gt;!</span>
+- `html ignores slots`
+  - vue → <span>{a} then {b}</span>
+  - nuxt → <span>{a} then {b}</span>
+- `innerHTML attr`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `textContent attr`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `hideIfEmpty blank`
+  - vue → (nothing)
+  - nuxt → (nothing)
+- `hideIfEmpty blank + default`
+  - vue → dv
+  - nuxt → dv
+- `hideIfEmpty empty`
+  - vue → (nothing)
+  - nuxt → (nothing)
+- `hideIfEmpty number`
+  - vue → (nothing)
+  - nuxt → (nothing)
+- `hideIfEmpty plural`
+  - vue → (nothing)
+  - nuxt → (nothing)
+- `blank shown`
+  - vue → <span>   </span>
+  - nuxt → <span>   </span>
+- `plural 0`
+  - vue → <span>no apples</span>
+  - nuxt → <span>no apples</span>
+- `plural 1`
+  - vue → <span>one apple</span>
+  - nuxt → <span>one apple</span>
+- `plural 5`
+  - vue → <span>5 apples</span>
+  - nuxt → <span>5 apples</span>
+- `plural "2"`
+  - vue → <span>2 apples</span>
+  - nuxt → <span>2 apples</span>
+- `plural 1.5`
+  - vue → <span>1.5 apples</span>
+  - nuxt → <span>1.5 apples</span>
+- `plural "abc"`
+  - vue → <span>NaN apples</span>
+  - nuxt → <span>NaN apples</span>
+- `plural null`
+  - vue → <span>no apples | one apple | {count} apples</span>
+  - nuxt → <span>no apples | one apple | {count} apples</span>
+- `plural + slot`
+  - vue → <span>2 items in <b>A</b></span>
+  - nuxt → <span>2 items in <b>A</b></span>
+- `plural + html`
+  - vue → <span><b>&lt;i&gt;</b> new</span>
+  - nuxt → <span><b>&lt;i&gt;</b> new</span>
+- `plural missing + default`
+  - vue → <span>nope</span>
+  - nuxt → <span>nope</span>
+- `plural ru 1`
+  - vue → <span>яблока</span>
+  - nuxt → <span>яблока</span>
+- `plural ru 2`
+  - vue → <span>яблок</span>
+  - nuxt → <span>яблок</span>
+- `plural ru 5`
+  - vue → <span>яблок</span>
+  - nuxt → <span>яблок</span>
+- `plural ru 21`
+  - vue → <span>яблок</span>
+  - nuxt → <span>яблок</span>
+- `plural ru zero-first 0`
+  - vue → <span>нет яблок</span>
+  - nuxt → <span>нет яблок</span>
+- `plural ru zero-first 1`
+  - vue → <span>одно яблоко</span>
+  - nuxt → <span>одно яблоко</span>
+- `plural ru zero-first 21`
+  - vue → <span>21 яблок</span>
+  - nuxt → <span>21 яблок</span>
+- `plural ru marked 0`
+  - vue → <span>нет</span>
+  - nuxt → <span>нет</span>
+- `plural ru marked 21`
+  - vue → <span>21 яблоко</span>
+  - nuxt → <span>21 яблоко</span>
+- `plural ru marked 22`
+  - vue → <span>22 яблока</span>
+  - nuxt → <span>22 яблока</span>
+- `customPluralRule marked`
+  - vue → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
+  - nuxt → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
+- `customPluralRule`
+  - vue → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
+  - nuxt → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
+- `customPluralRule null`
+  - vue → <span></span>
+  - nuxt → <span></span>
+- `customPluralRule miss`
+  - vue → <span>en:4:nope:{}</span>
+  - nuxt → <span>en:4:nope:{}</span>
+- `customPluralRule fraction`
+  - vue → <span>en:1.5:no apples | one apple | {count} apples:{}</span>
+  - nuxt → <span>en:1.5:no apples | one apple | {count} apples:{}</span>
+- `customPluralRule html`
+  - vue → <span><b>x</b></span>
+  - nuxt → <span><b>x</b></span>
+- `number`
+  - vue → <span>n=1,500</span>
+  - nuxt → <span>n=1,500</span>
+- `number string`
+  - vue → <span>n=1,500</span>
+  - nuxt → <span>n=1,500</span>
+- `number null`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `number + same-name param`
+  - vue → <span>n=5</span>
+  - nuxt → <span>n=5</span>
+- `number + slot`
+  - vue → <span>n=5 <b>A</b></span>
+  - nuxt → <span>n=5 <b>A</b></span>
+- `date`
+  - vue → <span data-allow-mismatch="text">d=1/15/2024</span>
+  - nuxt → <span data-allow-mismatch="text">d=1/15/2024</span>
+- `date null`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `date + same-name param`
+  - vue → <span data-allow-mismatch="text">d=1/15/2024</span>
+  - nuxt → <span data-allow-mismatch="text">d=1/15/2024</span>
+- `relativeDate`
+  - vue → <span data-allow-mismatch="text">r=2 hours ago</span>
+  - nuxt → <span data-allow-mismatch="text">r=2 hours ago</span>
+- `relativeDate null`
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
+- `precedence number over plural`
+  - vue → <span>n=2</span>
+  - nuxt → <span>n=2</span>

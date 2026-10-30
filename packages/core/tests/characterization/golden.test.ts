@@ -3,7 +3,7 @@
  * answers; a change in behaviour shows up as a diff in them.
  */
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-import { devtoolsReport, formatReport, helpersReport, i18nReport, storeReport } from './scenarios'
+import { devtoolsReport, formatReport, helpersReport, i18nReport, pluralReport, storeReport } from './scenarios'
 
 const NOW = Date.UTC(2024, 5, 15, 12, 0, 0)
 
@@ -19,6 +19,9 @@ describe('core characterization', () => {
   })
   test('i18n', async () => {
     await expect(i18nReport()).toMatchFileSnapshot('./__golden__/i18n.md')
+  })
+  test('plural', async () => {
+    await expect(pluralReport()).toMatchFileSnapshot('./__golden__/plural.md')
   })
   test('format', async () => {
     await expect(formatReport(NOW)).toMatchFileSnapshot('./__golden__/format.md')

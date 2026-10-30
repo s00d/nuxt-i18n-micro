@@ -1,5 +1,8 @@
 import type { Component } from 'vue'
 
+/** A link target: a path with its query and hash, or a location (a named one needs a router that resolves names). */
+export type I18nRouteTarget = string | { path?: string; name?: string | symbol; params?: object; query?: object; hash?: string }
+
 /**
  * Routing strategy interface for i18n
  * Implement this interface to integrate with any router library
@@ -29,7 +32,13 @@ export interface I18nRoutingStrategy {
   /**
    * Generate path for specific locale
    */
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
+  resolvePath?: (to: I18nRouteTarget, locale: string) => string | { path?: string }
+
+  /**
+   * `href` of a path from `resolvePath`, for a router that navigates by something else
+   * (VitePress: paths are relative to the site base, the address bar is not)
+   */
+  toHref?: (path: string) => string
 
   /**
    * (Optional) Get current route object for SEO/Meta tags

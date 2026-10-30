@@ -30,7 +30,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/core', '@i18n-micro/types', '@i18n-micro/utils', 'vue', 'vue-router'],
+      external: ['@i18n-micro/core', '@i18n-micro/core/render', '@i18n-micro/types', '@i18n-micro/utils', 'vue', 'vue-router'],
       output: {
         exports: 'named',
       },

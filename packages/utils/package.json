@@ -195,6 +195,21 @@
       },
       "default": "./dist/resolve-hreflang.mjs"
     },
+    "./locale-head": {
+      "production": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "import": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "require": {
+        "types": "./dist/locale-head.d.cts",
+        "default": "./dist/locale-head.cjs"
+      },
+      "default": "./dist/locale-head.mjs"
+    },
     "./merge-i18n-head": {
       "production": {
         "types": "./dist/merge-i18n-head.d.ts",

@@ -379,7 +379,7 @@ export interface ModuleOptions {
    * For the Nuxt module the function is serialized with `.toString()` into
    * `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
    * A file path string is **not** supported.
-   * @default built-in pluralization (form index by count)
+   * @default built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)
    */
   plural?: PluralFunc
 
@@ -535,6 +535,13 @@ export interface ModuleOptions {
    * }
    */
   numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
+
+  /**
+   * IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+   * the server and in every browser; a named format's own `timeZone` wins.
+   * @default the runtime's zone
+   */
+  timeZone?: string
 
   /**
    * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).

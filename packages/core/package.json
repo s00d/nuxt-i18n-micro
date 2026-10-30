@@ -64,6 +64,21 @@
       },
       "default": "./dist/helpers.mjs"
     },
+    "./render": {
+      "production": {
+        "types": "./dist/render.d.ts",
+        "default": "./dist/render.mjs"
+      },
+      "import": {
+        "types": "./dist/render.d.ts",
+        "default": "./dist/render.mjs"
+      },
+      "require": {
+        "types": "./dist/render.d.cts",
+        "default": "./dist/render.cjs"
+      },
+      "default": "./dist/render.mjs"
+    },
     "./devtools": {
       "production": {
         "types": "./dist/devtools.d.ts",

@@ -184,6 +184,7 @@ function buildFullConfig(params: {
     httpCacheDuration: options.httpCacheDuration,
     numberFormats: options.numberFormats ?? {},
     datetimeFormats: options.datetimeFormats ?? {},
+    timeZone: options.timeZone,
     translationPayloadMode,
   }
 }

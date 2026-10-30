@@ -7,9 +7,9 @@ async function switchTo(page: Page, code: string) {
   await expect(page).toHaveURL(`/${code}/fallback`)
 }
 
-// `serverless` fixture: global fallbackLocale en, fr falls back to de; /fallback reads root and page keys.
+// `basic-serverless` (basic, BASIC_VARIANT=serverless): global fallbackLocale en, fr falls back to de; /fallback reads root and page keys.
 describe('J8 translation loading: fallbackLocale', () => {
-  test.override({ harness: 'serverless' })
+  test.override({ harness: 'basic-serverless' })
 
   // was: fallback-locale › verify fallbackLocale functionality and content update when switching
   test('global and per-locale fallback chain, by switcher and by direct load', async ({ page, goto }) => {

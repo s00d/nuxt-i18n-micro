@@ -13,14 +13,14 @@ const moduleSrc = fileURLToPath(new URL('../src', import.meta.url))
  * `nuxtConfig` is a defu override (arrays concatenate, so never pass `locales` here).
  */
 function app(id: string, dir = id, env?: Record<string, string>, nuxtConfig?: Record<string, unknown>) {
-  const root = resolve(fixtures, dir)
   return nuxt({
     id,
-    root,
+    root: resolve(fixtures, dir),
     run: 'server',
     env,
     nuxtConfig,
-    hashInputs: [root, moduleSrc],
+    // the whole fixture dir: `basic/layer` builds on its parent
+    hashInputs: [resolve(fixtures, dir.split('/')[0]!), moduleSrc],
   })
 }
 
@@ -38,16 +38,17 @@ export const recipes = defineRecipes(
     basic: app('basic'),
     // basic under prefix: the default locale gets a prefix too
     'basic-prefix': app('basic-prefix', 'basic', undefined, { i18n: { strategy: 'prefix' } }),
+    // basic variants: BASIC_VARIANT in basic/nuxt.config.ts; basic/layer extends basic
+    'basic-layer': app('basic-layer', 'basic/layer'),
+    'basic-n3': app('basic-n3', 'basic', { BASIC_VARIANT: 'n3' }),
+    'basic-pages-false': app('basic-pages-false', 'basic', { BASIC_VARIANT: 'pages-false' }),
+    'basic-pages-false-no-prefix': app('basic-pages-false-no-prefix', 'basic', { BASIC_VARIANT: 'pages-false', STRATEGY: 'no_prefix' }),
+    'basic-serverless': app('basic-serverless', 'basic', { BASIC_VARIANT: 'serverless' }),
     content: app('content'),
     'custom-regex': app('custom-regex'),
-    layer: app('layer'),
-    n3: app('n3'),
     'nuxt-seo': app('nuxt-seo'),
-    'pages-false': app('pages-false'),
-    'pages-false-no-prefix': app('pages-false-no-prefix', 'pages-false', { STRATEGY: 'no_prefix' }),
     redirect: app('redirect'),
     seo: app('seo'),
-    serverless: app('serverless'),
     'use-i18n-head': app('use-i18n-head'),
     'seo-trailing-slash': app('seo-trailing-slash', 'seo', undefined, { i18n: { trailingSlash: 'append' } }),
 

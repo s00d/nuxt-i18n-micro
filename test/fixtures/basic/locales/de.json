@@ -5,5 +5,8 @@
     "welcome": "Willkommen auf der Seite!",
     "example": "example de"
   },
-  "name": "de"
+  "name": "de",
+  "hello": "Hallo Welt",
+  "welcome": "Willkommen auf unserer Seite",
+  "global": "global de"
 }

@@ -83,9 +83,17 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@nuxt/kit": "catalog:"
+    "@nuxt/kit": "catalog:",
+    "@nuxt/schema": "catalog:",
+    "vite": ">=5.4.0"
   },
   "peerDependenciesMeta": {
+    "@nuxt/schema": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
     "@nuxt/kit": {
       "optional": true
     }

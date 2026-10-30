@@ -1,12 +1,14 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { collectTranslationPaths, getByPath, type Tree } from '@i18n-micro/core'
-import { loadTranslationDir } from '@i18n-micro/utils/load-dir'
+import { listTranslationFiles, loadTranslationDir, loadTranslationFiles } from '@i18n-micro/utils/load-dir'
 
 export interface GeneratorOptions {
   srcDir: string
   /** One folder or several (layers, additional dirs); each is resolved against `srcDir`. */
   translationDir: string | string[]
+  /** Folders of which only the top-level `{locale}.json` count, as `additionalTranslationDirs` of the module. */
+  additionalDirs?: string[]
   outputFile?: string // Where to put the d.ts file
 }
 
@@ -27,14 +29,25 @@ function typeOf(value: unknown): string {
   return typeof value
 }
 
-/** Every key `t()` can answer in `dictionary`, objects too, with the type of its value. */
+/** Every key `t()` can answer in `dictionary`, objects too, with the type of its value. A path `t()` cannot read back is no key. */
 function addKeys(keys: Map<string, Set<string>>, dictionary: Tree): void {
   const paths = new Set<string>()
   collectTranslationPaths(dictionary, paths)
   for (const path of paths) {
-    const types = keys.get(path) ?? new Set()
-    keys.set(path, types.add(typeOf(getByPath(dictionary, path))))
+    const value = getByPath(dictionary, path)
+    if (value !== undefined) keys.set(path, (keys.get(path) ?? new Set()).add(typeOf(value)))
   }
+}
+
+/** The dictionaries of a folder, routes included. */
+function dictionariesOf(dir: string): Tree[] {
+  const { root, routes } = loadTranslationDir(dir)
+  return [root, ...Object.values(routes)].flatMap((bucket) => Object.values(bucket))
+}
+
+/** The dictionaries of an additional folder: its top-level files, the only ones the module merges. */
+function topLevelDictionaries(dir: string): Tree[] {
+  return Object.values(loadTranslationFiles(listTranslationFiles(dir).filter((file) => !file.relativePath.includes('/'))).root)
 }
 
 /**
@@ -46,10 +59,12 @@ function addKeys(keys: Map<string, Set<string>>, dictionary: Tree): void {
  */
 export function getTypesString(options: GeneratorOptions): string {
   const keys = new Map<string, Set<string>>()
-  for (const dir of [options.translationDir].flat()) {
-    const { root, routes } = loadTranslationDir(resolve(options.srcDir, dir))
-    for (const dictionary of [root, ...Object.values(routes)].flatMap((bucket) => Object.values(bucket))) addKeys(keys, dictionary)
-  }
+  const at = (dir: string) => resolve(options.srcDir, dir)
+  const dictionaries = [
+    ...[options.translationDir].flat().flatMap((dir) => dictionariesOf(at(dir))),
+    ...(options.additionalDirs ?? []).flatMap((dir) => topLevelDictionaries(at(dir))),
+  ]
+  for (const dictionary of dictionaries) addKeys(keys, dictionary)
 
   const keysContent = [...keys]
     .sort(([a], [b]) => (a < b ? -1 : 1))

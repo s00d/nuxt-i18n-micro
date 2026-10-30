@@ -136,3 +136,67 @@ describe('Nuxt module', () => {
     expect(nuxt.callHook).toHaveBeenCalledWith('builder:generateApp')
   })
 })
+
+describe('keys t() cannot answer are not declared', () => {
+  test('a flat key that holds an object, and empty property names', () => {
+    write('locales/en.json', { 'a.b': { c: 'x' }, '': 'root', nested: { '': 'y', ok: 'z' } })
+    expect(getTypesString({ srcDir: root, translationDir: 'locales' })).not.toContain(': undefined;')
+  })
+})
+
+describe('the Nuxt module', () => {
+  const setup = async (options: Record<string, unknown>, layers: string[]) => {
+    const hooks = new Map<string, (event: string, path: string) => Promise<void>>()
+    const callHook = vi.fn()
+    const nuxt = {
+      options: {
+        rootDir: root,
+        srcDir: root,
+        modules: [],
+        typescript: {},
+        i18n: options,
+        _layers: layers.map((rootDir) => ({ config: { rootDir } })),
+      },
+      hook: (name: string, fn: (event: string, path: string) => Promise<void>) => hooks.set(name, fn),
+      callHook,
+    }
+    const { default: mod } = await import('../src/nuxt')
+    ;(mod as unknown as { setup: (options: object, nuxt: unknown) => void }).setup({}, nuxt)
+    return { hooks, callHook, dts: () => kit.templates[0]!.getContents() }
+  }
+
+  test('an additional directory counts by its top-level files, in every layer', async () => {
+    write('common/en.json', { top: 'x' })
+    write('common/pages/about/en.json', { nested: 'x' })
+    write('layer/common/en.json', { fromLayer: 'x' })
+    const { dts } = await setup({ additionalTranslationDirs: ['common'] }, [root, join(root, 'layer')])
+    expect(keysOf(dts())).toEqual(['fromLayer', 'top'])
+  })
+
+  test('the watcher knows a sibling folder from a locale one', async () => {
+    const { hooks, callHook } = await setup({ translationDir: 'locales' }, [root])
+    await hooks.get('builder:watch')!('change', join(root, 'locales-old/en.json'))
+    expect(callHook).not.toHaveBeenCalled()
+    await hooks.get('builder:watch')!('change', join(root, 'locales/en.json'))
+    expect(callHook).toHaveBeenCalledTimes(1)
+  })
+})
+
+test('the plugin knows a sibling folder from a locale one', async () => {
+  vi.useFakeTimers()
+  try {
+    write('locales/en.json', { a: 'x' })
+    const handlers = new Map<string, (file: string) => void>()
+    const watcher = { add: () => {}, on: (name: string, fn: (file: string) => void) => (handlers.set(name, fn), watcher) }
+    const plugin = I18nTypesPlugin({ srcDir: root, translationDir: 'locales' }) as unknown as { configureServer: (server: unknown) => void }
+    plugin.configureServer({ watcher })
+    handlers.get('change')!(join(root, 'locales-old/en.json'))
+    await vi.advanceTimersByTimeAsync(400)
+    expect(existsSync(join(root, 'i18n-micro.d.ts'))).toBe(false)
+    handlers.get('change')!(join(root, 'locales/en.json'))
+    await vi.advanceTimersByTimeAsync(400)
+    expect(existsSync(join(root, 'i18n-micro.d.ts'))).toBe(true)
+  } finally {
+    vi.useRealTimers()
+  }
+})

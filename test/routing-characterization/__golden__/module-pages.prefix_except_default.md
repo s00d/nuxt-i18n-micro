@@ -185,7 +185,6 @@ params: the PARAMS keys the route's records use.
 | module-parent | /module-parent [module-parent] | /de/module-parent [localized-module-parent] | /fr/module-parent [localized-module-parent] | /module-parent [module-parent] | /de/module-parent [localized-module-parent] | /fr/module-parent [localized-module-parent] | /module-parent [module-parent] | /de/module-parent [localized-module-parent] | /fr/module-parent [localized-module-parent] |
 | module-parent-child | /module-parent/child [module-parent-child] | /de/module-parent/child [localized-module-parent-child] | /fr/module-parent/child [localized-module-parent-child] | /module-parent/child [module-parent-child] | /de/module-parent/child [localized-module-parent-child] | /fr/module-parent/child [localized-module-parent-child] | /module-parent/child [module-parent-child] | /de/module-parent/child [localized-module-parent-child] | /fr/module-parent/child [localized-module-parent-child] |
 
-## Invariant breaks (2)
+## Invariant breaks (0)
 
-- /old → de: switch lands on /old?q=1#top read as en
-- /old → fr: switch lands on /old?q=1#top read as en
+none

@@ -1,6 +1,6 @@
 # plain · no_prefix
 
-small site without any custom path, one routeRules redirect
+small site without any custom path, one stub record of a routeRules redirect
 
 locales: en, de, fr · default: en
 

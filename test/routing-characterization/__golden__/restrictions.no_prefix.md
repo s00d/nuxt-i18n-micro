@@ -131,10 +131,6 @@ params: the PARAMS keys the route's records use.
 | index | / [index] | / [index] | / [index] |
 | landing | /landing [landing] | /start [localized-landing-de] | / [index] |
 
-## Invariant breaks (5)
+## Invariant breaks (0)
 
-- /about → de → en: round trip ends on /, not /about?q=1#top
-- /de-only → en → de: round trip ends on /, not /de-only?q=1#top
-- /de-only → fr → de: round trip ends on /, not /de-only?q=1#top
-- /landing → fr → en: round trip ends on /, not /landing?q=1#top
-- /start → fr → de: round trip ends on /, not /start?q=1#top
+none

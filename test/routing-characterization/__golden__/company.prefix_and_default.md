@@ -1,6 +1,6 @@
 # company · prefix_and_default
 
-typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one routeRules redirect
+typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one stub record of a routeRules redirect
 
 locales: en, de, fr · default: en
 
@@ -256,10 +256,6 @@ params: the PARAMS keys the route's records use.
 | products-id | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] | /en/products/42 [localized-products-id-en] | /de/produkte/42 [localized-products-id-de] | /fr/produits/42 [localized-products-id-fr] |
 | slug | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] | /en/hello-world [localized-slug] | /de/hello-world [localized-slug] | /fr/hello-world [localized-slug] |
 
-## Invariant breaks (5)
+## Invariant breaks (0)
 
-- /careers → fr → en: round trip ends on /en, not /en/careers?q=1#top
-- /de/careers → fr → de: round trip ends on /de, not /de/careers?q=1#top
-- /en/careers → fr → en: round trip ends on /en, not /en/careers?q=1#top
-- /old → de: switch lands on /old?q=1#top read as en
-- /old → fr: switch lands on /old?q=1#top read as en
+none

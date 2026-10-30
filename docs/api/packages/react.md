@@ -27,25 +27,25 @@ import { /* … */ } from '@i18n-micro/react'
 | `I18nContext` | const | `import("react").Context<ReactI18n \| null>` |
 | `I18nDefaultLocaleContext` | const | `import("react").Context<string \| null>` |
 | `I18nGroup` | const | `(props: I18nGroupProps) => React.ReactElement` |
-| `I18nGroupProps` | interface | 265 members |
+| `I18nGroupProps` | interface | 279 members |
 | `I18nLink` | const | `(props: I18nLinkProps) => React.ReactElement` |
-| `I18nLinkProps` | interface | 275 members |
+| `I18nLinkProps` | interface | 289 members |
 | `I18nLocalesContext` | const | `import("react").Context<Locale[] \| null>` |
 | `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => React.ReactElement` |
 | `I18nProviderProps` | interface | 5 members |
 | `I18nRouterContext` | const | `import("react").Context<I18nRoutingStrategy \| null>` |
 | `I18nRoutingStrategy` | interface | 6 members |
 | `I18nSwitcher` | const | `(props: I18nSwitcherProps) => React.ReactElement` |
-| `I18nSwitcherProps` | interface | 278 members |
+| `I18nSwitcherProps` | interface | 292 members |
 | `I18nT` | const | `(props: I18nTProps) => React.ReactElement \| null` |
-| `I18nTProps` | interface | 274 members |
+| `I18nTProps` | interface | 288 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `ReactI18n` | class | 50 members |
+| `ReactI18n` | class | 55 members |
 | `ReactI18nOptions` | interface | 7 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -58,8 +58,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| null` |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
-<summary><code>I18nGroupProps</code> — 265 members</summary>
+<summary><code>I18nGroupProps</code> — 279 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -139,6 +140,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `groupClass?` | `string \| undefined` |
 | `hidden?` | `boolean \| undefined` |
 | `id?` | `string \| undefined` |
+| `inert?` | `boolean \| undefined` |
 | `inlist?` | `any` |
 | `inputMode?` | `"none" \| "search" \| "text" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal" \| undefined` |
 | `is?` | `string \| undefined` |
@@ -160,15 +162,16 @@ import { /* … */ } from '@i18n-micro/react'
 | `onAuxClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
-| `onBeforeInputCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlay?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayThrough?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayThroughCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onChange?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onChangeCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onChange?` | `ChangeEventHandler<HTMLDivElement, Element> \| undefined` |
+| `onChangeCapture?` | `ChangeEventHandler<HTMLDivElement, Element> \| undefined` |
 | `onClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
@@ -215,10 +218,10 @@ import { /* … */ } from '@i18n-micro/react'
 | `onFocusCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onGotPointerCapture?` | `PointerEventHandler<HTMLDivElement> \| undefined` |
 | `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLDivElement> \| undefined` |
-| `onInput?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInputCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInvalid?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInvalidCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onInvalid?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onInvalidCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyDown?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyDownCapture?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyPress?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
@@ -273,10 +276,12 @@ import { /* … */ } from '@i18n-micro/react'
 | `onProgressCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onRateChange?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onRateChangeCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onReset?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onResetCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onReset?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onResetCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onScroll?` | `UIEventHandler<HTMLDivElement> \| undefined` |
 | `onScrollCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEnd?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEndCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeked?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSeekedCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeking?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
@@ -285,12 +290,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `onSelectCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onStalled?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onStalledCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onSubmit?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onSubmitCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onSubmit?` | `SubmitEventHandler<HTMLDivElement> \| undefined` |
+| `onSubmitCapture?` | `SubmitEventHandler<HTMLDivElement> \| undefined` |
 | `onSuspend?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSuspendCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onTimeUpdate?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onTimeUpdateCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchCancel?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchCancelCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchEnd?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
@@ -299,8 +305,14 @@ import { /* … */ } from '@i18n-micro/react'
 | `onTouchMoveCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchStart?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchStartCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionCancel?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onTransitionEnd?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onTransitionEndCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionRun?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionStart?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onVolumeChange?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onVolumeChangeCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onWaiting?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
@@ -308,6 +320,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `onWheel?` | `WheelEventHandler<HTMLDivElement> \| undefined` |
 | `onWheelCapture?` | `WheelEventHandler<HTMLDivElement> \| undefined` |
 | `part?` | `string \| undefined` |
+| `popover?` | `"" \| "auto" \| "manual" \| "hint" \| undefined` |
+| `popoverTarget?` | `string \| undefined` |
+| `popoverTargetAction?` | `"toggle" \| "show" \| "hide" \| undefined` |
 | `prefix` | `string` |
 | `property?` | `string \| undefined` |
 | `radioGroup?` | `string \| undefined` |
@@ -330,8 +345,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `vocab?` | `string \| undefined` |
 
 </details>
+
 <details>
-<summary><code>I18nLinkProps</code> — 275 members</summary>
+<summary><code>I18nLinkProps</code> — 289 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -414,6 +430,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `href?` | `string \| undefined` |
 | `hrefLang?` | `string \| undefined` |
 | `id?` | `string \| undefined` |
+| `inert?` | `boolean \| undefined` |
 | `inlist?` | `any` |
 | `inputMode?` | `"none" \| "search" \| "text" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal" \| undefined` |
 | `is?` | `string \| undefined` |
@@ -437,15 +454,16 @@ import { /* … */ } from '@i18n-micro/react'
 | `onAuxClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
-| `onBeforeInputCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
+| `onBeforeInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCanPlay?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCanPlayCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCanPlayThrough?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCanPlayThroughCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onChange?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onChangeCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
+| `onChange?` | `ChangeEventHandler<HTMLAnchorElement, Element> \| undefined` |
+| `onChangeCapture?` | `ChangeEventHandler<HTMLAnchorElement, Element> \| undefined` |
 | `onClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
@@ -492,10 +510,10 @@ import { /* … */ } from '@i18n-micro/react'
 | `onFocusCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
 | `onGotPointerCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
 | `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInput?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInputCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalid?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onInvalidCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
+| `onInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
+| `onInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
+| `onInvalid?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
+| `onInvalidCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onKeyDown?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
 | `onKeyDownCapture?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
 | `onKeyPress?` | `KeyboardEventHandler<HTMLAnchorElement> \| undefined` |
@@ -550,10 +568,12 @@ import { /* … */ } from '@i18n-micro/react'
 | `onProgressCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onRateChange?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onRateChangeCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onReset?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onResetCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
+| `onReset?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
+| `onResetCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onScroll?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
 | `onScrollCapture?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollEnd?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollEndCapture?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSeeked?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSeekedCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSeeking?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
@@ -562,12 +582,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `onSelectCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onStalled?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onStalledCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmit?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
-| `onSubmitCapture?` | `FormEventHandler<HTMLAnchorElement> \| undefined` |
+| `onSubmit?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
+| `onSubmitCapture?` | `SubmitEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSuspend?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSuspendCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTimeUpdate?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTimeUpdateCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
+| `onToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTouchCancel?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTouchCancelCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTouchEnd?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
@@ -576,8 +597,14 @@ import { /* … */ } from '@i18n-micro/react'
 | `onTouchMoveCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTouchStart?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTouchStartCapture?` | `TouchEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionCancel?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTransitionEnd?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
 | `onTransitionEndCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionRun?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionStart?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
+| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLAnchorElement> \| undefined` |
 | `onVolumeChange?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onVolumeChangeCapture?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
 | `onWaiting?` | `ReactEventHandler<HTMLAnchorElement> \| undefined` |
@@ -586,6 +613,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `onWheelCapture?` | `WheelEventHandler<HTMLAnchorElement> \| undefined` |
 | `part?` | `string \| undefined` |
 | `ping?` | `string \| undefined` |
+| `popover?` | `"" \| "auto" \| "manual" \| "hint" \| undefined` |
+| `popoverTarget?` | `string \| undefined` |
+| `popoverTargetAction?` | `"toggle" \| "show" \| "hide" \| undefined` |
 | `prefix?` | `string \| undefined` |
 | `property?` | `string \| undefined` |
 | `radioGroup?` | `string \| undefined` |
@@ -612,6 +642,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `vocab?` | `string \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nProviderProps</code> — 5 members</summary>
 
@@ -624,9 +655,11 @@ import { /* … */ } from '@i18n-micro/react'
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
 
 </details>
+
 <code>I18nRoutingStrategy</code> — 6 members, identical to [`I18nRoutingStrategy`](/api/packages/preact).
+
 <details>
-<summary><code>I18nSwitcherProps</code> — 278 members</summary>
+<summary><code>I18nSwitcherProps</code> — 292 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -716,6 +749,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `getLocaleName?` | `(() => string \| null) \| undefined` |
 | `hidden?` | `boolean \| undefined` |
 | `id?` | `string \| undefined` |
+| `inert?` | `boolean \| undefined` |
 | `inlist?` | `any` |
 | `inputMode?` | `"none" \| "search" \| "text" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal" \| undefined` |
 | `is?` | `string \| undefined` |
@@ -739,15 +773,16 @@ import { /* … */ } from '@i18n-micro/react'
 | `onAuxClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
-| `onBeforeInputCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlay?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayThrough?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onCanPlayThroughCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onChange?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onChangeCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onChange?` | `ChangeEventHandler<HTMLDivElement, Element> \| undefined` |
+| `onChangeCapture?` | `ChangeEventHandler<HTMLDivElement, Element> \| undefined` |
 | `onClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
@@ -794,10 +829,10 @@ import { /* … */ } from '@i18n-micro/react'
 | `onFocusCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onGotPointerCapture?` | `PointerEventHandler<HTMLDivElement> \| undefined` |
 | `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLDivElement> \| undefined` |
-| `onInput?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInputCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInvalid?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onInvalidCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onInvalid?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onInvalidCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyDown?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyDownCapture?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
 | `onKeyPress?` | `KeyboardEventHandler<HTMLDivElement> \| undefined` |
@@ -852,10 +887,12 @@ import { /* … */ } from '@i18n-micro/react'
 | `onProgressCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onRateChange?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onRateChangeCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onReset?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onResetCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onReset?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onResetCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onScroll?` | `UIEventHandler<HTMLDivElement> \| undefined` |
 | `onScrollCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEnd?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEndCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeked?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSeekedCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeking?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
@@ -864,12 +901,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `onSelectCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onStalled?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onStalledCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
-| `onSubmit?` | `FormEventHandler<HTMLDivElement> \| undefined` |
-| `onSubmitCapture?` | `FormEventHandler<HTMLDivElement> \| undefined` |
+| `onSubmit?` | `SubmitEventHandler<HTMLDivElement> \| undefined` |
+| `onSubmitCapture?` | `SubmitEventHandler<HTMLDivElement> \| undefined` |
 | `onSuspend?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onSuspendCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onTimeUpdate?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onTimeUpdateCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
+| `onToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchCancel?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchCancelCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchEnd?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
@@ -878,8 +916,14 @@ import { /* … */ } from '@i18n-micro/react'
 | `onTouchMoveCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchStart?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
 | `onTouchStartCapture?` | `TouchEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionCancel?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onTransitionEnd?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onTransitionEndCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionRun?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionStart?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
+| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLDivElement> \| undefined` |
 | `onVolumeChange?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onVolumeChangeCapture?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
 | `onWaiting?` | `ReactEventHandler<HTMLDivElement> \| undefined` |
@@ -887,6 +931,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `onWheel?` | `WheelEventHandler<HTMLDivElement> \| undefined` |
 | `onWheelCapture?` | `WheelEventHandler<HTMLDivElement> \| undefined` |
 | `part?` | `string \| undefined` |
+| `popover?` | `"" \| "auto" \| "manual" \| "hint" \| undefined` |
+| `popoverTarget?` | `string \| undefined` |
+| `popoverTargetAction?` | `"toggle" \| "show" \| "hide" \| undefined` |
 | `prefix?` | `string \| undefined` |
 | `property?` | `string \| undefined` |
 | `radioGroup?` | `string \| undefined` |
@@ -910,8 +957,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `vocab?` | `string \| undefined` |
 
 </details>
+
 <details>
-<summary><code>I18nTProps</code> — 274 members</summary>
+<summary><code>I18nTProps</code> — 288 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -994,6 +1042,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `hideIfEmpty?` | `boolean \| undefined` |
 | `html?` | `boolean \| undefined` |
 | `id?` | `string \| undefined` |
+| `inert?` | `boolean \| undefined` |
 | `inlist?` | `any` |
 | `inputMode?` | `"none" \| "search" \| "text" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal" \| undefined` |
 | `is?` | `string \| undefined` |
@@ -1017,15 +1066,16 @@ import { /* … */ } from '@i18n-micro/react'
 | `onAuxClick?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLElement> \| undefined` |
-| `onBeforeInputCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
+| `onBeforeInputCapture?` | `InputEventHandler<HTMLElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLElement> \| undefined` |
 | `onCanPlay?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onCanPlayCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onCanPlayThrough?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onCanPlayThroughCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
-| `onChange?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onChangeCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
+| `onChange?` | `ChangeEventHandler<HTMLElement, Element> \| undefined` |
+| `onChangeCapture?` | `ChangeEventHandler<HTMLElement, Element> \| undefined` |
 | `onClick?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLElement> \| undefined` |
@@ -1072,10 +1122,10 @@ import { /* … */ } from '@i18n-micro/react'
 | `onFocusCapture?` | `FocusEventHandler<HTMLElement> \| undefined` |
 | `onGotPointerCapture?` | `PointerEventHandler<HTMLElement> \| undefined` |
 | `onGotPointerCaptureCapture?` | `PointerEventHandler<HTMLElement> \| undefined` |
-| `onInput?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onInputCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onInvalid?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onInvalidCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
+| `onInput?` | `InputEventHandler<HTMLElement> \| undefined` |
+| `onInputCapture?` | `InputEventHandler<HTMLElement> \| undefined` |
+| `onInvalid?` | `ReactEventHandler<HTMLElement> \| undefined` |
+| `onInvalidCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onKeyDown?` | `KeyboardEventHandler<HTMLElement> \| undefined` |
 | `onKeyDownCapture?` | `KeyboardEventHandler<HTMLElement> \| undefined` |
 | `onKeyPress?` | `KeyboardEventHandler<HTMLElement> \| undefined` |
@@ -1130,10 +1180,12 @@ import { /* … */ } from '@i18n-micro/react'
 | `onProgressCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onRateChange?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onRateChangeCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
-| `onReset?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onResetCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
+| `onReset?` | `ReactEventHandler<HTMLElement> \| undefined` |
+| `onResetCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onScroll?` | `UIEventHandler<HTMLElement> \| undefined` |
 | `onScrollCapture?` | `UIEventHandler<HTMLElement> \| undefined` |
+| `onScrollEnd?` | `UIEventHandler<HTMLElement> \| undefined` |
+| `onScrollEndCapture?` | `UIEventHandler<HTMLElement> \| undefined` |
 | `onSeeked?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onSeekedCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onSeeking?` | `ReactEventHandler<HTMLElement> \| undefined` |
@@ -1142,12 +1194,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `onSelectCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onStalled?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onStalledCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
-| `onSubmit?` | `FormEventHandler<HTMLElement> \| undefined` |
-| `onSubmitCapture?` | `FormEventHandler<HTMLElement> \| undefined` |
+| `onSubmit?` | `SubmitEventHandler<HTMLElement> \| undefined` |
+| `onSubmitCapture?` | `SubmitEventHandler<HTMLElement> \| undefined` |
 | `onSuspend?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onSuspendCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onTimeUpdate?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onTimeUpdateCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
+| `onToggle?` | `ToggleEventHandler<HTMLElement> \| undefined` |
 | `onTouchCancel?` | `TouchEventHandler<HTMLElement> \| undefined` |
 | `onTouchCancelCapture?` | `TouchEventHandler<HTMLElement> \| undefined` |
 | `onTouchEnd?` | `TouchEventHandler<HTMLElement> \| undefined` |
@@ -1156,8 +1209,14 @@ import { /* … */ } from '@i18n-micro/react'
 | `onTouchMoveCapture?` | `TouchEventHandler<HTMLElement> \| undefined` |
 | `onTouchStart?` | `TouchEventHandler<HTMLElement> \| undefined` |
 | `onTouchStartCapture?` | `TouchEventHandler<HTMLElement> \| undefined` |
+| `onTransitionCancel?` | `TransitionEventHandler<HTMLElement> \| undefined` |
+| `onTransitionCancelCapture?` | `TransitionEventHandler<HTMLElement> \| undefined` |
 | `onTransitionEnd?` | `TransitionEventHandler<HTMLElement> \| undefined` |
 | `onTransitionEndCapture?` | `TransitionEventHandler<HTMLElement> \| undefined` |
+| `onTransitionRun?` | `TransitionEventHandler<HTMLElement> \| undefined` |
+| `onTransitionRunCapture?` | `TransitionEventHandler<HTMLElement> \| undefined` |
+| `onTransitionStart?` | `TransitionEventHandler<HTMLElement> \| undefined` |
+| `onTransitionStartCapture?` | `TransitionEventHandler<HTMLElement> \| undefined` |
 | `onVolumeChange?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onVolumeChangeCapture?` | `ReactEventHandler<HTMLElement> \| undefined` |
 | `onWaiting?` | `ReactEventHandler<HTMLElement> \| undefined` |
@@ -1167,6 +1226,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `params?` | `Record<string, string \| number \| boolean> \| undefined` |
 | `part?` | `string \| undefined` |
 | `plural?` | `string \| number \| undefined` |
+| `popover?` | `"" \| "auto" \| "manual" \| "hint" \| undefined` |
+| `popoverTarget?` | `string \| undefined` |
+| `popoverTargetAction?` | `"toggle" \| "show" \| "hide" \| undefined` |
 | `prefix?` | `string \| undefined` |
 | `property?` | `string \| undefined` |
 | `radioGroup?` | `string \| undefined` |
@@ -1191,10 +1253,30 @@ import { /* … */ } from '@i18n-micro/react'
 | `vocab?` | `string \| undefined` |
 
 </details>
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
-<code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
+
 <details>
-<summary><code>ReactI18n</code> — 50 members</summary>
+<summary><code>Locale</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `unknown` |
+| `baseDefault?` | `boolean \| undefined` |
+| `baseUrl?` | `string \| undefined` |
+| `code` | `string` |
+| `dir?` | `"auto" \| "ltr" \| "rtl" \| undefined` |
+| `disabled?` | `boolean \| undefined` |
+| `displayName?` | `string \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `iso?` | `string \| undefined` |
+| `og?` | `string \| undefined` |
+| `seo?` | `boolean \| undefined` |
+
+</details>
+
+<code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
+
+<details>
+<summary><code>ReactI18n</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1203,6 +1285,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../react/src").ReactI18n & M>) => import("../../react/src").ReactI18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
@@ -1214,7 +1297,8 @@ import { /* … */ } from '@i18n-micro/react'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -1225,6 +1309,9 @@ import { /* … */ } from '@i18n-micro/react'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): ReactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -1250,9 +1337,13 @@ import { /* … */ } from '@i18n-micro/react'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <code>ReactI18nOptions</code> — 7 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+
 <code>UseI18nReturn</code> — 22 members, identical to [`UseI18nReturn`](/api/packages/preact).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

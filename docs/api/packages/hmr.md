@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/hmr`
 
-9 exports across 3 entry points.
+12 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -20,6 +20,7 @@ import { /* … */ } from '@i18n-micro/hmr/cache-keys'
 | --- | --- | --- |
 | `SERVER_CC_KEY` | const | `typeof SERVER_CC_KEY` |
 | `STORAGE_CC_KEY` | const | `typeof STORAGE_CC_KEY` |
+
 
 ## `@i18n-micro/hmr/generate-plugin`
 
@@ -48,11 +49,28 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `createTranslationDirReader` | function | `(translationsRoot: string \| string[], additionalRoots?: string[]) => (relativeFilePath: string) => Record<string, unknown>` |
+| `DevTranslationMergeInput` | interface | 6 members |
 | `handleTranslationWatchChange` | function | `(input: HandleTranslationWatchChangeInput) => Promise<"page" \| "root" \| "ignored">` |
 | `HandleTranslationWatchChangeInput` | interface | 7 members |
-| `parseTranslationWatchRelativePath` | function | `(relativePath: string) => ParsedTranslationWatchPath` |
+| `mergeDevTranslations` | function | `(input: DevTranslationMergeInput) => Promise<Record<string, unknown>>` |
 | `readTranslationFile` | function | `(filePath: string) => Record<string, unknown>` |
+| `resolveLiveTranslationDirs` | function | `(input: { rootDirs: string[]; translationDir: string; additionalTranslationDirs?: string[]; }) => { translationRoots: string[]; additionalRoots: string[]; }` |
 | `TranslationContentTracker` | class | 3 members |
+
+<details>
+<summary><code>DevTranslationMergeInput</code> — 6 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `disablePageLocales?` | `boolean \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `locales?` | `(string \| Locale)[] \| undefined` |
+| `pageName` | `string` |
+| `readLocaleFile` | `(relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>` |
+
+</details>
 
 <details>
 <summary><code>HandleTranslationWatchChangeInput</code> — 7 members</summary>
@@ -68,6 +86,7 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | `storageCache?` | `TranslationWatchCache \| null \| undefined` |
 
 </details>
+
 <details>
 <summary><code>TranslationContentTracker</code> — 3 members</summary>
 

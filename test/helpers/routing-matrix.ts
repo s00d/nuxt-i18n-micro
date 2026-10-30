@@ -131,6 +131,7 @@ const toRecord = (page: NuxtPage): RouteRecordRaw =>
   ({
     path: page.path,
     name: page.name,
+    ...(page.meta ? { meta: page.meta } : {}),
     ...(page.redirect ? { redirect: page.redirect as string } : { component: {} }),
     ...(page.alias?.length ? { alias: page.alias } : {}),
     ...(page.children?.length ? { children: page.children.map(toRecord) } : {}),

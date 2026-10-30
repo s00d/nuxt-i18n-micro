@@ -76,6 +76,7 @@ member VueI18n.addRouteTranslations: (locale: string, routeName: string, transla
 member VueI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member VueI18n.clearCache: () => void
 member VueI18n.currentRoute: Ref<string, string>
+member VueI18n.ensurePinnedChunk: protected (locale: string, routeName: string) => void
 member VueI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../vue/src").VueI18n & M>) => import("../../vue/src").VueI18n & M
 member VueI18n.fallbackLocale: Ref<string, string>
 member VueI18n.formatter: FormatService
@@ -87,7 +88,8 @@ member VueI18n.getRoute: () => string
 member VueI18n.getRouteCache: () => Record<string, Translations>
 member VueI18n.getStorage: () => TranslationStorage
 member VueI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
-member VueI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member VueI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member VueI18n.invalidatePin: protected () => void
 member VueI18n.listeners: private Set<() => void>
 member VueI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member VueI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
@@ -97,6 +99,9 @@ member VueI18n.missingHandler?: ((locale: string, key: string, routeName: string
 member VueI18n.missingWarn: boolean
 member VueI18n.notifyListeners: private () => void
 member VueI18n.onTranslationsChanged: protected () => void
+member VueI18n.pinnedCacheKey: private any
+member VueI18n.pinnedGeneration: private any
+member VueI18n.pinnedTree: private any
 member VueI18n.pluralFunc: PluralFunc
 member VueI18n.resolveDateTimeFormatArgs: private any
 member VueI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean

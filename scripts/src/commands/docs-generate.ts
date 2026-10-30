@@ -343,7 +343,8 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
       '',
       table(['Export', 'Kind', 'Signature'], rows),
       '',
-      ...details,
+      // a blank line between blocks: a line right after `</details>` is parsed as raw HTML
+      details.join('\n\n'),
     ].join('\n')
   })
 

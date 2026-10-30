@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/path-strategy",
-  "version": "1.3.22",
+  "version": "2.0.0",
   "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
   "keywords": [
     "i18n",
@@ -44,66 +44,6 @@
       },
       "default": "./dist/index.mjs"
     },
-    "./prefix": {
-      "production": {
-        "types": "./dist/strategies/prefix.d.ts",
-        "default": "./dist/prefix-strategy.mjs"
-      },
-      "import": {
-        "types": "./dist/strategies/prefix.d.ts",
-        "default": "./dist/prefix-strategy.mjs"
-      },
-      "require": {
-        "types": "./dist/strategies/prefix.d.cts",
-        "default": "./dist/prefix-strategy.cjs"
-      },
-      "default": "./dist/prefix-strategy.mjs"
-    },
-    "./no-prefix": {
-      "production": {
-        "types": "./dist/strategies/no-prefix.d.ts",
-        "default": "./dist/no-prefix-strategy.mjs"
-      },
-      "import": {
-        "types": "./dist/strategies/no-prefix.d.ts",
-        "default": "./dist/no-prefix-strategy.mjs"
-      },
-      "require": {
-        "types": "./dist/strategies/no-prefix.d.cts",
-        "default": "./dist/no-prefix-strategy.cjs"
-      },
-      "default": "./dist/no-prefix-strategy.mjs"
-    },
-    "./prefix-except-default": {
-      "production": {
-        "types": "./dist/strategies/prefix-except-default.d.ts",
-        "default": "./dist/prefix-except-default-strategy.mjs"
-      },
-      "import": {
-        "types": "./dist/strategies/prefix-except-default.d.ts",
-        "default": "./dist/prefix-except-default-strategy.mjs"
-      },
-      "require": {
-        "types": "./dist/strategies/prefix-except-default.d.cts",
-        "default": "./dist/prefix-except-default-strategy.cjs"
-      },
-      "default": "./dist/prefix-except-default-strategy.mjs"
-    },
-    "./prefix-and-default": {
-      "production": {
-        "types": "./dist/strategies/prefix-and-default.d.ts",
-        "default": "./dist/prefix-and-default-strategy.mjs"
-      },
-      "import": {
-        "types": "./dist/strategies/prefix-and-default.d.ts",
-        "default": "./dist/prefix-and-default-strategy.mjs"
-      },
-      "require": {
-        "types": "./dist/strategies/prefix-and-default.d.cts",
-        "default": "./dist/prefix-and-default-strategy.cjs"
-      },
-      "default": "./dist/prefix-and-default-strategy.mjs"
-    },
     "./types": {
       "production": {
         "types": "./dist/types.d.ts",
@@ -133,19 +73,18 @@
     "check:package": "publint",
     "test:publish": "pnpm run test:dist && pnpm run check:package",
     "test:perf": "vitest run --config vitest.perf.config.ts",
-    "bench:browser": "vite --config bench/vite.config.ts",
-    "bench:browser:ci": "tsx bench/run-headless.ts",
     "prepublishOnly": "pnpm run build && pnpm run test:publish"
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
+    "@i18n-micro/route-strategy": "workspace:^",
     "publint": "catalog:",
-    "tsx": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vue-router": "catalog:"
   },
   "engines": {
     "node": ">=18"

@@ -29,6 +29,7 @@ member I18n.addTranslations: (locale: string, translations: Translations, merge?
 member I18n.clear: () => void
 member I18n.clearCache: () => void
 member I18n.currentRoute: string
+member I18n.ensurePinnedChunk: protected (locale: string, routeName: string) => void
 member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M
 member I18n.fallbackLocale: string
 member I18n.formatter: FormatService
@@ -40,7 +41,8 @@ member I18n.getRoute: () => string
 member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
-member I18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member I18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member I18n.invalidatePin: protected () => void
 member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -50,6 +52,9 @@ member I18n.locale: string
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected () => void
+member I18n.pinnedCacheKey: private any
+member I18n.pinnedGeneration: private any
+member I18n.pinnedTree: private any
 member I18n.pluralFunc: PluralFunc
 member I18n.resolveDateTimeFormatArgs: private any
 member I18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean

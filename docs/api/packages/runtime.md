@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 50 members |
+| `I18n` | class | 55 members |
 | `I18nOptions` | interface | 7 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
@@ -36,8 +36,9 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `TranslationStorage` | interface | 1 members |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
-<summary><code>I18n</code> — 50 members</summary>
+<summary><code>I18n</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -46,6 +47,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../runtime/src").I18n & M>) => import("../../runtime/src").I18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
@@ -57,7 +59,8 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -68,6 +71,9 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -93,7 +99,9 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <code>I18nOptions</code> — 7 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+
 <details>
 <summary><code>LoadFromUrlEntry</code> — 4 members</summary>
 
@@ -105,6 +113,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `url` | `string` |
 
 </details>
+
 <details>
 <summary><code>LoadFromUrlOptions</code> — 3 members</summary>
 
@@ -115,8 +124,11 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `routeName?` | `string \| undefined` |
 
 </details>
+
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <code>TranslationStorage</code> — 1 members, identical to [`TranslationStorage`](/api/packages/core).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

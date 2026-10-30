@@ -171,6 +171,9 @@ describe('i18nUtils', () => {
     expect(i18n.$localePath('/x')).toBe('/en/x')
     expect(i18n.$getI18nConfig().strategy).toBe('prefix')
     expect(i18n.$i18nStrategy.getStrategy()).toBe('prefix')
+    // the stub answers the page facts the meta plugin and useLocaleHead ask for
+    expect(i18n.$i18nStrategy.pageLocales({ path: '/x' })).toBeNull()
+    expect(i18n.$i18nStrategy.isMetaDisabled({ path: '/x' }, 'en')).toBe(false)
     expect(i18n.helper).toBeTruthy()
     expect(vi.isMockFunction(i18n.$t)).toBe(true)
   })

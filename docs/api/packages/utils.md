@@ -22,6 +22,7 @@ import { /* … */ } from '@i18n-micro/utils/accept-language'
 | `detectLocaleFromAcceptLanguage` | function | `(header: string \| undefined, validLocales: string[]) => string \| null` |
 | `parseAcceptLanguage` | function | `(header: string \| undefined) => string[]` |
 
+
 ## `@i18n-micro/utils/active-locales`
 
 ```ts
@@ -33,6 +34,7 @@ import { /* … */ } from '@i18n-micro/utils/active-locales'
 | `getEnabledLocaleCodes` | function | `(locales?: Locale[] \| null) => string[]` |
 | `getEnabledLocales` | function | `(locales?: Locale[] \| null) => Locale[]` |
 | `isEnabledLocale` | function | `(locales: Locale[] \| null \| undefined, code: string) => boolean` |
+
 
 ## `@i18n-micro/utils/app-path`
 
@@ -47,6 +49,7 @@ import { /* … */ } from '@i18n-micro/utils/app-path'
 | `resolveContainedRelPath` | function | `(relPath: string) => string \| null` |
 | `withoutAppBaseURL` | function | `(pathname: string, baseURL?: string \| null) => string` |
 
+
 ## `@i18n-micro/utils/auto-detect-path`
 
 ```ts
@@ -56,6 +59,7 @@ import { /* … */ } from '@i18n-micro/utils/auto-detect-path'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `shouldAttemptLocaleRedirect` | function | `(path: string, options?: { autoDetectPath?: string; hasLocalePrefix?: boolean; }) => boolean` |
+
 
 ## `@i18n-micro/utils/build`
 
@@ -111,6 +115,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 | `ttlMs` | `private number` |
 
 </details>
+
 <details>
 <summary><code>CacheControlOptions</code> — 2 members</summary>
 
@@ -135,6 +140,7 @@ import { /* … */ } from '@i18n-micro/utils/cookie'
 | `getLocaleCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 | `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; }` |
 
+
 ## `@i18n-micro/utils/deep-merge`
 
 ```ts
@@ -145,6 +151,7 @@ import { /* … */ } from '@i18n-micro/utils/deep-merge'
 | --- | --- | --- |
 | `deepMergeTranslations` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
 | `deepMergeTranslationsRecursive` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
+
 
 ## `@i18n-micro/utils/merge-i18n-head`
 
@@ -168,6 +175,7 @@ import { /* … */ } from '@i18n-micro/utils/merge-i18n-head'
 | `meta` | `I18nHeadMeta[]` |
 
 </details>
+
 <details>
 <summary><code>MergeI18nHeadOptions</code> — 3 members</summary>
 
@@ -212,6 +220,7 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `readLocaleFile` | `(relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>` |
 
 </details>
+
 <code>SourceLocaleInfo</code> — 2 members, identical to `PreMergeLocaleInfo` above.
 ## `@i18n-micro/utils/normalize`
 
@@ -223,6 +232,7 @@ import { /* … */ } from '@i18n-micro/utils/normalize'
 | --- | --- | --- |
 | `toTranslationRecord` | function | `(data: unknown) => Record<string, unknown>` |
 | `toTranslations` | function | `(data: unknown) => Translations` |
+
 
 ## `@i18n-micro/utils/parse-path`
 
@@ -293,6 +303,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `warnSizeBytes?` | `number \| undefined` |
 
 </details>
+
 <details>
 <summary><code>TranslationPayloadMisconfigurationInput</code> — 3 members</summary>
 
@@ -303,6 +314,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `translationPayloads` | `ResolvedTranslationPayloadOptions` |
 
 </details>
+
 <details>
 <summary><code>TranslationPayloadSizeThresholds</code> — 2 members</summary>
 
@@ -312,6 +324,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `warnSizeBytes?` | `number \| undefined` |
 
 </details>
+
 <details>
 <summary><code>TranslationPayloadStats</code> — 2 members</summary>
 
@@ -355,6 +368,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-stats'
 | `hashTranslationSources` | function | `(rootDirs: string[], translationDirName: string, additionalTranslationDirs?: string[]) => string \| null` |
 | `PublicAssetCompression` | type | `boolean \| { gzip?: boolean; brotli?: boolean } \| undefined` |
 | `scanTranslationPayloadDirectory` | function | `(dir: string) => TranslationPayloadStats` |
+
 
 ## `@i18n-micro/utils/payload-url`
 
@@ -409,6 +423,7 @@ import { /* … */ } from '@i18n-micro/utils/resolve-hreflang'
 | `localeCode` | `string` |
 
 </details>
+
 <details>
 <summary><code>ResolveHreflangAlternatesOptions</code> — 1 members</summary>
 
@@ -444,6 +459,7 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `validLocales` | `string[]` |
 
 </details>
+
 <details>
 <summary><code>ResolveServerLocaleInput</code> — 8 members</summary>
 
@@ -515,6 +531,7 @@ import { /* … */ } from '@i18n-micro/utils/route-pattern'
 | `stripLeadingSlash` | function | `(path: string) => string` |
 | `stripLocalizedRouteNamePrefix` | function | `(routeName: string \| undefined \| null, localizedRouteNamePrefix?: string) => string \| undefined` |
 
+
 ## `@i18n-micro/utils/runtime-config`
 
 ```ts
@@ -580,6 +597,7 @@ import { /* … */ } from '@i18n-micro/utils/split-locale-routes'
 | `paths?` | `false \| Record<string, string> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>SplitLocaleRoutePage</code> — 3 members</summary>
 
@@ -590,6 +608,7 @@ import { /* … */ } from '@i18n-micro/utils/split-locale-routes'
 | `path` | `string` |
 
 </details>
+
 <details>
 <summary><code>SplitLocaleRoutesResult</code> — 2 members</summary>
 

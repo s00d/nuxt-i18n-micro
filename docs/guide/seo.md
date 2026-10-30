@@ -68,12 +68,12 @@ When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically
    - The module generates a canonical link (`<link rel="canonical">`) for each page, ensuring that search engines recognize the primary version of the content.
 
 3. **🌐 Alternate Language Links (`hreflang`)**:
-   - The module automatically generates `<link rel="alternate" hreflang="">` tags for all available locales. This helps search engines understand which language versions of your content are available, improving the user experience for global audiences.
+   - The module automatically generates `<link rel="alternate" hreflang="">` tags for every locale **the page is served in** (`$defineI18nRoute({ locales })` / `routeLocales` restrict it). A locale without the page gets no alternate, so no link points at another page. This helps search engines understand which language versions of your content are available.
    - Each locale emits **one** tag: `hreflang = iso || code`. When `iso` is set, routing `code` is never used as `hreflang` (so market keys like `mx` do not become invalid language tags).
    - Optional `hreflangBaseLanguage: true` also emits a bare-language tag derived from `iso` (e.g. `es-ES` → `es`), claimed by the first regional locale in `locales`.
 
 4. **🌏 `x-default` Hreflang**:
-   - The module automatically generates a `<link rel="alternate" hreflang="x-default">` tag pointing to the default locale's URL. This tells search engines which URL to show users whose language doesn't match any of the defined locales. No additional configuration is required — it works automatically when `meta: true` is set.
+   - The module automatically generates a `<link rel="alternate" hreflang="x-default">` tag pointing to the default locale's URL, when the default locale serves the page. This tells search engines which URL to show users whose language doesn't match any of the defined locales. No additional configuration is required — it works automatically when `meta: true` is set.
 
 5. **🔖 Open Graph Metadata**:
    - The module generates Open Graph meta tags (`og:locale`, `og:url`, etc.) for each locale, which is particularly useful for social media sharing and search engine indexing.
@@ -218,10 +218,12 @@ i18n: {
 
 | Strategy                | hreflang links   | x-default             | canonical      | og:url |
 | ----------------------- | ---------------- | --------------------- | -------------- | ------ |
-| `prefix`                | ✅ All locales   | ✅ Default locale URL | ✅ Current URL | ✅     |
-| `prefix_except_default` | ✅ All locales   | ✅ Unprefixed URL     | ✅ Current URL | ✅     |
-| `prefix_and_default`    | ✅ All locales   | ✅ Default locale URL | ✅ Current URL | ✅     |
+| `prefix`                | ✅ Locales serving the page | ✅ Default locale URL¹ | ✅ Current URL | ✅     |
+| `prefix_except_default` | ✅ Locales serving the page | ✅ Unprefixed URL¹     | ✅ Current URL | ✅     |
+| `prefix_and_default`    | ✅ Locales serving the page | ✅ Default locale URL¹ | ✅ Current URL | ✅     |
 | `no_prefix`             | ❌ Not generated | ❌ Not generated      | ✅ Current URL | ✅     |
+
+¹ Only when the default locale serves the page.
 
 For the `no_prefix` strategy, only `canonical`, `og:url`, `og:locale`, and `html` attributes (`lang`, `dir`) are generated. Alternate language links (`hreflang`) and `x-default` are not generated because there are no distinct URLs per locale.
 
@@ -260,7 +262,7 @@ const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
 const { data: article } = await useFetch(`/api/articles/${slug}`)
 
 $defineI18nRoute({
-  localeRoutes: { en: '/blog/[slug]', de: '/de/blog/[slug]' },
+  localeRoutes: { en: '/blog/[slug]', de: '/artikel/[slug]' },
 })
 
 $setI18nRouteParams({

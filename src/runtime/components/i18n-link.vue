@@ -4,7 +4,7 @@
     <slot />
   </a>
 
-  <NuxtLink v-else :to="$localePath(to)" :style="computedStyle">
+  <NuxtLink v-else :to="localizedPath" :style="computedStyle">
     <slot />
   </NuxtLink>
 </template>
@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
-import { useNuxtApp, useRoute, useRouter } from '#imports'
+import { useNuxtApp, useRoute } from '#imports'
 
 /**
  * A link that keeps the active locale: renders `NuxtLink` to the localized route, or a
@@ -31,7 +31,6 @@ interface Props {
 
 const props = defineProps<Props>()
 const route = useRoute()
-const router = useRouter()
 
 const isExternalLink = computed(() => {
   if (typeof props.to === 'string') {
@@ -53,13 +52,10 @@ const externalHref = computed(() => {
   return undefined
 })
 
-const isActive = computed(() => {
-  if (isExternalLink.value) {
-    return false
-  }
-  const pathStr = $localePath(props.to)
-  return route.path === router.resolve(pathStr).path
-})
+const localizedPath = computed(() => (isExternalLink.value ? '' : $localePath(props.to)))
+
+// compared as paths: a router.resolve per render matched the URL against every record
+const isActive = computed(() => !isExternalLink.value && route.path === localizedPath.value.split(/[?#]/)[0])
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {
   return isActive.value ? { ...props.activeStyle } : {}

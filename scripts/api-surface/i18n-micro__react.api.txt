@@ -104,6 +104,7 @@ member I18nGroupProps.exportparts?: string | undefined
 member I18nGroupProps.groupClass?: string | undefined
 member I18nGroupProps.hidden?: boolean | undefined
 member I18nGroupProps.id?: string | undefined
+member I18nGroupProps.inert?: boolean | undefined
 member I18nGroupProps.inlist?: any
 member I18nGroupProps.inputMode?: "none" | "search" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | undefined
 member I18nGroupProps.is?: string | undefined
@@ -125,15 +126,16 @@ member I18nGroupProps.onAnimationStartCapture?: AnimationEventHandler<HTMLDivEle
 member I18nGroupProps.onAuxClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onAuxClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBeforeInput?: InputEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onBeforeInputCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onBeforeInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onBeforeToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBlur?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBlurCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCanPlay?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCanPlayCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCanPlayThrough?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCanPlayThroughCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onChange?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onChangeCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onChange?: ChangeEventHandler<HTMLDivElement, Element> | undefined
+member I18nGroupProps.onChangeCapture?: ChangeEventHandler<HTMLDivElement, Element> | undefined
 member I18nGroupProps.onClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCompositionEnd?: CompositionEventHandler<HTMLDivElement> | undefined
@@ -180,10 +182,10 @@ member I18nGroupProps.onFocus?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onFocusCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onGotPointerCapture?: PointerEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onInput?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onInputCapture?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onInvalid?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onInvalidCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onInput?: InputEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onInvalid?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onInvalidCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onKeyDown?: KeyboardEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onKeyDownCapture?: KeyboardEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onKeyPress?: KeyboardEventHandler<HTMLDivElement> | undefined
@@ -238,10 +240,12 @@ member I18nGroupProps.onProgress?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onProgressCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onRateChange?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onRateChangeCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onReset?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onResetCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onReset?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onResetCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onScroll?: UIEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onScrollCapture?: UIEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollEnd?: UIEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollEndCapture?: UIEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSeeked?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSeekedCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSeeking?: ReactEventHandler<HTMLDivElement> | undefined
@@ -250,12 +254,13 @@ member I18nGroupProps.onSelect?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSelectCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onStalled?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onStalledCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onSubmit?: FormEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onSubmitCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onSubmit?: SubmitEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onSubmitCapture?: SubmitEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSuspend?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSuspendCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTimeUpdate?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTimeUpdateCapture?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTouchCancel?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTouchCancelCapture?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTouchEnd?: TouchEventHandler<HTMLDivElement> | undefined
@@ -264,8 +269,14 @@ member I18nGroupProps.onTouchMove?: TouchEventHandler<HTMLDivElement> | undefine
 member I18nGroupProps.onTouchMoveCapture?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTouchStart?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTouchStartCapture?: TouchEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionCancel?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTransitionEnd?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onTransitionEndCapture?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionRun?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionRunCapture?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionStart?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onTransitionStartCapture?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onVolumeChange?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onVolumeChangeCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onWaiting?: ReactEventHandler<HTMLDivElement> | undefined
@@ -273,6 +284,9 @@ member I18nGroupProps.onWaitingCapture?: ReactEventHandler<HTMLDivElement> | und
 member I18nGroupProps.onWheel?: WheelEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onWheelCapture?: WheelEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.part?: string | undefined
+member I18nGroupProps.popover?: "" | "auto" | "manual" | "hint" | undefined
+member I18nGroupProps.popoverTarget?: string | undefined
+member I18nGroupProps.popoverTargetAction?: "toggle" | "show" | "hide" | undefined
 member I18nGroupProps.prefix: string
 member I18nGroupProps.property?: string | undefined
 member I18nGroupProps.radioGroup?: string | undefined
@@ -374,6 +388,7 @@ member I18nLinkProps.hidden?: boolean | undefined
 member I18nLinkProps.href?: string | undefined
 member I18nLinkProps.hrefLang?: string | undefined
 member I18nLinkProps.id?: string | undefined
+member I18nLinkProps.inert?: boolean | undefined
 member I18nLinkProps.inlist?: any
 member I18nLinkProps.inputMode?: "none" | "search" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | undefined
 member I18nLinkProps.is?: string | undefined
@@ -397,15 +412,16 @@ member I18nLinkProps.onAnimationStartCapture?: AnimationEventHandler<HTMLAnchorE
 member I18nLinkProps.onAuxClick?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onAuxClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBeforeInput?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeInputCapture?: FormEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onBeforeInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onBeforeToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBlur?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBlurCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCanPlay?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCanPlayCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCanPlayThrough?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCanPlayThroughCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChange?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChangeCapture?: FormEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onChange?: ChangeEventHandler<HTMLAnchorElement, Element> | undefined
+member I18nLinkProps.onChangeCapture?: ChangeEventHandler<HTMLAnchorElement, Element> | undefined
 member I18nLinkProps.onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCompositionEnd?: CompositionEventHandler<HTMLAnchorElement> | undefined
@@ -452,10 +468,10 @@ member I18nLinkProps.onFocus?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onFocusCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onGotPointerCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInput?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInputCapture?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalid?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalidCapture?: FormEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onInput?: InputEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onInvalid?: ReactEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onInvalidCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onKeyDown?: KeyboardEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onKeyDownCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onKeyPress?: KeyboardEventHandler<HTMLAnchorElement> | undefined
@@ -510,10 +526,12 @@ member I18nLinkProps.onProgress?: ReactEventHandler<HTMLAnchorElement> | undefin
 member I18nLinkProps.onProgressCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onRateChange?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onRateChangeCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onReset?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResetCapture?: FormEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onReset?: ReactEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onResetCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onScroll?: UIEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onScrollCapture?: UIEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollEnd?: UIEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollEndCapture?: UIEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSeeked?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSeekedCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSeeking?: ReactEventHandler<HTMLAnchorElement> | undefined
@@ -522,12 +540,13 @@ member I18nLinkProps.onSelect?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSelectCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onStalled?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onStalledCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmit?: FormEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmitCapture?: FormEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onSubmit?: SubmitEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onSubmitCapture?: SubmitEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSuspend?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSuspendCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTimeUpdate?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTimeUpdateCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTouchCancel?: TouchEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTouchCancelCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTouchEnd?: TouchEventHandler<HTMLAnchorElement> | undefined
@@ -536,8 +555,14 @@ member I18nLinkProps.onTouchMove?: TouchEventHandler<HTMLAnchorElement> | undefi
 member I18nLinkProps.onTouchMoveCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTouchStart?: TouchEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTouchStartCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionCancel?: TransitionEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTransitionEnd?: TransitionEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onTransitionEndCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionRun?: TransitionEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionRunCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionStart?: TransitionEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onTransitionStartCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onVolumeChange?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onVolumeChangeCapture?: ReactEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onWaiting?: ReactEventHandler<HTMLAnchorElement> | undefined
@@ -546,6 +571,9 @@ member I18nLinkProps.onWheel?: WheelEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onWheelCapture?: WheelEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.part?: string | undefined
 member I18nLinkProps.ping?: string | undefined
+member I18nLinkProps.popover?: "" | "auto" | "manual" | "hint" | undefined
+member I18nLinkProps.popoverTarget?: string | undefined
+member I18nLinkProps.popoverTargetAction?: "toggle" | "show" | "hide" | undefined
 member I18nLinkProps.prefix?: string | undefined
 member I18nLinkProps.property?: string | undefined
 member I18nLinkProps.radioGroup?: string | undefined
@@ -674,6 +702,7 @@ member I18nSwitcherProps.exportparts?: string | undefined
 member I18nSwitcherProps.getLocaleName?: (() => string | null) | undefined
 member I18nSwitcherProps.hidden?: boolean | undefined
 member I18nSwitcherProps.id?: string | undefined
+member I18nSwitcherProps.inert?: boolean | undefined
 member I18nSwitcherProps.inlist?: any
 member I18nSwitcherProps.inputMode?: "none" | "search" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | undefined
 member I18nSwitcherProps.is?: string | undefined
@@ -697,15 +726,16 @@ member I18nSwitcherProps.onAnimationStartCapture?: AnimationEventHandler<HTMLDiv
 member I18nSwitcherProps.onAuxClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onAuxClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBeforeInput?: InputEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onBeforeInputCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onBeforeInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onBeforeToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBlur?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBlurCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCanPlay?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCanPlayCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCanPlayThrough?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCanPlayThroughCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onChange?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onChangeCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onChange?: ChangeEventHandler<HTMLDivElement, Element> | undefined
+member I18nSwitcherProps.onChangeCapture?: ChangeEventHandler<HTMLDivElement, Element> | undefined
 member I18nSwitcherProps.onClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCompositionEnd?: CompositionEventHandler<HTMLDivElement> | undefined
@@ -752,10 +782,10 @@ member I18nSwitcherProps.onFocus?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onFocusCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onGotPointerCapture?: PointerEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onInput?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onInputCapture?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onInvalid?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onInvalidCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onInput?: InputEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onInvalid?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onInvalidCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onKeyDown?: KeyboardEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onKeyDownCapture?: KeyboardEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onKeyPress?: KeyboardEventHandler<HTMLDivElement> | undefined
@@ -810,10 +840,12 @@ member I18nSwitcherProps.onProgress?: ReactEventHandler<HTMLDivElement> | undefi
 member I18nSwitcherProps.onProgressCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onRateChange?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onRateChangeCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onReset?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onResetCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onReset?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onResetCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onScroll?: UIEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onScrollCapture?: UIEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollEnd?: UIEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollEndCapture?: UIEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSeeked?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSeekedCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSeeking?: ReactEventHandler<HTMLDivElement> | undefined
@@ -822,12 +854,13 @@ member I18nSwitcherProps.onSelect?: ReactEventHandler<HTMLDivElement> | undefine
 member I18nSwitcherProps.onSelectCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onStalled?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onStalledCapture?: ReactEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onSubmit?: FormEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onSubmitCapture?: FormEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onSubmit?: SubmitEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onSubmitCapture?: SubmitEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSuspend?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSuspendCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTimeUpdate?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTimeUpdateCapture?: ReactEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTouchCancel?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTouchCancelCapture?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTouchEnd?: TouchEventHandler<HTMLDivElement> | undefined
@@ -836,8 +869,14 @@ member I18nSwitcherProps.onTouchMove?: TouchEventHandler<HTMLDivElement> | undef
 member I18nSwitcherProps.onTouchMoveCapture?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTouchStart?: TouchEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTouchStartCapture?: TouchEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionCancel?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTransitionEnd?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onTransitionEndCapture?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionRun?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionRunCapture?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionStart?: TransitionEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onTransitionStartCapture?: TransitionEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onVolumeChange?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onVolumeChangeCapture?: ReactEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onWaiting?: ReactEventHandler<HTMLDivElement> | undefined
@@ -845,6 +884,9 @@ member I18nSwitcherProps.onWaitingCapture?: ReactEventHandler<HTMLDivElement> | 
 member I18nSwitcherProps.onWheel?: WheelEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onWheelCapture?: WheelEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.part?: string | undefined
+member I18nSwitcherProps.popover?: "" | "auto" | "manual" | "hint" | undefined
+member I18nSwitcherProps.popoverTarget?: string | undefined
+member I18nSwitcherProps.popoverTargetAction?: "toggle" | "show" | "hide" | undefined
 member I18nSwitcherProps.prefix?: string | undefined
 member I18nSwitcherProps.property?: string | undefined
 member I18nSwitcherProps.radioGroup?: string | undefined
@@ -947,6 +989,7 @@ member I18nTProps.hidden?: boolean | undefined
 member I18nTProps.hideIfEmpty?: boolean | undefined
 member I18nTProps.html?: boolean | undefined
 member I18nTProps.id?: string | undefined
+member I18nTProps.inert?: boolean | undefined
 member I18nTProps.inlist?: any
 member I18nTProps.inputMode?: "none" | "search" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | undefined
 member I18nTProps.is?: string | undefined
@@ -970,15 +1013,16 @@ member I18nTProps.onAnimationStartCapture?: AnimationEventHandler<HTMLElement> |
 member I18nTProps.onAuxClick?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onAuxClickCapture?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onBeforeInput?: InputEventHandler<HTMLElement> | undefined
-member I18nTProps.onBeforeInputCapture?: FormEventHandler<HTMLElement> | undefined
+member I18nTProps.onBeforeInputCapture?: InputEventHandler<HTMLElement> | undefined
+member I18nTProps.onBeforeToggle?: ToggleEventHandler<HTMLElement> | undefined
 member I18nTProps.onBlur?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onBlurCapture?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onCanPlay?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onCanPlayCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onCanPlayThrough?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onCanPlayThroughCapture?: ReactEventHandler<HTMLElement> | undefined
-member I18nTProps.onChange?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onChangeCapture?: FormEventHandler<HTMLElement> | undefined
+member I18nTProps.onChange?: ChangeEventHandler<HTMLElement, Element> | undefined
+member I18nTProps.onChangeCapture?: ChangeEventHandler<HTMLElement, Element> | undefined
 member I18nTProps.onClick?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onClickCapture?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onCompositionEnd?: CompositionEventHandler<HTMLElement> | undefined
@@ -1025,10 +1069,10 @@ member I18nTProps.onFocus?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onFocusCapture?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onGotPointerCapture?: PointerEventHandler<HTMLElement> | undefined
 member I18nTProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLElement> | undefined
-member I18nTProps.onInput?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onInputCapture?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onInvalid?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onInvalidCapture?: FormEventHandler<HTMLElement> | undefined
+member I18nTProps.onInput?: InputEventHandler<HTMLElement> | undefined
+member I18nTProps.onInputCapture?: InputEventHandler<HTMLElement> | undefined
+member I18nTProps.onInvalid?: ReactEventHandler<HTMLElement> | undefined
+member I18nTProps.onInvalidCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onKeyDown?: KeyboardEventHandler<HTMLElement> | undefined
 member I18nTProps.onKeyDownCapture?: KeyboardEventHandler<HTMLElement> | undefined
 member I18nTProps.onKeyPress?: KeyboardEventHandler<HTMLElement> | undefined
@@ -1083,10 +1127,12 @@ member I18nTProps.onProgress?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onProgressCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onRateChange?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onRateChangeCapture?: ReactEventHandler<HTMLElement> | undefined
-member I18nTProps.onReset?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onResetCapture?: FormEventHandler<HTMLElement> | undefined
+member I18nTProps.onReset?: ReactEventHandler<HTMLElement> | undefined
+member I18nTProps.onResetCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onScroll?: UIEventHandler<HTMLElement> | undefined
 member I18nTProps.onScrollCapture?: UIEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollEnd?: UIEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollEndCapture?: UIEventHandler<HTMLElement> | undefined
 member I18nTProps.onSeeked?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onSeekedCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onSeeking?: ReactEventHandler<HTMLElement> | undefined
@@ -1095,12 +1141,13 @@ member I18nTProps.onSelect?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onSelectCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onStalled?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onStalledCapture?: ReactEventHandler<HTMLElement> | undefined
-member I18nTProps.onSubmit?: FormEventHandler<HTMLElement> | undefined
-member I18nTProps.onSubmitCapture?: FormEventHandler<HTMLElement> | undefined
+member I18nTProps.onSubmit?: SubmitEventHandler<HTMLElement> | undefined
+member I18nTProps.onSubmitCapture?: SubmitEventHandler<HTMLElement> | undefined
 member I18nTProps.onSuspend?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onSuspendCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onTimeUpdate?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onTimeUpdateCapture?: ReactEventHandler<HTMLElement> | undefined
+member I18nTProps.onToggle?: ToggleEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchCancel?: TouchEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchCancelCapture?: TouchEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchEnd?: TouchEventHandler<HTMLElement> | undefined
@@ -1109,8 +1156,14 @@ member I18nTProps.onTouchMove?: TouchEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchMoveCapture?: TouchEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchStart?: TouchEventHandler<HTMLElement> | undefined
 member I18nTProps.onTouchStartCapture?: TouchEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionCancel?: TransitionEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLElement> | undefined
 member I18nTProps.onTransitionEnd?: TransitionEventHandler<HTMLElement> | undefined
 member I18nTProps.onTransitionEndCapture?: TransitionEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionRun?: TransitionEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionRunCapture?: TransitionEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionStart?: TransitionEventHandler<HTMLElement> | undefined
+member I18nTProps.onTransitionStartCapture?: TransitionEventHandler<HTMLElement> | undefined
 member I18nTProps.onVolumeChange?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onVolumeChangeCapture?: ReactEventHandler<HTMLElement> | undefined
 member I18nTProps.onWaiting?: ReactEventHandler<HTMLElement> | undefined
@@ -1120,6 +1173,9 @@ member I18nTProps.onWheelCapture?: WheelEventHandler<HTMLElement> | undefined
 member I18nTProps.params?: Record<string, string | number | boolean> | undefined
 member I18nTProps.part?: string | undefined
 member I18nTProps.plural?: string | number | undefined
+member I18nTProps.popover?: "" | "auto" | "manual" | "hint" | undefined
+member I18nTProps.popoverTarget?: string | undefined
+member I18nTProps.popoverTargetAction?: "toggle" | "show" | "hide" | undefined
 member I18nTProps.prefix?: string | undefined
 member I18nTProps.property?: string | undefined
 member I18nTProps.radioGroup?: string | undefined
@@ -1147,7 +1203,7 @@ interface Locale
 member Locale.baseDefault?: boolean | undefined
 member Locale.baseUrl?: string | undefined
 member Locale.code: string
-member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.dir?: "auto" | "ltr" | "rtl" | undefined
 member Locale.disabled?: boolean | undefined
 member Locale.displayName?: string | undefined
 member Locale.fallbackLocale?: string | undefined
@@ -1214,6 +1270,7 @@ member ReactI18n.addTranslations: (locale: string, translations: Translations, m
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
+member ReactI18n.ensurePinnedChunk: protected (locale: string, routeName: string) => void
 member ReactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../react/src").ReactI18n & M>) => import("../../react/src").ReactI18n & M
 member ReactI18n.fallbackLocale: string
 member ReactI18n.formatter: FormatService
@@ -1225,7 +1282,8 @@ member ReactI18n.getRoute: () => string
 member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
-member ReactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member ReactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member ReactI18n.invalidatePin: protected () => void
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -1235,6 +1293,9 @@ member ReactI18n.locale: string
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected () => void
+member ReactI18n.pinnedCacheKey: private any
+member ReactI18n.pinnedGeneration: private any
+member ReactI18n.pinnedTree: private any
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.resolveDateTimeFormatArgs: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean

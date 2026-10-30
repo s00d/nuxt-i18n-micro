@@ -70,7 +70,7 @@ How translations reach the browser. [Performance](/guide/performance) explains w
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `serverTranslationPreload` | `boolean` | `false` | Preload index-page translations in Nitro global middleware into `event.context.i18n.translations` (server-only). When the first SSR page is `index`, the Nuxt plugin seeds its storage from that payload and skips a second load. Other pages still load their own chunk. |
+| `serverTranslationPreload` | `boolean` | `false` | Preload index-page translations in Nitro global middleware (server-only, private config). |
 | `apiBaseUrl` | `string` | `'_locales'` | Base URL path segment for the translations API route (used in SSR/SSG data fetching). Can also be set via `NUXT_I18N_APP_BASE_URL` environment variable. |
 | `apiBaseClientHost` | `string` | `undefined` | Override the host used for client-side translation fetch requests. Useful when the client reaches the server via a different hostname than the one Nuxt sees. Can also be set via `NUXT_I18N_APP_BASE_CLIENT_HOST` environment variable. |
 | `apiBaseServerHost` | `string` | `undefined` | Override the host used for server-side translation fetch requests. Useful in container/microservice setups where the server reaches itself via an internal hostname. Can also be set via `NUXT_I18N_APP_BASE_SERVER_HOST` environment variable. |

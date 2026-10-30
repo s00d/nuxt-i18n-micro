@@ -34,7 +34,7 @@ if (error.value) {
 $defineI18nRoute({
   localeRoutes: {
     en: '/post/[slug]',
-    fr: '/fr/article/[slug]',
+    fr: '/article/[slug]',
   },
 })
 

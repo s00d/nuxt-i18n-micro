@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 54 members |
+| `SolidI18n` | class | 59 members |
 | `SolidI18nOptions` | interface | 6 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -53,6 +53,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| undefined` |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
 <summary><code>I18nProviderProps</code> — 4 members</summary>
 
@@ -64,6 +65,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nRoutingStrategy</code> — 7 members</summary>
 
@@ -78,10 +80,13 @@ import { /* … */ } from '@i18n-micro/solid'
 | `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
 
 </details>
+
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
 <code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
+
 <details>
-<summary><code>SolidI18n</code> — 54 members</summary>
+<summary><code>SolidI18n</code> — 59 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -94,6 +99,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../solid/src").SolidI18n & M>) => import("../../solid/src").SolidI18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
@@ -104,7 +110,8 @@ import { /* … */ } from '@i18n-micro/solid'
 | `getRoute` | `() => string` |
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `listeners` | `private Set<() => void>` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -115,6 +122,9 @@ import { /* … */ } from '@i18n-micro/solid'
 | `new` | `(options: SolidI18nOptions): SolidI18n` |
 | `notifyListeners` | `private () => void` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -141,6 +151,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <details>
 <summary><code>SolidI18nOptions</code> — 6 members</summary>
 
@@ -154,7 +165,9 @@ import { /* … */ } from '@i18n-micro/solid'
 | `plural?` | `PluralFunc \| undefined` |
 
 </details>
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

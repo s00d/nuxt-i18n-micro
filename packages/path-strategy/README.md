@@ -1,241 +1,106 @@
 # @i18n-micro/path-strategy
 
-Runtime path and route strategies for **Nuxt I18n Micro**: locale resolution from URL, link generation, redirects, and SEO helpers. Use this package when you need a single routing strategy at build time so only the chosen implementation is bundled.
+Runtime locale routing for **Nuxt I18n Micro**: which locale a URL is in, the URL of a page in another locale, and the server's redirect / 404 decisions.
+
+It runs in the browser, so it is one small class (~2.6 KB gzip) with no runtime dependencies (`@i18n-micro/types` is types only).
 
 ---
 
-## Overview
+## How it works
 
-- **Strategies**: `no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`
-- **API**: `resolveLocaleFromPath`, `getLocaleFromPath`, `localeRoute`, `switchLocaleRoute`, `getRedirect`, `getClientRedirect`, `shouldReturn404`, `getCanonicalPath`, `getRouteBaseName`, `getCurrentLocale`, `getPluginRouteName`, `formatPathForResolve`
-- **Framework-agnostic**: Works with any router that implements the `RouterAdapter` interface (`hasRoute`, `resolve`); compatible with Vue Router and custom adapters.
-- **Tree-shakeable**: Subpath exports (`/prefix`, `/no-prefix`, etc.) let the bundler include only the selected strategy.
+`@i18n-micro/route-strategy` generates the localized routes at build time. Each localized record carries `meta.i18n`:
 
----
+```ts
+{ name: 'about', locales: ['de'] } // base route name of the page, locales the record serves
+{ name: 'about', locales: ['en'], noMeta: true } // + `$defineI18nRoute({ disableMeta })` of the page
+```
 
-## Package structure
+path-strategy reads those records once from `router.getRoutes()` and builds an index, `page -> locale -> record`. Every answer is then one Map lookup and one `router.resolve`, so the URL it returns is always one the router serves.
 
-| Path                       | Contents                                                                                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/types.ts`             | All type definitions (`PathStrategyContext`, `RouteLike`, `ResolvedRouteLike`, `RouterAdapter`, `PathStrategy`, etc.)                                |
-| `src/path.ts`              | Path utilities (`normalizePath`, `joinUrl`, `buildUrl`, `getPathWithoutLocale`, `getLocaleFromPath`, `hasKeys`, etc.)                                |
-| `src/resolver.ts`          | Route analysis and resolution (`analyzeRoute`, `getRouteBaseName`, `buildLocalizedName`, `isIndexRouteName`, `resolveCustomPath`, etc.)              |
-| `src/helpers.ts`           | Strategy-agnostic helpers (`shouldReturn404`, `preserveQueryAndHash`, `tryResolveByLocalizedName`, etc.)                                             |
-| `src/strategies/`          | `BasePathStrategy`, `createPathStrategy` factory, and strategy implementations: `no-prefix`, `prefix`, `prefix-except-default`, `prefix-and-default` |
-| `src/strategies/common.ts` | Shared strategy logic (`defaultResolveLocaleRoute`)                                                                                                  |
+It never re-reads `globalLocaleRoutes`: custom paths, restrictions and aliases are already in the records.
+
+Matching a URL means walking every record in vue-router. The results of path lookups (`localeRoute('/x')`, `getClientRedirect`, `shouldReturn404`) and of resolved links are kept in bounded caches, so a repeated call is a Map hit. The index and the caches belong to the route table, not to the router: every strategy built over the same routes (one per SSR request) shares them, so a request starts warm.
+
+`localeRoute` and `switchLocaleRoute` never answer with another locale's page: a locale that does not serve the page gets its home. (`getClientRedirect` differs under `prefix`, see below.)
 
 ---
 
 ## Installation
 
 ```bash
-pnpm add @i18n-micro/path-strategy @i18n-micro/types
+pnpm add @i18n-micro/path-strategy
 ```
 
-Peer dependency: `@i18n-micro/types`.
+Routes must come from `@i18n-micro/route-strategy` (the Nuxt module wires both).
 
 ---
 
-## Setup: Using a single strategy via Nuxt alias (build-time)
-
-To ship only the selected strategy (no factory, no other implementations), wire a Nuxt alias at build time.
-
-### 1. Configure the Nuxt module
-
-In your Nuxt module's `setup()` (or in `nuxt.config`), set the alias to the strategy entry you want:
+## Usage
 
 ```ts
-// src/module.ts (or nuxt.config.ts)
+import { createPathStrategy } from '@i18n-micro/path-strategy'
+import { useRouter } from 'vue-router'
 
-import type { Strategies } from '@i18n-micro/types'
+const router = useRouter() // the app's router, serving the routes route-strategy generated
 
-const strategyEntries: Record<Strategies, string> = {
-  no_prefix: '@i18n-micro/path-strategy/no-prefix',
-  prefix: '@i18n-micro/path-strategy/prefix',
-  prefix_except_default: '@i18n-micro/path-strategy/prefix-except-default',
-  prefix_and_default: '@i18n-micro/path-strategy/prefix-and-default',
-}
-
-const selectedStrategy = strategyEntries[options.strategy] ?? strategyEntries.prefix_except_default
-
-nuxt.options.alias['#i18n-strategy'] = selectedStrategy
-```
-
-### 2. Type declarations for `#i18n-strategy`
-
-So that TypeScript and your IDE understand the alias, add a generated declaration in `prepare:types`:
-
-```ts
-import { resolve } from 'node:path'
-
-nuxt.hook('prepare:types', ({ references }) => {
-  nuxt.addTemplate({
-    filename: 'i18n-strategy.d.ts',
-    getContents: () => `
-      import { BasePathStrategy } from '@i18n-micro/path-strategy'
-      export class Strategy extends BasePathStrategy {}
-    `,
-  })
-  references.push({ path: resolve(nuxt.options.buildDir, 'i18n-strategy.d.ts') })
+const i18n = createPathStrategy({
+  strategy: 'prefix_except_default',
+  defaultLocale: 'en',
+  locales: [{ code: 'en' }, { code: 'de' }],
+  router: {
+    hasRoute: (name) => router.hasRoute(name),
+    resolve: (to) => router.resolve(to),
+    getRoutes: () => router.getRoutes(),
+  },
 })
+
+i18n.localeRoute('de', { name: 'about' }) // { name: 'localized-about-de', path: '/de/ueber-uns', fullPath, params, ... }
+i18n.switchLocaleRoute('en', 'de', router.currentRoute.value) // the current page in de
+i18n.getClientRedirect('/about', 'de') // '/de/ueber-uns'
+i18n.shouldReturn404('/en/about') // 'Default locale should not have prefix'
 ```
 
-If your setup already resolves types for this alias, you can skip this step.
-
-### 3. Use in a plugin or composable
-
-Import the strategy only via the alias so the bundler includes just that implementation:
-
-```ts
-// runtime/plugins/01.i18n-strategy.ts
-
-import { Strategy } from '#i18n-strategy'
-import type { PathStrategyContext } from '@i18n-micro/path-strategy/types'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  const context: PathStrategyContext = {
-    strategy: useRuntimeConfig().public.i18n.strategy,
-    defaultLocale: 'en',
-    locales: [/* ... */],
-    localizedRouteNamePrefix: 'localized-',
-    router: { hasRoute, resolve },
-    // optional: globalLocaleRoutes, routeLocales, routesLocaleLinks, noPrefixRedirect
-  }
-
-  const pathStrategy = new Strategy(context)
-  return { provide: { i18nStrategy: pathStrategy } }
-})
-```
-
-Only the selected strategy and the base class are included in the bundle; the other strategies are tree-shaken out.
-
-### 4. Package exports
-
-| Entry                                             | Contents                                                                                                                                  |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `@i18n-micro/path-strategy`                       | Main entry: types, factory, all strategies, resolver utils (`getRouteBaseName`, `buildLocalizedName`, `isIndexRouteName`, `analyzeRoute`) |
-| `@i18n-micro/path-strategy/prefix`                | `PrefixPathStrategy` and `Strategy` alias                                                                                                 |
-| `@i18n-micro/path-strategy/no-prefix`             | `NoPrefixPathStrategy` and `Strategy`                                                                                                     |
-| `@i18n-micro/path-strategy/prefix-except-default` | `PrefixExceptDefaultPathStrategy` and `Strategy`                                                                                          |
-| `@i18n-micro/path-strategy/prefix-and-default`    | `PrefixAndDefaultPathStrategy` and `Strategy`                                                                                             |
-| `@i18n-micro/path-strategy/types`                 | Types only (`PathStrategyContext`, `RouteLike`, `ResolvedRouteLike`, `RouterAdapter`, etc.)                                               |
+Routes added later with `router.addRoute` are seen after `setRouter(router)`, which rebuilds the index and clears the caches.
 
 ---
 
 ## API
 
-### Factory
-
-- **`createPathStrategy(ctx: PathStrategyContext)`** — Returns the strategy instance for `ctx.strategy`. Use for tests or server-side when you don't use the alias.
-
-### Resolver utilities (from main entry)
-
-- **`getRouteBaseName(route, options?)`** — Returns the base route name (without localized prefix/suffix).
-- **`buildLocalizedName(baseName, localeCode, prefix?)`** — Builds a localized route name (e.g. `about` + `de` + `localized-` -> `localized-about-de`).
-- **`isIndexRouteName(name, options?)`** — Returns whether the route name is the index route (e.g. `index`, `localized-index-en`).
-- **`analyzeRoute(route, ctx)`** — Returns a `RouteAnalysis` object with `baseName`, `pathWithoutLocale`, `localeFromPath`, and `isIndex` for a given route and context.
-
-### Strategy interface
-
-Each strategy implements:
-
-| Method                                                    | Description                                                                                |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `localeRoute(targetLocale, routeOrPath, currentRoute?)`   | Localized route for the target locale. Returns `RouteLike` with `path` and `fullPath` set. |
-| `switchLocaleRoute(fromLocale, toLocale, route, options)` | Route to navigate to when switching locale. Returns `RouteLike` or `string`.               |
-| `getRedirect(currentPath, targetLocale)`                  | Path to redirect to on server, or `null`.                                                  |
-| `getClientRedirect(currentPath, preferredLocale)`         | Path to redirect to on client (after hydration), or `null`.                                |
-| `shouldReturn404(currentPath)`                            | Returns a 404 redirect path if the current path is invalid, or `null`.                     |
-| `getCanonicalPath(route, targetLocale)`                   | Custom path for the route in that locale (from `globalLocaleRoutes`), or `null`.           |
-| `resolveLocaleFromPath(path)`                             | Locale code from path (strategy-specific; e.g. `no_prefix` returns `null`).                |
-| `getLocaleFromPath(path)`                                 | Parses path and returns first segment if it is a locale code.                              |
-| `getRouteBaseName(route)`                                 | Base name for the route (delegates to resolver with context).                              |
-| `getCurrentLocale(route, defaultLocaleOverride?)`         | Determines current locale from route (considers strategy, hashMode, params, path).         |
-| `getPluginRouteName(route, locale)`                       | Returns the base route name for translation loading.                                       |
-| `getCurrentLocaleName(route, defaultLocaleOverride?)`     | Returns `displayName` of the current locale, or `null`.                                    |
-| `setRouter(router)`                                       | Replaces the router adapter at runtime.                                                    |
-| `formatPathForResolve(path, fromLocale, toLocale)`        | Transforms a path for cross-locale resolution.                                             |
-| `getDefaultLocale()`                                      | Returns the default locale code.                                                           |
-| `getLocales()`                                            | Returns the configured locales array.                                                      |
-| `getStrategy()`                                           | Returns the strategy name.                                                                 |
-
-### Context (`PathStrategyContext`)
-
-Import from `@i18n-micro/path-strategy/types`.
-
-| Property                                                                     | Description                                                                                                                                          |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `strategy`, `defaultLocale`, `locales`, `localizedRouteNamePrefix`, `router` | Required.                                                                                                                                            |
-| `localeCodes`                                                                | Pre-computed locale code strings. Set automatically in constructor from `locales`.                                                                   |
-| `globalLocaleRoutes`                                                         | `Record<string, Record<string, string> \| false>`: custom path per route/locale; `false` = unlocalized.                                              |
-| `routeLocales`                                                               | `Record<string, string[]>`: route path or base name -> list of locale codes; limits hreflang entries.                                                |
-| `routesLocaleLinks`                                                          | `Record<string, string>`: base name -> key for `routeLocales` lookup (e.g. `'products-id'` -> `'products'`).                                         |
-| `noPrefixRedirect`                                                           | When `true` (default), `NoPrefixPathStrategy.getRedirect` strips a leading locale segment (e.g. `/en/about` -> `/about`). Set to `false` to disable. |
-| `hashMode`                                                                   | Locale stored in hash, no prefix in path.                                                                                                            |
-| `disablePageLocales`                                                         | When `true`, all pages use only global translations (no page-specific loading).                                                                      |
-| `debug`                                                                      | Enable debug logging.                                                                                                                                |
-
-### Redirect behavior per strategy
-
-- **prefix**: root `/` -> `/{locale}`; paths without prefix get prefix; wrong prefix is replaced.
-- **prefix_except_default**: default locale with prefix (e.g. `/en/about`) -> path without prefix (`/about`); non-default without prefix -> add prefix; root with non-default -> `/{locale}`.
-- **prefix_and_default**: same as prefix (all locales have prefix in URL).
-- **no_prefix**: paths that start with a locale segment (e.g. `/en/about`) -> path without segment (`/about`), unless `noPrefixRedirect` is `false`.
-
-### Using getRedirect in middleware
-
-```ts
-const redirectPath = strategy.getRedirect(to.fullPath, detectedLocale)
-if (redirectPath) return navigateTo(redirectPath)
-```
+| Method                                                    | Returns                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `localeRoute(locale, to)`                                 | `to` in `locale`. `to` is a name (`{ name, params, query, hash }`), a resolved route (e.g. `useRoute()`), or a path string in any locale's form. The result has `name`, `params`, `path` and `fullPath`, so it can be pushed by name. A locale with a `baseUrl` gives `{ path: url, fullPath: url }`.                                                                                                     |
+| `switchLocaleRoute(from, to, route, { i18nRouteParams })` | The current page in `to`. `i18nRouteParams[to]` replaces params. A page not served in `to` gives `to`'s home. A `baseUrl` locale gives an absolute URL string; `baseDefault` drops the prefix.                                                                                                                                                                                                            |
+| `pageLocales(route)`                                      | Locales the page is served in (all its records), or `null` when it is not localized. Used for `hreflang` and the switcher.                                                                                                                                                                                                                                                                                |
+| `isMetaDisabled(route, locale)`                           | Whether `$defineI18nRoute({ disableMeta })` turns the page's SEO tags off in `locale`.                                                                                                                                                                                                                                                                                                                    |
+| `getCurrentLocale(route, override?)`                      | Locale of a route: its `locale` param, then the first path segment. Under `no_prefix` / `hashMode` it is `override` or the default.                                                                                                                                                                                                                                                                       |
+| `getCurrentLocaleName(route, override?)`                  | `displayName` of that locale, or `null`.                                                                                                                                                                                                                                                                                                                                                                  |
+| `getRouteBaseName(route)`                                 | Base route name of the page (`localized-about-de` -> `about`).                                                                                                                                                                                                                                                                                                                                            |
+| `getPluginRouteName(route, locale)`                       | Translation key of the page: its base name, or `index` with `disablePageLocales`.                                                                                                                                                                                                                                                                                                                         |
+| `getLocaleFromPath(path)`                                 | Locale code in the first segment, or `null`.                                                                                                                                                                                                                                                                                                                                                              |
+| `resolveLocaleFromPath(path)`                             | Locale a URL is in: the prefix, or the default under `prefix_except_default`. Always `null` under `no_prefix`.                                                                                                                                                                                                                                                                                            |
+| `shouldReturn404(path)`                                   | Why a URL is a 404, or `null`: the default locale's prefix under `prefix_except_default`, a prefix on an unlocalized page, a locale the page is not served in, or a locale-like first segment (`customRegexMatcher`) that is no locale.                                                                                                                                                                   |
+| `getClientRedirect(path, preferred, { switchPrefixed })`  | For an unprefixed URL, where it goes in the preferred locale (`/about` -> `/de/ueber-uns`), or `null`. With `switchPrefixed` (`autoDetectPath: '*'`) a URL in another locale moves to the same page in the preferred one. A page the preferred locale does not serve stays (under `prefix`: the page in a locale that has it). `null` under `no_prefix`; unprefixed URLs stay under `prefix_and_default`. |
+| `setRouter(router)`                                       | Swap the router; the index is rebuilt.                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
 
-## Integration with Nuxt I18n Micro
+## Strategies
 
-The main Nuxt module (**nuxt-i18n-micro**) integrates path-strategy by default: it generates the strategy from the chosen `strategy` option, creates the instance with runtime config and router, and provides it as `nuxtApp.$i18nStrategy`. The redirect plugin calls `strategy.getRedirect()` (server) and `strategy.getClientRedirect()` (client) and redirects when a path is returned.
+| Strategy                | URLs                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `prefix_except_default` | The default locale is unprefixed, the others prefixed.                                            |
+| `prefix`                | Every locale prefixed.                                                                            |
+| `prefix_and_default`    | Every locale prefixed. The default locale is also served unprefixed; links use the prefixed form. |
+| `no_prefix`             | No prefix. A locale with its own custom path has its own records.                                 |
 
 ---
 
-## Testing
-
-The package is tested with **Jest**. Tests include unit tests for each strategy, snapshot tests, a memory-leak test suite, and performance benchmarks.
+## Tests
 
 ```bash
-# Unit tests
-pnpm test
-
-# Performance benchmarks (Node.js)
-pnpm test:perf
-
-# Performance benchmarks (real browsers — Chromium, Firefox, WebKit)
-pnpm bench:browser:ci
-
-# Single browser
-pnpm bench:browser:ci -- --browser=firefox
-
-# Interactive browser benchmark (opens dev server)
-pnpm bench:browser
+pnpm test        # unit tests on a real vue-router
+pnpm test:perf   # µs per call on a 300-page, 5-locale app, with budgets
+pnpm test:dist   # built package (ESM + CJS, publint, npm pack)
 ```
 
-### Browser benchmarks
-
-The `bench/` directory contains a browser-based performance benchmark that runs the same suite as the Node.js tests but in a real browser engine via Playwright. This measures actual client-side performance across V8 (Chromium), SpiderMonkey (Firefox), and JavaScriptCore (WebKit).
-
-Results are saved as baselines per browser engine in `tests/__perf__/baseline-browser-{engine}.json`.
-
----
-
-## Performance optimizations
-
-- **Pure functions over classes** — Route resolution (`analyzeRoute`, `resolveCustomPath`, etc.) uses pure functions instead of a class-based `RouteResolver`, enabling better tree-shaking and V8 inlining.
-- **Pre-computed context flags** — `localeCodes`, `_hasGR` (has global locale routes), and `_hasRL` (has route locales) are computed once in the constructor, avoiding `Object.keys()` allocations on hot paths.
-- **Minimal object allocation** — Route objects are constructed via direct property assignment instead of `{ ...spread }` to reduce GC pressure.
-- **Fast path utilities** — `normalizePath`, `joinUrl`, and `cleanDoubleSlashes` use character-code checks and fast paths for common cases (e.g. simple paths without double slashes).
-- **`hasKeys()` utility** — O(1) check for whether an object has own keys, without `Object.keys()` array allocation.
-
----
-
-## License
-
-MIT
+The whole pipeline is characterized in the repository's `test/routing-characterization/`: 10 apps × 4 strategies, every URL and every navigation, kept as golden files.

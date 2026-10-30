@@ -1,247 +1,124 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
-import { GeneratorContext } from './core/context'
-import type { LocalizedPathsMap } from './core/localized-paths'
-import { extractLocalizedPaths as getLocalizedPathsMap } from './core/localized-paths'
-import { getStrategy } from './strategies/factory'
-import type { LocaleRoutesConfig } from './strategies/types'
-import { normalizePath, normalizeRouteKey, removeLeadingSlash, resolveLocales } from './utils'
+import { generateRoutes, type LocalizedPaths } from './generate'
+import { absolute, removeLeadingSlash, routeKey } from './paths'
+import { Rules } from './rules'
 
 export interface RouteGeneratorOptions {
   locales: Locale[]
   defaultLocaleCode: string
   strategy: Strategies
+  /** Custom paths by page path or route name, `$defineI18nRoute` ones merged in (config wins). */
   globalLocaleRoutes: GlobalLocaleRoutes
-  filesLocaleRoutes?: GlobalLocaleRoutes
   routeLocales?: Record<string, string[]>
+  /** `$defineI18nRoute({ disableMeta })` by page path: baked into `meta.i18n.noMeta`. */
+  routeDisableMeta?: Record<string, boolean | string[]>
   noPrefixRedirect: boolean
   excludePatterns?: (string | RegExp)[]
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string | RegExp
-  fallbackRedirectComponentPath?: string
+}
+
+/** Merges locales by code (later entries override) and drops disabled ones. */
+function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; defaultLocale: Locale } {
+  const byCode = new Map<string, Locale>()
+  for (const locale of locales) byCode.set(locale.code, { ...byCode.get(locale.code), ...locale })
+  const active = [...byCode.values()].filter((locale) => !locale.disabled)
+  return { locales: active, defaultLocale: active.find((l) => l.code === defaultLocaleCode) ?? { code: defaultLocaleCode } }
 }
 
 export class RouteGenerator {
-  locales: Locale[]
-  defaultLocale: Locale
-  strategy: Strategies
-  localizedPaths: LocalizedPathsMap = {}
-  activeLocaleCodes: string[]
-  globalLocaleRoutes: LocaleRoutesConfig
-  rawGlobalLocaleRoutes: GlobalLocaleRoutes
-  filesLocaleRoutes: LocaleRoutesConfig
-  routeLocales: Record<string, string[]>
-  noPrefixRedirect: boolean
-  excludePatterns: (string | RegExp)[] | undefined
-  localizedRouteNamePrefix: string
-  customRegex: string | RegExp | undefined
-  fallbackRedirectComponentPath: string | undefined
+  readonly locales: Locale[]
+  readonly defaultLocale: Locale
+  readonly strategy: Strategies
+  readonly routeLocales: Record<string, string[]>
+  private readonly rules: Rules
+  private readonly options: RouteGeneratorOptions
+  /** Localized paths of the pages seen by the last extendPages call. */
+  private localizedPaths: LocalizedPaths = new Map()
 
   constructor(options: RouteGeneratorOptions) {
-    const {
-      locales,
-      defaultLocaleCode,
-      strategy,
-      globalLocaleRoutes,
-      filesLocaleRoutes = {},
-      routeLocales = {},
-      noPrefixRedirect,
-      excludePatterns,
-      localizedRouteNamePrefix = 'localized-',
-      customRegexMatcher,
-      fallbackRedirectComponentPath,
-    } = options
-
-    const resolved = resolveLocales(locales, defaultLocaleCode)
+    const resolved = resolveLocales(options.locales, options.defaultLocaleCode)
     this.locales = resolved.locales
     this.defaultLocale = resolved.defaultLocale
-    this.strategy = strategy
-    this.noPrefixRedirect = noPrefixRedirect
-    this.excludePatterns = excludePatterns
-    this.localizedRouteNamePrefix = localizedRouteNamePrefix
-    this.customRegex = customRegexMatcher
-    this.fallbackRedirectComponentPath = fallbackRedirectComponentPath
-    this.activeLocaleCodes = this.computeActiveLocaleCodes()
-
-    const normalizedGlobalRoutes: GlobalLocaleRoutes = {}
-    for (const key in globalLocaleRoutes) {
-      const newKey = normalizeRouteKey(key)
-      const localePaths = globalLocaleRoutes[key]
-
-      if (typeof localePaths === 'object') {
-        const normalizedLocalePaths: { [locale: string]: string } = {}
-
-        for (const locale in localePaths) {
-          const customPath = localePaths[locale]
-          if (customPath) {
-            normalizedLocalePaths[locale] = normalizeRouteKey(customPath)
-          }
-        }
-
-        normalizedGlobalRoutes[newKey] = normalizedLocalePaths
-      } else {
-        normalizedGlobalRoutes[newKey] = localePaths as boolean | Record<string, string>
-      }
-    }
-    this.globalLocaleRoutes = normalizedGlobalRoutes
-    this.rawGlobalLocaleRoutes = globalLocaleRoutes ?? {}
-
-    this.filesLocaleRoutes = filesLocaleRoutes ?? {}
-    this.routeLocales = routeLocales ?? {}
+    this.strategy = options.strategy
+    this.routeLocales = options.routeLocales ?? {}
+    this.rules = new Rules(options.globalLocaleRoutes, this.routeLocales, this.locales, options.routeDisableMeta)
+    this.options = options
   }
 
-  private computeActiveLocaleCodes(): string[] {
-    return this.locales
-      .filter((locale) => locale.code !== this.defaultLocale.code || isPrefixAndDefaultStrategy(this.strategy) || isPrefixStrategy(this.strategy))
-      .map((locale) => locale.code)
-  }
-
-  public extendPages(pages: NuxtPage[]) {
-    const ctx = new GeneratorContext({
-      locales: this.locales,
-      defaultLocaleCode: this.defaultLocale.code,
-      strategy: this.strategy,
-      globalLocaleRoutes: this.globalLocaleRoutes,
-      filesLocaleRoutes: this.filesLocaleRoutes,
-      routeLocales: this.routeLocales,
+  /** Replaces `pages` (in place, as Nuxt's `pages:resolved` hook expects) with the localized routes. */
+  extendPages(pages: NuxtPage[]): void {
+    this.localizedPaths = new Map()
+    const routes = generateRoutes(
       pages,
-      excludePatterns: this.excludePatterns,
-      customRegex: this.customRegex,
-      noPrefixRedirect: this.noPrefixRedirect,
-      localizedRouteNamePrefix: this.localizedRouteNamePrefix,
-      fallbackRedirectComponentPath: this.fallbackRedirectComponentPath,
-      rawGlobalLocaleRoutes: this.rawGlobalLocaleRoutes,
-    })
-    this.localizedPaths = ctx.localizedPaths
-
-    const strategyHandler = getStrategy(this.strategy)
-    const originalPages = [...pages]
-    const newRoutes: NuxtPage[] = []
-    for (const page of originalPages) {
-      newRoutes.push(...strategyHandler.processPage(page, ctx))
-    }
-    const finalRoutes = strategyHandler.postProcess(newRoutes, ctx)
-    pages.length = 0
-    pages.push(...finalRoutes)
-  }
-
-  public extractLocalizedPaths(pages: NuxtPage[], parentPath = ''): { [key: string]: { [locale: string]: string } } {
-    return getLocalizedPathsMap(pages, this.globalLocaleRoutes, this.filesLocaleRoutes, parentPath)
+      {
+        strategy: this.strategy,
+        locales: this.locales.map((l) => l.code),
+        defaultLocale: this.defaultLocale.code,
+        rules: this.rules,
+        namePrefix: this.options.localizedRouteNamePrefix ?? 'localized-',
+        customRegex: this.options.customRegexMatcher,
+        excludePatterns: this.options.excludePatterns,
+        noPrefixRedirect: this.options.noPrefixRedirect,
+      },
+      this.localizedPaths,
+    )
+    pages.splice(0, pages.length, ...routes)
   }
 
   /**
-   * Creates global and per-page translation JSON files for the current resolved locales.
+   * URL of a page path in a locale (custom path and prefix applied), for nitro routeRules and
+   * prerender: `/about` + `de` -> `/de/ueber-uns`. Paths the pages do not have (wildcards, API
+   * routes) only get the prefix.
    */
-  public ensureTranslationFilesExist(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean): void {
-    this.locales.forEach((locale) => {
-      const globalFilePath = path.join(rootDir, translationDir, `${locale.code}.json`)
-      this.ensureFileExists(globalFilePath)
-      if (!disablePageLocales) {
-        pagesNames.forEach((name) => {
-          const pageFilePath = path.join(rootDir, translationDir, 'pages', `${name}/${locale.code}.json`)
-          this.ensureFileExists(pageFilePath)
-        })
-      }
-    })
+  resolveLocalizedPath(originalPath: string, localeCode: string): string {
+    const key = routeKey(originalPath)
+    const localized = this.localizedPaths.get(key)?.[localeCode] ?? this.rules.customPath(originalPath, localeCode) ?? absolute(originalPath)
+    const prefixed =
+      this.strategy === 'prefix' ||
+      this.strategy === 'prefix_and_default' ||
+      (this.strategy === 'prefix_except_default' && localeCode !== this.defaultLocale.code)
+    if (!prefixed) return absolute(localized)
+    const rest = removeLeadingSlash(absolute(localized))
+    return rest ? `/${localeCode}/${rest}` : `/${localeCode}`
   }
 
-  private ensureFileExists(filePath: string): void {
-    try {
-      const fileDir = path.dirname(filePath)
-      if (!existsSync(fileDir)) {
-        mkdirSync(fileDir, { recursive: true })
-      }
-      if (!existsSync(filePath)) {
-        writeFileSync(filePath, JSON.stringify({}), 'utf-8')
-      }
-    } catch {
-      // Silently skip file creation on read-only file systems (Docker, serverless, etc.)
+  /** Creates the global and per-page translation JSON files that do not exist yet. */
+  ensureTranslationFilesExist(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean): void {
+    for (const locale of this.locales) {
+      ensureFile(path.join(rootDir, translationDir, `${locale.code}.json`))
+      if (disablePageLocales) continue
+      for (const name of pagesNames) ensureFile(path.join(rootDir, translationDir, 'pages', `${name}/${locale.code}.json`))
     }
   }
 
-  /**
-   * Returns the localized path for a given URL and locale,
-   * respecting strategy and globalLocaleRoutes (custom paths).
-   * Used by nitro:config and prerender so route rules work with custom paths (e.g. /de/ueber-uns).
-   */
-  public resolveLocalizedPath(originalPath: string, localeCode: string): string {
-    const normalizedPath = normalizeRouteKey(originalPath)
-    const pathKey = removeLeadingSlash(normalizedPath) || '/'
-
-    let customPath: string | undefined
-    const pathRules = this.globalLocaleRoutes[pathKey]
-    const normalizedRules = this.globalLocaleRoutes[normalizedPath]
-    if (pathRules && typeof pathRules === 'object' && !Array.isArray(pathRules)) {
-      customPath = (pathRules as Record<string, string>)[localeCode]
-    } else if (normalizedRules && typeof normalizedRules === 'object' && !Array.isArray(normalizedRules)) {
-      customPath = (normalizedRules as Record<string, string>)[localeCode]
+  /** data.json routes to prerender: index per locale, plus one per named page unless disablePageLocales. */
+  generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
+    const names = new Set<string>()
+    const visit = (list: NuxtPage[]) => {
+      for (const page of list) {
+        if (page.name) names.add(page.name)
+        if (page.children) visit(page.children)
+      }
     }
-
-    const isCustom = !!customPath
-    const basePath = customPath ? normalizePath(customPath) : normalizePath(normalizedPath) || ''
-
-    let shouldPrefix = false
-    if (this.strategy === 'no_prefix') {
-      shouldPrefix = false
-    } else if (this.strategy === 'prefix') {
-      shouldPrefix = true
-    } else if (this.strategy === 'prefix_and_default') {
-      shouldPrefix = true
-    } else if (this.strategy === 'prefix_except_default') {
-      shouldPrefix = localeCode !== this.defaultLocale.code
-    }
-
-    if (localeCode === this.defaultLocale.code && !isCustom && (this.strategy === 'prefix_except_default' || this.strategy === 'no_prefix')) {
-      shouldPrefix = false
-    }
-
-    if (!shouldPrefix) {
-      return normalizePath(basePath) || '/'
-    }
-
-    const base = removeLeadingSlash(basePath)
-    return base ? normalizePath(`/${localeCode}/${base}`) : `/${localeCode}`
-  }
-
-  /**
-   * Generates the list of data.json routes for prerender.
-   * When disablePageLocales is true, only index routes are generated (all pages share root translations).
-   * Otherwise, generates index + per-page routes for each locale.
-   */
-  public generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
+    visit(pages)
     const routes: string[] = []
-    const pagesNames = this.collectPageNames(pages)
-
     for (const locale of this.locales) {
       routes.push(`/${apiBaseUrl}/index/${locale.code}/data.json`)
-      if (!disablePageLocales) {
-        for (const name of pagesNames) {
-          routes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
-        }
-      }
+      if (!disablePageLocales) for (const name of names) routes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
     }
     return routes
   }
+}
 
-  private collectPageNames(pages: NuxtPage[]): string[] {
-    const names = new Set<string>()
-
-    const visit = (nodes: NuxtPage[]): void => {
-      for (const node of nodes) {
-        if (typeof node.name === 'string' && node.name.length > 0) {
-          names.add(node.name)
-        }
-
-        if (node.children && node.children.length > 0) {
-          visit(node.children)
-        }
-      }
-    }
-
-    visit(pages)
-    return [...names]
+function ensureFile(filePath: string): void {
+  try {
+    mkdirSync(path.dirname(filePath), { recursive: true })
+    if (!existsSync(filePath)) writeFileSync(filePath, '{}', 'utf-8')
+  } catch {
+    // read-only file systems (Docker, serverless): skip
   }
 }

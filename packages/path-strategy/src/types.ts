@@ -1,94 +1,74 @@
-/**
- * All types for @i18n-micro/path-strategy in one place.
- */
 import type { I18nRouteParams, Locale, Strategies } from '@i18n-micro/types'
-
-/** Custom path rules: route key -> locale -> path segment. false = unlocalized route. */
-export type GlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean>
 
 /** Route-like shape (compatible with vue-router). */
 export interface RouteLike {
-  name?: string | null
+  /** vue-router names may be symbols (`RouteRecordNameGeneric`). */
+  name?: string | symbol | null
   path?: string
   params?: Record<string, unknown>
   query?: Record<string, unknown>
   hash?: string
   fullPath?: string
+  /** Route meta (vue-router merges the matched records'): `i18nNoMeta` marks an unlocalized page's disableMeta. */
+  meta?: Record<string, unknown>
 }
 
 /** Resolved route (path and fullPath required). */
 export interface ResolvedRouteLike extends RouteLike {
-  name: string | null
+  name: string | symbol | null | undefined
   path: string
   fullPath: string
+  /** Matched records (vue-router routes have them): an unnamed route that matched is not a 404. */
+  matched?: unknown[]
 }
 
-/** Normalized input for resolveLocaleRoute (template method). */
-export type NormalizedRouteInput =
-  | { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string }
-  | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
+/** What path-strategy reads from a vue-router record (`router.getRoutes()`). */
+export interface RouteRecordLike {
+  name?: string | symbol | null
+  path: string
+  meta?: Record<string, unknown>
+  redirect?: unknown
+  aliasOf?: unknown
+}
+
+/** `meta.i18n` that route-strategy puts on every localized record. */
+export interface RouteI18nMeta {
+  /** Base route name of the page. */
+  name: string
+  /** Locales the record serves. */
+  locales: string[]
+  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
+  noMeta?: boolean | string[]
+}
 
 export interface RouterAdapter {
-  hasRoute: (name: string) => boolean
-  resolve: (to: RouteLike | string) => ResolvedRouteLike
-  getRoutes?: () => unknown[]
+  hasRoute(name: string | symbol): boolean
+  resolve(to: RouteLike | string): ResolvedRouteLike
+  getRoutes(): RouteRecordLike[]
 }
 
 export interface PathStrategyContext {
   strategy: Strategies
   defaultLocale: string
   locales: Locale[]
-  /** Pre-computed locale codes (derived from locales). Set automatically at construction. */
-  localeCodes?: readonly string[]
-  localizedRouteNamePrefix: string
-  globalLocaleRoutes?: GlobalLocaleRoutes
-  routeLocales?: Record<string, string[]>
-  routesLocaleLinks?: Record<string, string>
-  noPrefixRedirect?: boolean
-  debug?: boolean
+  localizedRouteNamePrefix?: string
   router: RouterAdapter
-  /** Hash mode: locale stored in hash, no prefix in path */
+  /** Hash mode: the locale is not read from the URL. */
   hashMode?: boolean
-  /** When true, all pages use only global translations (no page-specific loading) */
+  /** All pages use the global translations only. */
   disablePageLocales?: boolean
-  /** Pre-computed: globalLocaleRoutes has at least one entry. Set automatically at construction. */
-  _hasGR?: boolean
-  /** Pre-computed: routeLocales has at least one entry. Set automatically at construction. */
-  _hasRL?: boolean
-  /** Lazily cached: absolute default-locale values of nested (slash-keyed) globalLocaleRoutes rules. */
-  _nestedRulePaths?: Set<string>
+  /** Pattern of locale-like first segments (`customRegexMatcher`): one that is no known locale is a 404. */
+  customRegexMatcher?: string
+}
+
+export interface ClientRedirectOptions {
+  /**
+   * `autoDetectPath: '*'`: a URL already in another locale moves to the preferred one too
+   * (the same page in that locale), not only unprefixed URLs.
+   */
+  switchPrefixed?: boolean
 }
 
 export interface SwitchLocaleOptions {
   i18nRouteParams?: I18nRouteParams
-}
-
-export interface PathStrategy {
-  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string
-  localeRoute(targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike
-  getCanonicalPath(route: ResolvedRouteLike, targetLocale: string): string | null
-  resolveLocaleFromPath(path: string): string | null
-  getLocaleFromPath(path: string): string | null
-  getRedirect(currentPath: string, targetLocale: string): string | null
-  shouldReturn404(currentPath: string): string | null
-  getClientRedirect(currentPath: string, preferredLocale: string): string | null
-  setRouter(router: RouterAdapter): void
-
-  /** Determines current locale from route (considers strategy, hashMode, params, path). */
-  getCurrentLocale(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string
-  /** Returns the base route name for translation loading. */
-  getPluginRouteName(route: ResolvedRouteLike, locale: string): string
-  /** Returns displayName of the current locale, or null. */
-  getCurrentLocaleName(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null
-
-  getDefaultLocale(): string
-  getLocales(): Locale[]
-  getStrategy(): Strategies
-  getLocalizedRouteNamePrefix(): string
-  getGlobalLocaleRoutes(): GlobalLocaleRoutes | undefined
-  getRouteLocales(): Record<string, string[]> | undefined
-  getRoutesLocaleLinks(): Record<string, string> | undefined
-  getNoPrefixRedirect(): boolean | undefined
-  getRouteBaseName(route: RouteLike, locale?: string): string | null
-  formatPathForResolve(path: string, fromLocale: string, toLocale: string): string
 }

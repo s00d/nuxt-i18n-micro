@@ -41,18 +41,17 @@ function adapter(router: Router): RouterAdapter {
         hash: r.hash || '',
       }
     },
+    getRoutes: () => router.getRoutes(),
   }
 }
 
-function strategyFor(strategy: Strategy, router: Router, rules: Rules) {
+function strategyFor(strategy: Strategy, router: Router) {
   const ctx: PathStrategyContext = {
     strategy,
     defaultLocale: DEFAULT_LOCALE,
     locales: LOCALES,
-    localeCodes: LOCALE_CODES,
     localizedRouteNamePrefix: 'localized-',
     router: adapter(router),
-    globalLocaleRoutes: rules,
   }
   return createPathStrategy(ctx)
 }
@@ -76,7 +75,7 @@ describe('path-strategy runtime matches the generated routes', () => {
       for (const shape of Object.keys(SHAPES)) {
         for (const { label, rules } of configs) {
           const router = createAppRouter(generate(strategy, shape, rules))
-          const i18n = strategyFor(strategy, router, rules)
+          const i18n = strategyFor(strategy, router)
           for (const locale of LOCALE_CODES) {
             const expected = routerUrl(strategy, locale, router)
             if (!expected) continue
@@ -125,7 +124,7 @@ describe('path-strategy from a page opened through its alias URL', () => {
       for (const shape of Object.keys(ALIAS_SHAPES)) {
         for (const { label, rules } of configs) {
           const router = createAppRouter(generate(strategy, shape, rules, ALIAS_SHAPES))
-          const i18n = strategyFor(strategy, router, rules)
+          const i18n = strategyFor(strategy, router)
           for (const from of LOCALE_CODES) {
             const mainUrl = routerUrl(strategy, from, router)
             const parentUrl = routerUrl(strategy, from, router, 'about') ?? ''

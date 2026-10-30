@@ -62,13 +62,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     const { $getLocales, $getLocale } = nuxtApp
     const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
     const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
-    // a route that disables meta drops the page-defined i18n head too
-    if (nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return { htmlAttrs: {}, link: [], meta: [] }
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
-    const head = build(true)
+    const head = build()
     const merge = (nuxtApp as I18nAppInternals)._i18nMergeHead
-    if (!pageHead.value || !merge) return head as unknown as Head
+    // a route that disables meta drops the page-defined i18n head too: `build` already left it empty
+    if (!pageHead.value || !merge || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
     return merge(head, pageHead.value, { identifierAttribute: 'id', locales: allLocales as Locale[], currentLocale: locale }) as unknown as Head
   })
 })

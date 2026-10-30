@@ -24,11 +24,15 @@ export interface I18nTRenderProps extends ResolveTextOptions {
 /** Attributes that would set the content, and with it get past the `html` prop. */
 const CONTENT_ATTRS = ['innerHTML', 'textContent', '.innerHTML', '.textContent']
 
+/** A clock or time zone differs between server and browser: such text may, and Vue need not warn. */
+const ALLOW_DATE_MISMATCH = { 'data-allow-mismatch': 'text' }
+
+const isDated = (props: I18nTRenderProps): boolean => (props.date ?? props.relativeDate ?? null) !== null && (props.number ?? null) === null
+
 function elementAttrs(props: I18nTRenderProps, attrs: Record<string, unknown>): Record<string, unknown> {
-  const dated = (props.date ?? props.relativeDate ?? null) !== null && (props.number ?? null) === null
+  const dated = isDated(props)
   if (!dated && !CONTENT_ATTRS.some((name) => name in attrs)) return attrs
-  // A clock or time zone differs between server and browser: their text may, and Vue need not warn.
-  const safe: Record<string, unknown> = dated ? { 'data-allow-mismatch': 'text', ...attrs } : { ...attrs }
+  const safe: Record<string, unknown> = dated ? { ...ALLOW_DATE_MISMATCH, ...attrs } : { ...attrs }
   for (const name of CONTENT_ATTRS) delete safe[name]
   return safe
 }
@@ -38,13 +42,15 @@ function elementAttrs(props: I18nTRenderProps, attrs: Record<string, unknown>): 
  * written. A slot's fragment is keyed by name and occurrence, so a locale that reorders placeholders
  * moves the slot's DOM instead of rebuilding it.
  */
-function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Record<string, unknown>, slots: RenderSlots): unknown {
+function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Record<string, unknown>, slots: RenderSlots, dated: boolean): unknown {
   if (template.indexOf('{') === -1) return template
   const parts = tokenize(template)
   // only a template with a slot in it pays for these
   let children: unknown[] | undefined
   let seen: Map<string, number> | undefined
   let text = parts[0]!
+  // Vue checks the attribute on an element's only text, not on a text beside other nodes
+  const textChild = (value: string) => (dated ? h('span', ALLOW_DATE_MISMATCH, value) : value)
   for (let i = 1; i < parts.length; i += 2) {
     const name = parts[i]!
     const slot = ownValue(slots, name) as RenderSlot | undefined
@@ -57,13 +63,13 @@ function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Reco
     seen ??= new Map()
     const occurrence = (seen.get(name) ?? 0) + 1
     seen.set(name, occurrence)
-    if (text) children.push(text)
+    if (text) children.push(textChild(text))
     // called, not `h(slot)`: that makes the slot a component whose type changes with each slot object
     children.push(h(Fragment, { key: `${name}:${occurrence}` }, slot({}) as never))
     text = parts[i + 1]!
   }
   if (!children) return text
-  if (text) children.push(text)
+  if (text) children.push(textChild(text))
   return children
 }
 
@@ -75,7 +81,7 @@ export function renderI18nT(api: RenderApi, i18n: TextHost, props: I18nTRenderPr
   const element = elementAttrs(props, attrs)
   if (props.html) return api.h(props.tag, { ...element, innerHTML: interpolate(template, params) })
   if (slots.default) return api.h(props.tag, element, slots.default({ translation: interpolate(template, params) }))
-  return api.h(props.tag, element, foldTemplate(api, template, params, slots))
+  return api.h(props.tag, element, foldTemplate(api, template, params, slots, isDated(props)))
 }
 
 type Style = object
@@ -207,6 +213,7 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
         {
           class: `switcher-locale-${locale.code}`,
           href: adapter.href(locale.code),
+          'aria-current': active ? 'page' : undefined,
           hreflang: language,
           lang: language,
           dir: locale.dir,

@@ -3,7 +3,7 @@ import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } f
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
 import { clearTemplateCache, defaultPlural, interpolate } from './text'
-import { mergeTranslationLayers, setTranslationAtKey, type Tree } from './tree'
+import { mergeTranslationLayers, ownValue, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
   storage?: TranslationStorage
@@ -17,6 +17,8 @@ export interface BaseI18nOptions {
   datetimeFormats?: DateTimeFormatsConfig
   /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
   timeZone?: string
+  /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. */
+  localeIso?: Record<string, string>
 }
 
 /** Remembers the `locale:route` string for the last pair, so a hot `t()` neither concatenates nor rehashes. */
@@ -67,6 +69,7 @@ export abstract class BaseI18n {
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
+  private readonly localeIso: Record<string, string>
   private activeKey = new ChunkKey()
   private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()
@@ -75,9 +78,14 @@ export abstract class BaseI18n {
   constructor(options: BaseI18nOptions = {}) {
     this.helper = new TranslationHelper(options.storage)
     this.formatter = new FormatService(options)
+    this.localeIso = options.localeIso ?? {}
     const plural = options.plural
     // A custom rule returning null/undefined falls back to the default one (#241).
-    this.pluralFunc = plural && plural !== defaultPlural ? (...args) => plural(...args) ?? defaultPlural(...args) : defaultPlural
+    this.pluralFunc =
+      plural && plural !== defaultPlural
+        ? (key, count, params, locale, getter) =>
+            plural(key, count, params, locale, getter) ?? defaultPlural(key, count, params, this.pluralTag(locale), getter)
+        : defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
     this.getCustomMissingHandler = options.getCustomMissingHandler
@@ -86,6 +94,15 @@ export abstract class BaseI18n {
   public abstract getLocale(): string
   public abstract getFallbackLocale(): string
   public abstract getRoute(): string
+
+  private pluralTag(locale: string): string {
+    return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
+  }
+
+  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
+  public pluralLocale(): string {
+    return this.pluralTag(this.getLocale())
+  }
 
   /** Called before every read; adapters use it for reactivity tracking. */
   protected touch(): void {}
@@ -194,7 +211,9 @@ export abstract class BaseI18n {
       if (raw === null || raw === undefined) return dv === undefined ? undefined : dv || k
       return p && typeof raw === 'string' ? interpolate(raw, p) : raw
     }
-    const result = this.pluralFunc(key, Number(countValue), params, this.getLocale(), getter)
+    // a custom rule gets the code, as it always has
+    const locale = this.pluralFunc === defaultPlural ? this.pluralLocale() : this.getLocale()
+    const result = this.pluralFunc(key, Number(countValue), params, locale, getter)
     if (result !== null && result !== undefined) return result
     if (this.resolveLookup(key) === null) this.warnMissing(key)
     return defaultValue ?? key

@@ -1,6 +1,6 @@
 const HAS_SCHEME = /^(?:https?:\/\/|\/\/|tel:|mailto:)/i
-/** `example.com`, `www.example.com/a`: a host, then the end of the string or a path, query or hash. */
-const BARE_DOMAIN = /^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:[/?#]|$)/i
+/** `example.com`, `www.example.com:8080/a`: a host and port, then the end of the string or a path, query or hash. */
+const BARE_DOMAIN = /^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?::\d+)?(?:[/?#]|$)/i
 /** A last segment naming a file (`report.pdf`), which a bare domain would otherwise swallow. */
 const FILE_NAME =
   /^[^/?#]+\.(?:html?|php|aspx?|pdf|txt|md|csv|json|xml|ya?ml|js|mjs|css|png|jpe?g|gif|svg|webp|avif|ico|zip|gz|docx?|xlsx?|pptx?)(?:[?#]|$)/i
@@ -14,6 +14,10 @@ export function externalLinkHref(to: unknown): string | undefined {
   if (HAS_SCHEME.test(to)) return to
   return BARE_DOMAIN.test(to) && !FILE_NAME.test(to) ? `https://${to}` : undefined
 }
+
+/** `BaseI18nOptions.localeIso` of a locale list. */
+export const localeIsoMap = (locales: readonly { code: string; iso?: string }[]): Record<string, string> =>
+  Object.fromEntries(locales.flatMap(({ code, iso }) => (iso ? [[code, iso]] : [])))
 
 const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'
 

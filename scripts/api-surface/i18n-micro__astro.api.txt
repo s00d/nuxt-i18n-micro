@@ -2,7 +2,7 @@
 class AstroI18n
 member AstroI18n.activeKey: private any
 member AstroI18n.activeRootKey: private any
-member AstroI18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member AstroI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.clear: () => void
@@ -28,6 +28,7 @@ member AstroI18n.hasTranslation: (key: TranslationKey) => boolean
 member AstroI18n.helper: TranslationHelper
 member AstroI18n.initialMessages: private Record<string, Translations>
 member AstroI18n.initialRouteMessages: private Record<string, Record<string, Translations>>
+member AstroI18n.isReadable: private any
 member AstroI18n.keepMessages: (messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void
 member AstroI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member AstroI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>

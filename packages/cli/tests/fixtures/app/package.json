@@ -1,0 +1,9 @@
+{
+  "name": "cli-fixture-app",
+  "version": "1.2.3",
+  "private": true,
+  "dependencies": {
+    "nuxt": "^4.0.0",
+    "nuxt-i18n-micro": "^3.0.0"
+  }
+}

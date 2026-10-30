@@ -85,18 +85,9 @@ async function request(mw: ReturnType<typeof createI18nMiddleware>, path: string
   return { astro, locals: ctx.locals as App.Locals, strategyInPage: strategyInPage as I18nRoutingStrategy | null }
 }
 
-test('integration publishes its config as a virtual module and installs the routing strategy', () => {
-  const strategy = createAstroRouterAdapter(locales, 'en')
-  const integration = i18nIntegration({
-    locale: 'en',
-    locales,
-    translationDir: 'src/locales',
-    routingStrategy: strategy,
-    localeCookie: 'lang',
-    missingWarn: true,
-  })
+test('integration publishes its config as a virtual module', () => {
+  const integration = i18nIntegration({ locale: 'en', locales, translationDir: 'src/locales', localeCookie: 'lang', missingWarn: true })
   expect(integration.name).toBe('@i18n-micro/astro')
-  expect(getGlobalRoutingStrategy()).toBe(strategy)
 
   const setup = (opts: Parameters<typeof i18nIntegration>[0]) => {
     const updateConfig = vi.fn()
@@ -135,7 +126,6 @@ test('integration publishes its config as a virtual module and installs the rout
     localeCookie: 'lang',
     missingWarn: true,
   })
-  // defaults; installing without a strategy clears the previous one
   expect(setup({ locale: 'de' })).toEqual({
     defaultLocale: 'de',
     fallbackLocale: 'de',
@@ -147,7 +137,6 @@ test('integration publishes its config as a virtual module and installs the rout
     localeCookie: 'i18n-locale',
     missingWarn: false,
   })
-  expect(getGlobalRoutingStrategy()).toBeNull()
   expect(setup({ locale: 'en', localeCookie: null }).localeCookie).toBeNull()
 
   const injectTypes = vi.fn()

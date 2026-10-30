@@ -4,7 +4,7 @@ import node from '@astrojs/node'
 import react from '@astrojs/react'
 import svelte from '@astrojs/svelte'
 import vue from '@astrojs/vue'
-import { createAstroRouterAdapter, i18nIntegration } from '@i18n-micro/astro'
+import { i18nIntegration } from '@i18n-micro/astro'
 import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 import { defineConfig } from 'astro/config'
 
@@ -41,14 +41,6 @@ export default defineConfig({
         { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
       ],
       translationDir: 'src/locales',
-      routingStrategy: createAstroRouterAdapter(
-        [
-          { code: 'en', iso: 'en-US', displayName: 'English' },
-          { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
-          { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
-        ],
-        'en',
-      ),
     }),
     {
       name: 'copy-locales',

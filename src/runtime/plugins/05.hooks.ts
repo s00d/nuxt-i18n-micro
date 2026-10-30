@@ -3,6 +3,7 @@ import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import type { Translations } from '@i18n-micro/types'
 import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { defineNuxtPlugin, useRouter } from '#imports'
+import type { I18nAppInternals } from '../utils/nuxt-i18n'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -13,9 +14,7 @@ export default defineNuxtPlugin({
     const i18nConfig = nuxtApp.$getI18nConfig()
     const router = useRouter()
     const { $getLocale, $i18nStrategy: i18nStrategy } = nuxtApp
-    const i18nHelper = nuxtApp.$helper as {
-      mergeTranslation: (locale: string, routeName: string, translations: Translations, force?: boolean) => Promise<void>
-    }
+    const mergeTranslation = (nuxtApp as I18nAppInternals)._i18nMergeTranslation!
 
     const callRegister = async (route?: RouteLocationResolvedGeneric) => {
       const locale = $getLocale(route)
@@ -26,7 +25,7 @@ export default defineNuxtPlugin({
       await nuxtApp.callHook(
         'i18n:register',
         (translations: unknown, selectedLocale?: string) => {
-          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations, true))
+          mergeTasks.push(mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations))
         },
         locale,
       )

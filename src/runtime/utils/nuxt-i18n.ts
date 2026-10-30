@@ -557,6 +557,30 @@ export class NuxtTranslationLoader {
   }
 }
 
+let dollarAliases: object | undefined
+
+/**
+ * `$t` next to `t` on `$i18n`, so `const { $t } = useI18n()` works: accessors on one shared
+ * prototype instead of a second set of properties per request. They hold nothing: `this` is the
+ * request's object.
+ */
+export function withDollarAliases<T extends object>(api: T): T {
+  dollarAliases ??= Object.defineProperties(
+    {},
+    Object.fromEntries(
+      Object.keys(api).map((key) => [
+        `$${key}`,
+        {
+          get(this: Record<string, unknown>) {
+            return this[key]
+          },
+        },
+      ]),
+    ),
+  )
+  return Object.setPrototypeOf(api, dollarAliases)
+}
+
 export interface NuxtI18nPluginApiDeps {
   i18n: NuxtI18n
   loader: NuxtTranslationLoader
@@ -633,11 +657,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
   }
 
-  const helper = {
-    async mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force = false): Promise<void> {
-      await i18n.mergeTranslationAsync(locale, routeName, newTranslations, (l, r) => loader.loadAsync(l, r))
-    },
-  }
+  const mergeTranslation = (locale: string, routeName: string, newTranslations: Translations): Promise<void> =>
+    i18n.mergeTranslationAsync(locale, routeName, newTranslations, (l, r) => loader.loadAsync(l, r))
 
   const switchContext = (locale: string, routeName?: string) => loader.switchContext(locale, routeName)
 
@@ -725,7 +746,12 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     setMissingHandler,
   }
 
-  return { helper, switchContext, provide }
+  return { mergeTranslation, switchContext, provide }
+}
+
+/** What the main plugin leaves on the app for the other plugins. */
+export interface I18nAppInternals {
+  _i18nMergeTranslation?: ReturnType<typeof createNuxtI18nPluginApi>['mergeTranslation']
 }
 
 export type NuxtI18nPluginProvide = ReturnType<typeof createNuxtI18nPluginApi>['provide']

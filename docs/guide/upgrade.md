@@ -145,6 +145,8 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - `$switchLocale` is typed `Promise<boolean>` and `$switchRoute` `Promise<void>`. `clearCache` is on the `useI18n()` type.
 - `routeDisableMeta` set in `nuxt.config` is honoured.
 
+- **`$helper` and `$__micro` are gone** from `useNuxtApp()` and templates. Neither was documented. `$i18n` no longer holds `helper`, `__micro` or `i18n`, and its `$` spellings (`useI18n().$t`) are inherited: destructuring works as before, but `{ ...useI18n() }` and `Object.keys(useI18n())` give only the bare names.
+
 ### Framework packages
 
 | Package | Change | Action |

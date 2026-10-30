@@ -29,7 +29,7 @@ import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRunti
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, withDollarAliases, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
@@ -191,7 +191,7 @@ export default defineNuxtPlugin({
     })
 
     const {
-      helper,
+      mergeTranslation,
       switchContext,
       provide: provideApi,
     } = createNuxtI18nPluginApi({
@@ -280,19 +280,12 @@ export default defineNuxtPlugin({
       })
     }
 
-    const provideData = {
-      ...provideApi,
-      helper,
-      getI18nConfig: () => i18nConfig,
-      i18n: undefined as unknown,
-      __micro: true,
-    }
+    // for 05.hooks. Not a `provide`: that would define it twice and show it on every component
+    ;(nuxtApp as I18nAppInternals)._i18nMergeTranslation = mergeTranslation
 
-    const $provideData = Object.fromEntries(Object.entries(provideData).map(([key, value]) => [`$${key}`, value]))
+    const api = { ...provideApi, getI18nConfig: () => i18nConfig }
 
-    ;(provideData as { i18n: typeof provideData & Record<string, unknown> }).i18n = { ...provideData, ...$provideData }
-
-    return { provide: provideData }
+    return { provide: { ...api, i18n: withDollarAliases(api) } }
   },
 })
 

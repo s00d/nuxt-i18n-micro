@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
-import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { NuxtI18n, NuxtTranslationLoader, withDollarAliases } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
@@ -258,6 +258,20 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(walked).toBeLessThan(10)
     expect(i18n.t('n0.n0.added')).toBe('v')
     expect(i18n.t('n1.n1.n1.n1')).toBe('v1')
+  })
+})
+
+describe('$i18n', () => {
+  test('both spellings read the same function, per object, without a second set of properties', () => {
+    const first = withDollarAliases({ t: () => 'first', getLocale: () => 'en' })
+    const second = withDollarAliases({ t: () => 'second', getLocale: () => 'de' })
+
+    const { $t, t } = first as typeof first & { $t: typeof first.t }
+    expect($t).toBe(t)
+    expect(($t as () => string)()).toBe('first')
+    // two requests: the shared accessors hold nothing of either
+    expect((second as typeof second & { $t: typeof second.t }).$t()).toBe('second')
+    expect(Object.keys(first)).toEqual(['t', 'getLocale'])
   })
 })
 

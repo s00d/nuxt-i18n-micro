@@ -378,11 +378,11 @@ describe('React app over @i18n-micro/react', () => {
       expect([href('https'), href('http'), href('protocol'), href('bare')]).toEqual([
         'https://example.com/a',
         'http://example.com',
-        'https:////cdn.example.com/x',
+        '//cdn.example.com/x',
         'https://example.com',
       ])
       expect(href('redirect')).toBe('https://example.com/login?next=https://app.example.com')
-      expect([href('mail'), href('tel'), href('dotted')]).toEqual(['https://mailto:hi@example.com', 'https://tel:+123', '/docs.v2'])
+      expect([href('mail'), href('tel'), href('dotted')]).toEqual(['mailto:hi@example.com', 'tel:+123', '/docs.v2'])
       const external = screen.getByText('https')
       expect([external.getAttribute('target'), external.getAttribute('rel')]).toEqual(['_blank', 'noopener noreferrer'])
       expect(['dotted', 'file', 'relative'].map((n) => screen.getByText(n).hasAttribute('target'))).toEqual([false, false, false])

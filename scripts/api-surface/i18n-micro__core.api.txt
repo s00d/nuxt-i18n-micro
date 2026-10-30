@@ -52,6 +52,7 @@ function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: strin
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
+function externalLinkHref: (to: unknown) => string | undefined
 class FormatService
 member FormatService.clearCache: () => void
 member FormatService.dateCache: private Map<string, Intl.DateTimeFormat>
@@ -161,6 +162,7 @@ function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "
 # ./helpers (src/helpers.ts)
 function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 const defaultPlural: PluralFunc
+function externalLinkHref: (to: unknown) => string | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string

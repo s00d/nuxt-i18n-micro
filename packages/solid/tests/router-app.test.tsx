@@ -264,7 +264,13 @@ test('the switcher and links with a hand-written strategy that has no router lin
   expect(el('own').getAttribute('href')).toBe('/')
   expect(el('own-path').getAttribute('href')).toBe('/de/x')
   expect(['cdn', 'proto', 'http', 'tel', 'file'].map((id) => el(id).getAttribute('target'))).toEqual(['_blank', '_blank', '_blank', '_blank', null])
-  expect(el('file').getAttribute('href')).toBe('/de/guide.html')
+  expect(['cdn', 'proto', 'http', 'tel', 'file'].map((id) => el(id).getAttribute('href'))).toEqual([
+    'https://cdn.example.com/a.js',
+    '//cdn.example.com/a.js',
+    'http://example.com',
+    'tel:+100',
+    '/de/guide.html',
+  ])
   expect(['href', 'target', 'rel', 'style'].map((a) => el('ext').getAttribute(a))).toEqual([
     'https://example.com/a',
     '_self',

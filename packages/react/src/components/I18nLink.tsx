@@ -1,3 +1,4 @@
+import { externalLinkHref } from '@i18n-micro/core'
 import React from 'react'
 import { useI18n } from '../context'
 import { useI18nRouter } from '../injection'
@@ -16,30 +17,12 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
   // Use prop if provided, otherwise fallback to useI18n
   const localeRoute = localeRouteProp || i18n.localeRoute
 
-  const isExternalLink = (): boolean => {
-    if (typeof to === 'string') {
-      return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(to)
-    }
-    return false
-  }
-
-  const externalHref = (): string | undefined => {
-    if (isExternalLink() && typeof to === 'string') {
-      if (!/^https?:\/\//.test(to)) {
-        return `https://${to}`
-      }
-      return to
-    }
-    return undefined
-  }
+  const externalHref = externalLinkHref(to)
+  const isExternalLink = (): boolean => externalHref !== undefined
 
   const targetPath = (): string => {
-    if (isExternalLink()) {
-      if (typeof to === 'string') {
-        return to
-      }
-      const toObj = to as { path?: string }
-      return toObj?.path || '/'
+    if (externalHref !== undefined) {
+      return externalHref
     }
 
     if (localeRoute) {
@@ -96,7 +79,7 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
       'a',
       {
         ...restProps,
-        href: externalHref(),
+        href: externalHref,
         style: computedStyle,
         target: '_blank',
         rel: 'noopener noreferrer',

@@ -10,6 +10,7 @@
 </template>
 
 <script lang="ts" setup>
+import { externalLinkHref } from '@i18n-micro/core'
 import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
 import { useNuxtApp, useRoute } from '#imports'
@@ -32,25 +33,8 @@ interface Props {
 const props = defineProps<Props>()
 const route = useRoute()
 
-const isExternalLink = computed(() => {
-  if (typeof props.to === 'string') {
-    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to)
-  }
-  return false
-})
-
-const externalHref = computed(() => {
-  if (isExternalLink.value && typeof props.to === 'string') {
-    if (props.to.startsWith('//')) {
-      return props.to
-    }
-    if (!/^https?:\/\//.test(props.to)) {
-      return `https://${props.to}`
-    }
-    return props.to
-  }
-  return undefined
-})
+const externalHref = computed(() => externalLinkHref(props.to))
+const isExternalLink = computed(() => externalHref.value !== undefined)
 
 const localizedPath = computed(() => (isExternalLink.value ? '' : $localePath(props.to)))
 

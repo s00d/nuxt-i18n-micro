@@ -13,7 +13,7 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 | Package | Entry points | Exports |
 | --- | --- | --- |
 | [`@i18n-micro/astro`](/api/packages/astro) | `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue` | 58 |
-| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 58 |
+| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 60 |
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 25 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |
 | [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 20 |

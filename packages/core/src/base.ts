@@ -17,6 +17,8 @@ export interface BaseI18nOptions {
   datetimeFormats?: DateTimeFormatsConfig
   /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
   timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. */
+  now?: () => number
 }
 
 /** Remembers the `locale:route` string for the last pair, so a hot `t()` neither concatenates nor rehashes. */
@@ -145,8 +147,11 @@ export abstract class BaseI18n {
     return layers.reduce((lower, upper) => this.resolveTranslationTree(lower as Tree, upper as Tree))
   }
 
-  /** Called after every write (load, merge, set, clear): the one place adapters bump their reactivity. */
-  protected onTranslationsChanged(): void {}
+  /**
+   * Called after every write (load, merge, set, clear): the one place adapters bump their reactivity.
+   * `locale` is set when one locale's chunk was written, unset when anything may have changed.
+   */
+  protected onTranslationsChanged(_locale?: string): void {}
 
   protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
     return { locale: this.getLocale(), routeName: this.resolveRouteName(routeContext) }
@@ -174,7 +179,7 @@ export abstract class BaseI18n {
     const value = this.resolveLookup(key, routeContext)
     if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
-      return (defaultValue || key) as CleanTranslation
+      return (defaultValue && params ? interpolate(defaultValue, params) : defaultValue || key) as CleanTranslation
     }
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
@@ -263,7 +268,7 @@ export abstract class BaseI18n {
   private write(locale: string, routeName: string, translations: Translations, merge: boolean): void {
     if (merge) this.helper.mergeTranslation(locale, routeName, translations)
     else this.helper.setTranslations(locale, translations, routeName)
-    this.onTranslationsChanged()
+    this.onTranslationsChanged(locale)
   }
 
   /** Attach framework-specific helpers onto this instance (`localizePath`, …). */

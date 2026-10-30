@@ -5,8 +5,8 @@
   - vue → <span>nope</span>
   - nuxt → <span>nope</span>
 - `missing + defaultValue`
-  - vue → <span>nope</span>
-  - nuxt → <span>nope</span>
+  - vue → <span>dv</span>
+  - nuxt → <span>dv</span>
 - `nested`
   - vue → <span>Deep 1</span>
   - nuxt → <span>Deep 1</span>
@@ -77,8 +77,8 @@
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
 - `dangerouslySetInnerHTML attr`
-  - vue → <span dangerouslysetinnerhtml="[object Object]">Hello</span>
-  - nuxt → <span dangerouslysetinnerhtml="[object Object]">Hello</span>
+  - vue → <span>Hello</span>
+  - nuxt → <span>Hello</span>
 - `textContent attr`
   - vue → <span>Hello</span>
   - nuxt → <span>Hello</span>
@@ -128,8 +128,8 @@
   - vue → <span><b>&lt;i&gt;</b> new</span>
   - nuxt → <span><b>&lt;i&gt;</b> new</span>
 - `plural missing + default`
-  - vue → <span>nope</span>
-  - nuxt → <span>nope</span>
+  - vue → <span>dv</span>
+  - nuxt → <span>dv</span>
 - `plural ru 1`
   - vue → <span>яблоко</span>
   - nuxt → <span>яблоко</span>

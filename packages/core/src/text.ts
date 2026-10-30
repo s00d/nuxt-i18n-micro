@@ -132,7 +132,7 @@ export const defaultPlural: PluralFunc = (key: TranslationKey, count: number, pa
   // No params: an adapter forwarding to `t()` must not interpolate the whole pipe string first.
   const translation = getTranslation(key)
   if (typeof translation !== 'string' && typeof translation !== 'number') return null
-  return translation === '' ? null : interpolate(pluralForm(String(translation), count, locale), { ...params, count })
+  return interpolate(pluralForm(String(translation), count, locale), { ...params, count })
 }
 
 /** What {@link resolveText} needs from an i18n instance. */
@@ -153,6 +153,8 @@ export interface ResolveTextOptions {
   html?: boolean
   /** Answer `null` when the text is blank. */
   hideIfEmpty?: boolean
+  /** Stands in for a missing key; the renderer also shows it when `hideIfEmpty` hides the text. */
+  defaultValue?: string
   plural?: number | string | null
   /** Replaces the configured plural rule; its answer is used as is, `null` being empty. */
   customPluralRule?: PluralFunc | null
@@ -176,14 +178,14 @@ function formattedParams(i18n: TextHost, options: ResolveTextOptions): Params | 
 }
 
 function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params): ResolvedText {
-  const { keypath, customPluralRule } = options
+  const { keypath, customPluralRule, defaultValue } = options
   const count = Number(options.plural)
   if (customPluralRule) {
-    const getter: Getter = (key, values, defaultValue) => i18n.t(key, values, defaultValue)
+    const getter: Getter = (key, values, fallback) => i18n.t(key, values, fallback ?? defaultValue)
     return { template: String(customPluralRule(keypath, count, params, i18n.getLocale(), getter) ?? ''), params: {} }
   }
-  if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }), params: {} }
-  return { template: pluralForm(String(i18n.t(keypath) ?? ''), count, i18n.getLocale()), params: { ...params, count } }
+  if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }, defaultValue), params: {} }
+  return { template: pluralForm(String(i18n.t(keypath, undefined, defaultValue) ?? ''), count, i18n.getLocale()), params: { ...params, count } }
 }
 
 /**
@@ -196,6 +198,6 @@ export function resolveText(i18n: TextHost, options: ResolveTextOptions): Resolv
   const usesPlural = formatted === null && options.plural !== undefined && options.plural !== null
   const resolved = usesPlural
     ? pluralText(i18n, options, params)
-    : { template: String(i18n.t(options.keypath) ?? ''), params: formatted ? { ...params, ...formatted } : params }
+    : { template: String(i18n.t(options.keypath, undefined, options.defaultValue) ?? ''), params: formatted ? { ...params, ...formatted } : params }
   return options.hideIfEmpty && !resolved.template.trim() ? null : resolved
 }

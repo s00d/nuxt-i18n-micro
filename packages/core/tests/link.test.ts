@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { externalLinkHref, isPlainClick, isSamePage } from '../src/link'
+import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath } from '../src/link'
 
 describe('externalLinkHref', () => {
   it.each([
@@ -80,5 +80,49 @@ describe('isPlainClick', () => {
     { target: '_blank' },
   ])('not with %j', (init) => {
     expect(isPlainClick(click(init))).toBe(false)
+  })
+})
+
+describe('isActiveLink', () => {
+  it.each([
+    ['/about', '/about', true],
+    ['/about/', '/about', true],
+    ['/about?x=1#y', '/about', true],
+    ['/about', '/about?x=1', true],
+    ['/about/team', '/about', true],
+    ['/about-us', '/about', false],
+    ['/about', '/about/team', false],
+    ['/de', '/de', true],
+    ['/de/about', '/de', false],
+    ['/about', '/', false],
+    ['/', '/', true],
+  ])('%s with a link to %s: %s', (current, link, active) => {
+    expect(isActiveLink(current, link, ['en', 'de'])).toBe(active)
+  })
+})
+
+describe('localizedPath', () => {
+  const codes = ['en', 'de', 'fr']
+  it.each([
+    ['/', 'en', '/'],
+    ['/', 'de', '/de'],
+    ['/about', 'de', '/de/about'],
+    ['about', 'de', '/de/about'],
+    ['/de', 'en', '/'],
+    ['/de/about', 'fr', '/fr/about'],
+    ['/de?x=1', 'en', '/?x=1'],
+    ['/de#top', 'fr', '/fr#top'],
+    ['/de/a?x=1#y', 'fr', '/fr/a?x=1#y'],
+    ['/about?next=/de/x', 'de', '/de/about?next=/de/x'],
+    ['/deutsch', 'en', '/deutsch'],
+    ['#top', 'de', '/de#top'],
+    ['?x=1', 'en', '/?x=1'],
+  ])('%s in %s is %s', (to, locale, path) => {
+    expect(localizedPath(to, locale, codes, 'en')).toBe(path)
+  })
+
+  it('takes a location object', () => {
+    expect(localizedPath({ path: '/de/a' }, 'en', codes, 'en')).toBe('/a')
+    expect(localizedPath({}, 'de', codes, 'en')).toBe('/de')
   })
 })

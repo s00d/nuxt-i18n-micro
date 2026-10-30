@@ -180,8 +180,9 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
         }, [])
         return null
       }
-      const Reader = () => h('p', null, useI18n().t('plain'))
-      const { container } = render(withI18n(i18n, h(Reader), h(Writer)))
+      // the writer is a child, so its effects run before the reader's own
+      const Reader = () => h('p', null, useI18n().t('plain'), h(Writer))
+      const { container } = render(withI18n(i18n, h(Reader)))
       expect(container.textContent).toBe('Hallo')
     })
 

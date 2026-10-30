@@ -1,6 +1,23 @@
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { alternateOf, canonicalOf, contentOn, onHost, routeDomains } from '../helpers/domains.ts'
 
+import type { Page } from '@playwright/test'
+
+// A click before hydration does nothing, and a full load to the other domain hydrates again: retry until it took.
+async function openSwitcher(page: Page, option: string) {
+  await expect(async () => {
+    if (!(await page.locator(option).isVisible())) await page.locator('.language-switcher').click()
+    await expect(page.locator(option)).toBeVisible({ timeout: 500 })
+  }).toPass()
+}
+
+async function clickUntil(page: Page, selector: string, url: string) {
+  await expect(async () => {
+    if (page.url() !== url) await page.locator(selector).click({ timeout: 1000 })
+    await expect(page).toHaveURL(url, { timeout: 1000 })
+  }).toPass()
+}
+
 const DE = 'example.de'
 const COM = 'example.com'
 
@@ -90,7 +107,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher lists the other domain with an absolute link, and goes there
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
@@ -98,12 +115,11 @@ describe('journey: one build, two domains — prefix_except_default', () => {
 
     // step 3: $switchLocale to a locale of another domain navigates there
     await page.goto('https://example.com/')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/')
+    await clickUntil(page, '#switch-de', 'https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
 
     // step 4: a locale on every host stays in the app
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-ru')
     await page.locator('.switcher-locale-ru').click()
     await expect(page).toHaveURL('https://example.de/ru')
     await expect(page.locator('#content')).toHaveText('ru')
@@ -144,7 +160,7 @@ describe('journey: one build, two domains — prefix', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher goes to the other domain's prefixed URL
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/en/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/en/contact')
@@ -152,9 +168,8 @@ describe('journey: one build, two domains — prefix', () => {
 
     // step 3: $switchLocale crosses too; a locale on every host stays in the app
     await page.goto('https://example.com/en')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/de')
-    await page.locator('.language-switcher').click()
+    await clickUntil(page, '#switch-de', 'https://example.de/de')
+    await openSwitcher(page, '.switcher-locale-ru')
     await page.locator('.switcher-locale-ru').click()
     await expect(page).toHaveURL('https://example.de/ru')
     await expect(page.locator('#content')).toHaveText('ru')
@@ -192,7 +207,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher goes to the other domain, unprefixed
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
@@ -200,8 +215,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
 
     // step 3: $switchLocale crosses too
     await page.goto('https://example.com/')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/')
+    await clickUntil(page, '#switch-de', 'https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
   })
 })
@@ -271,7 +285,7 @@ describe('journey: one build, two domains — hashMode', () => {
     await routeDomains(page, baseURL)
     await page.goto('https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/#/')
   })
 })

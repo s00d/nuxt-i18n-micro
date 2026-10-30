@@ -24,7 +24,7 @@ async function setup() {
     $getI18nConfig: () => ({ strategy: 'prefix' }),
     $getLocale: () => 'en',
     $i18nStrategy: { getPluginRouteName: routeName },
-    _i18nMergeTranslation: merge,
+    $helper: { mergeTranslation: merge },
   }
   await (plugin as unknown as { setup: (app: typeof nuxtApp) => Promise<void> }).setup(nuxtApp)
   return { hooks, routeName, merge, guard: router.guards[0]! }
@@ -41,7 +41,7 @@ describe('05.hooks', () => {
     const { hooks, merge, guard } = await setup()
     hooks.hook('i18n:register', ((register: (translations: unknown) => void, locale: string) => register({ from: locale })) as never)
     await guard({ path: '/a' }, { path: '/' })
-    expect(merge).toHaveBeenCalledWith('en', 'index', { from: 'en' })
+    expect(merge).toHaveBeenCalledWith('en', 'index', { from: 'en' }, true)
 
     // an unchanged path registers nothing
     merge.mockClear()
@@ -60,8 +60,8 @@ describe('05.hooks', () => {
       $getI18nConfig: () => ({ strategy: 'prefix' }),
       $getLocale: () => 'en',
       $i18nStrategy: { getPluginRouteName: () => 'index' },
-      _i18nMergeTranslation: merge,
+      $helper: { mergeTranslation: merge },
     })
-    expect(merge).toHaveBeenCalledWith('en', 'index', { a: 1 })
+    expect(merge).toHaveBeenCalledWith('en', 'index', { a: 1 }, true)
   })
 })

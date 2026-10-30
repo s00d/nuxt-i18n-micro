@@ -30,7 +30,7 @@ outline: [2, 3]
 ## Behaviour
 
 - `to` goes through [`$localePath`](/api/methods#localepath): a path, a named route or a route object, with custom locale paths applied.
-- External: a string starting with `http://`, `https://` or `//`, a bare domain (`example.com`), or a `tel:` / `mailto:` link. A bare domain gets `https://`.
+- External: a string starting with `http://`, `https://` or `//`, a bare domain (`example.com`), or a `tel:` / `mailto:` link. A bare domain gets `https://`, and any slash-less dotted string counts as one: write a local file as `/report.pdf`, not `report.pdf`.
 - Active: when the current `route.path` equals the localized path (query and hash ignored), `activeStyle` is applied. There is no active class and no default active style.
 - Other attributes (`class`, `aria-*`) fall through to the link.
 

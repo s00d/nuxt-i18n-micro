@@ -11,6 +11,8 @@ export type GetLocaleFromRoute = (route?: unknown) => string
 
 export interface ResolveInitialLocaleOptions {
   route: unknown
+  /** The locale the URL names, under a strategy that has one. */
+  urlLocale?: string | null
   serverLocale?: string | null
   getLocaleFromRoute: GetLocaleFromRoute
 }
@@ -74,14 +76,14 @@ export function useI18nLocale() {
   }
 
   /**
-   * Resolves initial locale: localeState → serverContext → route.
-   * Syncs to localeState when needed.
+   * Resolves initial locale: URL → valid localeState → serverContext → route. The page renders
+   * the URL's locale, so a state set by a plugin must not load another locale's chunk for it.
+   * Syncs to localeState when it holds no valid locale.
    */
   const resolveInitialLocale = (options: ResolveInitialLocaleOptions): string => {
-    let locale = localeState.value
-    if (!locale && options.serverLocale) locale = options.serverLocale
-    if (!locale) locale = options.getLocaleFromRoute(options.route)
-    if (locale && !localeState.value) {
+    const state = isValidLocale(localeState.value) ? localeState.value : null
+    const locale = options.urlLocale || state || options.serverLocale || options.getLocaleFromRoute(options.route)
+    if (locale && !state) {
       // On server, avoid persisting cookie during initial resolution.
       // Redirect plugin owns cookie writes for redirect flows.
       if (import.meta.server) {

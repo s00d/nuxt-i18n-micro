@@ -144,9 +144,16 @@ export function registerStrategySuite(strategy: StrategyName): void {
     for (const [path, content] of Object.entries(routes)) {
       expect(contentOf(await fetchHtml(`http://${HOST}:${port}${path}`))).toBe(content)
     }
-    if (!unprefixedDefault) return
-    // the unprefixed URL is the default locale's: Accept-Language must not render another one on it
-    const german = await fetch(`http://${HOST}:${port}${unprefixedDefault}`, { headers: { 'Accept-Language': 'de' } }).then((res) => res.text())
-    expect(german).toMatch(/<html[^>]+lang="en_EN"/)
+    if (unprefixedDefault) {
+      // the unprefixed URL is the default locale's: Accept-Language must not render another one on it
+      const german = await fetch(`http://${HOST}:${port}${unprefixedDefault}`, { headers: { 'Accept-Language': 'de' } }).then((res) => res.text())
+      expect(german).toMatch(/<html[^>]+lang="en_EN"/)
+    }
+    if (strategy === 'no_prefix') return
+    // a locale state set by a plugin, valid or not, must not load another chunk for the URL's locale
+    for (const forced of ['de', 'xx']) {
+      const html = await fetch(`http://${HOST}:${port}/ru/contact`, { headers: { 'x-test-force-locale': forced } }).then((res) => res.text())
+      expect(html).toContain('_locales/contact/ru/data.json')
+    }
   })
 }

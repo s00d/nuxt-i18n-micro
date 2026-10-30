@@ -107,6 +107,7 @@ member ModuleOptions.strategy?: Strategies | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>

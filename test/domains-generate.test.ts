@@ -46,8 +46,8 @@ describe('generate per domain', () => {
     expect(contentOn(page('com', 'ru/contact'))).toBe('contact')
 
     // step 2: nothing of the other domain is prerendered or crawled
-    for (const path of ['en', 'de', 'contact', 'de/kontakt', 'en/contact']) expect(has('de', join(path, 'index.html')), path).toBe(false)
-    for (const path of ['en', 'de', 'kontakt', 'de/kontakt', 'en/contact']) expect(has('com', join(path, 'index.html')), path).toBe(false)
+    for (const path of ['en', 'de', 'contact', 'de/kontakt', 'en/contact']) expect(has('de', join(path, 'index.html'))).toBe(false)
+    for (const path of ['en', 'de', 'kontakt', 'de/kontakt', 'en/contact']) expect(has('com', join(path, 'index.html'))).toBe(false)
 
     // step 3: payloads of the served locales only
     expect(has('de', '_locales/index/de/data.json')).toBe(true)

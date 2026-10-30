@@ -30,7 +30,8 @@ export function onHost(baseURL: string, path: string, host: string, headers: Rec
 }
 
 export const contentOn = (html: string) => /id="content"[^>]*>\s*([^<]*?)\s*</.exec(html)?.[1]
-export const canonicalOf = (html: string) => /<link[^>]*id="i18n-can"[^>]*href="([^"]*)"/.exec(html)?.[1] ?? /<link[^>]*href="([^"]*)"[^>]*id="i18n-can"/.exec(html)?.[1]
+export const canonicalOf = (html: string) =>
+  /<link[^>]*id="i18n-can"[^>]*href="([^"]*)"/.exec(html)?.[1] ?? /<link[^>]*href="([^"]*)"[^>]*id="i18n-can"/.exec(html)?.[1]
 export const alternateOf = (html: string, id: string) =>
   new RegExp(`<link[^>]*id="i18n-alternate-${id}"[^>]*href="([^"]*)"`).exec(html)?.[1] ??
   new RegExp(`<link[^>]*href="([^"]*)"[^>]*id="i18n-alternate-${id}"`).exec(html)?.[1]

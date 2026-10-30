@@ -609,8 +609,7 @@ export class DomainPathStrategy extends I18nPathStrategy {
     const config = this.ctx.locales.find((l) => l.code === locale)
     if (!config?.baseUrl || (this.ctx.domain && !this.foreign.has(locale))) return null
     // under `prefix` an unprefixed URL is only a redirect
-    const strip =
-      config.baseDefault && this.ctx.strategy !== 'prefix' && this.hasPrefix(locale) && route.fullPath.split(/[/?#]/, 2)[1] === locale
+    const strip = config.baseDefault && this.ctx.strategy !== 'prefix' && this.hasPrefix(locale) && route.fullPath.split(/[/?#]/, 2)[1] === locale
     const rest = strip ? route.fullPath.slice(locale.length + 1) || '/' : route.fullPath
     const path = rest.startsWith('/') ? rest : `/${rest}`
     return `${config.baseUrl.replace(/\/+$/, '')}${this.ctx.hashMode ? `/#${path}` : path}`

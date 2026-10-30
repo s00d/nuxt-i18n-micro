@@ -195,7 +195,11 @@ describe('a host of a domain build', () => {
   })
 
   test('hash mode: the route goes to the other domain in the hash', () => {
-    const { i18n, at } = setup('prefix_except_default', { hashMode: true, defaultLocale: 'de', locales: locales.slice(1), linkLocales: locales, domain: 'b.test' }, locales)
+    const { i18n, at } = setup(
+      'prefix_except_default',
+      { hashMode: true, defaultLocale: 'de', locales: locales.slice(1), linkLocales: locales, domain: 'b.test' },
+      locales,
+    )
     expect(i18n.switchLocaleRoute('de', 'en', at('/ueber-uns'))).toBe('https://a.test/#/about-us')
   })
 })

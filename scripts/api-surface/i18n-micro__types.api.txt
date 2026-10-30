@@ -86,6 +86,7 @@ member ModuleOptions.strategy?: Strategies | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
 interface ModuleOptionsExtend
@@ -107,6 +108,7 @@ member ModuleOptionsExtend.defaultLocale?: string | undefined
 member ModuleOptionsExtend.define?: boolean | undefined
 member ModuleOptionsExtend.disablePageLocales: boolean
 member ModuleOptionsExtend.disableWatcher?: boolean | undefined
+member ModuleOptionsExtend.domain?: string | undefined
 member ModuleOptionsExtend.excludePatterns?: (string | RegExp)[] | undefined
 member ModuleOptionsExtend.experimental?: Record<string, unknown> | undefined
 member ModuleOptionsExtend.fallbackLocale?: string | undefined
@@ -117,6 +119,7 @@ member ModuleOptionsExtend.hooks?: boolean | undefined
 member ModuleOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptionsExtend.httpCacheDuration?: number | undefined
 member ModuleOptionsExtend.isSSG: boolean
+member ModuleOptionsExtend.linkLocales?: Locale[] | undefined
 member ModuleOptionsExtend.localeCookie?: string | null | undefined
 member ModuleOptionsExtend.locales?: Locale[] | undefined
 member ModuleOptionsExtend.localizedRouteNamePrefix?: string | undefined
@@ -139,6 +142,7 @@ member ModuleOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptionsExtend.translationDir?: string | undefined
 member ModuleOptionsExtend.translationPayloadMode?: "premerged" | "source" | undefined
 member ModuleOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptionsExtend.trustForwardedHost?: boolean | undefined
 member ModuleOptionsExtend.types?: boolean | undefined
 member ModuleOptionsExtend.vueDevtools?: boolean | undefined
 interface ModulePrivateOptionsExtend
@@ -193,6 +197,7 @@ member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
 member ModulePrivateOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModulePrivateOptionsExtend.translationDir: string
 member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
+member ModulePrivateOptionsExtend.trustForwardedHost?: boolean | undefined
 member ModulePrivateOptionsExtend.types?: boolean | undefined
 member ModulePrivateOptionsExtend.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>

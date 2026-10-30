@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-88 exports across 19 entry points.
+90 exports across 20 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -130,6 +130,18 @@ import { /* … */ } from '@i18n-micro/utils/deep-merge'
 | --- | --- | --- |
 | `deepMergeTranslations` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
 | `deepMergeTranslationsRecursive` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
+
+
+## `@i18n-micro/utils/domains`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/domains'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `configForHost` | function | `(config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend` |
+| `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
 ## `@i18n-micro/utils/merge-i18n-head`

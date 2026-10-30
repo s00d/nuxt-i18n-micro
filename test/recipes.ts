@@ -151,7 +151,12 @@ export const recipes = defineRecipes(
       { router: { options: { hashMode: true } } },
     ),
     'strategy-domains-spa': app('strategy-domains-spa', 'strategy', { STRATEGY: 'prefix_except_default', DOMAINS: '/' }, { ssr: false }),
-    'strategy-domains-baseurl': app('strategy-domains-baseurl', 'strategy', { STRATEGY: 'prefix_except_default', DOMAINS: '/shop' }, { app: { baseURL: '/shop' } }),
+    'strategy-domains-baseurl': app(
+      'strategy-domains-baseurl',
+      'strategy',
+      { STRATEGY: 'prefix_except_default', DOMAINS: '/shop' },
+      { app: { baseURL: '/shop' } },
+    ),
 
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),

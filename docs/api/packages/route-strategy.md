@@ -18,19 +18,19 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `GenerateOptions` | interface | 9 members |
+| `GenerateOptions` | interface | 10 members |
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
-| `RouteGenerator` | class | 14 members |
+| `RouteGenerator` | class | 15 members |
 | `RouteGeneratorOptions` | interface | 11 members |
 | `RouteI18nMeta` | interface | 3 members |
 | `Rules` | class | 12 members |
 
 <details>
-<summary><code>GenerateOptions</code> — 9 members</summary>
+<summary><code>GenerateOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -38,6 +38,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `customRegex?` | `string \| RegExp \| undefined` |
 | `defaultLocale` | `string` |
 | `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
+| `hostDefaults?` | `string[] \| undefined` |
 | `locales` | `string[]` |
 | `namePrefix` | `string` |
 | `noPrefixRedirect` | `boolean` |
@@ -47,7 +48,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGenerator</code> — 14 members</summary>
+<summary><code>RouteGenerator</code> — 15 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -56,6 +57,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
 | `extendPages` | `(pages: NuxtPage[]) => void` |
 | `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
+| `hostDefaults` | `private string[]` |
 | `locales` | `Locale[]` |
 | `localizedPaths` | `private LocalizedPaths` |
 | `new` | `(options: RouteGeneratorOptions): RouteGenerator` |

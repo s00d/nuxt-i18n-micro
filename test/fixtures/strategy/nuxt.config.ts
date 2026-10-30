@@ -22,7 +22,8 @@ function resolveStrategy(): Strategies {
 const regionCodes = process.env.REGION_CODES === '1'
 const code = (short: string, region: string) => (regionCodes ? region : short)
 // DOMAINS (`strategy-domains-*`): en on example.com, de on example.de, ru on every host; the value is app.baseURL
-const domain = (host: string) => (process.env.DOMAINS ? { baseUrl: `https://${host}${process.env.DOMAINS.replace(/^\/$/, '')}`, baseDefault: true } : {})
+const domain = (host: string) =>
+  process.env.DOMAINS ? { baseUrl: `https://${host}${process.env.DOMAINS.replace(/^\/$/, '')}`, baseDefault: true } : {}
 const locales = [
   { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English', ...domain('example.com') },
   { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German', ...domain('example.de') },

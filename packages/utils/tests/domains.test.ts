@@ -33,7 +33,13 @@ describe('configForHost', () => {
   test('without baseDefault: the build default when the host serves it, else its first locale', () => {
     const open = { locales: [{ code: 'en' }, { code: 'fr', baseUrl: 'https://example.fr' }], defaultLocale: 'en' } as ModuleOptionsExtend
     expect(configForHost(open, 'example.fr').defaultLocale).toBe('en')
-    const closed = { locales: [{ code: 'en', baseUrl: 'https://a.test' }, { code: 'fr', baseUrl: 'https://b.test' }], defaultLocale: 'en' } as ModuleOptionsExtend
+    const closed = {
+      locales: [
+        { code: 'en', baseUrl: 'https://a.test' },
+        { code: 'fr', baseUrl: 'https://b.test' },
+      ],
+      defaultLocale: 'en',
+    } as ModuleOptionsExtend
     expect(configForHost(closed, 'b.test').defaultLocale).toBe('fr')
   })
 
@@ -63,7 +69,13 @@ describe('withHostDefaults', () => {
 
   test('the default of every host is flagged, named or not', () => {
     expect(flagged(locales)).toEqual(['en', 'de'])
-    expect(flagged([{ code: 'en', baseUrl: 'https://a.test' }, { code: 'de', baseUrl: 'https://b.test' }, { code: 'nl', baseUrl: 'https://b.test' }])).toEqual(['en', 'de'])
+    expect(
+      flagged([
+        { code: 'en', baseUrl: 'https://a.test' },
+        { code: 'de', baseUrl: 'https://b.test' },
+        { code: 'nl', baseUrl: 'https://b.test' },
+      ]),
+    ).toEqual(['en', 'de'])
     // the build default is served there: the host needs no default of its own
     expect(flagged([{ code: 'en' }, { code: 'fr', baseUrl: 'https://example.fr' }])).toEqual([])
   })
@@ -71,7 +83,15 @@ describe('withHostDefaults', () => {
 
 describe('a host default disabled at runtime', () => {
   const off = (strategy: string) =>
-    ({ strategy, defaultLocale: 'en', locales: [{ code: 'en' }, { code: 'de', baseUrl: 'https://b.test', baseDefault: true, disabled: true }, { code: 'nl', baseUrl: 'https://b.test' }] }) as ModuleOptionsExtend
+    ({
+      strategy,
+      defaultLocale: 'en',
+      locales: [
+        { code: 'en' },
+        { code: 'de', baseUrl: 'https://b.test', baseDefault: true, disabled: true },
+        { code: 'nl', baseUrl: 'https://b.test' },
+      ],
+    }) as ModuleOptionsExtend
 
   test('stays on under the strategies that serve it unprefixed, goes off under prefix', () => {
     expect(configForHost(off('prefix_except_default'), 'b.test').defaultLocale).toBe('de')

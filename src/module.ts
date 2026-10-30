@@ -144,7 +144,11 @@ function buildFullConfig(params: {
   return {
     locales: locales ?? [],
     // a build with domains never takes its origin from a request of an unknown host
-    metaBaseUrl: options.metaBaseUrl || (locales?.find((locale) => locale.code === defaultLocale) ?? locales?.[0])?.baseUrl || locales?.find((locale) => locale.baseUrl)?.baseUrl || undefined,
+    metaBaseUrl:
+      options.metaBaseUrl ||
+      (locales?.find((locale) => locale.code === defaultLocale) ?? locales?.[0])?.baseUrl ||
+      locales?.find((locale) => locale.baseUrl)?.baseUrl ||
+      undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
     trustForwardedHost: options.trustForwardedHost ?? false,
@@ -534,9 +538,12 @@ export default defineNuxtModule<ModuleOptions>({
     // `nuxt generate` has no real request: this variable is the host of the run
     const generateDomain = process.env.NUXT_I18N_DOMAIN
     const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
-    if (generateDomain && !buildConfig.domain) logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
+    if (generateDomain && !buildConfig.domain)
+      logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
     if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseUrl)) {
-      logger.warn('locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.')
+      logger.warn(
+        'locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.',
+      )
     }
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
@@ -893,7 +900,9 @@ declare module '#i18n-internal/payload-source' {
         try {
           if (existsSync(publicAssetsDir)) {
             // a per-domain generate publishes that domain's locales only (premerged layout: <page>/<locale>/)
-            const foreign = new Set((buildConfig.linkLocales ?? []).map((l) => l.code).filter((code) => !buildConfig.locales!.some((l) => l.code === code)))
+            const foreign = new Set(
+              (buildConfig.linkLocales ?? []).map((l) => l.code).filter((code) => !buildConfig.locales!.some((l) => l.code === code)),
+            )
             const published = (source: string) => !foreign.has(basename(source)) || basename(dirname(source)) === basename(publicAssetsDir)
             fs.cpSync(publicAssetsDir, publicDir, { recursive: true, filter: published })
             logger.log(`Translation payloads copied to public directory`)

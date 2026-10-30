@@ -50,7 +50,7 @@ Where translation files live and how keys are resolved.
 | `translationDir` | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
 | `disableWatcher` | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
 | `routesLocaleLinks` | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. For example, `{ 'about-us': 'about' }` means the `about-us` page will use translations from the `about` page instead of its own. |
-| `plural` | `PluralFunc` | `built-in pluralization (form index by count)` | Custom pluralization function. Receives `(key, count, params, locale, getter)` and should return the selected plural form as a string, or `null`/`undefined` to fall back to the built-in `defaultPlural` logic (so you can override only some locales). For the Nuxt module the function is serialized with `.toString()` into `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope). A file path string is **not** supported. |
+| `plural` | `PluralFunc` | ``built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)`` | Custom pluralization function. Receives `(key, count, params, locale, getter)` and should return the selected plural form as a string, or `null`/`undefined` to fall back to the built-in `defaultPlural` logic (so you can override only some locales). For the Nuxt module the function is serialized with `.toString()` into `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope). A file path string is **not** supported. |
 | `disablePageLocales` | `boolean` | `false` | Disable per-page translation files. When `true`, only global translations (`{locale}.json`) are loaded; page-specific files (`pages/{page}/{locale}.json`) are not generated or loaded. |
 | `fallbackLocale` | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code. Keys missing in a locale are taken from this locale (merged into each payload when it is built or loaded); without it a missing key renders as the key itself. |
 
@@ -113,6 +113,7 @@ Parts of the module you can switch off.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
+| `trustForwardedHost` | `boolean` | `false` | Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of `Host`. Enable it only behind a proxy that overwrites that header. |
 | `hreflangBaseLanguage` | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims the bare tag for that language. Routing `code` is never used — only `iso \|\| code`. |
 | `additionalTranslationDirs` | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts). Only root `{locale}.json` files are read — `pages/` under these dirs is ignored. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`. |
 | `vueDevtools` | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). Separate from the Nuxt DevTools custom tab. |
@@ -124,6 +125,7 @@ Parts of the module you can switch off.
 | `cacheMaxSize` | `number` | `0` | Maximum number of entries in the in-memory translation caches. The fetch and server caches drop the least recently used entry; the browser's dictionary map drops the oldest one (FIFO). `0` means no limit in the browser; server caches keep at most 1000 entries then, so request URLs naming made-up pages cannot grow server memory. |
 | `cacheTtl` | `number` | `0` | Time-to-live (in seconds) of the fetch and server translation caches, counted from when an entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that often. The browser's active dictionaries are not expired by it. `0` means entries never expire. |
 | `numberFormats` | `Record<string, Record<string, Intl.NumberFormatOptions>>` | — | Named number formats per locale (Vue I18n-compatible). Enables `$tn(1000, 'currency')` style calls. |
+| `timeZone` | `string` | `the runtime's zone` | IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on the server and in every browser; a named format's own `timeZone` wins. |
 | `datetimeFormats` | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). Enables `$td(date, 'short')` style calls. |
 | `httpCacheDuration` | `number` | `31536000` | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default: the response is then `public, max-age=…, immutable` and safe for browsers and CDNs. - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an   unchanging URL pins the first payload a browser ever saw. - `0` — do not set `Cache-Control` at all (useful in local debugging) - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache - Reaches only responses served through Nitro. Payloads copied into `public/` and served   by the hosting platform take that platform's headers — see the Performance guide. Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an explicit response header rather than Nitro `defineCachedEventHandler` maxAge. |
 | `dateBuild` | `string \| number` | — | Value used for cache-busting translation requests (`?v=...`). When not provided, the module uses a hash of the translation files, so the value changes only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself. |
@@ -156,12 +158,12 @@ Each entry is a `Locale` object:
 | `iso` | `string` | BCP-47 tag for `<html lang>` and `hreflang` (`en-US`). |
 | `displayName` | `string` | Label in `<i18n-switcher>` and `$getLocaleName()`. |
 | `dir` | `'ltr' \| 'rtl' \| 'auto'` | `<html dir>`. |
-| `disabled` | `boolean` | Excluded from routes, payloads and switching. |
+| `disabled` | `boolean` | Excluded from routes, payloads and switching. Its prefix is a 404, and links to it stay on the page. |
 | `fallbackLocale` | `string` | Fallback for this locale; overrides the global `fallbackLocale`. |
 | `seo` | `boolean` | `false` leaves the locale out of `hreflang` and `og:locale:alternate`. |
 | `og` | `string` | `og:locale` value (`ar_AE`); default: `iso` converted. |
-| `baseUrl` | `string` | The locale's own domain: links into it become absolute URLs there. |
-| `baseDefault` | `boolean` | With `baseUrl`: no `/<code>` prefix in those URLs. |
+| `baseUrl` | `string` | The locale's own domain: one build serves it, and links into it from other domains are absolute. |
+| `baseDefault` | `boolean` | With `baseUrl`: the default locale of its host, with no `/<code>` prefix in links to it (`prefix` keeps it). |
 
 Other properties are kept and returned by `$getLocales()`. Type them by augmenting `Locale`:
 
@@ -387,7 +389,7 @@ routesLocaleLinks: { 'products-id': 'products' },
 
 <!-- generated:option:plural — do not edit; run `pnpm run docs:generate` -->
 
-**Type** `PluralFunc` · **Default** `built-in pluralization (form index by count)`
+**Type** `PluralFunc` · **Default** ``built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)``
 
 Custom pluralization function.
 Receives `(key, count, params, locale, getter)` and should return the selected
@@ -400,7 +402,7 @@ A file path string is **not** supported.
 
 <!-- /generated:option:plural -->
 
-The function receives `(key, count, params, locale, getter)`; `getter(key)` returns the raw string with all forms. Write it as a self-contained `function` or arrow expression (no method shorthand, no imports, no outer variables):
+The built-in rule and its `=0 ` marker are described at [`$tc`](/api/methods#tc). Your function replaces it for what it answers, gets the raw value with any marker in place, and `null` hands the call back to it. The function receives `(key, count, params, locale, getter)`; `getter(key)` returns the raw string with all forms. Write it as a self-contained `function` or arrow expression (no method shorthand, no imports, no outer variables):
 
 ```ts
 plural: function (key, count, params, locale, getter) {
@@ -442,6 +444,17 @@ Enables `$td(date, 'short')` style calls.
 <!-- /generated:option:datetimeFormats -->
 
 Used by [`$td`](/api/methods#td).
+
+#### `timeZone`
+
+<!-- generated:option:timeZone — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `string` · **Default** `the runtime's zone`
+
+IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+the server and in every browser; a named format's own `timeZone` wins.
+
+<!-- /generated:option:timeZone -->
 
 #### `disableWatcher`
 
@@ -658,6 +671,19 @@ canonical URLs use `https://` even though the app itself listens on HTTP.
 <!-- /generated:option:metaTrustForwardedProto -->
 
 Same scope as `metaTrustForwardedHost`.
+
+#### `trustForwardedHost`
+
+<!-- generated:option:trustForwardedHost — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `boolean` · **Default** `false`
+
+Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of
+`Host`. Enable it only behind a proxy that overwrites that header.
+
+<!-- /generated:option:trustForwardedHost -->
+
+Separate from `metaTrustForwardedHost` and off by default: here the header would select another domain's locales, not only the origin of a tag. See [Layers and domains](/guide/layers#multiple-domains).
 
 #### `hreflangBaseLanguage`
 

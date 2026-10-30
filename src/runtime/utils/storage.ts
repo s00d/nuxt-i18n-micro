@@ -153,6 +153,8 @@ class TranslationStorage {
     const clears = this.cc.clears
     const data = await this.fetchTranslations(locale, routeName, options)
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
+    // a 200 with another body (an HTML fallback, an array) is a failed load: it must not become a dictionary
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new TypeError(`[i18n] Invalid translation payload: ${cacheKey}`)
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.

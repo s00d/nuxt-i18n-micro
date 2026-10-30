@@ -1,8 +1,8 @@
 import * as fs from 'node:fs'
-import { readdir } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
-import { resolveTranslationFile, safeResolvePath } from '../src/safe-path'
+import { listTranslationFiles, parseTranslationFile } from '@i18n-micro/utils/load-dir'
+import { resolveTranslationFile } from '../src/safe-path'
 import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
@@ -15,183 +15,154 @@ export interface DevToolsPluginOptions {
   injectButton?: boolean
 }
 
-// Recursive directory scanning to find JSON files
-async function scanTranslationFiles(dir: string, baseDir: string): Promise<string[]> {
-  const files: string[] = []
-  try {
-    const entries = await readdir(dir, { withFileTypes: true })
-    const subdirFiles = await Promise.all(
-      entries.filter((entry) => entry.isDirectory()).map((entry) => scanTranslationFiles(path.join(dir, entry.name), baseDir)),
-    )
-    files.push(...subdirFiles.flat())
+const PAGE_ROUTE = '/__i18n_devtools.html'
+const APP_MODULE = '/@vite-plugin-i18n-devtools/app.js'
+const TOOLBAR_MODULE = '/@vite-plugin-i18n-devtools/toolbar.js'
+const UPDATE_EVENT = 'i18n-micro:locales-updated'
+const DEBOUNCE_MS = 100
 
-    for (const entry of entries) {
-      if (entry.isFile() && entry.name.endsWith('.json')) {
-        const fullPath = path.join(dir, entry.name)
-        const relativePath = path.relative(baseDir, fullPath)
-        files.push(relativePath.replace(/\\/g, '/')) // Normalize for cross-platform compatibility
-      }
-    }
-  } catch (error) {
-    // Ignore directory access errors
-    console.warn(`[i18n-devtools] Cannot scan directory ${dir}:`, error)
-  }
-  return files
+const ICON =
+  '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
+
+const FRAME_STYLE = 'width: 100%; height: 100%; border: none; background: white;'
+
+/** Bottom-right button; a click opens the devtools page in a modal, a click on the backdrop closes it. */
+const BUTTON_SCRIPT = `
+(function () {
+  if (document.getElementById('i18n-devtools-button')) return
+  var button = document.createElement('button')
+  button.id = 'i18n-devtools-button'
+  button.type = 'button'
+  button.innerHTML = ${JSON.stringify(`${ICON} i18n`)}
+  button.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 99999; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid #333; border-radius: 9999px; background: #1e1e1e; color: white; font: 600 14px system-ui, sans-serif;'
+  button.addEventListener('click', function () {
+    var modal = document.createElement('div')
+    modal.id = 'i18n-devtools-modal'
+    modal.style.cssText = 'position: fixed; inset: 0; z-index: 999999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2);'
+    modal.addEventListener('click', function () { modal.remove() })
+    var frame = document.createElement('iframe')
+    frame.src = ${JSON.stringify(PAGE_ROUTE)}
+    frame.style.cssText = 'width: 90vw; max-width: 1200px; height: 85vh; border: none; border-radius: 12px; background: white;'
+    modal.appendChild(frame)
+    document.body.appendChild(modal)
+  })
+  document.body.appendChild(button)
+})()
+`
+
+const page = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>i18n DevTools</title>
+  <style>* { margin: 0; box-sizing: border-box; } body { overflow: hidden; height: 100vh; font-family: system-ui, sans-serif; } #app { height: 100%; }</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="${APP_MODULE}"></script>
+</body>
+</html>`
+
+/** The devtools app in the page. Served through Vite, so `import.meta.hot` carries the update event. */
+function appModule(apiBase: string): string {
+  return `
+import { register } from '@i18n-micro/devtools-ui'
+
+const API = ${JSON.stringify(apiBase)}
+const getJson = (route) => fetch(API + route).then((response) => response.json())
+const bridge = {
+  getLocalesAndTranslations: () => getJson('/translations'),
+  getConfigs: () => getJson('/config'),
+  async saveTranslation(file, content) {
+    const response = await fetch(API + '/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file, content }),
+    })
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'Failed to save')
+  },
+  onLocalesUpdate(callback) {
+    const update = () => bridge.getLocalesAndTranslations().then(callback)
+    import.meta.hot.on(${JSON.stringify(UPDATE_EVENT)}, update)
+    return () => import.meta.hot.off(${JSON.stringify(UPDATE_EVENT)}, update)
+  },
 }
 
-// Script for button injection
-const BUTTON_INJECTION_SCRIPT = `
-(function() {
-  if (typeof window === 'undefined' || document.getElementById('i18n-devtools-button-container')) {
-    return;
-  }
-
-  const container = document.createElement('div');
-  container.id = 'i18n-devtools-button-container';
-  container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 99999; pointer-events: none;';
-  document.body.appendChild(container);
-
-  const button = document.createElement('button');
-  button.id = 'i18n-devtools-button';
-  button.type = 'button';
-  button.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>i18n';
-  button.style.cssText = 'cursor: pointer; background: #1e1e1e; color: white; padding: 8px 16px; border-radius: 9999px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #333; font-size: 14px; font-weight: 600; transition: all 0.3s ease; opacity: 0.3; pointer-events: auto; font-family: system-ui, sans-serif;';
-
-  let hideTimeout = null;
-  let isVisible = true;
-  let lastMouseY = window.innerHeight;
-
-  function showButton() {
-    if (!isVisible) {
-      button.style.transform = 'translateX(0)';
-      button.style.opacity = '0.3';
-      isVisible = true;
-    }
-    if (hideTimeout) {
-      clearTimeout(hideTimeout);
-      hideTimeout = null;
-    }
-  }
-
-  function hideButton() {
-    if (isVisible) {
-      // Leave only a small part of the button visible (approximately 40px)
-      button.style.transform = 'translateX(calc(100% - 40px))';
-      button.style.opacity = '0.3';
-      isVisible = false;
-    }
-  }
-
-  function checkMouseDistance(e) {
-    const buttonRect = button.getBoundingClientRect();
-    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-    const distanceX = Math.abs(e.clientX - buttonCenterX);
-    const distanceY = Math.abs(e.clientY - buttonCenterY);
-    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-    if (distance > 200 && !button.matches(':hover')) {
-      if (!hideTimeout) {
-        hideTimeout = setTimeout(hideButton, 1000);
-      }
-    } else {
-      if (hideTimeout) {
-        clearTimeout(hideTimeout);
-        hideTimeout = null;
-      }
-      if (!isVisible) {
-        showButton();
-      }
-    }
-    lastMouseY = e.clientY;
-  }
-
-  button.addEventListener('mouseenter', function() {
-    this.style.opacity = '1';
-    this.style.transform = 'translateX(0) translateY(-2px) scale(1.05)';
-    if (hideTimeout) {
-      clearTimeout(hideTimeout);
-      hideTimeout = null;
-    }
-    // Show the button fully on hover
-    if (!isVisible) {
-      showButton();
-    }
-  });
-
-  button.addEventListener('mouseleave', function() {
-    if (isVisible) {
-      this.style.opacity = '0.3';
-      this.style.transform = 'translateX(0) scale(1)';
-      hideTimeout = setTimeout(hideButton, 3000);
-    }
-  });
-
-  button.addEventListener('click', function() {
-    // Check if the editor is already open
-    if (document.getElementById('i18n-devtools-modal')) {
-      return;
-    }
-
-    // Open modal window with iframe
-    const modal = document.createElement('div');
-    modal.id = 'i18n-devtools-modal';
-    modal.style.cssText = 'position: fixed; inset: 0; z-index: 999999; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; padding: 2rem;';
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) {
-        document.body.removeChild(modal);
-      }
-    });
-
-    const content = document.createElement('div');
-    content.style.cssText = 'background: white; width: 90vw; max-width: 1200px; height: 85vh; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e5e7eb;';
-    content.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-
-    const header = document.createElement('div');
-    header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; flex-shrink: 0;';
-    header.innerHTML = '<div style="font-weight: 600; color: #334155; display: flex; align-items: center; gap: 8px;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg> i18n DevTools</div><button id="i18n-devtools-close" style="background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 4px; display: flex; color: #64748b; transition: background 0.2s;">✕</button>';
-
-    const closeBtn = header.querySelector('#i18n-devtools-close');
-    closeBtn.addEventListener('mouseenter', function() {
-      this.style.background = '#e2e8f0';
-    });
-    closeBtn.addEventListener('mouseleave', function() {
-      this.style.background = 'transparent';
-    });
-    closeBtn.addEventListener('click', function() {
-      document.body.removeChild(modal);
-    });
-
-    const iframeContainer = document.createElement('div');
-    iframeContainer.style.cssText = 'flex: 1; position: relative; overflow: hidden; background: white;';
-
-    const iframe = document.createElement('iframe');
-    iframe.id = 'i18n-devtools-iframe';
-    iframe.style.cssText = 'width: 100%; height: 100%; border: none; background: white;';
-    iframe.src = '/__i18n_devtools.html';
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
-
-    iframeContainer.appendChild(iframe);
-    content.appendChild(header);
-    content.appendChild(iframeContainer);
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-  });
-
-  document.addEventListener('mousemove', checkMouseDistance);
-
-  // Auto-hide after 3 seconds of loading
-  setTimeout(() => {
-    if (!button.matches(':hover')) {
-      hideTimeout = setTimeout(hideButton, 3000);
-    }
-  }, 3000);
-
-  container.appendChild(button);
-})();
+register()
+const element = document.createElement('i18n-devtools-ui')
+element.bridge = bridge
+element.style.cssText = 'width: 100%; height: 100%; display: block;'
+document.getElementById('app').appendChild(element)
 `
+}
+
+/** The Astro dev toolbar app: the devtools page in the toolbar's window. */
+const toolbarModule = `
+export default {
+  init(canvas) {
+    const frame = document.createElement('iframe')
+    frame.src = ${JSON.stringify(PAGE_ROUTE)}
+    frame.style.cssText = ${JSON.stringify(`position: fixed; left: 5vw; right: 5vw; bottom: 70px; width: 90vw; height: 75vh; border-radius: 12px; z-index: 999999; ${FRAME_STYLE}`)}
+    canvas.appendChild(frame)
+  },
+}
+`
+
+function sendJson(res: ServerResponse, status: number, body: unknown): void {
+  res.statusCode = status
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(body))
+}
+
+const LOCAL_HOST = /^(localhost|.+\.localhost|[\d.]+|\[[\da-f:.]+\])$/i
+
+/**
+ * What Vite's `server.allowedHosts` serves. Not left to Vite: from 8 its check runs first, in 6 it runs
+ * after plugin middlewares, and under DNS rebinding `Origin` and `Host` agree, so only this stops it.
+ */
+function isServedHost(host: string, allowed: string[] | true | undefined): boolean {
+  const hostname = host.replace(/:\d+$/, '').toLowerCase()
+  if (allowed === true || LOCAL_HOST.test(hostname)) return true
+  return (allowed ?? []).some((entry) => (entry[0] === '.' ? hostname === entry.slice(1) || hostname.endsWith(entry) : hostname === entry))
+}
+
+/**
+ * The API is for the devtools page only. Any website can send a `text/plain` POST to localhost
+ * without a preflight, and CORS only hides the answer: the request itself has to be refused.
+ */
+function isFromDevtools(req: IncomingMessage, allowedHosts: string[] | true | undefined): boolean {
+  const { origin, host = '', 'sec-fetch-site': site } = req.headers
+  if (!isServedHost(host, allowedHosts)) return false
+  if (site && site !== 'same-origin' && site !== 'none') return false
+  if (!origin) return true
+  try {
+    return new URL(origin).host === host
+  } catch {
+    return false
+  }
+}
+
+type RouteHandler = (req: IncomingMessage, res: ServerResponse) => unknown
+
+/** `handler` for one method: the rest goes on, a foreign request is refused, an error is an answer. */
+function route(server: ViteDevServer, method: string, handler: RouteHandler) {
+  return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+    if (req.method !== method) return next()
+    if (!isFromDevtools(req, server.config.server?.allowedHosts)) return sendJson(res, 403, { success: false, error: 'Forbidden' })
+    try {
+      await handler(req, res)
+    } catch (e) {
+      console.error('[i18n-devtools] Request failed:', e)
+      sendJson(res, 500, { success: false, error: e instanceof Error ? e.message : String(e) })
+    }
+  }
+}
+
+async function readBody(req: IncomingMessage): Promise<string> {
+  const buffers: Buffer[] = []
+  for await (const chunk of req) buffers.push(chunk)
+  return Buffer.concat(buffers).toString()
+}
 
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
   // no trailing slash: `/` + `/files` would be `//files`, a protocol-relative URL
@@ -204,371 +175,112 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     apply: 'serve', // Works only in dev server
 
     resolveId(id: string) {
-      if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
-        return id
-      }
-      return null
+      return id === APP_MODULE || id === TOOLBAR_MODULE ? id : null
     },
 
     load(id: string) {
-      if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
-        // Return re-export from devtools-ui package
-        return `export * from '@i18n-micro/devtools-ui'`
-      }
-      return null
+      if (id === APP_MODULE) return appModule(apiBase)
+      return id === TOOLBAR_MODULE ? toolbarModule : null
     },
 
     transformIndexHtml(html: string): IndexHtmlTransformResult {
-      if (!injectButton) {
-        return html
-      }
-
-      // Inject script before the closing </body> tag
-      const scriptTag = `<script>${BUTTON_INJECTION_SCRIPT}</script>`
-      if (html.includes('</body>')) {
-        return html.replace('</body>', `${scriptTag}</body>`)
-      }
-      // If no </body>, append to the end
-      return html + scriptTag
+      if (!injectButton) return html
+      const script = `<script>${BUTTON_SCRIPT}</script>`
+      return html.includes('</body>') ? html.replace('</body>', `${script}</body>`) : html + script
     },
 
     configureServer(server: ViteDevServer) {
-      // Use server.config.root as the source of truth for the project root
       const projectRoot = server.config.root
+      const localesPath = path.resolve(projectRoot, translationDir)
+      const files = () => (fs.existsSync(localesPath) ? listTranslationFiles(localesPath) : [])
 
-      // HTML page for iframe with devtools UI
-      // Use virtual module for proper imports
-      const devtoolsHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>i18n DevTools</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-    }
-    #app {
-      width: 100%;
-      height: 100%;
-    }
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #64748b;
-    }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <div class="loading">Loading DevTools...</div>
-  </div>
-  <script type="module">
-    // Import devtools UI
-    // Try to import through different paths for compatibility
-    let register;
-    try {
-      const devtoolsModule = await import('/@vite-plugin-i18n-devtools/devtools-ui.js');
-      register = devtoolsModule.register;
-    } catch (e) {
-      // Fallback: try to import directly
-      try {
-        const devtoolsModule = await import('@i18n-micro/devtools-ui');
-        register = devtoolsModule.register;
-      } catch (e2) {
-        console.error('Failed to load devtools UI:', e2);
-        document.getElementById('app').innerHTML = '<div class="loading" style="color: #ef4444;">Failed to load DevTools. Please ensure @i18n-micro/devtools-ui is installed.</div>';
-        throw e2;
-      }
-    }
-
-    // Register custom element
-    register();
-
-    // Create bridge via API (the plugin's base option)
-    const API = ${JSON.stringify(apiBase)};
-    const bridge = {
-      async getLocalesAndTranslations() {
-        try {
-          const response = await fetch(API + '/files');
-          const data = await response.json();
-          const result = {};
-          for (const file of data.files || []) {
-            try {
-              const fileResponse = await fetch(API + '/file?path=' + encodeURIComponent(file));
-              const fileData = await fileResponse.json();
-              if (fileData.success && fileData.content) {
-                result[file] = fileData.content;
-              }
-            } catch (e) {
-              console.warn('Failed to load file:', file, e);
-            }
-          }
-          return result;
-        } catch (e) {
-          console.error('Failed to get locales:', e);
-          return {};
-        }
-      },
-
-      async getConfigs() {
-        try {
-          const response = await fetch(API + '/config');
-          return await response.json();
-        } catch (e) {
-          return {
-            defaultLocale: 'en',
-            fallbackLocale: 'en',
-            locales: [],
-            translationDir: ${JSON.stringify(translationDir)},
-          };
-        }
-      },
-
-      async saveTranslation(filePath, content) {
-        const response = await fetch(API + '/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ file: filePath, content }),
-        });
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-          throw new Error(error.error || 'Failed to save');
-        }
-      },
-
-      onLocalesUpdate(callback) {
-        let interval = null;
-        interval = setInterval(async () => {
-          try {
-            const data = await bridge.getLocalesAndTranslations();
-            callback(data);
-          } catch (e) {
-            console.error('Failed to update locales:', e);
-          }
-        }, 2000);
-        return () => {
-          if (interval) {
-            clearInterval(interval);
-          }
-        };
-      },
-    };
-
-    const app = document.getElementById('app');
-    app.innerHTML = '';
-    const element = document.createElement('i18n-devtools-ui');
-    element.bridge = bridge;
-    element.style.cssText = 'width: 100%; height: 100%; display: block;';
-    app.appendChild(element);
-  </script>
-</body>
-</html>`
-
-      // Middleware for serving the devtools HTML page
-      server.middlewares.use('/__i18n_devtools.html', (_req: IncomingMessage, res: ServerResponse) => {
+      server.middlewares.use(PAGE_ROUTE, (_req: IncomingMessage, res: ServerResponse) => {
         res.statusCode = 200
         res.setHeader('Content-Type', 'text/html; charset=utf-8')
-        res.end(devtoolsHtml)
+        res.end(page)
       })
 
-      // Endpoint for getting configuration
-      server.middlewares.use(`${apiBase}/config`, async (_req: IncomingMessage, res: ServerResponse, next) => {
-        if (_req.method !== 'GET') {
-          return next()
-        }
-
-        try {
+      server.middlewares.use(
+        `${apiBase}/config`,
+        route(server, 'GET', (_req, res) => {
           // A root file is one locale: `<translationDir>/<code>.json`
-          const localesPath = path.resolve(projectRoot, translationDir)
-          const entries = fs.existsSync(localesPath) ? fs.readdirSync(localesPath, { withFileTypes: true }) : []
-          const codes = entries
-            .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
-            .map((entry) => entry.name.slice(0, -'.json'.length))
-            .sort()
+          const codes = files()
+            .map((file) => /^([^/]+)\.json$/.exec(file.relativePath)?.[1])
+            .filter((code): code is string => code !== undefined)
           const defaultLocale = options.defaultLocale || codes[0] || 'en'
+          sendJson(res, 200, {
+            defaultLocale,
+            fallbackLocale: options.fallbackLocale || defaultLocale,
+            locales: codes.map((code) => ({ code })),
+            translationDir,
+          })
+        }),
+      )
 
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              defaultLocale,
-              fallbackLocale: options.fallbackLocale || defaultLocale,
-              locales: codes.map((code) => ({ code })),
-              translationDir,
-            }),
-          )
-        } catch (e) {
-          console.error('[i18n-devtools] Config error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
-
-      // Endpoint for getting file list
-      server.middlewares.use(`${apiBase}/files`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'GET') {
-          return next()
-        }
-
-        try {
-          const localesPath = path.resolve(projectRoot, translationDir)
-
-          // Verify the path is safe
-          safeResolvePath(projectRoot, translationDir)
-
-          if (!fs.existsSync(localesPath)) {
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ files: [], structure: {} }))
-            return
+      // Every dictionary by its path: one request, whatever the number of files
+      server.middlewares.use(
+        `${apiBase}/translations`,
+        route(server, 'GET', (_req, res) => {
+          const result: Record<string, unknown> = {}
+          for (const { relativePath } of files()) {
+            // a symlink out of the folder is listed by the reader, but it is no translation file of this project
+            const file = resolveTranslationFile(projectRoot, translationDir, relativePath)
+            const content = file ? parseTranslationFile(fs.readFileSync(file, 'utf-8'), file) : null
+            if (content) result[relativePath] = content
           }
+          sendJson(res, 200, result)
+        }),
+      )
 
-          const files = await scanTranslationFiles(localesPath, localesPath)
-
-          // Build directory structure
-          const structure: Record<string, unknown> = {}
-          for (const file of files) {
-            const parts = file.split('/')
-            let current = structure
-            for (let i = 0; i < parts.length - 1; i++) {
-              const part = parts[i]!
-              if (!current[part]) {
-                current[part] = {}
-              }
-              current = current[part] as Record<string, unknown>
-            }
-            const last = parts[parts.length - 1]
-            if (last !== undefined) {
-              current[last] = file
-            }
+      server.middlewares.use(
+        `${apiBase}/save`,
+        route(server, 'POST', async (req, res) => {
+          if (!req.headers['content-type']?.startsWith('application/json')) {
+            return sendJson(res, 415, { success: false, error: 'Expected application/json' })
           }
-
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ files, structure }))
-        } catch (e) {
-          console.error('[i18n-devtools] Files list error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
-
-      // Endpoint for loading a specific file
-      server.middlewares.use(`${apiBase}/file`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'GET') {
-          return next()
-        }
-
-        try {
-          const url = new URL(req.url || '', `http://${req.headers.host}`)
-          const filePath = url.searchParams.get('path')
-
-          if (!filePath) {
-            throw new Error('Path parameter is required')
-          }
-
-          const resolvedPath = resolveTranslationFile(projectRoot, translationDir, filePath)
-          if (!resolvedPath) {
-            res.statusCode = 404
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, error: 'File not found in the translation directory' }))
-            return
-          }
-
-          const content = fs.readFileSync(resolvedPath, 'utf-8')
-          const parsed = JSON.parse(content)
-
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ success: true, content: parsed, path: filePath }))
-        } catch (e) {
-          console.error('[i18n-devtools] File read error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
-
-      // Endpoint for saving a file
-      server.middlewares.use(`${apiBase}/save`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'POST') {
-          return next()
-        }
-
-        try {
-          // Read request body
-          const buffers: Buffer[] = []
-          for await (const chunk of req) {
-            buffers.push(chunk)
-          }
-          const bodyData = Buffer.concat(buffers).toString()
-
-          if (!bodyData) {
-            throw new Error('Empty request body')
-          }
-
-          const body = JSON.parse(bodyData)
-          const { file, content } = body
-
-          if (!file || !content) {
+          const { file, content } = JSON.parse(await readBody(req)) as { file?: unknown; content?: unknown }
+          if (!file || content === null || typeof content !== 'object' || Array.isArray(content)) {
             throw new Error('Invalid data: file and content are required')
           }
 
           // Only an existing translation file inside translationDir can be written
           const filePath = typeof file === 'string' ? resolveTranslationFile(projectRoot, translationDir, file) : null
-          if (!filePath) {
-            res.statusCode = 403
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, error: `Not a translation file: ${String(file)}` }))
-            return
-          }
+          if (!filePath) return sendJson(res, 403, { success: false, error: `Not a translation file: ${String(file)}` })
 
-          // Write file
           fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
+          sendJson(res, 200, { success: true })
+        }),
+      )
 
-          // Successful response
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ success: true }))
-        } catch (e) {
-          console.error('[i18n-devtools] Save error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
+      let timer: ReturnType<typeof setTimeout> | undefined
+      const onFile = (file: string) => {
+        if (!file.endsWith('.json') || !file.startsWith(localesPath)) return
+        clearTimeout(timer)
+        timer = setTimeout(() => server.ws.send({ type: 'custom', event: UPDATE_EVENT }), DEBOUNCE_MS)
+      }
+      server.watcher.add(localesPath)
+      server.watcher.on('add', onFile).on('change', onFile).on('unlink', onFile)
+      server.httpServer?.once('close', () => clearTimeout(timer))
     },
   } as PluginOption
+}
+
+interface ToolbarSetup {
+  command: string
+  updateConfig: (config: { vite: { plugins: PluginOption[] } }) => unknown
+  addDevToolbarApp: (app: { id: string; name: string; icon: string; entrypoint: string }) => void
+}
+
+/** The devtools as an Astro integration: an app in the dev toolbar (Astro has no `transformIndexHtml`, so the plugin's button never shows there). */
+export function i18nDevToolsIntegration(options: Omit<DevToolsPluginOptions, 'injectButton'> = {}) {
+  return {
+    name: '@i18n-micro/devtools-ui',
+    hooks: {
+      'astro:config:setup': ({ command, updateConfig, addDevToolbarApp }: ToolbarSetup) => {
+        if (command !== 'dev') return
+        updateConfig({ vite: { plugins: [i18nDevToolsPlugin({ ...options, injectButton: false })] } })
+        addDevToolbarApp({ id: 'i18n-micro', name: 'i18n', icon: ICON, entrypoint: TOOLBAR_MODULE })
+      },
+    },
+  }
 }

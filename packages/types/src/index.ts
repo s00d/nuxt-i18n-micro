@@ -83,14 +83,17 @@ export interface Locale {
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */
   displayName?: string
   /**
-   * Origin of this locale's own domain (e.g. `'https://de.example.com'`), for multi-domain setups.
-   * Links into this locale (`$localePath`, `$switchLocalePath`, the switcher, `hreflang`) become
-   * absolute URLs on that origin, and switching to it navigates there.
+   * Origin of this locale's own domain (e.g. `'https://de.example.com'`), plus `app.baseURL` when
+   * the app has one. One build then serves every domain: a request for that host gets this locale,
+   * the other locales of the host and the locales with no `baseUrl`. Links into a locale of another
+   * domain (`$localePath`, `$switchLocalePath`, the switcher, `hreflang`) become absolute URLs on
+   * its origin, and switching to it navigates there. Any other host gets the build config.
    */
   baseUrl?: string
   /**
-   * With `baseUrl`: drop this locale's `/<code>` prefix from those absolute URLs, because the
-   * domain already names the locale (`https://de.example.com/about`, not `…/de/about`).
+   * With `baseUrl`: this locale is the default of its host, unprefixed there, and links to it from
+   * other domains drop `/<code>`, because the domain already names the locale
+   * (`https://de.example.com/about`, not `…/de/about`). `prefix` keeps the prefix in both.
    */
   baseDefault?: boolean
   /**
@@ -204,6 +207,13 @@ export interface ModuleOptions {
    * @default true
    */
   metaTrustForwardedProto?: boolean
+
+  /**
+   * Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of
+   * `Host`. Enable it only behind a proxy that overwrites that header.
+   * @default false
+   */
+  trustForwardedHost?: boolean
 
   /**
    * Also emit a bare-language `hreflang` derived from each locale's `iso`
@@ -369,7 +379,7 @@ export interface ModuleOptions {
    * For the Nuxt module the function is serialized with `.toString()` into
    * `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
    * A file path string is **not** supported.
-   * @default built-in pluralization (form index by count)
+   * @default built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)
    */
   plural?: PluralFunc
 
@@ -527,6 +537,13 @@ export interface ModuleOptions {
   numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
 
   /**
+   * IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+   * the server and in every browser; a named format's own `timeZone` wins.
+   * @default the runtime's zone
+   */
+  timeZone?: string
+
+  /**
    * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
    * Enables `$td(date, 'short')` style calls.
    *
@@ -661,6 +678,10 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   redirects?: boolean
   /** Resolved translation payload loading strategy. */
   translationPayloadMode?: 'premerged' | 'source'
+  /** Host this config was resolved for (`locales[].baseUrl`); unset on any other host. */
+  domain?: string
+  /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */
+  linkLocales?: Locale[]
 }
 
 /**

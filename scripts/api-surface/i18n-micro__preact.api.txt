@@ -1,8 +1,6 @@
 # . (src/index.ts)
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
-function createBrowserHistoryAdapter: (locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
-function createI18n: (options: PreactI18nOptions) => PreactI18n
-const createPreactRouterAdapter: (locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
+function createI18n: (options: I18nOptions) => I18n
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
@@ -16,6 +14,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private any
 member FormatService.numberCache: private any
 member FormatService.numberFormats: private any
 member FormatService.relativeCache: private any
@@ -23,11 +22,18 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-const I18nContext: import("preact").Context<PreactI18n | null>
-const I18nDefaultLocaleContext: import("preact").Context<string | null>
-const I18nGroup: (props: I18nGroupProps) => VNode
+interface I18nConfig
+member I18nConfig.api: { snapshot: string; value: UseI18nReturn; } | null
+member I18nConfig.defaultLocale: string | null
+member I18nConfig.locales: Locale[] | null
+member I18nConfig.methods: { current: TranslationMethods | null; }
+member I18nConfig.router: I18nRoutingStrategy | null
+const I18nConfigContext: import("preact").Context<I18nConfig | null>
+const I18nContext: import("preact").Context<I18n | null>
+const I18nGroup: (props: I18nGroupProps) => HostElement
 interface I18nGroupProps
 member I18nGroupProps.about?: Signalish<string | undefined>
 member I18nGroupProps.accesskey?: Signalish<string | undefined>
@@ -91,7 +97,7 @@ member I18nGroupProps.autocorrect?: Signalish<string | undefined>
 member I18nGroupProps.autoCorrect?: Signalish<string | undefined>
 member I18nGroupProps.autofocus?: Signalish<boolean | undefined>
 member I18nGroupProps.autoFocus?: Signalish<boolean | undefined>
-member I18nGroupProps.children?: ((props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string; }) => ComponentChildren) | undefined
+member I18nGroupProps.children?: import("preact").ComponentChildren | ((props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string; }) => HostNode)
 member I18nGroupProps.class?: Signalish<string | undefined>
 member I18nGroupProps.className?: Signalish<string | undefined>
 member I18nGroupProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
@@ -337,346 +343,36 @@ member I18nGroupProps.title?: Signalish<string | undefined>
 member I18nGroupProps.translate?: Signalish<boolean | undefined>
 member I18nGroupProps.typeof?: Signalish<string | undefined>
 member I18nGroupProps.vocab?: Signalish<string | undefined>
-const I18nLink: (props: I18nLinkProps) => VNode
-interface I18nLinkProps
-member I18nLinkProps.about?: Signalish<string | undefined>
-member I18nLinkProps.accesskey?: Signalish<string | undefined>
-member I18nLinkProps.accessKey?: Signalish<string | undefined>
-member I18nLinkProps.activeStyle?: Record<string, string | number> | undefined
-member I18nLinkProps.aria-activedescendant?: Signalish<string | undefined>
-member I18nLinkProps.aria-atomic?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-autocomplete?: Signalish<"none" | "list" | "inline" | "both" | undefined>
-member I18nLinkProps.aria-braillelabel?: Signalish<string | undefined>
-member I18nLinkProps.aria-brailleroledescription?: Signalish<string | undefined>
-member I18nLinkProps.aria-busy?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-checked?: Signalish<Booleanish | "mixed" | undefined>
-member I18nLinkProps.aria-colcount?: Signalish<number | undefined>
-member I18nLinkProps.aria-colindex?: Signalish<number | undefined>
-member I18nLinkProps.aria-colindextext?: Signalish<string | undefined>
-member I18nLinkProps.aria-colspan?: Signalish<number | undefined>
-member I18nLinkProps.aria-controls?: Signalish<string | undefined>
-member I18nLinkProps.aria-current?: Signalish<Booleanish | "time" | "location" | "page" | "step" | "date" | undefined>
-member I18nLinkProps.aria-describedby?: Signalish<string | undefined>
-member I18nLinkProps.aria-description?: Signalish<string | undefined>
-member I18nLinkProps.aria-details?: Signalish<string | undefined>
-member I18nLinkProps.aria-disabled?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-dropeffect?: Signalish<"none" | "link" | "copy" | "execute" | "move" | "popup" | undefined>
-member I18nLinkProps.aria-errormessage?: Signalish<string | undefined>
-member I18nLinkProps.aria-expanded?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-flowto?: Signalish<string | undefined>
-member I18nLinkProps.aria-grabbed?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-haspopup?: Signalish<Booleanish | "dialog" | "grid" | "listbox" | "menu" | "tree" | undefined>
-member I18nLinkProps.aria-hidden?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-invalid?: Signalish<Booleanish | "grammar" | "spelling" | undefined>
-member I18nLinkProps.aria-keyshortcuts?: Signalish<string | undefined>
-member I18nLinkProps.aria-label?: Signalish<string | undefined>
-member I18nLinkProps.aria-labelledby?: Signalish<string | undefined>
-member I18nLinkProps.aria-level?: Signalish<number | undefined>
-member I18nLinkProps.aria-live?: Signalish<"off" | "assertive" | "polite" | undefined>
-member I18nLinkProps.aria-modal?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-multiline?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-multiselectable?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-orientation?: Signalish<"horizontal" | "vertical" | undefined>
-member I18nLinkProps.aria-owns?: Signalish<string | undefined>
-member I18nLinkProps.aria-placeholder?: Signalish<string | undefined>
-member I18nLinkProps.aria-posinset?: Signalish<number | undefined>
-member I18nLinkProps.aria-pressed?: Signalish<Booleanish | "mixed" | undefined>
-member I18nLinkProps.aria-readonly?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-relevant?: Signalish<"additions" | "additions removals" | "additions text" | "all" | "removals" | "removals additions" | "removals text" | "text" | "text additions" | "text removals" | undefined>
-member I18nLinkProps.aria-required?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-roledescription?: Signalish<string | undefined>
-member I18nLinkProps.aria-rowcount?: Signalish<number | undefined>
-member I18nLinkProps.aria-rowindex?: Signalish<number | undefined>
-member I18nLinkProps.aria-rowindextext?: Signalish<string | undefined>
-member I18nLinkProps.aria-rowspan?: Signalish<number | undefined>
-member I18nLinkProps.aria-selected?: Signalish<Booleanish | undefined>
-member I18nLinkProps.aria-setsize?: Signalish<number | undefined>
-member I18nLinkProps.aria-sort?: Signalish<"none" | "ascending" | "descending" | "other" | undefined>
-member I18nLinkProps.aria-valuemax?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuemin?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuenow?: Signalish<number | undefined>
-member I18nLinkProps.aria-valuetext?: Signalish<string | undefined>
-member I18nLinkProps.autocapitalize?: Signalish<"off" | "none" | "on" | "sentences" | "words" | "characters" | undefined>
-member I18nLinkProps.autoCapitalize?: Signalish<"off" | "none" | "on" | "sentences" | "words" | "characters" | undefined>
-member I18nLinkProps.autocorrect?: Signalish<string | undefined>
-member I18nLinkProps.autoCorrect?: Signalish<string | undefined>
-member I18nLinkProps.autofocus?: Signalish<boolean | undefined>
-member I18nLinkProps.autoFocus?: Signalish<boolean | undefined>
-member I18nLinkProps.children?: ComponentChildren
-member I18nLinkProps.class?: Signalish<string | undefined>
-member I18nLinkProps.className?: Signalish<string | undefined>
-member I18nLinkProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nLinkProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nLinkProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
-member I18nLinkProps.datatype?: Signalish<string | undefined>
-member I18nLinkProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
-member I18nLinkProps.disablePictureInPicture?: Signalish<boolean | undefined>
-member I18nLinkProps.download?: any
-member I18nLinkProps.draggable?: Signalish<boolean | undefined>
-member I18nLinkProps.elementtiming?: Signalish<string | undefined>
-member I18nLinkProps.elementTiming?: Signalish<string | undefined>
-member I18nLinkProps.enterkeyhint?: Signalish<"enter" | "done" | "go" | "next" | "previous" | "search" | "send" | undefined>
-member I18nLinkProps.exportparts?: Signalish<string | undefined>
-member I18nLinkProps.hidden?: Signalish<boolean | "hidden" | "until-found" | undefined>
-member I18nLinkProps.href?: Signalish<string | undefined>
-member I18nLinkProps.hreflang?: Signalish<string | undefined>
-member I18nLinkProps.hrefLang?: Signalish<string | undefined>
-member I18nLinkProps.id?: Signalish<string | undefined>
-member I18nLinkProps.inert?: Signalish<boolean | undefined>
-member I18nLinkProps.inlist?: any
-member I18nLinkProps.inputmode?: Signalish<string | undefined>
-member I18nLinkProps.inputMode?: Signalish<string | undefined>
-member I18nLinkProps.is?: Signalish<string | undefined>
-member I18nLinkProps.itemid?: Signalish<string | undefined>
-member I18nLinkProps.itemID?: Signalish<string | undefined>
-member I18nLinkProps.itemprop?: Signalish<string | undefined>
-member I18nLinkProps.itemProp?: Signalish<string | undefined>
-member I18nLinkProps.itemref?: Signalish<string | undefined>
-member I18nLinkProps.itemRef?: Signalish<string | undefined>
-member I18nLinkProps.itemscope?: Signalish<boolean | undefined>
-member I18nLinkProps.itemScope?: Signalish<boolean | undefined>
-member I18nLinkProps.itemtype?: Signalish<string | undefined>
-member I18nLinkProps.itemType?: Signalish<string | undefined>
-member I18nLinkProps.jsx?: boolean | undefined
-member I18nLinkProps.key?: any
-member I18nLinkProps.lang?: Signalish<string | undefined>
-member I18nLinkProps.localeRoute?: ((to: string | { path?: string; }, locale?: string) => string | { path?: string; }) | undefined
-member I18nLinkProps.media?: Signalish<string | undefined>
-member I18nLinkProps.nonce?: Signalish<string | undefined>
-member I18nLinkProps.onAbort?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAbortCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationEnd?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationEndCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationIteration?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationIterationCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationStart?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAnimationStartCapture?: AnimationEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAuxClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onAuxClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeInput?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBeforeToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBlur?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onBlurCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCancel?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlay?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayThrough?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCanPlayThroughCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onClose?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCommand?: CommandEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionEnd?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionEndCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionStart?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionStartCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionUpdate?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCompositionUpdateCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onContextMenu?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onContextMenuCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCopy?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCopyCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCut?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onCutCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDblClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDblClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDrag?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnd?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEndCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnter?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragEnterCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragExit?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragExitCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragLeave?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragLeaveCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragOver?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragOverCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragStart?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDragStartCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDrop?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDropCapture?: DragEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDurationChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onDurationChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEmptied?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEmptiedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEncrypted?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEncryptedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnded?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEndedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnterPictureInPicture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onEnterPictureInPictureCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onError?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onErrorCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocus?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusIn?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusInCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusOut?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFocusOutCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFormData?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onFormDataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onGotPointerCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onGotPointerCaptureCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInput?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalid?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onInvalidCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyDown?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyDownCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyPress?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyPressCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyUp?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onKeyUpCapture?: KeyboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLeavePictureInPicture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLeavePictureInPictureCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoad?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedData?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedDataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedMetadata?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadedMetadataCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadStart?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLoadStartCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLostPointerCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onLostPointerCaptureCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseDown?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseDownCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseEnter?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseEnterCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseLeave?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseLeaveCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseMove?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseMoveCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOut?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOutCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOver?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseOverCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseUp?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onMouseUpCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPaste?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPasteCapture?: ClipboardEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPause?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPauseCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlay?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlayCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlaying?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPlayingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerCancel?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerCancelCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerDown?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerDownCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerEnter?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerEnterCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerLeave?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerLeaveCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerMove?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerMoveCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOut?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOutCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOver?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerOverCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerUp?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onPointerUpCapture?: PointerEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onProgress?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onProgressCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onRateChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onRateChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onReset?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResetCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResize?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onResizeCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScroll?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollEnd?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollEndCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChange?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChanging?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSearch?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSearchCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeeked?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeekedCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeeking?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSeekingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSelect?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSelectCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onStalled?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onStalledCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmit?: SubmitEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSubmitCapture?: SubmitEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSuspend?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onSuspendCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTimeUpdate?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTimeUpdateCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchCancel?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchCancelCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchEnd?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchEndCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchMove?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchMoveCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchStart?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTouchStartCapture?: TouchEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionCancel?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionCancelCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionEnd?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionEndCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionRun?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionRunCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionStart?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onTransitionStartCapture?: TransitionEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onVolumeChange?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onVolumeChangeCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWaiting?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWaitingCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWheel?: WheelEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onWheelCapture?: WheelEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.part?: Signalish<string | undefined>
-member I18nLinkProps.ping?: Signalish<string | undefined>
-member I18nLinkProps.popover?: Signalish<boolean | "auto" | "hint" | "manual" | undefined>
-member I18nLinkProps.prefix?: Signalish<string | undefined>
-member I18nLinkProps.property?: Signalish<string | undefined>
-member I18nLinkProps.ref?: Ref<HTMLAnchorElement> | undefined
-member I18nLinkProps.referrerpolicy?: Signalish<HTMLAttributeReferrerPolicy | undefined>
-member I18nLinkProps.referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | undefined>
-member I18nLinkProps.rel?: Signalish<string | undefined>
-member I18nLinkProps.resource?: Signalish<string | undefined>
-member I18nLinkProps.results?: Signalish<number | undefined>
-member I18nLinkProps.role?: Signalish<AriaRole | undefined>
-member I18nLinkProps.slot?: Signalish<string | undefined>
-member I18nLinkProps.spellcheck?: Signalish<boolean | undefined>
-member I18nLinkProps.style?: Signalish<string | CSSProperties | undefined>
-member I18nLinkProps.tabindex?: Signalish<number | undefined>
-member I18nLinkProps.tabIndex?: Signalish<number | undefined>
-member I18nLinkProps.target?: Signalish<HTMLAttributeAnchorTarget | undefined>
-member I18nLinkProps.title?: Signalish<string | undefined>
-member I18nLinkProps.to: string | { path?: string; }
-member I18nLinkProps.translate?: Signalish<boolean | undefined>
-member I18nLinkProps.type?: Signalish<string | undefined>
-member I18nLinkProps.typeof?: Signalish<string | undefined>
-member I18nLinkProps.vocab?: Signalish<string | undefined>
-const I18nLocalesContext: import("preact").Context<Locale[] | null>
-function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact").VNode<import("preact").Attributes & { value: PreactI18n | null; children?: ComponentChildren; }>
+const I18nLink: (props: I18nLinkProps) => HostElement
+type I18nLinkProps: HostAnchorAttrs<HTMLAnchorElement> & { to: RouteTarget activeStyle?: HostStyle localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget children?: HostNode }
+function I18nProvider: ({ i18n, locales, defaultLocale, routingStrategy, children, ...options }: I18nProviderProps) => HostElement
 interface I18nProviderProps
-member I18nProviderProps.children?: ComponentChildren
+member I18nProviderProps.children?: import("preact").ComponentChildren
+member I18nProviderProps.datetimeFormats?: DateTimeFormatsConfig | undefined
 member I18nProviderProps.defaultLocale?: string | undefined
-member I18nProviderProps.i18n: PreactI18n
+member I18nProviderProps.fallbackLocale?: string | undefined
+member I18nProviderProps.i18n?: I18n | undefined
+member I18nProviderProps.locale?: string | undefined
+member I18nProviderProps.localeIso?: Record<string, string> | undefined
 member I18nProviderProps.locales?: Locale[] | undefined
+member I18nProviderProps.messages?: Record<string, Translations> | undefined
+member I18nProviderProps.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member I18nProviderProps.missingWarn?: boolean | undefined
+member I18nProviderProps.now?: (() => number) | undefined
+member I18nProviderProps.numberFormats?: NumberFormatsConfig | undefined
+member I18nProviderProps.parent?: I18n | undefined
+member I18nProviderProps.plural?: PluralFunc | undefined
+member I18nProviderProps.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nProviderProps.routingStrategy?: I18nRoutingStrategy | undefined
-const I18nRouterContext: import("preact").Context<I18nRoutingStrategy | null>
+member I18nProviderProps.timeZone?: string | undefined
 interface I18nRoutingStrategy
 member I18nRoutingStrategy.getCurrentPath: () => string
 member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
-member I18nRoutingStrategy.linkComponent?: string | React.ComponentType<{ [key: string]: unknown; href: string; children?: React.ReactNode; style?: React.CSSProperties; className?: string; }> | undefined
+member I18nRoutingStrategy.linkComponent?: string | HostComponent<{ [key: string]: unknown; href: string; children?: HostNode; style?: HostStyle; className?: string; }> | undefined
 member I18nRoutingStrategy.push: (target: { path: string; }) => void
 member I18nRoutingStrategy.replace: (target: { path: string; }) => void
-member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined
-const I18nSwitcher: (props: I18nSwitcherProps) => VNode
+member I18nRoutingStrategy.resolvePath?: ((to: RouteTarget, locale: string) => RouteTarget) | undefined
+const I18nSwitcher: (props: I18nSwitcherProps) => HostElement
 interface I18nSwitcherProps
 member I18nSwitcherProps.about?: Signalish<string | undefined>
 member I18nSwitcherProps.accesskey?: Signalish<string | undefined>
@@ -746,15 +442,15 @@ member I18nSwitcherProps.className?: Signalish<string | undefined>
 member I18nSwitcherProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nSwitcherProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nSwitcherProps.currentLocale?: string | (() => string) | undefined
-member I18nSwitcherProps.customActiveLinkStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customButtonStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customDisabledLinkStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customDropdownStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customIconStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customItemStyle?: Record<string, string | number> | undefined
+member I18nSwitcherProps.customActiveLinkStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customButtonStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customDisabledLinkStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customDropdownStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customIconStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customItemStyle?: import("preact").CSSProperties | undefined
 member I18nSwitcherProps.customLabels?: Record<string, string> | undefined
-member I18nSwitcherProps.customLinkStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.customWrapperStyle?: Record<string, string | number> | undefined
+member I18nSwitcherProps.customLinkStyle?: import("preact").CSSProperties | undefined
+member I18nSwitcherProps.customWrapperStyle?: import("preact").CSSProperties | undefined
 member I18nSwitcherProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nSwitcherProps.datatype?: Signalish<string | undefined>
 member I18nSwitcherProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
@@ -785,7 +481,7 @@ member I18nSwitcherProps.itemType?: Signalish<string | undefined>
 member I18nSwitcherProps.jsx?: boolean | undefined
 member I18nSwitcherProps.key?: any
 member I18nSwitcherProps.lang?: Signalish<string | undefined>
-member I18nSwitcherProps.localeRoute?: ((to: string | { path?: string; }, locale?: string) => string | { path?: string; }) | undefined
+member I18nSwitcherProps.localeRoute?: ((to: RouteTarget, locale?: string) => RouteTarget) | undefined
 member I18nSwitcherProps.locales?: Locale[] | undefined
 member I18nSwitcherProps.nonce?: Signalish<string | undefined>
 member I18nSwitcherProps.onAbort?: GenericEventHandler<HTMLDivElement> | undefined
@@ -999,7 +695,8 @@ member I18nSwitcherProps.title?: Signalish<string | undefined>
 member I18nSwitcherProps.translate?: Signalish<boolean | undefined>
 member I18nSwitcherProps.typeof?: Signalish<string | undefined>
 member I18nSwitcherProps.vocab?: Signalish<string | undefined>
-const I18nT: (props: I18nTProps) => VNode | null
+const I18nT: (props: I18nTProps) => HostElement
+type I18nTComponent: HostNode | (() => HostNode)
 interface I18nTProps
 member I18nTProps.about?: Signalish<string | undefined>
 member I18nTProps.accesskey?: Signalish<string | undefined>
@@ -1063,15 +760,16 @@ member I18nTProps.autocorrect?: Signalish<string | undefined>
 member I18nTProps.autoCorrect?: Signalish<string | undefined>
 member I18nTProps.autofocus?: Signalish<boolean | undefined>
 member I18nTProps.autoFocus?: Signalish<boolean | undefined>
-member I18nTProps.children?: undefined
+member I18nTProps.children?: import("preact").ComponentChildren | ((props: { translation: string; }) => HostNode)
 member I18nTProps.class?: Signalish<string | undefined>
 member I18nTProps.className?: Signalish<string | undefined>
+member I18nTProps.components?: Record<string, I18nTComponent> | undefined
 member I18nTProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nTProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nTProps.customPluralRule?: PluralFunc | undefined
+member I18nTProps.customPluralRule?: PluralFunc | null | undefined
 member I18nTProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nTProps.datatype?: Signalish<string | undefined>
-member I18nTProps.date?: string | number | Date | undefined
+member I18nTProps.date?: string | number | Date | null | undefined
 member I18nTProps.defaultValue?: string | undefined
 member I18nTProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
 member I18nTProps.disablePictureInPicture?: Signalish<boolean | undefined>
@@ -1104,7 +802,7 @@ member I18nTProps.key?: any
 member I18nTProps.keypath: string
 member I18nTProps.lang?: Signalish<string | undefined>
 member I18nTProps.nonce?: Signalish<string | undefined>
-member I18nTProps.number?: string | number | undefined
+member I18nTProps.number?: string | number | null | undefined
 member I18nTProps.onAbort?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onAbortCapture?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onAnimationEnd?: AnimationEventHandler<HTMLElement> | undefined
@@ -1298,14 +996,14 @@ member I18nTProps.onWaiting?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onWaitingCapture?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onWheel?: WheelEventHandler<HTMLElement> | undefined
 member I18nTProps.onWheelCapture?: WheelEventHandler<HTMLElement> | undefined
-member I18nTProps.params?: Record<string, string | number | boolean> | undefined
+member I18nTProps.params?: Params | undefined
 member I18nTProps.part?: Signalish<string | undefined>
-member I18nTProps.plural?: string | number | undefined
+member I18nTProps.plural?: string | number | null | undefined
 member I18nTProps.popover?: Signalish<boolean | "auto" | "hint" | "manual" | undefined>
 member I18nTProps.prefix?: Signalish<string | undefined>
 member I18nTProps.property?: Signalish<string | undefined>
 member I18nTProps.ref?: Ref<HTMLElement> | undefined
-member I18nTProps.relativeDate?: string | number | Date | undefined
+member I18nTProps.relativeDate?: string | number | Date | null | undefined
 member I18nTProps.resource?: Signalish<string | undefined>
 member I18nTProps.results?: Signalish<number | undefined>
 member I18nTProps.role?: Signalish<AriaRole | undefined>
@@ -1314,7 +1012,7 @@ member I18nTProps.spellcheck?: Signalish<boolean | undefined>
 member I18nTProps.style?: Signalish<string | CSSProperties | undefined>
 member I18nTProps.tabindex?: Signalish<number | undefined>
 member I18nTProps.tabIndex?: Signalish<number | undefined>
-member I18nTProps.tag?: keyof JSX.IntrinsicElements | undefined
+member I18nTProps.tag?: keyof import("preact").JSX.IntrinsicElements | undefined
 member I18nTProps.title?: Signalish<string | undefined>
 member I18nTProps.translate?: Signalish<boolean | undefined>
 member I18nTProps.typeof?: Signalish<string | undefined>
@@ -1378,9 +1076,11 @@ member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptions.serverTranslationPreload?: boolean | undefined
 member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.timeZone?: string | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>
@@ -1388,15 +1088,17 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class PreactI18n
 member PreactI18n.activeKey: private any
 member PreactI18n.activeRootKey: private any
+member PreactI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.clear: () => void
 member PreactI18n.clearCache: () => void
 member PreactI18n.currentRoute: string
-member PreactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M
+member PreactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("@i18n-micro/runtime").I18n & M>) => import("@i18n-micro/runtime").I18n & M
 member PreactI18n.fallbackKey: private any
 member PreactI18n.fallbackLocale: string
 member PreactI18n.fallbackRootKey: private any
+member PreactI18n.fork: (locale?: string) => I18n
 member PreactI18n.formatArgs: private any
 member PreactI18n.formatter: FormatService
 member PreactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -1414,11 +1116,15 @@ member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeM
 member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
+member PreactI18n.localeIso: protected Record<string, string>
 member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
-member PreactI18n.onTranslationsChanged: protected () => void
+member PreactI18n.onTranslationsChanged: protected (locale?: string) => void
+member PreactI18n.ownStore: protected ReactiveI18nStore
 member PreactI18n.pluralFunc: PluralFunc
+member PreactI18n.pluralLocale: () => string
+member PreactI18n.pluralTag: private any
 member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -1427,7 +1133,7 @@ member PreactI18n.resolveTranslationTree: protected (lower: Record<string, unkno
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member PreactI18n.storage: TranslationStorage
-member PreactI18n.store: private any
+member PreactI18n.store: protected ReactiveI18nStore
 member PreactI18n.subscribe: (listener: () => void) => () => void
 member PreactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member PreactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -1440,22 +1146,27 @@ member PreactI18n.warnDev: protected (message: string) => void
 member PreactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member PreactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
 member PreactI18n.write: private any
-member PreactI18n.new: (options: I18nOptions): PreactI18n
+member PreactI18n.new: (options: I18nOptions): I18n
 interface PreactI18nOptions
 member PreactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member PreactI18nOptions.fallbackLocale?: string | undefined
 member PreactI18nOptions.locale: string
+member PreactI18nOptions.localeIso?: Record<string, string> | undefined
 member PreactI18nOptions.messages?: Record<string, Translations> | undefined
 member PreactI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18nOptions.missingWarn?: boolean | undefined
+member PreactI18nOptions.now?: (() => number) | undefined
 member PreactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member PreactI18nOptions.parent?: I18n | undefined
 member PreactI18nOptions.plural?: PluralFunc | undefined
 member PreactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member PreactI18nOptions.timeZone?: string | undefined
+type RouteTarget: string | { path?: string }
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface Translations
 member Translations.[string]: unknown
 const useI18n: (options?: UseI18nOptions) => UseI18nReturn
-const useI18nContext: () => PreactI18n
+const useI18nContext: () => I18n
 const useI18nDefaultLocale: () => string | null
 const useI18nLocales: () => Locale[] | null
 interface UseI18nOptions
@@ -1473,11 +1184,11 @@ member UseI18nReturn.getLocales: () => Locale[]
 member UseI18nReturn.getRoute: () => string
 member UseI18nReturn.has: (key: TranslationKey, routeName?: string) => boolean
 member UseI18nReturn.locale: string
-member UseI18nReturn.localePath?: ((to: string | { path?: string; }, locale?: string) => string) | undefined
-member UseI18nReturn.localeRoute?: ((to: string | { path?: string; }, locale?: string) => string | { path?: string; }) | undefined
+member UseI18nReturn.localePath: (to: RouteTarget, locale?: string) => string
+member UseI18nReturn.localeRoute: (to: RouteTarget, locale?: string) => RouteTarget
 member UseI18nReturn.setLocale: (locale: string) => void
 member UseI18nReturn.setRoute: (routeName: string) => void
-member UseI18nReturn.switchLocale?: ((locale: string) => void) | undefined
+member UseI18nReturn.switchLocale: (locale: string) => void
 member UseI18nReturn.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
 member UseI18nReturn.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member UseI18nReturn.td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
@@ -1485,3 +1196,15 @@ member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.Relativ
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
 member UseI18nReturn.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
 const useI18nRouter: () => I18nRoutingStrategy | null
+function useLocaleSwitch: (load: (locale: string) => unknown) => [(locale: string) => Promise<void>, boolean]
+function useT: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
+
+# ./router (src/router/index.ts)
+function createBrowserHistoryAdapter: (locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | HostComponent<{ [key: string]: unknown; href: string; children?: HostNode; style?: HostStyle; className?: string; }> | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: RouteTarget, locale: string) => RouteTarget) | undefined

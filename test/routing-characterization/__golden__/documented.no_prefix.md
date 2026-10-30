@@ -6,25 +6,25 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| activity | /activity |  |  |
-| · activity-hiking | hiking |  |  |
-| · activity-skiing | skiing |  |  |
-| page | /page |  |  |
-| product-slug | /product/:slug(.*)* |  |  |
-| unlocalized | /unlocalized |  |  |
-| same | /same |  |  |
-| localized-activity-en | /change-activity |  |  |
-| · localized-activity-hiking-en | hiking |  |  |
-| · localized-activity-skiing-en | book-activity/skiing |  |  |
-| localized-activity-de | /change-buchen |  |  |
-| · localized-activity-hiking-de | hiking |  |  |
-| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  |
-| localized-page-en | /page/:id |  |  |
-| localized-page-de | /page/:id |  |  |
-| localized-product-slug-de | /produkte/:slug(.*)* |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| activity | /activity |  |  | activity: fr |
+| · activity-hiking | hiking |  |  | activity-hiking: fr |
+| · activity-skiing | skiing |  |  | activity-skiing: fr |
+| page | /page |  |  | page: fr |
+| product-slug | /product/:slug(.*)* |  |  | product-slug: en, fr |
+| unlocalized | /unlocalized |  |  |  |
+| same | /same |  |  | same: en, de, fr |
+| localized-activity-en | /change-activity |  |  | activity: en |
+| · localized-activity-hiking-en | hiking |  |  | activity-hiking: en |
+| · localized-activity-skiing-en | book-activity/skiing |  |  | activity-skiing: en |
+| localized-activity-de | /change-buchen |  |  | activity: de |
+| · localized-activity-hiking-de | hiking |  |  | activity-hiking: de |
+| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  | activity-skiing: de |
+| localized-page-en | /page/:id |  |  | page: en |
+| localized-page-de | /page/:id |  |  | page: de |
+| localized-product-slug-de | /produkte/:slug(.*)* |  |  | product-slug: de |
 
 ## Reading a URL
 
@@ -39,13 +39,13 @@ Every URL is resolved with `?q=1#top`.
 | /change-activity | localized-activity-en | en | activity | activity | English | null | null | null |
 | /change-activity/book-activity/skiing | localized-activity-skiing-en | en | activity-skiing | activity-skiing | English | null | null | null |
 | /change-activity/hiking | localized-activity-hiking-en | en | activity-hiking | activity-hiking | English | null | null | null |
-| /change-buchen | localized-activity-de | en | activity | activity | English | null | null | null |
-| /change-buchen/aktivitaet-buchen/ski-fahren | localized-activity-skiing-de | en | activity-skiing | activity-skiing | English | null | null | null |
-| /change-buchen/hiking | localized-activity-hiking-de | en | activity-hiking | activity-hiking | English | null | null | null |
+| /change-buchen | localized-activity-de | de | activity | activity | Deutsch | null | null | null |
+| /change-buchen/aktivitaet-buchen/ski-fahren | localized-activity-skiing-de | de | activity-skiing | activity-skiing | Deutsch | null | null | null |
+| /change-buchen/hiking | localized-activity-hiking-de | de | activity-hiking | activity-hiking | Deutsch | null | null | null |
 | /page | page | en | page | page | English | null | null | null |
 | /page/42 | localized-page-en | en | page | page | English | null | null | null |
 | /product/hello-world | product-slug | en | product-slug | product-slug | English | null | null | null |
-| /produkte/hello-world | localized-product-slug-de | en | product-slug | product-slug | English | null | null | null |
+| /produkte/hello-world | localized-product-slug-de | de | product-slug | product-slug | Deutsch | null | null | null |
 | /same | same | en | same | same | English | null | null | null |
 | /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | null | null |
 | /en | null | en | index | index | English | en | null | null |

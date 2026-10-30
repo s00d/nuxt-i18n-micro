@@ -13,6 +13,8 @@
 
     <i18n-link id="settings-team" :to="{ name: 'settings-team' }"> Settings Team </i18n-link>
 
+    <NuxtLink id="plain-about" to="/about"> Plain link </NuxtLink>
+
     <div id="locale-switcher">
       <i18n-switcher />
     </div>

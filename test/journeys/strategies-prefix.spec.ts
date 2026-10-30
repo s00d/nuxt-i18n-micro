@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { collectHydrationIssues } from 'untestutils/utils'
 import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
@@ -12,6 +12,7 @@ describe('J2 strategies: prefix', () => {
     const root = await request.get('/', { maxRedirects: 0 })
     expect(root.status()).toBe(302)
     expect(new URL(root.headers().location!, baseURL).pathname).toBe('/en')
+    expect(root.headers()['x-security-test']).toBe('1')
 
     // steps 1–5: shared walk (was: prefix › no cookie uses defaultLocale)
     await walkStrategy(page, goto, { home: '/en', contact: '/en/contact', deHome: '/de', deContact: '/de/kontakt' })

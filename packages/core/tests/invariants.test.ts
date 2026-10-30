@@ -34,6 +34,14 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
+test('tc picks the form before it interpolates: a pipe in a param is no form', () => {
+  const i18n = new TestI18n('en', { missingWarn: false })
+  i18n.loadTranslationsCore('en', { items: 'Hello {name}|Hi {name}|Hey {name} ({count})' }, false)
+  expect(i18n.tc('items', { count: 0, name: 'a|b' })).toBe('Hello a|b')
+  expect(i18n.tc('items', { count: 1, name: 'a|b' })).toBe('Hi a|b')
+  expect(i18n.tc('items', { count: 5, name: 'a|b' })).toBe('Hey a|b (5)')
+})
+
 describe('hostile input', () => {
   test('a lookup reads array items by index, never array or prototype members', () => {
     const tree = { list: ['a', 'b'] }
@@ -185,4 +193,13 @@ describe('formats', () => {
     expect(i18n.tdr(new Date('2026-01-09T12:00:00Z'))).toBe('1 day ago')
     expect(i18n.tdr(new Date('2026-01-09T12:00:00Z'), { numeric: 'auto' })).toBe('yesterday')
   })
+})
+
+test('formatter caches are bounded: a loop over generated options cannot grow them for ever', () => {
+  const service = new FormatService()
+  const sizes = () => (service as unknown as { numberCache: Map<string, unknown> }).numberCache.size
+  // an option Intl ignores: every key is another formatter
+  for (let i = 0; i < 1200; i++) service.formatNumber(1, 'en', { [`generated${i}`]: 1 } as Intl.NumberFormatOptions)
+  expect(sizes()).toBeLessThanOrEqual(500)
+  expect(service.formatNumber(1.5, 'en')).toBe('1.5')
 })

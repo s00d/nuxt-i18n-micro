@@ -19,6 +19,8 @@ export default defineConfig({
       // Точки входа
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
+        middleware: resolve(import.meta.dirname, 'src/auto-middleware.ts'),
+        node: resolve(import.meta.dirname, 'src/node.ts'),
         'client/index': resolve(import.meta.dirname, 'src/client/index.ts'),
         'client/vue': resolve(import.meta.dirname, 'src/client/vue.ts'),
         'client/react': resolve(import.meta.dirname, 'src/client/react.tsx'),
@@ -30,17 +32,11 @@ export default defineConfig({
     rollupOptions: {
       // Внешние зависимости
       external: [
-        '@i18n-micro/core',
-        '@i18n-micro/types',
-        '@i18n-micro/utils/accept-language',
-        '@i18n-micro/utils/resolve-locale',
-        '@i18n-micro/utils/parse-path',
-        'node:fs',
-        'node:path',
-        'node:url',
-        'node:module',
-        'node:async_hooks',
+        /^@i18n-micro\//,
+        /^node:/,
+        /^virtual:/,
         'astro',
+        'vue',
         'svelte/store',
         'react',
         'react/jsx-runtime',
@@ -65,6 +61,7 @@ export default defineConfig({
         {
           format: 'cjs',
           entryFileNames: '[name].cjs',
+          chunkFileNames: '[name]-[hash].cjs',
           exports: 'named',
         },
       ],
@@ -88,13 +85,13 @@ export default defineConfig({
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'tests/**/*'],
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),
-    // Плагин очистки: удаляет CJS файлы для клиента, так как Rollup генерирует их для всех entry point'ов
+    // Rollup writes every entry in every format; only the main server entry has a CJS build
     {
       name: 'clean-client-cjs',
       generateBundle(options, bundle) {
         if (options.format === 'cjs') {
           for (const fileName in bundle) {
-            if (fileName.startsWith('client/')) {
+            if (/^(client\/|middleware\.|node\.)/.test(fileName)) {
               delete bundle[fileName]
             }
           }

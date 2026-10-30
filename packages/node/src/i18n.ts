@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
+import type { ReactiveI18nStore } from '@i18n-micro/core'
 import { I18n as RuntimeI18n, type I18nOptions as RuntimeI18nOptions } from '@i18n-micro/runtime'
 import { loadTranslations } from './loader'
 
@@ -9,13 +11,35 @@ export interface I18nOptions extends RuntimeI18nOptions {
 export class I18n extends RuntimeI18n {
   public translationDir?: string
   private disablePageLocales: boolean
+  /** The request's fork; shared with forks, so `run` works from any of them. */
+  private readonly scope: AsyncLocalStorage<I18n>
+  private readonly forked: boolean
 
   constructor(options: I18nOptions) {
     const { translationDir, disablePageLocales, ...runtimeOptions } = options
     super(runtimeOptions)
 
-    this.translationDir = translationDir
-    this.disablePageLocales = disablePageLocales ?? false
+    const parent = options.parent as I18n | undefined
+    this.translationDir = translationDir ?? parent?.translationDir
+    this.disablePageLocales = disablePageLocales ?? parent?.disablePageLocales ?? false
+    this.scope = parent?.scope ?? new AsyncLocalStorage()
+    this.forked = parent !== undefined
+  }
+
+  /** Inside `run`, the shared instance answers with the request's locale and route. A fork always answers with its own. */
+  protected override get store(): ReactiveI18nStore {
+    // `?.`: the parent constructor reads this before `scope` is set
+    return this.forked ? this.ownStore : (this.scope?.getStore()?.ownStore ?? this.ownStore)
+  }
+
+  /**
+   * Runs `fn` with a fork for `locale` as the current request: until `fn` and everything it awaits
+   * finish, this instance reads and sets that fork's locale and route. `fn` also gets the fork.
+   * ponytail: dictionary writes go to the instance they are called on; write to the fork for request-only keys.
+   */
+  public run<T>(locale: string, fn: (i18n: this) => T): T {
+    const fork = this.fork(locale)
+    return this.scope.run(fork, fn, fork)
   }
 
   public async loadTranslations(dir?: string): Promise<void> {
@@ -31,6 +55,7 @@ export class I18n extends RuntimeI18n {
     this.loadMessages(root, routes)
   }
 
+  /** Re-reads the directory. The old dictionaries answer until the new ones are in, so no request sees an empty instance. */
   public async reload(): Promise<void> {
     const targetDir = this.translationDir
     if (!targetDir) {
@@ -38,9 +63,11 @@ export class I18n extends RuntimeI18n {
       return
     }
 
+    const { root, routes } = await loadTranslations(targetDir, this.disablePageLocales)
+    // a directory gone for a moment (a deploy swapping it) reads as empty: keep what works
+    if (Object.keys(root).length === 0 && Object.keys(routes).length === 0) return
     this.clearCache()
-    await this.loadTranslations(targetDir)
-    console.log('[i18n-node] Cache cleared and translations reloaded.')
+    this.loadMessages(root, routes)
   }
 }
 

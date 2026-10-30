@@ -20,7 +20,7 @@ Vite:
 import { I18nTypesPlugin } from '@i18n-micro/types-generator'
 
 export default defineConfig({
-  plugins: [I18nTypesPlugin.vite({ srcDir: process.cwd(), translationDir: 'src/locales' })],
+  plugins: [I18nTypesPlugin({ srcDir: process.cwd(), translationDir: 'src/locales' })],
 })
 ```
 

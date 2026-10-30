@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| admin | /admin |  |  |
-| · admin-users | users |  |  |
-| localized-index | /:locale(en\|de\|fr) |  |  |
-| localized-about | /:locale(en\|fr)/about |  |  |
-| localized-de-only | /:locale(de)/de-only |  |  |
-| localized-blog | /:locale(en\|de\|fr)/blog |  |  |
-| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  |
-| localized-landing | /:locale(en)/landing |  |  |
-| localized-landing-de | /:locale(de)/start |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| admin | /admin |  |  |  |
+| · admin-users | users |  |  |  |
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-about | /:locale(en\|fr)/about |  |  | about: en, fr |
+| localized-de-only | /:locale(de)/de-only |  |  | de-only: de |
+| localized-blog | /:locale(en\|de\|fr)/blog |  |  | blog: en, de, fr |
+| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  | blog-slug: en, de, fr |
+| localized-landing | /:locale(en)/landing |  |  | landing: en |
+| localized-landing-de | /:locale(de)/start |  |  | landing: de |
 
 ## Reading a URL
 
@@ -155,11 +155,6 @@ params: the PARAMS keys the route's records use.
 | index | /en [localized-index] | /de [localized-index] | /fr [localized-index] | /en [localized-index] | /de [localized-index] | /fr [localized-index] | /en [localized-index] | /de [localized-index] | /fr [localized-index] |
 | landing | /en/landing [localized-landing] | /de/start [localized-landing-de] | /fr [localized-index] | /en/landing [localized-landing] | /de/start [localized-landing-de] | /fr [localized-index] | /en/landing [localized-landing] | /de/start [localized-landing-de] | /fr [localized-index] |
 
-## Invariant breaks (6)
+## Invariant breaks (0)
 
-- /de/de-only → en → de: round trip ends on /de, not /de/de-only?q=1#top
-- /de/de-only → fr → de: round trip ends on /de, not /de/de-only?q=1#top
-- /de/start → fr → de: round trip ends on /de, not /de/start?q=1#top
-- /en/about → de → en: round trip ends on /en, not /en/about?q=1#top
-- /en/landing → fr → en: round trip ends on /en, not /en/landing?q=1#top
-- /fr/about → de → fr: round trip ends on /fr, not /fr/about?q=1#top
+none

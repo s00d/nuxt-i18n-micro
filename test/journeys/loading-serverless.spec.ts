@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // basic, BASIC_VARIANT=serverless: payloads behind a `/_locales/**` route cache in memory storage; /cache reads root and page keys
 describe('J8 translation loading: serverless with cache', () => {

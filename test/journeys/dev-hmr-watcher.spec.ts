@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from 'untestutils/vitest'
+import { afterAll, describe, expect, test } from '../helpers/guarded-test.ts'
 import { gotoSettled, resetHmr, type PayloadValue } from '../helpers/journeys-d'
 import { createTranslationWatcherFiles, waitForTranslationHtmlValue, waitForTranslationPayloadValue } from '../helpers/translation-watcher-hmr'
 import { translationWatcherTmpRoots } from '../recipes.ts'
@@ -26,7 +26,7 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
     await resetHmr(files, baseURL!, PRISTINE)
 
     // step 1: open /en/about → About EN; mark the window to detect a reload
-    await gotoSettled(page, goto, '/en/about', '#about-title', 'About EN')
+    await gotoSettled(page, goto, baseURL!, '/en/about', '#about-title', 'About EN')
     await page.evaluate(() => {
       ;(window as { __noReload?: boolean }).__noReload = true
     })
@@ -37,15 +37,15 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
     await expect(page.locator('#about-title')).toHaveText('About EN live')
     expect(await page.evaluate(() => (window as { __noReload?: boolean }).__noReload)).toBe(true)
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN live')
-    await gotoSettled(page, goto, '/en/about', '#about-title', 'About EN live')
+    await gotoSettled(page, goto, baseURL!, '/en/about', '#about-title', 'About EN live')
 
     // step 3: patch root en.json sharedRoot → payload index + about → /en and /en/about show it
     // was: translation-watcher › updates root translations on index and about after a root locale file change
     files.patchFile('en.json', (current) => ({ ...current, sharedRoot: 'Shared EN HMR' }))
     await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'sharedRoot', 'Shared EN HMR')
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'sharedRoot', 'Shared EN HMR')
-    await gotoSettled(page, goto, '/en', '#shared-root', 'Shared EN HMR')
-    await gotoSettled(page, goto, '/en/about', '#shared-root', 'Shared EN HMR')
+    await gotoSettled(page, goto, baseURL!, '/en', '#shared-root', 'Shared EN HMR')
+    await gotoSettled(page, goto, baseURL!, '/en/about', '#shared-root', 'Shared EN HMR')
 
     // step 4: patch root hello → SSR HTML of /en has it
     // was: translation-watcher › applies root translation changes to SSR HTML
@@ -68,10 +68,10 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
 
     // step 6: /de/about → About DE; patch de → payload → reload shows it
     // was: translation-watcher › updates German page translations after a locale file change
-    await gotoSettled(page, goto, '/de/about', '#about-title', 'About DE')
+    await gotoSettled(page, goto, baseURL!, '/de/about', '#about-title', 'About DE')
     files.patchFile('pages/about/de.json', (current) => ({ ...current, aboutTitle: 'About DE HMR' }))
     await waitForTranslationPayloadValue(baseURL!, 'about', 'de', 'aboutTitle', 'About DE HMR')
-    await gotoSettled(page, goto, '/de/about', '#about-title', 'About DE HMR')
+    await gotoSettled(page, goto, baseURL!, '/de/about', '#about-title', 'About DE HMR')
   })
 
   test('additionalTranslationDirs merge and hot-reload', async ({ page, goto, baseURL }) => {
@@ -80,7 +80,7 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
 
     // step 1: open /en → from common, deep merge x/y/z = 1/99/3
     // was: translation-watcher › merges additionalTranslationDirs roots and hot-reloads them
-    await gotoSettled(page, goto, '/en', '#from-common', 'From Common EN')
+    await gotoSettled(page, goto, baseURL!, '/en', '#from-common', 'From Common EN')
     await expect(page.locator('#deep-x')).toHaveText('1')
     await expect(page.locator('#deep-y')).toHaveText('99')
     await expect(page.locator('#deep-z')).toHaveText('3')
@@ -89,7 +89,7 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
     files.patchFixtureFile('common/en.json', (current) => ({ ...current, fromCommon: 'From Common EN HMR' }))
     await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'fromCommon', 'From Common EN HMR')
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'fromCommon', 'From Common EN HMR')
-    await gotoSettled(page, goto, '/en', '#from-common', 'From Common EN HMR')
+    await gotoSettled(page, goto, baseURL!, '/en', '#from-common', 'From Common EN HMR')
     await expect(page.locator('#shared-root')).toHaveText('Shared EN')
 
     // step 3: patch root deep.a + sharedRoot → payload deep-merged, additional key kept → /en shows it
@@ -104,7 +104,7 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
     const payload = (await response.json()) as { fromCommon: string; deep: { a: unknown } }
     expect(payload.fromCommon).toBe('From Common EN HMR')
     expect(payload.deep.a).toEqual({ x: 1, y: 77, z: 8 })
-    await gotoSettled(page, goto, '/en', '#shared-root', 'Shared EN Nested HMR')
+    await gotoSettled(page, goto, baseURL!, '/en', '#shared-root', 'Shared EN Nested HMR')
     await expect(page.locator('#from-common')).toHaveText('From Common EN HMR')
     await expect(page.locator('#deep-x')).toHaveText('1')
     await expect(page.locator('#deep-y')).toHaveText('77')

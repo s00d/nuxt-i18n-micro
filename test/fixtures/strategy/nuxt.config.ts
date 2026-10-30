@@ -21,10 +21,16 @@ function resolveStrategy(): Strategies {
 // under globalLocaleRoutes. Same iso values, so the head stays comparable.
 const regionCodes = process.env.REGION_CODES === '1'
 const code = (short: string, region: string) => (regionCodes ? region : short)
+// DOMAINS (`strategy-domains-*`): en on example.com, de on example.de, ru on every host; the value is app.baseURL
+const domain = (host: string) =>
+  process.env.DOMAINS ? { baseUrl: `https://${host}${process.env.DOMAINS.replace(/^\/$/, '')}`, baseDefault: true } : {}
 const locales = [
-  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English' },
-  { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German' },
+  // DOMAINS_OPEN_DEFAULT: the default locale has no domain, so nothing fixes the public origin
+  { code: code('en', 'en-us'), iso: 'en_EN', displayName: 'English', ...(process.env.DOMAINS_OPEN_DEFAULT ? {} : domain('example.com')) },
+  { code: code('de', 'de-de'), iso: 'de_DE', displayName: 'German', ...domain('example.de') },
   { code: code('ru', 'ru-ru'), iso: 'ru_RU', displayName: 'Russian' },
+  // `strategy-disabled-locale`: off at build time
+  ...(process.env.DISABLED_LOCALE ? [{ code: process.env.DISABLED_LOCALE, iso: 'es_ES', disabled: true }] : []),
 ]
 const regionI18n = {
   customRegexMatcher: '[a-z]{2}-[a-z]{2}',
@@ -43,6 +49,9 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-16',
 
+  // a wildcard over a page with custom paths (`/de/kontakt`, `/kontakt`)
+  routeRules: { '/contact/**': { headers: { 'x-section': 'contact' } } },
+
   ...(testBuildDir ? { buildDir: testBuildDir } : {}),
 
   // generate does not stop at the first prerender error: test/helpers/strategy-suite.ts collects
@@ -51,7 +60,7 @@ export default defineNuxtConfig({
     prerender: {
       failOnError: false,
     },
-    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),
+    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output'), publicDir: process.env.PUBLIC_DIR } } : {}),
   },
 
   i18n: {

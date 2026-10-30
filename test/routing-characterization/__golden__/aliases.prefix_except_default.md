@@ -6,23 +6,23 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about | /company, /über, /%C3%BCber |  |
-| help | /help | /support |  |
-| blog-slug | /blog/:slug() | /news/:slug() |  |
-| docs | /docs | /documentation |  |
-| · docs-intro | intro |  |  |
-| localized-index | /:locale(de\|fr) |  |  |
-| localized-about | /:locale(fr)/about | /:locale(fr)/company, /:locale(fr)/über, /:locale(fr)/%C3%BCber |  |
-| localized-about-de | /:locale(de)/ueber-uns | /:locale(de)/company, /:locale(de)/über, /:locale(de)/%C3%BCber |  |
-| localized-help | /:locale(de\|fr)/help | /:locale(de\|fr)/support |  |
-| localized-blog-slug | /:locale(de\|fr)/blog/:slug() | /:locale(de\|fr)/news/:slug() |  |
-| localized-docs | /:locale(fr)/docs | /:locale(fr)/documentation |  |
-| · localized-docs-intro | intro |  |  |
-| localized-docs-de | /:locale(de)/docs | /:locale(de)/documentation |  |
-| · localized-docs-intro-de | einfuehrung |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| about | /about | /company, /über, /%C3%BCber |  | about: en |
+| help | /help | /support |  | help: en |
+| blog-slug | /blog/:slug() | /news/:slug() |  | blog-slug: en |
+| docs | /docs | /documentation |  | docs: en |
+| · docs-intro | intro |  |  | docs-intro: en |
+| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| localized-about | /:locale(fr)/about | /:locale(fr)/company, /:locale(fr)/über, /:locale(fr)/%C3%BCber |  | about: fr |
+| localized-about-de | /:locale(de)/ueber-uns | /:locale(de)/company, /:locale(de)/über, /:locale(de)/%C3%BCber |  | about: de |
+| localized-help | /:locale(de\|fr)/help | /:locale(de\|fr)/support |  | help: de, fr |
+| localized-blog-slug | /:locale(de\|fr)/blog/:slug() | /:locale(de\|fr)/news/:slug() |  | blog-slug: de, fr |
+| localized-docs | /:locale(fr)/docs | /:locale(fr)/documentation |  | docs: fr |
+| · localized-docs-intro | intro |  |  | docs-intro: fr |
+| localized-docs-de | /:locale(de)/docs | /:locale(de)/documentation |  | docs: de |
+| · localized-docs-intro-de | einfuehrung |  |  | docs-intro: de |
 
 ## Reading a URL
 

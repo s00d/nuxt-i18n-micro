@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-87 exports across 19 entry points.
+104 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -132,6 +132,112 @@ import { /* … */ } from '@i18n-micro/utils/deep-merge'
 | `deepMergeTranslationsRecursive` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
 
 
+## `@i18n-micro/utils/domains`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/domains'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `configForHost` | function | `(config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend` |
+| `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
+
+
+## `@i18n-micro/utils/load-dir`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/load-dir'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `listTranslationFiles` | function | `(dir: string) => TranslationFile[]` |
+| `loadTranslationDir` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
+| `loadTranslationDirAsync` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>` |
+| `parseTranslationFile` | function | `(text: string, path: string) => Dictionary \| null` |
+| `TranslationFile` | interface | 2 members |
+
+<details>
+<summary><code>TranslationFile</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `absolutePath` | `string` |
+| `relativePath` | `string` |
+
+</details>
+## `@i18n-micro/utils/locale-head`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/locale-head'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `buildLocaleHead` | function | `(input: LocaleHeadInput) => LocaleHead` |
+| `filterQuery` | function | `(url: string, whitelist: readonly string[]) => string` |
+| `joinBase` | function | `(base: string, path: string) => string` |
+| `LocaleHead` | interface | 3 members |
+| `LocaleHeadAttrs` | interface | 3 members |
+| `LocaleHeadInput` | interface | 11 members |
+| `LocaleHeadLink` | interface | 4 members |
+| `LocaleHeadMeta` | interface | 3 members |
+| `queryString` | function | `(query?: object \| null) => string` |
+
+<details>
+<summary><code>LocaleHead</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `htmlAttrs` | `LocaleHeadAttrs` |
+| `link` | `LocaleHeadLink[]` |
+| `meta` | `LocaleHeadMeta[]` |
+
+</details>
+
+<details>
+<summary><code>LocaleHeadAttrs</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string \| undefined` |
+| `dir?` | `"ltr" \| "rtl" \| "auto" \| undefined` |
+| `lang?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>LocaleHeadInput</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `addDirAttribute?` | `boolean \| undefined` |
+| `addSeoAttributes?` | `boolean \| undefined` |
+| `alternates?` | `boolean \| undefined` |
+| `canonical` | `string` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `hrefOf` | `(code: string) => string` |
+| `identifierAttribute?` | `string \| undefined` |
+| `locale` | `Locale` |
+| `missingWarn?` | `boolean \| undefined` |
+| `seoLocales` | `Locale[]` |
+| `xDefault?` | `string \| undefined` |
+
+</details>
+
+<code>LocaleHeadLink</code> — 4 members, identical to [`I18nHeadLink`](/api/packages/types).
+
+<details>
+<summary><code>LocaleHeadMeta</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string` |
+| `content` | `string` |
+| `property` | `string` |
+
+</details>
 ## `@i18n-micro/utils/merge-i18n-head`
 
 ```ts
@@ -340,8 +446,9 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `explicitLocale` | function | `(input: Omit<ResolveLocaleInput, "defaultLocale">) => string \| null` |
 | `firstQueryValue` | function | `(value: unknown) => string \| null` |
 | `localeFromPath` | function | `(path: string, validLocales: readonly string[]) => string \| null` |
+| `preferenceCounts` | function | `(input: Pick<RedirectLocaleInput, "path" \| "urlLocale" \| "autoDetectPath" \| "alwaysPrefixed">) => boolean` |
 | `redirectLocale` | function | `(input: RedirectLocaleInput) => string` |
-| `RedirectLocaleInput` | interface | 9 members |
+| `RedirectLocaleInput` | interface | 10 members |
 | `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
 | `ResolveLocaleInput` | interface | 9 members |
 | `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
@@ -350,11 +457,12 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `ResolveServerLocaleInput` | interface | 8 members |
 
 <details>
-<summary><code>RedirectLocaleInput</code> — 9 members</summary>
+<summary><code>RedirectLocaleInput</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `acceptLanguage?` | `string \| null \| undefined` |
+| `alwaysPrefixed?` | `boolean \| undefined` |
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cookie?` | `string \| null \| undefined` |

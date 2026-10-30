@@ -1,5 +1,5 @@
 import { emulateDomain, forwardedHostHeaders, parseSeoHead } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `seo` fixture: prefix, en/de/ru (ru seo:false) + fr/ar/zh (og:locale formats), no metaBaseUrl (host from the request),
 // canonicalQueryWhitelist [page, filter, q]. Absorbs the old `seo-auto` and `canonical-whitelist` builds.

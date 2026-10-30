@@ -17,14 +17,17 @@ const libEntries = {
   'split-locale-routes': resolve(rootDir, 'src/split-locale-routes.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
+  'locale-head': resolve(rootDir, 'src/locale-head.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
+  domains: resolve(rootDir, 'src/domains.ts'),
   cookie: resolve(rootDir, 'src/cookie.ts'),
   'cache-control': resolve(rootDir, 'src/cache-control.ts'),
   'parse-path': resolve(rootDir, 'src/parse-path.ts'),
   'runtime-config': resolve(rootDir, 'src/runtime-config.ts'),
   normalize: resolve(rootDir, 'src/normalize.ts'),
   'app-path': resolve(rootDir, 'src/app-path.ts'),
+  'load-dir': resolve(rootDir, 'src/load-dir.ts'),
 } as const
 
 const publishedEntryNames = new Set(Object.keys(libEntries))

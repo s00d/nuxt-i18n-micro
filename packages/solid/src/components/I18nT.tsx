@@ -1,118 +1,101 @@
-// @ts-nocheck
-
-import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import { type Component, createMemo, type JSX, Show, splitProps } from 'solid-js'
+import { foldTemplate, type RenderSlot, type RenderSlots } from '@i18n-micro/core/render'
+import { interpolate, resolveText, type ResolveTextOptions } from '@i18n-micro/core'
+import { type Component, createMemo, getOwner, type JSX, mergeProps, runWithOwner, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { useI18nContext } from '../injection'
 
-interface I18nTProps extends JSX.HTMLAttributes<HTMLElement> {
-  keypath: TranslationKey
-  params?: Record<string, string | number | boolean>
+/** What fills a `{name}` placeholder. A function may run per occurrence; one node can only stand in one place. */
+export type I18nTComponent = JSX.Element | (() => JSX.Element)
+
+export interface I18nTProps extends Omit<JSX.HTMLAttributes<HTMLElement>, 'children'>, ResolveTextOptions {
   tag?: string
-  plural?: number | string
-  defaultValue?: string
-  html?: boolean
-  hideIfEmpty?: boolean
-  customPluralRule?: PluralFunc
-  number?: number | string
-  date?: Date | string | number
-  relativeDate?: Date | string | number
+  /** Elements for `{name}` placeholders. Beats a param of the same name. */
+  components?: Record<string, I18nTComponent>
+  /** Replaces the text. As a function it gets the translation, like Vue's default slot. */
+  children?: JSX.Element | ((props: { translation: string }) => JSX.Element)
+}
+
+const OWN_PROPS = [
+  'keypath',
+  'params',
+  'tag',
+  'plural',
+  'defaultValue',
+  'html',
+  'hideIfEmpty',
+  'customPluralRule',
+  'number',
+  'date',
+  'relativeDate',
+  'components',
+  'children',
+] as const
+
+/** Attributes that would set the content, and with it get past the `html` prop. */
+const CONTENT_ATTRS = ['innerHTML', 'textContent', 'dangerouslySetInnerHTML', 'prop:innerHTML', 'prop:textContent'] as const
+
+/** What JSX itself draws as nothing: no children, not empty ones. */
+const isUnset = (children: unknown): boolean => children === undefined || children === null || typeof children === 'boolean'
+
+function toSlots(components: I18nTProps['components']): RenderSlots {
+  const slots: Record<string, RenderSlot> = Object.create(null)
+  for (const name of Object.keys(components ?? {})) {
+    const value = components![name]
+    if (value !== undefined) slots[name] = typeof value === 'function' ? (value as RenderSlot) : () => value
+  }
+  return slots
 }
 
 export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
   const i18n = useI18nContext()
-  const [local, others] = splitProps(props, [
-    'keypath',
-    'params',
-    'tag',
-    'plural',
-    'defaultValue',
-    'html',
-    'hideIfEmpty',
-    'customPluralRule',
-    'number',
-    'date',
-    'relativeDate',
-  ])
+  const [local, , attrs] = splitProps(props, OWN_PROPS, CONTENT_ATTRS as never)
 
-  // Используем createMemo для реактивности (отслеживает изменения локали и роута)
-  // В Solid мемо автоматически отслеживает зависимости при использовании в JSX
-  const translation = createMemo(() => {
-    // Отслеживаем изменения локали и роута через accessors
-    const locale = i18n.localeAccessor()
-    const route = i18n.routeAccessor()
-
-    // Handle number formatting
-    if (local.number !== undefined) {
-      const numberValue = Number(local.number)
-      const formattedNumber = i18n.tn(numberValue)
-      const result = i18n.t(local.keypath, { number: formattedNumber, ...(local.params || {}) }, undefined, route)
-      return typeof result === 'string' ? result : String(result)
-    }
-
-    // Handle date formatting
-    if (local.date !== undefined) {
-      const formattedDate = i18n.td(local.date)
-      const result = i18n.t(local.keypath, { date: formattedDate, ...(local.params || {}) }, undefined, route)
-      return typeof result === 'string' ? result : String(result)
-    }
-
-    // Handle relative date formatting
-    if (local.relativeDate !== undefined) {
-      const formattedRelativeDate = i18n.tdr(local.relativeDate)
-      const result = i18n.t(local.keypath, { relativeDate: formattedRelativeDate, ...(local.params || {}) }, undefined, route)
-      return typeof result === 'string' ? result : String(result)
-    }
-
-    // Handle pluralization
-    if (local.plural !== undefined) {
-      const count = Number.parseInt(local.plural.toString(), 10)
-      if (local.customPluralRule) {
-        const translationResult = local.customPluralRule(
-          local.keypath,
-          count,
-          local.params || {},
-          locale,
-          (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
-        )
-        return translationResult || ''
-      } else {
-        return i18n.tc(local.keypath, { count, ...(local.params || {}) }, local.defaultValue)
-      }
-    }
-
-    // Regular translation
-    const translationResult = (i18n.t(local.keypath, local.params, local.defaultValue, route) ?? '').toString()
-
-    if (local.hideIfEmpty && !translationResult.trim()) {
-      return local.defaultValue || ''
-    }
-
-    return translationResult
+  const resolved = createMemo(() => {
+    // a custom rule may read only its `locale` argument, which core takes untracked
+    i18n.localeAccessor()
+    return resolveText(i18n, local)
   })
-
-  // Если html=true, используем innerHTML и не рендерим children
-  if (local.html) {
-    return (
-      // @ts-expect-error - Dynamic component type conflict with Vue JSX
-      (
-        <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)} innerHTML={translation()} />
-      ) as unknown as JSX.Element
-    )
+  const text = (): string => {
+    const { template, params } = resolved()!
+    return interpolate(template, params)
   }
 
-  // Text mode: Solid escapes it. Read inside JSX so it follows the locale and route;
-  // a blank value with hideIfEmpty shows defaultValue or nothing at all.
-  const text = createMemo(() => {
-    const value = translation()
-    return local.hideIfEmpty && !value.trim() ? local.defaultValue || null : value
-  })
+  // A locale that reorders placeholders moves these nodes: each is built once, under this memo, whose
+  // rerun on new `components` disposes what the old slots created.
+  const slotScope = createMemo(() => ({ slots: toSlots(local.components), nodes: new Map<string, unknown>(), owner: getOwner() }))
+  const renderSlot = (slot: RenderSlot, key: string): unknown => {
+    const { nodes, owner } = slotScope()
+    if (!nodes.has(key))
+      nodes.set(
+        key,
+        runWithOwner(owner, () => untrack(() => slot({}))),
+      )
+    return nodes.get(key)
+  }
 
-  return (
-    <Show when={text() !== null}>
-      <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)}>
-        {text()}
-      </Dynamic>
-    </Show>
-  ) as unknown as JSX.Element
+  const content = (): JSX.Element => {
+    const children = local.children
+    if (typeof children === 'function') return children({ translation: text() })
+    if (!isUnset(children)) return children
+    const { template, params } = resolved()!
+    return foldTemplate(renderSlot, template, params, slotScope().slots) as JSX.Element
+  }
+
+  // a static tag skips `Dynamic`: one memo per element less
+  const element = (body: object): JSX.Element => {
+    const merged = mergeProps(attrs, body)
+    return local.tag ? <Dynamic component={local.tag} {...merged} /> : <span {...(merged as JSX.HTMLAttributes<HTMLSpanElement>)} />
+  }
+  const markup = {
+    get innerHTML() {
+      return text()
+    },
+  }
+  const body = {
+    get children() {
+      return content()
+    },
+  }
+
+  return <>{resolved() === null ? local.defaultValue : local.html ? element(markup) : element(body)}</>
 }

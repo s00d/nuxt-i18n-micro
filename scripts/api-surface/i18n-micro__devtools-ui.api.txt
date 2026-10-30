@@ -81,4 +81,5 @@ member DevToolsPluginOptions.defaultLocale?: string | undefined
 member DevToolsPluginOptions.fallbackLocale?: string | undefined
 member DevToolsPluginOptions.injectButton?: boolean | undefined
 member DevToolsPluginOptions.translationDir?: string | undefined
+function i18nDevToolsIntegration: (options?: Omit<DevToolsPluginOptions, "injectButton">) => { name: string; hooks: { 'astro:config:setup': ({ command, updateConfig, addDevToolbarApp }: ToolbarSetup) => void; }; }
 function i18nDevToolsPlugin: (options?: DevToolsPluginOptions) => PluginOption

@@ -60,6 +60,11 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
   return out as unknown as RouteLocationResolved
 }
 
+/** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
+const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
+/** Never a page, and no request can send a visitor elsewhere with one. */
+const APP_SCHEME = /^(?:mailto:|tel:)/i
+
 /** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
 function switchedPath(switched: RouteLike | string): string {
   return typeof switched === 'string' ? switched : (switched.fullPath ?? switched.path ?? '')
@@ -253,15 +258,16 @@ export class NuxtI18n extends BaseI18n {
    * a shallow merge loses nested keys. Two plain objects + fallthrough on miss is cheaper
    * and correct for the short hot-reload window.
    */
-  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
+  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): void {
     // Stash / swap the view layer before setChunk so eviction sees keep === current
     // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
-    this.cachedTranslations = data
+    this.cachedTranslations = data ?? {}
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
-    this.setChunk(locale, routeName, data)
+    // a failed first load renders with nothing, but stores nothing: the next navigation loads it
+    if (data) this.setChunk(locale, routeName, data)
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
   }
@@ -525,21 +531,21 @@ export class NuxtTranslationLoader {
   }
 
   /**
-   * Load and apply translations for a locale/route. Returns `false` when a newer
-   * navigation superseded this switch — callers must skip post-await side effects
-   * (e.g. `setLocale`) for the abandoned navigation.
+   * Load and apply translations for a locale/route. Returns `false` when the switch did not
+   * apply — a newer navigation superseded it, or its chunk failed to load — and callers must
+   * skip post-await side effects (e.g. `setLocale`). The next navigation loads it again.
    */
   async switchContext(locale: string, routeName?: string): Promise<boolean> {
+    const { i18n } = this.options
     const generation = ++this.switchGeneration
-    let data = this.loadFromCacheSync(locale, routeName)
-
-    if (data === null) {
-      data = await this.loadAsync(locale, routeName)
-    }
+    const data = this.loadFromCacheSync(locale, routeName) ?? (await this.loadChunk(locale, routeName))
 
     if (generation !== this.switchGeneration) return false
+    // keeps what is on screen, as refresh() does: an empty dictionary would turn the strings that
+    // still work (a layout's) into raw keys. Only a first render has nothing to keep.
+    if (data === null && i18n.getCurrentLocale()) return false
 
-    this.options.i18n.applySwitchContext(locale, routeName, data)
+    i18n.applySwitchContext(locale, routeName, data)
     return true
   }
 }
@@ -559,6 +565,7 @@ export interface NuxtI18nPluginApiDeps {
   isValidLocale: (locale: string) => boolean
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
+  isHydrating: () => boolean
 }
 
 export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
@@ -577,12 +584,26 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     isValidLocale,
     navigateTo,
     setMissingHandler,
+    isHydrating,
   } = deps
 
   const isDev = process.env.NODE_ENV !== 'production'
   const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
+  /** A route object loses a trailing slash in `router.resolve`, so under a slash rule `push` takes the URL. */
+  const withSlashRule = (switched: RouteLike | string): RouteLike | string =>
+    i18nConfig.trailingSlash ? applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash) : switched
+
+  /** The current route for a link. The server never sees the hash, so the hydrating render leaves it out too. */
+  const linkRoute = (): ResolvedRouteLike => {
+    const route = router.currentRoute.value as unknown as ResolvedRouteLike
+    if (!route.hash || !isHydrating()) return route
+    return { ...route, hash: '', fullPath: route.fullPath.slice(0, route.fullPath.indexOf('#')) }
+  }
+
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
+    if (typeof to === 'string' && APP_SCHEME.test(to)) return navigateTo(to, { redirectCode: 200, external: true })
+
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
@@ -591,8 +612,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     const from = typeof to === 'string' ? i18nStrategy.localeRoute(fromLocale, to) : (to ?? currentRoute)
     const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
 
+    // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
-    if (/^https?:\/\//.test(url)) return navigateTo(url, { redirectCode: 200, external: true })
+    const domain = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl?.replace(/\/+$/, '')
+    if (domain && url.startsWith(`${domain}/`)) return navigateTo(url, { redirectCode: 200, external: true })
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
@@ -600,7 +623,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return router.replace({ ...(switchedRoute as RouteLocationRaw & object), force: true } as RouteLocationRaw)
     }
 
-    return router.push(switchedRoute as RouteLocationRaw)
+    return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
   }
 
   const helper = {
@@ -627,6 +650,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     _t: (route: RouteLocationNormalizedLoaded) => i18n.tForRoute(route),
     _ts: (route: RouteLocationNormalizedLoaded) => i18n.tsForRoute(route),
     tc: i18n.tc.bind(i18n),
+    pluralFunc: i18n.pluralFunc,
+    pluralLocale: i18n.pluralLocale.bind(i18n),
     tn: i18n.tn.bind(i18n),
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
@@ -635,45 +660,52 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     setTranslation: i18n.setTranslation.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     switchLocaleRoute: (toLocale: string) => {
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const fromLocale = getCurrentLocale(route)
-      return i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) }) as RouteLocationRaw
+      const route = linkRoute()
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
+      const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
+      // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
+      const { name, ...rest } = switched
+      return Object.defineProperty({ ...rest, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()
     },
     switchLocalePath: (toLocale: string) => {
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const fromLocale = getCurrentLocale(route)
-      const switched = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      const route = linkRoute()
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
       return applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
     },
     switchLocale: async (toLocale: string) => {
       if (!isValidLocale(toLocale)) {
         if (isDev) console.warn(`[i18n] Invalid locale '${toLocale}'`)
-        return
+        return false
       }
 
-      if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
-        const route = router.currentRoute.value as unknown as ResolvedRouteLike
-        const routeName = getPluginRouteName(route, toLocale)
-        const applied = await loader.switchContext(toLocale, routeName)
-        // A newer switchLocale / navigation won — do not setLocale or navigate for this call.
-        if (!applied) return
-      }
+      // no URL to move: the dictionary is the switch. After a failed switch the URL already says
+      // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
+      const urlless = isNoPrefix || i18nConfig.hashMode
+      const retry = getCurrentLocale() === toLocale && i18n.getCurrentLocale() !== toLocale
+      const route = router.currentRoute.value as unknown as ResolvedRouteLike
+      const loaded = urlless || retry ? await loader.switchContext(toLocale, getPluginRouteName(route, toLocale)) : null
+      // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
+      if (loaded === false) return false
 
       setLocale(toLocale)
-      return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
+      if (typeof to === 'string' && URL_SCHEME.test(to)) return toRouteLocationResolved({ path: to, fullPath: to })
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return toRouteLocationResolved(result)
     },
     localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
+      if (typeof to === 'string' && URL_SCHEME.test(to)) return to
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return applyTrailingSlash((result.fullPath ?? result.path ?? '') as string, i18nConfig.trailingSlash)

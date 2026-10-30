@@ -1,5 +1,6 @@
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import type { ModuleOptions, TranslationPayloadOptions } from '@i18n-micro/types'
+import { buildFallbackLocaleChain, type SourceLocaleInfo } from '@i18n-micro/utils/merge-source'
 
 export type TranslationPayloadMode = 'premerged' | 'source'
 
@@ -89,6 +90,28 @@ export type NitroServeStatic = boolean | 'node' | 'deno' | 'inline'
  * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
  *   set `publicAssets: true` when the client/CDN needs a static copy.
  */
+/**
+ * What a per-domain build copies to `public/`: the locales it serves. `premerged` holds
+ * `<page>/<locale>/` with fallbacks already merged; `source` holds `<locale>.json` and
+ * `pages/<page>/<locale>.json`, and the server merges the fallback chain from them.
+ */
+export function domainPayloadFilter(options: {
+  mode: TranslationPayloadMode
+  root: string
+  served: SourceLocaleInfo[]
+  linkLocales?: SourceLocaleInfo[]
+  fallbackLocale?: string
+}): (source: string) => boolean {
+  const { mode, root, served, linkLocales = served, fallbackLocale } = options
+  const needed = served.flatMap((locale) => (mode === 'source' ? buildFallbackLocaleChain(locale.code, linkLocales, fallbackLocale) : [locale.code]))
+  const foreign = new Set(linkLocales.map((locale) => locale.code).filter((code) => !needed.includes(code)))
+  return (source) => {
+    const name = basename(source)
+    if (mode === 'source') return !name.endsWith('.json') || !foreign.has(name.slice(0, -'.json'.length))
+    return !foreign.has(name) || dirname(source) === root
+  }
+}
+
 export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
   if (translationPayloads.publicAssets) return true
   return readsPublicDir && translationPayloads.serverAssets

@@ -30,7 +30,7 @@ Peer dependencies: `astro` `^5.0.0 || ^6.0.0 || ^7.0.0`. Optional, only for [isl
 
 ## Setup
 
-Setup has two parts. The integration only writes your settings into the virtual module `virtual:i18n-micro/config` and its types. The middleware does the work, so **`src/middleware.ts` is required**.
+Add the integration. It bundles your dictionaries into the server and installs the middleware, so there is nothing else to write:
 
 ```ts
 // astro.config.mjs
@@ -56,15 +56,43 @@ export default defineConfig({
 })
 ```
 
+The dictionaries become code at build time: the server reads no disk, so it runs on the edge (Cloudflare, Vercel Edge) too. In `astro dev` an edit to a file applies on the next request.
+
+### Integration options
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `locale` | required | Default locale. |
+| `fallbackLocale` | `locale` | |
+| `locales` | `[]` | Full `Locale` objects. A `disabled` one is no URL's locale and no redirect target. `iso` is the tag plurals go by when the code is not one (`ua` → `uk-UA`). |
+| `translationDir` | none | Folder bundled into the server, relative to the project root. |
+| `disablePageLocales` | `false` | Page files count as root translations. |
+| `autoDetect` | `true` | Home-page redirect, see [Locale detection](#locale-detection). |
+| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale. |
+| `localeCookie` | `'i18n-locale'` | `null` disables the cookie. |
+| `missingWarn` | `false` | |
+| `middleware` | `true` | `false`: write the middleware yourself, see below. |
+
+Every value is published in `virtual:i18n-micro/config` (`config.base` is Astro's `base`, `config.localeCodes` the enabled codes), the dictionaries in `virtual:i18n-micro/messages`.
+
+### Your own middleware
+
+A plural rule, a missing-key handler and a router adapter cannot cross from the config process to the server bundle. For those, pass `middleware: false` and write `src/middleware.ts`. Astro's `i18n` config is then set for you with `routing: 'manual'`, so `Astro.currentLocale` and `astro:i18n` work. Astro does not allow that setting without a `src/middleware.ts`, so with the integration's own middleware they do not.
+
 ```ts
 // src/middleware.ts
 import { config } from 'virtual:i18n-micro/config'
-import { createAstroRouterAdapter, createI18n, createI18nMiddleware, loadTranslationsIntoI18n } from '@i18n-micro/astro'
+import { messages } from 'virtual:i18n-micro/messages'
+import { createAstroRouterAdapter, createI18n, createI18nMiddleware, localeIsoMap } from '@i18n-micro/astro'
 
-const i18n = createI18n({ locale: config.defaultLocale, fallbackLocale: config.fallbackLocale })
-
-// Node runtime only (reads the disk at startup)
-if (config.translationDir) loadTranslationsIntoI18n(i18n, { translationDir: config.translationDir })
+const i18n = createI18n({
+  locale: config.defaultLocale,
+  fallbackLocale: config.fallbackLocale,
+  localeIso: localeIsoMap(config.locales),
+  messages: messages.root,
+  routeMessages: messages.routes,
+  plural: myPluralRule,
+})
 
 export const onRequest = createI18nMiddleware({
   i18n,
@@ -74,48 +102,28 @@ export const onRequest = createI18nMiddleware({
   autoDetect: config.autoDetect,
   redirectToDefault: config.redirectToDefault,
   localeCookie: config.localeCookie,
+  base: config.base,
   routingStrategy: createAstroRouterAdapter(config.locales, config.defaultLocale),
 })
 ```
 
-### Integration options
-
-The integration takes these eight options and publishes each one in `config`. Nothing happens until your middleware reads the value.
-
-| Option | Default | Published as |
-| --- | --- | --- |
-| `locale` | required | `config.defaultLocale` |
-| `fallbackLocale` | `locale` | `config.fallbackLocale` |
-| `locales` | `[]` | `config.locales`, `config.localeCodes` |
-| `translationDir` | `null` | `config.translationDir`; nothing is loaded unless your middleware loads it |
-| `autoDetect` | `true` | `config.autoDetect` |
-| `redirectToDefault` | `false` | `config.redirectToDefault` |
-| `localeCookie` | `'i18n-locale'` | `config.localeCookie`; `null` disables the cookie |
-| `missingWarn` | `false` | `config.missingWarn` |
-
-Messages, plural rules, a missing-key handler and a router adapter cannot cross from the config process to the server bundle: pass them to `createI18n` and `createI18nMiddleware` in `src/middleware.ts`.
+To read the folder at runtime instead, `loadTranslationsFromDir` and `loadTranslationsIntoI18n` are in `@i18n-micro/astro/node` (Node only).
 
 ### Middleware options
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `i18n` | required | Global instance; each request gets `i18n.clone(locale)` sharing its dictionaries. |
+| `i18n` | required | Global instance; each request gets `i18n.fork(locale)`, which costs the same however many dictionaries there are. |
 | `defaultLocale` | required | |
 | `locales` | required | Locale codes. |
-| `localeObjects` | `locales` as `{ code }` | Full `Locale` objects (`iso`, `dir`, `displayName`) for components and SEO. |
+| `localeObjects` | `locales` as `{ code }` | Full `Locale` objects for components and SEO. |
 | `autoDetect` | `true` | Home-page redirect, see [Locale detection](#locale-detection). |
-| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale, to the default locale's home as the routing strategy resolves it. Without a strategy that home is `/`, so nothing redirects. |
+| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale, to the default locale's home as the routing strategy resolves it. |
 | `localeCookie` | `'i18n-locale'` | `null` disables the cookie. |
-| `routingStrategy` | — | Router adapter. |
+| `routingStrategy` | prefix except default | Router adapter. Methods it leaves out come from the default adapter. |
+| `base` | none | Astro's `base`: `config.base`. |
 
-On the edge (Cloudflare, Vercel Edge) there is no file system: load dictionaries with `import.meta.glob` and `addTranslations` instead of `loadTranslationsIntoI18n`.
-
-```ts
-const files = import.meta.glob<{ default: Record<string, unknown> }>('/src/locales/*.json', { eager: true })
-for (const [path, mod] of Object.entries(files)) i18n.addTranslations(path.match(/([^/]+)\.json$/)![1]!, mod.default, false)
-```
-
-Page files (`src/locales/pages/blog/post/de.json`) go to `addRouteTranslations(locale, 'blog-post', …)`: the route name is the page path joined with `-`.
+Page files (`src/locales/pages/blog/post/de.json`) are the route `blog-post`: the page path joined with `-`.
 
 ## Translate
 
@@ -136,7 +144,7 @@ const { t, tc, locale } = useI18n(Astro)
 
 `useI18n(Astro)` returns `locale`, `defaultLocale`, `locales`, `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `getRoute`, `getRouteName(path?)`, `getLocaleFromPath(path?)`, `switchLocalePath(locale)`, `localizePath(path, locale?)`, `getBasePath(url?)`, `getI18n`, `addTranslations`, `addRouteTranslations`, `mergeTranslations` and `clearCache`. It throws when the middleware did not run. Helpers `getI18n`, `getLocale`, `getDefaultLocale` and `getLocales` read the same `Astro.locals`.
 
-The route name comes from the path without its locale (`/fr/blog/post` → `blog-post`), so page dictionaries apply automatically.
+The route name comes from the route without its locale: `/fr/blog/post` → `blog-post`, and every URL of `src/pages/blog/[slug].astro` → `blog-slug`, so one folder `locales/pages/blog-slug/` serves them all. `[...path]` is `path`. Under Astro's `base` the helpers take and return URLs of the site: `switchLocalePath` and `localizePath` include it, `getBasePath` does not, because `Astro.rewrite` takes the path without it.
 
 ### Components
 
@@ -144,9 +152,9 @@ Import them from `@i18n-micro/astro/<name>` (or `@i18n-micro/astro/components/<n
 
 | Component | Props |
 | --- | --- |
-| `i18n-t` | `keypath`, `params`, `plural`, `number`, `date`, `relativeDate`, `tag` (`span`), `html`, `defaultValue` |
-| `i18n-link` | `href`, `locale` (target locale, default current), `class`; other attributes pass through |
-| `i18n-switcher` | `class`, `activeClass` (`'active'`), `customLabels`; renders links to the current page in each enabled locale |
+| `i18n-t` | `keypath`, `params`, `plural`, `number`, `date`, `relativeDate`, `tag` (`span`, any tag), `html`, `hideIfEmpty`, `defaultValue`; other attributes pass through. With `html` the translation is rendered as HTML and `params` are escaped |
+| `i18n-link` | `href`, `locale` (target locale, default current), `class`; other attributes pass through. External URLs, `#hash` and `?query` stay as written; a route keeps its query, hash and trailing slash |
+| `i18n-switcher` | `class`, `activeClass` (`'active'`), `customLabels`; renders links to the current page in each enabled locale, with its query |
 | `i18n-group` | none that change output: a `<div>` around its slot, no prefix |
 
 ## Locale-prefixed routes
@@ -185,11 +193,13 @@ The URL decides the page's locale:
 
 `autoDetect` is a redirect hint on the home page only. A request for `/` whose cookie or `Accept-Language` (q-weights honoured; `de-DE` matches a `de` locale, `de` matches a `de-DE` one) prefers another locale gets a `302` to that locale's home (`/de`). With `redirectToDefault`, `/` always redirects: to the preferred locale's home, else the default locale's. The `/` response carries `Vary: Cookie, Accept-Language` (`Accept-Language` only when `localeCookie` is `null`). Prerendered pages never redirect. `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?)` returns the same preferred locale for your own logic.
 
-The cookie is read, never written: set it yourself when the visitor picks a language if you want the home page to remember it.
+The cookie remembers a choice. A page view that comes from a same-origin page of another locale is a visitor switching, whatever link took them there: the HTML response sets the cookie to the new locale, and `/` does not redirect, so a switcher reaches the default locale's home. An endpoint, an image, a 404, a form post and a prefetch change nothing. "Same origin" is what the browser says in `Sec-Fetch-Site`; without that header the `Referer`'s host is compared with the request's, so behind a proxy set Astro's `security.allowedDomains`.
+
+A [server island](https://docs.astro.build/en/guides/server-islands/) or an action has no locale in its URL. It is rendered for the page that asked, read from the `Referer`, whose path is all that counts, so a proxy in front of the server changes nothing, and it never redirects. Its response carries `Vary: Referer`. Without a `Referer` (a `no-referrer` policy) it is in the default locale, and on a dynamic page its route comes from the URL, so page dictionaries do not reach it.
 
 ## Router adapter
 
-`createAstroRouterAdapter(locales, defaultLocale)` prefixes every locale except the default. An Astro adapter needs only `getCurrentPath`; the other members are optional and used when present: `getRouteName`, `getLocaleFromPath`, `switchLocalePath`, `localizePath`, `removeLocaleFromPath`, `resolvePath` (home redirect target), `push`, `replace`, `getRoute`. Write your own for subdomain or suffix URLs and pass it to `createI18nMiddleware`.
+`createAstroRouterAdapter(locales, defaultLocale)` prefixes every locale except the default. An Astro adapter needs only `getCurrentPath`; the other members are optional and fall back to the default adapter: `getRouteName(path, locales, routePattern?)`, `getLocaleFromPath`, `switchLocalePath`, `localizePath`, `removeLocaleFromPath`, `resolvePath` (home redirect target), `push`, `replace`, `getRoute`. Write your own for subdomain or suffix URLs and pass it to `createI18nMiddleware`.
 
 ## SEO
 
@@ -210,7 +220,7 @@ const head = useLocaleHead(Astro, { baseUrl: 'https://example.com' })
 </html>
 ```
 
-It returns `htmlAttrs` (`lang` from `iso`, `dir`), a canonical link (path without query), `hreflang` alternates for every enabled locale with `seo !== false` plus `x-default`, `og:locale`, `og:locale:alternate` and `og:url`. Options: `baseUrl` (`'/'`), `addDirAttribute` (`true`), `addSeoAttributes` (`true`), `hreflangBaseLanguage` (`false`).
+It returns `htmlAttrs` (`lang` from `iso`, `dir`), a canonical link (path without query), `hreflang` alternates for every enabled locale with `seo !== false` plus `x-default`, `og:locale`, `og:locale:alternate` and `og:url`. Options: `baseUrl` (`site` from the Astro config, else root-relative URLs), `addDirAttribute` (`true`), `addSeoAttributes` (`true`), `hreflangBaseLanguage` (`false`).
 
 ## Related
 

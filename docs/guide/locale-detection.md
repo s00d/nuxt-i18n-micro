@@ -27,7 +27,7 @@ The first source that names an **enabled** locale wins. An invalid or malformed 
 
 So under a prefix strategy the URL decides what a page shows; the preference sources (3–5) only decide where a visitor is **redirected**, and only on the paths `autoDetectPath` allows. Under `no_prefix` there is nothing to redirect, and the preference sources decide what the page shows.
 
-![How the page locale is decided](/diagrams/locale-detection.svg)
+![Decision flow: a locale prefix in the URL renders that locale. Without one, no_prefix renders from the preference sources, prefix_and_default renders the default locale, and prefix or prefix_except_default redirect by preference when autoDetectPath allows the path](/diagrams/locale-detection.svg)
 
 ## Redirects per strategy
 
@@ -38,11 +38,13 @@ Visitor prefers `de` (cookie or header), `defaultLocale: 'en'`, default `autoDet
 | Request | `prefix_except_default` | `prefix` | `prefix_and_default` | `no_prefix` |
 | --- | --- | --- | --- | --- |
 | `/` | → `/de` | → `/de` | `/` in `en` | `/` in `de` |
-| `/about` | `/about` in `en` | → `/en/about` | `/about` in `en` | `/about` in `de` |
+| `/about` | `/about` in `en` | → `/de/about` | `/about` in `en` | `/about` in `de` |
 | `/fr/about` | `/fr/about` | `/fr/about` | `/fr/about` | — |
 | `/en/about` | 404 | `/en/about` | `/en/about` | — |
 
 `prefix_and_default` never redirects: an unprefixed URL belongs to the default locale, and other locales live under their prefix. A visitor who prefers `en` is not redirected from `/` under `prefix_except_default`. Targets have no trailing slash (`/de`, not `/de/`) and follow custom paths (`/about` → `/de/ueber-uns`).
+
+Wherever the cookie or the header decides (the redirect from `/`, every page under `no_prefix`), the response carries `Vary: Cookie, Accept-Language`, so a CDN keeps the answers apart.
 
 ### `autoDetectPath`
 
@@ -55,7 +57,7 @@ Where the preference sources may move a visitor:
 | `'/welcome'` | that exact path (a trailing slash is ignored) |
 | `'*'` | every path, prefixed ones too: `/about` and `/fr/about` → `/de/about` when the visitor prefers `de` |
 
-On paths it does not allow, an unprefixed URL is treated as the default locale, so `prefix` still sends `/about` to `/en/about`. With `'*'` the server ignores the app's state, and a prefixed URL no longer records its own locale in the cookie; the cookie changes when the visitor switches with `$switchLocale`. Shared links then open in the reader's language, which can surprise; prefer `'/'` or `'no_prefix'` unless that is what you want.
+On paths it does not allow, an unprefixed URL is treated as the default locale. `prefix` is the exception: it has no unprefixed pages, so `/about` always goes to the visitor's locale (`/de/about` with cookie `de`, `/en/about` with no preference). With `'*'` the server ignores the app's state, and a prefixed URL no longer records its own locale in the cookie; the cookie changes when the visitor switches with `$switchLocale`. Shared links then open in the reader's language, which can surprise; prefer `'/'` or `'no_prefix'` unless that is what you want.
 
 ## Accept-Language
 
@@ -81,9 +83,9 @@ Turn header detection off with `autoDetectLanguage: false`; the cookie and the s
 
 - **Off by default** for the prefix strategies (`localeCookie: null`). Redirects then work from the header alone, and the choice is not remembered across visits. Set `localeCookie: 'user-locale'` to remember it.
 - Under `no_prefix` it is `'user-locale'` unless you set another name. `localeCookie: null` turns it off there too.
-- It is written when the visitor switches (`$switchLocale`, `<i18n-switcher>`, `useI18nLocale().setLocale()`), and on a server render of a prefixed URL (`/fr/about` stores `fr`).
+- It is written when the visitor switches (`$switchLocale`, `<i18n-switcher>`, `useI18nLocale().setLocale()`), and on a server render of a page under a prefix (`/fr/about` stores `fr`; not under `autoDetectPath: '*'` with redirects on, where the URL can still move). A 404 stores nothing.
 - It lasts one year (`path=/`, `SameSite=Lax`).
-- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one.
+- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one. The server renders that locale and, outside `prefix`, never redirects; a locale in the hash (`/#/de`) wins over it and applies right after hydration. Under `prefix` there is no page on `/`, so `/` is rendered in the browser, which goes to `/#/de` by the cookie, then the browser language (`autoDetectLanguage`); any other document (`/about`, `/de`) redirects into the hash.
 
 Read and set the preference with [`useI18nLocale`](/composables/useI18nLocale), not with `useCookie` or `useState` directly.
 

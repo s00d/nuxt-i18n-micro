@@ -6,13 +6,13 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| localized-about-de | /ueber-uns |  |  |
-| localized-about-fr | /a-propos |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about: en |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de, fr |
+| localized-about-de | /ueber-uns |  |  | about: de |
+| localized-about-fr | /a-propos |  |  | about: fr |
 
 ## Reading a URL
 
@@ -21,10 +21,10 @@ Every URL is resolved with `?q=1#top`.
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
 | / | index | en | index | index | null | null | null | null |
-| /a-propos | localized-about-fr | en | about | about | null | null | null | null |
+| /a-propos | localized-about-fr | fr | about | about | null | null | null | null |
 | /about | about | en | about | about | null | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | null | null | null | null |
-| /ueber-uns | localized-about-de | en | about | about | null | null | null | null |
+| /ueber-uns | localized-about-de | de | about | about | null | null | null | null |
 | /en | null | en | index | index | null | en | null | null |
 | /en/ | null | en | index | index | null | en | null | null |
 | /de | null | en | index | index | null | de | null | null |

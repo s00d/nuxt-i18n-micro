@@ -47,13 +47,15 @@ const { t, localePath } = useI18n()
 | [`$localePath`](#localepath) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => string` | Resolve a path in the given locale, or the active one. |
 | [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
+| `$pluralFunc` | `PluralFunc` | The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. |
+| `$pluralLocale` | `() => string` | The tag `$tc` plurals by: the locale's `iso` when it has one, else its code. |
 | [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<void>` | Navigate to the current page in another locale. |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<boolean>` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
-| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
+| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating, or a URL string for a locale on its own `baseUrl`. |
 | [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
 | [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
 | [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
@@ -218,7 +220,34 @@ Translate with pluralization. `params` may be the count itself, or an object con
 
 <!-- /generated:method:$tc -->
 
-Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form. For other languages set [`plural`](/api/module-options#plural).
+Forms are separated by `|`. With the built-in rule a non-negative integer count `n` picks form `n`, clamped to the last form; a negative, fractional or `NaN` count takes the last form. `{count}` and the other params are interpolated into the picked form.
+
+For languages whose plurals do not follow the count, such as Russian, start the template with `=0 `. The first form is then for 0, and the others go by [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules) category, in the order `zero, one, two, few, many, other`:
+
+```json
+{
+  "apples": "=0 нет яблок | {count} яблоко | {count} яблока | {count} яблок",
+  "files": "=0 нет | один | много"
+}
+```
+
+```ts
+$tc('apples', 0) // 'нет яблок'
+$tc('apples', 21) // '21 яблоко'
+$tc('apples', 22) // '22 яблока'
+$tc('apples', 25) // '25 яблок'
+$tc('files', 3) // 'много': no form for `few`, so the last one
+```
+
+- `=0 ` counts only at the very start of the value, with the space. `$t` shows it as text: it belongs to plurals.
+- A category with no form of its own takes the last form. A negative or fractional count takes the last form too.
+- It works in any locale: `=0 none | one | {count} many` in English.
+- The category comes from the locale's `iso`, else its code. A code `Intl` does not know falls back to the index rule, the marker still removed, so the result never depends on the machine.
+- `<i18n-t :plural>` follows the same rule. A custom [`plural`](/api/module-options#plural) or `customPluralRule` gets the raw value, marker included, and decides for itself; `plural` returning `null` hands the call back to the built-in rule, which honours the marker.
+
+Without the marker a template stays on the index rule, with one exception that only reads one way: a zero form with no placeholder, then one form per category, with `{count}` in each form several counts share (`нет | {count} яблоко | {count} яблока | {count} яблок`).
+
+For rules of your own set [`plural`](/api/module-options#plural).
 
 ```ts
 // { "apples": "no apples | one apple | {count} apples" }
@@ -313,13 +342,15 @@ $tdr(Date.now() - 5 * 60_000) // '5 minutes ago' in en
 <!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(locale: string) => Promise<void>
+(locale: string) => Promise<boolean>
 ```
 
 Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
 locale's translations before navigating; under `no_prefix` the route is replaced in place (no
 new history entry). An unknown locale is ignored.
-The call is async: `await` it to run code after the navigation.
+The call is async: `await` it to run code after the navigation. It resolves `true` when the
+locale's dictionary is active, `false` when it is not: the chunk failed to load (the current
+dictionary stays; call it again to retry) or a newer switch won.
 
 <!-- /generated:method:$switchLocale -->
 
@@ -351,7 +382,9 @@ The path of the current page in another locale, without navigating.
 (locale: string) => RouteLocationRaw
 ```
 
-The route object for the current page in another locale, without navigating.
+The route object for the current page in another locale, without navigating, or a URL string
+for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
+follow the rule, and `router.push` or a link keep them.
 
 <!-- /generated:method:$switchLocaleRoute -->
 
@@ -381,7 +414,8 @@ $switchRoute({ name: 'about' }, 'de') // switch to de
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
 ```
 
-Resolve a path in the given locale, or the active one.
+Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`
+or `tel:` scheme comes back as is: do not pass user input as a link target unchecked.
 
 <!-- /generated:method:$localePath -->
 

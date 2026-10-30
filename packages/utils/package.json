@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -195,6 +195,21 @@
       },
       "default": "./dist/resolve-hreflang.mjs"
     },
+    "./locale-head": {
+      "production": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "import": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "require": {
+        "types": "./dist/locale-head.d.cts",
+        "default": "./dist/locale-head.cjs"
+      },
+      "default": "./dist/locale-head.mjs"
+    },
     "./merge-i18n-head": {
       "production": {
         "types": "./dist/merge-i18n-head.d.ts",
@@ -224,6 +239,21 @@
         "default": "./dist/active-locales.cjs"
       },
       "default": "./dist/active-locales.mjs"
+    },
+    "./domains": {
+      "production": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "import": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "require": {
+        "types": "./dist/domains.d.cts",
+        "default": "./dist/domains.cjs"
+      },
+      "default": "./dist/domains.mjs"
     },
     "./cookie": {
       "production": {
@@ -314,6 +344,21 @@
         "default": "./dist/app-path.cjs"
       },
       "default": "./dist/app-path.mjs"
+    },
+    "./load-dir": {
+      "production": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "import": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "require": {
+        "types": "./dist/load-dir.d.cts",
+        "default": "./dist/load-dir.cjs"
+      },
+      "default": "./dist/load-dir.mjs"
     },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"

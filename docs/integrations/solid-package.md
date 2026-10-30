@@ -26,7 +26,7 @@ yarn add @i18n-micro/solid
 
 :::
 
-Peer dependencies: `solid-js` `^1.9.15`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional, only for `@i18n-micro/solid/router`).
+Peer dependencies: `solid-js` `^1.9.15`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional, only for `@i18n-micro/solid/router`). Solid 2 is not supported yet.
 
 ## Setup
 
@@ -54,7 +54,7 @@ render(
 )
 ```
 
-`<I18nProvider>` takes `i18n` (required), `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the outer provider's value. Pass `locales`: `getLocaleName()` and `<I18nSwitcher>` read them. Options are in [the instance](./#create-i18n-options); `routeMessages` is not available in Solid, use `addRouteTranslations`.
+`<I18nProvider>` takes `i18n`, `locales`, `defaultLocale` and `routingStrategy`; an omitted prop keeps the outer provider's value, the instance included. `getLocaleName()` and `<I18nSwitcher>` read `locales`; without them they have nothing to list. Options are in [the instance](./#create-i18n-options). The instance is the [runtime](./runtime-package)'s, with one signal over its store.
 
 ## Translate
 
@@ -73,7 +73,7 @@ export function Greeting() {
 }
 ```
 
-Call the methods inside JSX or an effect so Solid tracks them; a value read once in the component body does not update. Do not destructure props or keep `t('key')` results in plain variables.
+Call the methods inside JSX or an effect so Solid tracks them, `localePath` and `getLocale` too; a value read once in the component body does not update. On the instance, track with `i18n.locale` and `i18n.currentRoute`: `i18n.getLocale()` stays plain, because writes read it. Reading the locale wakes on the locale alone, so an effect that reads it and loads a dictionary runs once. Do not destructure props or keep `t('key')` results in plain variables.
 
 `useI18n()` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `locale` (an accessor: `locale()`), `getLocale`, `getLocales`, `defaultLocale()`, `getLocaleName`, `switchLocale`, `localePath`, `localeRoute`, `setRoute`, `getRoute`, `addTranslations`, `addRouteTranslations`, `resolveTranslations`, `setTranslation`, `clearCache` and `instance`.
 
@@ -104,7 +104,7 @@ Switching does not load anything; add the locale's dictionary first.
 
 ## Routing
 
-The `@solidjs/router` adapter lives in a subpath so the main entry never imports the router. It creates a signal and an effect, so call it inside a component under the router, typically the router's `root`:
+The `@solidjs/router` adapter lives in a subpath so the main entry never imports the router. Call it under the router, typically in the router's `root`, where `useNavigate` and `useLocation` work:
 
 ```tsx
 // src/App.tsx
@@ -135,7 +135,7 @@ export default function App() {
 }
 ```
 
-The adapter prefixes every locale except the default (`/about`, `/de/about`), renders `<I18nLink>` as the router's `<A>`, and adds `getCurrentPathAccessor()` for reactive path reads. Note the argument order: `(locales, defaultLocale, navigate, location)`. For other routers write an adapter with `getCurrentPath`, `push` and `replace` (all required) — see [Router adapter](./#router-adapter).
+The adapter prefixes every locale except the default (`/about`, `/de/about`), and renders `<I18nLink>` as the router's `<A>`. `getCurrentPath` reads the router's reactive location, so active links and the switcher follow it; a custom strategy gets the same by reading a signal there. Note the argument order: `(locales, defaultLocale, navigate, location)`. For other routers write an adapter with `getCurrentPath`, `push` and `replace` (all required) — see [Router adapter](./#router-adapter).
 
 ## SSR
 
@@ -147,7 +147,7 @@ For server rendering, build with `vite-plugin-solid`: the package's `solid` expo
 | --- | --- |
 | `createI18n`, `SolidI18n`, `I18nProvider`, `useI18n` | `@i18n-micro/solid` |
 | `I18nT`, `I18nLink`, `I18nSwitcher`, `I18nGroup` | `@i18n-micro/solid` |
-| `I18nContext`, `I18nLocalesContext`, `I18nDefaultLocaleContext`, `I18nRouterContext`, `useI18nContext`, `useI18nLocales`, `useI18nDefaultLocale`, `useI18nRouter` | `@i18n-micro/solid` |
+| `I18nContext`, `useI18nContext`, `useI18nLocales`, `useI18nDefaultLocale`, `useI18nRouter` | `@i18n-micro/solid` |
 | `defaultPlural`, `FormatService`, `interpolate` | `@i18n-micro/solid` |
 | Types: `I18nRoutingStrategy`, `SolidI18nOptions`, `I18nProviderProps`, `UseI18nOptions`, `TranslationKey`, `Locale`, `Translations`, `PluralFunc` | `@i18n-micro/solid` |
 | `createSolidRouterAdapter` | `@i18n-micro/solid/router` |

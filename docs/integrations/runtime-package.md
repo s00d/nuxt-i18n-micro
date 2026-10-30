@@ -6,7 +6,7 @@ outline: 'deep'
 
 # Runtime
 
-`@i18n-micro/runtime` is the framework-agnostic i18n instance: dictionaries, `t()`, plurals, `Intl` formatting and a change subscription, with no `fs` and no framework. Use it in plain TypeScript, a web worker, an edge function, or as the base of your own binding. The React, Preact and Node packages extend this same class.
+`@i18n-micro/runtime` is the framework-agnostic i18n instance: dictionaries, `t()`, plurals, `Intl` formatting and a change subscription, with no `fs` and no framework. Use it in plain TypeScript, a web worker, an edge function, or as the base of your own binding. The React, Preact, Node and Astro packages extend this same class.
 
 ## Install
 
@@ -97,7 +97,7 @@ stop()
 
 ## Per request
 
-The instance holds one locale and one route. On a server, do not switch a shared instance per request: two concurrent requests would see each other's locale. Create one instance per locale at startup and pass the route as the fourth argument of `t()`, or create a short-lived instance per request. [Node.js](./nodejs-package#per-request) shows both.
+The instance holds one locale and one route. On a server, do not switch a shared instance per request: two concurrent requests would see each other's locale. `i18n.fork(locale)` gives a request its own: own locale, fallback and route; the same dictionaries, formatters and rules. Forking costs the same however many dictionaries there are. A fork sees writes to its parent until its first own write, and its writes stay in it. [Node.js](./nodejs-package#per-request) adds `run`.
 
 ## API
 
@@ -115,7 +115,9 @@ The instance holds one locale and one route. On a server, do not switch a shared
 | `subscribe(cb)`, `getSnapshot()` | change notifications |
 | `storage` | `{ translations: Map<'locale:route', Translations> }` |
 
-Module exports: `createI18n`, `I18n`, `fetchJsonTranslations`, `FormatService`, `interpolate` and the types `I18nOptions`, `LoadFromUrlOptions`, `LoadFromUrlEntry`, `TranslationStorage`, `Translations`, `Locale`, `PluralFunc`. Full signatures: [package reference](/api/packages/runtime).
+A code that is no language tag gets its plurals from `localeIso: { ua: 'uk-UA' }`; `localeIsoMap(locales)` builds that from a locale list.
+
+Module exports: `createI18n`, `I18n`, `fetchJsonTranslations`, `FormatService`, `interpolate`, `localeIsoMap` and the types `I18nOptions`, `LoadFromUrlOptions`, `LoadFromUrlEntry`, `TranslationStorage`, `Translations`, `Locale`, `PluralFunc`. Full signatures: [package reference](/api/packages/runtime).
 
 ## Related
 

@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import {
+  domainPayloadFilter,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
@@ -56,6 +57,32 @@ describe('translationPayloads build options', () => {
     expect(shouldRegisterNitroServerAssets(serverOnly, false)).toBe(true)
     const withPublic = resolveTranslationPayloadOptions({ translationPayloads: { serverAssets: true, publicAssets: true } })
     expect(shouldCopyTranslationPayloadsToPublic(withPublic, false)).toBe(true)
+  })
+
+  test('a per-domain build publishes its own locales, in both layouts', () => {
+    const linkLocales = [{ code: 'en' }, { code: 'de', fallbackLocale: 'nl' }, { code: 'nl' }, { code: 'fr' }]
+    const base = { root: '/tmp/i18n', served: [{ code: 'de', fallbackLocale: 'nl' }, { code: 'fr' }], linkLocales }
+
+    // step 1: premerged: <page>/<locale>/ — a fallback is already merged, a page named like a locale stays
+    const premerged = domainPayloadFilter({ ...base, mode: 'premerged' })
+    expect(premerged('/tmp/i18n/index/de')).toBe(true)
+    expect(premerged('/tmp/i18n/index/en')).toBe(false)
+    expect(premerged('/tmp/i18n/index/nl')).toBe(false)
+    expect(premerged('/tmp/i18n/en')).toBe(true)
+
+    // step 2: source: <locale>.json and pages/<page>/<locale>.json — the server merges, so a fallback stays
+    const source = domainPayloadFilter({ ...base, mode: 'source' })
+    expect(source('/tmp/i18n/de.json')).toBe(true)
+    expect(source('/tmp/i18n/en.json')).toBe(false)
+    expect(source('/tmp/i18n/pages/about/en.json')).toBe(false)
+    expect(source('/tmp/i18n/nl.json')).toBe(true)
+    expect(source('/tmp/i18n/pages/en')).toBe(true)
+
+    // step 3: a global fallback of another domain stays too
+    expect(domainPayloadFilter({ ...base, mode: 'source', fallbackLocale: 'en' })('/tmp/i18n/en.json')).toBe(true)
+
+    // step 4: no domain: everything
+    expect(domainPayloadFilter({ root: '/tmp/i18n', mode: 'source', served: linkLocales })('/tmp/i18n/en.json')).toBe(true)
   })
 
   test('build warnings: outputs switched off, payloads too large', () => {

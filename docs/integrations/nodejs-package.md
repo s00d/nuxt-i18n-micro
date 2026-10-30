@@ -56,22 +56,24 @@ const { root, routes } = await loadTranslations('./locales')
 
 ## Per request
 
-An instance holds one locale and one route. Switching `i18n.locale` or calling `setRoute` on a shared instance inside a request handler races with concurrent requests. Read the files once, then either keep one instance per locale and pass the route to `t()`:
+An instance holds one locale and one route. Switching `i18n.locale` on a shared instance inside a request handler races with concurrent requests. `run` gives a request its own:
 
 ```ts
-import { createI18n, loadTranslations } from '@i18n-micro/node'
+const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', translationDir: './locales' })
+await i18n.loadTranslations()
 
-const locales = ['en', 'de', 'fr']
-const { root, routes } = await loadTranslations('./locales')
-const byLocale = new Map(
-  locales.map((locale) => [locale, createI18n({ locale, fallbackLocale: 'en', messages: root, routeMessages: routes })]),
-)
+app.use((req, res, next) => i18n.run(pickLocale(req), next))
 
-const i18n = byLocale.get('de')!
-i18n.t('title', undefined, undefined, 'blog-post')
+app.get('/', (req, res) => {
+  res.send(i18n.t('greeting')) // the request's locale, in everything it awaits
+})
 ```
 
-or create a short-lived instance per request from the same `root` and `routes` objects. The dictionaries are read from disk once either way.
+Inside `run` the shared instance reads and sets the request's locale and route (`AsyncLocalStorage`). The callback also gets the request's fork: dictionaries written to it stay in the request, dictionaries written to the shared instance reach everyone.
+
+Without `AsyncLocalStorage`, `i18n.fork(locale)` returns the same kind of instance to pass around.
+
+`reload()` reads the directory again; the old dictionaries answer until the new ones are in.
 
 ## Pick the locale
 

@@ -19,5 +19,7 @@ describe('routing characterization', () => {
     for (const strategy of app.strategies ?? STRATEGIES)
       test(`${app.name} · ${strategy}`, async () => {
         await expect(describeApp(app, strategy)).toMatchFileSnapshot(`./__golden__/${app.name}.${strategy}.md`)
+        for (const host of app.hosts ?? [])
+          await expect(describeApp(app, strategy, host)).toMatchFileSnapshot(`./__golden__/${app.name}.${strategy}.${host}.md`)
       })
 })

@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@i18n-micro/types', replacement: fileURLToPath(new URL('../types/src/index.ts', import.meta.url)) },
-      { find: 'globby', replacement: fileURLToPath(new URL('./tests/__mocks__/globby.ts', import.meta.url)) },
+      { find: '@i18n-micro/core', replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
     ],
   },
   test: {

@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| über-uns | /über-uns | /%C3%BCber-uns |  |
-| archive-year | /archive/:year() |  |  |
-| docs-page | /docs/:page? |  |  |
-| post-id | /post-:id() |  |  |
-| localized-über-uns-en | /about |  |  |
-| localized-über-uns-fr | /à-propos | /%C3%A0-propos |  |
-| localized-archive-year-de | /archiv/:year(\d+) |  |  |
-| localized-docs-page-fr | /documentation/:page? |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| über-uns | /über-uns | /%C3%BCber-uns |  | über-uns: de |
+| archive-year | /archive/:year() |  |  | archive-year: en, fr |
+| docs-page | /docs/:page? |  |  | docs-page: en, de |
+| post-id | /post-:id() |  |  | post-id: en, de, fr |
+| localized-über-uns-en | /about |  |  | über-uns: en |
+| localized-über-uns-fr | /à-propos | /%C3%A0-propos |  | über-uns: fr |
+| localized-archive-year-de | /archiv/:year(\d+) |  |  | archive-year: de |
+| localized-docs-page-fr | /documentation/:page? |  |  | docs-page: fr |
 
 ## Reading a URL
 
@@ -25,15 +25,15 @@ Every URL is resolved with `?q=1#top`.
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
 | / | index | en | index | index | English | null | null | null |
-| /%C3%A0-propos | localized-über-uns-fr | en | über-uns | über-uns | English | null | null | null |
+| /%C3%A0-propos | localized-über-uns-fr | fr | über-uns | über-uns | Français | null | null | null |
 | /%C3%BCber-uns | über-uns | en | über-uns | über-uns | English | null | null | null |
 | /about | localized-über-uns-en | en | über-uns | über-uns | English | null | null | null |
-| /archiv/2025 | localized-archive-year-de | en | archive-year | archive-year | English | null | null | null |
+| /archiv/2025 | localized-archive-year-de | de | archive-year | archive-year | Deutsch | null | null | null |
 | /archive/2025 | archive-year | en | archive-year | archive-year | English | null | null | null |
 | /docs/2 | docs-page | en | docs-page | docs-page | English | null | null | null |
-| /documentation/2 | localized-docs-page-fr | en | docs-page | docs-page | English | null | null | null |
+| /documentation/2 | localized-docs-page-fr | fr | docs-page | docs-page | Français | null | null | null |
 | /post-42 | post-id | en | post-id | post-id | English | null | null | null |
-| /à-propos | localized-über-uns-fr | en | über-uns | über-uns | English | null | null | null |
+| /à-propos | localized-über-uns-fr | fr | über-uns | über-uns | Français | null | null | null |
 | /über-uns | über-uns | en | über-uns | über-uns | English | null | null | null |
 | /en | null | en | index | index | English | en | null | null |
 | /en/ | null | en | index | index | English | en | null | null |

@@ -6,23 +6,23 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| about-team | /about-team |  |  |
-| team | /team |  |  |
-| · team-members | members |  |  |
-| docs | /docs |  |  |
-| docs-getting-started | /docs/getting-started |  |  |
-| foo-bar-baz | /foo-bar/baz |  |  |
-| localized-about-de | /ueber-uns |  |  |
-| localized-about-team-de | /team-seite |  |  |
-| localized-about-team-fr | /equipe |  |  |
-| localized-team-de | /mannschaft |  |  |
-| · localized-team-members-de | mitglieder |  |  |
-| localized-docs-getting-started-en | /docs/start |  |  |
-| localized-docs-getting-started-de | /dokumente/einstieg |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about: en, fr |
+| about-team | /about-team |  |  | about-team: en |
+| team | /team |  |  | team: en, fr |
+| · team-members | members |  |  | team-members: en, fr |
+| docs | /docs |  |  | docs: en, de, fr |
+| docs-getting-started | /docs/getting-started |  |  | docs-getting-started: fr |
+| foo-bar-baz | /foo-bar/baz |  |  | foo-bar-baz: en, de, fr |
+| localized-about-de | /ueber-uns |  |  | about: de |
+| localized-about-team-de | /team-seite |  |  | about-team: de |
+| localized-about-team-fr | /equipe |  |  | about-team: fr |
+| localized-team-de | /mannschaft |  |  | team: de |
+| · localized-team-members-de | mitglieder |  |  | team-members: de |
+| localized-docs-getting-started-en | /docs/start |  |  | docs-getting-started: en |
+| localized-docs-getting-started-de | /dokumente/einstieg |  |  | docs-getting-started: de |
 
 ## Reading a URL
 
@@ -36,15 +36,15 @@ Every URL is resolved with `?q=1#top`.
 | /docs | docs | en | docs | docs | English | null | null | null |
 | /docs/getting-started | docs-getting-started | en | docs-getting-started | docs-getting-started | English | null | null | null |
 | /docs/start | localized-docs-getting-started-en | en | docs-getting-started | docs-getting-started | English | null | null | null |
-| /dokumente/einstieg | localized-docs-getting-started-de | en | docs-getting-started | docs-getting-started | English | null | null | null |
-| /equipe | localized-about-team-fr | en | about-team | about-team | English | null | null | null |
+| /dokumente/einstieg | localized-docs-getting-started-de | de | docs-getting-started | docs-getting-started | Deutsch | null | null | null |
+| /equipe | localized-about-team-fr | fr | about-team | about-team | Français | null | null | null |
 | /foo-bar/baz | foo-bar-baz | en | foo-bar-baz | foo-bar-baz | English | null | null | null |
-| /mannschaft | localized-team-de | en | team | team | English | null | null | null |
-| /mannschaft/mitglieder | localized-team-members-de | en | team-members | team-members | English | null | null | null |
+| /mannschaft | localized-team-de | de | team | team | Deutsch | null | null | null |
+| /mannschaft/mitglieder | localized-team-members-de | de | team-members | team-members | Deutsch | null | null | null |
 | /team | team | en | team | team | English | null | null | null |
-| /team-seite | localized-about-team-de | en | about-team | about-team | English | null | null | null |
+| /team-seite | localized-about-team-de | de | about-team | about-team | Deutsch | null | null | null |
 | /team/members | team-members | en | team-members | team-members | English | null | null | null |
-| /ueber-uns | localized-about-de | en | about | about | English | null | null | null |
+| /ueber-uns | localized-about-de | de | about | about | Deutsch | null | null | null |
 | /en | null | en | index | index | English | en | null | null |
 | /en/ | null | en | index | index | English | en | null | null |
 | /de | null | en | index | index | English | de | null | null |

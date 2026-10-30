@@ -1,9 +1,29 @@
 <script lang="ts">
+import { type I18nTRenderProps, renderI18nT, type RenderSlots, type TextHost } from '@i18n-micro/core/render'
 import type { PluralFunc } from '@i18n-micro/types'
-import type { PropType, VNode } from 'vue'
-import { defineComponent, h as hyperscript } from 'vue'
-import { useNuxtApp, useRoute } from '#imports'
+import type { FunctionalComponent, PropType, VNode } from 'vue'
+import { Fragment, h } from 'vue'
+import { useNuxtApp } from '#imports'
 import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
+
+const renderApi = { h, Fragment }
+
+/** Stateless, so functional: no instance per translation on a page of them. */
+const render: FunctionalComponent<I18nTRenderProps> = (props, { slots, attrs }) => {
+  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc, $pluralLocale } = useNuxtApp() as unknown as PluginsInjections
+  // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
+  const host = {
+    t: $t,
+    tc: $tc,
+    tn: $tn,
+    td: $td,
+    tdr: $tdr,
+    getLocale: $getLocale,
+    pluralFunc: $pluralFunc,
+    pluralLocale: $pluralLocale,
+  } as unknown as TextHost
+  return renderI18nT(renderApi, host, props, slots as RenderSlots, attrs) as VNode
+}
 
 /**
  * Renders one translation into an element, with pluralization, interpolation and
@@ -13,10 +33,10 @@ import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
  * several are set the first of that list wins — the order the render function checks them.
  *
  * @slot default — receives `{ translation }`, for wrapping the resolved string in markup
- * @slot {name} — any other named slot replaces the `{name}` placeholder inside the translation
+ * @slot {name} — any other named slot replaces every `{name}` placeholder inside the translation
  */
-export default defineComponent({
-  name: 'I18nT',
+export default Object.assign(render, {
+  displayName: 'I18nT',
   inheritAttrs: false,
   props: {
     /** Translation key to render. */
@@ -24,9 +44,9 @@ export default defineComponent({
       type: String as PropType<string>,
       required: true,
     },
-    /** Count selecting the plural form. Set it to use `$tc` instead of `$t`. */
+    /** Count selecting the plural form. Set it to use `$tc` instead of `$t`. `null` means unset. */
     plural: {
-      type: [Number, String] as PropType<number | string>,
+      type: [Number, String] as PropType<number | string | null>,
     },
     /** Element to render. */
     tag: {
@@ -36,14 +56,13 @@ export default defineComponent({
     /** Interpolation values substituted into the translation. */
     params: {
       type: Object as PropType<Record<string, string | number | boolean>>,
-      default: () => ({}),
     },
     /** Rendered instead of the component when `hideIfEmpty` suppresses an empty translation. */
     defaultValue: {
       type: String as PropType<string>,
       default: '',
     },
-    /** Render the translation as HTML rather than text. Only for content you control. */
+    /** Render the translation as HTML rather than text. Only for translations you control: `params` are escaped, the translation is not. */
     html: {
       type: Boolean as PropType<boolean>,
       default: false,
@@ -53,101 +72,23 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false,
     },
-    /** Plural rule for this element only, overriding the configured one. */
+    /** Plural rule for this element only, overriding the configured one. Its answer is used as is; `null` renders empty. */
     customPluralRule: {
       type: Function as PropType<PluralFunc>,
       default: null,
     },
     /** Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. */
     number: {
-      type: [Number, String] as PropType<number | string>,
+      type: [Number, String] as PropType<number | string | null>,
     },
     /** Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. */
     date: {
-      type: [Date, String, Number] as PropType<Date | string | number>,
+      type: [Date, String, Number] as PropType<Date | string | number | null>,
     },
     /** Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. */
     relativeDate: {
-      type: [Date, String, Number] as PropType<Date | string | number>,
+      type: [Date, String, Number] as PropType<Date | string | number | null>,
     },
-  },
-  setup(props, { slots, attrs }) {
-    return () => {
-      const options: Record<string, string | number | boolean> = {}
-
-      const { $getLocale, $_t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
-      const route = useRoute()
-      const $t = $_t(route)
-      // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
-      const safeAttrs = { ...(attrs as Record<string, unknown>) }
-      delete safeAttrs.innerHTML
-      const renderText = (translation: string) =>
-        props.html ? hyperscript(props.tag, { ...safeAttrs, innerHTML: translation }) : hyperscript(props.tag, safeAttrs, translation)
-
-      if (props.number !== undefined) {
-        const numberValue = Number(props.number)
-        return renderText(String($t(props.keypath, { ...props.params, number: $tn(numberValue) }) ?? ''))
-      }
-
-      if (props.date !== undefined) {
-        return renderText(String($t(props.keypath, { ...props.params, date: $td(props.date) }) ?? ''))
-      }
-
-      if (props.relativeDate !== undefined) {
-        return renderText(String($t(props.keypath, { ...props.params, relativeDate: $tdr(props.relativeDate) }) ?? ''))
-      }
-
-      if (props.plural !== undefined) {
-        const count = Number.parseInt(props.plural.toString(), 10)
-        if (props.customPluralRule) {
-          return renderText(String(props.customPluralRule(props.keypath, count, props.params, $getLocale(), $t) ?? ''))
-        } else {
-          return renderText($tc(props.keypath, { count, ...props.params }))
-        }
-      }
-
-      const translation = ($t(props.keypath, { ...props.params, ...options }) ?? '').toString()
-
-      if (props.hideIfEmpty && !translation.trim()) {
-        return props.defaultValue ?? null
-      }
-
-      if (props.html) {
-        return renderText(translation)
-      }
-
-      if (slots.default) {
-        return hyperscript(props.tag, safeAttrs, slots.default({ translation }))
-      }
-
-      const children: (string | VNode)[] = []
-      let lastIndex = 0
-
-      for (const [slotName, slotFn] of Object.entries(slots)) {
-        const placeholder = `{${slotName}}`
-        const index = translation.indexOf(placeholder, lastIndex)
-
-        if (index !== -1) {
-          if (index > lastIndex) {
-            children.push(translation.slice(lastIndex, index))
-          }
-
-          children.push(hyperscript(slotFn!))
-
-          lastIndex = index + placeholder.length
-        }
-      }
-
-      if (lastIndex < translation.length) {
-        children.push(translation.slice(lastIndex))
-      }
-
-      if (slots.default) {
-        return hyperscript(props.tag, safeAttrs, slots.default({ children }))
-      }
-
-      return hyperscript(props.tag, safeAttrs, children)
-    }
   },
 })
 </script>

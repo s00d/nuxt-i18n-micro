@@ -15,16 +15,16 @@ outline: [2, 3]
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `keypath` **\*** | `string` | — | Translation key to render. |
-| `plural` | `number \| string` | — | Count selecting the plural form. Set it to use `$tc` instead of `$t`. |
+| `plural` | `number \| string \| null` | — | Count selecting the plural form. Set it to use `$tc` instead of `$t`. `null` means unset. |
 | `tag` | `string` | `'span'` | Element to render. |
-| `params` | `Record<string, string \| number \| boolean>` | `() => ({})` | Interpolation values substituted into the translation. |
+| `params` | `Record<string, string \| number \| boolean>` | — | Interpolation values substituted into the translation. |
 | `defaultValue` | `string` | `''` | Rendered instead of the component when `hideIfEmpty` suppresses an empty translation. |
-| `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for content you control. |
+| `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for translations you control: `params` are escaped, the translation is not. |
 | `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
-| `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. |
-| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. |
-| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. |
-| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. |
+| `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. Its answer is used as is; `null` renders empty. |
+| `number` | `number \| string \| null` | — | Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. |
+| `date` | `Date \| string \| number \| null` | — | Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. |
+| `relativeDate` | `Date \| string \| number \| null` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. |
 
 **\*** required.
 
@@ -34,13 +34,21 @@ outline: [2, 3]
 
 The first matching case decides the output:
 
-1. `number` — renders `$t(keypath, { ...params, number: $tn(number) })`.
-2. `date` — renders `$t(keypath, { ...params, date: $td(date) })`.
-3. `relativeDate` — renders `$t(keypath, { ...params, relativeDate: $tdr(relativeDate) })`.
-4. `plural` — renders `$tc(keypath, { count, ...params })`, or `customPluralRule(keypath, count, params, locale, t)` when set.
-5. Otherwise `$t(keypath, params)`: with `hideIfEmpty` an empty result renders `defaultValue` instead; a `default` slot receives `{ translation }` and named slots are ignored; otherwise each named slot replaces its `{name}` placeholder.
+1. `number` — the translation with `{ ...params, number: $tn(number) }`.
+2. `date` — the translation with `{ ...params, date: $td(date) }`.
+3. `relativeDate` — the translation with `{ ...params, relativeDate: $tdr(relativeDate) }`.
+4. `plural` — the form `$tc` picks, the [`=0 ` marker](/api/methods#tc) included, with `{ ...params, count }`; or `customPluralRule(keypath, count, params, locale, t)` when set, which reads the raw value, marker included, and whose answer is used as is, `null` being empty.
+5. Otherwise the translation with `params`.
 
-`html` applies in every case and renders the result as HTML; slots are then ignored. Slots apply only in case 5.
+`null` counts as not set. In every case:
+
+- `defaultValue` stands in for a missing key, in every branch.
+- `hideIfEmpty` renders `defaultValue` instead of a blank result.
+- `html` renders the result as HTML. `params` are escaped, the translation is not; slots are ignored.
+- A `default` slot receives `{ translation }`, and named slots are ignored.
+- Otherwise each named slot replaces every `{name}` placeholder, before a param of that name. A param value that looks like a placeholder stays text.
+
+`date` and `relativeDate` output carries `data-allow-mismatch="text"`, because the server's time zone and clock are not the browser's. Set [`timeZone`](/api/module-options#timezone) to render one calendar date in both; `relativeDate` depends on the clock, so it can still differ.
 
 ## Example
 
@@ -64,7 +72,7 @@ The first matching case decides the output:
 </template>
 ```
 
-`html` sets `innerHTML`: use it only for translations you control.
+`html` sets `innerHTML`: use it only for translations you control. `params` are escaped, so user data is safe there.
 
 ## Related
 

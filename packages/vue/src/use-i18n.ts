@@ -2,7 +2,8 @@ import type { Locale } from '@i18n-micro/types'
 import { computed, inject } from 'vue'
 import type { VueI18n } from './composer'
 import { I18nDefaultLocaleKey, I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from './injection'
-import type { I18nRoutingStrategy } from './router/types'
+import { currentFullPath, pathOf } from './router/path'
+import type { I18nRoutingStrategy, I18nRouteTarget } from './router/types'
 
 export interface UseI18nOptions {
   locales?: Locale[]
@@ -34,7 +35,7 @@ export function useI18n(options?: UseI18nOptions) {
     throw new Error('[i18n-micro] I18nDefaultLocaleKey not provided. Make sure app.provide(I18nDefaultLocaleKey, defaultLocale) is called.')
   }
 
-  const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
+  const resolveLocalePath = (to: I18nRouteTarget, localeCode?: string): I18nRouteTarget => {
     if (!router?.resolvePath) {
       return to
     }
@@ -63,17 +64,11 @@ export function useI18n(options?: UseI18nOptions) {
 
     // Routing helpers
     localeRoute: resolveLocalePath,
-    localePath: (to: string | { path?: string }, locale?: string): string => {
-      const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : res.path || '/'
-    },
+    localePath: (to: I18nRouteTarget, locale?: string): string => pathOf(resolveLocalePath(to, locale) as string | { path?: string }),
     switchLocale: (newLocale: string) => {
+      const path = router && pathOf(resolveLocalePath(currentFullPath(router), newLocale) as string | { path?: string })
       i18n.locale.value = newLocale
-      if (router) {
-        const currentPath = router.getCurrentPath()
-        const newPath = resolveLocalePath(currentPath, newLocale)
-        router.push(typeof newPath === 'string' ? { path: newPath } : { path: newPath.path || '/' })
-      }
+      if (path) router.push({ path })
     },
 
     // Translation methods (delegate to instance)

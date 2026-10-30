@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
+import { mergeDefineI18nRouteMeta } from '../src/unplugin-define-i18n-route'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath, parentPagePaths, resolveRootDir } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
 
@@ -69,6 +70,19 @@ describe('extractDefineI18nRouteData', () => {
     })
     // a `/` after a value is division, not a regex: the scan steps over it
     expect(extract(`const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`, 'division.vue')).toEqual({ locales: ['en'] })
+    // an identifier that only contains the call name is no call
+    expect(extract(`const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`, 'lookalike.vue')).toEqual({
+      locales: ['right'],
+    })
+  })
+
+  it('a file with nothing to read is null, without a word', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(extractDefineI18nRouteData('', 'empty.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<template><div>Hello</div></template>', 'no-script.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'no-call.vue')).toBeNull()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
   // A config that references script bindings runs the page script; destructuring the call
@@ -116,6 +130,58 @@ describe('pageFilePathToRoutePath', () => {
   it('maps page files to route paths', () => {
     expect(pageFilePathToRoutePath('/project/pages/index.vue', '/project')).toBe('/')
     expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
     expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')
+  })
+})
+
+describe('mergeDefineI18nRouteMeta', () => {
+  const page = [{ routePath: 'about/team', config: { localeRoutes: { de: '/page' } } }]
+
+  it.each(['about/team', '/about/team', 'about-team'])('the config wins over the page under the key %s', (key) => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
+  })
+
+  it.each([
+    ['blog/[slug]', 'blog-slug'],
+    ['blog/[slug]', 'blog/:slug'],
+    ['/', 'index'],
+    ['docs/[...rest]', 'docs-rest'],
+  ])('%s: the config wins under the name or path %s', (routePath, key) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], {
+      globalLocaleRoutes: { [key]: { de: '/config' } },
+    })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
+  })
+
+  it.each(['constructor', 'toString', 'valueOf'])('a page named %s keeps its entry', (routePath) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], { globalLocaleRoutes: {} })
+    expect(Object.keys(merged.globalLocaleRoutes)).toEqual([routePath])
+  })
+
+  it('keeps the page entry when the config names another page', () => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })
+  })
+})
+
+describe('page paths across layers and groups', () => {
+  it('drops route group folders, which are not in the URL', () => {
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/cart.vue', '/project')).toBe('cart')
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/index.vue', '/project')).toBe('/')
+    expect(pageFilePathToRoutePath('/project/pages/(a)/blog/(b)/post.vue', '/project')).toBe('blog/post')
+  })
+
+  it('picks the root the file is beneath, not one that shares its prefix', () => {
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer', '/app/layer-2'])).toBe('/app/layer-2')
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer'])).toBeUndefined()
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app', '/app/layer'])).toBe('/app/layer')
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app/layer/'])).toBe('/app/layer/')
+  })
+
+  it('parent paths follow both rules and leave index pages out', () => {
+    const files = ['/app/layer-2/pages/(shop)/blog.vue', '/app/layer-2/pages/blog/index.vue']
+    expect(parentPagePaths(files, ['/app/layer', '/app/layer-2'])).toEqual(['blog'])
   })
 })

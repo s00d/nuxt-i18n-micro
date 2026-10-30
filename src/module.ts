@@ -5,6 +5,7 @@ import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-mic
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { configForHost } from '@i18n-micro/utils/domains'
 import { buildFullConfigSource } from './config-template'
 import type {
   Getter,
@@ -19,6 +20,7 @@ import type {
 } from '@i18n-micro/types'
 import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from './build/build'
 import {
+  domainPayloadFilter,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
@@ -53,9 +55,10 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver } from './localized-paths'
+import { createLocalizedPathResolver, type LocalizedPathResolver, staticPagePaths, unfixedOriginWarning } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
+import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
+import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
 export {
@@ -142,9 +145,11 @@ function buildFullConfig(params: {
 
   return {
     locales: locales ?? [],
-    metaBaseUrl: options.metaBaseUrl || undefined,
+    // an unknown host of a build whose default has a domain takes that origin, not the request's
+    metaBaseUrl: options.metaBaseUrl || locales?.find((locale) => locale.code === defaultLocale)?.baseUrl || undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
+    trustForwardedHost: options.trustForwardedHost ?? false,
     hreflangBaseLanguage: options.hreflangBaseLanguage ?? false,
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
@@ -179,6 +184,7 @@ function buildFullConfig(params: {
     httpCacheDuration: options.httpCacheDuration,
     numberFormats: options.numberFormats ?? {},
     datetimeFormats: options.datetimeFormats ?? {},
+    timeZone: options.timeZone,
     translationPayloadMode,
   }
 }
@@ -217,6 +223,7 @@ function registerI18nTemplates(
   resolvedHelpersPath: string,
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
+  disabledLocales: Locale[],
 ) {
   let runtimeFullConfig = fullConfig
 
@@ -230,11 +237,17 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      return `import { Strategy } from '${resolvedStrategyPath}'
+      const domains = runtimeFullConfig.locales.some((locale) => locale.baseUrl)
+      return `import { ${domains ? 'DomainPathStrategy as Strategy' : 'Strategy'} } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
+// disabled at build: no routes and not in the config, but routing must answer for their prefix
+const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
 export function getI18nConfig() { return __fullConfig }
+
+// a constant, so a build without locale domains drops their code
+export const domains = ${domains}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -242,12 +255,12 @@ export function createI18nStrategy(router, config = __fullConfig) {
   return new Strategy({
     strategy: config.strategy,
     defaultLocale: config.defaultLocale,
-    locales: config.locales,
+    locales: [...config.locales, ...__disabledLocales],
     localizedRouteNamePrefix: config.localizedRouteNamePrefix,
     router,
     hashMode: config.hashMode,
     disablePageLocales: config.disablePageLocales,
-    customRegexMatcher: config.customRegexMatcher,
+    customRegexMatcher: config.customRegexMatcher,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
   })
 }
 `
@@ -322,6 +335,7 @@ export default defineNuxtModule<ModuleOptions>({
     missingWarn: true,
     metaTrustForwardedHost: true,
     metaTrustForwardedProto: true,
+    trustForwardedHost: false,
     hreflangBaseLanguage: false,
     httpCacheDuration: 31536000,
   },
@@ -435,38 +449,14 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
-    const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = { ...(options.routeDisableMeta ?? {}) }
-
     const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
     const pageFiles = await globby(pageGlobs, { absolute: true })
 
-    for (const { routePath, config } of collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs)) {
-      try {
-        const { locales: extractedLocales, localeRoutes, disableMeta } = config
-
-        if (extractedLocales) {
-          if (Array.isArray(extractedLocales)) {
-            routeLocales[routePath] = extractedLocales
-          } else if (typeof extractedLocales === 'object') {
-            routeLocales[routePath] = Object.keys(extractedLocales)
-          }
-        }
-
-        if (localeRoutes) {
-          globalLocaleRoutes[routePath] = localeRoutes
-        }
-
-        if (disableMeta !== undefined) {
-          routeDisableMeta[routePath] = disableMeta
-        }
-      } catch (error) {
-        logger.debug(`Failed to parse defineI18nRoute config for ${routePath}:`, error)
-      }
-    }
-
-    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes }
+    const {
+      routeLocales,
+      routeDisableMeta,
+      globalLocaleRoutes: mergedGlobalLocaleRoutes,
+    } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
     if (options.debug) {
       logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
       logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])
@@ -505,6 +495,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
+      parentPaths: parentPagePaths(pageFiles, rootDirs),
     })
 
     const fullConfig = buildFullConfig({
@@ -520,8 +511,30 @@ export default defineNuxtModule<ModuleOptions>({
       translationsHash,
     })
 
+    // `nuxt generate` has no real request: this variable is the host of the run
+    const generateDomain = process.env.NUXT_I18N_DOMAIN
+    const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
+    if (generateDomain && !buildConfig.domain)
+      logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
+    if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseUrl)) {
+      logger.warn(
+        'locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.',
+      )
+    }
+
+    const siteUrl = (nuxt.options as { site?: { url?: string } }).site?.url || process.env.NUXT_PUBLIC_SITE_URL || process.env.NUXT_SITE_URL
+    const originWarning = buildConfig.domain ? null : unfixedOriginWarning(routeGenerator.locales, defaultLocale, options.metaBaseUrl, siteUrl)
+    if (originWarning) logger.warn(originWarning)
+
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
-    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig)
+    const templates = registerI18nTemplates(
+      options,
+      resolvedStrategyPath,
+      resolvedHelpersPath,
+      fullConfig,
+      privateConfig,
+      routeGenerator.disabledLocales,
+    )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)
@@ -689,6 +702,7 @@ declare module '#build/i18n.plural.mjs' {
 }
 
 declare module '#build/i18n.strategy.mjs' {
+  export const domains: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -698,6 +712,7 @@ declare module '#i18n-internal/config' {
 }
 
 declare module '#i18n-internal/strategy' {
+  export const domains: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -715,11 +730,15 @@ declare module '#i18n-internal/payload-source' {
 
     /** The localized pages, as the app's router will hold them: prerender asks the runtime strategy about them. */
     let generatedPages: NuxtPage[] = []
+    /** The pages as written, without params: generate seeds every locale of them, linked or not. */
+    let staticPaths: string[] = []
     const createBuildStrategy = () =>
       createLocalizedPathResolver(generatedPages, {
         strategy: options.strategy!,
-        defaultLocale,
-        locales: routeGenerator.locales,
+        defaultLocale: buildConfig.defaultLocale!,
+        locales: buildConfig.locales!,
+        domain: buildConfig.domain,
+        linkLocales: buildConfig.linkLocales,
         localizedRouteNamePrefix: options.localizedRouteNamePrefix,
         customRegexMatcher: fullConfig.customRegexMatcher as string | undefined,
       })
@@ -742,6 +761,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       addDataRoutes(pages)
+      staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages
     })
@@ -788,32 +808,18 @@ declare module '#i18n-internal/payload-source' {
       }
 
       const routeRules = nuxt.options.routeRules || {}
-      const strategy = options.strategy! as Strategies
 
-      if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (!shouldLocalizeRouteRulePath(originalPath)) continue
+      for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
+        const { redirect: _redirect, ...restRuleValue } = ruleValue
+        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath)) continue
 
-          routeGenerator.locales.forEach((localeObj) => {
-            const localeCode = localeObj.code
-            if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, localeCode)) {
-              return
-            }
-            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
-
-            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
-              return
-            }
-
-            const { redirect, ...restRuleValue } = ruleValue
-            if (!Object.keys(restRuleValue).length) return
-
-            nitroConfig.routeRules![localizedPath] = {
-              ...nitroConfig.routeRules![localizedPath],
-              ...restRuleValue,
-            }
+        for (const { code } of routeGenerator.locales) {
+          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, code)) continue
+          for (const localizedPath of routeGenerator.resolveLocalizedRulePaths(originalPath, code)) {
+            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) continue
+            nitroConfig.routeRules![localizedPath] = { ...nitroConfig.routeRules![localizedPath], ...restRuleValue }
             logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
-          })
+          }
         }
       }
 
@@ -826,6 +832,15 @@ declare module '#i18n-internal/payload-source' {
 
     // The preset (and so `node` / `serveStatic`) is only resolved here, not in `nitro:config`.
     nuxt.hook('nitro:init', (nitro) => {
+      // Nuxt and the crawler list every static record: on one domain those of another host are a 404 or a redirect
+      if (buildConfig.domain) {
+        let localize: LocalizedPathResolver | undefined
+        nitro.hooks.hook('prerender:generate', async (route) => {
+          localize ??= await createBuildStrategy()
+          if (route.route !== '/' && localize.isPage(route.route) && !localize.isServed(route.route)) route.skip = true
+        })
+      }
+
       // Static output has no server bundle; its prerenderer keeps the fs reader.
       if (nitro.options.static) return
       const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
@@ -864,7 +879,14 @@ declare module '#i18n-internal/payload-source' {
 
         try {
           if (existsSync(publicAssetsDir)) {
-            fs.cpSync(publicAssetsDir, publicDir, { recursive: true })
+            const filter = domainPayloadFilter({
+              mode: translationPayloads.mode,
+              root: publicAssetsDir,
+              served: buildConfig.locales!,
+              linkLocales: buildConfig.linkLocales,
+              fallbackLocale: options.fallbackLocale,
+            })
+            fs.cpSync(publicAssetsDir, publicDir, { recursive: true, filter })
             logger.log(`Translation payloads copied to public directory`)
 
             const compressed = compressTranslationPayloads(publicDir, nitro.options.compressPublicAssets)
@@ -901,7 +923,15 @@ declare module '#i18n-internal/payload-source' {
       if (isSSG) {
         // `/` itself is kept so a static host still answers the bare root (the redirect stub).
         if (prerendered('/')) routesSet.add('/')
-        for (const locale of routeGenerator.locales) {
+        // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
+        for (const path of staticPaths) {
+          if (prerendered(path) && localize.isServed(path)) routesSet.add(path)
+          for (const { code } of buildConfig.locales!) {
+            const localized = prerendered(path) ? localize.path(path, code) : null
+            if (localized && prerendered(localized)) routesSet.add(localized)
+          }
+        }
+        for (const locale of buildConfig.locales!) {
           const localizedRoot = localize.path('/', locale.code)
           if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)
         }
@@ -913,7 +943,7 @@ declare module '#i18n-internal/payload-source' {
 
       for (const route of routesSet) {
         if (/\.[a-z0-9]+$/i.test(route) || !prerendered(route) || localize.localeOf(route)) continue
-        for (const locale of routeGenerator.locales) {
+        for (const locale of buildConfig.locales!) {
           const localizedRoute = localize.path(route, locale.code)
           if (localizedRoute && prerendered(localizedRoute)) additionalRoutes.add(localizedRoute)
         }

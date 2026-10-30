@@ -1,6 +1,7 @@
 // Every picture in the docs comes from here, in one style: diagrams as SVG (docs/public/diagrams),
 // release banners and the social card as PNG. Run after editing: node scripts/render-docs-images.mjs
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 
 const PUBLIC = new URL('../docs/public/', import.meta.url)
@@ -62,7 +63,7 @@ const diagrams = {
       arrow([[720, 340], [720, 396], [640, 396], [640, 420]], 'yes', [700, 372]),
       box(476, 420, 268, 76, 'Redirect to', ['state → cookie', '→ Accept-Language → default']),
       arrow([[850, 340], [850, 420]], 'no', [866, 384]),
-      box(764, 420, 172, 76, 'Default locale', ['prefix: redirect', 'except default: render']),
+      box(764, 420, 172, 76, 'Path not allowed', ['prefix: by preference', 'else: default locale']),
     ].join(''),
   ),
   'translation-pipeline': svg(
@@ -112,10 +113,11 @@ const diagrams = {
     280,
     [
       `<text x="24" y="34" font-size="15" fill="${INK.dim}">Lookup order: the first file that has the key wins</text>`,
-      box(24, 56, 216, 76, 'pages/about/de.json', ['active locale, this page'], true),
-      box(24, 148, 216, 76, 'de.json', ['active locale, shared'], true),
-      box(272, 56, 216, 76, 'pages/about/en.json', ['fallback locale, this page']),
-      box(272, 148, 216, 76, 'en.json', ['fallback locale, shared']),
+      box(24, 56, 216, 76, 'pages/about/de.json', ['1. active locale, this page'], true),
+      box(24, 148, 216, 76, 'de.json', ['2. active locale, shared'], true),
+      box(272, 56, 216, 76, 'pages/about/en.json', ['3. fallback locale, this page']),
+      box(272, 148, 216, 76, 'en.json', ['4. fallback locale, shared']),
+      arrow([[240, 140], [272, 140]]),
       arrow([[488, 140], [530, 140]]),
       box(530, 96, 212, 88, 'about/de/data.json', ['one dictionary per page'], true),
       arrow([[742, 140], [790, 140]]),
@@ -162,7 +164,7 @@ const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1280, height: 640 } })
 const shoot = async (file, html) => {
   await page.setContent(html)
-  await page.screenshot({ path: new URL(file, PUBLIC).pathname })
+  await page.screenshot({ path: fileURLToPath(new URL(file, PUBLIC)) })
 }
 for (const [version, [subtitle, chips]] of Object.entries(banners)) {
   await shoot(`${version}.png`, card({ eyebrow: 'Nuxt I18n Micro', title: `v${version}`, subtitle, chips }))

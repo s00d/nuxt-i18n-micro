@@ -58,6 +58,7 @@ export const recipes = defineRecipes(
       STRATEGY: 'no_prefix',
       LOCALE_COOKIE: 'user-locale',
       AUTO_DETECT_LANGUAGE: '1',
+      EXCLUDE_PATTERNS: '/administrator',
     }),
     'strategy-prefix': app('strategy-prefix', 'strategy', {
       STRATEGY: 'prefix',
@@ -95,6 +96,79 @@ export const recipes = defineRecipes(
     // global URL shapes: each would break every other journey's URLs, so each is its own build
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
+    // disablePageLocales: every page loads the index chunk, the one serverTranslationPreload detects without the route
+    'strategy-no-prefix-preload': app(
+      'strategy-no-prefix-preload',
+      'strategy',
+      { STRATEGY: 'no_prefix', LOCALE_COOKIE: 'user-locale' },
+      { i18n: { serverTranslationPreload: true, disablePageLocales: true } },
+    ),
+    'strategy-hash-prefix': app(
+      'strategy-hash-prefix',
+      'strategy',
+      { STRATEGY: 'prefix', AUTO_DETECT_LANGUAGE: '1' },
+      { router: { options: { hashMode: true } } },
+    ),
+    'strategy-hash-prefix-slash': app(
+      'strategy-hash-prefix-slash',
+      'strategy',
+      { STRATEGY: 'prefix' },
+      { router: { options: { hashMode: true } }, i18n: { trailingSlash: 'append' } },
+    ),
+    'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
+    'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
+
+    // one build, two domains (en on example.com, de on example.de, ru on both); journeys send a Host
+    'strategy-domains-pec': app('strategy-domains-pec', 'strategy', {
+      STRATEGY: 'prefix_except_default',
+      LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
+      DOMAINS: '/',
+    }),
+    // an empty NUXT_I18N_DOMAIN is no fixed host: the request's still decides
+    'strategy-domains-prefix': app('strategy-domains-prefix', 'strategy', {
+      STRATEGY: 'prefix',
+      LOCALE_COOKIE: 'user-locale',
+      DOMAINS: '/',
+      NUXT_I18N_DOMAIN: '',
+    }),
+    'strategy-domains-pad': app('strategy-domains-pad', 'strategy', {
+      STRATEGY: 'prefix_and_default',
+      LOCALE_COOKIE: 'user-locale',
+      DOMAINS: '/',
+    }),
+    'strategy-domains-no-prefix': app('strategy-domains-no-prefix', 'strategy', {
+      STRATEGY: 'no_prefix',
+      LOCALE_COOKIE: 'user-locale',
+      AUTO_DETECT_LANGUAGE: '1',
+      DOMAINS: '/',
+    }),
+    'strategy-domains-trust': app(
+      'strategy-domains-trust',
+      'strategy',
+      { STRATEGY: 'prefix_except_default', DOMAINS: '/' },
+      { i18n: { trustForwardedHost: true } },
+    ),
+    // runtime overrides under domains: de is switched off at runtime, ru is the default of an unknown host
+    'strategy-domains-overrides': app(
+      'strategy-domains-overrides',
+      'strategy',
+      { STRATEGY: 'prefix', DOMAINS: '/', NUXT_I18N_DEFAULT_LOCALE: 'ru' },
+      { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['de'] } } } },
+    ),
+    'strategy-domains-hash': app(
+      'strategy-domains-hash',
+      'strategy',
+      { STRATEGY: 'prefix_except_default', DOMAINS: '/' },
+      { router: { options: { hashMode: true } } },
+    ),
+    'strategy-domains-spa': app('strategy-domains-spa', 'strategy', { STRATEGY: 'prefix_except_default', DOMAINS: '/' }, { ssr: false }),
+    'strategy-domains-baseurl': app(
+      'strategy-domains-baseurl',
+      'strategy',
+      { STRATEGY: 'prefix_except_default', DOMAINS: '/shop' },
+      { app: { baseURL: '/shop' } },
+    ),
 
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),

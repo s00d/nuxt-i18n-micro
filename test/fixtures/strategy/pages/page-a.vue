@@ -14,7 +14,10 @@ import { definePageMeta, useNuxtApp } from '#imports'
 // Per-page transition (was app.pageTransition in the old transition-merge fixture).
 definePageMeta({ pageTransition: { name: 'page', mode: 'default' } })
 
-const { $t } = useNuxtApp()
+const { $t, $defineI18nRoute } = useNuxtApp()
+
+// `strategy-region-codes` sets other paths for this page in globalLocaleRoutes, and those must win
+$defineI18nRoute({ localeRoutes: { 'en-us': '/from-page-a', 'de-de': '/von-seite-a' } })
 </script>
 
 <style>

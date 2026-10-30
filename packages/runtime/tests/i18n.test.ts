@@ -33,6 +33,11 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.t('nested.message')).toBe('Nested EN')
   })
 
+  test('tc() picks the plural form by count', () => {
+    const i18n = createI18n({ locale: 'en', messages })
+    expect([0, 1, 5].map((count) => i18n.tc('apples', count))).toEqual(['no apples', 'one apple', '5 apples'])
+  })
+
   test('routeMessages and setRoute', () => {
     const i18n = createI18n({
       locale: 'en',
@@ -46,6 +51,51 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.currentRoute).toBe('home')
     expect(i18n.t('title')).toBe('Home Page')
     expect(i18n.t('welcome')).toBe('Welcome')
+  })
+
+  test('subscribers hear real changes only: locale, fallback locale, clearCache; a same value is silent', () => {
+    const i18n = createI18n({ locale: 'en', fallbackLocale: 'de', messages })
+    const listener = vi.fn()
+    const unsubscribe = i18n.subscribe(listener)
+    const heard = () => listener.mock.calls.length
+
+    // step 1: the locale
+    i18n.locale = 'en'
+    expect(heard()).toBe(0)
+    i18n.locale = 'de'
+    expect(heard()).toBe(1)
+
+    // step 2: the fallback locale
+    i18n.fallbackLocale = 'en'
+    expect(heard()).toBe(2)
+    expect(i18n.t('nested.message')).toBe('Nested EN')
+    i18n.fallbackLocale = 'en'
+    expect(heard()).toBe(2)
+
+    // step 3: clearCache
+    i18n.clearCache()
+    expect(heard()).toBe(3)
+
+    // step 4: the route
+    i18n.setRoute('index')
+    expect(heard()).toBe(3)
+    i18n.setRoute('about')
+    expect(heard()).toBe(4)
+
+    // step 5: gone
+    unsubscribe()
+    i18n.locale = 'en'
+    expect(heard()).toBe(4)
+  })
+
+  test('loadMessages merges further maps, root and per route', () => {
+    const i18n = createI18n({ locale: 'en' })
+    i18n.loadMessages({ en: { a: 'A' } })
+    i18n.loadMessages({ en: { b: 'B' } }, { about: { en: { title: 'About' } } })
+    expect(i18n.t('a')).toBe('A')
+    expect(i18n.t('b')).toBe('B')
+    expect(i18n.t('title')).toBe('title')
+    expect(i18n.t('title', undefined, undefined, 'about')).toBe('About')
   })
 
   test('subscribe notifies on addTranslations', () => {
@@ -126,6 +176,16 @@ describe('@i18n-micro/runtime', () => {
     await expect(fetchJsonTranslations('/missing.json')).rejects.toThrow(/404/)
   })
 
+  test('hasTranslation scans every route of the active locale; has() stays on the current one', () => {
+    const i18n = createI18n({ locale: 'en', messages: { en: { welcome: 'Welcome' }, de: { nurDe: 'x' } } })
+    i18n.addRouteTranslations('en', 'home', { onlyHome: 'Home only' })
+    expect(i18n.hasTranslation('welcome')).toBe(true)
+    expect(i18n.hasTranslation('onlyHome')).toBe(true)
+    expect(i18n.has('onlyHome')).toBe(false)
+    expect(i18n.hasTranslation('nurDe')).toBe(false)
+    expect(i18n.hasTranslation('missing')).toBe(false)
+  })
+
   test('hasTranslation and clear', () => {
     const i18n = createI18n({ locale: 'en', messages })
     expect(i18n.hasTranslation('welcome')).toBe(true)
@@ -136,5 +196,36 @@ describe('@i18n-micro/runtime', () => {
   test('exposes storage map', () => {
     const i18n = createI18n({ locale: 'en', messages: { en: { a: 'A' } } })
     expect(i18n.storage.translations.size).toBeGreaterThan(0)
+  })
+
+  test('a write notifies only when the locale can be read', () => {
+    const i18n = createI18n({ locale: 'en', fallbackLocale: 'de', messages })
+    const listener = vi.fn()
+    i18n.subscribe(listener)
+    const snapshot = i18n.getSnapshot()
+    i18n.addTranslations('fr', { welcome: 'Bienvenue' })
+    i18n.addRouteTranslations('fr', 'about', { welcome: 'Bienvenue' })
+    expect(listener).not.toHaveBeenCalled()
+    expect(i18n.getSnapshot()).toBe(snapshot)
+    i18n.addTranslations('en', { a: 'A' })
+    i18n.addRouteTranslations('en', 'other', { a: 'A' })
+    i18n.addTranslations('de', { a: 'A' })
+    expect(listener).toHaveBeenCalledTimes(3)
+    i18n.setTranslation('a', 'B')
+    i18n.clearCache()
+    expect(listener).toHaveBeenCalledTimes(5)
+  })
+
+  test('a preloaded locale is there when it becomes active', () => {
+    const i18n = createI18n({ locale: 'en', messages })
+    i18n.addTranslations('fr', { welcome: 'Bienvenue' })
+    i18n.locale = 'fr'
+    expect(i18n.t('welcome')).toBe('Bienvenue')
+  })
+
+  test('timeZone and the clock reach the formatter', () => {
+    const i18n = createI18n({ locale: 'en', timeZone: 'Asia/Tokyo', now: () => 7_200_000 })
+    expect(i18n.td(new Date('2024-01-15T23:30:00Z'))).toBe('1/16/2024')
+    expect(i18n.tdr(3_600_000)).toBe('1 hour ago')
   })
 })

@@ -9,7 +9,7 @@ function dualPackageBeforeWriteFile(filePath, content) {
     .split('/')
     .pop()
     ?.replace(/\.d\.ts$/, '')
-  if (base !== 'index' && base !== 'helpers' && base !== 'devtools') {
+  if (base !== 'index' && base !== 'helpers' && base !== 'devtools' && base !== 'render') {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -24,6 +24,7 @@ export default defineConfig({
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
         helpers: resolve(import.meta.dirname, 'src/helpers.ts'),
+        render: resolve(import.meta.dirname, 'src/render.ts'),
         devtools: resolve(import.meta.dirname, 'src/devtools-entry.ts'),
       },
       formats: ['cjs', 'es'],

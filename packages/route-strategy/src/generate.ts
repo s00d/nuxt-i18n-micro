@@ -14,7 +14,7 @@
 import type { Strategies } from '@i18n-micro/types'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import type { NuxtPage } from '@nuxt/schema'
-import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey } from './paths'
+import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey, staysUnderParent } from './paths'
 import type { Rule, Rules } from './rules'
 
 export interface RouteI18nMeta {
@@ -36,6 +36,12 @@ export interface GenerateOptions {
   excludePatterns?: (string | RegExp)[]
   apiBaseUrl?: string
   noPrefixRedirect: boolean
+  /**
+   * Under prefix_except_default / prefix_and_default: locales that are the default of a domain in
+   * the same build. They get unprefixed records too, and prefix_except_default keeps every prefix
+   * (the default of one domain is a link target of the others, and the build default of an unknown host).
+   */
+  hostDefaults?: string[]
 }
 
 interface PageInfo {
@@ -60,11 +66,40 @@ const paramNames = (routePath: string): string =>
     .sort()
     .join(',')
 
+/** What Nuxt adds for a `routeRules` redirect with no page. An unnamed page of a module is a page. */
+const isRouteRuleStub = (page: NuxtPage): boolean => !page.name && /(?:^|\/)component-stub(?:\.\w+)?$/.test(page.file ?? '')
+
+/** The name Nuxt's scanner would give the path: `/a/:id()` -> `a-id`. */
+export function nameOfPath(fullPath: string): string {
+  const key = routeKey(fullPath)
+  return key === '/' ? 'index' : key.replace(/\/|:|\(.*?\)|[?*+]/g, (s) => (s === '/' ? '-' : ''))
+}
+
+/**
+ * Records are addressed by name, so a module's unnamed page gets one (or `switchLocaleRoute` and
+ * `pageLocales` cannot reach it). Not the route-rule stub, a redirect, or a parent whose index child
+ * owns the name. A name already taken stays with its page.
+ */
+function namePages(pages: NuxtPage[], taken: Set<string>, parentOriginal = '', top = true): NuxtPage[] {
+  return pages.map((page) => {
+    const original = top ? absolute(page.path ?? '') : joinChild(parentOriginal, page.path ?? '')
+    const children = page.children && namePages(page.children, taken, original, false)
+    const named = children ? { ...page, children } : page
+    if (page.name || !page.file || isRouteRuleStub(page) || page.children?.some((child) => !child.path)) return named
+    const name = nameOfPath(original)
+    if (taken.has(name)) return named
+    taken.add(name)
+    return { ...named, name }
+  })
+}
+
+const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
+
 /** Localized full paths (without prefix) by page key and locale, for nitro lookups. */
 export type LocalizedPaths = Map<string, Record<string, string>>
 
 export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, localizedPaths: LocalizedPaths = new Map()): NuxtPage[] {
-  const { strategy, locales, defaultLocale, rules, namePrefix } = options
+  const { strategy, locales, defaultLocale, rules, namePrefix, hostDefaults = [] } = options
   const regex = options.customRegex === undefined ? undefined : String(options.customRegex).replace(/^\/(.*)\/$/, '$1')
   const localePath = (codes: string[], routePath: string) => normalizePath(`/:locale(${regex ?? codes.join('|')})/${removeLeadingSlash(routePath)}`)
 
@@ -92,6 +127,13 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return noMeta === undefined ? page : { ...page, meta: { ...page.meta, i18nNoMeta: noMeta } }
   }
 
+  const warned = new Set<string>()
+  function warnNested(key: string, locale: string, custom: string, parent: string, served: string) {
+    if (warned.has(`${key}\0${locale}`)) return
+    warned.add(`${key}\0${locale}`)
+    console.warn(`[i18n] globalLocaleRoutes["${key}"].${locale} = "${custom}" is outside its parent "${parent}": the page is served at "${served}".`)
+  }
+
   function localize(
     page: NuxtPage,
     locale: string | null,
@@ -108,6 +150,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const custom = locale && rule ? rule[locale] : undefined
     const routePath = custom === undefined ? pagePath : top ? absolute(custom) : childSegment(parentLocalized, custom)
     const localized = top ? absolute(routePath) : joinChild(parentLocalized, routePath)
+    if (custom !== undefined && !top && !staysUnderParent(parentLocalized, custom)) warnNested(key, locale!, custom, parentLocalized, localized)
     if (locale) {
       const entry = localizedPaths.get(key)
       if (entry) entry[locale] = localized
@@ -183,9 +226,21 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return { plain, records }
   }
 
+  /** Locales of a page served unprefixed, one group per distinct tree, the build default's first. */
+  function unprefixedGroups(variants: Map<string, Variant | null>): string[][] {
+    const groups = new Map<string, string[]>()
+    for (const code of [defaultLocale, ...hostDefaults]) {
+      const variant = variants.get(code)
+      if (!variant) continue
+      const key = signature(variant)
+      groups.set(key, [...(groups.get(key) ?? []), code])
+    }
+    return [...groups.values()]
+  }
+
   const unprefixed: NuxtPage[] = []
   const localized: NuxtPage[] = []
-  for (const page of pages) {
+  for (const page of namePages(pages, new Set(pageNames(pages)))) {
     const pagePath = page.path ?? ''
     if (
       (page.redirect && !page.file) ||
@@ -193,6 +248,11 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       info(page, '', true).rule === false
     ) {
       unprefixed.push(unlocalized(page))
+      continue
+    }
+    if (isRouteRuleStub(page)) {
+      // marked: the runtime cannot tell it from a module's unnamed page by the record alone
+      unprefixed.push({ ...page, meta: { ...page.meta, i18nStub: true } })
       continue
     }
     const allowed = info(page, '', true).allowed ?? locales
@@ -211,18 +271,20 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       continue
     }
 
-    if (strategy !== 'prefix' && defaultAllowed) {
-      const record = emit(localize(page, defaultLocale, '', '', true, true)!, [defaultLocale], '', false, false, true)
-      // prefix_except_default: the original URL of a page with a custom default path still finds the
-      // page, so the redirect middleware can send it to the custom one (`/product` -> `/our-products`)
-      const original = absolute(pagePath)
-      if (strategy === 'prefix_except_default' && record.path !== original && paramNames(record.path) === paramNames(original)) {
-        record.alias = [...(record.alias ?? []), original, ...[encodedVariant(original) ?? []].flat()]
-        record.meta = { ...record.meta, alias: record.alias }
+    if (strategy !== 'prefix')
+      for (const group of unprefixedGroups(variants)) {
+        const own = group[0] === defaultLocale
+        const record = emit(localize(page, group[0]!, '', '', true, true)!, group, own ? '' : `-${group[0]}-default`, !own, false, true, own)
+        // prefix_except_default: the original URL of a page with a custom default path still finds the
+        // page, so the redirect middleware can send it to the custom one (`/product` -> `/our-products`)
+        const original = absolute(pagePath)
+        if (own && strategy === 'prefix_except_default' && record.path !== original && paramNames(record.path) === paramNames(original)) {
+          record.alias = [...(record.alias ?? []), original, ...[encodedVariant(original) ?? []].flat()]
+          record.meta = { ...record.meta, alias: record.alias }
+        }
+        unprefixed.push(record)
       }
-      unprefixed.push(record)
-    }
-    const codes = strategy === 'prefix_except_default' ? allowed.filter((code) => code !== defaultLocale) : allowed
+    const codes = strategy === 'prefix_except_default' && !hostDefaults.length ? allowed.filter((code) => code !== defaultLocale) : allowed
     localized.push(...localeRecords(page, codes, true, variants).records)
 
     if (strategy === 'prefix' && defaultAllowed && page.name && !pagePath.includes(':')) {

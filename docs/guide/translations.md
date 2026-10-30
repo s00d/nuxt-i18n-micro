@@ -33,7 +33,7 @@ locales/
 
 ## What a page sees
 
-![Lookup order of a page dictionary](/diagrams/page-dictionary.svg)
+![Lookup order for a key on /about in de: pages/about/de.json, de.json, pages/about/en.json, en.json. They merge into one about/de/data.json that $t reads](/diagrams/page-dictionary.svg)
 
 A page's dictionary is its root file merged with its page file, deeply (every level). The page file wins on a clash:
 
@@ -97,13 +97,13 @@ Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a w
 
 ## How a page loads its dictionary
 
-![From locale files to $t](/diagrams/translation-pipeline.svg)
+![Locale JSON files are built into a payload tree, stored in public/ on Node or in server assets on Edge, read by a server loader, then used by $t on the server and fetched for $t in the browser](/diagrams/translation-pipeline.svg)
 
 The module builds one payload per page and locale: `/{apiBaseUrl}/{page}/{locale}/data.json` (`/_locales/about/de/data.json` by default).
 
 1. **Server render.** Nitro detects the locale and the page loads its payload from the server loader directly, with no HTTP request. The dictionary is not written into the HTML payload, so pages stay small.
 2. **Hydration.** The browser fetches the same payload. The server already emitted a `<link rel="preload">` for it, so the fetch starts with the HTML.
-3. **Navigation.** The next page's payload replaces the dictionary. The leaving page's keys still resolve until it is gone (end of the page transition, or `page:finish`), so a fading-out page does not flash raw keys.
+3. **Navigation.** The next page's payload replaces the dictionary. The leaving page's keys still resolve until it is gone (end of the page transition, or `page:finish`), so a fading-out page does not flash raw keys. A chunk that fails to load (network error, 4xx or 5xx, a body that is not an object) leaves the current dictionary in place, and the next navigation loads it again. A failed locale switch is the same: `$switchLocale` resolves `false`, and calling it again, or clicking the switcher again, retries. Under the prefix strategies the URL has already moved by then, so `lang` and `$getLocale()` name the URL's locale while the old texts stay on screen.
 4. **Cache.** Loaded payloads are cached on the server and in the browser; [Performance](/guide/performance) has the size and TTL knobs.
 
 `translationPayloads.mode` decides how payloads are built. `'premerged'` (default) writes every page × locale file at build time. `'source'` keeps the source files and merges per request, which is smaller for large catalogs on Edge targets. Both give the same dictionaries. Where the files end up for each deploy target is on [Deployment](/guide/deployment).

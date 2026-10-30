@@ -1,16 +1,17 @@
-// @ts-nocheck
-
+import { isPlainClick } from '@i18n-micro/core'
+import { SWITCHER_STYLES } from '@i18n-micro/core/render'
 import type { Locale } from '@i18n-micro/types'
-import { type Accessor, type Component, createMemo, createSignal, type JSX, onCleanup, onMount, splitProps } from 'solid-js'
-import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
-import type { I18nRoutingStrategy } from '../router/types'
+import { type Component, createMemo, createSignal, For, type JSX, onCleanup, onMount, Show, splitProps } from 'solid-js'
+import { useI18nLocales, useI18nRouter } from '../injection'
+import type { RouteTarget } from '../router/types'
+import { routePath, useI18n } from '../use-i18n'
 
-interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
+export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
   getLocaleName?: () => string | null
   switchLocale?: (locale: string) => void
-  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
+  localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget
   customLabels?: Record<string, string>
   customWrapperStyle?: JSX.CSSProperties
   customButtonStyle?: JSX.CSSProperties
@@ -28,8 +29,23 @@ interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   customIconStyle?: JSX.CSSProperties
 }
 
+/** Core's look with Solid's property names: `style` here takes CSS names. */
+const css = (style: object): JSX.CSSProperties =>
+  Object.fromEntries(
+    Object.entries(style).map(([name, value]) => [name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`), value]),
+  ) as JSX.CSSProperties
+
+const WRAPPER_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.wrapper)
+const BUTTON_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.button)
+const DROPDOWN_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.dropdown)
+const ITEM_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.item)
+const LINK_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.link)
+const ACTIVE_LINK_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.activeLink)
+const ICON_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.icon)
+const OPEN_ICON_STYLE = /*#__PURE__*/ css(SWITCHER_STYLES.openIcon)
+
 export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element => {
-  const i18n = useI18nContext()
+  const i18n = useI18n()
   const router = useI18nRouter()
   const injectedLocales = useI18nLocales()
 
@@ -48,243 +64,107 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     'customActiveLinkStyle',
     'customDisabledLinkStyle',
     'customIconStyle',
+    'class',
+    'style',
   ])
 
-  const [dropdownOpen, setDropdownOpen] = createSignal(false)
-  let wrapperRef: HTMLDivElement | undefined
+  const [open, setOpen] = createSignal(false)
+  let wrapper: HTMLDivElement | undefined
 
-  const allLocales = createMemo(() => local.locales || injectedLocales || [])
-  const locales = createMemo(() => allLocales().filter((locale) => !locale.disabled))
-  const currentLocale = createMemo(() => {
-    if (local.currentLocale !== undefined) {
-      return typeof local.currentLocale === 'function' ? local.currentLocale() : local.currentLocale
-    }
-    // Используем реактивный accessor для отслеживания изменений
-    return i18n.localeAccessor()
+  const allLocales = createMemo(() => local.locales ?? injectedLocales ?? [])
+  const current = createMemo(() => {
+    const prop = local.currentLocale
+    return typeof prop === 'function' ? prop() : (prop ?? i18n.locale())
   })
-  const currentLocaleDisabled = createMemo(() => allLocales().some((l) => l.code === currentLocale() && l.disabled))
-  const currentLocaleName = createMemo(() => {
-    if (local.getLocaleName) {
-      return local.getLocaleName() || null
-    }
-    // Используем реактивный accessor для отслеживания изменений
-    const current = allLocales().find((l) => l.code === i18n.localeAccessor())
-    return current?.displayName || null
-  })
+  const currentItem = createMemo(() => allLocales().find((l) => l.code === current()))
 
-  const toggleDropdown = (event?: Event) => {
-    if (event) {
-      event.stopPropagation()
-      event.preventDefault()
-    }
-    setDropdownOpen(!dropdownOpen())
+  const label = (locale: Locale): string => local.customLabels?.[locale.code] || locale.displayName || locale.code
+
+  const href = (code: string): string => {
+    const path = router?.getCurrentPath() ?? '/'
+    if (local.localeRoute) return routePath(local.localeRoute(path, code))
+    if (!router) return '#'
+    return routePath(router.resolvePath ? router.resolvePath(path, code) : path)
   }
 
-  const localeLabel = (localeItem: Locale): string => {
-    const current = local.customLabels?.[localeItem.code] || localeItem.displayName
-    return current || localeItem.code
+  const select = (event: MouseEvent, code: string): void => {
+    if (!isPlainClick(event)) return
+    event.preventDefault()
+    setOpen(false)
+    if (local.switchLocale) return local.switchLocale(code)
+    if (!local.localeRoute) return i18n.switchLocale(code)
+    i18n.instance.locale = code
+    router?.push({ path: href(code) })
   }
 
-  const currentLocaleLabel = createMemo(() => {
-    const current = allLocales().find((l) => l.code === currentLocale())
-    return current ? localeLabel(current) : currentLocaleName() || currentLocale()
-  })
-
-  const handleSwitchLocale = async (code: string) => {
-    setDropdownOpen(false)
-
-    if (local.switchLocale) {
-      local.switchLocale(code)
-      return
-    }
-
-    i18n.locale = code
-
-    if (!router) {
-      return
-    }
-
-    // Используем accessor напрямую, если доступен, иначе fallback на getCurrentPath()
-    const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
-    const currentPath = extendedRouter.getCurrentPathAccessor ? extendedRouter.getCurrentPathAccessor() : router.getCurrentPath()
-    const newPath = local.localeRoute
-      ? (() => {
-          const res = local.localeRoute(currentPath, code)
-          return typeof res === 'string' ? res : res.path || '/'
-        })()
-      : router?.resolvePath
-        ? (() => {
-            const res = router.resolvePath(currentPath, code)
-            return typeof res === 'string' ? res : res.path || '/'
-          })()
-        : currentPath
-
-    router.push({ path: newPath })
+  const onDocumentClick = (event: MouseEvent) => {
+    if (open() && !wrapper?.contains(event.target as Node)) setOpen(false)
+  }
+  const onKeydown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') setOpen(false)
   }
 
-  // Default Styles
-  const wrapperStyle: JSX.CSSProperties = {
-    position: 'relative',
-    display: 'inline-block',
-    'vertical-align': 'middle',
-  }
-
-  const buttonStyle: JSX.CSSProperties = {
-    padding: '4px 12px',
-    'font-size': '16px',
-    cursor: 'pointer',
-    'background-color': '#fff',
-    border: '1px solid #333',
-    transition: 'background-color 0.3s ease',
-    display: 'flex',
-    'align-items': 'center',
-    'justify-content': 'space-between',
-  }
-
-  const dropdownStyle: JSX.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    'z-index': 1000,
-    'background-color': '#fff',
-    border: '1px solid #333',
-    'list-style': 'none',
-    padding: '0',
-    margin: '4px 0 0 0',
-    'min-width': '150px',
-    'box-shadow': '0 2px 8px rgba(0,0,0,0.15)',
-  }
-
-  const itemStyle: JSX.CSSProperties = {
-    margin: '0',
-    padding: '0',
-  }
-
-  const linkStyle: JSX.CSSProperties = {
-    display: 'block',
-    padding: '8px 12px',
-    color: '#333',
-    'text-decoration': 'none',
-    transition: 'background-color 0.3s ease',
-    cursor: 'pointer',
-  }
-
-  const activeLinkStyle: JSX.CSSProperties = {
-    'font-weight': 'bold',
-    color: '#007bff',
-    cursor: 'not-allowed',
-  }
-
-  const iconStyle: JSX.CSSProperties = {
-    'margin-left': '8px',
-    display: 'inline-block',
-    transition: 'transform 0.3s ease',
-  }
-
-  const openIconStyle: JSX.CSSProperties = {
-    transform: 'rotate(180deg)',
-  }
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (!dropdownOpen()) return
-
-    const target = event.target as HTMLElement
-    if (!target || !wrapperRef) return
-
-    const isClickInside = wrapperRef.contains(target)
-    const isButtonClick = target.closest('.i18n-switcher-button') !== null
-
-    if (!isClickInside && !isButtonClick) {
-      setDropdownOpen(false)
-    }
-  }
-
+  // inside onMount: a cleanup registered at setup also runs on the server, where document is missing
   onMount(() => {
-    document.addEventListener('click', handleClickOutside)
-    // inside onMount: a cleanup registered at setup also runs on the server, where document is missing
-    onCleanup(() => document.removeEventListener('click', handleClickOutside))
+    document.addEventListener('click', onDocumentClick)
+    document.addEventListener('keydown', onKeydown)
+    onCleanup(() => {
+      document.removeEventListener('click', onDocumentClick)
+      document.removeEventListener('keydown', onKeydown)
+    })
   })
 
   return (
     <div
-      // @ts-expect-error - ref type conflict with Vue JSX
-      ref={(el: HTMLDivElement) => {
-        wrapperRef = el
+      {...others}
+      ref={(element) => {
+        wrapper = element
       }}
-      class="i18n-switcher-wrapper"
-      style={{ ...wrapperStyle, ...local.customWrapperStyle }}
-      {...(others as unknown as JSX.HTMLAttributes<HTMLDivElement>)}
+      class={['i18n-switcher-wrapper', local.class].filter(Boolean).join(' ')}
+      style={{ ...WRAPPER_STYLE, ...local.customWrapperStyle, ...(local.style as object) }}
     >
       <button
         type="button"
-        class="i18n-switcher-button"
-        style={{
-          ...buttonStyle,
-          ...local.customButtonStyle,
-          ...(currentLocaleDisabled() ? local.customDisabledLinkStyle : {}),
-        }}
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          toggleDropdown(e)
-        }}
-        aria-haspopup="true"
-        aria-expanded={dropdownOpen()}
+        class="i18n-switcher-button language-switcher"
+        style={{ ...BUTTON_STYLE, ...local.customButtonStyle, ...(currentItem()?.disabled ? local.customDisabledLinkStyle : undefined) }}
+        aria-expanded={open()}
+        onClick={() => setOpen(!open())}
       >
-        <span>{currentLocaleLabel()}</span>
-        <span
-          style={{
-            ...iconStyle,
-            ...(dropdownOpen() ? openIconStyle : {}),
-            ...local.customIconStyle,
-          }}
-        >
-          ▼
-        </span>
+        <span>{local.getLocaleName?.() || label(currentItem() ?? { code: current() })}</span>{' '}
+        <span style={{ ...ICON_STYLE, ...(open() ? OPEN_ICON_STYLE : undefined), ...local.customIconStyle }}>▾</span>
       </button>
 
-      {dropdownOpen() && (
-        <ul class="i18n-switcher-dropdown" style={{ ...dropdownStyle, ...local.customDropdownStyle }}>
-          {locales().map((localeItem) => {
-            const isActive = localeItem.code === currentLocale()
-            // Используем accessor для реактивного отслеживания пути
-            const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
-            const currentPath = extendedRouter?.getCurrentPathAccessor
-              ? extendedRouter.getCurrentPathAccessor()
-              : router?.getCurrentPath() || (typeof window !== 'undefined' ? window.location.pathname : '/')
-            const result = local.localeRoute
-              ? local.localeRoute(currentPath, localeItem.code)
-              : router?.resolvePath
-                ? router.resolvePath(currentPath, localeItem.code)
-                : currentPath
-            const routeTo = typeof result === 'string' ? result : result?.path || '#'
-
-            return (
-              <li style={{ ...itemStyle, ...local.customItemStyle }}>
-                <a
-                  class={`switcher-locale-${localeItem.code}`}
-                  href={typeof routeTo === 'string' ? routeTo : '#'}
-                  style={{
-                    ...linkStyle,
-                    ...(isActive ? activeLinkStyle : {}),
-                    ...local.customLinkStyle,
-                    // active-specific customization wins over the generic link style
-                    // (matches the React/Preact/Vue switchers)
-                    ...(isActive ? local.customActiveLinkStyle : {}),
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleSwitchLocale(localeItem.code)
-                  }}
-                >
-                  {localeLabel(localeItem)}
-                </a>
-              </li>
-            )
-          })}
+      <Show when={open()}>
+        <ul class="i18n-switcher-dropdown" style={{ ...DROPDOWN_STYLE, ...local.customDropdownStyle }}>
+          <For each={allLocales().filter((locale) => !locale.disabled)}>
+            {(locale) => {
+              const active = () => locale.code === current()
+              const language = locale.iso || locale.code
+              return (
+                <li style={{ ...ITEM_STYLE, ...local.customItemStyle }}>
+                  <a
+                    class={`switcher-locale-${locale.code}`}
+                    href={href(locale.code)}
+                    hreflang={language}
+                    lang={language}
+                    dir={locale.dir}
+                    aria-current={active() ? 'page' : undefined}
+                    style={{
+                      ...LINK_STYLE,
+                      ...(active() ? ACTIVE_LINK_STYLE : undefined),
+                      ...local.customLinkStyle,
+                      ...(active() ? local.customActiveLinkStyle : undefined),
+                    }}
+                    onClick={(event) => select(event, locale.code)}
+                  >
+                    {label(locale)}
+                  </a>
+                </li>
+              )
+            }}
+          </For>
         </ul>
-      )}
+      </Show>
     </div>
-  ) as unknown as JSX.Element
+  )
 }

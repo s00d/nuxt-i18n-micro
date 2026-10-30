@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { collectConsole } from 'untestutils/utils'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // `seo` fixture: prefix; fr-FR (og derived from iso), ar-AE with og ar_AE (rtl), zh-Hans (no og mapping), en_EN.
 const ogAlternates = (page: Page) =>

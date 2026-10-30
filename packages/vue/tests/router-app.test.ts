@@ -96,9 +96,8 @@ test('a visitor browses, switches language from code and from the switcher, and 
 
   // the switcher: closed by default, label from customLabels, opens on click
   const button = wrapper.find('button.i18n-switcher-button')
-  expect(button.text()).toBe('DE▼')
-  expect(button.attributes('aria-haspopup')).toBe('true')
-  expect(button.attributes('ariahaspopup')).toBeUndefined()
+  expect(button.text()).toBe('DE ▾')
+  expect(button.attributes()).not.toHaveProperty('aria-haspopup')
   expect(button.attributes('aria-expanded')).toBe('false')
   expect(wrapper.find('.i18n-switcher-dropdown').exists()).toBe(false)
   await button.trigger('click')
@@ -132,7 +131,7 @@ test('a visitor browses, switches language from code and from the switcher, and 
   expect(wrapper.find('.i18n-switcher-dropdown').exists()).toBe(false)
   expect(router.currentRoute.value.path).toBe('/ar/products')
   expect(wrapper.find('h1').text()).toBe('كل المنتجات')
-  expect(button.text()).toBe('العربية▼')
+  expect(button.text()).toBe('العربية ▾')
 
   // back to the default locale: the prefix is dropped
   await button.trigger('click')
@@ -203,12 +202,12 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   await router.push('/ar')
   head().updateMeta()
   expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'ar-EG', dir: 'rtl' })
-  expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar/' })
+  expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar' })
 
   // a locale root with a query: the first segment is still the locale
   await router.push('/ar?utm=x')
   head().updateMeta()
-  expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar/' })
+  expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar' })
 
   // the default locale has no prefix to strip; called after setup (as from a route watcher)
   // it still emits x-default, and a whitelisted query param from the router stays on the canonical
@@ -220,7 +219,7 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   expect(router.currentRoute.value.path).toBe('/')
   expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'en-US', dir: 'auto' })
   expect(head().metaObject.value.link[0]).toEqual({ id: 'i18n-can', rel: 'canonical', href: 'https://shop.test/?page=2' })
-  expect(head().metaObject.value.link.at(-1)).toEqual({ id: 'i18n-xd', rel: 'alternate', href: 'https://shop.test/', hreflang: 'x-default' })
+  expect(head().metaObject.value.link.at(-1)).toEqual({ id: 'i18n-xd', rel: 'alternate', href: 'https://shop.test/?page=2', hreflang: 'x-default' })
   expect(warn).not.toHaveBeenCalled()
   warn.mockRestore()
 })

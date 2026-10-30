@@ -277,6 +277,8 @@ export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSur
       // the React, Preact and Solid component contracts were absent from their snapshots.
       jsx: ts.JsxEmit.Preserve,
       allowJs: true,
+      // the React and Preact sources are one: each package answers this import with its own file
+      paths: { '#host': [join(pkgDir, 'src/host.ts')] },
     },
   )
   const checker = program.getTypeChecker()

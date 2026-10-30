@@ -358,6 +358,18 @@ export function extractDefineI18nRouteData(content: string, filePath: string): D
   }
 }
 
+/** Route paths of the pages that can nest others: `blog.vue`, not `blog/index.vue`. */
+export function parentPagePaths(pageFiles: string[], rootDirs: string[]): string[] {
+  const candidates = pageFiles.filter((file) => !/[/\\]index\.vue$/.test(file))
+  return candidates.map((file) => pageFilePathToRoutePath(file, resolveRootDir(file, rootDirs) ?? ''))
+}
+
+/** The longest root the file sits beneath: `/app/layer-2` is not inside `/app/layer`. */
+export function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {
+  const beneath = (root: string) => filePath.startsWith(root) && (/[/\\]$/.test(root) || /[/\\]/.test(filePath.charAt(root.length)))
+  return [...rootDirs].sort((a, b) => b.length - a.length).find(beneath)
+}
+
 export function pageFilePathToRoutePath(pageFile: string, rootDir: string): string {
   const relative = pageFile.replace(rootDir, '').replace(/^[/\\]+/, '')
   const withoutPagesPrefix = relative.replace(/^(app[/\\])?pages[/\\]/, '')
@@ -371,6 +383,10 @@ export function pageFilePathToRoutePath(pageFile: string, rootDir: string): stri
     .replace(/\.vue$/, '')
     .replace(/[/\\]$/, '')
     .replace(/\\/g, '/')
+    // a route group folder is not part of the URL
+    .split('/')
+    .filter((segment) => !/^\(.+\)$/.test(segment))
+    .join('/')
 
   return raw === '' ? '/' : raw
 }

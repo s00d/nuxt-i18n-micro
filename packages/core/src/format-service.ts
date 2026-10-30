@@ -5,6 +5,10 @@ export interface FormatServiceOptions {
   numberFormats?: NumberFormatsConfig
   /** Vue I18n-compatible name (`datetimeFormats`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates; a format's own `timeZone` wins. Unset: the runtime's zone. */
+  timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. Unset: `Date.now`. */
+  now?: () => number
 }
 
 /** Largest unit first: the first one that fits at least once is used. */
@@ -32,12 +36,16 @@ function optionsKey(options: object | undefined): string {
   return key
 }
 
-/** One formatter per locale + options, created on first use. */
+/** Enough for every format a real app uses; a loop over generated options cannot grow the cache past it. */
+const MAX_FORMATTERS = 500
+
+/** One formatter per locale + options, created on first use. Bounded, cleared wholesale. */
 function cached<F, O extends object>(cache: Map<string, F>, locale: string, options: O | undefined, create: (locale: string, options?: O) => F): F {
   const key = `${locale}\0${optionsKey(options)}`
   let formatter = cache.get(key)
   if (formatter === undefined) {
     formatter = create(locale, options)
+    if (cache.size >= MAX_FORMATTERS) cache.clear()
     cache.set(key, formatter)
   }
   return formatter
@@ -66,10 +74,14 @@ export class FormatService {
   private numberCache = new Map<string, Intl.NumberFormat>()
   private dateCache = new Map<string, Intl.DateTimeFormat>()
   private relativeCache = new Map<string, Intl.RelativeTimeFormat>()
+  private timeZone?: string
+  private now?: () => number
 
   constructor(options: FormatServiceOptions = {}) {
     this.numberFormats = options.numberFormats ?? {}
     this.datetimeFormats = options.datetimeFormats ?? {}
+    this.timeZone = options.timeZone
+    this.now = options.now
   }
 
   setNumberFormats(formats: NumberFormatsConfig): void {
@@ -122,12 +134,16 @@ export class FormatService {
 
   formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string {
     const time = new Date(value).getTime()
-    return Number.isNaN(time) ? 'Invalid Date' : this.getDateTimeFormatter(locale, options).format(time)
+    if (Number.isNaN(time)) return 'Invalid Date'
+    return this.getDateTimeFormatter(
+      locale,
+      this.timeZone && options?.timeZone === undefined ? { ...options, timeZone: this.timeZone } : options,
+    ).format(time)
   }
 
   /** `3 days ago` / `in 3 days`: the largest unit that fits at least once, rounded down; `Invalid Date` like {@link formatDate}. */
   formatRelativeTime(value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions): string {
-    const seconds = (new Date(value).getTime() - Date.now()) / 1000
+    const seconds = (new Date(value).getTime() - (this.now ? this.now() : Date.now())) / 1000
     if (Number.isNaN(seconds)) return 'Invalid Date'
     const formatter = this.getRelativeTimeFormatter(locale, options)
     const size = Math.abs(seconds)

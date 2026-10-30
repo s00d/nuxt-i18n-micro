@@ -20,7 +20,8 @@ export default defineConfig({
   resolve: {
     conditions: ['development', 'browser'],
     alias: [
-      { find: '@i18n-micro/core', replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
+      { find: /^@i18n-micro\/core\/render$/, replacement: fileURLToPath(new URL('../core/src/render.ts', import.meta.url)) },
+      { find: /^@i18n-micro\/core$/, replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
       { find: '@i18n-micro/types', replacement: fileURLToPath(new URL('../types/src/index.ts', import.meta.url)) },
     ],
   },

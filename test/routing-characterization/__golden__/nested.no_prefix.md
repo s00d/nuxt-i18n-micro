@@ -6,33 +6,33 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| — | /account |  |  |
-| · account |  |  |  |
-| · account-settings | settings |  |  |
-| · account-orders | orders |  |  |
-| · · account-orders-id | :id() |  |  |
-| shop | /shop |  |  |
-| · shop-category | :category() |  |  |
-| · · shop-category-item | :item() |  |  |
-| — | /konto |  |  |
-| · localized-account-de |  |  |  |
-| · localized-account-settings-de | einstellungen |  |  |
-| · localized-account-orders-de | bestellungen |  |  |
-| · · localized-account-orders-id-de | :id() |  |  |
-| — | /compte |  |  |
-| · localized-account-fr |  |  |  |
-| · localized-account-settings-fr | parametres |  |  |
-| · localized-account-orders-fr | orders |  |  |
-| · · localized-account-orders-id-fr | :id() |  |  |
-| localized-shop-en | /store |  |  |
-| · localized-shop-category-en | :category() |  |  |
-| · · localized-shop-category-item-en | :item() |  |  |
-| localized-shop-de | /laden |  |  |
-| · localized-shop-category-de | :category() |  |  |
-| · · localized-shop-category-item-de | artikel/:item |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| — | /account |  |  |  |
+| · account |  |  |  | account: en |
+| · account-settings | settings |  |  | account-settings: en |
+| · account-orders | orders |  |  | account-orders: en |
+| · · account-orders-id | :id() |  |  | account-orders-id: en |
+| shop | /shop |  |  | shop: fr |
+| · shop-category | :category() |  |  | shop-category: fr |
+| · · shop-category-item | :item() |  |  | shop-category-item: fr |
+| — | /konto |  |  |  |
+| · localized-account-de |  |  |  | account: de |
+| · localized-account-settings-de | einstellungen |  |  | account-settings: de |
+| · localized-account-orders-de | bestellungen |  |  | account-orders: de |
+| · · localized-account-orders-id-de | :id() |  |  | account-orders-id: de |
+| — | /compte |  |  |  |
+| · localized-account-fr |  |  |  | account: fr |
+| · localized-account-settings-fr | parametres |  |  | account-settings: fr |
+| · localized-account-orders-fr | orders |  |  | account-orders: fr |
+| · · localized-account-orders-id-fr | :id() |  |  | account-orders-id: fr |
+| localized-shop-en | /store |  |  | shop: en |
+| · localized-shop-category-en | :category() |  |  | shop-category: en |
+| · · localized-shop-category-item-en | :item() |  |  | shop-category-item: en |
+| localized-shop-de | /laden |  |  | shop: de |
+| · localized-shop-category-de | :category() |  |  | shop-category: de |
+| · · localized-shop-category-item-de | artikel/:item |  |  | shop-category-item: de |
 
 ## Reading a URL
 
@@ -45,17 +45,17 @@ Every URL is resolved with `?q=1#top`.
 | /account/orders | account-orders | en | account-orders | account-orders | English | null | null | null |
 | /account/orders/42 | account-orders-id | en | account-orders-id | account-orders-id | English | null | null | null |
 | /account/settings | account-settings | en | account-settings | account-settings | English | null | null | null |
-| /compte | localized-account-fr | en | account | account | English | null | null | null |
-| /compte/orders | localized-account-orders-fr | en | account-orders | account-orders | English | null | null | null |
-| /compte/orders/42 | localized-account-orders-id-fr | en | account-orders-id | account-orders-id | English | null | null | null |
-| /compte/parametres | localized-account-settings-fr | en | account-settings | account-settings | English | null | null | null |
-| /konto | localized-account-de | en | account | account | English | null | null | null |
-| /konto/bestellungen | localized-account-orders-de | en | account-orders | account-orders | English | null | null | null |
-| /konto/bestellungen/42 | localized-account-orders-id-de | en | account-orders-id | account-orders-id | English | null | null | null |
-| /konto/einstellungen | localized-account-settings-de | en | account-settings | account-settings | English | null | null | null |
-| /laden | localized-shop-de | en | shop | shop | English | null | null | null |
-| /laden/shoes | localized-shop-category-de | en | shop-category | shop-category | English | null | null | null |
-| /laden/shoes/artikel/red-boot | localized-shop-category-item-de | en | shop-category-item | shop-category-item | English | null | null | null |
+| /compte | localized-account-fr | fr | account | account | Français | null | null | null |
+| /compte/orders | localized-account-orders-fr | fr | account-orders | account-orders | Français | null | null | null |
+| /compte/orders/42 | localized-account-orders-id-fr | fr | account-orders-id | account-orders-id | Français | null | null | null |
+| /compte/parametres | localized-account-settings-fr | fr | account-settings | account-settings | Français | null | null | null |
+| /konto | localized-account-de | de | account | account | Deutsch | null | null | null |
+| /konto/bestellungen | localized-account-orders-de | de | account-orders | account-orders | Deutsch | null | null | null |
+| /konto/bestellungen/42 | localized-account-orders-id-de | de | account-orders-id | account-orders-id | Deutsch | null | null | null |
+| /konto/einstellungen | localized-account-settings-de | de | account-settings | account-settings | Deutsch | null | null | null |
+| /laden | localized-shop-de | de | shop | shop | Deutsch | null | null | null |
+| /laden/shoes | localized-shop-category-de | de | shop-category | shop-category | Deutsch | null | null | null |
+| /laden/shoes/artikel/red-boot | localized-shop-category-item-de | de | shop-category-item | shop-category-item | Deutsch | null | null | null |
 | /shop | shop | en | shop | shop | English | null | null | null |
 | /shop/shoes | shop-category | en | shop-category | shop-category | English | null | null | null |
 | /shop/shoes/red-boot | shop-category-item | en | shop-category-item | shop-category-item | English | null | null | null |

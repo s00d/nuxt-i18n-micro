@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, test } from 'untestutils/vitest'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
 import availableLanguages from '../fixtures/basic/n3/locales/availableLanguages'
 
 type RouteTranslations = Record<string, Record<string, string>>

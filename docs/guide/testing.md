@@ -95,6 +95,8 @@ The fake exposes the same methods as the real `useI18n()` (`$t`, `$tc`, `$tn`, `
 | --- | --- |
 | `createIsolatedFakeI18n(options)` | An isolated fake without the Nuxt `useI18n` wiring, e.g. for plain `@vue/test-utils` `mount` with `global.mocks`. |
 | `createFakeI18n(options)` | A fake on the shared module cache (call `resetI18n()` in `beforeEach`), or isolated with `isolated: true`. |
+
+The mock is a `BaseI18n`: `t`, `tc`, `tn`, `td`, `tdr` and `has` are the real ones, on real dictionaries, so a test sees what the app shows.
 | `createI18nTestContext(options)` | The context behind both, when you need several fakes. |
 | `t`, `tc`, `ts`, `tn`, `td`, `tdr`, `has` | Direct calls on the shared context, for testing plain functions. |
 

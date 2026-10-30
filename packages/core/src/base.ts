@@ -2,11 +2,15 @@ import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, Tran
 import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
-import { defaultPlural, interpolate } from './text'
-import { mergeTranslationLayers, setTranslationAtKey, type Tree } from './tree'
+import { clearTemplateCache, defaultPlural, interpolate } from './text'
+import { mergeTranslationLayers, ownValue, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
   storage?: TranslationStorage
+  /** Instead of `storage`: a helper of the adapter's own, such as a fork's copy-on-write one. */
+  helper?: TranslationHelper
+  /** Shared formatters: a request instance keeps its parent's `Intl` objects, which are costly to build. */
+  formatter?: FormatService
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
@@ -15,6 +19,12 @@ export interface BaseI18nOptions {
   numberFormats?: NumberFormatsConfig
   /** Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). */
   datetimeFormats?: DateTimeFormatsConfig
+  /** IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date. */
+  timeZone?: string
+  /** The clock of relative dates: hand hydration the server's time so both render one text. */
+  now?: () => number
+  /** BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. */
+  localeIso?: Record<string, string>
 }
 
 /** Remembers the `locale:route` string for the last pair, so a hot `t()` neither concatenates nor rehashes. */
@@ -65,17 +75,23 @@ export abstract class BaseI18n {
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
+  protected localeIso: Record<string, string>
   private activeKey = new ChunkKey()
   private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()
   private fallbackRootKey = new ChunkKey()
 
   constructor(options: BaseI18nOptions = {}) {
-    this.helper = new TranslationHelper(options.storage)
-    this.formatter = new FormatService(options)
+    this.helper = options.helper ?? new TranslationHelper(options.storage)
+    this.formatter = options.formatter ?? new FormatService(options)
+    this.localeIso = options.localeIso ?? {}
     const plural = options.plural
     // A custom rule returning null/undefined falls back to the default one (#241).
-    this.pluralFunc = plural && plural !== defaultPlural ? (...args) => plural(...args) ?? defaultPlural(...args) : defaultPlural
+    this.pluralFunc =
+      plural && plural !== defaultPlural
+        ? (key, count, params, locale, getter) =>
+            plural(key, count, params, locale, getter) ?? defaultPlural(key, count, params, this.pluralTag(locale), getter)
+        : defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
     this.getCustomMissingHandler = options.getCustomMissingHandler
@@ -84,6 +100,20 @@ export abstract class BaseI18n {
   public abstract getLocale(): string
   public abstract getFallbackLocale(): string
   public abstract getRoute(): string
+
+  private pluralTag(locale: string): string {
+    return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
+  }
+
+  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
+  /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
+  public addLocaleIso(localeIso: Record<string, string>): void {
+    this.localeIso = { ...this.localeIso, ...localeIso }
+  }
+
+  public pluralLocale(): string {
+    return this.pluralTag(this.getLocale())
+  }
 
   /** Called before every read; adapters use it for reactivity tracking. */
   protected touch(): void {}
@@ -143,8 +173,11 @@ export abstract class BaseI18n {
     return layers.reduce((lower, upper) => this.resolveTranslationTree(lower as Tree, upper as Tree))
   }
 
-  /** Called after every write (load, merge, set, clear): the one place adapters bump their reactivity. */
-  protected onTranslationsChanged(): void {}
+  /**
+   * Called after every write (load, merge, set, clear): the one place adapters bump their reactivity.
+   * `locale` is set when one locale's chunk was written, unset when anything may have changed.
+   */
+  protected onTranslationsChanged(_locale?: string): void {}
 
   protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
     return { locale: this.getLocale(), routeName: this.resolveRouteName(routeContext) }
@@ -172,7 +205,10 @@ export abstract class BaseI18n {
     const value = this.resolveLookup(key, routeContext)
     if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
-      return (defaultValue || key) as CleanTranslation
+      // not always a string: modules call `$t(key, params, true)`
+      return (
+        defaultValue && typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key
+      ) as CleanTranslation
     }
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
@@ -192,7 +228,9 @@ export abstract class BaseI18n {
       if (raw === null || raw === undefined) return dv === undefined ? undefined : dv || k
       return p && typeof raw === 'string' ? interpolate(raw, p) : raw
     }
-    const result = this.pluralFunc(key, Number(countValue), params, this.getLocale(), getter)
+    // a custom rule gets the code, as it always has
+    const locale = this.pluralFunc === defaultPlural ? this.pluralLocale() : this.getLocale()
+    const result = this.pluralFunc(key, Number(countValue), params, locale, getter)
     if (result !== null && result !== undefined) return result
     if (this.resolveLookup(key) === null) this.warnMissing(key)
     return defaultValue ?? key
@@ -244,6 +282,7 @@ export abstract class BaseI18n {
   public clearCache(): void {
     this.helper.clearCache()
     this.formatter.clearCache()
+    clearTemplateCache()
     this.onTranslationsChanged()
   }
 
@@ -260,7 +299,7 @@ export abstract class BaseI18n {
   private write(locale: string, routeName: string, translations: Translations, merge: boolean): void {
     if (merge) this.helper.mergeTranslation(locale, routeName, translations)
     else this.helper.setTranslations(locale, translations, routeName)
-    this.onTranslationsChanged()
+    this.onTranslationsChanged(locale)
   }
 
   /** Attach framework-specific helpers onto this instance (`localizePath`, …). */

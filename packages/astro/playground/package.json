@@ -18,6 +18,7 @@
     "@astrojs/vue": "catalog:",
     "@i18n-micro/astro": "workspace:^",
     "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/devtools-ui": "workspace:^",
     "@i18n-micro/types": "workspace:^",
     "astro": "catalog:",
     "react": "catalog:",

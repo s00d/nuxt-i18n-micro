@@ -13,6 +13,7 @@ export const INTEGRATION_TESTS = [
   // one file per i18n strategy: nuxi generate of test/fixtures/strategy
   'test/strategies-*.test.ts',
   // nuxi generate of one fixture (+ a static server)
+  'test/domains-generate.test.ts',
   'test/use-i18n-head-generate.test.ts',
   // @nuxt/test-utils setup() → builds the fixture app
   'test/serverless-cache.test.ts',

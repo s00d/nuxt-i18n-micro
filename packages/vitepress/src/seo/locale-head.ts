@@ -1,6 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
-import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
-import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
+import { buildLocaleHead, filterQuery } from '@i18n-micro/utils/locale-head'
 import { createI18nRoutingFromAdapter } from '../router/i18n-routing'
 import { getLocaleFromPath, stripSiteBase } from '../router/adapter'
 
@@ -44,24 +43,6 @@ export interface BuildVitePressLocaleHeadOptions {
   /** @default 'id' */
   identifierAttribute?: string
   missingWarn?: boolean
-}
-
-function filterQuery(fullPath: string, whitelist: string[]): string {
-  const hashIndex = fullPath.indexOf('#')
-  const queryIndex = fullPath.indexOf('?')
-  let cut = fullPath.length
-  if (hashIndex >= 0) cut = Math.min(cut, hashIndex)
-  if (queryIndex >= 0) cut = Math.min(cut, queryIndex)
-  const pathname = fullPath.slice(0, cut) || '/'
-  if (queryIndex < 0 || whitelist.length === 0) return pathname
-
-  const params = new URLSearchParams(fullPath.slice(queryIndex, hashIndex >= 0 ? hashIndex : undefined))
-  const filtered = new URLSearchParams()
-  for (const key of whitelist) {
-    if (params.has(key)) filtered.set(key, params.get(key)!)
-  }
-  const q = filtered.toString()
-  return q ? `${pathname}?${q}` : pathname
 }
 
 function joinAbsolute(metaBaseUrl: string, siteBase: string | undefined, path: string): string {
@@ -116,92 +97,37 @@ export function buildVitePressLocaleHead(options: BuildVitePressLocaleHeadOption
     return { htmlAttrs: {}, head: [] }
   }
 
-  const currentIso = currentLocale.iso || locale
-  const currentDir = (currentLocale.dir || 'auto') as 'ltr' | 'rtl' | 'auto'
-  const htmlAttrs: VitePressLocaleHeadObject['htmlAttrs'] = {
-    lang: currentIso,
-    ...(addDirAttribute ? { dir: currentDir } : {}),
-  }
-
-  if (!addSeoAttributes || !metaBaseUrl) {
-    return { htmlAttrs, head: [] }
-  }
-
   const switchLocalePath = createI18nRoutingFromAdapter({
     defaultLocale,
     localeCodes: locales.map((l) => l.code),
     localeKeyToCode,
     base,
   })
-
   const filteredPath = filterQuery(path, canonicalQueryWhitelist)
-  // VitePress locale keys for i18nRouting: root vs code
-  const currentVpKey =
-    locale === defaultLocale
-      ? 'root'
-      : (() => {
-          for (const [key, code] of Object.entries(localeKeyToCode)) {
-            if (code === locale) return key === 'root' ? 'root' : key
-          }
-          return locale
-        })()
-  const canonicalPath = switchLocalePath({}, { path: filteredPath }, currentVpKey)
-  const ogUrl = joinAbsolute(metaBaseUrl, base, canonicalPath)
-
-  const localesForSeo = locales.filter((loc) => !loc.disabled && loc.seo !== false)
-  const currentOg = resolveOgLocale(currentLocale)
-  if (!currentOg) {
-    warnUnresolvedOgLocale(currentLocale, { missingWarn, tag: 'og:locale' })
+  const absoluteOf = (localeKey: string): string => joinAbsolute(metaBaseUrl ?? '', base, switchLocalePath({}, { path: filteredPath }, localeKey))
+  const keyOfCode = (code: string, rootKey: string): string => {
+    if (code === defaultLocale) return 'root'
+    const entry = Object.entries(localeKeyToCode).find(([, mapped]) => mapped === code)
+    if (!entry) return code
+    return entry[0] === 'root' ? rootKey : entry[0]
   }
+  const seoLocales = locales.filter((loc) => !loc.disabled && loc.seo !== false)
 
-  const head: VitePressHeadTuple[] = []
+  const { htmlAttrs, link, meta } = buildLocaleHead({
+    locale: currentLocale,
+    seoLocales,
+    hrefOf: (code) => absoluteOf(keyOfCode(code, code)),
+    canonical: absoluteOf(keyOfCode(locale, 'root')),
+    xDefault: seoLocales.some((loc) => loc.code === defaultLocale) ? absoluteOf('root') : undefined,
+    addDirAttribute,
+    addSeoAttributes: addSeoAttributes && Boolean(metaBaseUrl),
+    identifierAttribute,
+    hreflangBaseLanguage,
+    missingWarn,
+  })
 
-  head.push(['link', { [identifierAttribute]: 'i18n-can', rel: 'canonical', href: ogUrl }])
-
-  if (currentOg) {
-    head.push(['meta', { [identifierAttribute]: 'i18n-og', property: 'og:locale', content: currentOg }])
-  }
-  head.push(['meta', { [identifierAttribute]: 'i18n-og-url', property: 'og:url', content: ogUrl }])
-
-  for (const loc of localesForSeo) {
-    if (loc.code === locale) continue
-    const ogAlt = resolveOgLocale(loc)
-    if (!ogAlt) {
-      warnUnresolvedOgLocale(loc, { missingWarn, tag: 'og:locale:alternate' })
-      continue
-    }
-    head.push(['meta', { [identifierAttribute]: `i18n-og-alt-${ogAlt}`, property: 'og:locale:alternate', content: ogAlt }])
-  }
-
-  const hrefByCode = new Map<string, string>()
-  for (const loc of localesForSeo) {
-    const vpKey =
-      loc.code === defaultLocale
-        ? 'root'
-        : (() => {
-            for (const [key, code] of Object.entries(localeKeyToCode)) {
-              if (code === loc.code) return key === 'root' ? loc.code : key
-            }
-            return loc.code
-          })()
-    const switched = switchLocalePath({}, { path: filteredPath }, vpKey)
-    if (!switched) continue
-    hrefByCode.set(String(loc.code), joinAbsolute(metaBaseUrl, base, switched))
-  }
-
-  for (const { hreflang, localeCode } of resolveHreflangAlternates(localesForSeo, { hreflangBaseLanguage })) {
-    const href = hrefByCode.get(localeCode)
-    if (!href) continue
-    head.push(['link', { [identifierAttribute]: `i18n-alternate-${hreflang}`, rel: 'alternate', href, hreflang }])
-  }
-
-  const defaultLocaleObj = locales.find((l) => l.code === defaultLocale)
-  if (defaultLocaleObj && defaultLocaleObj.seo !== false) {
-    const xHref = hrefByCode.get(defaultLocale)
-    if (xHref) {
-      head.push(['link', { [identifierAttribute]: 'i18n-xd', rel: 'alternate', href: xHref, hreflang: 'x-default' }])
-    }
-  }
-
-  return { htmlAttrs, head }
+  if (link.length === 0) return { htmlAttrs, head: [] }
+  const [canonical, ...alternates] = link
+  const tuples = (tag: string, tags: object[]) => tags.map((attrs): VitePressHeadTuple => [tag, attrs as Record<string, string>])
+  return { htmlAttrs, head: [...tuples('link', [canonical!]), ...tuples('meta', meta), ...tuples('link', alternates)] }
 }

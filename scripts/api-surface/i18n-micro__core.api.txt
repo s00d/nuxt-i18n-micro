@@ -2,6 +2,7 @@
 class BaseI18n
 member BaseI18n.activeKey: private ChunkKey
 member BaseI18n.activeRootKey: private ChunkKey
+member BaseI18n.addLocaleIso: (localeIso: Record<string, string>) => void
 member BaseI18n.clearCache: () => void
 member BaseI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M
 member BaseI18n.fallbackKey: private ChunkKey
@@ -17,11 +18,14 @@ member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member BaseI18n.localeIso: protected Record<string, string>
 member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
-member BaseI18n.onTranslationsChanged: protected () => void
+member BaseI18n.onTranslationsChanged: protected (_locale?: string) => void
 member BaseI18n.pluralFunc: PluralFunc
+member BaseI18n.pluralLocale: () => string
+member BaseI18n.pluralTag: private (locale: string) => string
 member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -42,16 +46,22 @@ member BaseI18n.write: private (locale: string, routeName: string, translations:
 member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
+member BaseI18nOptions.formatter?: FormatService | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
+member BaseI18nOptions.helper?: TranslationHelper | undefined
+member BaseI18nOptions.localeIso?: Record<string, string> | undefined
 member BaseI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18nOptions.missingWarn?: boolean | undefined
+member BaseI18nOptions.now?: (() => number) | undefined
 member BaseI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member BaseI18nOptions.plural?: PluralFunc | undefined
 member BaseI18nOptions.storage?: TranslationStorage | undefined
+member BaseI18nOptions.timeZone?: string | undefined
 function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
+const escapeHtml: (text: string) => string
 function externalLinkHref: (to: unknown) => string | undefined
 class FormatService
 member FormatService.clearCache: () => void
@@ -65,6 +75,7 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.now?: private (() => number) | undefined
 member FormatService.numberCache: private Map<string, Intl.NumberFormat>
 member FormatService.numberFormats: private NumberFormatsConfig
 member FormatService.relativeCache: private Map<string, Intl.RelativeTimeFormat>
@@ -72,22 +83,32 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.timeZone?: private string | undefined
 member FormatService.new: (options?: FormatServiceOptions): FormatService
 interface FormatServiceOptions
 member FormatServiceOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
+member FormatServiceOptions.now?: (() => number) | undefined
 member FormatServiceOptions.numberFormats?: NumberFormatsConfig | undefined
+member FormatServiceOptions.timeZone?: string | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
+function isActiveLink: (current: string, link: string, localeCodes: readonly string[]) => boolean
 const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+function isPlainClick: (event: MouseEvent) => boolean
 const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
 const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
 const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
+const isSamePage: (a: string, b: string) => boolean
+const localeIsoMap: (locales: readonly { code: string; iso?: string; }[]) => Record<string, string>
+function localizedPath: (to: string | { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 type NumberFormatsConfig: Record<string, Record<string, Intl.NumberFormatOptions>>
+function ownValue: (obj: object, key: string) => unknown
+function pluralForm: (translation: string, count: number, locale: string) => string
 interface ReactiveI18nStore
 member ReactiveI18nStore.getFallbackLocale: () => string
 member ReactiveI18nStore.getLocale: () => string
@@ -103,8 +124,33 @@ member ReactiveI18nStoreOptions.fallbackLocale?: string | undefined
 member ReactiveI18nStoreOptions.locale: string
 member ReactiveI18nStoreOptions.route?: string | undefined
 function resolveCachedTranslation: (tree: Tree | null | undefined, key: string) => unknown | null
+interface ResolvedText
+member ResolvedText.params: Params
+member ResolvedText.template: string
+function resolveText: (i18n: TextHost, options: ResolveTextOptions) => ResolvedText | null
+interface ResolveTextOptions
+member ResolveTextOptions.customPluralRule?: PluralFunc | null | undefined
+member ResolveTextOptions.date?: string | number | Date | null | undefined
+member ResolveTextOptions.defaultValue?: string | undefined
+member ResolveTextOptions.hideIfEmpty?: boolean | undefined
+member ResolveTextOptions.html?: boolean | undefined
+member ResolveTextOptions.keypath: string
+member ResolveTextOptions.number?: string | number | null | undefined
+member ResolveTextOptions.params?: Params | undefined
+member ResolveTextOptions.plural?: string | number | null | undefined
+member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
+interface TextHost
+member TextHost.getLocale: () => string
+member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
+member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
+member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member TextHost.td: (value: Date | number | string) => string
+member TextHost.tdr: (value: Date | number | string) => string
+member TextHost.tn: (value: number) => string
+function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 class TranslationHelper
 member TranslationHelper.clearCache: () => void
@@ -162,20 +208,124 @@ function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "
 # ./helpers (src/helpers.ts)
 function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 const defaultPlural: PluralFunc
+const escapeHtml: (text: string) => string
 function externalLinkHref: (to: unknown) => string | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
+function isActiveLink: (current: string, link: string, localeCodes: readonly string[]) => boolean
 const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+function isPlainClick: (event: MouseEvent) => boolean
 const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
 const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
 const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
+const isSamePage: (a: string, b: string) => boolean
+const localeIsoMap: (locales: readonly { code: string; iso?: string; }[]) => Record<string, string>
+function localizedPath: (to: string | { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
+function ownValue: (obj: object, key: string) => unknown
+function pluralForm: (translation: string, count: number, locale: string) => string
+interface ResolvedText
+member ResolvedText.params: Params
+member ResolvedText.template: string
+function resolveText: (i18n: TextHost, options: ResolveTextOptions) => ResolvedText | null
+interface ResolveTextOptions
+member ResolveTextOptions.customPluralRule?: PluralFunc | null | undefined
+member ResolveTextOptions.date?: string | number | Date | null | undefined
+member ResolveTextOptions.defaultValue?: string | undefined
+member ResolveTextOptions.hideIfEmpty?: boolean | undefined
+member ResolveTextOptions.html?: boolean | undefined
+member ResolveTextOptions.keypath: string
+member ResolveTextOptions.number?: string | number | null | undefined
+member ResolveTextOptions.params?: Params | undefined
+member ResolveTextOptions.plural?: string | number | null | undefined
+member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
+interface TextHost
+member TextHost.getLocale: () => string
+member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
+member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
+member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member TextHost.td: (value: Date | number | string) => string
+member TextHost.tdr: (value: Date | number | string) => string
+member TextHost.tn: (value: number) => string
+function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 type Tree: Record<string, unknown>
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
+
+# ./render (src/render.ts)
+function createLocaleSwitcher: (vue: SwitcherVue, adapter: SwitcherAdapter, props: SwitcherProps, slots: RenderSlots) => () => unknown
+function foldTemplate: (renderSlot: (slot: RenderSlot, key: string) => unknown, template: string, params: Record<string, unknown>, slots: RenderSlots, textChild?: (text: string) => unknown) => unknown
+interface I18nTRenderProps
+member I18nTRenderProps.customPluralRule?: PluralFunc | null | undefined
+member I18nTRenderProps.date?: string | number | Date | null | undefined
+member I18nTRenderProps.defaultValue?: string | undefined
+member I18nTRenderProps.hideIfEmpty?: boolean | undefined
+member I18nTRenderProps.html?: boolean | undefined
+member I18nTRenderProps.keypath: string
+member I18nTRenderProps.number?: string | number | null | undefined
+member I18nTRenderProps.params?: Params | undefined
+member I18nTRenderProps.plural?: string | number | null | undefined
+member I18nTRenderProps.relativeDate?: string | number | Date | null | undefined
+member I18nTRenderProps.tag?: string | undefined
+interface RenderApi
+member RenderApi.dated?: Record<string, unknown> | undefined
+member RenderApi.Fragment: unknown
+member RenderApi.h: (type: any, props?: any, children?: any) => any
+member RenderApi.markup?: ((html: string) => Record<string, unknown>) | undefined
+function renderI18nT: (api: RenderApi, i18n: TextHost, props: I18nTRenderProps, slots: RenderSlots, attrs: Record<string, unknown>) => unknown
+type RenderSlot: (props?: Record<string, unknown>) => unknown
+type RenderSlots: Readonly<Record<string, RenderSlot | undefined>>
+interface ResolveTextOptions
+member ResolveTextOptions.customPluralRule?: PluralFunc | null | undefined
+member ResolveTextOptions.date?: string | number | Date | null | undefined
+member ResolveTextOptions.defaultValue?: string | undefined
+member ResolveTextOptions.hideIfEmpty?: boolean | undefined
+member ResolveTextOptions.html?: boolean | undefined
+member ResolveTextOptions.keypath: string
+member ResolveTextOptions.number?: string | number | null | undefined
+member ResolveTextOptions.params?: Params | undefined
+member ResolveTextOptions.plural?: string | number | null | undefined
+member ResolveTextOptions.relativeDate?: string | number | Date | null | undefined
+const SWITCHER_STYLES: { wrapper: object; button: object; dropdown: object; item: object; link: object; activeLink: object; icon: object; openIcon: object; }
+interface SwitcherAdapter
+member SwitcherAdapter.href: (code: string) => string
+member SwitcherAdapter.keepList?: boolean | undefined
+member SwitcherAdapter.locale: () => string
+member SwitcherAdapter.localeName?: (() => string | null) | undefined
+member SwitcherAdapter.locales: () => Locale[]
+member SwitcherAdapter.onMissingLabel?: ((code: string) => void) | undefined
+member SwitcherAdapter.select: (code: string) => void
+interface SwitcherProps
+member SwitcherProps.customActiveLinkStyle?: object | undefined
+member SwitcherProps.customButtonStyle?: object | undefined
+member SwitcherProps.customDisabledLinkStyle?: object | undefined
+member SwitcherProps.customDropdownStyle?: object | undefined
+member SwitcherProps.customIconStyle?: object | undefined
+member SwitcherProps.customItemStyle?: object | undefined
+member SwitcherProps.customLabels?: Record<string, string> | undefined
+member SwitcherProps.customLinkStyle?: object | undefined
+member SwitcherProps.customWrapperStyle?: object | undefined
+interface SwitcherVue
+member SwitcherVue.dated?: Record<string, unknown> | undefined
+member SwitcherVue.Fragment: unknown
+member SwitcherVue.h: (type: any, props?: any, children?: any) => any
+member SwitcherVue.markup?: ((html: string) => Record<string, unknown>) | undefined
+member SwitcherVue.onMounted: (hook: () => void) => void
+member SwitcherVue.onUnmounted: (hook: () => void) => void
+member SwitcherVue.ref: <T>(value: T) => { value: T; }
+interface TextHost
+member TextHost.getLocale: () => string
+member TextHost.pluralFunc: PluralFunc
+member TextHost.pluralLocale?: (() => string) | undefined
+member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
+member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member TextHost.td: (value: Date | number | string) => string
+member TextHost.tdr: (value: Date | number | string) => string
+member TextHost.tn: (value: number) => string

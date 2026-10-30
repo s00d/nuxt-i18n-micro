@@ -1,4 +1,4 @@
-export { externalLinkHref } from './link'
+export { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localeIsoMap, localizedPath } from './link'
 export {
   isNoPrefixStrategy,
   isPrefixAndDefaultStrategy,
@@ -7,13 +7,24 @@ export {
   translationCacheKey,
   withPrefixStrategy,
 } from './strategy'
-export { defaultPlural, interpolate } from './text'
+export {
+  defaultPlural,
+  escapeHtml,
+  interpolate,
+  pluralForm,
+  resolveText,
+  tokenize,
+  type ResolvedText,
+  type ResolveTextOptions,
+  type TextHost,
+} from './text'
 export {
   collectTranslationPaths,
   getByPath,
   hasTranslationValue,
   mergeTranslationChunk,
   mergeTranslationLayers,
+  ownValue,
   resolveTranslation,
   setTranslationAtKey,
   type MergeTranslationChunkOptions,

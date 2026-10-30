@@ -50,6 +50,54 @@ function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 function deepMergeTranslations: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 function deepMergeTranslationsRecursive: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 
+# ./domains (src/domains.ts)
+function configForHost: (config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend
+function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
+
+# ./load-dir (src/load-dir.ts)
+function listTranslationFiles: (dir: string) => TranslationFile[]
+function loadTranslationDir: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>
+function loadTranslationDirAsync: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>
+function parseTranslationFile: (text: string, path: string) => Dictionary | null
+interface TranslationFile
+member TranslationFile.absolutePath: string
+member TranslationFile.relativePath: string
+
+# ./locale-head (src/locale-head.ts)
+function buildLocaleHead: (input: LocaleHeadInput) => LocaleHead
+function filterQuery: (url: string, whitelist: readonly string[]) => string
+function joinBase: (base: string, path: string) => string
+interface LocaleHead
+member LocaleHead.htmlAttrs: LocaleHeadAttrs
+member LocaleHead.link: LocaleHeadLink[]
+member LocaleHead.meta: LocaleHeadMeta[]
+interface LocaleHeadAttrs
+member LocaleHeadAttrs.dir?: "ltr" | "rtl" | "auto" | undefined
+member LocaleHeadAttrs.lang?: string | undefined
+member LocaleHeadAttrs.[string]: string | undefined
+interface LocaleHeadInput
+member LocaleHeadInput.addDirAttribute?: boolean | undefined
+member LocaleHeadInput.addSeoAttributes?: boolean | undefined
+member LocaleHeadInput.alternates?: boolean | undefined
+member LocaleHeadInput.canonical: string
+member LocaleHeadInput.hreflangBaseLanguage?: boolean | undefined
+member LocaleHeadInput.hrefOf: (code: string) => string
+member LocaleHeadInput.identifierAttribute?: string | undefined
+member LocaleHeadInput.locale: Locale
+member LocaleHeadInput.missingWarn?: boolean | undefined
+member LocaleHeadInput.seoLocales: Locale[]
+member LocaleHeadInput.xDefault?: string | undefined
+interface LocaleHeadLink
+member LocaleHeadLink.href: string
+member LocaleHeadLink.hreflang?: string | undefined
+member LocaleHeadLink.rel: string
+member LocaleHeadLink.[string]: string | undefined
+interface LocaleHeadMeta
+member LocaleHeadMeta.content: string
+member LocaleHeadMeta.property: string
+member LocaleHeadMeta.[string]: string
+function queryString: (query?: object | null) => string
+
 # ./merge-i18n-head (src/merge-i18n-head.ts)
 interface I18nHeadObject
 member I18nHeadObject.htmlAttrs: Record<string, string | undefined>
@@ -135,9 +183,11 @@ member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefin
 function explicitLocale: (input: Omit<ResolveLocaleInput, "defaultLocale">) => string | null
 function firstQueryValue: (value: unknown) => string | null
 function localeFromPath: (path: string, validLocales: readonly string[]) => string | null
+function preferenceCounts: (input: Pick<RedirectLocaleInput, "path" | "urlLocale" | "autoDetectPath" | "alwaysPrefixed">) => boolean
 function redirectLocale: (input: RedirectLocaleInput) => string
 interface RedirectLocaleInput
 member RedirectLocaleInput.acceptLanguage?: string | null | undefined
+member RedirectLocaleInput.alwaysPrefixed?: boolean | undefined
 member RedirectLocaleInput.autoDetectLanguage?: boolean | undefined
 member RedirectLocaleInput.autoDetectPath?: string | undefined
 member RedirectLocaleInput.cookie?: string | null | undefined

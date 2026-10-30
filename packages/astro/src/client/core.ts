@@ -1,11 +1,13 @@
-import { defaultPlural, interpolate, resolveTranslation } from '@i18n-micro/core'
-import type { Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import { defaultPlural, FormatService, interpolate, resolveTranslation } from '@i18n-micro/core'
+import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 
 /**
  * I18n state for client islands
  */
 export interface I18nState {
   locale: string
+  /** The tag plurals go by, when it is not `locale`. */
+  pluralLocale?: string
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
@@ -24,12 +26,9 @@ function lookup(state: I18nState, key: string, routeName?: string): Value | null
 }
 
 /**
- * Pure function to get a translation from state
- *
- * Note: This is a simplified version optimized for client-side islands.
- * It supports basic translation lookup and interpolation.
- * Returns CleanTranslation which can be string, number, boolean, object, or null.
- * For advanced features like Linked Messages (@:path.to.key), use the server-side i18n instance.
+ * Pure function to get a translation from state, answering as the server's `t()` does over the
+ * same keys. `getI18nProps` already merged the root and fallback dictionaries into the state.
+ * For Linked Messages (@:path.to.key), use the server-side i18n instance.
  */
 export function translate(
   state: I18nState,
@@ -38,18 +37,10 @@ export function translate(
   defaultValue?: string | null,
   routeName?: string,
 ): string | number | boolean | Translations | null {
-  if (!key) {
-    return defaultValue || key || ''
-  }
-
-  // If not found, use defaultValue or key
+  if (!key) return ''
   // `??`: 0, false and '' are values, as on the server
-  const value = lookup(state, key, routeName) ?? (defaultValue === undefined ? key : defaultValue || key)
-
-  if (typeof value === 'string' && params) {
-    return interpolate(value, params)
-  }
-  return value
+  const value = lookup(state, key, routeName) ?? (defaultValue || key)
+  return typeof value === 'string' && params ? interpolate(value, params) : value
 }
 
 /**
@@ -64,13 +55,36 @@ export function translatePlural(state: I18nState, key: TranslationKey, count: nu
     if (raw === null) return dv === undefined ? undefined : dv || k
     return p && typeof raw === 'string' ? interpolate(raw, p) : raw
   }
-  return defaultPlural(key, Number(countValue), params, state.locale, getter) ?? defaultValue ?? key
+  return defaultPlural(key, Number(countValue), params, state.pluralLocale ?? state.locale, getter) ?? defaultValue ?? key
 }
 
 /**
- * Checks if a translation exists in the state
+ * Checks if a translation exists in the state: a subtree counts, as on the server
  */
 export function hasTranslation(state: I18nState, key: string, routeName?: string): boolean {
-  const value = lookup(state, key, routeName)
-  return value !== null && typeof value !== 'object'
+  return lookup(state, key, routeName) !== null
+}
+
+/** `state` in another locale: the tag of the old one no longer applies. */
+export const withLocale = (state: I18nState, locale: string): I18nState => ({ ...state, locale, pluralLocale: undefined })
+
+const formatter = /*#__PURE__*/ new FormatService()
+
+/** What every island adapter returns, over the state it reads at each call. */
+export function createIslandApi(getState: () => I18nState) {
+  const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation =>
+    translate(getState(), key as string, params, defaultValue, routeName)
+
+  return {
+    t,
+    ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
+      t(key, params, defaultValue, routeName)?.toString() ?? defaultValue ?? (key as string),
+    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(getState(), key, count, defaultValue),
+    tn: (value: number, options?: Intl.NumberFormatOptions): string => formatter.formatNumber(value, getState().locale, options),
+    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => formatter.formatDate(value, getState().locale, options),
+    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string =>
+      formatter.formatRelativeTime(value, getState().locale, options),
+    has: (key: TranslationKey, routeName?: string): boolean => hasTranslation(getState(), key as string, routeName),
+    getRoute: (): string => getState().currentRoute,
+  }
 }

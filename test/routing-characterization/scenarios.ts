@@ -5,6 +5,7 @@
  * config's globalLocaleRoutes). Every app runs under every strategy.
  */
 import type { Locale, Strategies } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
 
 export interface PageI18n {
   /** `$defineI18nRoute({ localeRoutes })` */
@@ -28,11 +29,20 @@ export interface App {
   routesLocaleLinks?: Record<string, string>
   localizedRouteNamePrefix?: string
   customRegexMatcher?: string
+  hashMode?: boolean
+  /** A `routeRules` redirect with no page: Nuxt adds an unnamed stub record for `/old`, served in one form only. The rule itself is Nitro's. */
+  hasStub?: boolean
+  /** Pages a module pushes in `pages:extend`: these can have no name, unlike the file scanner's. */
+  modulePages?: NuxtPage[]
+  /** `pages: false`: no pages, no RouteGenerator run, and Nuxt's stub router with no records. */
+  noPages?: boolean
   noPrefixRedirect?: boolean
   excludePatterns?: string[]
   /** params used to build concrete URLs of dynamic routes */
   params?: Record<string, string | string[]>
   strategies?: Strategies[]
+  /** Hosts to record besides the build config: one golden per host. */
+  hosts?: string[]
 }
 
 const enDeFr: Locale[] = [
@@ -53,12 +63,15 @@ export const PARAMS: Record<string, string | string[]> = {
 export const APPS: App[] = [
   {
     name: 'plain',
-    description: 'small site without any custom path',
+    description: 'small site without any custom path, one stub record of a routeRules redirect',
     files: ['index.vue', 'about.vue', 'contact.vue', 'blog/index.vue', 'blog/[slug].vue'],
+    hasStub: true,
   },
   {
     name: 'company',
-    description: 'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction',
+    description:
+      'typical company site: translated slugs, dynamic pages, catch-all, unlocalized legal page, per-page locale restriction, one stub record of a routeRules redirect',
+    hasStub: true,
     files: [
       'index.vue',
       'about.vue',
@@ -154,8 +167,9 @@ export const APPS: App[] = [
   },
   {
     name: 'options',
-    description: 'hyphenated locale codes, custom route-name prefix, custom locale regex, noPrefixRedirect, excluded paths',
-    files: ['index.vue', 'about.vue', 'blog/[slug].vue', 'api-docs.vue'],
+    description:
+      'hyphenated locale codes, custom route-name prefix, custom locale regex with a page shaped like a locale, noPrefixRedirect, excluded paths',
+    files: ['index.vue', 'about.vue', 'go.vue', 'blog/[slug].vue', 'api-docs.vue'],
     locales: [
       { code: 'en-us', iso: 'en-US' },
       { code: 'pt-br', iso: 'pt-BR' },
@@ -194,6 +208,23 @@ export const APPS: App[] = [
     },
   },
   {
+    name: 'hash-mode',
+    description: 'router hashMode: the locale is not read from the URL',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue'],
+    hashMode: true,
+    globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+  },
+  {
+    name: 'disabled-locale',
+    description: 'a locale disabled in the config: no records, the strategy still knows it',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue'],
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+      { code: 'es', iso: 'es-ES', disabled: true },
+    ],
+  },
+  {
     name: 'multi-domain',
     description: 'locales on their own domains (baseUrl, baseDefault)',
     files: ['index.vue', 'about.vue', 'blog/[slug].vue'],
@@ -204,7 +235,58 @@ export const APPS: App[] = [
     ],
     globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
   },
+  {
+    name: 'domains',
+    description: 'one build on two domains: a default per host, a second locale on one host, a locale on every host, a page of one locale',
+    files: ['index.vue', 'about.vue', 'blog/[slug].vue', 'de-only.vue'],
+    locales: [
+      { code: 'en', iso: 'en-US', baseUrl: 'https://example.com', baseDefault: true },
+      { code: 'de', iso: 'de-DE', baseUrl: 'https://example.de', baseDefault: true },
+      { code: 'nl', iso: 'nl-NL', baseUrl: 'https://example.de' },
+      { code: 'fr', iso: 'fr-FR' },
+    ],
+    globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
+    pageI18n: { 'de-only': { locales: ['de'] } },
+    hosts: ['example.com', 'example.de'],
+  },
 ]
+
+APPS.push(
+  {
+    name: 'precedence',
+    description: "$defineI18nRoute against the config on one page: the config's entry wins whole, whichever key form it uses",
+    files: ['index.vue', 'about.vue', 'contact.vue', 'team.vue', 'careers.vue'],
+    pageI18n: {
+      about: { localeRoutes: { de: '/von-seite', fr: '/de-la-page' } },
+      contact: { localeRoutes: { de: '/kontakt-seite' } },
+      team: { localeRoutes: { de: '/team-seite' } },
+      careers: { localeRoutes: { de: '/jobs-seite' }, locales: ['en', 'de'] },
+    },
+    globalLocaleRoutes: {
+      about: { de: '/von-config' },
+      '/team': { de: '/team-config' },
+    },
+  },
+  {
+    name: 'module-pages',
+    description: 'pages a module pushes in pages:extend, without a name: top-level, dynamic, nested, and one named for comparison',
+    files: ['index.vue', 'about.vue'],
+    hasStub: true,
+    modulePages: [
+      { path: '/from-module', file: '/mod/page.vue' },
+      { path: '/from-module-dyn/:id()', file: '/mod/dyn.vue' },
+      { path: '/module-parent', file: '/mod/parent.vue', children: [{ path: 'child', file: '/mod/child.vue' }] },
+      { path: '/module-named', name: 'module-named', file: '/mod/named.vue' },
+    ],
+    globalLocaleRoutes: { '/from-module': { de: '/vom-modul' } },
+  },
+  {
+    name: 'no-pages',
+    description: "pages: false: Nuxt's stub router, no records at all, every URL is read from its prefix",
+    files: [],
+    noPages: true,
+  },
+)
 
 export const STRATEGIES: Strategies[] = ['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix']
 

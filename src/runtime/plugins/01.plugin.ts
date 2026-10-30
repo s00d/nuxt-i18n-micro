@@ -12,6 +12,7 @@ import type {
   TranslationKey,
 } from '@i18n-micro/types'
 
+import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
 import type {
   RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
@@ -52,7 +53,7 @@ export default defineNuxtPlugin({
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 
-    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
+    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale, validLocales } = useI18nLocale()
 
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const { resetPageHead } = useI18nHead()
@@ -115,10 +116,17 @@ export default defineNuxtPlugin({
       isDev,
     })
 
+    // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
+    const shellLocale = () => {
+      const shell = i18nConfig.hashMode && i18nConfig.strategy === 'prefix' && !nuxtApp.payload.serverRendered
+      if (!shell || !i18nConfig.autoDetectLanguage || getPreferredLocale()) return undefined
+      return detectLocaleFromAcceptLanguage(navigator.languages.join(','), validLocales)
+    }
+
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
     // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
     // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
-    const requestLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    const requestLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : shellLocale()
     const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
     const urlLocale = i18nConfig.hashMode

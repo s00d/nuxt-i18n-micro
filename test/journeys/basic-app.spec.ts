@@ -86,6 +86,7 @@ describe('journey: basic app', () => {
     await expect(page.locator('#plural-component')).toHaveText('5 apples')
     await expect(page.locator('#plural-component-custom')).toHaveText('5 apples')
     await expect(page.locator('#plural-component-custom-zero')).toHaveText('no apples')
+    await expect(page.locator('#slots-reordered')).toHaveText('B before A')
     await expect(page.locator('#localized-route')).toHaveText('/de/page')
     await expect(page.locator('#localized-route-2')).toHaveText('/news/aaa?info=1111')
     await expect(page.locator('#localized-path')).toHaveText('/news/aaa?info=1111')

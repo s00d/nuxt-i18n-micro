@@ -103,6 +103,8 @@ export class NuxtI18n extends BaseI18n {
    * already installed. Cleared in `finishTransition`.
    */
   private outgoingTranslations: Record<string, unknown> | null = null
+  /** A lookup was answered from `outgoingTranslations`: only then does dropping it change a render. */
+  private outgoingServed = false
   private currentLocale = ''
   private currentRouteName = ''
   private resolveRouteContext?: GetRouteTranslationContext
@@ -262,6 +264,7 @@ export class NuxtI18n extends BaseI18n {
     // Stash / swap the view layer before setChunk so eviction sees keep === current
     // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
+    this.outgoingServed = false
     this.cachedTranslations = data ?? {}
 
     this.currentLocale = locale
@@ -296,7 +299,7 @@ export class NuxtI18n extends BaseI18n {
   finishTransition(outgoing: Record<string, unknown> | null = this.outgoingTranslations): void {
     if (outgoing === null || outgoing !== this.outgoingTranslations) return
     this.outgoingTranslations = null
-    triggerRef(this.contextSignal)
+    if (this.outgoingServed) triggerRef(this.contextSignal)
     this.notifyContextChange('refresh')
   }
 
@@ -357,7 +360,10 @@ export class NuxtI18n extends BaseI18n {
     const value = resolveCachedTranslation(translations, String(key))
     if (value !== null || translations !== this.cachedTranslations) return value
 
-    return this.outgoingTranslations === null ? null : resolveCachedTranslation(this.outgoingTranslations, String(key))
+    if (this.outgoingTranslations === null) return null
+    const leaving = resolveCachedTranslation(this.outgoingTranslations, String(key))
+    if (leaving !== null) this.outgoingServed = true
+    return leaving
   }
 
   protected override resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
@@ -376,6 +382,7 @@ export class NuxtI18n extends BaseI18n {
     }
 
     if (this.outgoingTranslations === null) return this.cachedTranslations as Translations
+    this.outgoingServed = true
     return this.resolveTranslationTree(this.outgoingTranslations, this.cachedTranslations)
   }
 

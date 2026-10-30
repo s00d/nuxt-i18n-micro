@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
+import { effect } from 'vue'
 import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
@@ -87,6 +88,63 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(edit.has('ddd')).toBe(false)
     expect(edit.getChunk('en', 'page-a')).toEqual({})
     expect(events).toEqual(['load', 'refresh', 'load', 'refresh', 'load', 'refresh'])
+  })
+
+  test('a transition re-renders once, unless the old page read a key that is now gone', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { layout: 'L', a: 'A' })
+    let renders = 0
+    let shown: unknown
+    effect(() => {
+      renders++
+      shown = i18n.t(i18n.getCurrentRouteName() === 'page-b' ? 'layout' : 'a')
+    })
+
+    // nothing came from the outgoing chunk: its removal changes no result, so no second render
+    renders = 0
+    i18n.applySwitchContext('en', 'page-b', { layout: 'L', b: 'B' })
+    expect(renders).toBe(1)
+    i18n.finishTransition()
+    expect(renders).toBe(1)
+    expect(i18n.outgoing).toBeNull()
+
+    // a key served from the leaving chunk must stop resolving: that render has to run again
+    const leaving = new NuxtI18n({ missingWarn: false })
+    leaving.applySwitchContext('en', 'page-a', { a: 'A' })
+    effect(() => {
+      shown = leaving.t('a')
+    })
+    leaving.applySwitchContext('en', 'page-b', { b: 'B' })
+    expect(shown).toBe('A')
+    leaving.finishTransition()
+    expect(shown).toBe('a')
+
+    // has() and the resolveTranslations dump read the leaving chunk too
+    for (const read of [(i: NuxtI18n) => i.has('a'), (i: NuxtI18n) => 'a' in i.resolveTranslations()]) {
+      const other = new NuxtI18n({ missingWarn: false })
+      other.applySwitchContext('en', 'page-a', { a: 'A' })
+      effect(() => {
+        shown = read(other)
+      })
+      other.applySwitchContext('en', 'page-b', { b: 'B' })
+      expect(shown).toBe(true)
+      other.finishTransition()
+      expect(shown).toBe(false)
+    }
+
+    // a hit on the previous transition's chunk says nothing about the next one
+    const next = new NuxtI18n({ missingWarn: false })
+    next.applySwitchContext('en', 'page-a', { a: 'A' })
+    next.applySwitchContext('en', 'page-b', { b: 'B' })
+    next.t('a')
+    next.applySwitchContext('en', 'page-c', { c: 'C' })
+    let runs = 0
+    effect(() => {
+      runs++
+      next.t('c')
+    })
+    next.finishTransition()
+    expect(runs).toBe(1)
   })
 
   test('route-bound lookups and missing keys', () => {

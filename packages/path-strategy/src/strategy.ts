@@ -301,7 +301,7 @@ export class I18nPathStrategy {
   private prefixed(locale: string, path: string): string {
     const loc = this.getLocaleFromPath(path)
     const rest = loc ? path.slice(loc.length + 1) || '/' : path || '/'
-    if (!this.hasPrefix(locale)) return sameOrigin(rest)
+    if (!this.hasPrefix(locale)) return rest
     return rest === '/' ? `/${locale}` : `/${locale}${rest.startsWith('/') ? rest : `/${rest}`}`
   }
 
@@ -333,7 +333,8 @@ export class I18nPathStrategy {
 
   localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
     const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
-    const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(routeOrPath) : routeOrPath
+    // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
+    const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : routeOrPath.name
     let target: Target | null = null
     if (name) {

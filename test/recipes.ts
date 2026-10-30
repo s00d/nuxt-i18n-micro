@@ -31,11 +31,9 @@ export const translationWatcherTmpRoots = {
 export const recipes = defineRecipes(
   {
     basic: app('basic'),
-    'basic-no-ssr': app('basic-no-ssr', 'basic', { NUXT_TEST_NO_SSR: '1' }),
     named: app('named'),
     undefault: app('undefault'),
     'async-components': app('async-components'),
-    'auto-detect-no-prefix': app('auto-detect-no-prefix'),
     'baseurl-prefix': app('baseurl-prefix'),
     content: app('content'),
     'custom-regex': app('custom-regex'),
@@ -49,16 +47,12 @@ export const recipes = defineRecipes(
     'nuxt-seo': app('nuxt-seo'),
     'pages-false': app('pages-false'),
     'pages-false-no-prefix': app('pages-false-no-prefix'),
-    'redirect-security': app('redirect-security'),
     redirect: app('redirect'),
-    'seo-auto': app('seo-auto'),
     'seo-og-locale-format': app('seo-og-locale-format'),
     seo: app('seo'),
     serverless: app('serverless'),
-    'transition-merge': app('transition-merge'),
     'use-i18n-head': app('use-i18n-head'),
     'use-locale-head': app('use-locale-head'),
-    'canonical-whitelist': app('canonical-whitelist'),
     'seo-trailing-slash': nuxt({
       id: 'seo-trailing-slash',
       root: resolve(fixtures, 'seo'),
@@ -87,45 +81,17 @@ export const recipes = defineRecipes(
       LOCALE_COOKIE: 'user-locale',
     }),
 
-    'locale-state-no-prefix': app('locale-state-no-prefix', 'locale-state', {
-      STRATEGY: 'no_prefix',
-    }),
-    'locale-state-prefix': app('locale-state-prefix', 'locale-state', { STRATEGY: 'prefix' }),
-    'locale-state-prefix-except-default': app('locale-state-prefix-except-default', 'locale-state', {
-      STRATEGY: 'prefix_except_default',
-    }),
-    'locale-state-prefix-and-default': app('locale-state-prefix-and-default', 'locale-state', {
-      STRATEGY: 'prefix_and_default',
-    }),
-
     'cookie-default': app('cookie-default', 'cookie'),
-    'cookie-custom-name': app('cookie-custom-name', 'cookie', {
-      LOCALE_COOKIE: 'user-change-cookie',
-    }),
-    'cookie-auto-detect-root': app('cookie-auto-detect-root', 'cookie', { AUTO_DETECT_PATH: '/' }),
 
-    // HMR-only: asserts live locale file reload. Not the default e2e path — see untestutils Drivers docs.
-    'translation-watcher': nuxt({
-      id: 'translation-watcher',
-      root: resolve(fixtures, 'translation-watcher'),
-      run: 'dev',
-      hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
-    }),
-    // Same fixture, production server build — read-only checks for additionalTranslationDirs.
+    // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': nuxt({
       id: 'translation-watcher-prod',
       root: resolve(fixtures, 'translation-watcher'),
       run: 'server',
       hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
     }),
-    'translation-watcher-source': nuxt({
-      id: 'translation-watcher-source',
-      root: resolve(fixtures, 'translation-watcher-source'),
-      run: 'dev',
-      hashInputs: [resolve(fixtures, 'translation-watcher-source'), moduleSrc],
-    }),
 
-    // Same dev servers, run from a temp copy so HMR specs never write into the repo tree
+    // Dev servers for the HMR journeys run from a temp copy, so they never write into the repo tree
     // (the prod recipe hashes and builds the pristine dir). Roots: translationWatcherTmpRoots.
     'translation-watcher-tmp': nuxt({
       id: 'translation-watcher-tmp',

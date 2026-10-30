@@ -86,7 +86,7 @@ A static host applies its own headers to these files, not the ones described bel
 | the same URL without `?v=`, or with an old one | `public, max-age=0, must-revalidate` |
 | dev server | none |
 
-These are set by the server route and a `/_locales/**` route rule. That rule enables CORS only when `apiBaseClientHost` is set; if another origin reads this app's payloads without it, add `routeRules: { '/_locales/**': { cors: true } }`. [`httpCacheDuration`](/api/module-options#httpcacheduration) defaults to one year; `0` sends no header.
+These are set by the server route (and a `/_locales/**` route rule with CORS enabled). [`httpCacheDuration`](/api/module-options#httpcacheduration) defaults to one year; `0` sends no header.
 
 [`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`).
 

@@ -798,7 +798,7 @@ declare module '#i18n-internal/payload-source' {
       const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, false)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
-        ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl, crossOrigin: Boolean(apiBaseClientHost) }),
+        ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl }),
       }
 
       const routeRules = nuxt.options.routeRules || {}

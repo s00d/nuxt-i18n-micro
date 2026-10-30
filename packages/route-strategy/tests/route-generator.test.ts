@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
@@ -47,6 +47,27 @@ describe('unnamed pages', () => {
   test("Nuxt's route-rule stub stays as written, a module's page is localized", () => {
     expect(generate({ path: '/old', file: '/nuxt/dist/pages/runtime/component-stub.js', _sync: true } as NuxtPage)).toEqual(['/old'])
     expect(generate({ path: '/from-module', file: '/mod/page.vue' })).toEqual(['/:locale(en|de)/from-module'])
+  })
+})
+
+describe('names of unnamed pages', () => {
+  test("a module's page gets the name the scanner would give it: records are addressed by name", () => {
+    const names = (pages: NuxtPage[]) => {
+      const list = structuredClone(pages)
+      generator('prefix_except_default').extendPages(list)
+      return list.map((p) => [p.name, p.meta?.i18n])
+    }
+    expect(names([{ path: '/a/:id()/:rest(.*)*', file: 'mod.vue' }])).toEqual([
+      ['a-id-rest', { name: 'a-id-rest', locales: ['en'] }],
+      ['localized-a-id-rest', { name: 'a-id-rest', locales: ['de', 'fr'] }],
+    ])
+    expect(generate('prefix', [{ path: '/parent', file: 'p.vue', children: [{ path: 'child', file: 'c.vue' }] }])).toEqual([
+      'localized-parent /:locale(en|de|fr)/parent',
+      '  localized-parent-child child',
+    ])
+    // a parent whose index child owns the name stays unnamed; a taken name stays with its page
+    expect(generate('prefix', [{ path: '/p', file: 'p.vue', children: [{ path: '', name: 'p', file: 'i.vue' }] }])[0]).toBe('- /:locale(en|de|fr)/p')
+    expect(generate('prefix', [about, { path: '/about', file: 'mod.vue' }]).map((l) => l.split(' ')[0])).toEqual(['localized-about', '-'])
   })
 })
 
@@ -155,6 +176,35 @@ describe('strategies', () => {
       ['localized-about-de', { name: 'about', locales: ['de'] }],
     ])
   })
+
+  test.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: every record keeps the file and the meta of its page',
+    (strategy) => {
+      const pages: NuxtPage[] = [{ ...about, meta: { layout: 'wide', auth: true } }]
+      generator(strategy, { globalLocaleRoutes: { about: { de: '/ueber-uns' } } }).extendPages(pages)
+      const records = pages.filter((p) => p.file)
+      expect(records.length).toBeGreaterThan(1)
+      for (const record of records) {
+        expect({ file: record.file, ...record.meta }).toMatchObject({ file: 'pages/about.vue', layout: 'wide', auth: true })
+      }
+    },
+  )
+
+  test.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix'] as const)(
+    '%s: the original page objects stay as they were (Nuxt keeps references to them)',
+    (strategy) => {
+      const freeze = (page: NuxtPage): NuxtPage => {
+        page.children?.forEach(freeze)
+        Object.freeze(page.children)
+        return Object.freeze(page)
+      }
+      const page = freeze(structuredClone({ ...account, meta: { auth: true }, alias: ['/me'] }))
+      const before = structuredClone(page)
+      // frozen: a write throws in this strict module, so a mutation anywhere fails the call too
+      generator(strategy, { globalLocaleRoutes: { account: { de: '/konto' }, 'account/orders': { de: 'bestellungen' } } }).extendPages([page])
+      expect(page).toEqual(before)
+    },
+  )
 })
 
 describe('custom paths', () => {
@@ -289,6 +339,47 @@ describe('restrictions and unlocalized pages', () => {
     ])
   })
 
+  test('a custom path for a forbidden locale creates nothing', () => {
+    const rules: GlobalLocaleRoutes = { about: { de: '/ueber-uns', fr: '/a-propos' } }
+    expect(generate('prefix_except_default', [about], { globalLocaleRoutes: rules, routeLocales: { about: ['en', 'de'] } })).toEqual([
+      'about /about',
+      'localized-about-de /:locale(de)/ueber-uns',
+    ])
+  })
+
+  test('a locale list without a known code does not restrict the page; unknown codes are dropped from a mixed one', () => {
+    const everyLocale = ['about /about', 'localized-about /:locale(de|fr)/about']
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: [] } })).toEqual(everyLocale)
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: ['xx'] } })).toEqual(everyLocale)
+    expect(generate('prefix_except_default', [about], { routeLocales: { about: ['en', 'xx', 'de'] } })).toEqual([
+      'about /about',
+      'localized-about /:locale(de)/about',
+    ])
+    expect(isLocaleAllowedForUnlocalizedRoute({ '/about': [] }, locales, '/about', 'fr')).toBe(true)
+  })
+
+  test('a page path that starts with a locale code is a page, the prefix goes in front of it', () => {
+    const pages: NuxtPage[] = [{ path: '/de/contact', name: 'de-contact', file: 'pages/de/contact.vue' }]
+    expect(generate('prefix_except_default', pages)).toEqual(['de-contact /de/contact', 'localized-de-contact /:locale(de|fr)/de/contact'])
+    expect(generate('prefix', pages)).toEqual(['localized-de-contact /:locale(en|de|fr)/de/contact'])
+  })
+
+  test('a default locale outside the list, or disabled: a bare object, and no unprefixed record serves it', () => {
+    const noDefault: Locale[] = [{ code: 'de' }, { code: 'fr' }]
+    expect(generator('prefix_except_default', { locales: noDefault }).defaultLocale).toEqual({ code: 'en' })
+    expect(generate('prefix_except_default', [about], { locales: noDefault })).toEqual(['localized-about /:locale(de|fr)/about'])
+
+    const disabled = generator('prefix_except_default', { locales: [{ code: 'en', iso: 'en-US', disabled: true }, ...noDefault] })
+    expect(disabled.defaultLocale).toEqual({ code: 'en' })
+    expect(disabled.locales.map((l) => l.code)).toEqual(['de', 'fr'])
+    expect(disabled.disabledLocales.map((l) => l.code)).toEqual(['en'])
+  })
+
+  test('an empty locale list leaves nothing to serve', () => {
+    expect(generate('prefix_except_default', [about], { locales: [] })).toEqual([])
+    expect(generate('prefix', [about], { locales: [] })).toEqual([])
+  })
+
   test('a page under a custom apiBaseUrl is internal, like one under _locales', () => {
     const pages: NuxtPage[] = [{ name: 'x', path: '/custom/x', file: '/x.vue' }]
     expect(generate('prefix', pages, { apiBaseUrl: 'custom' })).toEqual(['x /custom/x'])
@@ -380,9 +471,32 @@ describe('nitro helpers', () => {
       '/_locales/account-orders-id/en/data.json',
     ])
     expect(g.generateDataRoutes([account], '_locales', true)).toEqual(['/_locales/index/en/data.json'])
+    // an unnamed page has no chunk to prerender, its named children do
+    const unnamed: NuxtPage[] = [{ path: '/from-module', file: 'mod.vue' }, about]
+    expect(g.generateDataRoutes(unnamed, '_locales', false)).toEqual(['/_locales/index/en/data.json', '/_locales/about/en/data.json'])
+  })
+
+  test('ensureTranslationFilesExist: a root file per active locale, page files unless disablePageLocales', () => {
+    const g = generator('prefix', { locales: [{ code: 'en' }, { code: 'de', disabled: true }, { code: 'fr' }] })
     const root = mkdtempSync(join(tmpdir(), 'route-strategy-'))
+    const has = (file: string) => existsSync(join(root, file))
+
+    // step 1: with page locales
     g.ensureTranslationFilesExist(['about'], 'locales', root)
-    expect(readFileSync(join(root, 'locales/pages/about/en.json'), 'utf-8')).toBe('{}')
+    expect(readFileSync(join(root, 'locales/en.json'), 'utf-8')).toBe('{}')
+    expect(readFileSync(join(root, 'locales/pages/about/fr.json'), 'utf-8')).toBe('{}')
+    expect(['locales/de.json', 'locales/pages/about/de.json'].filter(has)).toEqual([])
+
+    // step 2: disablePageLocales has root files only
+    const flat = mkdtempSync(join(tmpdir(), 'route-strategy-'))
+    g.ensureTranslationFilesExist(['about'], 'locales', flat, true)
+    expect(existsSync(join(flat, 'locales/fr.json'))).toBe(true)
+    expect(existsSync(join(flat, 'locales/pages'))).toBe(false)
+
+    // step 3: an existing file is left alone
+    writeFileSync(join(root, 'locales/en.json'), '{"a":"b"}')
+    g.ensureTranslationFilesExist([], 'locales', root)
+    expect(readFileSync(join(root, 'locales/en.json'), 'utf-8')).toBe('{"a":"b"}')
   })
 })
 

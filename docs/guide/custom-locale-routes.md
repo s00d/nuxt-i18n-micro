@@ -106,7 +106,7 @@ if (product.value) {
 
 ## Routes added in pages:extend
 
-Routes you push in the `pages:extend` hook have no page file to read `$defineI18nRoute` from, and several of them often share one wrapper component. Keep one list and split it into pages and `globalLocaleRoutes` keyed by route name with `splitLocaleRoutes` from `@i18n-micro/utils/split-locale-routes` (add the package to your dependencies):
+Routes you push in the `pages:extend` hook have no page file to read `$defineI18nRoute` from, and several of them often share one wrapper component. A route pushed without a `name` gets the name Nuxt would give its path (`/a/:id()` becomes `a-id`), so language links reach it. Keep one list and split it into pages and `globalLocaleRoutes` keyed by route name with `splitLocaleRoutes` from `@i18n-micro/utils/split-locale-routes` (add the package to your dependencies):
 
 ```ts
 // nuxt.config.ts

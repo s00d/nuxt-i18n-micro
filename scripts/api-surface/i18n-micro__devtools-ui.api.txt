@@ -9,6 +9,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
@@ -68,6 +69,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined

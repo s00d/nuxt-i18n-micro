@@ -46,6 +46,8 @@ export interface CreateBridgeOptions {
   locales?: Locale[]
   defaultLocale?: string
   translationDir?: string
+  /** The dev server's API base, the plugin's `base` option (default `'/__i18n_api'`). */
+  base?: string
 }
 
 /** A static host (preview build) answers a POST to a missing endpoint with one of these. */
@@ -62,10 +64,10 @@ function saveLocally(filePath: string, content: TranslationContent, reason: unkn
  * POST the file to the dev server's save endpoint. Only an unreachable server or a missing endpoint
  * falls back to localStorage; an error the endpoint reports (rejected path, write failure) is thrown.
  */
-async function saveToDisk(realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
+async function saveToDisk(base: string, realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
   let response: Response
   try {
-    response = await fetch('/__i18n_api/save', {
+    response = await fetch(`${base}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file: realFilePath, content }),
@@ -88,7 +90,7 @@ async function saveToDisk(realFilePath: string, content: TranslationContent, fil
  * This bridge works with any framework by using an adapter pattern
  */
 export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
-  const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales' } = options
+  const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales', base = '/__i18n_api' } = options
 
   // Helper function to build locale data from cache
   const buildLocaleData = (): LocaleData => {
@@ -158,7 +160,7 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
         // 2. Save to disk; the app must not keep an edit that is neither on disk nor in localStorage
         const realFilePath = translationDir ? `${translationDir}/${normalizedPath}` : normalizedPath
         try {
-          await saveToDisk(realFilePath, content, filePath)
+          await saveToDisk(base, realFilePath, content, filePath)
         } catch (error) {
           write.apply(previous ?? {})
           throw error

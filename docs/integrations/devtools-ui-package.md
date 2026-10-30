@@ -199,6 +199,7 @@ const bridge = createBridge({
   locales: localesConfig,
   defaultLocale: 'en',
   translationDir: 'src/locales',
+  base: '/__i18n_api', // Optional: the plugin's `base`, where saves are POSTed (default: '/__i18n_api')
 })
 ```
 

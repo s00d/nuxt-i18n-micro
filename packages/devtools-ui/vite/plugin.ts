@@ -289,16 +289,17 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     // Register custom element
     register();
 
-    // Create bridge via API
+    // Create bridge via API (the plugin's base option)
+    const API = ${JSON.stringify(apiBase)};
     const bridge = {
       async getLocalesAndTranslations() {
         try {
-          const response = await fetch('/__i18n_api/files');
+          const response = await fetch(API + '/files');
           const data = await response.json();
           const result = {};
           for (const file of data.files || []) {
             try {
-              const fileResponse = await fetch('/__i18n_api/file?path=' + encodeURIComponent(file));
+              const fileResponse = await fetch(API + '/file?path=' + encodeURIComponent(file));
               const fileData = await fileResponse.json();
               if (fileData.success && fileData.content) {
                 result[file] = fileData.content;
@@ -316,20 +317,20 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
       async getConfigs() {
         try {
-          const response = await fetch('/__i18n_api/config');
+          const response = await fetch(API + '/config');
           return await response.json();
         } catch (e) {
           return {
             defaultLocale: 'en',
             fallbackLocale: 'en',
             locales: [],
-            translationDir: '${translationDir}',
+            translationDir: ${JSON.stringify(translationDir)},
           };
         }
       },
 
       async saveTranslation(filePath, content) {
-        const response = await fetch('/__i18n_api/save', {
+        const response = await fetch(API + '/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ file: filePath, content }),

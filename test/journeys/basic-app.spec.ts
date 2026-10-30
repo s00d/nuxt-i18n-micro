@@ -267,6 +267,7 @@ describe('journey: basic app', () => {
       await goto('/locale-test')
       await expect(page).toHaveURL('/locale-test')
       await expectLocaleTest(rows.en)
+      await expect(page.locator('#number-params')).toHaveText('Distance: 5 km')
       await expect(page.locator('#link-de')).toHaveAttribute('href', '/de/locale-page-modify')
 
       // step 2: click #link-de → /de/locale-page-modify with de formatting

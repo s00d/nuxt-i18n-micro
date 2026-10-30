@@ -26,6 +26,9 @@
     <p id="number-tn-component">
       <i18n-t keypath="page.number" :number="1234567.89" />
     </p>
+    <p id="number-params">
+      <i18n-t keypath="page.distance" :number="5" :params="{ unit: 'km' }" />
+    </p>
 
     <div id="date-td">
       {{ $td(oneYearAgo) }}
@@ -79,6 +82,7 @@ $defineI18nRoute({
         items: 'Nothing|You have {count} item|You have {count} items',
         htmlContent: '<strong>Bold Text</strong> with HTML content.',
         number: 'The number is: {number}',
+        distance: 'Distance: {number} {unit}',
         date: 'The date is: {date}',
         relativeDate: 'The relative date is: {relativeDate}',
       },

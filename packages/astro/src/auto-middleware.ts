@@ -10,8 +10,9 @@ const i18n = new AstroI18n({
   fallbackLocale: config.fallbackLocale,
   missingWarn: config.missingWarn,
   localeIso: localeIsoMap(config.locales),
+  messages: messages.root,
+  routeMessages: messages.routes,
 })
-i18n.loadMessages(messages.root, messages.routes)
 
 export const onRequest = createI18nMiddleware({
   i18n,

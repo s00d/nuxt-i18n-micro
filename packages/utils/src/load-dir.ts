@@ -18,17 +18,28 @@ export interface TranslationFile {
 
 type Dictionary = Record<string, unknown>
 
-/** Each real directory once: a symlink back up the tree must not recurse forever. */
-function walk(dir: string, seen: Set<string>, files: string[]): void {
+/** A file that cannot be read as an entry (a link to itself) is reported; the walk goes on. */
+function statOf(path: string) {
+  try {
+    return statSync(path, { throwIfNoEntry: false })
+  } catch (error) {
+    console.error(`[i18n] Failed to read: ${path}`, error)
+    return undefined
+  }
+}
+
+/** `active` holds the real directories on the way down: a link back up ends, two links to one folder are two folders. */
+function walk(dir: string, active: Set<string>, files: string[]): void {
   const real = realpathSync(dir)
-  if (seen.has(real)) return
-  seen.add(real)
+  if (active.has(real)) return
+  active.add(real)
   for (const name of readdirSync(dir)) {
     const path = join(dir, name)
-    const stat = statSync(path, { throwIfNoEntry: false })
-    if (stat?.isDirectory()) walk(path, seen, files)
+    const stat = statOf(path)
+    if (stat?.isDirectory()) walk(path, active, files)
     else if (stat && name.endsWith('.json')) files.push(path)
   }
+  active.delete(real)
 }
 
 /** Every `*.json` under `dir`, sorted by relative path so a read does not depend on the file system's order. */

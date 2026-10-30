@@ -117,3 +117,14 @@ test('nothing of the translation logic is the mock’s own', () => {
     expect(createI18nTestContext()[name]).toBe(BaseI18n.prototype[name])
   }
 })
+
+test('locale tags follow the locales given to reset and setLocales', () => {
+  const i18n = createI18nTestContext({ locale: 'ua', messages: { ua: { items: '=0 a | {count} b | {count} c | {count} d' } } })
+  const ua = [{ code: 'ua', iso: 'uk-UA' }]
+  expect(i18n.pluralLocale()).toBe('ua')
+  i18n.reset({ locale: 'ua', locales: ua, reseed: true })
+  expect(i18n.tc('items', 21)).toBe('21 b')
+  i18n.reset({ locale: 'ua', locales: [{ code: 'ua' }], reseed: true })
+  i18n.setLocales(ua)
+  expect(i18n.pluralLocale()).toBe('uk-UA')
+})

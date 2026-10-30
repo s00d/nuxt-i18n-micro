@@ -81,5 +81,13 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "peerDependencies": {
+    "vite": ">=5.4.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   }
 }

@@ -4,7 +4,18 @@ import { DEFAULT_COOKIE_MAX_AGE } from '@i18n-micro/utils/cookie'
 import { resolveLocale } from '@i18n-micro/utils/resolve-locale'
 import type { MiddlewareHandler } from 'astro'
 import type { AstroI18n } from './composer'
-import { header, localeOfPath, normalizeBase, type I18nRouting, type I18nRequest, resolveRequest, switchedFrom, withBase } from './request'
+import {
+  asksForPage,
+  header,
+  isPageView,
+  isSwitch,
+  localeOfPath,
+  normalizeBase,
+  resolveRequest,
+  withBase,
+  type I18nRequest,
+  type I18nRouting,
+} from './request'
 import { createAstroRouterAdapter } from './router/adapter'
 import type { I18nRoutingStrategy } from './router/types'
 // Import shim to ensure App.Locals is available
@@ -44,13 +55,39 @@ function cookie(cookies: CookieReader, name: string | null): string | null {
   }
 }
 
-/** Every path method a strategy leaves out comes from the default adapter. Methods stay on the strategy, whatever its class. */
+/**
+ * Every path method a strategy leaves out comes from the default adapter. The strategy's own stay
+ * bound to it: a class with methods on its prototype or `#private` fields works.
+ */
 function completeStrategy(strategy: I18nRoutingStrategy | null | undefined, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
   const fallback = createAstroRouterAdapter(locales, defaultLocale)
   if (!strategy) return fallback
-  const complete = Object.create(strategy) as Record<string, unknown>
-  for (const [name, method] of Object.entries(fallback)) complete[name] ??= method
+  const source = strategy as unknown as Record<string, unknown>
+  const complete: Record<string, unknown> = {}
+  for (const [name, method] of Object.entries(fallback)) {
+    const own = source[name]
+    complete[name] = typeof own === 'function' ? own.bind(strategy) : method
+  }
   return complete as unknown as I18nRoutingStrategy
+}
+
+interface PreferenceInput {
+  cookies: CookieReader
+  headers: Headers
+  localeCookie: string | null
+  autoDetect: boolean
+}
+
+/** Precedence of a visitor's preference over a routing that is already complete. */
+function preferredLocale(pathname: string, routing: Omit<I18nRouting, 'base'>, { cookies, headers, localeCookie, autoDetect }: PreferenceInput): string {
+  return resolveLocale({
+    defaultLocale: routing.defaultLocale,
+    validLocales: routing.locales,
+    autoDetectLanguage: autoDetect,
+    url: localeOfPath(pathname, routing),
+    cookie: autoDetect ? cookie(cookies, localeCookie) : null,
+    acceptLanguage: autoDetect ? header({ request: { headers } }, 'accept-language') : null,
+  })
 }
 
 /**
@@ -72,14 +109,7 @@ export function detectLocale(
     locales.map((code) => ({ code })),
     defaultLocale,
   )
-  return resolveLocale({
-    defaultLocale,
-    validLocales: locales,
-    autoDetectLanguage: autoDetect,
-    url: localeOfPath(pathname, { defaultLocale, locales, strategy }),
-    cookie: autoDetect ? cookie(cookies, localeCookie) : null,
-    acceptLanguage: autoDetect ? header({ request: { headers } }, 'accept-language') : null,
-  })
+  return preferredLocale(pathname, { defaultLocale, locales, strategy }, { cookies, headers, localeCookie, autoDetect })
 }
 
 let warnedTwice = false
@@ -104,6 +134,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     strategy: completeStrategy(options.routingStrategy, allLocales, defaultLocale),
   }
   const cookieOptions = { path: base || '/', maxAge: DEFAULT_COOKIE_MAX_AGE, sameSite: 'lax' as const }
+  const varyOn = localeCookie === null ? 'Accept-Language' : 'Cookie, Accept-Language'
 
   const handler: MiddlewareHandler = async (context, next) => {
     // A locale already in locals (Astro.rewrite) is kept, not redetected.
@@ -113,27 +144,30 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     }
 
     const request = resolveRequest(context, routing)
-    const { path, url, locale } = request
+    const { path, url, locale, partOfPage } = request
 
     // Coming from a page of another locale is the visitor's choice, whatever link took them here:
-    // it is remembered, and it is no landing to redirect, or a switcher could never reach `/`.
-    const switched = switchedFrom(context, request, routing) !== null
-    if (switched && localeCookie !== null) context.cookies.set(localeCookie, locale, cookieOptions)
+    // no landing to redirect, or a switcher could never reach `/`.
+    const page = asksForPage(context, request)
+    const switched = page && isSwitch(context, request, routing)
 
     // autoDetect is a redirect hint on the home page only (as the Nuxt module's autoDetectPath '/'):
     // a visitor whose cookie / Accept-Language prefers another locale is sent to that locale's home.
-    // A prerendered page has no visitor: no cookie, no header, no redirect.
-    const home = !context.isPrerendered && path === '/'
+    // Only a page view: a redirect in answer to a server island would put a whole page in its slot.
+    const home = page && path === '/'
     const hinted = autoDetect && home && !switched
-    const preferred = hinted
-      ? detectLocale(path, context.cookies, context.request.headers, defaultLocale, routing.locales, localeCookie, routing.strategy)
-      : locale
+    const preference = { cookies: context.cookies, headers: context.request.headers, localeCookie, autoDetect: true }
+    const preferred = hinted ? preferredLocale(path, routing, preference) : locale
+    // the home page is a redirect or not depending on the cookie and the header, and a part of a page on its Referer: shared caches key on them
+    const vary = partOfPage ? 'Referer' : hinted ? varyOn : null
     const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, routing) : path
-    if (target !== path) return withVary(context.redirect(withBase(target, base) + url.search, 302), hinted, localeCookie)
+    if (target !== path) return withVary(context.redirect(withBase(target, base) + url.search, 302), vary)
 
     Object.assign(context.locals, requestLocals(globalI18n, request, routing, allLocales, handler))
-    // the home page is a redirect or not depending on the cookie and the header: shared caches key on them
-    return withVary(await next(), hinted, localeCookie)
+    const response = await next()
+    // Remembered once it is a page the visitor saw: an endpoint they only fetched is no choice.
+    if (switched && localeCookie !== null && isPageView(context, response)) context.cookies.set(localeCookie, locale, cookieOptions)
+    return withVary(response, vary)
   }
   return handler
 }
@@ -164,10 +198,10 @@ function homeOf(locale: string, { strategy }: I18nRouting): string {
   return (typeof resolved === 'string' ? resolved : resolved.path) || '/'
 }
 
-function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {
-  if (!varies) return response
+function withVary(response: Response, vary: string | null): Response {
+  if (vary === null) return response
   try {
-    response.headers.append('Vary', localeCookie === null ? 'Accept-Language' : 'Cookie, Accept-Language')
+    response.headers.append('Vary', vary)
   } catch {
     // immutable headers (a fetched Response): left as they are
   }

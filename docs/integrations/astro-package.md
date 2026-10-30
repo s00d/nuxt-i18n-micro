@@ -89,9 +89,10 @@ const i18n = createI18n({
   locale: config.defaultLocale,
   fallbackLocale: config.fallbackLocale,
   localeIso: localeIsoMap(config.locales),
+  messages: messages.root,
+  routeMessages: messages.routes,
   plural: myPluralRule,
 })
-i18n.loadMessages(messages.root, messages.routes)
 
 export const onRequest = createI18nMiddleware({
   i18n,
@@ -192,9 +193,9 @@ The URL decides the page's locale:
 
 `autoDetect` is a redirect hint on the home page only. A request for `/` whose cookie or `Accept-Language` (q-weights honoured; `de-DE` matches a `de` locale, `de` matches a `de-DE` one) prefers another locale gets a `302` to that locale's home (`/de`). With `redirectToDefault`, `/` always redirects: to the preferred locale's home, else the default locale's. The `/` response carries `Vary: Cookie, Accept-Language` (`Accept-Language` only when `localeCookie` is `null`). Prerendered pages never redirect. `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?)` returns the same preferred locale for your own logic.
 
-The cookie remembers a choice. A request that comes from a same-origin page of another locale is a visitor switching, whatever link took them there: the cookie is set to the new locale, and `/` does not redirect, so a switcher reaches the default locale's home.
+The cookie remembers a choice. A page view that comes from a same-origin page of another locale is a visitor switching, whatever link took them there: the HTML response sets the cookie to the new locale, and `/` does not redirect, so a switcher reaches the default locale's home. An endpoint, an image, a 404, a form post and a prefetch change nothing. "Same origin" is what the browser says in `Sec-Fetch-Site`; without that header the `Referer`'s host is compared with the request's, so behind a proxy set Astro's `security.allowedDomains`.
 
-A [server island](https://docs.astro.build/en/guides/server-islands/) or an action has no locale in its URL. It is rendered for the page that asked, read from the `Referer`: without one (a `no-referrer` policy) it is in the default locale, and on a dynamic page its route comes from the URL, so page dictionaries do not reach it.
+A [server island](https://docs.astro.build/en/guides/server-islands/) or an action has no locale in its URL. It is rendered for the page that asked, read from the `Referer`, whose path is all that counts, so a proxy in front of the server changes nothing, and it never redirects. Its response carries `Vary: Referer`. Without a `Referer` (a `no-referrer` policy) it is in the default locale, and on a dynamic page its route comes from the URL, so page dictionaries do not reach it.
 
 ## Router adapter
 

@@ -33,7 +33,8 @@ export interface I18nOptions {
 /**
  * Reads the parent's chunks until the first write, then works on its own copy: a fork costs nothing
  * however many chunks there are, and a request that writes cannot reach another one. Stored trees
- * are immutable, so copying the Map is enough. Every write of an instance comes through here.
+ * are immutable, so copying the Map is enough. Every write of an instance comes through here;
+ * `storage` detaches first, and only `helper.translations` itself still is the parent's Map.
  */
 class ForkHelper extends TranslationHelper {
   declare translations: Map<string, Translations>

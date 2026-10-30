@@ -22,12 +22,14 @@ export interface RequestContext {
   params?: Record<string, string | undefined>
   routePattern?: string
   isPrerendered?: boolean
-  request: { headers: Headers }
+  request: { headers: Headers; method?: string }
 }
 
 export interface I18nRequest {
   /** The page this request is for: another URL than `context.url` for a server island or action. */
   url: URL
+  /** A server island or action: it belongs to the page in `url`, and is no page view itself. */
+  partOfPage: boolean
   /** `url.pathname` without `base`. */
   path: string
   /** The locale `url` names, `null` for an unprefixed URL. */
@@ -54,27 +56,38 @@ export function header(context: Pick<RequestContext, 'request'>, name: string): 
   }
 }
 
-/**
- * The URL of the page this request comes from. Same origin only: another site's link says
- * nothing about this visitor, and a malformed header is no page. Prerendering has no visitor.
- */
-export function refererUrl(context: RequestContext): URL | null {
-  if (context.isPrerendered) return null
-  const referer = header(context, 'referer')
+/** The URL of the page this request comes from. A malformed header is no page, and prerendering has no visitor. */
+function refererUrl(context: RequestContext): URL | null {
+  const referer = context.isPrerendered ? null : header(context, 'referer')
   if (!referer) return null
   try {
-    const url = new URL(referer)
-    return url.origin === context.url.origin ? url : null
+    return new URL(referer)
   } catch {
     return null
   }
 }
 
 /**
+ * Whether `from` is this site. The browser's word first: behind a TLS proxy `context.url` may be the
+ * internal URL. Without that header the host decides, and a proxy needs `security.allowedDomains`.
+ */
+function isSameSite(context: RequestContext, from: URL): boolean {
+  const site = header(context, 'sec-fetch-site')
+  return site ? site === 'same-origin' : from.host === context.url.host
+}
+
+/**
  * A server island or action has no locale in its URL: it is a part of the page that asked for it.
+ * Any origin counts here: a forged `Referer` changes only the forger's own answer, and the internal
+ * URL behind a proxy matches no public one. The page's path, on this server's origin.
  * ponytail: without a `Referer` (a `no-referrer` policy) it renders in the default locale, and on a
  * dynamic page its route name comes from the URL; route patterns in the config would settle that.
  */
+function pageOfPart(context: RequestContext): URL | null {
+  const from = refererUrl(context)
+  return from && new URL(from.pathname + from.search, context.url)
+}
+
 const isPartOfPage = (pattern: string | undefined): boolean =>
   pattern?.startsWith('/_server-islands/') === true || pattern?.startsWith('/_actions/') === true
 
@@ -101,23 +114,51 @@ export function localeOfPath(path: string, { defaultLocale, locales, strategy }:
 export function resolveRequest(context: RequestContext, routing: I18nRouting): I18nRequest {
   const { strategy, locales, defaultLocale, base } = routing
   const partOfPage = isPartOfPage(context.routePattern)
-  const url = (partOfPage && refererUrl(context)) || context.url
+  const url = (partOfPage && pageOfPart(context)) || context.url
   const path = withoutAppBaseURL(url.pathname, base)
   const urlLocale = localeOfPath(path, routing)
   const pattern = partOfPage ? undefined : pagePattern(context, locales)
-  return { url, path, urlLocale, locale: urlLocale ?? defaultLocale, route: strategy.getRouteName!(path, locales, pattern) }
+  return { url, partOfPage, path, urlLocale, locale: urlLocale ?? defaultLocale, route: strategy.getRouteName!(path, locales, pattern) }
 }
 
-/** The locale of the same-origin page the visitor comes from, when it is not the one of this request: they just switched. */
-export function switchedFrom(context: RequestContext, request: I18nRequest, routing: I18nRouting): string | null {
+/** Whether the visitor comes from a page of this site in another locale. */
+export function isSwitch(context: RequestContext, request: I18nRequest, routing: I18nRouting): boolean {
   const from = refererUrl(context)
-  if (!from) return null
+  if (!from || !isSameSite(context, from)) return false
   const locale = localeOfPath(withoutAppBaseURL(from.pathname, routing.base), routing) ?? routing.defaultLocale
-  return locale === request.locale ? null : locale
+  return locale !== request.locale
+}
+
+/** A document may be asked for by this request: an island, an action or a form post is no landing. */
+export function asksForPage(context: RequestContext, request: I18nRequest): boolean {
+  const method = context.request.method ?? 'GET'
+  return !request.partOfPage && !context.isPrerendered && (method === 'GET' || method === 'HEAD')
+}
+
+/**
+ * The visitor did see this response as a page: no endpoint, image, 404 or redirect, and not a
+ * prefetch of a link they may never follow.
+ * ponytail: a `fetch` of an HTML fragment from a page of another locale still counts; `<ClientRouter>`
+ * navigates by `fetch` too, and the two look the same from here.
+ */
+export function isPageView(context: RequestContext, response: Response): boolean {
+  if (!response.ok || !response.headers.get('content-type')?.startsWith('text/html')) return false
+  return !/prefetch/.test(`${header(context, 'sec-purpose')} ${header(context, 'purpose')}`)
 }
 
 /** A scheme this router has no business with: `sms:`, `ftp:`, `javascript:`. `externalLinkHref` handles the common ones. */
 const SCHEME = /^[a-z][a-z\d+.-]*:/i
+
+/** `/a/b/../c` → `/a/c`, or a `../` would climb out of the locale prefix once one is added. */
+function withoutDots(path: string): string {
+  if (!path.includes('/.')) return path
+  const kept: string[] = []
+  for (const segment of path.split('/')) {
+    if (segment === '..') kept.pop()
+    else if (segment !== '.' && segment !== '') kept.push(segment)
+  }
+  return `/${kept.join('/')}`
+}
 
 export interface HrefContext extends Pick<I18nRouting, 'base' | 'defaultLocale' | 'strategy'> {
   codes: string[]
@@ -136,7 +177,7 @@ export function localizeHref(href: string, locale: string, context: HrefContext)
   const { strategy, codes, defaultLocale, base, from = '/' } = context
   const cut = href.search(/[?#]/)
   const raw = cut === -1 ? href : href.slice(0, cut)
-  const path = raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${from === '/' ? '' : from}/${raw}`
+  const path = withoutDots(raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${from === '/' ? '' : from}/${raw}`)
   const localized = strategy.localizePath!(path, locale, codes, defaultLocale)
   const slash = raw.length > 1 && raw.endsWith('/') && !localized.endsWith('/') ? '/' : ''
   return `${withBase(localized + slash, base)}${cut === -1 ? '' : href.slice(cut)}`

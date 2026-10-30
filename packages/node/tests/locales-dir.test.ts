@@ -125,6 +125,16 @@ test('reload: the old dictionaries answer until the new ones are in, and a broke
   expect(i18n.t('title')).toBe('Site')
 })
 
+test('reload: a directory gone for a moment takes no dictionary away', async () => {
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const i18n = createI18n({ locale: 'en', translationDir: dir, missingWarn: false })
+  await i18n.loadTranslations()
+  i18n.translationDir = join(dir, 'nope')
+  await i18n.reload()
+  expect(i18n.t('title')).toBe('Site')
+})
+
 describe('requests', () => {
   const site = () => createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en: { hi: 'Hello' }, de: { hi: 'Hallo' } }, missingWarn: false })
   const tick = () => new Promise((resolve) => setTimeout(resolve, 1))

@@ -124,7 +124,7 @@ export class I18nTestContext extends BaseI18n {
     Pick<ResetI18nOptions, 'defaultLocale' | 'translations' | 'messages'>
 
   constructor(options: CreateI18nTestContextOptions = {}) {
-    super({ missingWarn: false, localeIso: localeIsoMap(options.locales ?? []) })
+    super({ missingWarn: false })
     this.getCustomMissingHandler = () => this.customMissingHandler
     this.initial = {
       locale: options.locale ?? 'en',
@@ -156,7 +156,7 @@ export class I18nTestContext extends BaseI18n {
     this.locale = options.locale ?? this.initial.locale
     this.defLocale = options.defaultLocale !== undefined ? options.defaultLocale : this.initial.defaultLocale
     this.localeName = options.localeName !== undefined ? options.localeName : this.initial.localeName
-    this.locales = options.locales ? [...options.locales] : [...this.initial.locales]
+    this.setLocales(options.locales ? [...options.locales] : [...this.initial.locales])
     this.routeName = options.routeName ?? this.initial.routeName
     this.strategy = options.strategy ?? this.initial.strategy
     this.pagePath = '/'
@@ -221,6 +221,7 @@ export class I18nTestContext extends BaseI18n {
   getLocales = () => this.locales
   setLocales = (val: Locale[]) => {
     this.locales = val
+    this.localeIso = localeIsoMap(val)
   }
 
   defaultLocale = () => this.defLocale

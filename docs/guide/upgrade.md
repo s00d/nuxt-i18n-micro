@@ -157,9 +157,9 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 | `@i18n-micro/astro` (2.0.0) | `AstroI18n` extends the runtime `I18n`: `clone()` is `fork()`, the `_storage` option is gone | — |
 | `@i18n-micro/astro` (2.0.0) | dynamic pages are one route: `/blog/hello` is `blog-slug` (was `blog-hello`), `[...path]` is `path` | move `pages/blog-hello/` to `pages/blog-slug/`. A custom `getRouteName` gets the pattern as a third argument |
 | `@i18n-micro/astro` (2.0.0) | `base` works: helpers return URLs with it, the cookie lives under it | a `src/middleware.ts` of your own passes `base: config.base` |
-| `@i18n-micro/astro` (2.0.0) | a request from a same-origin page of another locale writes the locale cookie and does not redirect | check your CDN if it refuses `Set-Cookie` |
+| `@i18n-micro/astro` (2.0.0) | a page view from a same-origin page of another locale writes the locale cookie and does not redirect; endpoints, images, 404s, posts and prefetches do not. Server islands and actions never redirect and carry `Vary: Referer` | check your CDN if it refuses `Set-Cookie`; behind a proxy set `security.allowedDomains` |
 | `@i18n-micro/astro` (2.0.0) | disabled locales: `config.localeCodes` leaves them out, `/fr` is no locale, `prepareLocaleRewrite` answers 404 | — |
-| `@i18n-micro/astro` (2.0.0) | `getI18nProps()` without keys sends all `t()` can answer on the page; `fallbackLocale` is the instance's; `translations` always has the route | pass keys if the page grew |
+| `@i18n-micro/astro` (2.0.0) | `getI18nProps()` without keys sends all `t()` can answer on the page, with a dev warning above 20 KB; `fallbackLocale` is the instance's; `translations` always has the route | pass the keys the island uses |
 | `@i18n-micro/astro` (2.0.0) | `useLocaleHead`: default `baseUrl` is `site`, else root-relative (`/about`, was `//about`); links and metas carry `id`; after `Astro.rewrite` it names the requested URL | — |
 | `@i18n-micro/astro` (2.0.0) | `<I18nT html>` escapes `params`; any `tag` works; attributes pass through; an empty translation renders empty, not the key | a param holding markup moves into the translation |
 | `@i18n-micro/astro` (2.0.0) | `<I18nLink>` leaves external URLs, `#hash` and `?query` alone and keeps a trailing slash; `localizePath` the same, and with no locale it uses the current one | — |

@@ -29,9 +29,9 @@
 - `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
 - `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}
 - `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-path","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
-- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"about","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":"Referer","locale":"en","route":"_server-islands-Late","cookie":{}}
+- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"about","cookie":{}}
 
 ## requests, adapter
 
@@ -64,9 +64,9 @@
 - `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
 - `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}
 - `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-path","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
-- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"about","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":"Referer","locale":"en","route":"_server-islands-Late","cookie":{}}
+- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":"Referer","locale":"de","route":"about","cookie":{}}
 
 ## requests, options
 

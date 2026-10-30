@@ -101,6 +101,43 @@ test('a translationDir out of the project reaches nothing, by `../` or by a syml
   expect(resolveTranslationFile(app, '.', 'locales/en.json')).toBe(join(app, 'locales/en.json'))
 })
 
+test('a rebinding host is refused by the plugin itself: Vite 6 runs its own check after plugin middlewares', async () => {
+  const { routes } = project()
+  const asHost = (host: string, origin?: string) => {
+    let status = 0
+    const res = { setHeader: () => {}, end: () => {} } as Record<string, unknown>
+    Object.defineProperty(res, 'statusCode', { set: (code: number) => (status = code), get: () => status })
+    return Promise.resolve(routes.get('/__i18n_api/translations')!({ method: 'GET', headers: { host, origin } }, res, () => {})).then(() => status)
+  }
+  expect(await asHost('evil.example:4321', 'http://evil.example:4321')).toBe(403)
+  expect(await asHost('evil.example:4321')).toBe(403)
+  for (const host of ['localhost:4321', 'app.localhost:4321', '127.0.0.1:4321', '[::1]:4321', '192.168.1.5:4321']) expect(await asHost(host)).toBe(200)
+})
+
+test('config.server.allowedHosts widens what is served', async () => {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'i18n-devtools-hosts-')))
+  const statusOf = async (allowedHosts: unknown, host: string) => {
+    const routes = new Map<string, Handler>()
+    const server = {
+      config: { root, server: { allowedHosts } },
+      watcher: { add: () => {}, on() { return this } },
+      ws: { send: () => {} },
+      middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) },
+    }
+    ;(i18nDevToolsPlugin({ translationDir: 'locales' }) as { configureServer: (server: ViteDevServer) => void }).configureServer(server as unknown as ViteDevServer)
+    let status = 0
+    const res = { setHeader: () => {}, end: () => {} } as Record<string, unknown>
+    Object.defineProperty(res, 'statusCode', { set: (code: number) => (status = code), get: () => status })
+    await routes.get('/__i18n_api/translations')!({ method: 'GET', headers: { host } }, res, () => {})
+    return status
+  }
+  expect(await statusOf(['dev.example'], 'dev.example:80')).toBe(200)
+  expect(await statusOf(['.example'], 'a.example')).toBe(200)
+  expect(await statusOf(['.example'], 'example')).toBe(200)
+  expect(await statusOf(['dev.example'], 'other.example')).toBe(403)
+  expect(await statusOf(true, 'anything.example')).toBe(200)
+})
+
 test('config reports the locales found in translationDir and the configured default', async () => {
   const { root, routes } = project()
   writeFileSync(join(root, 'locales/de.json'), '{}')

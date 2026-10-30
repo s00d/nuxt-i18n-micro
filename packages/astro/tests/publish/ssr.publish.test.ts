@@ -95,6 +95,23 @@ describe('routing', () => {
   })
 })
 
+describe('what is not a page view', () => {
+  test('an endpoint fetched from a German page leaves the cookie alone', async () => {
+    const response = await get(`${origin}/api/ping`, { referer: `${origin}/de` })
+    expect(await response.json()).toEqual({ pong: true })
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  test('a prefetch and a 404 too', async () => {
+    expect((await get(`${origin}/island`, { referer: `${origin}/de`, 'sec-purpose': 'prefetch' })).headers.get('set-cookie')).toBeNull()
+    expect((await get(`${origin}/nothing`, { referer: `${origin}/de` })).headers.get('set-cookie')).toBeNull()
+  })
+
+  test('a page view writes it, after the page was rendered', async () => {
+    expect((await get(`${origin}/island`, { referer: `${origin}/de` })).headers.get('set-cookie')).toMatch(/^i18n-locale=en;/)
+  })
+})
+
 describe('dynamic routes', () => {
   test('page dictionaries apply: one route name per pattern', async () => {
     const en = await html(`${origin}/blog/hello`)
@@ -127,6 +144,19 @@ describe('server islands', () => {
     const island = await html(`${origin}${url}`, { referer: `${origin}/de/island` })
     expect(text(island, 'late')).toMatch(/^de:island:/)
     expect(island).toContain('href="/de/about"')
+  })
+
+  test('an island on the home page is no landing: it answers, it does not redirect', async () => {
+    const url = islandUrl(await html(`${origin}/de/island`))
+    const island = await get(`${origin}${url}`, { referer: `${origin}/`, 'accept-language': 'de' })
+    expect([island.status, island.headers.get('location')]).toEqual([200, null])
+    expect(text(await island.text(), 'late')).toMatch(/^en:/)
+  })
+
+  test('behind a TLS proxy the page is still theirs', async () => {
+    const url = islandUrl(await html(`${origin}/de/island`))
+    const island = await html(`${origin}${url}`, { referer: 'https://public.example/de/island' })
+    expect(text(island, 'late')).toMatch(/^de:/)
   })
 
   test('without a Referer they fall back to the default locale', async () => {

@@ -73,7 +73,7 @@ export abstract class BaseI18n {
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
-  protected readonly localeIso: Record<string, string>
+  protected localeIso: Record<string, string>
   private activeKey = new ChunkKey()
   private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()

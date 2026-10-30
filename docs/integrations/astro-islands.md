@@ -26,7 +26,7 @@ const i18n = getI18nProps(Astro, ['counter.title', 'counter.apples'])
 <Counter client:load i18n={i18n} />
 ```
 
-`getI18nProps(Astro, keys?)` returns `{ locale, fallbackLocale, currentRoute, translations }` (type `I18nClientProps`). With `keys`, each key is resolved on the server like `t()` (route, root and fallback dictionaries) and only found keys are sent. Without `keys`, everything `t()` can answer on this page is sent: pass keys to keep the page small.
+`getI18nProps(Astro, keys?)` returns `{ locale, fallbackLocale, currentRoute, translations }` (type `I18nClientProps`). Pass the keys the island uses: each is resolved on the server like `t()` (route, root and fallback dictionaries) and only found keys go into the HTML. Without `keys`, everything `t()` can answer on this page is sent, in every island, so 2000 root keys are about 100 KB per island; in dev a warning says so above 20 KB.
 
 Islands translate from that object only. `t` returns the key for anything not passed, and linked messages are not resolved.
 

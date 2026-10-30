@@ -242,14 +242,36 @@ function pickKeys(tree: Translations, keys: string[]): Translations {
   return picked
 }
 
+/** Above this, a dictionary in every island's props is worth a word to the developer. */
+const PROPS_WARN_SIZE = 20_000
+const warned = new WeakSet<object>()
+
+function isProduction(): boolean {
+  try {
+    return process.env.NODE_ENV === 'production'
+  } catch {
+    return false
+  }
+}
+
+/** Once per dictionary: the merged tree is the same object until a write. */
+function warnOversizedProps(tree: Translations): void {
+  if (isProduction() || warned.has(tree)) return
+  warned.add(tree)
+  const size = JSON.stringify(tree).length
+  if (size > PROPS_WARN_SIZE) console.warn(`[i18n-micro] getI18nProps() without keys puts ${size} bytes in every island's props: pass the keys the island uses.`)
+}
+
 /**
  * Props for a client island: what `t()` can answer on this page (route, root and fallback keys),
- * or only `keys` of that. Stored trees are shared, an island must not write into them.
+ * or only `keys` of that, which is the way to keep the page small. Stored trees are shared, an
+ * island must not write into them.
  */
 export function getI18nProps(astro: Pick<AstroGlobal, 'locals'>, keys?: string[]): I18nClientProps {
   const i18n = getI18n(astro)
   const currentRoute = i18n.getRoute()
   const all = i18n.resolveTranslations(currentRoute)
+  if (!keys?.length) warnOversizedProps(all)
   return {
     locale: getLocale(astro),
     pluralLocale: i18n.pluralLocale(),

@@ -64,6 +64,8 @@ export class I18n extends RuntimeI18n {
     }
 
     const { root, routes } = await loadTranslations(targetDir, this.disablePageLocales)
+    // a directory gone for a moment (a deploy swapping it) reads as empty: keep what works
+    if (Object.keys(root).length === 0 && Object.keys(routes).length === 0) return
     this.clearCache()
     this.loadMessages(root, routes)
   }

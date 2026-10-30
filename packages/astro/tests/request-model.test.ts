@@ -24,7 +24,12 @@ interface Init {
   routePattern?: string
   params?: Record<string, string>
   locals?: Record<string, unknown>
+  method?: string
+  /** What the route answers. */
+  response?: () => Response
 }
+
+const htmlPage = () => new Response('<html></html>', { headers: { 'content-type': 'text/html; charset=utf-8' } })
 
 function context(path: string, init: Init = {}) {
   const set = vi.fn()
@@ -34,7 +39,7 @@ function context(path: string, init: Init = {}) {
     params: init.params ?? {},
     routePattern: init.routePattern,
     isPrerendered: false,
-    request: { headers: new Headers(init.headers) },
+    request: { headers: new Headers(init.headers), method: init.method ?? 'GET' },
     cookies: { get: () => (init.cookie ? { value: init.cookie } : undefined), set },
     redirect: (location: string, status: number) => new Response(null, { status, headers: { Location: location } }),
   }
@@ -43,7 +48,7 @@ function context(path: string, init: Init = {}) {
 async function run(path: string, init: Init = {}, options: Record<string, unknown> = {}, i18n = site()) {
   const handler = createI18nMiddleware({ i18n, defaultLocale: 'en', locales: ['en', 'de', 'fr'], localeObjects: locales, ...options })
   const ctx = context(path, init)
-  const response = (await handler(ctx as never, async () => new Response('page'))) as Response
+  const response = (await handler(ctx as never, async () => (init.response ?? htmlPage)())) as Response
   const astro = { url: ctx.url, locals: ctx.locals, params: ctx.params } as never
   return { ctx, response, astro, location: response.headers.get('location'), locals: ctx.locals as unknown as App.Locals }
 }
@@ -126,6 +131,54 @@ describe('a visitor picks a locale', () => {
   })
 })
 
+describe('only a page view is a choice', () => {
+  const fromDe = { referer: 'http://site.test/de' }
+  const cookieOf = async (path: string, init: Init) => (await run(path, init)).ctx.cookies.set
+
+  test('an endpoint fetched from a page', async () => {
+    const json = () => new Response('{}', { headers: { 'content-type': 'application/json' } })
+    expect(await cookieOf('/api/ping', { headers: fromDe, response: json })).not.toHaveBeenCalled()
+  })
+
+  test('a prefetch of the switcher link', async () => {
+    expect(await cookieOf('/ssr', { headers: { ...fromDe, 'sec-purpose': 'prefetch' } })).not.toHaveBeenCalled()
+    expect(await cookieOf('/ssr', { headers: { ...fromDe, 'sec-purpose': 'prefetch;prerender' } })).not.toHaveBeenCalled()
+  })
+
+  test('an image, a 404, a POST, a redirect', async () => {
+    const image = () => new Response('x', { headers: { 'content-type': 'image/webp' } })
+    const notFound = () => new Response('<html></html>', { status: 404, headers: { 'content-type': 'text/html' } })
+    const redirect = () => new Response(null, { status: 302, headers: { location: '/x', 'content-type': 'text/html' } })
+    expect(await cookieOf('/_image', { headers: fromDe, response: image })).not.toHaveBeenCalled()
+    expect(await cookieOf('/nothing', { headers: fromDe, response: notFound })).not.toHaveBeenCalled()
+    expect(await cookieOf('/form', { headers: fromDe, method: 'POST' })).not.toHaveBeenCalled()
+    expect(await cookieOf('/x', { headers: fromDe, response: redirect })).not.toHaveBeenCalled()
+  })
+
+  test('a served page is', async () => {
+    expect(await cookieOf('/about', { headers: fromDe })).toHaveBeenCalledWith('i18n-locale', 'en', expect.anything())
+  })
+
+  test('behind a TLS proxy the browser vouches for the origin', async () => {
+    const proxied = { referer: 'https://public.example/de', 'sec-fetch-site': 'same-origin' }
+    expect(await cookieOf('/about', { headers: proxied })).toHaveBeenCalled()
+    expect((await run('/', { headers: { ...proxied, 'accept-language': 'de' } })).location).toBeNull()
+    expect(await cookieOf('/about', { headers: { ...proxied, 'sec-fetch-site': 'cross-site' } })).not.toHaveBeenCalled()
+  })
+
+  test('without that header the host decides: scheme may differ, another site may not', async () => {
+    expect(await cookieOf('/about', { headers: { referer: 'https://site.test/de' } })).toHaveBeenCalled()
+    expect(await cookieOf('/about', { headers: { referer: 'https://other.test/de' } })).not.toHaveBeenCalled()
+  })
+})
+
+describe('only a page view is redirected', () => {
+  test('a POST or an API answer at the home page stays', async () => {
+    const { location } = await run('/', { method: 'POST', headers: { 'accept-language': 'de' } })
+    expect(location).toBeNull()
+  })
+})
+
 describe('disabled locales', () => {
   test('are no redirect target, by header or cookie', async () => {
     expect((await run('/', { headers: { 'accept-language': 'fr' } })).location).toBeNull()
@@ -179,10 +232,28 @@ describe('server islands and actions', () => {
     expect(locals.locale).toBe('de')
   })
 
-  test('a Referer from another site names no page, and is no locale switch', async () => {
-    const { locals, ctx } = await run('/_server-islands/Late', { ...island, headers: { referer: 'https://evil.test/de' } })
-    expect(locals.locale).toBe('en')
+  test('the page may be on another origin than the server sees: a TLS proxy in front of it', async () => {
+    const { locals, ctx } = await run('/_server-islands/Late', { ...island, headers: { referer: 'https://public.example/de/about' } })
+    expect(locals.locale).toBe('de')
+    expect(locals.currentUrl.origin).toBe('http://site.test')
     expect(ctx.cookies.set).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    ['accept-language', { 'accept-language': 'de' }],
+    ['no preference', {}],
+  ])('on the home page they stay what they are: no redirect, %s', async (_name, headers) => {
+    const { response, location } = await run('/_server-islands/Late', { ...island, headers: { referer: 'http://site.test/', ...headers } })
+    expect([response.status, location]).toEqual([200, null])
+    const cookie = await run('/_server-islands/Late', { ...island, cookie: 'de', headers: { referer: 'http://site.test/' } })
+    expect(cookie.location).toBeNull()
+    const redirected = await run('/_actions/like', { ...island, routePattern: '/_actions/[...path]', method: 'POST', headers: { referer: 'http://site.test/' } }, { redirectToDefault: true, routingStrategy: { getCurrentPath: () => '/', resolvePath: () => '/en' } })
+    expect(redirected.location).toBeNull()
+  })
+
+  test('their answer depends on the Referer: shared caches key on it', async () => {
+    const { response } = await run('/_server-islands/Late', { ...island, headers: { referer: 'http://site.test/de' } })
+    expect(response.headers.get('vary')).toBe('Referer')
   })
 
   test('an action called from a page in another locale does not count as switching', async () => {
@@ -208,6 +279,24 @@ describe('routing strategies', () => {
     expect(useI18n(astro).switchLocalePath('en')).toBe('/de/a~en')
     // what the class leaves out comes from the default adapter
     expect(useI18n(astro).getBasePath()).toBe('/a')
+  })
+
+  test('a class with #private fields works: methods run on the instance itself', async () => {
+    class Hash implements I18nRoutingStrategy {
+      #mark = '~'
+      getCurrentPath() {
+        return '/'
+      }
+      switchLocalePath(path: string, locale: string) {
+        return `${path}${this.#mark}${locale}`
+      }
+      getRouteName(path: string) {
+        return `r${this.#mark}${path}`
+      }
+    }
+    const { astro, locals } = await run('/de/a', {}, { routingStrategy: new Hash() })
+    expect(useI18n(astro).switchLocalePath('en')).toBe('/de/a~en')
+    expect(locals.i18n.getRoute()).toBe('r~/de/a')
   })
 
   test('a strategy answering a disabled or unknown locale does not reach the page', async () => {
@@ -274,6 +363,33 @@ describe('getI18nProps', () => {
   })
 })
 
+describe('getI18nProps size', () => {
+  test('without keys, a big dictionary warns once per dictionary in dev', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const big = Object.fromEntries(Array.from({ length: 2000 }, (_, i) => [`key${i}`, 'some translated text']))
+    const i18n = createI18n({ locale: 'en', messages: { en: big }, missingWarn: false })
+    const { astro } = await run('/', {}, {}, i18n)
+    getI18nProps(astro)
+    getI18nProps(astro)
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(warn.mock.calls[0]![0]).toContain('getI18nProps')
+    getI18nProps(astro, ['key1'])
+    expect(warn).toHaveBeenCalledTimes(1)
+    warn.mockRestore()
+  })
+
+  test('a small one, and production, stay quiet', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    getI18nProps((await run('/')).astro)
+    vi.stubEnv('NODE_ENV', 'production')
+    const big = Object.fromEntries(Array.from({ length: 2000 }, (_, i) => [`key${i}`, 'some translated text']))
+    getI18nProps((await run('/', {}, {}, createI18n({ locale: 'en', messages: { en: big }, missingWarn: false }))).astro)
+    vi.unstubAllEnvs()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
+
 describe('links', () => {
   const page = async (path = '/de/blog/post') => (await run(path)).astro
 
@@ -295,6 +411,10 @@ describe('links', () => {
     ['/en/about', '/de/about'],
     ['report.pdf', '/de/blog/post/report.pdf'],
     ['next', '/de/blog/post/next'],
+    ['../up', '/de/blog/up'],
+    ['./here', '/de/blog/post/here'],
+    ['../../../up', '/de/up'],
+    ['/a/../b', '/de/b'],
   ])('%s → %s', async (href, expected) => {
     expect(resolveLinkHref(await page(), href)).toBe(expected)
   })

@@ -13,6 +13,19 @@ describe('AstroI18n.fork', () => {
     expect(global.t('later')).toBe('Later')
   })
 
+  test('clearCache keeps route messages from the constructor too', () => {
+    const global = new AstroI18n({
+      locale: 'en',
+      messages: { en: { hello: 'Hi' } },
+      routeMessages: { about: { en: { title: 'About' } } },
+      missingWarn: false,
+    })
+    const request = global.fork()
+    request.clearCache()
+    expect(request.t('hello')).toBe('Hi')
+    expect(request.t('title', undefined, undefined, 'about')).toBe('About')
+  })
+
   test('resolveTranslations and setTranslation work on the active tree of an instance', () => {
     const i18n = new AstroI18n({ locale: 'en', messages: { en: { greeting: 'Hello' } } })
     expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })

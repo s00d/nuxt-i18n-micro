@@ -85,9 +85,21 @@ describe('listTranslationFiles', () => {
     expect(listTranslationFiles(dir).map((file) => file.relativePath)).toEqual(['sub/en.json'])
   })
 
-  test('a symlinked directory is followed once', () => {
-    write('real/en.json', '{}')
-    symlinkSync(join(dir, 'real'), join(dir, 'alias'))
-    expect(listTranslationFiles(dir)).toHaveLength(1)
+  test('two links to one folder are two folders', () => {
+    write('shared/en.json', '{"title":"x"}')
+    mkdirSync(join(dir, 'pages'))
+    symlinkSync(join(dir, 'shared'), join(dir, 'pages/a'))
+    symlinkSync(join(dir, 'shared'), join(dir, 'pages/b'))
+    const { routes } = loadTranslationDir(dir)
+    expect(Object.keys(routes).sort()).toEqual(['a', 'b'])
+  })
+
+  test('a file linked to itself is reported, the files after it still load', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    write('a.json', '{"x":1}')
+    write('z.json', '{"y":1}')
+    symlinkSync(join(dir, 'loop.json'), join(dir, 'loop.json'))
+    expect(listTranslationFiles(dir).map((file) => file.relativePath)).toEqual(['a.json', 'z.json'])
+    expect(error.mock.calls[0]![0]).toContain('loop.json')
   })
 })

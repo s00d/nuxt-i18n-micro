@@ -58,7 +58,7 @@ function context(path: string, init: Init) {
     params: init.params ?? {},
     routePattern: init.routePattern,
     isPrerendered: init.prerendered ?? false,
-    request: { headers },
+    request: { headers, method: 'GET' },
     cookies: {
       get: (name: string) => (name === 'i18n-locale' && init.cookie ? { value: init.cookie } : undefined),
       set: (name: string, value: string) => {
@@ -73,7 +73,7 @@ type Middleware = ReturnType<typeof api.createI18nMiddleware>
 
 async function hit(rec: Recorder, handler: Middleware, path: string, init: Init = {}) {
   const ctx = context(path, init)
-  const response = (await handler(ctx as never, async () => new Response('page'))) as Response
+  const response = (await handler(ctx as never, async () => new Response('<html></html>', { headers: { 'content-type': 'text/html' } }))) as Response
   const i18n = ctx.locals.i18n as ReturnType<typeof api.createI18n> | undefined
   rec.value(`GET ${path} ${show(init)}`, {
     status: response.status,

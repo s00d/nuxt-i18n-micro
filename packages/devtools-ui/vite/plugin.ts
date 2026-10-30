@@ -114,13 +114,25 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body))
 }
 
+const LOCAL_HOST = /^(localhost|.+\.localhost|[\d.]+|\[[\da-f:.]+\])$/i
+
+/**
+ * What Vite's `server.allowedHosts` serves. Not left to Vite: from 8 its check runs first, in 6 it runs
+ * after plugin middlewares, and under DNS rebinding `Origin` and `Host` agree, so only this stops it.
+ */
+function isServedHost(host: string, allowed: string[] | true | undefined): boolean {
+  const hostname = host.replace(/:\d+$/, '').toLowerCase()
+  if (allowed === true || LOCAL_HOST.test(hostname)) return true
+  return (allowed ?? []).some((entry) => (entry[0] === '.' ? hostname === entry.slice(1) || hostname.endsWith(entry) : hostname === entry))
+}
+
 /**
  * The API is for the devtools page only. Any website can send a `text/plain` POST to localhost
- * without a preflight, and CORS only hides the answer: the request itself has to be refused. A
- * rebinding host never gets here: Vite's `server.allowedHosts` answers it first.
+ * without a preflight, and CORS only hides the answer: the request itself has to be refused.
  */
-function isFromDevtools(req: IncomingMessage): boolean {
-  const { origin, host, 'sec-fetch-site': site } = req.headers
+function isFromDevtools(req: IncomingMessage, allowedHosts: string[] | true | undefined): boolean {
+  const { origin, host = '', 'sec-fetch-site': site } = req.headers
+  if (!isServedHost(host, allowedHosts)) return false
   if (site && site !== 'same-origin' && site !== 'none') return false
   if (!origin) return true
   try {
@@ -133,10 +145,10 @@ function isFromDevtools(req: IncomingMessage): boolean {
 type RouteHandler = (req: IncomingMessage, res: ServerResponse) => unknown
 
 /** `handler` for one method: the rest goes on, a foreign request is refused, an error is an answer. */
-function route(method: string, handler: RouteHandler) {
+function route(server: ViteDevServer, method: string, handler: RouteHandler) {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     if (req.method !== method) return next()
-    if (!isFromDevtools(req)) return sendJson(res, 403, { success: false, error: 'Forbidden' })
+    if (!isFromDevtools(req, server.config.server?.allowedHosts)) return sendJson(res, 403, { success: false, error: 'Forbidden' })
     try {
       await handler(req, res)
     } catch (e) {
@@ -190,7 +202,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
       server.middlewares.use(
         `${apiBase}/config`,
-        route('GET', (_req, res) => {
+        route(server, 'GET', (_req, res) => {
           // A root file is one locale: `<translationDir>/<code>.json`
           const codes = files()
             .map((file) => /^([^/]+)\.json$/.exec(file.relativePath)?.[1])
@@ -208,7 +220,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
       // Every dictionary by its path: one request, whatever the number of files
       server.middlewares.use(
         `${apiBase}/translations`,
-        route('GET', (_req, res) => {
+        route(server, 'GET', (_req, res) => {
           const result: Record<string, unknown> = {}
           for (const { relativePath } of files()) {
             // a symlink out of the folder is listed by the reader, but it is no translation file of this project
@@ -222,7 +234,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
       server.middlewares.use(
         `${apiBase}/save`,
-        route('POST', async (req, res) => {
+        route(server, 'POST', async (req, res) => {
           if (!req.headers['content-type']?.startsWith('application/json')) {
             return sendJson(res, 415, { success: false, error: 'Expected application/json' })
           }

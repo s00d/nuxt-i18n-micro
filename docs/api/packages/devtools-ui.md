@@ -168,15 +168,17 @@ import { /* … */ } from '@i18n-micro/devtools-ui/vite'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `DevToolsPluginOptions` | interface | 3 members |
+| `DevToolsPluginOptions` | interface | 5 members |
 | `i18nDevToolsPlugin` | function | `(options?: DevToolsPluginOptions) => PluginOption` |
 
 <details>
-<summary><code>DevToolsPluginOptions</code> — 3 members</summary>
+<summary><code>DevToolsPluginOptions</code> — 5 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `base?` | `string \| undefined` |
+| `defaultLocale?` | `string \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
 | `injectButton?` | `boolean \| undefined` |
 | `translationDir?` | `string \| undefined` |
 

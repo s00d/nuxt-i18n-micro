@@ -34,6 +34,7 @@ const { t, localePath } = useI18n()
 | --- | --- | --- |
 | [`$_t`](#_t) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
 | [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<string>` | Bind `$ts` to a specific route. |
+| [`$clearCache`](#clearcache) | `() => void` | Drop every cached translation chunk and reload the current page's dictionary. |
 | [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
 | [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it. |
 | [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
@@ -50,10 +51,10 @@ const { t, localePath } = useI18n()
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => void` | Navigate to the current page in another locale. |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<void>` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
 | [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
-| [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => void` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
+| [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
 | [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
 | [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
 | [`$td`](#td) | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale. |
@@ -311,7 +312,7 @@ $tdr(Date.now() - 5 * 60_000) // '5 minutes ago' in en
 <!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(locale: string) => void
+(locale: string) => Promise<void>
 ```
 
 Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
@@ -358,7 +359,7 @@ The route object for the current page in another locale, without navigating.
 <!-- generated:method:$switchRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+(route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
 ```
 
 Navigate to another route, keeping the active locale or switching to `toLocale`. Async like

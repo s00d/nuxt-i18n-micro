@@ -15,6 +15,7 @@ export interface I18nMiddlewareOptions {
   localeObjects?: Locale[]
   /** `/` redirects to the locale the cookie / Accept-Language prefer (default `true`); pages keep the URL's locale. */
   autoDetect?: boolean
+  /** `/` also redirects when nothing prefers another locale: to the default locale's home (default `false`). */
   redirectToDefault?: boolean
   routingStrategy?: I18nRoutingStrategy
   /** Cookie holding the visitor's locale (default `'i18n-locale'`); `null` disables it. */
@@ -104,11 +105,13 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     // autoDetect is a redirect hint on the home page only (as the Nuxt module's autoDetectPath '/'):
     // a visitor whose cookie / Accept-Language prefers another locale is sent to that locale's home.
     // A prerendered page has no visitor: no cookie, no header, no redirect.
-    const hinted = autoDetect && !context.isPrerendered && (pathname === '/' || pathname === '')
+    const home = !context.isPrerendered && (pathname === '/' || pathname === '')
+    const hinted = autoDetect && home
     const preferred = hinted
       ? detectLocale(pathname, context.cookies, context.request.headers, defaultLocale, locales, localeCookie, strategy)
       : locale
-    if (preferred !== locale) return withVary(context.redirect(homeOf(preferred, strategy) + url.search, 302), true, localeCookie)
+    const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, strategy) : pathname
+    if (target !== pathname) return withVary(context.redirect(target + url.search, 302), hinted, localeCookie)
 
     // per-request instance sharing the global cache
     const requestI18n = globalI18n.clone(locale)
@@ -136,7 +139,8 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 /** A locale's home: the strategy's path for `/` in that locale, else `/<locale>`. */
 function homeOf(locale: string, strategy?: I18nRoutingStrategy | null): string {
   const resolved = strategy?.resolvePath?.('/', locale)
-  return typeof resolved === 'string' ? resolved : `/${locale}`
+  const path = typeof resolved === 'string' ? resolved : resolved?.path
+  return path || `/${locale}`
 }
 
 function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {

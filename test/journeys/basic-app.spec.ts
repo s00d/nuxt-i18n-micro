@@ -92,6 +92,15 @@ describe('journey: basic app', () => {
     await expect(page.locator('#computed-ts')).toHaveText('Page example in en')
     await expect(page.locator('#computed-t')).toHaveText('example en')
     await expect(page.locator('#external-link')).toHaveAttribute('href', 'https://www.external-link.fr')
+    // $has: own page key, missing key, root key, a key of the route object passed in
+    for (const [id, value] of [
+      ['#has-existing-key', 'true'],
+      ['#has-missing-key', 'false'],
+      ['#has-global-key', 'true'],
+      ['#has-with-route-object', 'true'],
+    ]) {
+      await expect(page.locator(id!), id).toHaveText(value!)
+    }
 
     // step 6: open the switcher → label, names, hrefs (with locale baseUrl), hreflang, current locale disabled
     // was: basic › test locale switching on page (en half)
@@ -267,6 +276,10 @@ describe('journey: basic app', () => {
       await goto('/locale-test')
       await expect(page).toHaveURL('/locale-test')
       await expectLocaleTest(rows.en)
+      await expect(page.locator('#number-params')).toHaveText('Distance: 5 km')
+      // useI18n's bare aliases: t answers like $t, helper is the plugin's
+      await expect(page.locator('#use-i18n-t')).toHaveText((await page.locator('h1').textContent())!)
+      await expect(page.locator('#use-i18n-helper')).toHaveText('function')
       await expect(page.locator('#link-de')).toHaveAttribute('href', '/de/locale-page-modify')
 
       // step 2: click #link-de → /de/locale-page-modify with de formatting
@@ -470,7 +483,8 @@ describe('journey: basic app', () => {
 
     // step 1: /disable-meta-all in en, de, fr → no i18n tags
     // was: basic › disable meta tags completely
-    for (const url of ['/disable-meta-all', '/de/disable-meta-all', '/fr/disable-meta-all']) {
+    // /disable-meta-config: the same through the routeDisableMeta option
+    for (const url of ['/disable-meta-all', '/de/disable-meta-all', '/fr/disable-meta-all', '/disable-meta-config']) {
       await goto(url, { waitUntil: 'hydration' })
       for (const tag of i18nTags) await expect(page.locator(tag)).not.toBeAttached()
     }

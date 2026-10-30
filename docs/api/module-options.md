@@ -94,7 +94,7 @@ Choosing a locale for a visitor who has not picked one.
 | --- | --- | --- | --- |
 | `redirects` | `boolean` | `true` | Enable automatic locale redirects (server plugin and client route middleware). When `true`, an unprefixed URL is redirected to its localized form. The locale comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise the default. |
 | `autoDetectLanguage` | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. Used in combination with `autoDetectPath` to decide when detection occurs. |
-| `autoDetectPath` | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — exact path match (e.g. `'/welcome'`) Outside the allowed paths an unprefixed URL still redirects to the default locale's form (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under `prefix_except_default` (`/en`) is a 404, not a redirect. |
+| `autoDetectPath` | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`) Outside the allowed paths an unprefixed URL still redirects to the default locale's form (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under `prefix_except_default` (`/en`) is a 404, not a redirect. |
 
 ## Registration
 
@@ -724,7 +724,7 @@ Where cookie / Accept-Language preference redirects may run (when `redirects` is
 - `'*'` — every path, including rewriting an explicit locale prefix
   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
 
-- any other string — exact path match (e.g. `'/welcome'`)
+- any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
 
 Outside the allowed paths an unprefixed URL still redirects to the default locale's form
 (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under

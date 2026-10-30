@@ -601,6 +601,8 @@ test('misuse fails loudly with a pointer to the fix', () => {
     '[i18n-micro] I18nDefaultLocaleKey not provided. Make sure app.provide(I18nDefaultLocaleKey, defaultLocale) is called.',
   )
   expect(run(() => useI18n(), plugin({ locales, defaultLocale: 'en' }))).toBeUndefined()
+  // the composable's own options stand in for the provided values
+  expect(run(() => useI18n({ locales, defaultLocale: 'en' }), plugin())).toBeUndefined()
 
   const errorOf = (component: object, props: object, provide?: (app: ReturnType<typeof createApp>) => void) => {
     const app = createApp({ render: () => h(component, props) })

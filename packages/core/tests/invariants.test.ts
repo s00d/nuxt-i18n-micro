@@ -5,7 +5,8 @@
  */
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
-import { collectTranslationPaths, getByPath, mergeTranslationLayers } from '../src/helpers'
+import { collectTranslationPaths, getByPath, mergeTranslationChunk, mergeTranslationLayers } from '../src/helpers'
+import { FormatService } from '../src/format-service'
 import { createReactiveI18nStore, useTranslationHelper } from '../src'
 
 class TestI18n extends BaseI18n {
@@ -69,7 +70,43 @@ describe('hostile input', () => {
   })
 })
 
+describe('merges', () => {
+  test('a flat key of the lower layer does not hide the upper nested value', () => {
+    const merged = mergeTranslationLayers({ 'a.b': 'old', 'c.d': 'kept', 'e.f': 'low' }, { a: { b: 'new' }, c: 'scalar', 'e.f': 'up' })
+    expect([getByPath(merged, 'a.b'), getByPath(merged, 'c.d'), getByPath(merged, 'e.f')]).toEqual(['new', 'kept', 'up'])
+  })
+
+  test('__proto__ from JSON is dropped by a merge into an empty chunk, as by any other', () => {
+    const incoming = JSON.parse('{"__proto__":{"x":"y"},"a":1}')
+    expect(getByPath(mergeTranslationChunk({}, incoming), '__proto__.x')).toBeUndefined()
+    const helper = useTranslationHelper()
+    helper.mergeTranslation('en', 'proto', incoming)
+    expect(helper.getTranslation('en', 'proto', '__proto__.x')).toBeNull()
+    expect(helper.getTranslation('en', 'proto', 'a')).toBe(1)
+  })
+})
+
 describe('listeners and caches', () => {
+  test('a listener removed by an earlier one does not run', () => {
+    const store = createReactiveI18nStore({ locale: 'en' })
+    const calls: string[] = []
+    store.subscribe(() => {
+      calls.push('first')
+      off()
+    })
+    const off = store.subscribe(() => calls.push('removed'))
+    store.notify()
+    expect(calls).toEqual(['first'])
+  })
+
+  test('format options of another type are another formatter', () => {
+    const format = new FormatService()
+    const off = format.getNumberFormatter('en-US', { useGrouping: false })
+    const auto = format.getNumberFormatter('en-US', { useGrouping: 'false' as unknown as boolean })
+    expect(off.format(1234567)).toBe('1234567')
+    expect(auto.format(1234567)).toBe('1,234,567')
+  })
+
   test('a throwing listener does not stop the others; the error surfaces after all ran', () => {
     const store = createReactiveI18nStore({ locale: 'en' })
     const calls: string[] = []

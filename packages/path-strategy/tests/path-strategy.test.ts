@@ -244,6 +244,13 @@ describe('server redirects and 404', () => {
     const disabled = setup('prefix_except_default', { locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)) }).i18n
     expect(disabled.shouldReturn404('/fr/about-us')).toBe('Locale disabled')
     expect(disabled.shouldReturn404('/fr')).toBe('Locale disabled')
+    // the client agrees: no redirect to `/en/fr/...` around the 404
+    expect(disabled.getClientRedirect('/fr/about-us', 'de')).toBeNull()
+    const matcher = setup('prefix', {
+      locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)),
+      customRegexMatcher: '[a-z]{2}',
+    }).i18n
+    expect(matcher.shouldReturn404('/fr/about-us')).toBe('Locale disabled')
     expect(disabled.shouldReturn404('/de/ueber-uns')).toBeNull()
     expect(setup('prefix_except_default').i18n.shouldReturn404('/fr/about-us')).toBeNull()
   })

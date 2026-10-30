@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 
@@ -12,6 +13,7 @@ import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 export default defineConfig({
   test: {
     name: 'unit',
+    alias: { '#app': fileURLToPath(new URL('./test/unit/nuxt-app.stub.ts', import.meta.url)) },
     include: ['test/**/*.test.ts'],
     exclude: [...INTEGRATION_TESTS, 'test/fixtures/**'],
     // `expectTypeOf` compiles to nothing, so a type test only asserts anything when a

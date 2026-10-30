@@ -117,10 +117,12 @@ export default defineNuxtPlugin({
 
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
     // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's
-    const urlless = isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode || !i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-    const serverLocale = import.meta.server && urlless ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    const urlLocale =
+      isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode ? null : i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
+    const serverLocale = import.meta.server && !urlLocale ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
     const initialLocale = resolveInitialLocale({
       route: router.currentRoute.value,
+      urlLocale,
       serverLocale,
       getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
     })
@@ -320,12 +322,12 @@ export interface PluginsInjections {
    * new history entry). An unknown locale is ignored.
    * The call is async: `await` it to run code after the navigation.
    */
-  $switchLocale: (locale: string) => void
+  $switchLocale: (locale: string) => Promise<void>
   /**
    * Navigate to another route, keeping the active locale or switching to `toLocale`. Async like
    * `$switchLocale`.
    */
-  $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+  $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
   /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
   /** Resolve a path in the given locale, or the active one. */
@@ -339,6 +341,12 @@ export interface PluginsInjections {
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
   /** Install a callback invoked for every unresolved key. Pass `null` to remove it. */
   $setMissingHandler: (handler: MissingHandler | null) => void
+  /**
+   * Drop every cached translation chunk and reload the current page's dictionary. The page
+   * keeps showing its current translations until the fresh ones arrive. Dev HMR calls it on
+   * every translation file change.
+   */
+  $clearCache: () => void
 }
 
 /**
@@ -354,10 +362,4 @@ export interface NuxtAppOnlyInjections {
    * Merges into the active locale and re-applies when the locale changes.
    */
   $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
-  /**
-   * Drop every cached translation chunk and reload the current page's dictionary. The page
-   * keeps showing its current translations until the fresh ones arrive. Dev HMR calls it on
-   * every translation file change.
-   */
-  $clearCache: () => void
 }

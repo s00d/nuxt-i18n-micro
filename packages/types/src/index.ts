@@ -329,7 +329,7 @@ export interface ModuleOptions {
    * - `'no_prefix'` — only paths without a locale prefix
    * - `'*'` — every path, including rewriting an explicit locale prefix
    *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
-   * - any other string — exact path match (e.g. `'/welcome'`)
+   * - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
    *
    * Outside the allowed paths an unprefixed URL still redirects to the default locale's form
    * (e.g. `/about` → `/en/about` under `prefix`). The default locale with a prefix under

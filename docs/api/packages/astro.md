@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nClientProps` | interface | 4 members |
 | `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
-| `I18nIntegrationOptions` | interface | 55 members |
+| `I18nIntegrationOptions` | interface | 8 members |
 | `I18nMiddlewareOptions` | interface | 8 members |
 | `I18nRoutingStrategy` | interface | 10 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
@@ -176,65 +176,18 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>I18nIntegrationOptions</code> — 55 members</summary>
+<summary><code>I18nIntegrationOptions</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `additionalTranslationDirs?` | `string[] \| undefined` |
-| `apiBaseClientHost?` | `string \| undefined` |
-| `apiBaseServerHost?` | `string \| undefined` |
-| `apiBaseUrl?` | `string \| undefined` |
 | `autoDetect?` | `boolean \| undefined` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `autoDetectPath?` | `string \| undefined` |
-| `cacheMaxSize?` | `number \| undefined` |
-| `cacheTtl?` | `number \| undefined` |
-| `canonicalQueryWhitelist?` | `string[] \| undefined` |
-| `components?` | `boolean \| undefined` |
-| `customRegexMatcher?` | `string \| RegExp \| undefined` |
-| `dateBuild?` | `string \| number \| undefined` |
-| `datetimeFormats?` | `Record<string, Record<string, Intl.DateTimeFormatOptions>> \| undefined` |
-| `debug?` | `boolean \| undefined` |
-| `defaultLocale?` | `string \| undefined` |
-| `define?` | `boolean \| undefined` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `disableWatcher?` | `boolean \| undefined` |
-| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
-| `experimental?` | `Record<string, unknown> \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
-| `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
-| `hmr?` | `boolean \| undefined` |
-| `hooks?` | `boolean \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-| `httpCacheDuration?` | `number \| undefined` |
 | `locale` | `string` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
-| `localizedRouteNamePrefix?` | `string \| undefined` |
-| `messages?` | `Record<string, Record<string, unknown>> \| undefined` |
-| `meta?` | `boolean \| undefined` |
-| `metaBaseUrl?` | `string \| undefined` |
-| `metaTrustForwardedHost?` | `boolean \| undefined` |
-| `metaTrustForwardedProto?` | `boolean \| undefined` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
-| `noPrefixRedirect?` | `boolean \| undefined` |
-| `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
-| `plugin?` | `boolean \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `redirects?` | `boolean \| undefined` |
 | `redirectToDefault?` | `boolean \| undefined` |
-| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
-| `routeLocales?` | `Record<string, string[]> \| undefined` |
-| `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
-| `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
-| `serverTranslationPreload?` | `boolean \| undefined` |
-| `strategy?` | `Strategies \| undefined` |
-| `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir?` | `string \| undefined` |
-| `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
-| `types?` | `boolean \| undefined` |
-| `vueDevtools?` | `boolean \| undefined` |
 
 </details>
 

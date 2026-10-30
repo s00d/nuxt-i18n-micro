@@ -201,10 +201,8 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
 
   onMount(() => {
     document.addEventListener('click', handleClickOutside)
-  })
-
-  onCleanup(() => {
-    document.removeEventListener('click', handleClickOutside)
+    // inside onMount: a cleanup registered at setup also runs on the server, where document is missing
+    onCleanup(() => document.removeEventListener('click', handleClickOutside))
   })
 
   return (

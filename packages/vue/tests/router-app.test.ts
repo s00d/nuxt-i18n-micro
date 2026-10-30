@@ -205,6 +205,11 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'ar-EG', dir: 'rtl' })
   expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar/' })
 
+  // a locale root with a query: the first segment is still the locale
+  await router.push('/ar?utm=x')
+  head().updateMeta()
+  expect(head().metaObject.value.meta[1]).toEqual({ id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/ar/' })
+
   // the default locale has no prefix to strip; called after setup (as from a route watcher)
   // it still emits x-default, and a whitelisted query param from the router stays on the canonical
   const warn = vi.spyOn(console, 'warn')

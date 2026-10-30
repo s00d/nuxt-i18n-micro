@@ -55,7 +55,7 @@ interface UseLocaleHeadOptions {
  * a getter, e.g. `useHead(() => build())`)
  * @example
  * ```ts
- * const { metaObject } = useLocaleHead({ baseUrl: 'https://example.com' })
+ * const { metaObject } = useLocaleHead({ addSeoAttributes: true })
  * useHead(metaObject)
  * ```
  */

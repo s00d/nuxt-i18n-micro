@@ -75,12 +75,12 @@ export async function mergeSourceTranslations(input: MergeSourceTranslationsInpu
   const pageName = resolveSourcePageName(input.pageName, input.disablePageLocales)
   const chain = buildFallbackLocaleChain(input.locale, input.locales, input.globalFallbackLocale)
 
-  const root = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, buildSourceRootPath)
+  // Layer by locale, not by file kind: the active locale's root file beats a fallback's page file.
   // disablePageLocales: root translations only, no `pages/` file at all (not even `pages/index`)
-  if (input.disablePageLocales) return root
-  const page = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, (localeCode) => buildSourcePagePath(pageName, localeCode))
-
-  return deepMergeTranslations(root, page)
+  const files = chain.flatMap((localeCode) =>
+    input.disablePageLocales ? [buildSourceRootPath(localeCode)] : [buildSourceRootPath(localeCode), buildSourcePagePath(pageName, localeCode)],
+  )
+  return mergeTranslationsFromFallbackChainAsync(files, input.readLocaleFile, (file) => file)
 }
 
 export function normalizeConfiguredLocales(locales: Array<string | Locale> | undefined): SourceLocaleInfo[] {

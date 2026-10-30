@@ -5,9 +5,12 @@ const ARRAY_PART = /^\[\](\d+)$/
 
 /**
  * An empty array or object has no leaf to show, so it is kept as this value and restored on save.
- * ponytail: a translation that is literally `[]` / `{}` comes back as a container, the same trade as `3` and `true`.
+ * A translation that is literally `[]` / `{}` shows with a leading `\\` (`\\[]`, and `\\\\[]` for `\\[]`) and is restored as text.
  */
 const EMPTY_CONTAINER: Record<string, () => unknown> = { '[]': () => [], '{}': () => ({}) }
+
+const ESCAPED_MARKER = /^\\+(?:\[\]|\{\})$/
+const looksLikeMarker = (value: string): boolean => Object.prototype.hasOwnProperty.call(EMPTY_CONTAINER, value) || ESCAPED_MARKER.test(value)
 
 const isEmptyContainer = (value: unknown): value is object => typeof value === 'object' && value !== null && Object.keys(value).length === 0
 
@@ -29,7 +32,8 @@ function flattenValue(value: unknown, key: string, result: Record<string, string
     flattenTranslations(value as Record<string, unknown>, key, result)
     return
   }
-  setOwn(result, key, value?.toString() ?? '')
+  const text = value?.toString() ?? ''
+  setOwn(result, key, typeof value === 'string' && looksLikeMarker(text) ? `\\${text}` : text)
 }
 
 export function flattenTranslations(obj: Record<string, unknown>, parentKey = '', result: Record<string, string> = {}): Record<string, string> {
@@ -52,6 +56,7 @@ const usablePart = (part: string) => part !== '' && (!part.startsWith('[]') || A
 /** The table holds strings: restore booleans and numbers, keep blank strings as strings. */
 const parseValue = (value: unknown): unknown => {
   if (typeof value !== 'string') return value
+  if (ESCAPED_MARKER.test(value)) return value.slice(1)
   if (Object.prototype.hasOwnProperty.call(EMPTY_CONTAINER, value)) return EMPTY_CONTAINER[value]!()
   if (value === 'true' || value === 'false') return value === 'true'
   return value.trim() !== '' && !Number.isNaN(Number(value)) ? Number(value) : value

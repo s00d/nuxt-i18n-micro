@@ -5,6 +5,7 @@ import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-mic
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { buildFullConfigSource } from './config-template'
 import type {
   Getter,
   GlobalLocaleRoutes,
@@ -229,10 +230,9 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      const fullConfigJson = JSON.stringify(runtimeFullConfig)
       return `import { Strategy } from '${resolvedStrategyPath}'
 
-const __fullConfig = ${fullConfigJson}
+const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
 
 export function getI18nConfig() { return __fullConfig }
 
@@ -387,7 +387,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Skip build-time disabled locales — do not emit public/{apiBaseUrl}/…/data.json for them.
-    // Nuxt/defu concatenates `locales` arrays, so dedupe by code (disabled if any entry says so).
+    // Nuxt/defu concatenates `locales` arrays project first, so dedupe by code: the first value wins (as in RouteGenerator).
     // Runtime disabledLocales cannot un-publish files already copied to public/.
     const localeInfosByCode = new Map<string, PreMergeLocaleInfo & { disabled?: boolean }>()
     for (const locale of options.locales ?? []) {
@@ -398,8 +398,8 @@ export default defineNuxtModule<ModuleOptions>({
       const prev = localeInfosByCode.get(locale.code)
       localeInfosByCode.set(locale.code, {
         code: locale.code,
-        fallbackLocale: locale.fallbackLocale ?? prev?.fallbackLocale,
-        disabled: !!(prev?.disabled || locale.disabled),
+        fallbackLocale: prev?.fallbackLocale ?? locale.fallbackLocale,
+        disabled: prev?.disabled ?? locale.disabled,
       })
     }
     const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]
@@ -434,7 +434,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
     const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = {}
+    const routeDisableMeta: Record<string, boolean | string[]> = { ...(options.routeDisableMeta ?? {}) }
 
     const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
     const pageFiles = await globby(pageGlobs, { absolute: true })
@@ -499,6 +499,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta,
       noPrefixRedirect: options.noPrefixRedirect!,
       excludePatterns: options.excludePatterns,
+      apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
     })
@@ -541,7 +542,8 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.hooks) {
+    // 05, 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
+    if (options.plugin && options.hooks) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/05.hooks'),
         name: 'i18n-plugin-hooks',
@@ -549,7 +551,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.meta) {
+    if (options.plugin && options.meta) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/02.meta'),
         name: 'i18n-plugin-meta',
@@ -575,12 +577,14 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    addPlugin({
-      src: resolver.resolve('./runtime/plugins/06.redirect'),
-      mode: 'server',
-      name: 'i18n-plugin-redirect',
-      order: 10,
-    })
+    if (options.plugin) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/06.redirect'),
+        mode: 'server',
+        name: 'i18n-plugin-redirect',
+        order: 10,
+      })
+    }
 
     if (options.redirects !== false && options.plugin !== false) {
       addRouteMiddleware({
@@ -901,7 +905,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       for (const route of routesSet) {
-        if (isInternalPath(route, options.excludePatterns)) routesSet.delete(route)
+        if (isInternalPath(route, options.excludePatterns, apiBaseUrl)) routesSet.delete(route)
       }
 
       for (const route of routesSet) {

@@ -34,6 +34,10 @@ describe('dev translation watcher', () => {
     expect(translationRelativePath('/app/extra/fr.json', dirs)).toBe('fr.json')
     expect(translationRelativePath('/app/extra/nested/fr.json', dirs)).toBeNull()
     expect(translationRelativePath('/app/pages/index.vue', dirs)).toBeNull()
+    // an additional root nested in a translation root is still global, not a page file
+    expect(translationRelativePath('/p/locales/common/fr.json', { translationRoots: ['/p/locales'], additionalRoots: ['/p/locales/common'] })).toBe(
+      'fr.json',
+    )
     expect(translationRelativePath('/app/locales/readme.md', dirs)).toBeNull()
     expect(translationRelativePath('/app/locales-old/en.json', dirs)).toBeNull()
 

@@ -263,6 +263,11 @@ test('a failed disk save reaches the editor as an error after the app was alread
   await state.saveCurrent()
   expect([...stored]).toEqual([['i18n_save_de.json', '{\n  "hello": "Moin"\n}']])
   expect(state.locales.value['de.json']).toEqual({ hello: 'Moin' })
+  // Also when the 404 body is JSON `null`.
+  saveEndpoint(() => ({ ok: false, status: 404, statusText: 'Not Found', json: async () => null }))
+  state.selectedFileContent.value = { hello: 'Null' }
+  await state.saveCurrent()
+  expect(stored.get('i18n_save_de.json')).toBe('{\n  "hello": "Null"\n}')
   // So does an unreachable server.
   vi.stubGlobal('fetch', async () => Promise.reject(new TypeError('Failed to fetch')))
   state.selectedFileContent.value = { hello: 'Na' }

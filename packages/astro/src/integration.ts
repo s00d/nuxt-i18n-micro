@@ -1,22 +1,22 @@
-import type { Locale, ModuleOptions, PluralFunc } from '@i18n-micro/types'
+import type { Locale } from '@i18n-micro/types'
 import type { AstroIntegration, HookParameters } from 'astro'
 import { AstroI18n, type AstroI18nOptions } from './composer'
-import { setGlobalRoutingStrategy } from './routing-context'
-import type { I18nRoutingStrategy } from './router/types'
 
-export interface I18nIntegrationOptions extends Omit<ModuleOptions, 'plural'> {
+/**
+ * What crosses from the Astro config process to the server bundle: only serializable values, as
+ * `virtual:i18n-micro/config`. Messages, `plural`, `missingHandler` and the routing strategy go to
+ * `createI18n` / `createI18nMiddleware` in `src/middleware.ts`, which run in the server bundle.
+ */
+export interface I18nIntegrationOptions {
   locale: string
   fallbackLocale?: string
   locales?: Locale[]
-  messages?: Record<string, Record<string, unknown>>
-  plural?: PluralFunc
   missingWarn?: boolean
-  missingHandler?: (locale: string, key: string, routeName: string) => void
   localeCookie?: string | null
   autoDetect?: boolean
+  /** With `createI18nMiddleware({ redirectToDefault: config.redirectToDefault })`: see that option. */
   redirectToDefault?: boolean
   translationDir?: string
-  routingStrategy?: I18nRoutingStrategy
 }
 
 export { getGlobalRoutingStrategy, runWithRoutingStrategy, setGlobalRoutingStrategy } from './routing-context'
@@ -25,9 +25,7 @@ export { getGlobalRoutingStrategy, runWithRoutingStrategy, setGlobalRoutingStrat
  * Astro Integration for i18n-micro
  */
 export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration {
-  const { locale: defaultLocale, fallbackLocale, translationDir, routingStrategy } = options
-
-  setGlobalRoutingStrategy(routingStrategy || null)
+  const { locale: defaultLocale, fallbackLocale, translationDir } = options
 
   return {
     name: '@i18n-micro/astro',

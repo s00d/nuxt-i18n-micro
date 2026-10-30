@@ -59,7 +59,8 @@ function globOf(pattern: string): RegExp {
     .replace(/[.+^${}()|[\]\\]/g, '\\$&')
     .replace(/\*/g, '.*')
     .replace(/\?/g, '.')
-  regex = new RegExp(`^${source}$`)
+  // a trailing slash is the same page, as for a plain prefix
+  regex = new RegExp(`^${source}/?$`)
   GLOBS.set(pattern, regex)
   return regex
 }

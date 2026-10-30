@@ -10,13 +10,10 @@
  * Keep both configs importing this array so the two sets can never drift apart.
  */
 export const INTEGRATION_TESTS = [
-  // one file per i18n strategy: nuxi generate + nuxi build of test/fixtures/strategy
+  // one file per i18n strategy: nuxi generate of test/fixtures/strategy
   'test/strategies-*.test.ts',
-  // nuxi generate / build of one fixture (+ a static or SSR server)
+  // nuxi generate of one fixture (+ a static server)
   'test/use-i18n-head-generate.test.ts',
-  'test/async-components-production.test.ts',
-  'test/use-locale-head-production.test.ts',
-  'test/generate-issue-218.test.ts',
   // @nuxt/test-utils setup() → builds the fixture app
   'test/serverless-cache.test.ts',
   'test/**/*.e2e.test.ts',

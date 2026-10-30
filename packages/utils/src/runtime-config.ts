@@ -98,7 +98,7 @@ export function applyI18nRuntimeOverrides(
   const overrides = pinDefault(baseConfig, requested, warn)
   const disabledSet = new Set(overrides.disabledLocales ?? [])
   let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? { ...locale, disabled: true } : locale))
-  if (!locales.some((locale) => !locale.disabled)) {
+  if (disabledSet.size > 0 && !locales.some((locale) => !locale.disabled)) {
     warn('[nuxt-i18n-micro] runtime disabledLocales override would disable all locales; override ignored.')
     locales = baseConfig.locales ?? []
   }
@@ -171,9 +171,9 @@ const isDev = () => {
   }
 }
 
-/** Deep-freezes plain objects and arrays, in place. */
+/** Deep-freezes plain objects and arrays, in place. A RegExp stays writable: `lastIndex` is its state. */
 function deepFreeze<T>(value: T): T {
-  if (value === null || typeof value !== 'object' || Object.isFrozen(value)) return value
+  if (value === null || typeof value !== 'object' || value instanceof RegExp || Object.isFrozen(value)) return value
   Object.freeze(value)
   for (const key of Object.keys(value)) deepFreeze((value as Record<string, unknown>)[key])
   return value

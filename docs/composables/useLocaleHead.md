@@ -29,7 +29,7 @@ the module registers the same tags itself.
 **Returns** — `metaObject`, a ref holding the head object ready to pass to `useHead`; `updateMeta` refreshes it; `build` computes the head object from the current route (reactive when read in a getter, e.g. `useHead(() => build())`)
 
 ```ts
-const { metaObject } = useLocaleHead({ baseUrl: 'https://example.com' })
+const { metaObject } = useLocaleHead({ addSeoAttributes: true })
 useHead(metaObject)
 ```
 

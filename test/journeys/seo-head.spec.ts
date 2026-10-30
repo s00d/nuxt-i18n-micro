@@ -1,7 +1,7 @@
 import { emulateDomain, forwardedHostHeaders, parseSeoHead } from 'untestutils/utils'
 import { describe, expect, test } from 'untestutils/vitest'
 
-// `seo` fixture: prefix, en/de/ru (ru seo:false), no metaBaseUrl (host from the request),
+// `seo` fixture: prefix, en/de/ru (ru seo:false) + fr/ar/zh (og:locale formats), no metaBaseUrl (host from the request),
 // canonicalQueryWhitelist [page, filter, q]. Absorbs the old `seo-auto` and `canonical-whitelist` builds.
 const xDefaultHref = (html: string) => html.match(/<link[^>]*id="i18n-xd"[^>]*href="([^"]+)"/)?.[1]
 
@@ -28,7 +28,7 @@ describe('J6 seo head', () => {
     // step 3: GET /en/about on multi.example.org → every hreflang on that domain, no `auto` token
     // was: seo-auto › SSR: alternate hreflang links use the forwarded domain
     const multiAbout = parseSeoHead(await (await request.get('/en/about', { headers: forwardedHostHeaders('multi.example.org', 'https') })).text())
-    expect(multiAbout.hreflangs.map((l) => l.hreflang).sort()).toEqual(['de_DE', 'en_EN', 'x-default'])
+    expect(multiAbout.hreflangs.map((l) => l.hreflang).sort()).toEqual(['ar-AE', 'de_DE', 'en_EN', 'fr-FR', 'x-default', 'zh-Hans'])
     for (const { href } of multiAbout.hreflangs) {
       expect(href).toContain('https://multi.example.org/')
       expect(href).not.toMatch(/(^|\/)auto(\/|$)/)
@@ -124,7 +124,7 @@ describe('J6 seo head', () => {
 
     // step 6: every alternate link starts with the emulated domain
     // was: seo-auto › client: alternate hreflang links use emulated domain
-    await expect(page.locator('link[rel="alternate"]')).toHaveCount(3)
+    await expect(page.locator('link[rel="alternate"]')).toHaveCount(6)
     const alternateHrefs = await page.locator('link[rel="alternate"]').evaluateAll((els) => els.map((el) => el.getAttribute('href')))
     for (const href of alternateHrefs) expect(href!.startsWith(`${domain}/`)).toBe(true)
 

@@ -85,18 +85,9 @@ async function request(mw: ReturnType<typeof createI18nMiddleware>, path: string
   return { astro, locals: ctx.locals as App.Locals, strategyInPage: strategyInPage as I18nRoutingStrategy | null }
 }
 
-test('integration publishes its config as a virtual module and installs the routing strategy', () => {
-  const strategy = createAstroRouterAdapter(locales, 'en')
-  const integration = i18nIntegration({
-    locale: 'en',
-    locales,
-    translationDir: 'src/locales',
-    routingStrategy: strategy,
-    localeCookie: 'lang',
-    missingWarn: true,
-  })
+test('integration publishes its config as a virtual module', () => {
+  const integration = i18nIntegration({ locale: 'en', locales, translationDir: 'src/locales', localeCookie: 'lang', missingWarn: true })
   expect(integration.name).toBe('@i18n-micro/astro')
-  expect(getGlobalRoutingStrategy()).toBe(strategy)
 
   const setup = (opts: Parameters<typeof i18nIntegration>[0]) => {
     const updateConfig = vi.fn()
@@ -135,7 +126,6 @@ test('integration publishes its config as a virtual module and installs the rout
     localeCookie: 'lang',
     missingWarn: true,
   })
-  // defaults; installing without a strategy clears the previous one
   expect(setup({ locale: 'de' })).toEqual({
     defaultLocale: 'de',
     fallbackLocale: 'de',
@@ -147,7 +137,6 @@ test('integration publishes its config as a virtual module and installs the rout
     localeCookie: 'i18n-locale',
     missingWarn: false,
   })
-  expect(getGlobalRoutingStrategy()).toBeNull()
   expect(setup({ locale: 'en', localeCookie: null }).localeCookie).toBeNull()
 
   const injectTypes = vi.fn()
@@ -398,6 +387,10 @@ test('a custom routing strategy decides locale, route name and every link the pa
     page.localizePath('/y', 'fr'),
   ]).toEqual(['r_x', 'de', '/~fr/x', '/~de/y', '/~fr/y'])
   expect(useLocaleHead(de.astro, { baseUrl: 'B' }).link.map((l) => l.href)).toEqual(['B/x', 'B/~en/x', 'B/~fr/x', 'B/~en/x'])
+
+  // the bare adapter tolerates a path without its leading slash, or with two
+  const adapter = createAstroRouterAdapter(locales, 'en')
+  expect(['fr/about', '//fr/about'].map((path) => adapter.getLocaleFromPath!(path, 'en', ['en', 'fr']))).toEqual(['fr', 'fr'])
 
   // a strategy with no getLocaleFromPath / getRouteName → the plain path parsing (prefix, route from the path)
   const bare = createI18nMiddleware({ i18n: site, defaultLocale: 'en', locales: ['en', 'fr'], routingStrategy: { getCurrentPath: () => '/' } })

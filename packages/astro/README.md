@@ -24,6 +24,7 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   autoDetect: config.autoDetect,
+  redirectToDefault: config.redirectToDefault,
   localeCookie: config.localeCookie,
   routingStrategy: createAstroRouterAdapter(config.locales, config.defaultLocale),
 })

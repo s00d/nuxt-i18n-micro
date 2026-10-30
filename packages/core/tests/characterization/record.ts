@@ -32,7 +32,7 @@ export class Recorder {
       value = fn()
       out = show(value)
     } catch (error) {
-      out = `throws ${(error as Error).name}: ${(error as Error).message}`
+      out = error instanceof Error ? `throws ${error.name}: ${error.message}` : `throws ${show(error)}`
     }
     this.lines.push(`- \`${label}\` → ${out}`)
     return value

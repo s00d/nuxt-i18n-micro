@@ -62,3 +62,21 @@ export function safeResolvePath(projectRoot: string, filePath: string): string {
 
   return resolvedPath
 }
+
+/**
+ * The real path of an existing `.json` file inside `<projectRoot>/<translationDir>`, or null.
+ * `file` is relative to that dir (a leading `<translationDir>/` is dropped); `../`, absolute paths
+ * and symlinks out of the dir are refused — the same rule as the Nuxt module's devtools save.
+ */
+export function resolveTranslationFile(projectRoot: string, translationDir: string, file: string): string | null {
+  const localesDir = path.resolve(projectRoot, translationDir)
+  const prefix = `${translationDir.replace(/\/+$/, '')}/`
+  const relative = file.startsWith(prefix) ? file.slice(prefix.length) : file
+  if (path.isAbsolute(relative) || !relative.endsWith('.json')) return null
+  const candidate = path.resolve(localesDir, relative)
+  if (!fs.existsSync(localesDir) || !fs.existsSync(candidate)) return null
+  const real = fs.realpathSync(candidate)
+  const inside = path.relative(fs.realpathSync(localesDir), real)
+  const escapes = inside === '' || inside === '..' || inside.startsWith(`..${path.sep}`) || path.isAbsolute(inside)
+  return escapes ? null : real
+}

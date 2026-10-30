@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, test } from 'untestutils/vitest'
-import availableLanguages from '../fixtures/n3/app/locales/availableLanguages'
+import availableLanguages from '../fixtures/basic/n3/locales/availableLanguages'
 
 type RouteTranslations = Record<string, Record<string, string>>
 
 const routeTranslations = JSON.parse(
-  readFileSync(new URL('../fixtures/n3/app/locales/routeTranslations.json', import.meta.url), 'utf-8'),
+  readFileSync(new URL('../fixtures/basic/n3/locales/routeTranslations.json', import.meta.url), 'utf-8'),
 ) as RouteTranslations
 
 // Route builders copied from the old n3 spec: only routes with a translation for the locale are built.
@@ -57,7 +57,7 @@ function nestedCases(): string[] {
 }
 
 describe('J11 n3: 27 locales over globalLocaleRoutes', () => {
-  test.override({ harness: 'n3' })
+  test.override({ harness: 'basic-n3' })
 
   test('SSR route matrix: every translated route renders, invalid routes do not crash', { timeout: 300_000 }, async ({ request }) => {
     // step 1: GET each static, dynamic and nested route → 200 with the Index content

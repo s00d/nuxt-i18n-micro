@@ -28,7 +28,7 @@ export function createAstroRouterAdapter(locales: Locale[], defaultLocale: strin
    * Checks if first segment is a locale code
    */
   const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string =>
-    localeFromPath(path, locales) ?? defaultLocale
+    localeFromPath(`/${path.replace(/^\/+/, '')}`, locales) ?? defaultLocale
 
   /**
    * Switch locale in path

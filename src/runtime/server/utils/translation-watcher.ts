@@ -83,13 +83,14 @@ export function translationRelativePath(filePath: string, dirs: { translationRoo
     const rel = relative(root, filePath)
     return rel.startsWith('..') || isAbsolute(rel) ? null : rel.replace(/\\/g, '/')
   }
-  for (const root of dirs.translationRoots) {
-    const rel = inside(root)
-    if (rel?.endsWith('.json')) return rel
-  }
+  // additional roots first: one nested in a translation root is still a global merge source
   for (const root of dirs.additionalRoots) {
     const rel = inside(root)
     if (rel && !rel.includes('/') && rel.endsWith('.json')) return rel
+  }
+  for (const root of dirs.translationRoots) {
+    const rel = inside(root)
+    if (rel?.endsWith('.json')) return rel
   }
   return null
 }

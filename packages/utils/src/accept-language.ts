@@ -74,7 +74,8 @@ function sameScript(script: string, code: string): boolean {
 /**
  * The config locale one language tag asks for: the tag itself or a shorter form of it
  * (`zh-Hant-TW` → `zh-Hant` → `zh`), else a regional locale of the same language and script
- * (`en` → `en-US`, `zh-TW` → `zh-Hant-HK`, never `zh-Hans`). Independent of config order.
+ * (`en` → `en-US`, `zh-TW` → `zh-Hant-HK`, never `zh-Hans`). Which of those forms wins does not
+ * depend on config order; among several regional matches the first in config does.
  * `lower` is `validLocales` lowercased.
  */
 function matchTag(tag: string, validLocales: readonly string[], lower: readonly string[]): string | null {

@@ -49,6 +49,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     customActiveLinkStyle,
     customDisabledLinkStyle = {},
     customIconStyle,
+    className,
     ...restProps
   } = props
 
@@ -66,7 +67,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
 
   const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
   const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
-  const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: React.MouseEvent<HTMLButtonElement>) => {
     if (event) {
@@ -82,8 +82,9 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
   }
 
   const currentLocaleLabel = (): string => {
-    const current = locales.find((l) => l.code === currentLocale)
-    return current ? localeLabel(current) : currentLocaleName || currentLocale
+    // allLocales: a disabled current locale is still named; getLocaleName only covers a code missing from the list
+    const current = allLocales.find((l) => l.code === currentLocale)
+    return current ? localeLabel(current) : getLocaleNameProp?.() || currentLocale
   }
 
   const handleSwitchLocale = (code: string) => {
@@ -160,6 +161,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     textDecoration: 'none',
     transition: 'background-color 0.3s ease',
     cursor: 'pointer',
+    // <button> reset, under the active and custom styles so callers can override it
+    width: '100%',
+    textAlign: 'left',
+    border: 'none',
+    backgroundColor: 'transparent',
   }
 
   const activeLinkStyle: React.CSSProperties = {
@@ -220,10 +226,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
       ...(isActive ? activeLinkStyle : {}),
       ...customLinkStyle,
       ...(isActive ? customActiveLinkStyle : {}),
-      width: '100%',
-      textAlign: 'left',
-      border: 'none',
-      background: 'transparent',
     }
 
     return React.createElement(
@@ -253,7 +255,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     'div',
     {
       ref: wrapperRef,
-      className: 'i18n-switcher-wrapper',
+      className: className ? `i18n-switcher-wrapper ${className}` : 'i18n-switcher-wrapper',
       style: mergedWrapperStyle,
       ...restProps,
     },

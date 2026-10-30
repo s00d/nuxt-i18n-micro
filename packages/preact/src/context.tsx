@@ -24,23 +24,12 @@ export interface I18nProviderProps {
 }
 
 export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) {
-  return h(
-    I18nContext.Provider,
-    { value: i18n },
-    locales
-      ? h(
-          I18nLocalesContext.Provider,
-          { value: locales },
-          defaultLocale
-            ? h(
-                I18nDefaultLocaleContext.Provider,
-                { value: defaultLocale },
-                routingStrategy ? h(I18nRouterContext.Provider, { value: routingStrategy }, children) : children,
-              )
-            : children,
-        )
-      : children,
-  )
+  // each context is provided on its own; an omitted prop leaves the outer provider's value in place
+  let tree = children
+  if (routingStrategy) tree = h(I18nRouterContext.Provider, { value: routingStrategy }, tree)
+  if (defaultLocale) tree = h(I18nDefaultLocaleContext.Provider, { value: defaultLocale }, tree)
+  if (locales) tree = h(I18nLocalesContext.Provider, { value: locales }, tree)
+  return h(I18nContext.Provider, { value: i18n }, tree)
 }
 
 export interface UseI18nOptions {

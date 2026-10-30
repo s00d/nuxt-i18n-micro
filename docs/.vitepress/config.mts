@@ -52,16 +52,13 @@ const apiSidebar = [
     text: 'Packages',
     base: '/api',
     collapsed: true,
-    items: [
-      { text: 'Package APIs', link: '/packages' },
-      ...packagePages.map((slug) => ({ text: `@i18n-micro/${slug}`, link: `/packages/${slug}` })),
-    ],
+    items: [{ text: 'Package APIs', link: '/packages' }, ...packagePages.map((slug) => ({ text: `@i18n-micro/${slug}`, link: `/packages/${slug}` }))],
   },
 ]
 
 /** A page at an old URL that sends crawlers and external links to its new route. */
 function redirectStub(target: string): string {
-  const canonical = new URL(target, SITE.url).href
+  const canonical = new URL(target.split('#')[0]!, SITE.url).href
   const keepHash = !target.includes('#')
   return `<!doctype html>
 <html lang="en">

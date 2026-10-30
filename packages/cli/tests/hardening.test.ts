@@ -427,7 +427,7 @@ describe('saving', () => {
     const value = Buffer.concat([Buffer.from('{"old":"caf'), Buffer.from([0xe9]), Buffer.from('"}\n')])
     write(dir, 'pages/i.vue', USE)
     write(dir, 'locales/en.json', value)
-    const locale = await runCli(['sync'], { cwd: dir })
+    const locale = await runCli(['clean'], { cwd: dir })
     expect(locale.code).toBe(2)
     expect(readFileSync(join(dir, 'locales/en.json')).equals(value)).toBe(true)
   })
@@ -572,5 +572,395 @@ describe('smaller things', () => {
 
   it('fixable in the spec matches the fixers', () => {
     for (const { name, fixable } of LINT_RULES) expect(Boolean(lintRules[name].fix)).toBe(fixable)
+  })
+})
+
+describe('second review: flags', () => {
+  it.each([
+    [['clean', '--ignore', '--dryRun']],
+    [['clean', '--exclude', '--dryRun']],
+    [['clean', '--cwd', '--dryRun']],
+    [['clean', '--exclude']],
+    [['sync', '--ignore', '--dryRun']],
+    [['text-to-i18n', '--ignore', '--dryRun']],
+    [['text-to-i18n', '--context', '--dryRun']],
+    [['text-to-i18n', '--translationFile', '--dryRun']],
+    [['rename', '--from', 'used', '--to', 'x', '--ignore', '--dryRun']],
+    [['format', '--translationDir', '--check']],
+    [['export', '--dir', '--force']],
+    [['check', '--only', '--json']],
+    [['clean', '--exclude', '-x']],
+  ])('%j says the flag needs a value, and writes nothing', async (args) => {
+    project({ ...LIVE, 'pages/index.vue': USE })
+    const before = snapshotFiles(dir)
+    const result = await runCli(args, { cwd: dir })
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('needs a value')
+    expect(snapshotFiles(dir)).toEqual(before)
+  })
+
+  it('a value that starts with a dash is still possible', async () => {
+    project({ ...LIVE, 'pages/index.vue': USE })
+    expect((await runCli(['clean', '--exclude=--x', '--dryRun'], { cwd: dir })).code).toBe(0)
+  })
+
+  it.each(['--force=no', '--force=0', '--force=off', '--force=', '--dryRun=no', '--no-force=x'])('%s is a usage error', async (flag) => {
+    project({ ...LIVE, 'pages/index.vue': USE, 'pages/a.vue': '<template>{{ $t(k) }}</template>\n' })
+    const before = snapshotFiles(dir)
+    const result = await runCli(['clean', flag], { cwd: dir })
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('true or false')
+    expect(snapshotFiles(dir)).toEqual(before)
+  })
+
+  it('--force=true, --force=false and --no-force mean what they say', async () => {
+    project({ ...LIVE, 'pages/index.vue': USE, 'pages/a.vue': '<template>{{ $t(k) }}</template>\n' })
+    expect((await runCli(['clean', '--force=false'], { cwd: dir })).code).toBe(1)
+    expect((await runCli(['clean', '--no-force'], { cwd: dir })).code).toBe(1)
+    expect((await runCli(['clean', '--force=true'], { cwd: dir })).code).toBe(0)
+  })
+})
+
+describe('second review: bytes that are not UTF-8', () => {
+  const latin = Buffer.concat([Buffer.from('caf'), Buffer.from([0xe9]), Buffer.from(' used\n')])
+
+  it.each(['docs/notes.md', 'content/a.yaml', 'public/data.json'])('%s does not stop read-only work or an unrelated save', async (file) => {
+    project({ 'locales/en.json': { used: 'x', dead: 'y' }, 'pages/i.vue': USE, [file]: latin })
+    expect((await runCli(['check', '--only', 'undefined'], { cwd: dir })).code).toBe(0)
+    expect((await runCli(['search', 'x'], { cwd: dir })).code).toBe(0)
+    expect((await runCli(['clean'], { cwd: dir })).code).toBe(0)
+    expect(readJson(dir, 'locales/en.json')).toEqual({ used: 'x' })
+    expect(readFileSync(join(dir, file)).equals(latin)).toBe(true)
+  })
+
+  it('rename --dryRun on such a source saves nothing, so it does not stop; the real run does', async () => {
+    const source = Buffer.concat([Buffer.from('<!-- caf'), Buffer.from([0xe9]), Buffer.from(` -->\n<template>{{ $t('used') }}</template>\n`)])
+    project({ 'locales/en.json': { used: 'x' }, 'pages/i.vue': source })
+    expect((await runCli(['rename', '--from', 'used', '--to', 'fresh', '--dryRun'], { cwd: dir })).code).toBe(0)
+    expect((await runCli(['rename', '--from', 'used', '--to', 'fresh'], { cwd: dir })).code).toBe(2)
+    expect(readFileSync(join(dir, 'pages/i.vue')).equals(source)).toBe(true)
+  })
+
+  it('a locale file is readable; only saving that file is refused, and says so', async () => {
+    const value = Buffer.concat([Buffer.from('{"used":"caf'), Buffer.from([0xe9]), Buffer.from('","dead":"x"}\n')])
+    project({ 'locales/en.json': { used: 'x' }, 'locales/de.json': value, 'pages/i.vue': USE })
+    expect((await runCli(['check', '--only', 'missing'], { cwd: dir })).code).toBe(0)
+    const result = await runCli(['sync'], { cwd: dir })
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('not valid UTF-8')
+    expect(result.stderr).toContain('de.json')
+    expect(readFileSync(join(dir, 'locales/de.json')).equals(value)).toBe(true)
+  })
+})
+
+describe('second review: a t declared in the file', () => {
+  it.each([
+    ['an arrow', 'utils/time.ts', 'const t = (ms: number) => ms * 2\nexport const f = (n: number) => t(n)\n'],
+    ['a function', 'utils/time.ts', 'function t(ms: number) { return ms }\nexport const f = (n: number) => t(n)\n'],
+    ['minified public file', 'public/vendor/vue.min.js', '!function(e,t){t(e)}(1,function(a){});\n'],
+    ['a service worker in public', 'public/sw.js', 'self.onmessage = (t) => t(event.data)\n'],
+    ['a minified file elsewhere', 'assets/lib.min.js', '!function(e,t){t(e)}(1,function(a){});\n'],
+    ['a long-line bundle', 'assets/bundle.js', `!function(e,t){t(e)}(1,function(a){});${'var a=1;'.repeat(400)}\n`],
+    ['a built package', 'packages/ui/dist/index.js', 'export const f = (t, e) => t(e)\n'],
+    ['VitePress output', 'docs/.vitepress/dist/assets/app.js', 'export const f = (t, e) => t(e)\n'],
+    ['Storybook output', 'storybook-static/a.js', 'export const f = (t, e) => t(e)\n'],
+  ])('%s does not stop clean', async (_name, file, content) => {
+    project({ ...LIVE, 'pages/index.vue': "<template>{{ $t('used') }}{{ $t('live.a') }}{{ $t('live.b') }}</template>\n", [file]: content })
+    const result = await runCli(['clean'], { cwd: dir })
+    expect(result.stderr).toBe('')
+    expect(result.code).toBe(0)
+  })
+
+  it('a wrapper declared in the file: the inner call is the doubt', async () => {
+    project({ ...LIVE, 'pages/index.vue': USE, 'utils/w.ts': 'const t = (k: string) => $t(k)\nexport const f = (n: string) => t(n)\n' })
+    await expectStops()
+  })
+
+  it('a parameter called t is a doubt in app code', async () => {
+    project({ ...LIVE, 'pages/index.vue': USE, 'utils/w.ts': 'export const f = (t: (k: string) => string, k: string) => t(k)\n' })
+    await expectStops()
+  })
+
+  it('$t(k) in a public script is no doubt, in a dist folder of app code it is', async () => {
+    project({ ...LIVE, 'pages/index.vue': USE, 'components/dist/a.ts': 'export const f = (k: string) => $t(k)\n' })
+    await expectStops()
+  })
+})
+
+describe('second review: call shapes', () => {
+  it.each([
+    ['await in the callee', 'server/api/a.ts', 'export default async (event) => (await useTranslationServerMiddleware(event))(k)\n'],
+    ['assignment', 'server/api/a.ts', 'let tr\nexport default async (event) => { tr = await useTranslationServerMiddleware(event); return tr(k) }\n'],
+    [
+      'Promise.all',
+      'server/api/a.ts',
+      'export default async (event) => { const [tr] = await Promise.all([useTranslationServerMiddleware(event)]); return tr(k) }\n',
+    ],
+    ['$t.call', 'lib/a.ts', 'export const f = (k) => $t.call(null, k)\n'],
+    ['$t.apply', 'lib/a.ts', 'export const f = (k) => $t.apply(null, [k])\n'],
+    ['$t.bind', 'lib/a.ts', 'const tt = $t.bind(null)\nexport const f = (k) => tt(k)\n'],
+    ['Lazy component', 'pages/a.vue', '<template><LazyI18nT :keypath="k" /></template>\n'],
+    ['component :is', 'pages/a.vue', `<template><component :is="'i18n-t'" :keypath="k" /></template>\n`],
+    ['a dynamic is with a keypath', 'pages/a.vue', `<template><component :is="c" :keypath="k" /></template>\n`],
+    ['component is with v-bind', 'pages/a.vue', `<template><component is="i18n-t" v-bind="p" /></template>\n`],
+    ['a quoted keypath key', 'lib/a.ts', `export const f = (k) => h(I18nT, { 'keypath': k })\n`],
+    ['h with props', 'lib/a.ts', 'export const f = (p) => h(I18nT, p)\n'],
+    ['h with a spread', 'lib/a.ts', 'export const f = (p) => h(I18nT, { ...p })\n'],
+    ['resolveComponent', 'lib/a.ts', `export const f = (p) => h(resolveComponent('i18n-t'), p)\n`],
+    ['t from a wrapper, renamed', 'lib/a.ts', 'const { t: tr } = useWrapper()\nexport const f = (k) => tr(k)\n'],
+    ['a quoted t', 'lib/a.ts', `const { 't': tr } = useI18n()\nexport const f = (k) => tr(k)\n`],
+    ['a rest object', 'lib/a.ts', 'const { ...rest } = useI18n()\nexport const f = (k) => rest.t(k)\n'],
+  ])('%s stops clean', async (_name, file, content) => {
+    project({ ...LIVE, 'pages/index.vue': USE, [file]: content })
+    await expectStops()
+  })
+
+  it('literal keys in those shapes count as usage', async () => {
+    project({
+      'locales/en.json': { a: '1', b: '2', c: '3', d: '4', used: 'x', dead: 'y' },
+      'pages/index.vue': USE,
+      'lib/a.ts': `export const f = async (event) => [(await useTranslationServerMiddleware(event))('a'), h(I18nT, { 'keypath': 'b' })]\n`,
+      'pages/b.vue': `<template><LazyI18nT keypath="c" /><component :is="'i18n-t'" keypath="d" /></template>\n`,
+    })
+    await runCli(['clean'], { cwd: dir })
+    expect(Object.keys(readJson(dir, 'locales/en.json'))).toEqual(['a', 'b', 'c', 'd', 'used'])
+  })
+})
+
+describe('second review: rename and data files', () => {
+  it('warns per data file, as a hint', async () => {
+    project({
+      'locales/en.json': { nav: { home: 'H' } },
+      'pages/i.vue': "<template>{{ $t('nav.home') }}</template>\n",
+      'data/menu.json': '[{ "label": "nav.home" }]\n',
+      'data/more.yaml': 'label: nav.home\n',
+      'data/other.json': '[{ "label": "nav.homepage" }]\n',
+    })
+    const result = await runCli(['rename', '--from', 'nav.home', '--to', 'nav.start'], { cwd: dir })
+    expect(result.stderr).toContain('data/menu.json')
+    expect(result.stderr).toContain('data/more.yaml')
+    expect(result.stderr).not.toContain('data/other.json')
+  })
+})
+
+describe('second review: export', () => {
+  const files = { 'locales/en.json': { a: 'A', b: 'B' }, 'locales/de.json': { a: 'x' } }
+
+  it('fuzzy PO work is not overwritten', async () => {
+    project(files)
+    await runCli(['export'], { cwd: dir })
+    const po = read(dir, 'pots/de.po').replace('msgid "b"\nmsgstr ""', '#, fuzzy\nmsgid "b"\nmsgstr "vielleicht"')
+    write(dir, 'pots/de.po', po)
+    const result = await runCli(['export'], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(read(dir, 'pots/de.po')).toContain('vielleicht')
+  })
+
+  it.each(['po', 'csv'])('%s: ordinary edits do not stop a repeat export', async (format) => {
+    project(files)
+    expect((await runCli(['export', '--format', format], { cwd: dir })).code).toBe(0)
+    write(dir, 'locales/en.json', { a: 'Changed', b: 'B' })
+    write(dir, 'locales/de.json', { a: 'also changed' })
+    expect((await runCli(['export', '--format', format], { cwd: dir })).code).toBe(0)
+    await runCli(['rename', '--from', 'a', '--to', 'z'], { cwd: dir })
+    expect((await runCli(['export', '--format', format], { cwd: dir })).code).toBe(0)
+    const out = format === 'po' ? 'pots/de.po' : 'csv_exports/de.csv'
+    expect(read(dir, out)).toContain('also changed')
+  })
+
+  it.each(['po', 'csv'])('%s: a translator edit after an export stops it, with a true message', async (format) => {
+    project(files)
+    await runCli(['export', '--format', format], { cwd: dir })
+    const out = format === 'po' ? 'pots/de.po' : 'csv_exports/de.csv'
+    write(dir, out, read(dir, out).replace(format === 'po' ? 'msgstr "x"' : ',x', format === 'po' ? 'msgstr "by a translator"' : ',by a translator'))
+    const result = await runCli(['export', '--format', format], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(result.stdout).toContain('Changed since the last export')
+    expect(read(dir, out)).toContain('by a translator')
+  })
+
+  it('an edit that was imported is no reason to stop', async () => {
+    project(files)
+    await runCli(['export'], { cwd: dir })
+    write(dir, 'pots/de.po', read(dir, 'pots/de.po').replace('msgstr "x"', 'msgstr "imported"'))
+    await runCli(['import'], { cwd: dir })
+    expect((await runCli(['export'], { cwd: dir })).code).toBe(0)
+  })
+
+  it('--force overwrites a catalog that is not UTF-8', async () => {
+    project({ ...files, 'pots/de.po': Buffer.concat([Buffer.from('msgid "a"\nmsgstr "caf'), Buffer.from([0xe9]), Buffer.from('"\n')]) })
+    expect((await runCli(['export'], { cwd: dir })).code).toBe(1)
+    expect((await runCli(['export', '--force'], { cwd: dir })).code).toBe(0)
+  })
+})
+
+describe('second review: an app inside its own layer', () => {
+  const layered = () => {
+    project({ 'locales/en.json': { ignored: 'x' } })
+    write(dir, 'nuxt.config.ts', 'export default {}\n')
+    write(
+      dir,
+      '.playground/nuxt.config.ts',
+      `export default { extends: ['..'], modules: ['nuxt-i18n-micro'], i18n: { locales: ['en'], defaultLocale: 'en' } }\n`,
+    )
+    write(dir, '.playground/locales/en.json', { old: 'x' })
+    write(dir, '.playground/app.vue', `<template><p>Some plain words</p>{{ $t('old') }}</template>\n`)
+    write(dir, 'components/Lib.vue', `<template><p>Layer words here</p>{{ $t('old') }}</template>\n`)
+    return join(dir, '.playground')
+  }
+
+  it('rename rewrites the app, not the layer around it', async () => {
+    const app = layered()
+    const result = await runCli(['rename', '--from', 'old', '--to', 'fresh'], { cwd: app })
+    expect(read(app, 'app.vue')).toContain(`$t('fresh')`)
+    expect(read(dir, 'components/Lib.vue')).toContain(`$t('old')`)
+    expect(result.stderr).toContain('Not rewritten')
+  })
+
+  it('a layer inside the project stays a layer', async () => {
+    project(
+      {
+        'locales/en.json': { old: 'x' },
+        'pages/a.vue': USE.replace('used', 'old'),
+        'base/nuxt.config.ts': 'export default {}\n',
+        'base/components/B.vue': USE.replace('used', 'old'),
+      },
+      undefined,
+      `extends: ['./base'],`,
+    )
+    const result = await runCli(['rename', '--from', 'old', '--to', 'fresh'], { cwd: dir })
+    expect(read(dir, 'pages/a.vue')).toContain('fresh')
+    expect(read(dir, 'base/components/B.vue')).toContain('old')
+    expect(result.stderr).toContain('Not rewritten')
+  })
+
+  it('text-to-i18n finds the app', async () => {
+    const app = layered()
+    await runCli(['text-to-i18n'], { cwd: app })
+    expect(read(app, 'app.vue')).toContain('$t(')
+    expect(read(dir, 'components/Lib.vue')).toContain('Layer words here')
+  })
+})
+
+describe('second review: masking', () => {
+  const key = 'FAKEKEY1234567'
+  const clean = (result: { stdout: string; stderr: string }) => expect(result.stdout + result.stderr).not.toContain(key)
+  const de = { 'locales/en.json': { a: 'x' }, 'locales/de.json': {} }
+
+  it('a query-string key echoed by a server', async () => {
+    project(de)
+    handler = (request, response) => json(response, { error: `denied ${request.url}` }, 403)
+    for (const extra of [[], ['--debug']]) {
+      clean(
+        await runCli(['translate', '--service', 'libretranslate', '--options', `baseUrl:${mock.url}/?api=${key},retries:0`, ...extra], { cwd: dir }),
+      )
+    }
+    write(dir, '.i18n-remote.json', { url: `${mock.url}/x?token=${key}` })
+    clean(await runCli(['sync-remote', '--debug'], { cwd: dir }))
+  })
+
+  it('the bare base64 of Basic auth', async () => {
+    project({ ...de, '.i18n-remote.json': { url: 'placeholder', auth: { username: 'user', password: key } } })
+    write(dir, '.i18n-remote.json', { url: mock.url, auth: { username: 'user', password: key } })
+    const encoded = Buffer.from(`user:${key}`).toString('base64')
+    handler = (_request, response) => json(response, { error: `bad credentials ${encoded}` }, 401)
+    const result = await runCli(['sync-remote'], { cwd: dir })
+    expect(result.stdout + result.stderr).not.toContain(encoded)
+  })
+
+  it.each([`http://user:ab/${key}@127.0.0.1:9`, `user:${key}@127.0.0.1`, `http://127.0.0.1:9/#${key}`, `http://127.0.0.1:9/x;token=${key}`])(
+    'credentials of %s',
+    async (baseUrl) => {
+      project(de)
+      for (const extra of [[], ['--debug']]) {
+        clean(await runCli(['translate', '--service', 'libretranslate', '--options', `baseUrl:${baseUrl},retries:0`, ...extra], { cwd: dir }))
+      }
+    },
+  )
+
+  it.each([
+    [[`-token=${key}`, 'translate']],
+    [[`--token=${key}`, 'translate']],
+    [['translate', `-token=${key}`]],
+    [['translate', '--token', `-${key}`]],
+    [['translate', `--tokn=${key}`]],
+    [['clean', key]],
+  ])('%j prints no value', async (args) => {
+    project(de)
+    const result = await runCli(args, { cwd: dir })
+    expect(result.code).toBe(2)
+    clean(result)
+  })
+})
+
+describe('second review: the rest', () => {
+  it('sync does not stop on a computed key when it would remove nothing', async () => {
+    project({
+      'locales/en.json': { a: 'x', b: 'y' },
+      'locales/de.json': { a: 'z' },
+      'pages/i.vue': "<template>{{ $t('a') }}{{ $t(item.label) }}</template>\n",
+    })
+    const result = await runCli(['sync'], { cwd: dir })
+    expect(result.code).toBe(0)
+    expect(result.stderr).toBe('')
+  })
+
+  it('clearStaleTemps leaves files it did not write', async () => {
+    project({
+      'locales/en.json': { used: 'x', dead: 'y' },
+      'pages/i.vue': USE,
+      'locales/.en.json.notes.tmp': 'n',
+      'locales/.en.json.tmp': 'n',
+      'locales/.en.json.deadbeef.tmp': 'n',
+    })
+    await runCli(['clean'], { cwd: dir })
+    expect(readdirSync(join(dir, 'locales')).sort()).toEqual(['.en.json.notes.tmp', '.en.json.tmp', 'en.json'])
+  })
+
+  it('sync does not claim to remove a key of a layer', async () => {
+    project(
+      {
+        'locales/en.json': { a: 'x' },
+        'locales/de.json': { a: 'y' },
+        'pages/i.vue': "<template>{{ $t('a') }}</template>\n",
+        'base/nuxt.config.ts': 'export default {}\n',
+        'base/locales/de.json': { layerOnly: 'z' },
+      },
+      undefined,
+      `extends: ['./base'],`,
+    )
+    expect((await runCli(['sync'], { cwd: dir })).stdout).not.toContain('layerOnly')
+  })
+
+  it.each(['a${b}', 'a&amp;b'])('--to %s is refused', async (to) => {
+    project({ 'locales/en.json': { old: 'x' }, 'pages/i.vue': "<template>{{ $t('old') }}</template>\n" })
+    expect((await runCli(['rename', '--from', 'old', '--to', to], { cwd: dir })).code).toBe(2)
+  })
+
+  it('a "__proto__" key is refused, not dropped; a duplicate behind an escape is found', async () => {
+    project({ 'locales/en.json': '{"__proto__":"x","a":"y"}\n', 'pages/i.vue': USE })
+    expect((await runCli(['format'], { cwd: dir })).code).toBe(2)
+    expect(read(dir, 'locales/en.json')).toContain('__proto__')
+    write(dir, 'locales/en.json', '{"a":"1","\\u0061":"2"}\n')
+    expect((await runCli(['format'], { cwd: dir })).code).toBe(2)
+  })
+
+  it('a very long value does not overflow the reader', async () => {
+    project({ 'locales/en.json': JSON.stringify({ a: 'x'.repeat(20_000_000) }) })
+    const result = await runCli(['check', '--only', 'undefined'], { cwd: dir, timeoutMs: 120_000 })
+    expect(result.stderr).not.toContain('Maximum call stack')
+    expect(result.code).toBe(0)
+  })
+
+  it('text-to-i18n --path . honours what the default walk skips', async () => {
+    project({
+      'pages/a.vue': '<template><p>Own words here</p></template>\n',
+      'dist/b.vue': '<template><p>Built words here</p></template>\n',
+      'tests/c.vue': '<template><p>Test words here</p></template>\n',
+    })
+    await runCli(['text-to-i18n', '--path', '.'], { cwd: dir })
+    expect(read(dir, 'pages/a.vue')).toContain('$t(')
+    expect(read(dir, 'dist/b.vue')).toContain('Built words here')
+    expect(read(dir, 'tests/c.vue')).toContain('Test words here')
   })
 })

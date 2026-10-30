@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Holds translations that are not in the locale files:
+Changed since the last export, and not imported:
   - pots/de.po
 Nothing was exported.
   Import them first, or overwrite with --force.

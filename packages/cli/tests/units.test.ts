@@ -6,7 +6,8 @@ import { parseCsv, stringifyCsv } from '../src/csv'
 import { globToRegExp, readJsonObject, stringifyLike, walkFiles, writeFilesAtomic } from '../src/fs'
 import { glossaryContext } from '../src/glossary'
 import { deletePath, flatten, flattenStrings, getPath, groupBy, pathConflict, setPath, sortKeys } from '../src/json'
-import { addSecret, log } from '../src/log'
+import { request } from '../src/http'
+import { addSecret, addUrlSecrets, log } from '../src/log'
 import { compilePo, parsePo } from '../src/po'
 import { pageNameOf, scanFile } from '../src/source'
 import { KeyRegistry, convertSource, toSlug } from '../src/text-to-i18n'
@@ -70,7 +71,7 @@ describe('po', () => {
     const messages = Object.entries(entries).map(([key, value]) => ({ key, value, source: 'Two\nlines' }))
     const po = compilePo(messages)
     expect(po).toContain('#. Two\n#. lines\nmsgid "plain"')
-    expect(parsePo(po)).toEqual({ messages: entries, fuzzy: [] })
+    expect(parsePo(po)).toEqual({ messages: entries, fuzzy: {} })
   })
 
   it('reads multi-line strings, msgctxt, plurals and comments', () => {
@@ -101,7 +102,10 @@ msgstr[1] ""
 msgid "last"
 msgstr "x"
 `
-    expect(parsePo(po)).toEqual({ messages: { 'ctx.key': 'part one part two', apples: 'Apfel|Äpfel', blank: '', last: 'x' }, fuzzy: ['guess'] })
+    expect(parsePo(po)).toEqual({
+      messages: { 'ctx.key': 'part one part two', apples: 'Apfel|Äpfel', blank: '', last: 'x' },
+      fuzzy: { guess: 'vielleicht' },
+    })
   })
 })
 
@@ -266,6 +270,22 @@ describe('secrets', () => {
 })
 
 describe('url credentials', () => {
+  it('a password with a slash is registered whole and in parts', () => {
+    const out: string[] = []
+    const logSpy = vi.spyOn(console, 'log').mockImplementation((text: unknown) => void out.push(String(text)))
+    addUrlSecrets('http://user:ab/REGISTERED1@host')
+    log.info('echo ab/REGISTERED1')
+    logSpy.mockRestore()
+    expect(out).toEqual(['echo ***'])
+  })
+
+  it('an error names the URL without them', async () => {
+    const failure = (await request('http://someone:UNREGISTERED@127.0.0.1:9/x', { retries: 0 }).catch((error: unknown) => error)) as {
+      details: { URL: string }
+    }
+    expect(failure.details.URL).toBe('http://127.0.0.1:9/x')
+  })
+
   it('are masked in any message, whoever wrote it', () => {
     const out: string[] = []
     const errorSpy = vi.spyOn(console, 'error').mockImplementation((text: unknown) => void out.push(String(text)))

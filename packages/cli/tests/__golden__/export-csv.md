@@ -10,6 +10,16 @@ Exported 3 CSV files to <project>/csv_exports
 
 ## Files
 
+added csv_exports/.i18n-export.json
+
+```
+{
+  "en.csv": "dbbcdcb339bf554c97aadd33e87c078b876c4e518ad3597ce28b83144f04b77a",
+  "de.csv": "a149dbad49a721ad21a2531f0d35854c7236345cd025c9fdc8f79f29d830efaa",
+  "ru.csv": "1f7421ba1b880811f2020d6e9609f40cd3058ff9d6b1ba897f152630704b3144"
+}
+```
+
 changed csv_exports/de.csv
 
 ```

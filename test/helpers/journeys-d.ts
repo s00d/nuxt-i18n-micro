@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import { expect } from 'untestutils/vitest'
 import type { createTranslationWatcherFiles } from './translation-watcher-hmr'
-import { waitForTranslationPayloadValue } from './translation-watcher-hmr'
+import { waitForTranslationHtmlValue, waitForTranslationPayloadValue } from './translation-watcher-hmr'
 
 type Files = ReturnType<typeof createTranslationWatcherFiles>
 type Goto = (path: string, options?: { waitUntil?: 'hydration' }) => Promise<unknown>
@@ -25,7 +25,9 @@ export async function resetHmr(files: Files, baseURL: string, pristine: PayloadV
  * (from a patch or a reset) can reload the document mid-load. Callers first wait for the
  * payload API to serve `text`, so the window only covers that reload; wrong text fails fast.
  */
-export async function gotoSettled(page: Page, goto: Goto, path: string, selector: string, text: string): Promise<void> {
+export async function gotoSettled(page: Page, goto: Goto, baseURL: string, path: string, selector: string, text: string): Promise<void> {
+  // the SSR chunk cache drops on the watcher event: a render before it would not hydrate against the live payload
+  await waitForTranslationHtmlValue(new URL(path, baseURL).href, selector, text)
   await expect(async () => {
     await goto(path, { waitUntil: 'hydration' })
     await expect(page.locator(selector)).toHaveText(text, { timeout: 5_000 })

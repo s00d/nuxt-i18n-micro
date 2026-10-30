@@ -67,7 +67,7 @@ Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` a
 
 The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin.
 
-With `baseUrl` on the locales the fallback is gone. A known host uses its own `baseUrl`, over `metaBaseUrl` and `site.url`, so canonical and `og:url` stay on that domain and `hreflang` points each locale at its domain. Any other host uses `metaBaseUrl`, else the default locale's `baseUrl`, so a spoofed `Host` never reaches your tags. See [Layers and domains](/guide/layers#multiple-domains).
+With `baseUrl` on the locales the fallback is gone. A known host uses its own `baseUrl`, over `metaBaseUrl` and `site.url`, so canonical and `og:url` stay on that domain and `hreflang` points each locale at its domain. Any other host uses `metaBaseUrl`, else the default locale's `baseUrl`, so a spoofed `Host` never reaches your tags. When the default locale has no `baseUrl`, set `metaBaseUrl`: otherwise the main site still uses the request origin. See [Layers and domains](/guide/layers#multiple-domains).
 
 ## Leave locales or pages out
 

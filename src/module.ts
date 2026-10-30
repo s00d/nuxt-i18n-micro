@@ -143,12 +143,8 @@ function buildFullConfig(params: {
 
   return {
     locales: locales ?? [],
-    // a build with domains never takes its origin from a request of an unknown host
-    metaBaseUrl:
-      options.metaBaseUrl ||
-      (locales?.find((locale) => locale.code === defaultLocale) ?? locales?.[0])?.baseUrl ||
-      locales?.find((locale) => locale.baseUrl)?.baseUrl ||
-      undefined,
+    // an unknown host of a build whose default has a domain takes that origin, not the request's
+    metaBaseUrl: options.metaBaseUrl || locales?.find((locale) => locale.code === defaultLocale)?.baseUrl || undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
     trustForwardedHost: options.trustForwardedHost ?? false,

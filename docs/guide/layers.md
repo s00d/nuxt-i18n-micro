@@ -70,7 +70,7 @@ Point both domains at the same server. The request's host decides the rest:
 - **Default:** the host's `baseDefault` locale. Without one, the build default if the host serves it, else the host's first locale.
 - **Served locales:** the locales of that host, plus every locale with no `baseUrl`. On `example.de` that is `de`, `nl` and `fr`.
 - **Locales of other domains** are link targets. `$localePath`, `$switchLocalePath`, `<i18n-switcher>` and `hreflang` give absolute URLs on their `baseUrl`, and `$switchLocale` navigates there. On this host their URLs are a 404, and a cookie or `Accept-Language` cannot pick them.
-- **Any other host** gets the build config, with every `baseUrl` locale as a link target. Nothing from the request is echoed: canonical and `hreflang` use `metaBaseUrl`, else the build default's `baseUrl`.
+- **Any other host** gets the build config, with every `baseUrl` locale as a link target. Nothing from the request is echoed: canonical and `hreflang` use `metaBaseUrl`, else the build default's `baseUrl` (a default with no `baseUrl` needs `metaBaseUrl`, see [SEO](/guide/seo#set-the-public-origin)).
 - **Payload files** in `public/` are static: any host returns any locale's file. Per-domain [generate](/guide/deployment#static-site-nuxi-generate) publishes only that domain's.
 
 `example.de` under each strategy, with `de: '/kontakt'` as a custom path of `contact`:

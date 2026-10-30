@@ -7,7 +7,7 @@ const pathOf = async (locator: { getAttribute: (name: string) => Promise<string 
 describe('J6 seo trailing slash', () => {
   test.override({ harness: 'seo-trailing-slash' })
 
-  test('TS-T1: links and head keep the appended slash', async ({ page, goto }) => {
+  test('TS-T1: links, switcher, redirects and head keep the appended slash', async ({ page, goto, request }) => {
     // step 1: open /en → i18n-link hrefs end in /; canonical, og:url, alternate en and x-default are /en/
     // was: seo-trailing-slash › $localePath / i18n-link honor trailingSlash append
     await goto('/en', { waitUntil: 'domcontentloaded' })
@@ -26,5 +26,23 @@ describe('J6 seo trailing slash', () => {
     expect(await pathOf(page.locator('meta[property="og:url"]'), 'content')).toBe('/en/about/')
     expect(await pathOf(page.locator('link[rel="alternate"][hreflang="en_EN"]'), 'href')).toBe('/en/about/')
     expect(await pathOf(page.locator('link[rel="alternate"][hreflang="de_DE"]'), 'href')).toMatch(/\/a-propos\/$/)
+
+    // step 3: the switcher's hrefs follow the rule, like $switchLocalePath; clicking one lands on that URL
+    await goto('/en', { waitUntil: 'hydration' })
+    await page.click('.language-switcher')
+    await expect(page.locator('a.switcher-locale-de')).toHaveAttribute('href', '/de/')
+    await page.click('a.switcher-locale-de')
+    await expect(page).toHaveURL('/de/')
+
+    // step 4: a locale redirect targets the same form
+    for (const [from, to] of [
+      ['/', '/en/'],
+      ['/about', '/en/about/'],
+      ['/about/', '/en/about/'],
+    ] as const) {
+      const res = await request.get(from, { maxRedirects: 0 })
+      expect(res.status(), from).toBe(302)
+      expect(res.headers().location, from).toBe(to)
+    }
   })
 })

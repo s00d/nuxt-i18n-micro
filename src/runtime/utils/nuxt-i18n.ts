@@ -582,6 +582,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
   const isDev = process.env.NODE_ENV !== 'production'
   const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
+  /** A route object loses a trailing slash in `router.resolve`, so under a slash rule the URL is the target. */
+  const withSlashRule = (switched: RouteLike | string): RouteLike | string =>
+    i18nConfig.trailingSlash ? applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash) : switched
+
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
@@ -600,7 +604,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return router.replace({ ...(switchedRoute as RouteLocationRaw & object), force: true } as RouteLocationRaw)
     }
 
-    return router.push(switchedRoute as RouteLocationRaw)
+    return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
   }
 
   const helper = {
@@ -637,7 +641,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     switchLocaleRoute: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
       const fromLocale = getCurrentLocale(route)
-      return i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) }) as RouteLocationRaw
+      return withSlashRule(i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })) as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

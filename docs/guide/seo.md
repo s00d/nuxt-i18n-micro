@@ -104,7 +104,7 @@ useI18nHead(() => ({
 
 ## Trailing slash
 
-`$localePath`, `$switchLocalePath`, `<i18n-link>` and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
+`$localePath`, `$switchLocalePath`, `$switchLocaleRoute`, `<i18n-link>`, `<i18n-switcher>`, locale redirects and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
 
 ## Nuxt SEO
 

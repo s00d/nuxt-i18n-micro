@@ -194,7 +194,8 @@ const BUTTON_INJECTION_SCRIPT = `
 `
 
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
-  const apiBase = options.base || '/__i18n_api'
+  // no trailing slash: `/` + `/files` would be `//files`, a protocol-relative URL
+  const apiBase = (options.base || '/__i18n_api').replace(/\/+$/, '')
   const translationDir = options.translationDir || 'src/locales'
   const injectButton = options.injectButton !== false // Default is true
 

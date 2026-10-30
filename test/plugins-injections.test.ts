@@ -6,6 +6,7 @@ import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from
 import type { NuxtHooks } from '@nuxt/schema'
 import type { RuntimeNuxtHooks } from '#app'
 import type { ModuleRuntimeHooks } from '../src/module'
+import type { PluginsInjectionsWithAliases } from '../src/runtime/composables/useI18n'
 import type { NuxtAppOnlyInjections, PluginsInjections, TranslationFn } from '../src/runtime/plugins/01.plugin'
 import type { createNuxtI18nPluginApi, NuxtI18n, NuxtI18nPluginProvide } from '../src/runtime/utils/nuxt-i18n'
 
@@ -49,15 +50,22 @@ describe('PluginsInjections typing', () => {
   })
 
   /**
-   * `NuxtAppOnlyInjections` describes helpers provided elsewhere — `$clearCache` by the plugin
-   * API factory, `$defineI18nRoute` by `03.define` — and exists to generate the reference page:
-   * a drifted signature documents a call that does not compile. Kept out of useI18n().
+   * `NuxtAppOnlyInjections` describes `$defineI18nRoute`, provided by `03.define`, and exists to
+   * generate the reference page: a drifted signature documents a call that does not compile.
    */
   it('NuxtAppOnlyInjections follows what is actually provided', () => {
-    type PluginApi = ReturnType<typeof createNuxtI18nPluginApi>['provide']
-    expectTypeOf<NuxtAppOnlyInjections['$clearCache']>().toEqualTypeOf<PluginApi['clearCache']>()
     expectTypeOf<NuxtAppOnlyInjections['$defineI18nRoute']>().toEqualTypeOf<(config: DefineI18nRouteConfig) => Promise<void>>()
-    expectTypeOf<keyof NuxtAppOnlyInjections>().toEqualTypeOf<'$defineI18nRoute' | '$clearCache'>()
+    expectTypeOf<keyof NuxtAppOnlyInjections>().toEqualTypeOf<'$defineI18nRoute'>()
+  })
+
+  // useI18n() is the plugin's object: it must say what that object holds, and navigation is awaitable
+  it('useI18n() types clearCache and promises for switchLocale / switchRoute', () => {
+    type PluginApi = ReturnType<typeof createNuxtI18nPluginApi>['provide']
+    expectTypeOf<PluginsInjectionsWithAliases['clearCache']>().toEqualTypeOf<PluginApi['clearCache']>()
+    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['switchLocale']>>().toEqualTypeOf<Promise<void>>()
+    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['$switchRoute']>>().toEqualTypeOf<Promise<void>>()
+    expectTypeOf<PluginApi['switchLocale']>().returns.toMatchTypeOf<Promise<unknown>>()
+    expectTypeOf<PluginApi['switchRoute']>().returns.toMatchTypeOf<Promise<unknown>>()
   })
 
   // `i18n:register` is called by a runtime plugin (`nuxtApp.callHook`): it is an app hook,

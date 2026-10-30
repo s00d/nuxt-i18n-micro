@@ -646,7 +646,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       setLocale(toLocale)
       return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
-    switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
+    switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {

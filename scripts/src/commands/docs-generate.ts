@@ -490,8 +490,8 @@ export const docsGenerateCommand = defineCommand({
       inBlock('docs/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
     }
 
-    // `$defineI18nRoute` and `$clearCache` reach an app through `useNuxtApp()` only, so
-    // they are not in `PluginsInjections` — and were the last helpers described by hand.
+    // `$defineI18nRoute` reaches an app through `useNuxtApp()` only, so it is not in
+    // `PluginsInjections` — and was the last helper described by hand.
     const appOnly = await readInterface('src/runtime/plugins/01.plugin.ts', 'NuxtAppOnlyInjections')
     for (const symbol of appOnly) {
       const id = `method:${symbol.name}`

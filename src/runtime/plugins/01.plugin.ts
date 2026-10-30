@@ -315,9 +315,9 @@ export interface PluginsInjections {
   /** The path of the current page in another locale, without navigating. */
   $switchLocalePath: (locale: string) => string
   /** Navigate to the current page in another locale. */
-  $switchLocale: (locale: string) => void
+  $switchLocale: (locale: string) => Promise<void>
   /** Navigate to another route, keeping the active locale or switching to `toLocale`. */
-  $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+  $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
   /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
   /** Resolve a path in the given locale, or the active one. */
@@ -331,6 +331,8 @@ export interface PluginsInjections {
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
   /** Install a callback invoked for every unresolved key. Pass `null` to remove it. */
   $setMissingHandler: (handler: MissingHandler | null) => void
+  /** Drop every cached chunk, on the client and in the active dictionary. */
+  $clearCache: () => void
 }
 
 /**
@@ -346,6 +348,4 @@ export interface NuxtAppOnlyInjections {
    * Merges into the active locale and re-applies when the locale changes.
    */
   $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
-  /** Drop every cached chunk, on the client and in the active dictionary. */
-  $clearCache: () => void
 }

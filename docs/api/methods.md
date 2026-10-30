@@ -847,7 +847,7 @@ Drop every cached chunk, on the client and in the active dictionary.
 
 <!-- /generated:method:$clearCache -->
 
-**Access**: `useNuxtApp().$clearCache`. Declared in `NuxtAppOnlyInjections` rather than `PluginsInjections`, so it is typed but deliberately absent from the `useI18n()` helper object:
+**Access**: `useNuxtApp().$clearCache`, or `clearCache` from `useI18n()`:
 
 ```typescript
 const { $clearCache } = useNuxtApp()

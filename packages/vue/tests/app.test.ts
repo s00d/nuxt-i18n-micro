@@ -396,6 +396,8 @@ test('I18nLink and I18nSwitcher with a hand-written routing strategy', async () 
 })
 
 test('I18nSwitcher driven by props: own locales, current locale, label and switch handler', async () => {
+  // an earlier test left a hash, and the switcher keeps the page's
+  window.history.replaceState(null, '', '/')
   const i18n = setup({ locale: 'uk', messages: { en, de } })
   const switched = vi.fn()
   const routeTo = vi.fn((to: string | { path?: string }, locale?: string) => (locale === 'en' ? { path: `/${locale}` } : {}))

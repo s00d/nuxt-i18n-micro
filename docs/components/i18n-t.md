@@ -47,7 +47,7 @@ The first matching case decides the output:
 - A `default` slot receives `{ translation }`, and named slots are ignored.
 - Otherwise each named slot replaces every `{name}` placeholder, before a param of that name. A param value that looks like a placeholder stays text.
 
-`date` and `relativeDate` output carries `data-allow-mismatch="text"`, because the server's clock and time zone are not the browser's. Set [`timeZone`](/api/module-options#timezone) to render one date in both.
+`date` and `relativeDate` output carries `data-allow-mismatch="text"`, because the server's time zone and clock are not the browser's. Set [`timeZone`](/api/module-options#timezone) to render one calendar date in both; `relativeDate` depends on the clock, so it can still differ.
 
 ## Example
 

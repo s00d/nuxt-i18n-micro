@@ -51,6 +51,10 @@ describe('site base on the way out', () => {
     expect(adapter(vi.fn()).resolvePath!({ path: '/guide', query: { x: '1' }, hash: '#a' }, 'fr')).toBe('/fr/guide?x=1#a')
   })
 
+  it('a repeated query value stays repeated', () => {
+    expect(adapter(vi.fn()).resolvePath!({ path: '/guide', query: { x: ['1', '2'] } }, 'fr')).toBe('/fr/guide?x=1&x=2')
+  })
+
   it('a location keeps its hash, and without a base nothing changes', () => {
     const go = vi.fn()
     expect(adapter(go).resolvePath!({ path: '/guide', hash: '#a' }, 'fr')).toBe('/fr/guide#a')

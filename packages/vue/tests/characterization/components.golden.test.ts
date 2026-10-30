@@ -226,7 +226,8 @@ describe('components characterization', () => {
             locale: 'de',
             props,
             slots,
-            provide: { $localePath: (t: string | { path?: string }) => `/de${typeof t === 'string' ? t : (t.path ?? '')}` },
+            // the real `$localePath` resolves a target as the router does
+            provide: { $localePath: (t: string | { path?: string }) => strategy.resolvePath!(t, 'de') },
           }),
         )}`,
       )

@@ -14,7 +14,8 @@ export interface DefineI18nThemeOptions {
    */
   enhanceApp?: NonNullable<Theme['enhanceApp']>
   /**
-   * Overrides not serializable into `virtual:i18n-micro/config`.
+   * Overrides for this theme: `plural` and `missingHandler` cannot be serialized into
+   * `virtual:i18n-micro/config`; the formats and `timeZone` default to what `withI18n` got.
    */
   plural?: PluralFunc
   missingHandler?: (locale: string, key: string, routeName: string) => void
@@ -81,9 +82,9 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
           base: config.base,
           plural: options.plural,
           missingHandler: options.missingHandler,
-          numberFormats: options.numberFormats,
-          datetimeFormats: options.datetimeFormats,
-          timeZone: options.timeZone,
+          numberFormats: options.numberFormats ?? config.numberFormats,
+          datetimeFormats: options.datetimeFormats ?? config.datetimeFormats,
+          timeZone: options.timeZone ?? config.timeZone,
         })
         byApp.set(ctx.app, installed)
       }

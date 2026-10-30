@@ -147,6 +147,8 @@ describe('withI18n', () => {
       locales: [{ code: 'en', iso: 'en-US' }],
       warnOnLocaleMismatch: false,
       localeKeyToCode: { root: 'en' },
+      timeZone: 'UTC',
+      numberFormats: { en: { m: { style: 'percent' } } },
     })
     const plugins = (result.vite?.plugins ?? []) as Array<{
       name: string
@@ -163,6 +165,8 @@ describe('withI18n', () => {
     const loaded = plugin!.load!(resolved!)
     expect(loaded).toContain('"defaultLocale":"en"')
     expect(loaded).toContain('"localeKeyToCode"')
+    expect(loaded).toContain('"timeZone":"UTC"')
+    expect(loaded).toContain('"numberFormats":{"en":{"m":{"style":"percent"}}}')
     expect(loaded).toContain('export const config')
 
     const messagesId = plugin!.resolveId!('virtual:i18n-micro/messages')

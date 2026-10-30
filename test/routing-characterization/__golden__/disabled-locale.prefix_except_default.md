@@ -98,9 +98,9 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | /de?q=1#top [localized-index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
 | /de/about/ | /de/about?q=1#top [localized-about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /es/missing | /es/missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | /es/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /es/xx/about | /es/xx/about | null |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
 | /de/de/about | /de/de/about?q=1#top [—] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de |
 | /es | /es?q=1#top [—] |  | /es?q=1#top [null] | /es?q=1#top [null] | null | null | null |
 | /es/about | /es/about?q=1#top [—] |  | /es/about?q=1#top [null] | /es/about?q=1#top [null] | null | null | null |

@@ -433,13 +433,23 @@ export class I18nPathStrategy {
   private isUnknownLocale(path: string, segment: string): boolean {
     if (!this.unknownLocale?.test(segment) || this.codes.has(segment)) return false
     if (this.probe(path)?.params?.locale !== segment) return false
+    return !this.isOwnPage(path)
+  }
+
+  /** The prefix of a disabled locale. A page on that segment is that page, a catch-all is not. */
+  private isDisabledPrefix(path: string, segment: string): boolean {
+    return this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix' && !this.isOwnPage(path)
+  }
+
+  /** Whether a page of its own answers the URL, in any form: no catch-all. */
+  private isOwnPage(path: string): boolean {
     const page = this.findPage(path)
-    return !page || page === UNLOCALIZED || page.catchAll
+    return page === UNLOCALIZED || (page !== null && !page.catchAll)
   }
 
   private notFoundReason(path: string): string | null {
     const segment = path.split('/')[1] ?? ''
-    if (this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix') return 'Locale disabled'
+    if (this.isDisabledPrefix(path, segment)) return 'Locale disabled'
     if (this.isUnknownLocale(path, segment)) return 'Unknown locale'
     if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
@@ -466,7 +476,7 @@ export class I18nPathStrategy {
     if (this.ctx.strategy === 'no_prefix') return null
     const path = splitUrl(currentPath).path || '/'
     // a runtime-disabled prefix is a 404 (`shouldReturn404`), not an unprefixed URL
-    if (this.disabledCodes.has(path.split('/')[1] ?? '')) return null
+    if (this.isDisabledPrefix(path, path.split('/')[1] ?? '')) return null
     const locale = this.getLocaleFromPath(path)
     if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
     if (this.ctx.strategy === 'prefix_and_default') return null

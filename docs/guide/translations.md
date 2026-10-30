@@ -1,246 +1,116 @@
 ---
-title: 'Folder Structure Guide'
-description: 'Recommended locales folder layout.'
-outline: 'deep'
+title: 'Translation files'
+description: 'Where translation keys live, how root and page files combine with fallbacks, and how a page loads its dictionary.'
+outline: [2, 3]
 ---
 
-# 📂 Folder Structure Guide
+# Translation files
 
-## 📖 Introduction
+Translations are plain JSON files: one root file per locale for shared keys, and one file per page and locale for that page's keys. Read this when you add pages, share keys between them or set up fallbacks. You learn which file a key must go in, what a page can see, and when each file is loaded.
 
-Organizing your translation files effectively is essential for maintaining a scalable and efficient internationalization (i18n) system. `Nuxt I18n Micro` simplifies this process by offering a clear approach to managing root-level and page-specific translations. This guide will walk you through the recommended folder structure and explain how `Nuxt I18n Micro` handles these translations.
-
-## 🗂️ Recommended Folder Structure
-
-`Nuxt I18n Micro` organizes translations into root-level files and page-specific files within the `pages` directory. With `translationPayloads.mode: 'premerged'` (default), root-level translations are automatically merged into every page file at build time, so each page has a complete set of translations without runtime merging overhead.
-
-With `mode: 'source'`, source files stay separate in Nitro assets and are merged at runtime via the `/_locales` route. See [Serverless Payload Output](/guide/performance#serverless-payload-output).
-
-### 🔧 Basic Structure
-
-Here’s a basic example of the folder structure you should follow:
+## Layout
 
 ```tree
 locales/
-├── pages/
-│   ├── index/
-│   │   ├── en.json
-│   │   ├── fr.json
-│   │   └── ar.json
-│   ├── about/
-│   │   ├── en.json
-│   │   ├── fr.json
-│   │   └── ar.json
-├── en.json
-├── fr.json
-└── ar.json
+├── en.json                 # root: menus, footer, buttons
+├── de.json
+└── pages/
+    ├── index/              # pages/index.vue
+    │   ├── en.json
+    │   └── de.json
+    ├── about/              # pages/about.vue
+    │   ├── en.json
+    │   └── de.json
+    └── products-id/        # pages/products/[id].vue
+        ├── en.json
+        └── de.json
 ```
 
-To split shared vs app dictionaries without pre-merging on disk, keep `pages/` under the primary `translationDir` and put shared root files in sibling dirs listed in [`additionalTranslationDirs`](/api/module-options#additionaltranslationdirs):
+- The folder under `locales/pages/` is the Nuxt **route name** of the page: `pages/products/[id].vue` is `products-id`, `pages/blog/[slug]/comments.vue` is `blog-slug-comments`.
+- Keys can nest to any depth; `$t('auth.form.login')` reads `{ "auth": { "form": { "login": … } } }`.
+- `translationDir` moves the folder (`'locales'` by default, relative to the project root, also under the Nuxt 4 `app/` layout).
+- Missing files are created as `{}` when Nuxt resolves the pages, unless [`disableWatcher`](/api/module-options#disablewatcher) is set.
 
-```tree
-common/
-  en.json
-frontend/
-  en.json
-  pages/
-    home/
-      en.json
+## What a page sees
+
+A page's dictionary is its root file merged with its page file, deeply (every level). The page file wins on a clash:
+
+```json
+// locales/en.json
+{ "title": "My shop", "nav": { "home": "Home", "cart": "Cart" } }
+```
+
+```json
+// locales/pages/about/en.json
+{ "title": "About us", "nav": { "cart": "Basket" } }
 ```
 
 ```ts
-i18n: {
-  translationDir: 'frontend',
-  additionalTranslationDirs: ['common'],
-}
+// on /about
+t('title') // 'About us'
+t('nav.home') // 'Home'   (root)
+t('nav.cart') // 'Basket' (page wins)
+// on any other page
+t('title') // 'My shop'
 ```
 
-### 📄 Explanation of Structure
+A page without its own folder gets the root dictionary alone. Keys of other pages are not visible.
 
-#### 1. 🌍 Root-Level Translation Files
+### Fallback locales
 
-- **Path:** `/locales/{locale}.json` (e.g., `/locales/en.json`)
-- **Purpose:** These files contain translations shared across the entire application (navigation menus, headers, footers, etc.). With `mode: 'premerged'` (default), they are automatically merged into every page-specific file at build time, so the server returns a single pre-built file per page.
+A key missing in the active locale is taken from its fallback locale before the key itself is shown:
 
-  **Example Content (`/locales/en.json`):**
-
-  ```json
-  {
-    "menu": {
-      "home": "Home",
-      "about": "About Us",
-      "contact": "Contact"
-    },
-    "footer": {
-      "copyright": "© 2024 Your Company"
-    }
-  }
-  ```
-
-#### 2. 📄 Page-Specific Translation Files
-
-- **Path:** `/locales/pages/{routeName}/{locale}.json` (e.g., `/locales/pages/index/en.json`)
-- **Purpose:** These files contain translations specific to individual pages. With `mode: 'premerged'` (default), root-level translations are merged in as a base at build time, so each page file becomes self-contained.
-
-  **Example Content (`/locales/pages/index/en.json`):**
-
-  ```json
-  {
-    "title": "Welcome to Our Website",
-    "description": "We offer a wide range of products and services to meet your needs."
-  }
-  ```
-
-  **Example Content (`/locales/pages/about/en.json`):**
-
-  ```json
-  {
-    "title": "About Us",
-    "description": "Learn more about our mission, vision, and values."
-  }
-  ```
-
-### 📂 Handling Dynamic Routes and Nested Paths
-
-`Nuxt I18n Micro` automatically transforms dynamic segments and nested paths in routes into a flat folder structure using a specific renaming convention. This ensures that all translations are stored in a consistent and easily accessible manner.
-
-#### Dynamic Route Translation Folder Structure
-
-When dealing with dynamic routes, such as `/products/[id]`, the module converts the dynamic segment `[id]` into a static format within the file structure.
-
-**Example Folder Structure for Dynamic Routes:**
-
-For a route like `/products/[id]`, the translation files would be stored in a folder named `products-id`:
-
-```tree
-locales/pages/
-├── products-id/
-│   ├── en.json
-│   ├── fr.json
-│   └── ar.json
-```
-
-**Example Folder Structure for Nested Dynamic Routes:**
-
-For a nested route like `/products/key/[id]`, the translation files would be stored in a folder named `products-key-id`:
-
-```tree
-locales/pages/
-├── products-key-id/
-│   ├── en.json
-│   ├── fr.json
-│   └── ar.json
-```
-
-**Example Folder Structure for Multi-Level Nested Routes:**
-
-For a more complex nested route like `/products/category/[id]/details`, the translation files would be stored in a folder named `products-category-id-details`:
-
-```tree
-locales/pages/
-├── products-category-id-details/
-│   ├── en.json
-│   ├── fr.json
-│   └── ar.json
-```
-
-### 🛠 Customizing the Directory Structure
-
-If you prefer to store translations in a different directory, `Nuxt I18n Micro` allows you to customize the directory where translation files are stored. You can configure this in your `nuxt.config.ts` file.
-
-**Example: Customizing the Translation Directory**
-
-```typescript
+```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
   i18n: {
-    translationDir: 'i18n', // Custom directory path
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+      { code: 'de-at', iso: 'de-AT', fallbackLocale: 'de' },
+    ],
+    defaultLocale: 'en',
+    fallbackLocale: 'en', // global, for every locale
   },
 })
 ```
 
-This will instruct `Nuxt I18n Micro` to look for translation files in the `/i18n` directory instead of the default `/locales` directory.
+- A locale's own `fallbackLocale` is followed to its end: `de-at` → `de` → `en`.
+- The global `fallbackLocale` is the weakest layer, under every chain.
+- The chain is applied to the root files first, then to the page files. So a page file in a fallback locale still beats the root file of the active locale.
 
-## ⚙️ How Translations are Loaded
+Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a warning in the browser console in dev ([`missingWarn`](/api/module-options#missingwarn)).
 
-### 🌍 Dynamic Locale Routes
+## Sharing and other sources
 
-`Nuxt I18n Micro` uses dynamic locale routes to load translations efficiently. When a user visits a page, the module determines the appropriate locale and loads the corresponding translation files based on the current route and locale.
+| Need | Option |
+| --- | --- |
+| Only root files, no `pages/` folders | [`disablePageLocales: true`](/api/module-options#disablepagelocales) |
+| Two pages read one page folder | [`routesLocaleLinks`](/api/module-options#routeslocalelinks): `{ 'about-us': 'about' }` |
+| Shared root files in another folder | [`additionalTranslationDirs`](/api/module-options#additionaltranslationdirs): `['common']` (the main `translationDir` wins) |
+| Keys from a Nuxt layer | Layers' files merge, the project's own files win. See [Layers](/guide/layers) |
+| Keys added at runtime | the [`i18n:register`](/api/events) hook, `$mergeTranslations`, `$setTranslation` |
+| Keys inline in a page component | `$defineI18nRoute({ locales: { en: { … } } })`, see [Page config](/guide/per-component-translations) |
 
-```mermaid
-flowchart TB
-    A["📥 Request: /fr/about"] --> B["🔍 Detect locale: fr"]
-    A --> C["🔍 Detect route: about"]
+## How a page loads its dictionary
 
-    B --> D["📂 Load payload via /_locales (premerged or source mode)"]
-    C --> D
+The module builds one payload per page and locale: `/{apiBaseUrl}/{page}/{locale}/data.json` (`/_locales/about/de/data.json` by default).
 
-    D --> E["✅ Translations ready (premerged at build time, or merged at runtime in source mode)"]
+1. **Server render.** Nitro detects the locale and the page loads its payload from the server loader directly, with no HTTP request. The dictionary is not written into the HTML payload, so pages stay small.
+2. **Hydration.** The browser fetches the same payload. The server already emitted a `<link rel="preload">` for it, so the fetch starts with the HTML.
+3. **Navigation.** The next page's payload replaces the dictionary. The leaving page's keys still resolve until it is gone (end of the page transition, or `page:finish`), so a fading-out page does not flash raw keys.
+4. **Cache.** Loaded payloads are cached on the server and in the browser; [Performance](/guide/performance) has the size and TTL knobs.
 
-    E --> F["Available via $t()"]
-```
+`translationPayloads.mode` decides how payloads are built. `'premerged'` (default) writes every page × locale file at build time. `'source'` keeps the source files and merges per request, which is smaller for large catalogs on Edge targets. Both give the same dictionaries. Where the files end up for each deploy target is on [Deployment](/guide/deployment).
 
-For example:
+## Editing in development
 
-- Visiting `/en/index` will load translations from `/locales/pages/index/en.json`.
-- Visiting `/fr/about` will load translations from `/locales/pages/about/fr.json`.
+`nuxt dev` reads the files live. Saving a translation file refreshes the open page's dictionary in place: no reload, removed keys disappear, and a change to a root file reaches every page. A broken JSON file logs a warning with its path and is treated as empty. Set [`hmr: false`](/api/module-options#hmr) to refresh by hand instead.
 
-This method ensures that only the necessary translations are loaded, optimizing both server load and client-side performance.
+## Related
 
-### 💾 Caching and Pre-rendering
-
-To further enhance performance, `Nuxt I18n Micro` supports caching and pre-rendering of translation files:
-
-- **Caching**: Once a translation file is loaded, it’s cached for subsequent requests, reducing the need to repeatedly fetch the same data.
-- **Pre-rendering**: During the build process, you can pre-render translation files for all configured locales and routes, allowing them to be served directly from the server without runtime delays.
-
-## 📝 Best Practices
-
-### 📂 Use Page-Specific Files Wisely
-
-Leverage page-specific files to keep translations organized. This keeps each page’s translations lean and fast to load, which is especially important for pages with complex or large content.
-
-### 🔑 Keep Translation Keys Consistent
-
-Use consistent naming conventions for your translation keys across files. This helps maintain clarity and prevents issues when managing translations, especially as your application grows.
-
-### 🗂️ Organize Translations by Context
-
-Group related translations together within your files. For example, group all button labels under a `buttons` key and all form-related texts under a `forms` key. This not only improves readability but also makes it easier to manage translations across different locales.
-
-### ⚠️ Nesting Depth Limit (2 Levels Recommended)
-
-During client-side navigation, `Nuxt I18n Micro` uses an optimized 2-level deep merge to combine translations from the leaving and entering pages. This ensures that overlapping nested keys (e.g., both pages have keys under `common.*`) are preserved during transition animations.
-
-**This works correctly for the standard `Section → Key → Value` structure (2 levels):**
-
-```json
-// Page A translations
-{ "common": { "fromA": "Text A" } }
-
-// Page B translations
-{ "common": { "fromB": "Text B" } }
-
-// During transition, both are available:
-// { "common": { "fromA": "Text A", "fromB": "Text B" } }
-```
-
-**However, if you use 3+ levels of nesting, deeper keys may be overwritten during transitions:**
-
-```json
-// Page A translations
-{ "auth": { "form": { "login": "Login" } } }
-
-// Page B translations
-{ "auth": { "form": { "register": "Register" } } }
-
-// During transition: "login" key is lost
-// { "auth": { "form": { "register": "Register" } } }
-```
-
-::: tip
-For 99% of i18n projects, the `Section → Key → Value` structure is sufficient and performs best. If you need deeper nesting, ensure that different pages don't share the same nested prefix at level 3+, or flatten your keys (e.g., `auth.form.login` → `authFormLogin`).
-:::
-
-### 🧹 Regularly Clean Up Unused Translations
-
-Over time, your application might accumulate unused translation keys, especially if features are removed or restructured. Periodically review and clean up your translation files to keep them lean and maintainable.
+- Next: [Routing strategies](/guide/strategy): which URLs each locale gets
+- [Page config](/guide/per-component-translations): per-page locales and inline translations
+- [Methods](/api/methods): `$t`, `$tc`, `$tn`, `$td`
+- [Deployment](/guide/deployment)

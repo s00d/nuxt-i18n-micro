@@ -1,367 +1,120 @@
 ---
-title: 'SEO Guide for Nuxt I18n Micro'
-description: 'SEO setup for multilingual Nuxt sites.'
-outline: 'deep'
+title: SEO
+description: The lang, hreflang, canonical and og:locale tags the module adds, how their base URL is chosen, and how to override them per page.
+outline: [2, 3]
 ---
 
-# 🌐 SEO Guide for Nuxt I18n Micro
+# SEO
 
-## 📖 Introduction
+With `meta: true` (the default) every localized page gets `<html lang dir>`, a canonical link, `hreflang` alternates, `x-default` and Open Graph locale tags. You need this page when you want to set the public origin, tune which locales appear in the tags, or override them for one page. Most sites only need a `site.url` or `metaBaseUrl` and correct `iso` codes.
 
-Effective SEO (Search Engine Optimization) is essential for ensuring that your multilingual site is accessible and visible to users worldwide through search engines. `Nuxt I18n Micro` simplifies the process of managing SEO for multilingual sites by automatically generating essential meta tags and attributes that inform search engines about the structure and content of your site.
+## Minimal setup
 
-This guide explains how `Nuxt I18n Micro` handles SEO to enhance your site's visibility and user experience without requiring additional configuration.
-
-## ⚙️ Automatic SEO Handling
-
-### SEO Meta Generation Flow
-
-```mermaid
-flowchart LR
-    A[Page Render] --> B{meta: true?}
-    B -->|No| C[Skip]
-    B -->|Yes| D[useLocaleHead]
-    D --> E[HTML lang/dir]
-    D --> F[Canonical URL]
-    D --> G[hreflang links]
-    D --> H[Open Graph]
-```
-
-**Generated tags:**
-
-| Tag             | Example                                                  |
-| --------------- | -------------------------------------------------------- |
-| HTML attributes | `<html lang="en" dir="ltr">`                             |
-| Canonical       | `<link rel="canonical" href="https://example.com/about">`                      |
-| hreflang        | `<link rel="alternate" hreflang="en" href="https://example.com/about">`        |
-| x-default       | `<link rel="alternate" hreflang="x-default" href="https://example.com/about">` |
-| Open Graph      | `<meta property="og:locale" content="en_US">`            |
-
-#### `og` per locale (`og:locale` vs BCP 47)
-
-`<html lang>` and `hreflang` use **BCP 47** via `locale.iso` (e.g. `ar-AE`).  
-Open Graph requires **`language_TERRITORY`** with an **underscore** (`ar_AE`), per the [OG protocol](https://ogp.me/).
-
-By default, `og:locale` is derived from `iso` when the mapping is unambiguous (`en-US` → `en_US`).  
-Set an explicit **`og`** string when you need a custom value (e.g. `zh-Hans` → `zh_CN`).  
-If neither `og` nor a convertible `iso` is available, `og:locale` tags are not generated — in development you get a console warning (respects `missingWarn`).
-
-```typescript
-i18n: {
-  meta: true,
-  locales: [
-    { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl' },
-    { code: 'en', iso: 'en-US' }, // og:locale → en_US
-    { code: 'zh', iso: 'zh-Hans', og: 'zh_CN' }, // script tags need explicit og
-  ],
-}
-```
-
-### 🔑 Key SEO Features
-
-When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically manages the following SEO aspects:
-
-1. **🌍 Language and Direction Attributes**:
-   - The module sets the `lang` and `dir` attributes on the `<html>` tag according to the current locale and text direction (e.g., `ltr` for English or `rtl` for Arabic).
-
-2. **🔗 Canonical URLs**:
-   - The module generates a canonical link (`<link rel="canonical">`) for each page, ensuring that search engines recognize the primary version of the content.
-
-3. **🌐 Alternate Language Links (`hreflang`)**:
-   - The module automatically generates `<link rel="alternate" hreflang="">` tags for every locale **the page is served in** (`$defineI18nRoute({ locales })` / `routeLocales` restrict it). A locale without the page gets no alternate, so no link points at another page. This helps search engines understand which language versions of your content are available.
-   - Each locale emits **one** tag: `hreflang = iso || code`. When `iso` is set, routing `code` is never used as `hreflang` (so market keys like `mx` do not become invalid language tags).
-   - Optional `hreflangBaseLanguage: true` also emits a bare-language tag derived from `iso` (e.g. `es-ES` → `es`), claimed by the first regional locale in `locales`.
-
-4. **🌏 `x-default` Hreflang**:
-   - The module automatically generates a `<link rel="alternate" hreflang="x-default">` tag pointing to the default locale's URL, when the default locale serves the page. This tells search engines which URL to show users whose language doesn't match any of the defined locales. No additional configuration is required — it works automatically when `meta: true` is set.
-
-5. **🔖 Open Graph Metadata**:
-   - The module generates Open Graph meta tags (`og:locale`, `og:url`, etc.) for each locale, which is particularly useful for social media sharing and search engine indexing.
-
-### 🛠️ Configuration
-
-To enable these SEO features, ensure the `meta` option is set to `true` in your `nuxt.config.ts` file:
-
-```typescript
+```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: 'de', iso: 'de-DE', dir: 'ltr' },
       { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
     ],
     defaultLocale: 'en',
-    translationDir: 'locales',
-    meta: true, // Enables automatic SEO management
+    metaBaseUrl: 'https://example.com',
   },
 })
 ```
 
-### 🌍 Dynamic `metaBaseUrl` for Multi-Domain Deployments
-
-When `metaBaseUrl` is unset, absolute SEO URLs resolve in this order (#240):
-
-1. `site.url` from [`nuxt-site-config`](https://nuxtseo.com/docs/site-config) (if that module is present — e.g. via `@nuxtjs/seo`)
-2. Otherwise the hostname from the current request (`useRequestURL()` / `window.location.origin`)
-
-The request-origin fallback is the only path that reads `X-Forwarded-Host` / `X-Forwarded-Proto` (`metaTrustForwardedHost` / `metaTrustForwardedProto`, both default `true` for proxy compatibility). Prefer `metaBaseUrl` or `site.url` so SEO URLs never depend on those headers. If the app is reachable without a trusted proxy that overwrites them, set the flags to `false` — otherwise a client can spoof the host used in canonical / `og:url` / `hreflang`.
-
-That means apps already setting `site.url` for sitemap / robots / schema.org do **not** need a second `metaBaseUrl` declaration:
-
-```typescript
-export default defineNuxtConfig({
-  site: {
-    url: process.env.NUXT_SITE_URL, // also used by micro for canonical / og:url / hreflang
-  },
-  i18n: {
-    meta: true,
-    // metaBaseUrl omitted — picks up site.url, then request origin
-  },
-})
-```
-
-Without `site.url`, a single application instance can still serve **multiple domains** with correct SEO tags for each via the request origin:
-
-```typescript
-export default defineNuxtConfig({
-  i18n: {
-    meta: true,
-    // metaBaseUrl is undefined by default — resolved dynamically from the request
-  },
-})
-```
-
-For example, a request to `https://site-a.com/en/about` will produce:
+`/de/about` then renders:
 
 ```html
-<link rel="canonical" href="https://site-a.com/en/about" /> <meta property="og:url" content="https://site-a.com/en/about" />
+<html lang="de-DE" dir="ltr">
+<link rel="canonical" href="https://example.com/de/about">
+<link rel="alternate" hreflang="en-US" href="https://example.com/about">
+<link rel="alternate" hreflang="de-DE" href="https://example.com/de/about">
+<link rel="alternate" hreflang="ar-SA" href="https://example.com/ar/about">
+<link rel="alternate" hreflang="x-default" href="https://example.com/about">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://example.com/de/about">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="ar_SA">
 ```
 
-While the same app serving `https://site-b.com/en/about` will produce:
+## Which tags you get
 
-```html
-<link rel="canonical" href="https://site-b.com/en/about" /> <meta property="og:url" content="https://site-b.com/en/about" />
-```
+- **hreflang**: one tag per locale that serves the page, value `iso` (or `code` when `iso` is missing). A page restricted with [Page config](/guide/per-component-translations) or `routeLocales` lists only its locales. [`hreflangBaseLanguage: true`](/api/module-options#hreflangbaselanguage) also adds the bare language (`es-ES` → `es`) for the first regional locale.
+- **x-default**: the default locale's URL, only when the default locale serves the page.
+- **og:locale**: derived from `iso` (`en-US` → `en_US`). Set `og` on the locale when the mapping is not direct, for example `{ code: 'zh', iso: 'zh-Hans', og: 'zh_CN' }`; without either, no `og:locale` is written and dev mode warns.
+- **canonical / og:url**: the current URL without query parameters, except those in [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist) (default `page`, `sort`, `filter`, `search`, `q`, `query`, `tag`).
 
-If you need a fixed base URL that always wins over `site.url`, pass a static string:
+By strategy:
 
-```typescript
-metaBaseUrl: 'https://example.com'
-```
+| Strategy | hreflang and x-default | canonical, og:url, og:locale, html attrs |
+| --- | --- | --- |
+| `prefix`, `prefix_except_default`, `prefix_and_default` | yes | yes |
+| `no_prefix` | no (one URL serves every locale) | yes |
 
-### 🔍 Canonical Query Whitelist
+## Set the public origin
 
-By default, query parameters are stripped from canonical and `og:url` to avoid duplicate content. You can whitelist specific query parameters that should be preserved:
+Absolute URLs use the first of:
 
-```typescript
-i18n: {
-  canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
-}
-```
+1. [`metaBaseUrl`](/api/module-options#metabaseurl);
+2. `site.url` from `nuxt-site-config` (installed by `@nuxtjs/seo`);
+3. the request origin.
 
-Only parameters listed in `canonicalQueryWhitelist` will appear in canonical URLs. All other query parameters (e.g. tracking, session IDs) are removed.
+Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto` because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links. Set both to `false` if the app is reachable directly.
 
-### 🚫 Disabling Meta Tags Per Page
+The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin. For a fixed domain per locale use `baseUrl` on the locale, see [Layers and domains](/guide/layers#multiple-domains).
 
-You can disable SEO meta tag generation for specific pages using `defineI18nRoute()`:
+## Leave locales or pages out
 
-```vue
-<script setup>
-// Disable all SEO meta tags for this page
-defineI18nRoute({
-  disableMeta: true,
-})
-</script>
-```
-
-You can also disable meta only for specific locales:
-
-```vue
-<script setup>
-// Disable meta tags only for English locale on this page
-defineI18nRoute({
-  disableMeta: ['en'],
-})
-</script>
-```
-
-When `disableMeta` is active, no `hreflang`, `canonical`, `og:locale`, `og:url`, or `x-default` tags are generated for the affected page/locale.
-
-### 🔇 Disabled Locales
-
-Locales with `disabled: true` are automatically excluded from all SEO tag generation — no `hreflang`, `og:locale:alternate`, or alternate links are created for them:
-
-```typescript
+```ts
 i18n: {
   locales: [
     { code: 'en', iso: 'en-US' },
-    { code: 'fr', iso: 'fr-FR', disabled: true }, // excluded from SEO tags
-  ]
+    { code: 'ru', iso: 'ru-RU', seo: false }, // routable, but not in hreflang / og:locale:alternate
+    { code: 'fr', iso: 'fr-FR', disabled: true }, // no routes, no switching, no tags
+  ],
 }
 ```
 
-### 🙈 Opt-out locales (`seo: false`)
+If the default locale has `seo: false`, no `x-default` is written. To turn the tags off for one page, use `disableMeta` in [Page config](/guide/per-component-translations#turn-off-seo-tags), or [`routeDisableMeta`](/api/module-options#routedisablemeta) in the config.
 
-For locales that should remain routable and translated but should not appear in cross-locale discovery tags, set `seo: false`. Those locales are omitted from `hreflang` alternates and `og:locale:alternate`. If your configured **default** locale has `seo: false`, the `x-default` link is not emitted either.
+## Override tags on one page
 
-```typescript
-i18n: {
-  locales: [
-    { code: 'en', iso: 'en-US' },
-    { code: 'ru', iso: 'ru-RU', seo: false }, // internal / non-indexed locale
-  ]
-}
-```
-
-### 📌 Strategy-Specific Behavior
-
-| Strategy                | hreflang links   | x-default             | canonical      | og:url |
-| ----------------------- | ---------------- | --------------------- | -------------- | ------ |
-| `prefix`                | ✅ Locales serving the page | ✅ Default locale URL¹ | ✅ Current URL | ✅     |
-| `prefix_except_default` | ✅ Locales serving the page | ✅ Unprefixed URL¹     | ✅ Current URL | ✅     |
-| `prefix_and_default`    | ✅ Locales serving the page | ✅ Default locale URL¹ | ✅ Current URL | ✅     |
-| `no_prefix`             | ❌ Not generated | ❌ Not generated      | ✅ Current URL | ✅     |
-
-¹ Only when the default locale serves the page.
-
-For the `no_prefix` strategy, only `canonical`, `og:url`, `og:locale`, and `html` attributes (`lang`, `dir`) are generated. Alternate language links (`hreflang`) and `x-default` are not generated because there are no distinct URLs per locale.
-
-## Page-level overrides (`useI18nHead`)
-
-For **articles, guides, or any CMS content** where not every locale exists or URLs come from an API, use [`useI18nHead`](/composables/useI18nHead) on the page instead of a custom i18n head plugin.
-
-### Article with partial translations
+For CMS content where only some translations exist, or URLs come from an API, replace the generated tags with [`useI18nHead`](/composables/useI18nHead):
 
 ```vue
 <script setup lang="ts">
-const article = await loadArticle()
-// article.locales = { en: '...', de: '...' } — only translated locales
+const { data: article } = await useFetch('/api/articles/hello')
+// article.value.urls = { en: 'https://example.com/blog/hello', de: 'https://example.com/de/artikel/hallo' }
 
-useI18nHead({
-  meta: [{ property: 'og:title', content: article.title }],
+useI18nHead(() => ({
+  meta: [{ property: 'og:title', content: article.value?.title ?? '' }],
   replace: {
-    hreflang: Object.entries(article.locales).map(([locale, href]) => ({
-      rel: 'alternate',
-      hreflang: locale,
-      href,
-    })),
-    ogAlternates: Object.keys(article.locales),
+    hreflang: Object.entries(article.value?.urls ?? {}).map(([locale, href]) => ({ rel: 'alternate', hreflang: locale, href })),
+    ogAlternates: Object.keys(article.value?.urls ?? {}),
   },
-})
+}))
 </script>
 ```
 
-### Per-locale slugs with `$setI18nRouteParams`
+`replace` can also set or remove `canonical`, `xDefault`, `ogLocale` and `ogUrl`; `disable` drops whole groups (`'hreflang'`, `'x-default'`, `'canonical'`, `'og'`, `'og-alternates'`, `'html'`). Pass a getter so values recompute after a locale switch. For per-locale slugs, set `$setI18nRouteParams` first ([Localized paths](/guide/custom-locale-routes#per-locale-slugs)) and the generated alternates already use them.
 
-When slugs differ per language, set route params first, then override alternates with real URLs:
+## Trailing slash
 
-```vue
-<script setup lang="ts">
-const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
-const { data: article } = await useFetch(`/api/articles/${slug}`)
+`$localePath`, `$switchLocalePath`, `<i18n-link>` and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
 
-$defineI18nRoute({
-  localeRoutes: { en: '/blog/[slug]', de: '/artikel/[slug]' },
-})
+## Nuxt SEO
 
-$setI18nRouteParams({
-  en: { slug: article.value.slugEn },
-  de: { slug: article.value.slugDe },
-})
-
-useI18nHead({
-  replace: {
-    hreflang: ['en', 'de'].map((locale) => ({
-      rel: 'alternate',
-      hreflang: locale,
-      href: article.value.urls[locale],
-    })),
-    ogAlternates: ['en', 'de'],
-  },
-})
-</script>
-```
-
-### HTTPS origin behind a proxy
-
-Prefer pinning the public origin so forwarded headers are never consulted:
+[`@nuxtjs/seo`](https://nuxtseo.com/) (sitemap, robots, schema.org) works with this module through `nuxt-site-config` 4+. List `nuxt-i18n-micro` first so site config can read the locales, and set `site.url` once — it also feeds the tags above.
 
 ```ts
-site: { url: 'https://example.com' }
-// or: i18n: { metaBaseUrl: 'https://example.com' }
-```
-
-If you must derive the origin from the request (multi-domain, no `site.url`), the published defaults trust proxy headers. That is the insecure fallback — keep it only behind a proxy that overwrites `X-Forwarded-*`, or opt out:
-
-```ts
-i18n: {
-  meta: true,
-  // request-origin fallback (only when metaBaseUrl and site.url are unset)
-  metaTrustForwardedHost: true, // set false if the app is reachable without a trusted proxy
-  metaTrustForwardedProto: true,
-}
-```
-
-More examples (canonical override, `x-default`, reactive fetch, shared helpers): [useI18nHead composable](/composables/useI18nHead).
-
-### ⚠️ Trailing Slash
-
-`$localePath` / `$switchLocalePath` (and therefore canonical / `hreflang`) follow the same
-slash rule as NuxtLink. By default the module inherits
-`experimental.defaults.nuxtLink.trailingSlash`. Override with `i18n.trailingSlash` when i18n
-paths should diverge from global NuxtLink defaults.
-
-```ts
-export default defineNuxtConfig({
-  // Inherited automatically when unset on i18n:
-  experimental: {
-    defaults: {
-      nuxtLink: {
-        trailingSlash: 'append', // or 'remove'
-      },
-    },
-  },
-  i18n: {
-    meta: true,
-    // Optional override (wins over experimental.defaults.nuxtLink.trailingSlash):
-    // trailingSlash: 'append',
-  },
-})
-```
-
-`$localePath` and `$switchLocalePath` stay aligned with `<i18n-link>` / SEO tags.
-
-### 🎯 Benefits
-
-By enabling the `meta` option, you benefit from:
-
-- **📈 Improved Search Engine Rankings**: Search engines can better index your site, understanding the relationships between different language versions.
-- **👥 Better User Experience**: Users are served the correct language version based on their preferences, leading to a more personalized experience.
-- **🔧 Reduced Manual Configuration**: The module handles SEO tasks automatically, freeing you from the need to manually add SEO-related meta tags and attributes.
-
-## 🔗 Nuxt SEO (`@nuxtjs/seo`)
-
-[`@nuxtjs/seo`](https://nuxtseo.com/) bundles sitemap, robots, schema.org, OG images, and related modules. It integrates with **nuxt-i18n-micro** through [`nuxt-site-config`](https://nuxtseo.com/docs/site-config/guides/i18n) (v4+).
-
-### Requirements
-
-- **`@nuxtjs/seo` 3+** (current releases use `nuxt-site-config` 4+, which registers the `nuxt-site-config:i18n` plugin for micro)
-- **`i18n.meta: true`** (recommended — micro supplies locale-aware head tags; Nuxt SEO adds sitemap, schema.org, etc.)
-
-### Module order
-
-List **nuxt-i18n-micro before `@nuxtjs/seo`** so site config can read your locale setup:
-
-```typescript
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro', '@nuxtjs/seo'],
-  site: {
-    url: 'https://example.com',
-    name: 'My Site',
-  },
+  site: { url: 'https://example.com', name: 'My Site' },
   i18n: {
-    meta: true,
     defaultLocale: 'en',
     locales: [
       { code: 'en', iso: 'en-US' },
@@ -371,23 +124,11 @@ export default defineNuxtConfig({
 })
 ```
 
-### Translated site name & description
+A translated site name and description come from the `nuxtSiteConfig.name` / `nuxtSiteConfig.description` keys in your locale files. The error `Plugin nuxt-seo:defaults depends on nuxt-site-config:i18n but they are not registered` means `@nuxtjs/seo` is older than 3; upgrade it ([#133](https://github.com/s00d/nuxt-i18n-micro/issues/133)).
 
-Nuxt Site Config reads optional translation keys from your locale files:
+## Related
 
-```json
-{
-  "nuxtSiteConfig": {
-    "name": "My Site",
-    "description": "My site description"
-  }
-}
-```
-
-Per-locale values in `locales/en.json`, `locales/de.json`, etc. are picked up automatically.
-
-### Troubleshooting
-
-If you see `Plugin nuxt-seo:defaults depends on nuxt-site-config:i18n but they are not registered`, upgrade **`@nuxtjs/seo` to 3+** (see [issue #133](https://github.com/s00d/nuxt-i18n-micro/issues/133)). Older `nuxt-site-config` 3.x only wired i18n for `@nuxtjs/i18n`, not micro.
-
-More: [Sitemap i18n guide](https://nuxtseo.com/docs/sitemap/guides/i18n), [Site Config i18n guide](https://nuxtseo.com/docs/site-config/guides/i18n).
+- [`useI18nHead`](/composables/useI18nHead) and [`useLocaleHead`](/composables/useLocaleHead)
+- [Page config](/guide/per-component-translations)
+- [Localized paths](/guide/custom-locale-routes)
+- [Layers and domains](/guide/layers)

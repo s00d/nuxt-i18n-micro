@@ -1,80 +1,58 @@
 ---
-title: 'DevTools in `nuxt-i18n-micro`'
-description: 'Built-in DevTools for managing translations.'
-outline: 'deep'
+title: DevTools
+description: Edit translation files in the Nuxt DevTools tab and inspect locale state in Vue DevTools during development.
+outline: [2, 3]
 ---
 
-# 🛠️ DevTools in `nuxt-i18n-micro`
+# DevTools
 
-## Vue DevTools (browser extension)
+In `nuxt dev` the module adds two debugging aids: an **i18n Micro** tab in Nuxt DevTools for browsing and editing translation files, and a Vue DevTools inspector for the live locale and loaded dictionaries. Both exist only in development and add nothing to production builds. You need no setup beyond having Nuxt DevTools enabled.
 
-In development, the module can register a **Vue DevTools** custom inspector and timeline via `@vue/devtools-api`. This is separate from the Nuxt DevTools tab below.
-
-| Tool | Best for |
-|------|----------|
-| **Vue DevTools** | Live locale, in-memory translation cache, `$t` timeline (`debug: true`), missing-key events |
-| **Nuxt DevTools tab** | Editing JSON files on disk, config overview, import/export |
-
-The vue-devtools plugin is registered only during `nuxt dev` (not in production builds). Dev-only bridge state in the main plugin is stripped by `import.meta.dev` dead-code elimination.
-
-Disable the browser integration while keeping the Nuxt tab:
+## Nuxt DevTools tab
 
 ```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
+  devtools: { enabled: true }, // the tab is registered only when DevTools are on
+})
+```
+
+Open Nuxt DevTools (`Shift + Alt + D`) and pick **i18n Micro**. The tab shows:
+
+- every JSON file under `locales/` (root and `pages/`) of every layer, plus root files from `additionalTranslationDirs`;
+- an editor per file; **Save** writes the file back to disk, and the dev server reloads the translations;
+- **Export** / **Import** of a file as JSON, and **Stats** with key counts and translation coverage;
+- a config view of the resolved module options;
+- **Translate**, which fills missing keys with a machine-translation engine you configure in the tab's settings.
+
+Saving writes only existing `.json` files inside your translation directories. When a file exists in several layers, the project's copy is written.
+
+![DevTools](/devtools.png)
+
+## Vue DevTools inspector
+
+With the Vue DevTools browser extension, the module registers an i18n inspector (current locale, route chunk, loaded keys) and a timeline with locale switches, chunk loads and missing keys.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
   i18n: {
-    vueDevtools: false,
+    debug: true, // also log every $t / $ts / $tc call on the timeline
+    // vueDevtools: false, // turn the inspector off, keep the Nuxt tab
   },
 })
 ```
 
-Verbose `$t` timeline events require `debug: true`.
+[`vueDevtools`](/api/module-options) defaults to `true`. `debug: true` is verbose; keep it for short sessions.
 
----
+## Outside Nuxt
 
-## 📖 What Is Nuxt DevTools?
+The same UI is published as [`@i18n-micro/devtools-ui`](/integrations/devtools-ui-package) for Vite apps built on the framework packages; see that page for the setup.
 
-DevTools is a powerful development assistant seamlessly integrated into the `nuxt-i18n-micro` module. It provides an intuitive interface for managing localization and translation tasks, making your workflow faster and more efficient. Designed for developers who value convenience, Nuxt DevTools bridges the gap between coding and runtime management.
+## Related
 
-![DevTools](/devtools.png)
-
-## 🌟 Key Features of DevTools in `nuxt-i18n-micro`
-
-### 1. **Locale Management**
-
-Effortlessly browse, select, and manage locales in your application. Whether you’re working with a single language or multiple, DevTools provides a centralized hub for handling all localization settings.
-
-### 2. **Translation Editing**
-
-Edit translation files directly through an integrated JSON editor. This eliminates the need for external tools, allowing real-time updates and changes without interrupting your workflow.
-
-### 3. **File Import and Export**
-
-Simplify the process of managing translation files:
-
-- **Export**: Save translations as a JSON file for backups or external use.
-- **Import**: Load updated translation files into the project to keep content up-to-date.
-
-### 4. **Real-Time Previews**
-
-View changes immediately within the development environment. This feature ensures translations and configurations are accurate before going live.
-
-### 5. **Seamless Nuxt Integration**
-
-DevTools works natively with `nuxt-i18n-micro`, enhancing its capabilities without requiring additional setup. It adapts to your localization needs while maintaining Nuxt's modular and flexible structure.
-
----
-
-## 🛠️ Why Use DevTools?
-
-Nuxt DevTools is an indispensable addition for projects requiring localization. It helps developers by:
-
-- **Saving Time**: Automates repetitive tasks like file management and format validation.
-- **Reducing Errors**: Provides a safe, intuitive environment for editing translations.
-- **Improving Collaboration**: Enables non-developers to manage translations easily.
-- **Streamlining Workflows**: Consolidates multiple localization tasks into a single interface.
-
----
-
-## 🚀 Take Control of Localization
-
-With Nuxt DevTools integrated into `nuxt-i18n-micro`, managing multilingual applications becomes straightforward and efficient. Whether you're fine-tuning translations or adding new locales, DevTools equips you with the tools needed to deliver polished, user-friendly experiences.
+- [Translation files](/guide/translations)
+- [DevTools UI package](/integrations/devtools-ui-package)
+- [CLI](/guide/cli)

@@ -1,36 +1,36 @@
 ---
-title: 'Runtime i18n Overrides'
-description: 'Per-environment locale defaults at runtime.'
+title: Runtime overrides
+description: Change the default locale, fallback locale or disabled locales per instance of one build, with environment variables or runtimeConfig.
+outline: [2, 3]
 ---
 
-# Runtime i18n Overrides
+# Runtime overrides
 
-Use this guide when you need one build artifact to run with different locale defaults per environment (for example: different tenant instances).
+Runtime overrides let one build artifact run with different locale settings per environment or tenant, without rebuilding. You can change the default locale, the fallback locale and which locales are disabled. Routing, redirects, rendering, server helpers and the browser all use the overridden values.
 
-## What can be overridden at runtime
+## Set overrides with environment variables
 
-The module supports safe runtime overrides for:
+```bash
+NUXT_I18N_DEFAULT_LOCALE=de \
+NUXT_I18N_FALLBACK_LOCALE=en \
+NUXT_I18N_DISABLED_LOCALES=fr,it \
+node .output/server/index.mjs
+```
 
-- `defaultLocale`
-- `fallbackLocale`
-- `disabledLocales`
+| Variable | Alias |
+| --- | --- |
+| `NUXT_I18N_DEFAULT_LOCALE` | `NUXT_PUBLIC_I18N_RUNTIME_DEFAULT_LOCALE` |
+| `NUXT_I18N_FALLBACK_LOCALE` | `NUXT_PUBLIC_I18N_RUNTIME_FALLBACK_LOCALE` |
+| `NUXT_I18N_DISABLED_LOCALES` (comma-separated) | `NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES` |
 
-These overrides are applied on top of the build-time config from `.nuxt/i18n.strategy.mjs` and `.nuxt/i18n.config.mjs`.
+The server reads them once at start; restart to apply a change. The browser gets the resolved values from the server, so they work on the client too.
 
-## What cannot be overridden at runtime
-
-`strategy` (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) is a build-time concern because it affects generated route behavior.
-
-If you pass a runtime strategy override, it is ignored and a warning is emitted.
-
-Under `prefix_except_default` and `prefix_and_default` the **default locale** is fixed at build as well: its pages are the unprefixed routes generated for it. A runtime `defaultLocale` that differs from the build one, or a runtime `disabledLocales` entry naming it, is ignored with a warning. Under `prefix` and `no_prefix` a runtime `defaultLocale` applies.
-
-## RuntimeConfig-based overrides
-
-Provide runtime values under `runtimeConfig.public.i18nRuntime`:
+## Set overrides in runtimeConfig
 
 ```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
   runtimeConfig: {
     public: {
       i18nRuntime: {
@@ -43,43 +43,42 @@ export default defineNuxtConfig({
 })
 ```
 
-## Environment variable overrides
+A value set in `runtimeConfig.public.i18nRuntime` wins over the `NUXT_I18N_*` variable for the same field.
 
-You can also configure overrides via environment variables (read once by the server; `runtimeConfig` values win over them):
+Not to be confused with the build-time `DEFAULT_LOCALE` variable, which replaces `defaultLocale` while building and needs no runtime support.
 
-- `NUXT_I18N_DEFAULT_LOCALE`
-- `NUXT_I18N_FALLBACK_LOCALE`
-- `NUXT_I18N_DISABLED_LOCALES` (comma-separated, e.g. `fr,it`)
+## What can and cannot change
 
-Fallback aliases are also supported:
+| Setting | At runtime |
+| --- | --- |
+| `defaultLocale` | Yes under `prefix` and `no_prefix`. Under `prefix_except_default` and `prefix_and_default` it is fixed at build (its pages are the unprefixed routes); an override is ignored with a warning. |
+| `fallbackLocale` | Yes. |
+| `disabledLocales` | Adds to the locales disabled at build; never re-enables one. The build default cannot be disabled under `prefix_except_default` / `prefix_and_default`. |
+| `strategy` | No. A runtime strategy is ignored with a warning; build one artifact per strategy. |
 
-- `NUXT_PUBLIC_I18N_RUNTIME_DEFAULT_LOCALE`
-- `NUXT_PUBLIC_I18N_RUNTIME_FALLBACK_LOCALE`
-- `NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES`
+Invalid values never break the app. Each case logs one warning per server process:
 
-## Validation rules
+- disabling every locale is ignored;
+- a `defaultLocale` that is not enabled falls back to the first enabled locale;
+- a `fallbackLocale` that is not enabled keeps the build value if it is enabled, otherwise there is no fallback.
 
-At runtime, the module validates overrides to avoid broken state:
+## Read the effective config
 
-- You cannot disable all locales.
-- Runtime `disabledLocales` add to the locales disabled at build (`locale.disabled: true`); they never re-enable one.
-- `defaultLocale` must point to an enabled locale (and is fixed at build under `prefix_except_default` / `prefix_and_default`, see above).
-- `fallbackLocale` must point to an enabled locale; otherwise the build `fallbackLocale` is kept when it is enabled, else there is no fallback.
+```vue
+<script setup lang="ts">
+const { $getI18nConfig } = useNuxtApp()
+const config = $getI18nConfig() // build config with overrides applied
+</script>
+```
 
-If an override is invalid, the module keeps a safe value and logs one warning (once per server process; the browser does not repeat it). The resolved config is shared by every request: treat `$getI18nConfig()` as read-only (it is deep-frozen in development).
+Treat it as read-only: it is shared by every request and frozen in development. Importing the config from `#build/i18n.strategy.mjs` gives the build values without overrides.
 
-## Where overrides apply
+## Disabled locales and static files
 
-The overrides are resolved once on the server and used everywhere: routing (a runtime-disabled locale prefix answers 404, `/` redirects to the runtime default under `prefix`), redirects, the page render, `useI18nLocale()`, the server helpers and the payload route. The server sends the applied values to the browser in the payload, so the client routes and validates with the same config — environment variables included, which the browser cannot read itself.
+A runtime-disabled locale answers 404 on its routes and payload route, but its payload files are still in `.output/public/_locales/` and a static file server returns them. When those files must not be reachable, disable the locale at build time with `disabled: true`.
 
-## Notes for multi-instance deployments
+## Related
 
-This runtime feature is designed for per-instance locale activation and defaults without rebuilding.
-
-If instances require different URL strategies (`no_prefix` vs `prefix`), use separate builds for each strategy.
-
-## Disabled locales and static payloads
-
-`runtimeConfig.public.i18nRuntime.disabledLocales` updates routing, switcher, and the Nitro payload **handler** — but Nitro serves files under `public/` **before** that handler.
-
-If `translationPayloads.publicAssets` (or Node SSR’s forced public copy) already wrote `/_locales/{page}/{locale}/data.json`, a runtime disable cannot hide that file. Prefer `locale.disabled: true` at build so premerge does not emit that locale’s static payloads.
+- [Deployment](/guide/deployment)
+- [Layers and domains](/guide/layers)
+- [Routing strategies](/guide/strategy)

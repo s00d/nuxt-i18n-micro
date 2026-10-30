@@ -1,210 +1,142 @@
 ---
-title: 'Migration from nuxt-i18n'
-description: 'Migrate from @nuxtjs/i18n to Nuxt I18n Micro.'
-outline: 'deep'
+title: 'Migrating from @nuxtjs/i18n'
+description: 'Map @nuxtjs/i18n options, composables and translation files to nuxt-i18n-micro.'
+outline: [2, 3]
 ---
 
-# 🔄 Migrating from `nuxt-i18n` to `Nuxt I18n Micro`
+# Migrating from @nuxtjs/i18n
 
-## Which guide do you need?
+This page maps a `@nuxtjs/i18n` app onto nuxt-i18n-micro: options, helpers and file layout. Use it when you swap the module in an existing app. You keep your URLs (the strategy names are the same) and move translations into JSON files per page.
 
-| You are migrating from…                | Guide                                            |
-| -------------------------------------- | ------------------------------------------------ |
-| `@nuxtjs/i18n` (vue-i18n based module) | **This page**                                    |
-| `nuxt-i18n-micro` v2.x                 | [Upgrading from v2.x to v3.x](/guide/upgrade) |
+::: tip Upgrading nuxt-i18n-micro itself?
+See [Upgrading](/guide/upgrade).
+:::
 
-## Why Migrate?
-
-- **Improved performance**: ~51% faster builds and ~54% less build memory vs `@nuxtjs/i18n` **v10.6** in our [benchmark fixtures](/guide/performance-results)
-- **Simplified configuration**: Streamlined setup with sensible defaults
-- **Better resource management**: Optimized handling of large translation files
-
-## Key Differences
-
-| Feature                 | `nuxt-i18n`                      | `Nuxt I18n Micro`                         |
-| ----------------------- | -------------------------------- | ----------------------------------------- |
-| Translation files       | JS/TS/JSON, loaded via `vueI18n` | JSON only, auto-generated in dev          |
-| Route generation        | Runtime                          | Build-time (`@i18n-micro/route-strategy`) |
-| Translation loading     | Bundled into JS                  | Lazy-loaded JSON per page                 |
-| Locale state            | `useI18n()` from `vue-i18n`      | `useI18nLocale()` composable              |
-| `detectBrowserLanguage` | Supported                        | Use `autoDetectLanguage` instead          |
-
-## Step-by-Step
-
-### 1. Install
+## Swap the module
 
 ```bash
+npm uninstall @nuxtjs/i18n
 npm install nuxt-i18n-micro
 ```
 
-### 2. Update Configuration
-
-**Before (nuxt-i18n):**
-
-```typescript
+```ts
+// nuxt.config.ts — before
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n'],
+  modules: ['@nuxtjs/i18n'],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US' },
-      { code: 'fr', iso: 'fr-FR' },
+      { code: 'en', language: 'en-US', file: 'en.json' },
+      { code: 'de', language: 'de-DE', file: 'de.json' },
     ],
     defaultLocale: 'en',
-    vueI18n: './i18n.config.js',
-    detectBrowserLanguage: { useCookie: true },
+    strategy: 'prefix_except_default',
+    langDir: 'locales',
+    detectBrowserLanguage: { useCookie: true, cookieKey: 'i18n_redirected', redirectOn: 'root' },
   },
 })
 ```
 
-**After (Nuxt I18n Micro v3):**
-
-```typescript
+```ts
+// nuxt.config.ts — after
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
     ],
     defaultLocale: 'en',
+    strategy: 'prefix_except_default',
     translationDir: 'locales',
-    meta: true,
-    localeCookie: 'user-locale',
-    autoDetectLanguage: true,
+    localeCookie: 'i18n_redirected',
+    autoDetectPath: '/',
   },
 })
 ```
 
-### 3. Reorganize Translation Files
+## Options
 
-Move translations to the `locales` directory in JSON format. Here is a full project comparison:
+| `@nuxtjs/i18n` | nuxt-i18n-micro |
+| --- | --- |
+| `locales[].code` | `locales[].code` |
+| `locales[].language` (`iso` before v9) | `locales[].iso` |
+| `locales[].name` | `locales[].displayName` |
+| `locales[].dir` | `locales[].dir` |
+| `locales[].domain` | `locales[].baseUrl` (+ `baseDefault`) |
+| `locales[].file` / `files`, `langDir`, `lazy` | `translationDir`; files are found by name and always loaded per page |
+| `defaultLocale`, `strategy` | same names, same four values |
+| `baseUrl` | `metaBaseUrl` |
+| `customRoutes: 'config'` + `pages` | `globalLocaleRoutes` |
+| `detectBrowserLanguage: false` | `redirects: false` (no redirects) or `autoDetectLanguage: false` (ignore the header) |
+| `detectBrowserLanguage.useCookie` / `cookieKey` | `localeCookie: '<name>'` (`null` turns the cookie off) |
+| `detectBrowserLanguage.redirectOn: 'root'` | `autoDetectPath: '/'` (default) |
+| `detectBrowserLanguage.redirectOn: 'no prefix'` | `autoDetectPath: 'no_prefix'` |
+| `detectBrowserLanguage.redirectOn: 'all'` | `autoDetectPath: '*'` |
+| `vueI18n` config file (`fallbackLocale`, `numberFormats`, `datetimeFormats`) | `fallbackLocale`, `numberFormats`, `datetimeFormats` in `i18n` |
+
+There is no `alwaysRedirect`: with a cookie set, `/` follows it on every visit. The full list is [Module options](/api/module-options); detection rules are on [Locale detection](/guide/locale-detection).
+
+## Helpers and composables
+
+| `@nuxtjs/i18n` / vue-i18n | nuxt-i18n-micro (template / `useI18n()`) |
+| --- | --- |
+| `const { t } = useI18n()` | `const { t } = useI18n()`, `$t` in templates |
+| `t('key', count)`, `tc` | `$tc('key', count)` |
+| `te('key')` | `$has('key')` |
+| `n(value, 'currency')`, `d(date, 'short')` | `$tn(value, 'currency')`, `$td(date, 'short')` |
+| — | `$tdr(date)`: relative time ("in 3 days") |
+| `locale.value` | `$getLocale()` |
+| `locales.value` | `$getLocales()` |
+| `setLocale('de')` | `$switchLocale('de')` |
+| `useLocalePath()('about')` | `$localePath({ name: 'about' })` |
+| `useLocaleRoute()` | `$localeRoute()` |
+| `useSwitchLocalePath()('de')` | `$switchLocalePath('de')` |
+| `useSetI18nParams()` | `$setI18nRouteParams()` |
+| `useLocaleHead()` | automatic with `meta: true`; [`useLocaleHead`](/composables/useLocaleHead) for custom heads |
+| `defineI18nRoute({ paths: { de: '/ueber-uns' }, locales: [...] })` | `$defineI18nRoute({ localeRoutes: { de: '/ueber-uns' }, locales: [...] })` |
+| `<NuxtLinkLocale to="about">` | `<i18n-link :to="{ name: 'about' }">` |
+| `<i18n-t>` | `<i18n-t>` (slots fill `{name}` placeholders) |
+| `$i18n` in server routes | `useTranslationServerMiddleware(event)`, see [Server routes and API](/guide/server-side-translations) |
+
+`useI18n()` is auto-imported. `$defineI18nRoute` must keep its `$`: the build reads that call. All helpers: [Methods](/api/methods).
+
+## Translation files
+
+Move the keys of one big file per locale into a root file plus one file per page:
 
 ```tree
-- tab: "Before (nuxt-i18n)"
-  children:
-    - name: my-app
-      children:
-        - name: i18n
-          note: "langDir"
-          children:
-            - name: locales
-              children:
-                - name: en.json
-                  status: deleted
-                  note: "all translations in one file"
-                - name: ru.json
-                  status: deleted
-                - name: de.json
-                  status: deleted
-        - name: pages
-          children:
-            - index.vue
-            - page.vue
-        - name: server
-          children:
-            - tsconfig.json
-        - name: nuxt.config.ts
-          status: modified
-          note: "config will change"
-        - package.json
-- tab: "After (Nuxt I18n Micro)"
-  children:
-    - name: my-app
-      children:
-        - name: locales
-          status: added
-          note: "translationDir"
-          children:
-            - name: en.json
-              status: added
-              note: "root-level translations"
-            - name: ru.json
-              status: added
-            - name: de.json
-              status: added
-            - name: pages
-              status: added
-              note: "page-specific"
-              children:
-                - name: index
-                  status: added
-                  children:
-                    - name: en.json
-                      status: added
-                    - name: ru.json
-                      status: added
-                    - name: de.json
-                      status: added
-                - name: page
-                  status: added
-                  children:
-                    - name: en.json
-                      status: added
-                    - name: ru.json
-                      status: added
-                    - name: de.json
-                      status: added
-        - name: pages
-          children:
-            - name: index.vue
-              status: modified
-              note: "API changes"
-            - name: page.vue
-              status: modified
-        - name: server
-          children:
-            - tsconfig.json
-        - name: nuxt.config.ts
-          status: modified
-          note: "new config"
-        - package.json
+locales/
+├── en.json              # keys used on many pages (nav, footer)
+├── de.json
+└── pages/
+    ├── index/en.json    # keys of pages/index.vue
+    └── about/en.json    # keys of pages/about.vue
 ```
 
-::: tip
-Missing page-specific translation files are **auto-generated** in development mode — just run `nuxt dev` and the module will create empty JSON files for each page and locale.
-:::
+Keeping everything in the root files works too, and is the quickest first step. Set `disablePageLocales: true` until you split them. See [Translation files](/guide/translations).
 
-### 4. Update Navigation
+### Message syntax
 
-```diff
-- <nuxt-link :to="{ name: 'index' }">Home</nuxt-link>
-+ <NuxtLink :to="$localeRoute({ name: 'index' })">Home</NuxtLink>
-+ <!-- or use the built-in component -->
-+ <i18n-link :to="{ name: 'index' }">Home</i18n-link>
-```
+| vue-i18n | nuxt-i18n-micro |
+| --- | --- |
+| `{name}` named interpolation | same |
+| `car \| cars` (2 forms: 1 → first) | forms are picked by count from 0: write `no cars \| one car \| {count} cars` |
+| `@:other.key` linked messages | not supported: repeat the text or compose in code |
+| `@.upper:` modifiers | not supported: format in code or use `<i18n-t>` |
+| `{'@'}` literal escapes | not needed: only `{word}` tokens are replaced |
+| JS/TS message files | JSON only |
 
-### 5. Update SEO
+The plural rule is replaceable with the [`plural`](/api/module-options#plural) option.
 
-Remove any manual SEO configurations from `nuxt-i18n`. Nuxt I18n Micro generates `hreflang`, canonical URLs, and Open Graph tags automatically when `meta: true` is set.
+## Check after the switch
 
-### 6. Test
+- Every URL you had still resolves; the strategy names match, custom paths move to `globalLocaleRoutes` or `$defineI18nRoute`.
+- `hreflang`, canonical and `og:locale` come out of the box with `meta: true`; remove hand-written ones.
+- A JSON parse error logs the file path; a missing key logs a warning in the browser console in dev.
 
-Thoroughly test translations, locale switching, redirects, and SEO meta tags.
+## Related
 
----
-
-## 🛡️ Common Issues and Troubleshooting
-
-### ❌ Translation Files Not Loading
-
-Ensure translation files are in the correct directory and follow JSON format. Verify that `translationDir` matches your file location.
-
-### ⚠️ Route Not Found Errors
-
-Check that all locale codes in `locales` array are correct and that routes are properly set up.
-
-### 🏷️ Missing SEO Tags
-
-Verify that `meta: true` is set and each locale has a valid `iso` code.
-
-### 🔄 Hydration Mismatches
-
-If using `no_prefix` strategy, set the locale in a server plugin with `order: -10` using `useI18nLocale().setLocale()` to ensure server and client agree on the locale. See [Custom Language Detection](/guide/custom-auto-detect).
-
-### 🍪 Redirects Not Working
-
-For prefix strategies, ensure `localeCookie: 'user-locale'` is set. Without a cookie, the server redirect plugin has no way to remember the user's preferred locale across page reloads.
-
-## API mapping
-
-TODO (docs step 2): `@nuxtjs/i18n` helpers and composables mapped to this module (`useLocalePath` → `$localePath`, `setLocale` → `$switchLocale`, `detectBrowserLanguage` → `autoDetectLanguage` / `autoDetectPath` / `localeCookie`).
+- Next: [Upgrading](/guide/upgrade)
+- [Translation files](/guide/translations)
+- [Routing strategies](/guide/strategy)
+- [Locale detection](/guide/locale-detection)

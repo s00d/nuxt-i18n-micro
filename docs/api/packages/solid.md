@@ -21,7 +21,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: SolidI18nOptions) => SolidI18n` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 19 members |
+| `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nContext` | const | `import("solid-js").Context<SolidI18n \| undefined>` |
 | `I18nDefaultLocaleContext` | const | `import("solid-js").Context<string \| undefined>` |
@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 50 members |
+| `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `SolidI18n` | class | 61 members |
@@ -51,7 +51,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `UseI18nOptions` | interface | 2 members |
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| undefined` |
 
-<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
 <summary><code>I18nProviderProps</code> — 4 members</summary>
@@ -82,7 +82,7 @@ import { /* … */ } from '@i18n-micro/solid'
 
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
 
-<code>ModuleOptions</code> — 50 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
 <summary><code>SolidI18n</code> — 61 members</summary>

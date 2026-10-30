@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/node'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
-| `FormatService` | class | 19 members |
+| `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18n` | class | 59 members |
 | `I18nOptions` | interface | 11 members |
@@ -34,7 +34,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `Translations` | interface | 1 members |
 
-<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
 <summary><code>I18n</code> — 59 members</summary>

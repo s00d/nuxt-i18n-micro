@@ -88,6 +88,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 function getDefaultLocale: (astro: AstroGlobal) => string
 function getGlobalRoutingStrategy: () => I18nRoutingStrategy | null

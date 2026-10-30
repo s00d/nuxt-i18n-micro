@@ -15,7 +15,7 @@ outline: [2, 3]
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `to` **\*** | `RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string` | — | Target route. Localized automatically; an external URL is passed through unchanged. |
-| `activeStyle` | `Partial<CSSStyleValue>` | — | Inline style applied while the link points at the current route. |
+| `activeStyle` | `CSSProperties` | — | Inline style applied while the link points at the current route. |
 
 **\*** required.
 

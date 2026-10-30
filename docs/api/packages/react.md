@@ -21,7 +21,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: ReactI18nOptions) => ReactI18n` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 19 members |
+| `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nContext` | const | `import("react").Context<ReactI18n \| null>` |
 | `I18nDefaultLocaleContext` | const | `import("react").Context<string \| null>` |
@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 50 members |
+| `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `ReactI18n` | class | 55 members |
@@ -56,7 +56,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `UseI18nReturn` | interface | 22 members |
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| null` |
 
-<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
 <summary><code>I18nGroupProps</code> — 279 members</summary>
@@ -1272,7 +1272,7 @@ import { /* … */ } from '@i18n-micro/react'
 
 </details>
 
-<code>ModuleOptions</code> — 50 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
 <summary><code>ReactI18n</code> — 55 members</summary>

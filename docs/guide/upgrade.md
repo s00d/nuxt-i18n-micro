@@ -82,6 +82,29 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 - `$tdr` gives real future dates (`in 3 days`, or `tomorrow` with `numeric: 'auto'`) and `Invalid Date` for an invalid input.
 - A `{param}` placeholder reads only the params you pass (`{constructor}` stays as written).
 - `<i18n-t>` with `number`, `date` or `relativeDate` keeps `params`; they are merged in.
+- **Locales with three or more integer plural categories use `Intl.PluralRules`.** `ru`, `uk`, `pl`, `cs`, `he`, `ar`, `ro`, `sl` and the like pick by category when the template has one form per category (`яблоко | яблока | яблок`: 21 → `яблоко`, 22 → `яблока`, 0 → `яблок`), or one more for zero (`нет | {count} яблоко | {count} яблока | {count} яблок`). English, German, French, Spanish, Japanese and every other locale with one or two categories keep the index rule. So does any other shape, and a template whose first form has no `{count}` while a later one does (`нет яблок | одно яблоко | {count} яблок`). **Check Russian-style templates of exactly three forms with no `{count}` at all and a zero form first:** `нет | одно | много` now reads as `one | few | many`. Add `{count}` to a later form, or use a fourth form. See [`$tc`](/api/methods#tc).
+- **A custom `plural` rule keeps its signature.** Returning `null` falls back to the built-in rule, which now includes the categories above.
+- `{placeholder}` names may hold any character but braces and spaces: `{имя}`, `{first-name}` and `{user.name}` are read from `params`. Without such a param they stay as written, as before.
+- **`timeZone` option.** Set it (`Europe/Berlin`) to render one date on the server and in every browser.
+
+### `<i18n-t>`
+
+- **`html` escapes `params`.** Only the translation is trusted markup. A param that held markup on purpose now shows as text: put the markup in the translation and pass the data as params, or use slots without `html`.
+- **Slots work with `plural`, `number`, `date` and `relativeDate`,** and a `default` slot receives `{ translation }` in those cases too. Every `{name}` is filled, not only the first.
+- **A slot beats a param of the same name.** A param value that looks like a placeholder stays text.
+- **`null` means not set** for `plural`, `number`, `date` and `relativeDate`. `:plural="null"` used to fail the render, `:date="null"` rendered 1970.
+- `plural` counts like `$tc`: `1.5` stays `1.5` and takes the last form; it used to be cut to `1`. A `customPluralRule` sees `1.5` too. Its other contract is unchanged: same arguments, its answer is used as is, `null` renders empty.
+- `hideIfEmpty` applies to `plural`, `number`, `date` and `relativeDate`.
+- `date` and `relativeDate` output carries `data-allow-mismatch="text"`: a clock or a time zone that differs between server and browser no longer warns during hydration.
+- `.innerHTML` and `textContent` attributes are dropped along with `innerHTML`.
+- `<i18n-t>` and `<i18n-group>` read the active dictionary, as `$t` does, not the route's chunk. The text is the same unless `cacheMaxSize` evicted that chunk, which used to show raw keys.
+
+### `<i18n-switcher>` and `<i18n-link>`
+
+- **A click on a switcher link is one navigation.** It is a plain `<a>` calling `$switchLocale`, not a `NuxtLink` plus a click handler, so `router-link-active` classes are gone. Ctrl/cmd-click opens a new tab and leaves this tab alone.
+- The button is `type="button"`, so it no longer submits a surrounding form, and has `aria-expanded`. Escape and a click outside close the dropdown; two switchers no longer stay open together.
+- The wrapper and dropdown have the classes `i18n-switcher-wrapper` and `i18n-switcher-dropdown`; the button has `i18n-switcher-button` as well as `language-switcher`. Default styles use logical CSS properties (`inset-inline-start`, `margin-inline-start`) and one set of values, and the caret is `▾`. Each link has `lang`, and `dir` when the locale sets it.
+- `<i18n-link>`: `https://`, `mailto:` and `tel:` are matched in any case (`HTTPS://x.com`, `Mailto:`). A bare `report.pdf` or `index.html` is a route, not `https://report.pdf`; `example.com` stays external. `activeStyle` ignores a trailing slash, the query and the hash.
 
 ### Server cache
 
@@ -103,7 +126,14 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 | --- | --- | --- |
 | `@i18n-micro/react`, `@i18n-micro/solid` | router adapters moved to the `/router` subpath | `import { createReactRouterAdapter } from '@i18n-micro/react/router'` (Solid: `createSolidRouterAdapter` from `@i18n-micro/solid/router`) |
 | `@i18n-micro/react`, `@i18n-micro/preact` | a link to `/` or a locale root is active on an exact match only; `className` on the switcher adds to `i18n-switcher-wrapper` | check active-link styles |
-| `@i18n-micro/vue` | canonical / `og:url` keep `canonicalQueryWhitelist` params with the vue-router adapter | — |
+| `@i18n-micro/vue` (2.0.0) | canonical / `og:url` keep `canonicalQueryWhitelist` params with the vue-router adapter | — |
+| `@i18n-micro/vue` (2.0.0) | `I18nT` is a functional component and follows [`<i18n-t>`](#i18n-t) above; `I18nSwitcher` and `I18nLink` follow [the section above](#i18n-switcher-and-i18n-link) | a `ref` on `<I18nT>` no longer gives a component instance |
+| `@i18n-micro/vue` (2.0.0) | `I18nLink` and `createVueRouterAdapter` resolve `name`, `query` and `hash`; `#top` stays on this page; `switchLocale` and the switcher keep the query and hash | check tests that pinned `/de` for a named target |
+| `@i18n-micro/vue` (2.0.0) | `useLocaleHead` no longer builds `//de/` with the default `baseUrl: '/'`; canonical and `hreflang` of one page agree (`/de`, was `/de/`), and whitelisted query params reach `hreflang` and `x-default`, as in Nuxt | — |
+| `@i18n-micro/vue` (2.0.0) | `I18nRoutingStrategy`: `resolvePath` may get a location object and a path with a query and hash; new optional `toHref` | custom strategies: keep what follows the path |
+| `@i18n-micro/vitepress` (2.0.0) | links, the switcher, `push` and `replace` carry `site.base`; `resolvePath` and `localizePath` stay relative to it; `numberFormats`, `datetimeFormats` and `timeZone` reach `createI18n` | — |
+| `@i18n-micro/node` | loads translations on Node 24 (`dirent.path` is gone there) | — |
+| `@i18n-micro/astro` | `client/vue` no longer bundles its own Vue: reactivity works, and `vue` must be installed | — |
 | `@i18n-micro/astro` | the URL decides the page locale; `autoDetect` is a 302 from `/` to the preferred locale's home; new `localeCookie` middleware option; `redirectToDefault` is implemented | see [Astro](/integrations/astro-package) |
 | `@i18n-micro/astro` | `i18nIntegration` no longer takes `messages`, `plural`, `missingHandler`, `disablePageLocales`, `routingStrategy` and no longer sets the global routing strategy | pass them to `createI18n` / `createI18nMiddleware` in `src/middleware.ts` |
 | `@i18n-micro/devtools-ui` | `createBridge` takes a `base` option; a failed save to a reachable endpoint throws and rolls back | pass `base` if you changed the plugin's `base` |

@@ -47,6 +47,7 @@ const { t, localePath } = useI18n()
 | [`$localePath`](#localepath) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => string` | Resolve a path in the given locale, or the active one. |
 | [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
+| `$pluralFunc` | `PluralFunc` | The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. |
 | [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
@@ -218,7 +219,19 @@ Translate with pluralization. `params` may be the count itself, or an object con
 
 <!-- /generated:method:$tc -->
 
-Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form. For other languages set [`plural`](/api/module-options#plural).
+Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form.
+
+Locales with three or more integer categories (`ru`, `uk`, `pl`, `cs`, `he`, `ar`...) use `Intl.PluralRules` when the template fits them:
+
+| Template | Forms | Rule |
+| --- | --- | --- |
+| `яблоко \| яблока \| яблок` | one per category | by category: 21 → `яблоко`, 22 → `яблока`, 25 → `яблок` |
+| `{count} яблоко \| {count} яблока \| {count} яблок` | one per category | by category |
+| `нет \| {count} яблоко \| {count} яблока \| {count} яблок` | one more, for zero | 0 → the first form, else by category |
+| `нет яблок \| одно яблоко \| {count} яблок` | first form without `{count}`, a later one with it | by index |
+| `a \| b` in `ru`, `a \| b \| c` in `ar` | fewer than categories | by index |
+
+For rules of your own set [`plural`](/api/module-options#plural).
 
 ```ts
 // { "apples": "no apples | one apple | {count} apples" }

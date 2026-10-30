@@ -21,7 +21,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
-| `FormatService` | class | 19 members |
+| `FormatService` | class | 20 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18n` | class | 55 members |
 | `I18nOptions` | interface | 9 members |
@@ -35,7 +35,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `Translations` | interface | 1 members |
 | `TranslationStorage` | interface | 1 members |
 
-<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 20 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
 <summary><code>I18n</code> — 55 members</summary>

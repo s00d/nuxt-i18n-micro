@@ -21,6 +21,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const I18nContext: import("solid-js").Context<SolidI18n | undefined>
@@ -104,6 +105,7 @@ member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptions.serverTranslationPreload?: boolean | undefined
 member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.timeZone?: string | undefined
 member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined

@@ -54,6 +54,40 @@ function deepMergeTranslationsRecursive: (target: Record<string, unknown>, sourc
 function configForHost: (config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend
 function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
 
+# ./locale-head (src/locale-head.ts)
+function buildLocaleHead: (input: LocaleHeadInput) => LocaleHead
+function filterQuery: (url: string, whitelist: readonly string[]) => string
+function joinBase: (base: string, path: string) => string
+interface LocaleHead
+member LocaleHead.htmlAttrs: LocaleHeadAttrs
+member LocaleHead.link: LocaleHeadLink[]
+member LocaleHead.meta: LocaleHeadMeta[]
+interface LocaleHeadAttrs
+member LocaleHeadAttrs.dir?: "ltr" | "rtl" | "auto" | undefined
+member LocaleHeadAttrs.lang?: string | undefined
+member LocaleHeadAttrs.[string]: string | undefined
+interface LocaleHeadInput
+member LocaleHeadInput.addDirAttribute?: boolean | undefined
+member LocaleHeadInput.addSeoAttributes?: boolean | undefined
+member LocaleHeadInput.alternates?: boolean | undefined
+member LocaleHeadInput.canonical: string
+member LocaleHeadInput.hreflangBaseLanguage?: boolean | undefined
+member LocaleHeadInput.hrefOf: (code: string) => string
+member LocaleHeadInput.identifierAttribute?: string | undefined
+member LocaleHeadInput.locale: Locale
+member LocaleHeadInput.missingWarn?: boolean | undefined
+member LocaleHeadInput.seoLocales: Locale[]
+member LocaleHeadInput.xDefault?: string | undefined
+interface LocaleHeadLink
+member LocaleHeadLink.href: string
+member LocaleHeadLink.hreflang?: string | undefined
+member LocaleHeadLink.rel: string
+member LocaleHeadLink.[string]: string | undefined
+interface LocaleHeadMeta
+member LocaleHeadMeta.content: string
+member LocaleHeadMeta.property: string
+member LocaleHeadMeta.[string]: string
+
 # ./merge-i18n-head (src/merge-i18n-head.ts)
 interface I18nHeadObject
 member I18nHeadObject.htmlAttrs: Record<string, string | undefined>

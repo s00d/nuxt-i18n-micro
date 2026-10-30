@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-90 exports across 20 entry points.
+98 exports across 21 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -144,6 +144,76 @@ import { /* … */ } from '@i18n-micro/utils/domains'
 | `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
+## `@i18n-micro/utils/locale-head`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/locale-head'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `buildLocaleHead` | function | `(input: LocaleHeadInput) => LocaleHead` |
+| `filterQuery` | function | `(url: string, whitelist: readonly string[]) => string` |
+| `joinBase` | function | `(base: string, path: string) => string` |
+| `LocaleHead` | interface | 3 members |
+| `LocaleHeadAttrs` | interface | 3 members |
+| `LocaleHeadInput` | interface | 11 members |
+| `LocaleHeadLink` | interface | 4 members |
+| `LocaleHeadMeta` | interface | 3 members |
+
+<details>
+<summary><code>LocaleHead</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `htmlAttrs` | `LocaleHeadAttrs` |
+| `link` | `LocaleHeadLink[]` |
+| `meta` | `LocaleHeadMeta[]` |
+
+</details>
+
+<details>
+<summary><code>LocaleHeadAttrs</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string \| undefined` |
+| `dir?` | `"ltr" \| "rtl" \| "auto" \| undefined` |
+| `lang?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>LocaleHeadInput</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `addDirAttribute?` | `boolean \| undefined` |
+| `addSeoAttributes?` | `boolean \| undefined` |
+| `alternates?` | `boolean \| undefined` |
+| `canonical` | `string` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `hrefOf` | `(code: string) => string` |
+| `identifierAttribute?` | `string \| undefined` |
+| `locale` | `Locale` |
+| `missingWarn?` | `boolean \| undefined` |
+| `seoLocales` | `Locale[]` |
+| `xDefault?` | `string \| undefined` |
+
+</details>
+
+<code>LocaleHeadLink</code> — 4 members, identical to [`I18nHeadLink`](/api/packages/types).
+
+<details>
+<summary><code>LocaleHeadMeta</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string` |
+| `content` | `string` |
+| `property` | `string` |
+
+</details>
 ## `@i18n-micro/utils/merge-i18n-head`
 
 ```ts

@@ -13,7 +13,7 @@ outline: [2, 3]
 <!-- generated:symbol:useLocaleHead — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-useLocaleHead(options: UseLocaleHeadOptions): { build: () => MetaObject; metaObject: Ref<{ htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }, MetaObject | { htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }>; updateMeta: () => void }
+useLocaleHead(options: UseLocaleHeadOptions): { build: () => LocaleHead; metaObject: Ref<{ htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string; [key: string]: string | undefined }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }, LocaleHead | { htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string; [key: string]: string | undefined }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }>; updateMeta: () => void }
 ```
 
 The SEO head tags for the current route: `hreflang` alternates for every locale plus

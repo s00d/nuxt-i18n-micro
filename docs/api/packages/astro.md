@@ -26,7 +26,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `createI18nMiddleware` | function | `(options: I18nMiddlewareOptions) => MiddlewareHandler` |
 | `defaultPlural` | const | `PluralFunc` |
 | `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
-| `FormatService` | class | 19 members |
+| `FormatService` | class | 20 members |
 | `getDefaultLocale` | function | `(astro: AstroGlobal) => string` |
 | `getGlobalRoutingStrategy` | function | `() => I18nRoutingStrategy \| null` |
 | `getI18n` | function | `(astro: AstroGlobal) => AstroI18n` |
@@ -137,7 +137,7 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>FormatService</code> — 19 members</summary>
+<summary><code>FormatService</code> — 20 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -160,6 +160,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `resolveNumberFormat` | `(locale: string, key: string) => Intl.NumberFormatOptions \| undefined` |
 | `setDateTimeFormats` | `(formats: DateTimeFormatsConfig) => void` |
 | `setNumberFormats` | `(formats: NumberFormatsConfig) => void` |
+| `timeZone?` | `private any` |
 
 </details>
 

@@ -108,7 +108,7 @@ describe('runtime overrides (F12)', () => {
     locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }, { code: 'it', disabled: true }],
     defaultLocale: 'en',
     fallbackLocale: 'en',
-    strategy: 'prefix_except_default',
+    strategy: 'prefix',
   } as ModuleOptionsExtend
 
   it('runtime disabledLocales add to build-time disabled, never re-enable', () => {
@@ -121,6 +121,17 @@ describe('runtime overrides (F12)', () => {
     expect(applyI18nRuntimeOverrides(base, { fallbackLocale: 'it' }, warn).fallbackLocale).toBe('en')
     expect(applyI18nRuntimeOverrides(base, { disabledLocales: ['en'] }, warn).fallbackLocale).toBeUndefined()
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('fallbackLocale "it" is not an enabled locale'))
+  })
+
+  it('under prefix_except_default / prefix_and_default the default locale is fixed at build (F1)', () => {
+    for (const strategy of ['prefix_except_default', 'prefix_and_default'] as const) {
+      const warn = vi.fn()
+      const config = applyI18nRuntimeOverrides({ ...base, strategy }, { defaultLocale: 'de', disabledLocales: ['en', 'fr'] }, warn)
+      expect(config.defaultLocale).toBe('en')
+      expect(config.locales?.filter((l) => l.disabled).map((l) => l.code)).toEqual(['fr', 'it'])
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('is fixed at build'))
+    }
+    expect(applyI18nRuntimeOverrides({ ...base, strategy: 'no_prefix' }, { defaultLocale: 'de' }).defaultLocale).toBe('de')
   })
 
   it('no overrides: the build config itself, inputs untouched', () => {

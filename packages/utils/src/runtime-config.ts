@@ -86,19 +86,20 @@ const defaultWarn = (message: string) => console.warn(message)
  */
 export function applyI18nRuntimeOverrides(
   baseConfig: ModuleOptionsExtend,
-  overrides: RuntimeI18nOverrides,
+  requested: RuntimeI18nOverrides,
   warn: (message: string) => void = defaultWarn,
 ): ModuleOptionsExtend {
-  if (i18nOverridesKey(overrides) === NO_OVERRIDES) return baseConfig
+  if (i18nOverridesKey(requested) === NO_OVERRIDES) return baseConfig
 
-  if (overrides.strategy && overrides.strategy !== baseConfig.strategy) {
+  if (requested.strategy && requested.strategy !== baseConfig.strategy) {
     warn(
       `[nuxt-i18n-micro] runtime i18n strategy override is ignored: ` +
-        `"${overrides.strategy}" (build strategy: "${baseConfig.strategy}"). ` +
+        `"${requested.strategy}" (build strategy: "${baseConfig.strategy}"). ` +
         `Build a separate artifact for each strategy.`,
     )
   }
 
+  const overrides = pinDefault(baseConfig, requested, warn)
   const disabledSet = new Set(overrides.disabledLocales ?? [])
   let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? { ...locale, disabled: true } : locale))
   if (!locales.some((locale) => !locale.disabled)) {
@@ -110,6 +111,24 @@ export function applyI18nRuntimeOverrides(
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
   return { ...baseConfig, locales, defaultLocale, fallbackLocale }
+}
+
+const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])
+
+/**
+ * Under prefix_except_default / prefix_and_default the default locale's pages are the unprefixed
+ * routes generated at build: moving or disabling it at runtime would leave its URLs to another
+ * locale and the build default without routes. Like `strategy`, it needs its own build.
+ */
+function pinDefault(base: ModuleOptionsExtend, overrides: RuntimeI18nOverrides, warn: (m: string) => void): RuntimeI18nOverrides {
+  const pinned = base.defaultLocale
+  if (!pinned || !PINNED_DEFAULT.has(base.strategy ?? '')) return overrides
+  const moved = overrides.defaultLocale !== undefined && overrides.defaultLocale !== pinned
+  const disabled = overrides.disabledLocales?.includes(pinned) ?? false
+  if (!moved && !disabled) return overrides
+  const what = moved ? `defaultLocale "${overrides.defaultLocale}"` : `disabling "${pinned}"`
+  warn(`[nuxt-i18n-micro] runtime ${what} is ignored: under ${base.strategy} the default locale "${pinned}" is fixed at build.`)
+  return { ...overrides, defaultLocale: undefined, disabledLocales: overrides.disabledLocales?.filter((code) => code !== pinned) }
 }
 
 function enabledDefault(base: ModuleOptionsExtend, overrides: RuntimeI18nOverrides, enabled: Set<string>, warn: (m: string) => void): string {

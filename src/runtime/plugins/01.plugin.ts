@@ -201,7 +201,8 @@ export default defineNuxtPlugin({
       }
 
       try {
-        const targetLocale = getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
+        const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
+        const targetLocale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
         const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
 
         let applied = true
@@ -221,6 +222,15 @@ export default defineNuxtPlugin({
       }
       return
     })
+
+    // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
+    // once hydrated: earlier, the client would render another locale than the server's HTML.
+    if (import.meta.client && i18nConfig.hashMode) {
+      nuxtApp.hooks.hookOnce('app:suspense:resolve', () => {
+        const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
+        if (hashLocale && hashLocale !== localeState.value) return provideApi.switchLocale(hashLocale)
+      })
+    }
 
     const provideData = {
       ...provideApi,

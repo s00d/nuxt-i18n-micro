@@ -93,7 +93,7 @@ Turn header detection off with `autoDetectLanguage: false`; the cookie and the s
 - Under `no_prefix` it is `'user-locale'` unless you set another name. `localeCookie: null` turns it off there too.
 - It is written when the visitor switches (`$switchLocale`, `<i18n-switcher>`, `useI18nLocale().setLocale()`), and on a server render of a prefixed URL (`/fr/about` stores `fr`).
 - It lasts one year (`path=/`, `SameSite=Lax`).
-- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one.
+- Under `hashMode` the preference lives in the `hash-locale` cookie instead; server and client read the same one. The server renders that locale and never redirects; a locale in the hash (`/#/de`) wins over it and applies right after hydration.
 
 Read and set the preference with [`useI18nLocale`](/composables/useI18nLocale), not with `useCookie` or `useState` directly.
 

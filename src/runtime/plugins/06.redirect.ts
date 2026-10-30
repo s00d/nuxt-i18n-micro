@@ -52,7 +52,8 @@ export default defineNuxtPlugin({
 
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && !(redirects && anyPath)) writeCookie(urlLocale)
-    if (!redirects) return
+    // Under hashMode the locale lives in the hash and the hash cookie: `/` keeps its document URL.
+    if (!redirects || i18nConfig.hashMode) return
 
     // Cookie / Accept-Language only count where `autoDetectPath` allows them (#242). No `query`:
     // under prefix strategies the URL decides (D1), and no_prefix never redirects.

@@ -192,7 +192,10 @@ describe('project resolution', () => {
   })
 
   it('without defaultLocale the default is en, as in the module, not the first locale', async () => {
-    project({ 'locales/en.json': { a: 'A' }, 'locales/de.json': { a: 'A', b: 'B' } }, `{ locales: ['de', 'en'] }`)
+    project(
+      { 'locales/en.json': { a: 'A' }, 'locales/de.json': { a: 'A', b: 'B' }, 'pages/i.vue': `<template>{{ $t('a') }}</template>` },
+      `{ locales: ['de', 'en'] }`,
+    )
     expect(JSON.parse((await runCli(['info', '--json'], { cwd: dir })).stdout).defaultLocale).toBe('en')
     await runCli(['sync'], { cwd: dir })
     expect(readJson(dir, 'locales/de.json')).toEqual({ a: 'A' })
@@ -454,8 +457,8 @@ describe('check', () => {
 
   it('unused is skipped, with the reason, while keys are computed at runtime', async () => {
     project({ ...clean, 'pages/index.vue': `<template>{{ $t(name) }}</template>\n` })
-    const { code, report } = await check('unused')
-    expect(code).toBe(0)
+    const { report } = await check()
+    expect(report.summary.unused).toBe(0)
     expect(report.unusedSkipped?.[0]).toContain('computed at runtime')
   })
 })
@@ -468,7 +471,7 @@ describe('sync', () => {
       'locales/pages/orphan/de.json': { z: 'y' },
       'pages/i.vue': `<template>{{ $t('a') }}{{ $t('b') }}</template>`,
     })
-    const result = await runCli(['sync'], { cwd: dir })
+    const result = await runCli(['sync', '--force'], { cwd: dir })
     expect(result.code).toBe(0)
     expect(readJson(dir, 'locales/de.json')).toEqual({ a: 'x' })
     expect(readJson(dir, 'locales/pages/orphan/de.json')).toEqual({})
@@ -831,7 +834,7 @@ describe('sync-remote', () => {
 describe('import / export', () => {
   it('PO round trip keeps text, numbers stay in the JSON; the source is a comment', async () => {
     fresh()
-    await runCli(['export'], { cwd: dir })
+    await runCli(['export', '--force'], { cwd: dir })
     const po = read(dir, 'pots/en.po')
     expect(po).toContain('msgid "home.title"')
     expect(read(dir, 'pots/pages/index/en.po')).toContain('msgid "hero.cta"')
@@ -845,7 +848,7 @@ describe('import / export', () => {
 
   it('CSV has a Source column and an untranslated row; the round trip works', async () => {
     fresh()
-    await runCli(['export', '--format', 'csv'], { cwd: dir })
+    await runCli(['export', '--format', 'csv', '--force'], { cwd: dir })
     const csv = read(dir, 'csv_exports/de.csv')
     expect(csv.split('\n')[0]).toBe('File,Key,Source,Translation')
     expect(csv).toContain('de.json,home.tagline,Fast i18n,\n')

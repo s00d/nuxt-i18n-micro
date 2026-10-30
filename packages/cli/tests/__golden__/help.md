@@ -18,7 +18,7 @@ COMMANDS
         search    Search keys and values, and show where each key is used
        extract    List the keys source files use that have no text yet, and add those with a default text to the default locale
      translate    Fill missing translations from the default locale through a translation service
-          sync    Remove keys the default locale does not have. Missing keys stay missing, for fallbackLocale and `check`
+          sync    Remove keys the default locale does not have; stops when that cannot be proven safe. Missing keys stay missing
          clean    Remove keys nothing in the project uses; stops when that cannot be proven
   text-to-i18n    Replace hardcoded text in Vue templates with translation calls, and report hardcoded text in code
         rename    Rename a key or a namespace in every locale and in source files

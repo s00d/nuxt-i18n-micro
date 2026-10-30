@@ -67,7 +67,7 @@ const h = tr(one ? 'either.left' : two ? 'either.right' : 'ternary.no')
   'features/cart/useCart.ts': `export const cart = () => useNuxtApp().$t('feature.used')\n`,
   'lib/format.ts': `export const x = (i18n: any) => i18n.$t('lib.used')\n`,
   'shared/labels.ts': `export const labels = { a: $t('shared.used'), b: 'through.table' }\n`,
-  'server/api/hello.ts': `export default defineEventHandler((event) => useTranslationServerMiddleware(event).then(($t) => $t('server.used')))\n`,
+  'server/api/hello.ts': `export default defineEventHandler(async (event) => {\n  const t = await useTranslationServerMiddleware(event)\n  return t('server.used')\n})\n`,
   'data/menu.yaml': 'items:\n  - label: through.data\n',
 }
 

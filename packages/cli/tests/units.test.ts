@@ -216,10 +216,11 @@ describe('safe writes', () => {
   it('walkFiles tolerates a missing directory and skips node_modules', () => {
     const dir = tempDir()
     expect(walkFiles(join(dir, 'nope'))).toEqual([])
+    mkdirSync(join(dir, 'node_modules'))
+    writeFileSync(join(dir, 'node_modules/a.js'), '')
+    writeFileSync(join(dir, 'b.js'), '')
+    expect(walkFiles(dir)).toEqual([join(dir, 'b.js')])
     rmSync(dir, { recursive: true })
-    expect(walkFiles(join(import.meta.dirname, '..'), (path) => path.endsWith('rollup.config.js')).filter((p) => p.includes('node_modules'))).toEqual(
-      [],
-    )
   })
 })
 
@@ -261,6 +262,16 @@ describe('secrets', () => {
     errorSpy.mockRestore()
     expect(out.join('\n')).not.toContain('s3cret')
     expect(out[0]).toBe('a *** b *** k')
+  })
+})
+
+describe('url credentials', () => {
+  it('are masked in any message, whoever wrote it', () => {
+    const out: string[] = []
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation((text: unknown) => void out.push(String(text)))
+    log.error('proxy said: cannot reach http://user:hunter22@host/x')
+    errorSpy.mockRestore()
+    expect(out).toEqual(['proxy said: cannot reach http://***@host/x'])
   })
 })
 

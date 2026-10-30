@@ -1,6 +1,6 @@
 # export
 
-`i18n-micro export` -> exit 0
+`i18n-micro export --force` -> exit 0
 
 ## Output
 

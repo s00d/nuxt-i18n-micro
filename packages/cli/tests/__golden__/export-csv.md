@@ -1,6 +1,6 @@
 # export-csv
 
-`i18n-micro export --format csv` -> exit 0
+`i18n-micro export --format csv --force` -> exit 0
 
 ## Output
 

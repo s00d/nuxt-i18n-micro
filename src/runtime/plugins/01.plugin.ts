@@ -262,8 +262,8 @@ export interface PluginsInjections {
    */
   $_t: (route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>
   /**
-   * Like `$t`, but always returns a string: an object or array value is stringified rather than
-   * returned as-is.
+   * Like `$t`, but always returns a string: the value goes through `toString()`, so a nested
+   * object becomes `'[object Object]'`. Point the key at a leaf.
    */
   $ts: TranslationFn<string>
   /** Bind `$ts` to a specific route. See `$_t`. */
@@ -314,9 +314,17 @@ export interface PluginsInjections {
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   /** The path of the current page in another locale, without navigating. */
   $switchLocalePath: (locale: string) => string
-  /** Navigate to the current page in another locale. */
+  /**
+   * Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
+   * locale's translations before navigating; under `no_prefix` the route is replaced in place (no
+   * new history entry). An unknown locale is ignored.
+   * The call is async: `await` it to run code after the navigation.
+   */
   $switchLocale: (locale: string) => void
-  /** Navigate to another route, keeping the active locale or switching to `toLocale`. */
+  /**
+   * Navigate to another route, keeping the active locale or switching to `toLocale`. Async like
+   * `$switchLocale`.
+   */
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
   /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
@@ -346,6 +354,10 @@ export interface NuxtAppOnlyInjections {
    * Merges into the active locale and re-applies when the locale changes.
    */
   $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
-  /** Drop every cached chunk, on the client and in the active dictionary. */
+  /**
+   * Drop every cached translation chunk and reload the current page's dictionary. The page
+   * keeps showing its current translations until the fresh ones arrive. Dev HMR calls it on
+   * every translation file change.
+   */
   $clearCache: () => void
 }

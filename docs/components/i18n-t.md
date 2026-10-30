@@ -1,14 +1,14 @@
 ---
-title: '`<i18n-t>` Component'
-description: 'Translation component with slot-based interpolation.'
-outline: 'deep'
+title: '<i18n-t>'
+description: 'The <i18n-t> component renders one translation, with plural forms, number and date formatting, HTML and slot interpolation.'
+outline: [2, 3]
 ---
 
-# 🌍 `<i18n-t>` Component
+# `<i18n-t>`
 
-The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation component that supports dynamic content insertion via slots. It allows you to interpolate translations with custom Vue components or HTML content, enabling advanced localization scenarios.
+`<i18n-t>` renders one translation into an element. Use it when a translation needs components inside it (a link in a sentence), a plural form, or a formatted number or date. It resolves the key for the current route, like `$t`.
 
-## ⚙️ Props
+## Props
 
 <!-- generated:component:i18n-t — do not edit; run `pnpm run docs:generate` -->
 
@@ -22,129 +22,51 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 | `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for content you control. |
 | `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
 | `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. |
-| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}`. |
-| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}`. |
-| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`. |
+| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}` (`params` are not applied). |
+| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}` (`params` are not applied). |
+| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}` (`params` are not applied). |
 
 **\*** required.
 
 <!-- /generated:component:i18n-t -->
 
-Only one of `plural`, `number`, `date` and `relativeDate` applies at a time; when several
-are set, the first in that list wins.
+## Rendering rules
 
-### Examples per prop
+The first matching case decides the output:
 
-```vue
-<!-- keypath: the translation to render -->
-<i18n-t keypath="feedback.text" />
+1. `number` — renders `$t(keypath, { number: $tn(number) })`.
+2. `date` — renders `$t(keypath, { date: $td(date) })`.
+3. `relativeDate` — renders `$t(keypath, { relativeDate: $tdr(relativeDate) })`.
+4. `plural` — renders `$tc(keypath, { count, ...params })`, or `customPluralRule(keypath, count, params, locale, t)` when set.
+5. Otherwise `$t(keypath, params)`: with `hideIfEmpty` an empty result renders `defaultValue` instead; `html` renders it as HTML; a `default` slot receives `{ translation }`; any other named slot replaces its `{name}` placeholder.
 
-<!-- plural: selects the plural form -->
-<i18n-t keypath="items" :plural="10" />
+In cases 1–3 `params` are not passed to the translation. Slots apply only in case 5.
 
-<!-- params: interpolated into the translation -->
-<i18n-t keypath="greeting" :params="{ name: 'Ada' }" />
-
-<!-- tag: the element to render -->
-<i18n-t keypath="feedback.text" tag="p" />
-
-<!-- number / date / relativeDate: formatted, then interpolated -->
-<i18n-t keypath="cart.total" :number="1234.5" />
-<i18n-t keypath="post.published" :date="post.createdAt" />
-<i18n-t keypath="post.ago" :relative-date="post.createdAt" />
-
-<!-- hideIfEmpty with a fallback -->
-<i18n-t keypath="promo.banner" hide-if-empty default-value="Nothing to show" />
-```
+## Example
 
 ```json
 {
-  "items": "Nothing|You have {count} item|You have {count} items"
+  "terms": "I accept the {link}.",
+  "termsLink": "terms of use",
+  "items": "no items | one item | {count} items"
 }
 ```
 
-## 🛠️ Example Usages
-
-### Basic Usage
-
 ```vue
-<i18n-t keypath="feedback.text" />
+<template>
+  <i18n-t keypath="terms" tag="p">
+    <template #link>
+      <NuxtLink :to="$localePath('/terms')">{{ $t('termsLink') }}</NuxtLink>
+    </template>
+  </i18n-t>
+
+  <i18n-t keypath="items" :plural="cart.length" />
+</template>
 ```
 
-This renders the translation for `feedback.text` within a `<span>` tag.
+`html` sets `innerHTML`: use it only for translations you control.
 
-### Using Slots for Dynamic Content
+## Related
 
-The `<i18n-t>` component supports the use of slots to dynamically insert Vue components or other content into specific parts of the translation.
-
-```vue
-<i18n-t keypath="feedback.text">
-  <template #link>
-    <nuxt-link :to="{ name: 'index' }">
-      <i18n-t keypath="feedback.link" />
-    </nuxt-link>
-  </template>
-</i18n-t>
-```
-
-In this example, the `{link}` placeholder in the `feedback.text` translation string is replaced by the `<nuxt-link>` component, which itself contains another translation component.
-
-### Pluralization
-
-```vue
-<i18n-t keypath="items.count" :plural="itemCount" />
-```
-
-This automatically applies pluralization rules based on the `itemCount` value.
-
-## 🚀 Additional Features
-
-### Default Slot
-
-If no specific slot is provided, the translation can be customized via the default slot, which provides the entire translated string:
-
-```vue
-<i18n-t keypath="welcome.message">
-  <template #default="{ translation }">
-    {{ translation.replace('Nuxt', 'Vue') }}
-  </template>
-</i18n-t>
-```
-
-### Conditional Rendering
-
-Render nothing if the translation string is empty by using the `hideIfEmpty` prop.
-
-```vue
-<i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
-```
-
-### Custom Pluralization Rule
-
-Use a custom function to handle pluralization.
-
-```vue
-<i18n-t
-  keypath="items"
-  :plural="itemCount"
-  :customPluralRule="
-    (key, count, params, locale, t) => {
-      const raw = t(key, params)
-      if (!raw) return null
-      return count === 1 ? 'One item' : `${count} items`
-    }
-  "
-/>
-```
-
-### Advanced Example with Slots
-
-Utilize slots to customize how the translation content is rendered.
-
-```vue
-<i18n-t keypath="welcomeMessage">
-  <template #default="{ translation }">
-    <strong>{{ translation }}</strong>
-  </template>
-</i18n-t>
-```
+- [Helpers](/api/methods#tc) — `$t`, `$tc`, `$tn`, `$td`, `$tdr`
+- [`plural`](/api/module-options#plural) — the app-wide plural rule

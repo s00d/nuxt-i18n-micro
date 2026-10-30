@@ -1,16 +1,14 @@
 ---
-title: '`useI18n` Composable'
-description: 'Access i18n features in components and scripts.'
-outline: 'deep'
+title: 'useI18n'
+description: 'useI18n returns the runtime helpers ($t, $tc, $localePath, …) as a plain object, with and without the $ prefix.'
+outline: [2, 3]
 ---
 
-# 🛠️ `useI18n` Composable
+# `useI18n`
 
-The `useI18n` composable in `Nuxt I18n Micro` provides access to most runtime i18n helpers in components and scripts. Methods are available **with and without the `$` prefix** (for example `$t` and `t`).
+`useI18n()` returns the module's runtime helpers as a plain object. Use it in `<script setup>`, composables and plugins instead of reaching for `useNuxtApp()`. Every helper comes under its `$` name and a bare alias: `t` and `$t` are the same function.
 
-Some injections — `$defineI18nRoute` and `$clearCache` — are available on `useNuxtApp()` only. See [Methods — `$defineI18nRoute`](/api/methods#definei18nroute) and [`$clearCache`](/api/methods#clearcache).
-
-## 📊 What it returns
+## Signature
 
 <!-- generated:symbol:useI18n — do not edit; run `pnpm run docs:generate` -->
 
@@ -36,65 +34,34 @@ switchLocale('de')
 
 <!-- /generated:symbol:useI18n -->
 
-Every helper it returns — `$t`, `$tc`, `$has`, `$switchLocale` and the rest — is listed
-with its signature and documented in full on the [Methods reference](/api/methods).
+The returned object holds every helper of [`PluginsInjections`](/api/methods). Each one is documented on the [Helpers](/api/methods) page.
 
-## `useNuxtApp()`-only APIs
+## Example
 
-These are **not** returned by `useI18n()`. Import them from `useNuxtApp()`:
+```vue
+<script setup lang="ts">
+const { t, tc, localePath, switchLocale, getLocale } = useI18n()
 
-| Method                     | Purpose                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| `$defineI18nRoute(config)` | Per-page locale routes, restrictions, and inline translations in `script setup` |
-| `$clearCache()`            | Clears in-memory translation cache and loaded chunks                            |
+const title = computed(() => t('page.title'))
+</script>
 
-```typescript
-import { useNuxtApp } from '#imports'
+<template>
+  <h1>{{ title }}</h1>
+  <p>{{ tc('items', 3) }}</p>
+  <NuxtLink :to="localePath('/about')">{{ t('nav.about') }}</NuxtLink>
+  <button @click="switchLocale(getLocale() === 'en' ? 'de' : 'en')">{{ t('nav.switch') }}</button>
+</template>
+```
 
+## Not in the type
+
+`$defineI18nRoute` and `$clearCache` are typed on `useNuxtApp()` only:
+
+```ts
 const { $defineI18nRoute, $clearCache } = useNuxtApp()
-
-$defineI18nRoute({
-  locales: ['en', 'fr'],
-  localeRoutes: { en: '/about', fr: '/a-propos' },
-})
 ```
 
-See [Methods](/api/methods) for full signatures and examples.
+## Related
 
-## 🛠️ Example Usages
-
-### Basic Locale Retrieval
-
-Retrieve the current locale of the application.
-
-```js
-const { $getLocale } = useI18n()
-const locale = $getLocale()
-```
-
-### Translation with Parameters
-
-Translate a string with dynamic parameters, with a fallback default value.
-
-```js
-const { $t } = useI18n()
-const welcomeMessage = $t('welcome', { name: 'Jane' }, 'Welcome!')
-```
-
-### Switching Locales
-
-Switch the application to a different locale.
-
-```js
-const { $switchLocale } = useI18n()
-$switchLocale('de')
-```
-
-### Generating a Localized Route
-
-Generate a route localized to the current or specified locale.
-
-```js
-const { $localeRoute } = useI18n()
-const route = $localeRoute('/about', 'fr')
-```
+- [Helpers](/api/methods) — every helper with its signature
+- [`useI18nLocale`](/composables/useI18nLocale) — locale state and cookie

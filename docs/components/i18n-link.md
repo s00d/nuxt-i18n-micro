@@ -1,14 +1,14 @@
 ---
-title: '`<i18n-link>` Component'
-description: 'Locale-aware NuxtLink wrapper for localized routes.'
-outline: 'deep'
+title: '<i18n-link>'
+description: 'The <i18n-link> component is a NuxtLink to the route in the active locale; external URLs open in a new tab.'
+outline: [2, 3]
 ---
 
-# 🌍 `<i18n-link>` Component
+# `<i18n-link>`
 
-The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component that automatically localizes routes based on the current locale. It acts as a wrapper around the `<NuxtLink>` component, providing additional features such as active link styling and support for external links.
+`<i18n-link>` renders a `NuxtLink` to `to` in the active locale. Use it instead of `<NuxtLink :to="$localePath(...)">` in templates. An external URL becomes a plain `<a target="_blank" rel="noopener noreferrer">`.
 
-## ⚙️ Props
+## Props
 
 <!-- generated:component:i18n-link — do not edit; run `pnpm run docs:generate` -->
 
@@ -27,75 +27,24 @@ The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component t
 
 <!-- /generated:component:i18n-link -->
 
-`to` accepts anything `NuxtLink` does — a path, a named route, or a resolved route object.
-An absolute URL is detected and rendered as a plain `<a target="_blank" rel="noopener noreferrer">`
-rather than being localized.
+## Behaviour
 
-## 🛠️ Example Usages
+- `to` goes through [`$localePath`](/api/methods#localepath): a path, a named route or a route object, with custom locale paths applied.
+- External: a string starting with `http://`, `https://` or `//`, a bare domain (`example.com`), or a `tel:` / `mailto:` link. A bare domain gets `https://`.
+- Active: when the current `route.path` equals the localized path (query and hash ignored), `activeStyle` is applied. There is no active class and no default active style.
+- Other attributes (`class`, `aria-*`) fall through to the link.
 
-### Basic Usage
-
-```vue
-<i18n-link to="/about">About Us</i18n-link>
-```
-
-This example creates a link to the `/about` page, localized to the current locale.
-
-### Active Link Styling with Inline Styles
+## Example
 
 ```vue
-<i18n-link to="/about" :activeStyle="{ fontWeight: 'bold' }">About Us</i18n-link>
+<template>
+  <i18n-link to="/about" :active-style="{ fontWeight: 'bold' }">{{ $t('nav.about') }}</i18n-link>
+  <i18n-link :to="{ name: 'blog-slug', params: { slug: 'hello' } }">{{ $t('nav.post') }}</i18n-link>
+  <i18n-link to="https://github.com/s00d/nuxt-i18n-micro">GitHub</i18n-link>
+</template>
 ```
 
-The link will have bold text when the user is on the `/about` page, allowing you to style the active link directly with inline styles.
+## Related
 
-### External Links Handling
-
-The component automatically detects external links and adds the necessary attributes for security.
-
-```vue
-<i18n-link to="https://example.com">Visit Example</i18n-link>
-```
-
-This link will open `https://example.com` in a new tab with `rel="noopener noreferrer"` applied.
-
-## 🎨 Styles
-
-The component now uses inline styles for the active state instead of a class. You can customize these styles using the `activeStyle` prop.
-
-### Default Active Styles
-
-- **Font Weight**: `bold`
-- **Color**: Inherits the browser's default color (if no `color` is specified in `activeStyle`).
-
-You can override these by providing custom styles through the `activeStyle` prop.
-
-### Custom Active Styles
-
-```vue
-<i18n-link to="/about" :activeStyle="{ fontWeight: 'bold', color: '#42b983' }">About Us</i18n-link>
-```
-
-In this example, the link will be bold and green when active.
-
-## 🚀 Additional Features
-
-### Slot for Custom Content
-
-You can pass custom content inside the link using slots, making the component flexible for different use cases.
-
-```vue
-<i18n-link to="/about">
-  <span>About Us</span>
-</i18n-link>
-```
-
-### Accessibility Enhancements
-
-The component supports `aria-label` and other accessibility attributes to ensure a more accessible experience.
-
-```vue
-<i18n-link to="/about" aria-label="Learn more about us">
-  About Us
-</i18n-link>
-```
+- [`$localePath`](/api/methods#localepath)
+- [`<i18n-switcher>`](/components/i18n-switcher) — links to the current page in other locales

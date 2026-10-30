@@ -1,17 +1,32 @@
 ---
-title: 'Methods'
-description: 'All nuxt-i18n-micro runtime methods.'
-outline: 'deep'
+title: 'Helpers'
+description: 'Every runtime helper the module injects — $t, $tc, $localePath, $switchLocale and the rest — with its signature.'
+outline: [2, 3]
 ---
 
-# 🛠️ Methods
+# Helpers
 
-This page documents all available methods provided by nuxt-i18n-micro. Methods are organized by functionality for easier navigation.
+The module injects its runtime helpers into the Nuxt app: `$t`, `$tc`, `$localePath`, `$switchLocale` and the rest. Use this page to look up a helper's signature and behaviour. Signatures and descriptions come from the `PluginsInjections` and `NuxtAppOnlyInjections` interfaces in `src/runtime/plugins/01.plugin.ts`.
 
-## 📊 API Overview
+## Access
 
-Every helper the plugin injects, read from the `PluginsInjections` interface — so this
-list cannot drift from what is actually available.
+| Where | How |
+| --- | --- |
+| Template | <code v-pre>{{ $t('title') }}</code> — every helper, with the `$` |
+| `<script setup>` | `const { t, localePath } = useI18n()` — every helper in `PluginsInjections`, with and without the `$` |
+| Plugin, middleware, `<script setup>` | `const { $t, $defineI18nRoute, $clearCache } = useNuxtApp()` — everything, `$` only |
+
+`$defineI18nRoute` and `$clearCache` are typed on `useNuxtApp()` only. See [`useI18n`](/composables/useI18n).
+
+```vue
+<script setup lang="ts">
+const { t, localePath } = useI18n()
+</script>
+
+<template>
+  <NuxtLink :to="localePath('/about')">{{ t('nav.about') }}</NuxtLink>
+</template>
+```
 
 <!-- generated:methods-index — do not edit; run `pnpm run docs:generate` -->
 
@@ -44,43 +59,11 @@ list cannot drift from what is actually available.
 | [`$td`](#td) | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale. |
 | [`$tdr`](#tdr) | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`. |
 | [`$tn`](#tn) | `{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale. |
-| [`$ts`](#ts) | `TranslationFn<string>` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is. |
+| [`$ts`](#ts) | `TranslationFn<string>` | Like `$t`, but always returns a string: the value goes through `toString()`, so a nested object becomes `'[object Object]'`. |
 
 <!-- /generated:methods-index -->
 
-::: info `useNuxtApp()`-only injections
-`$defineI18nRoute` and `$clearCache` are provided by the main i18n plugin on
-`useNuxtApp()` but are **not** returned by the `useI18n()` composable, so they are absent
-from the table above. (`$getI18nConfig` **is** available through both.) See their sections
-below.
-:::
-
-### `$getI18nConfig`
-
-<!-- generated:method:$getI18nConfig — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-() => ModuleOptionsExtend
-```
-
-The resolved module configuration, as the runtime sees it.
-
-<!-- /generated:method:$getI18nConfig -->
-
-```typescript
-const nuxtApp = useNuxtApp()
-const { localeCookie, strategy, hooks } = nuxtApp.$getI18nConfig()
-```
-
-For build-time or non-Nuxt contexts, use `getI18nConfig()` from `#build/i18n.strategy.mjs` instead.
-
-::: info `serverTranslationPreload` (internal)
-`serverTranslationPreload` is a private module option exposed only in server private config (`#i18n-internal/config`). It is not part of the public runtime API and may change without notice.
-:::
-
-## 🌍 Locale Management
-
-Methods for getting and managing locale information.
+## Locale
 
 ### `$getLocale`
 
@@ -94,9 +77,8 @@ Code of the active locale. Pass a route to read the locale that route belongs to
 
 <!-- /generated:method:$getLocale -->
 
-```typescript
-const locale = $getLocale()
-// Output: 'en' (assuming the current locale is English)
+```ts
+$getLocale() // 'de' on /de/about
 ```
 
 ### `$getLocaleName`
@@ -111,11 +93,6 @@ The active locale's `displayName` from the config, or `null` when it has none.
 
 <!-- /generated:method:$getLocaleName -->
 
-```typescript
-const locale = $getLocaleName()
-// Output: 'English'
-```
-
 ### `$getLocales`
 
 <!-- generated:method:$getLocales — do not edit; run `pnpm run docs:generate` -->
@@ -128,10 +105,7 @@ Every configured locale, with its metadata.
 
 <!-- /generated:method:$getLocales -->
 
-```typescript
-const locales = $getLocales()
-// Output: [{ code: 'en', iso: 'en-US', dir: 'ltr' }, { code: 'fr', iso: 'fr-FR', dir: 'ltr' }]
-```
+Custom properties on a locale object come back as written; type them with [module augmentation](/api/module-options#locales) of `Locale`.
 
 ### `$defaultLocale`
 
@@ -145,14 +119,25 @@ Code of the configured default locale.
 
 <!-- /generated:method:$defaultLocale -->
 
-```typescript
-const defaultLocale = $defaultLocale()
-// Output: 'en'
+### `$getI18nConfig`
+
+<!-- generated:method:$getI18nConfig — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => ModuleOptionsExtend
 ```
 
-## 🔍 Translation Methods
+The resolved module configuration, as the runtime sees it.
 
-Core methods for retrieving and managing translations.
+<!-- /generated:method:$getI18nConfig -->
+
+The value includes [runtime overrides](/guide/runtime-overrides) (`defaultLocale`, `fallbackLocale`, disabled locales).
+
+```ts
+const { strategy, localeCookie } = useNuxtApp().$getI18nConfig()
+```
+
+## Translation
 
 ### `$t`
 
@@ -167,20 +152,13 @@ missing, or the key itself when no default is given.
 
 <!-- /generated:method:$t -->
 
-```typescript
-const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
-// Output: "Welcome, Alice! You have 5 unread messages."
+```ts
+// { "welcome": "Welcome, {name}!" }
+$t('welcome', { name: 'Ada' }) // 'Welcome, Ada!'
+$t('missing.key', {}, 'Fallback') // 'Fallback'
 ```
 
-::: warning Return type includes objects
-`$t` returns `CleanTranslation` which is `string | number | boolean | Translations | PluralTranslations | null`. If the key points to a **nested object** in your JSON (e.g. `$t('header')` when the JSON contains `{ "header": { "title": "Hi" } }`), the return value will be that **object**, not a string. Using it directly in a Vue template (<code v-pre>{{ $t('header') }}</code>) will render as `[object Object]`.
-
-**How to avoid this:**
-
-- Use a more specific key: `$t('header.title')` → `"Hi"`
-- Use `$ts()` which always returns a string (calls `.toString()` on non-strings)
-- Use `$t` with a nested key to intentionally access sub-objects for programmatic use
-  :::
+A key that points at a nested object returns that object, not a string. In a template it renders as `[object Object]`; use a leaf key.
 
 ### `$ts`
 
@@ -190,17 +168,12 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 TranslationFn<string>
 ```
 
-Like `$t`, but always returns a string: an object or array value is stringified rather than
-returned as-is.
+Like `$t`, but always returns a string: the value goes through `toString()`, so a nested
+object becomes `'[object Object]'`. Point the key at a leaf.
 
 <!-- /generated:method:$ts -->
 
-```typescript
-const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
-// Output: "Welcome, Alice! You have 5 unread messages."
-```
-
-### `$_t` and `$_ts`
+### `$_t` {#_t}
 
 <!-- generated:method:$_t — do not edit; run `pnpm run docs:generate` -->
 
@@ -213,6 +186,14 @@ a link to another route, for example.
 
 <!-- /generated:method:$_t -->
 
+```ts
+const route = useRoute()
+const t = useNuxtApp().$_t(route)
+t('page.title')
+```
+
+### `$_ts` {#_ts}
+
 <!-- generated:method:$_ts — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
@@ -222,30 +203,6 @@ a link to another route, for example.
 Bind `$ts` to a specific route. See `$_t`.
 
 <!-- /generated:method:$_ts -->
-
-Route-bound variants of `$t` and `$ts`. They take a **route** first and return a translation function locked to that route's locale and page context.
-
-- **Access**: `useNuxtApp()` (also re-exported by `useI18n()` as `$_t` / `$_ts`)
-
-Use these when the active route during SSR or transitions differs from `router.currentRoute` — for example inside `<i18n-t>`, `<i18n-group>`, or when rendering content for a specific `route` object.
-
-```typescript
-import { useRoute, useNuxtApp } from '#imports'
-
-const route = useRoute()
-const { $_t, $_ts } = useNuxtApp()
-
-const $t = $_t(route)
-const title = $t('page.title')
-
-// String-safe variant
-const label = $_ts(route)('page.label')
-```
-
-::: tip
-Prefer `$t` / `$ts` in most components. Reach for `$_t` / `$_ts` when you already have an explicit route and need translations for **that** route, not the currently active one.
-:::
-
 
 ### `$tc`
 
@@ -260,33 +217,258 @@ Translate with pluralization. `params` may be the count itself, or an object con
 
 <!-- /generated:method:$tc -->
 
-**Translation format**: forms separated by `|`. Put placeholders in **each** form:
+Forms are separated by `|`. With the built-in rule a whole count `n` picks form `n` (the last form past the end); a negative or fractional count takes the last form. `{count}` and the other params are interpolated into the picked form. For other languages set [`plural`](/api/module-options#plural).
 
-```json
-{
-  "apples": "no apples | one apple | {count} apples",
-  "cart": "no items for {name} | one item for {name} | {count} items for {name}"
-}
+```ts
+// { "apples": "no apples | one apple | {count} apples" }
+$tc('apples', 0) // 'no apples'
+$tc('apples', 10) // '10 apples'
+$tc('cart', { count: 2, name: 'Ada' }) // count and params in one object
 ```
 
-```typescript
-$tc('apples', 0) // "no apples"
-$tc('apples', 1) // "one apple"
-$tc('apples', 10) // "10 apples"
+The third argument is `defaultValue`, not params.
 
-// count + other params (second argument must be an object)
-$tc('cart', { count: 10, name: 'Alice' }) // "10 items for Alice"
+### `$has`
+
+<!-- generated:method:$has — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string) => boolean
 ```
 
-::: warning
-Do not pass extra params as a third argument — `$tc('cart', 10, { name: 'Alice' })` treats `{ name: 'Alice' }` as `defaultValue`, not interpolation params.
-:::
+Whether a key resolves in the active locale. Use it to branch on optional copy instead of
+rendering a raw key.
 
-**Component alternative** — `<i18n-t keypath="cart" :plural="count" :params="{ name }" />` (merges `count` with `params` internally).
+<!-- /generated:method:$has -->
 
-::: tip
-The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Configuration → plural](/api/module-options#plural).
-:::
+```ts
+if ($has('promo.banner')) show.value = true
+```
+
+## Formatting
+
+### `$tn`
+
+<!-- generated:method:$tn — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }
+```
+
+Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
+from the config.
+
+<!-- /generated:method:$tn -->
+
+Named formats come from [`numberFormats`](/api/module-options#numberformats).
+
+```ts
+$tn(1234.5, { style: 'currency', currency: 'EUR' }) // '1.234,50 €' in de
+$tn(1000, 'currency') // named format
+$tn(1000, 'currency', 'de') // named format in another locale
+```
+
+### `$td`
+
+<!-- generated:method:$td — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+{ (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }
+```
+
+Format a date with `Intl.DateTimeFormat` in the active locale. A key selects a named format
+from the config.
+
+<!-- /generated:method:$td -->
+
+Named formats come from [`datetimeFormats`](/api/module-options#datetimeformats).
+
+```ts
+$td(new Date(), { dateStyle: 'long' })
+$td(post.createdAt, 'short')
+```
+
+### `$tdr`
+
+<!-- generated:method:$tdr — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
+```
+
+Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`.
+
+<!-- /generated:method:$tdr -->
+
+```ts
+$tdr(Date.now() - 5 * 60_000) // '5 minutes ago' in en
+```
+
+## Switching and links
+
+### `$switchLocale`
+
+<!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => void
+```
+
+Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
+locale's translations before navigating; under `no_prefix` the route is replaced in place (no
+new history entry). An unknown locale is ignored.
+The call is async: `await` it to run code after the navigation.
+
+<!-- /generated:method:$switchLocale -->
+
+```ts
+await $switchLocale('de')
+```
+
+### `$switchLocalePath`
+
+<!-- generated:method:$switchLocalePath — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => string
+```
+
+The path of the current page in another locale, without navigating.
+
+<!-- /generated:method:$switchLocalePath -->
+
+```vue
+<NuxtLink :to="$switchLocalePath('de')">Deutsch</NuxtLink>
+```
+
+### `$switchLocaleRoute`
+
+<!-- generated:method:$switchLocaleRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => RouteLocationRaw
+```
+
+The route object for the current page in another locale, without navigating.
+
+<!-- /generated:method:$switchLocaleRoute -->
+
+### `$switchRoute`
+
+<!-- generated:method:$switchRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+```
+
+Navigate to another route, keeping the active locale or switching to `toLocale`. Async like
+`$switchLocale`.
+
+<!-- /generated:method:$switchRoute -->
+
+```ts
+$switchRoute('/about') // active locale
+$switchRoute({ name: 'about' }, 'de') // switch to de
+```
+
+### `$localePath`
+
+<!-- generated:method:$localePath — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
+```
+
+Resolve a path in the given locale, or the active one.
+
+<!-- /generated:method:$localePath -->
+
+A string path is read as the page it shows, so a locale's custom path is applied too.
+
+```ts
+$localePath('/about') // '/about' in en, '/de/ueber-uns' in de with localeRoutes
+$localePath({ name: 'about' }, 'fr') // '/fr/about'
+```
+
+### `$localeRoute`
+
+<!-- generated:method:$localeRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
+```
+
+Resolve a route in the given locale, or the active one.
+
+<!-- /generated:method:$localeRoute -->
+
+### `$getRouteName`
+
+<!-- generated:method:$getRouteName — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
+```
+
+Route name with the locale prefix stripped — the name translations are keyed by.
+
+<!-- /generated:method:$getRouteName -->
+
+```ts
+$getRouteName() // 'about' on /de/about
+```
+
+## Page config
+
+### `$defineI18nRoute`
+
+<!-- generated:method:$defineI18nRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(routeDefinition: DefineI18nRouteConfig) => Promise<void>
+```
+
+Register per-page locale configuration and translations from inside a component.
+Merges into the active locale and re-applies when the locale changes.
+
+<!-- /generated:method:$defineI18nRoute -->
+
+Call it in a page's `<script setup>`, always destructured from `useNuxtApp()`. The build reads `locales`, `localeRoutes` and `disableMeta` from the call; at runtime only `locales` matters (inline translations are merged for the active locale). Full rules: [Page config](/guide/per-component-translations).
+
+```vue
+<script setup lang="ts">
+const { $defineI18nRoute } = useNuxtApp()
+
+$defineI18nRoute({
+  locales: ['en', 'de'],
+  localeRoutes: { en: '/about', de: '/ueber-uns' },
+})
+</script>
+```
+
+### `$setI18nRouteParams`
+
+<!-- generated:method:$setI18nRouteParams — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(value: I18nRouteParams) => I18nRouteParams
+```
+
+Set per-locale params for the current route, so a dynamic segment can differ per language.
+Call it during SSR, before the head is rendered.
+
+<!-- /generated:method:$setI18nRouteParams -->
+
+The params are cleared when the route name changes. Details: [Localized paths](/guide/custom-locale-routes).
+
+```ts
+$setI18nRouteParams({
+  en: { slug: 'my-post' },
+  de: { slug: 'mein-beitrag' },
+})
+```
+
+## Runtime translations
 
 ### `$mergeTranslations`
 
@@ -300,11 +482,46 @@ Merge translations into the active locale at runtime, overriding what is loaded.
 
 <!-- /generated:method:$mergeTranslations -->
 
-```typescript
-$mergeTranslations({
-  welcome: 'Bienvenue, {username}!',
-})
-// Output: Updates the translation cache with the new French translation
+Deep-merges into the active locale's current page chunk; keys it does not mention survive.
+
+```ts
+$mergeTranslations({ banner: { title: 'Sale' } })
+```
+
+### `$setTranslation`
+
+<!-- generated:method:$setTranslation — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string, value: unknown) => void
+```
+
+Replace the value at `key` in the active dictionary. This is a replace, not a merge —
+use `$mergeTranslations` when existing siblings should survive.
+
+<!-- /generated:method:$setTranslation -->
+
+```ts
+$setTranslation('banner', { title: 'Sale' }) // drops other keys under banner
+$setTranslation('banner.title', 'Sale') // dotted path
+```
+
+### `$loadPageTranslations`
+
+<!-- generated:method:$loadPageTranslations — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string, routeName: string, translations: Translations) => Promise<void>
+```
+
+Load translations for a page at runtime, for content whose keys are not known at build time.
+
+<!-- /generated:method:$loadPageTranslations -->
+
+Merges into the `(locale, routeName)` chunk, loading the chunk first if needed, and updates the screen when that chunk is active.
+
+```ts
+await $loadPageTranslations('en', 'about', { title: 'About us' })
 ```
 
 ### `$resolveTranslations`
@@ -320,34 +537,7 @@ Read-only view of what `$t()` can resolve right now.
 
 <!-- /generated:method:$resolveTranslations -->
 
-```typescript
-const tree = $resolveTranslations()
-// { aaa: { bbb: 'ccc' }, ddd: 1111 } — the same dictionary $t() reads from
-```
-
-Use this when you need the full in-memory dictionary (DevTools, tests, runtime editors). Treat the return value as read-only; change values through `$setTranslation` or merge patches with `$mergeTranslations`.
-
-### `$setTranslation`
-
-<!-- generated:method:$setTranslation — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(key: string, value: unknown) => void
-```
-
-Replace the value at `key` in the active dictionary. This is a replace, not a merge —
-use `$mergeTranslations` when existing siblings should survive.
-
-<!-- /generated:method:$setTranslation -->
-
-```typescript
-$setTranslation('aaa', { fff: 'ggg' }) // replaces the whole `aaa` subtree
-$setTranslation('aaa', 'text')          // replaces `aaa` with a string
-$setTranslation('ddd', 1111)            // scalar at the top level
-$setTranslation('aaa.bbb', 'nested')    // dotted path
-```
-
-This is a **replace**, not a merge. Existing siblings under the same key are removed. To patch without losing siblings, use `$mergeTranslations`.
+Treat the result as read-only.
 
 ### `$setMissingHandler`
 
@@ -361,478 +551,12 @@ Install a callback invoked for every unresolved key. Pass `null` to remove it.
 
 <!-- /generated:method:$setMissingHandler -->
 
-**Type Definition**:
+The handler runs instead of the dev warning.
 
-```typescript
-type MissingHandler = (locale: string, key: string, routeName: string, instance?: unknown, type?: string) => void
-```
-
-```typescript
-// Set a custom handler
+```ts
 $setMissingHandler((locale, key, routeName) => {
-  console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
-  // Send to Sentry or other error tracking service
-  // Sentry.captureMessage(`Missing translation: ${key}`)
+  console.error(`[i18n] missing ${key} in ${locale} (${routeName})`)
 })
-
-// Remove the handler
-$setMissingHandler(null)
-```
-
-**Use Cases**:
-
-- Logging missing translations to error tracking services (Sentry, LogRocket, etc.)
-- Collecting analytics on missing translations
-- Custom error handling for missing translation keys
-
-## 🔢 Number & Date Formatting
-
-Methods for formatting numbers and dates according to locale conventions.
-
-### `$tn`
-
-<!-- generated:method:$tn — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }
-```
-
-Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
-from the config.
-
-<!-- /generated:method:$tn -->
-
-```typescript
-// Inline options
-const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
-// "$1,234,567.89"
-
-// Named format (from nuxt.config i18n.numberFormats)
-const price = $tn(1000, 'currency')
-const priceDe = $tn(1000, 'currency', 'de')
-const compact = $tn(1000, 'currency', { notation: 'compact' })
-```
-
-Unknown named format keys fall back to default `Intl.NumberFormat` options. In development (client), a `console.warn` is emitted when `missingWarn` is enabled (default).
-
-**Config example**:
-
-```ts
-export default defineNuxtConfig({
-  i18n: {
-    numberFormats: {
-      en: {
-        currency: { style: 'currency', currency: 'USD' },
-        decimal: { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 },
-      },
-      de: {
-        currency: { style: 'currency', currency: 'EUR' },
-      },
-    },
-  },
-})
-```
-
-**Use Cases**:
-
-- Formatting numbers as currency, percentages, or decimals in the appropriate locale format
-- Reusing named formats across the app (Vue I18n migration parity)
-
-### `$td`
-
-<!-- generated:method:$td — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-{ (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }
-```
-
-Format a date with `Intl.DateTimeFormat` in the active locale. A key selects a named format
-from the config.
-
-<!-- /generated:method:$td -->
-
-```typescript
-const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-// "Friday, September 1, 2023"
-
-const short = $td(new Date(), 'short')
-const longDe = $td(new Date(), 'long', 'de')
-```
-
-Unknown named format keys fall back to default `Intl.DateTimeFormat` options. In development (client), a `console.warn` is emitted when `missingWarn` is enabled (default).
-
-**Config example**:
-
-```ts
-export default defineNuxtConfig({
-  i18n: {
-    datetimeFormats: {
-      en: {
-        short: { year: 'numeric', month: 'short', day: 'numeric' },
-        long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
-      },
-    },
-  },
-})
-```
-
-**Use Cases**:
-
-- Displaying dates in a format that aligns with the user's locale
-- Sharing short/long/date-time presets app-wide
-
-### `$tdr`
-
-<!-- generated:method:$tdr — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
-```
-
-Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`.
-
-<!-- /generated:method:$tdr -->
-
-```typescript
-const relativeDate = $tdr(new Date(Date.now() - 1000 * 60 * 5))
-// Output: "5 minutes ago" in the 'en-US' locale
-```
-
-## 🔄 Route & Locale Switching
-
-Methods for switching between locales and routes.
-
-### `$switchLocale`
-
-<!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(locale: string) => void
-```
-
-Navigate to the current page in another locale.
-
-<!-- /generated:method:$switchLocale -->
-
-```typescript
-$switchLocale('fr')
-// Prefix strategies: navigates to the French version of the route
-// no_prefix: updates locale and translations without changing the URL path
-```
-
-::: tip Switch locale without changing the URL?
-See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-without-changing-the-url). For prefix strategies, use `$switchLocalePath()` when you only need a link target.
-:::
-
-### `$switchLocaleRoute`
-
-<!-- generated:method:$switchLocaleRoute — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(locale: string) => RouteLocationRaw
-```
-
-The route object for the current page in another locale, without navigating.
-
-<!-- /generated:method:$switchLocaleRoute -->
-
-```typescript
-// on /en/news
-const routeFr = $switchLocaleRoute('fr')
-// Output: A route object with the new locale applied, e.g., { name: 'localized-news', params: { locale: 'fr' } }
-```
-
-### `$switchLocalePath`
-
-<!-- generated:method:$switchLocalePath — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(locale: string) => string
-```
-
-The path of the current page in another locale, without navigating.
-
-<!-- /generated:method:$switchLocalePath -->
-
-```typescript
-// on /en/news
-const routeFr = $switchLocalePath('fr')
-window.location.href = routeFr
-// Output: url with new locale applied, e.g., '/fr/nouvelles'
-```
-
-### `$switchRoute`
-
-<!-- generated:method:$switchRoute — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
-```
-
-Navigate to another route, keeping the active locale or switching to `toLocale`.
-
-<!-- /generated:method:$switchRoute -->
-
-**Examples**:
-
-::: code-group
-
-```typescript [String Path]
-// Switches to the given path with the current locale
-$switchRoute('/about')
-```
-
-```typescript [String Path with Locale]
-// Switches to the given path with French locale
-$switchRoute('/about', 'fr')
-```
-
-```typescript [Named Route]
-// Switches to a named route with the current locale
-$switchRoute({ name: 'page' })
-```
-
-```typescript [Named Route with Locale]
-// Switches to a named route and changes the locale to Spanish
-$switchRoute({ name: 'page' }, 'es')
-```
-
-:::
-
-## 🌐 Route Generation
-
-Methods for generating localized routes and paths.
-
-### `$localeRoute`
-
-<!-- generated:method:$localeRoute — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
-```
-
-Resolve a route in the given locale, or the active one.
-
-<!-- /generated:method:$localeRoute -->
-
-```typescript
-const localizedRoute = $localeRoute({ name: 'index' })
-// Output: A route object with the current locale applied, e.g., { name: 'index', params: { locale: 'fr' } }
-```
-
-### `$localePath`
-
-<!-- generated:method:$localePath — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
-```
-
-Resolve a path in the given locale, or the active one.
-
-<!-- /generated:method:$localePath -->
-
-```typescript
-const localizedPath = $localePath({ name: 'news' })
-// Output: path with current (or specified) locale applied, e.g., '/en/nouvelles'
-```
-
-## 🔍 Route Information
-
-Methods for getting route information and names.
-
-### `$getRouteName`
-
-<!-- generated:method:$getRouteName — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
-```
-
-Route name with the locale prefix stripped — the name translations are keyed by.
-
-<!-- /generated:method:$getRouteName -->
-
-```typescript
-const routeName = $getRouteName(routeObject, 'fr')
-// Output: 'index' (assuming the base route name is 'index')
-```
-
-## 🚦 Route Configuration
-
-Methods for configuring route behavior and access control.
-
-### `$defineI18nRoute`
-
-<!-- generated:method:$defineI18nRoute — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(routeDefinition: DefineI18nRouteConfig) => Promise<void>
-```
-
-Register per-page locale configuration and translations from inside a component.
-Merges into the active locale and re-applies when the locale changes.
-
-<!-- /generated:method:$defineI18nRoute -->
-
-> [!IMPORTANT]
-> `$defineI18nRoute` is provided by the **define plugin** and is available on `useNuxtApp()` only — it is **not** part of the `useI18n()` return object.
-> Always destructure it from `useNuxtApp()` inside `script setup`. Calling `$defineI18nRoute(...)` as a bare global throws `"$defineI18nRoute is not defined"` during SSR/prerender.
-
-**Parameters**:
-
-- **locales**: `string[] | Record<string, Record<string, string>>` — Available locales for the route
-- **localeRoutes**: `Record<string, string>` — Optional. Custom routes for specific locales
-- **disableMeta**: `boolean | string[]` — Optional. Disables i18n meta tags for all or specific locales
-
-**Basic Example**:
-
-```typescript
-import { useNuxtApp } from '#imports'
-
-const { $defineI18nRoute } = useNuxtApp()
-
-$defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
-  localeRoutes: {
-    en: '/welcome',
-    fr: '/bienvenue',
-    de: '/willkommen',
-  },
-  disableMeta: false,
-})
-```
-
-> 📖 **For detailed usage examples, configuration formats, and best practices, see the [Per-Component Translations Guide](/guide/per-component-translations.md).**
-
-
-### `$setI18nRouteParams`
-
-<!-- generated:method:$setI18nRouteParams — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(value: I18nRouteParams) => I18nRouteParams
-```
-
-Set per-locale params for the current route, so a dynamic segment can differ per language.
-Call it during SSR, before the head is rendered.
-
-<!-- /generated:method:$setI18nRouteParams -->
-
-```typescript
-// in pages/news/[id].vue
-// for en/news/1-first-article
-const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useNuxtApp()
-$defineI18nRoute({
-  localeRoutes: {
-    en: '/news/:id()',
-    fr: '/nouvelles/:id()',
-    de: '/Nachricht/:id()',
-  },
-})
-const { data: news } = await useAsyncData(`news-${params.id}`, async () => {
-  let response = await $fetch("/api/getNews", {
-    query: {
-      id: params.id,
-    },
-  });
-  if (response?.localeSlugs) {
-    response.localeSlugs = {
-      en: {
-        id: '1-first-article'
-      }
-      fr: {
-        id: '1-premier-article'
-      }
-      de: {
-        id: '1-erster-Artikel'
-      }
-    }
-    $setI18nRouteParams(response?.localeSlugs);
-  }
-  return response;
-});
-$switchLocalePath('fr') // === 'fr/nouvelles/1-premier-article'
-$switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
-```
-
-## 💻 Usage Examples
-
-### Basic Component Usage
-
-```vue
-<template>
-  <div>
-    <p>{{ $t('key2.key2.key2.key2.key2') }}</p>
-    <p>Current Locale: {{ $getLocale() }}</p>
-
-    <div>
-      {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
-    </div>
-    <div>
-      {{ $tc('apples', 10) }}
-    </div>
-
-    <div>
-      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
-        Switch to {{ locale.code }}
-      </button>
-    </div>
-
-    <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { useI18n } from '#imports'
-
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useI18n()
-</script>
-```
-
-### Using with useNuxtApp
-
-```typescript
-import { useNuxtApp } from '#imports'
-
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
-```
-
-### Using with useI18n Composable
-
-```typescript
-import { useI18n } from '#imports'
-
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
-// or
-const i18n = useI18n()
-```
-
-## 🔧 Cache & Utility Methods
-
-### `$has`
-
-<!-- generated:method:$has — do not edit; run `pnpm run docs:generate` -->
-
-```ts
-(key: string) => boolean
-```
-
-Whether a key resolves in the active locale. Use it to branch on optional copy instead of
-rendering a raw key.
-
-<!-- /generated:method:$has -->
-
-During same-locale page transitions, v3 automatically deep-merges translations from the leaving page into this dictionary until the transition finishes — so keys from the previous page may still return `true` briefly. There is no `previousPageFallback` option; this behavior is built in. See [FAQ — page transitions](/guide/faq#-why-do-translations-break-during-page-transitions-especially-with-defineasynccomponent).
-
-```typescript
-if ($has('welcome')) {
-  console.log($t('welcome'))
-} else {
-  console.log('Key not found')
-}
 ```
 
 ### `$clearCache`
@@ -843,80 +567,19 @@ if ($has('welcome')) {
 () => void
 ```
 
-Drop every cached chunk, on the client and in the active dictionary.
+Drop every cached translation chunk and reload the current page's dictionary. The page
+keeps showing its current translations until the fresh ones arrive. Dev HMR calls it on
+every translation file change.
 
 <!-- /generated:method:$clearCache -->
 
-**Access**: `useNuxtApp().$clearCache`. Declared in `NuxtAppOnlyInjections` rather than `PluginsInjections`, so it is typed but deliberately absent from the `useI18n()` helper object:
-
-```typescript
-const { $clearCache } = useNuxtApp()
-// All cached translations are removed; next render will re-fetch them
-$clearCache()
-```
-
-
-### `$loadPageTranslations`
-
-<!-- generated:method:$loadPageTranslations — do not edit; run `pnpm run docs:generate` -->
-
 ```ts
-(locale: string, routeName: string, translations: Translations) => Promise<void>
+useNuxtApp().$clearCache()
 ```
 
-Load translations for a page at runtime, for content whose keys are not known at build time.
+## Related
 
-<!-- /generated:method:$loadPageTranslations -->
-
-```typescript
-await $loadPageTranslations('en', 'about', {
-  title: 'About Us',
-  description: 'Learn more about our company',
-})
-```
-
-## 🧭 `useI18nLocale` Composable
-
-The centralized composable for locale state management. Use this instead of directly manipulating `useState('i18n-locale')` or `useCookie('user-locale')`.
-
-```typescript
-const {
-  setLocale, // (locale: string) => void — updates state + cookie
-  getLocale, // () => string | null — from state or cookie
-  getPreferredLocale, // () => string | null — validated against locales list
-  getEffectiveLocale, // (route, getLocaleFromRoute) => string
-  resolveInitialLocale, // (options) => string
-  isValidLocale, // (locale) => boolean
-  locale, // Ref<string | null> — reactive state
-  localeCookie, // CookieRef — reactive cookie
-  syncLocale, // (locale) => void — sync to cookie only
-  validLocales, // string[] — list of valid locale codes
-} = useI18nLocale()
-```
-
-### Key Methods
-
-| Method                  | Description                                                 |
-| ----------------------- | ----------------------------------------------------------- |
-| `setLocale(locale)`     | Sets locale in both `useState` and cookie atomically        |
-| `getLocale()`           | Returns current locale from state or cookie                 |
-| `getPreferredLocale()`  | Returns locale validated against `locales` list, or `null`  |
-| `isValidLocale(locale)` | Checks if a locale code is in the configured `locales` list |
-
-### Usage in Custom Plugins
-
-```typescript
-// plugins/i18n-loader.server.ts
-export default defineNuxtPlugin({
-  name: 'i18n-custom-loader',
-  enforce: 'pre',
-  order: -10,
-  setup() {
-    const { setLocale } = useI18nLocale()
-    // Detect locale from headers, domain, etc.
-    setLocale('de')
-  },
-})
-```
-
-See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples.
+- [`useI18n`](/composables/useI18n) — the same helpers in `<script setup>`
+- [Module options](/api/module-options) — configuration the helpers read
+- [Hooks](/api/events) — add translations from a plugin
+- [Server routes](/guide/server-side-translations) — translations in Nitro handlers

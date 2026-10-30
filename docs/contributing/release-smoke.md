@@ -1,265 +1,87 @@
 ---
-title: 'Release Smoke Checks'
-description: 'Build a real app against the module — from this repo or from npm — and verify it works, optionally on Cloudflare Pages and Vercel.'
-outline: 'deep'
+title: 'Release smoke checks'
+description: 'Build a real Nuxt app against the packed or published module, run it locally or on serverless presets, and verify SSR, payloads and SEO.'
+outline: [2, 3]
 ---
 
-# Release Smoke Checks
+# Release smoke checks
 
-The unit, integration and e2e suites all run against the module's source. None of them
-answer the question that actually matters after a release: **does the published package
-install into a fresh app and work?**
+The test suites run against the source; these checks install the module the way a user does and test the running app. Run them before a release (packed from the checkout) and after one (from npm), and whenever you touch payload output for serverless or Edge presets. The app is [`test/deploy-smoke`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/deploy-smoke).
 
-That is what this workflow does. It builds a small real Nuxt app
-([`test/deploy-smoke`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/deploy-smoke))
-against the module and asserts on the running result.
+## Sources
 
-## Two sources, two different failures
-
-| Source | What it installs | What it catches |
+| Source | Installs | Catches |
 | --- | --- | --- |
-| `git` | tarballs packed from the current checkout | packaging problems **before** you publish: missing files, unresolved `workspace:`/`catalog:` protocols, dependencies that were used but never declared |
-| `npm` | `nuxt-i18n-micro@latest` (or a version you name) | what users actually get: a bad publish, a package that never reached the registry, a version mismatch between the module and `@i18n-micro/*` |
+| `git` | Tarballs packed from the checkout | Packaging problems before publishing: missing files, unresolved `workspace:` / `catalog:`, undeclared dependencies |
+| `npm` | `nuxt-i18n-micro@latest` or a named version | A bad or missing publish, version mismatch between the module and `@i18n-micro/*` |
 
-Both run by default. They fail for different reasons, so neither replaces the other.
+`smoke-pack` packs every workspace package with `pnpm pack` (only pnpm rewrites `workspace:` and `catalog:`) and points each tarball's `@i18n-micro/*` dependencies at its siblings, because the local versions are not on npm yet.
 
-::: tip Why `git` needs more than one tarball
-`pnpm pack` rewrites `workspace:*` to the local version numbers — which are exactly the
-ones not on npm yet. So [`scripts/src/commands/smoke-pack.ts`](https://github.com/s00d/nuxt-i18n-micro/blob/main/scripts/src/commands/smoke-pack.ts)
-packs every workspace package and rewrites each tarball's `@i18n-micro/*` dependencies
-to point at its siblings. Without that the install goes to the registry for a version
-that does not exist.
+## What is checked
 
-Use `pnpm pack`, never `npm pack`: only pnpm substitutes the `workspace:` and `catalog:`
-protocols, and a tarball still containing them cannot be installed at all.
-:::
+`smoke-verify --url <base>` (HTTP, so it runs against a local server or a deployment):
 
-## Running it
+- `/`, `/de`, `/fr`, `/de/about` render their own translations; plurals resolve; no raw keys in the HTML;
+- `/_locales/index/de/data.json` returns the chunk and is cacheable (not `no-store`);
+- `hreflang` alternates with `x-default`, `canonical`, `og:locale`, and `<html lang>` matching the locale.
 
-**From the GitHub UI**: Actions → *release smoke* → *Run workflow*. Choose the source
-(`both`, `git`, `npm`), optionally a specific npm version, and whether to deploy.
+`smoke-browser --url <base>` (Playwright) adds hydration, client navigation between pages and locales with no raw key visible mid-transition, and no console errors.
 
-**Automatically**: on every published release, plus once a day — npm needs a few minutes
-to serve a freshly published version, and the daily run catches a release that was not
-yet queryable when the publish job finished.
-
-**Locally**, against the current checkout:
+## Run locally
 
 ```bash
-# pack this checkout and point the app at it
 pnpm run prepack
-pnpm -C scripts cli smoke-pack --app test/deploy-smoke --out /tmp/tarballs
-
+pnpm -C scripts cli smoke-pack --app test/deploy-smoke
 cd test/deploy-smoke
 printf 'packages:\n  - .\n' > pnpm-workspace.yaml
 pnpm install --no-frozen-lockfile
 pnpm exec nuxt build
 PORT=3000 node .output/server/index.mjs &
-
-# back in the repo root
+cd ../..
 pnpm -C scripts cli smoke-verify --url http://127.0.0.1:3000
 pnpm -C scripts cli smoke-browser --url http://127.0.0.1:3000
 ```
 
-To check a published version instead, skip the packing and set the dependency to
-`nuxt-i18n-micro@3.21.4` (or `latest`) before installing.
+For a published version, skip `smoke-pack` and set the dependency to `nuxt-i18n-micro@<version>` before installing.
 
-## What is asserted
+## Serverless presets locally
 
-[`scripts/src/commands/smoke-verify.ts`](https://github.com/s00d/nuxt-i18n-micro/blob/main/scripts/src/commands/smoke-verify.ts)
-takes a base URL, so the same checks run against a local server, a Cloudflare Pages
-deployment or a Vercel one:
-
-- **SSR and localized routes** — `/`, `/de`, `/fr` and `/de/about` each render their own
-  translations, interpolation and plurals resolve, and no page contains a raw
-  translation key
-- **Payload route** — `/_locales/index/de/data.json` returns the right chunk and is not
-  served `no-store`
-- **SEO** — `hreflang` for every locale plus `x-default`, a `canonical` link, `og:locale`,
-  and `<html lang>` matching the locale
-
-[`scripts/src/commands/smoke-browser.ts`](https://github.com/s00d/nuxt-i18n-micro/blob/main/scripts/src/commands/smoke-browser.ts)
-adds what only a browser can see: hydration, client-side navigation between pages and
-locales, that no raw key is ever visible mid-transition, and that nothing threw.
-
-## Deploying from CI
-
-Deployment is off unless you tick *deploy* on a manual run. It always uses the
-**published** package — the point is to verify what a user would get, and a local
-tarball would not survive the platform's own install step.
-
-Create dedicated projects for this. Do not point it at a project you deploy by hand:
-every run overwrites the deployment.
-
-### Cloudflare Pages
-
-**1. Create the project.** Open <https://dash.cloudflare.com>, pick your account, then
-*Compute (Workers & Pages)* → **Create** → the **Pages** tab → **Upload assets**. Give it
-a name — `nuxt-i18n-micro-smoke` — and drop in any file as a placeholder; CI replaces the
-whole thing on its first run. A direct-upload project needs no Git connection, which is
-what you want here: the deploys come from this workflow, not from a branch.
-
-The name you typed is the value for `CLOUDFLARE_PROJECT_NAME`.
-
-**2. Account ID.** Look at the dashboard URL while inside the account:
-
-```
-https://dash.cloudflare.com/8f1a2b3c4d5e6f7890abcdef12345678/workers-and-pages
-                            └──────────── this is the account ID ────────────┘
-```
-
-It is also printed in the right-hand sidebar of the Workers & Pages overview, under
-*Account details*. That value is `CLOUDFLARE_ACCOUNT_ID`.
-
-**3. API token.** Go to <https://dash.cloudflare.com/profile/api-tokens> → **Create
-Token** → scroll past the templates to **Custom token** → **Get started**.
-
-Fill it in like this:
-
-| Field | What to put |
-| --- | --- |
-| Token name | `nuxt-i18n-micro smoke deploy` — free text, only for you |
-| Permissions | one row: **Account** · **Cloudflare Pages** · **Edit** |
-| Account Resources | **Include** · the account you used in step 1 |
-| Client IP Address Filtering | leave empty — GitHub runners have no fixed IP |
-| TTL | leave empty, or set an expiry date if you rotate tokens |
-
-**Edit** rather than **Read** because the token has to create deployments, not just list
-them. One permission row is enough — nothing here touches DNS or zones.
-
-Then **Continue to summary** → **Create Token**. The token appears **once**, on that
-screen only. Copy it now; if you lose it, delete the token and make a new one. That value
-is `CLOUDFLARE_API_TOKEN`.
-
-### Vercel
-
-**1. Create and link the project.** In `test/deploy-smoke`, run:
+The unit tests and the `node-server` fixtures do not catch SSR that cannot read `public/` on a function or Edge preset. `preset-smoke` packs, installs, builds `test/deploy-smoke` with a real preset, runs it with the runner that matches the artifact, and calls `smoke-verify`:
 
 ```bash
-pnpm dlx vercel link
+pnpm run prepack                       # once
+pnpm run test:presets                  # vercel, cloudflare_pages, netlify
+pnpm run test:presets:vercel           # one preset
+pnpm -C scripts cli preset-smoke --preset vercel --public-assets false   # SSR from serverAssets only
+pnpm -C scripts cli preset-smoke --preset vercel --skip-pack --skip-install   # faster reruns
 ```
 
-It asks four things: which scope (your personal account, or a team if you have one),
-whether to link to an existing project (answer **no**), the project name
-(`nuxt-i18n-micro-smoke`), and the directory (press enter for `./`). This creates the
-project on Vercel and writes `test/deploy-smoke/.vercel/project.json`:
+`--browser` also runs `smoke-browser`; `--skip-build` reuses the preset output.
 
-```json
-{ "orgId": "team_xxxxxxxxxxxxxxxxxxxx", "projectId": "prj_xxxxxxxxxxxxxxxxxxxx" }
-```
-
-Newer CLI versions also write a `projectName`; ignore it, nothing reads it. Only `orgId`
-and `projectId` matter — they become `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. `orgId`
-starts with `team_` for a team and is a plain user id for a personal account; copy either
-verbatim. The same pair is in the dashboard under *Project Settings → General*.
-
-**Do not commit `.vercel/`.** It is in `.gitignore` already. CI never reads the file: with
-`VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the environment, `vercel pull` recreates it on
-the runner. Locally the directory is only there to keep your own CLI linked — deleting it
-unlinks the directory and nothing else.
-
-**2. Token.** Open <https://vercel.com/account/tokens> → **Create Token**.
-
-| Field | What to put |
+| Preset | Runner |
 | --- | --- |
-| Token Name | `nuxt-i18n-micro smoke deploy` |
-| Scope | the account or team that owns the project — this is where the ambiguity is: a personal token cannot deploy a team project, and vice versa. Pick the one whose name matches the scope you chose during `vercel link` |
-| Expiration | your call; the workflow keeps working until it expires, then fails with a 403 |
+| `vercel` | Imports `.vercel/output/functions/__fallback.func/index.mjs` as a Node listener (as Nitro's own preset tests do; nitropack 2 has no `preview` for it) |
+| `cloudflare_pages` | `wrangler pages dev dist` |
+| `netlify` | Imports `.netlify/functions-internal/server/main.mjs` behind a local HTTP server |
 
-Click **Create**. The value is shown **once** — that is `VERCEL_TOKEN`.
+`vercel dev`, emulators and swapping to a Node adapter are not used: they run a different artifact.
 
-Prefer the CLI? `pnpm dlx vercel tokens add "nuxt-i18n-micro smoke deploy"` prints the
-token to stdout. Add `--project prj_xxxxxxxxxxxxxxxxxxxx` to restrict it to this one
-project, so a leak cannot touch anything else. Note that minting a token this way needs
-an existing account-scoped token — a fresh `vercel login` session cannot do it, so the
-first token has to come from the dashboard.
+## CI workflow
 
-### After deploying
+`.github/workflows/release-smoke.yml` runs **manually** (Actions → *release smoke* → *Run workflow*), after a publish has reached npm. Inputs: `source` (`both`, `git`, `npm`), `version` (default `latest`), `deploy`.
 
-CI waits for the new deployment to answer, then runs the same HTTP and browser checks
-against the live URL. A green deploy job means the published package works on that
-platform's runtime — not just in a local Node server.
+With `deploy` it deploys the **published** package to Cloudflare Pages and Vercel, waits for the deployment, and runs `smoke-verify` and `smoke-browser` against the live URL. Use dedicated projects: every run replaces the deployment.
 
-For **local** function/edge preset checks without deploying (Nitro-style vercel handler,
-wrangler, netlify serve), see [Preset local testing](/contributing/release-smoke#preset-local-testing).
+| Name | Kind | Where to get it |
+| --- | --- | --- |
+| `CLOUDFLARE_PROJECT_NAME` | variable | A direct-upload Pages project (*Workers & Pages* → *Create* → *Pages* → *Upload assets*) |
+| `CLOUDFLARE_ACCOUNT_ID` | secret | The ID in the dashboard URL, or *Account details* |
+| `CLOUDFLARE_API_TOKEN` | secret | Custom token with one permission: Account · Cloudflare Pages · Edit; no IP filter |
+| `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | secret | `pnpm dlx vercel link` in `test/deploy-smoke` writes them to `.vercel/project.json` (do not commit it) |
+| `VERCEL_TOKEN` | secret | A token scoped to the account or team that owns the project |
 
-## Preset local testing
+## Related
 
-Unit tests and the `serverless` fixture (Nitro `node-server`) do **not** catch bugs where
-SSR on a function/edge preset cannot read `public/` from disk. That class of failure
-(#261) needs a **real production preset build** and a runner that matches how the
-ecosystem validates those artifacts.
-
-### Pyramid (local)
-
-```
-Tier 0  unit heuristics (shouldReadPayloadsFromPublicDir, …)
-Tier 1  nuxi build --preset + canonical local runner → smoke-verify
-```
-
-Real Vercel CDN+function deploys are optional and out of this guide — use
-[Release Smoke Checks](/contributing/release-smoke) with `deploy: true` if you need a live URL.
-
-Assert layer:
-[`smoke-verify`](https://github.com/s00d/nuxt-i18n-micro/blob/main/scripts/src/commands/smoke-verify.ts)
-(and optionally `smoke-browser`).
-
-Fixture: [`test/deploy-smoke`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/deploy-smoke).
-
-### How others do it
-
-| Source | Approach |
-| --- | --- |
-| [Nitro `test/presets/vercel.test.ts`](https://github.com/nitrojs/nitro/blob/v2/test/presets/vercel.test.ts) | Build vercel preset → import `__fallback.func/index.mjs` → `listen(handle)` → fetch |
-| Nitro Cloudflare tests | Build → Miniflare / wrangler against the Worker output |
-| Astro community | Vercel adapter has **no** local preview; node-adapter is a **different** bundle — do not use that to validate Vercel |
-
-On **nitropack 2.x** the vercel SSR preset sets `commands.preview: ""`. There is no
-`nuxi preview` for that output. Tier 1 follows Nitro v2’s harness (import the function
-entry). Nitro 3’s `srvx` preview is a future upgrade path.
-
-### Local commands
-
-```bash
-# once: build packages + module
-pnpm run prepack
-
-# all three presets (pack → install → build → run → smoke-verify)
-pnpm run test:presets
-
-# one preset
-pnpm run test:presets:vercel
-pnpm run test:presets:cloudflare
-pnpm run test:presets:netlify
-
-# CLI
-pnpm -C scripts cli preset-smoke --preset vercel
-pnpm -C scripts cli preset-smoke --preset all
-# no public/_locales tree (SSR must still work from serverAssets)
-pnpm -C scripts cli preset-smoke --preset vercel --public-assets false
-
-# reuse an existing pack/install (faster iteration after the first run)
-pnpm -C scripts cli preset-smoke --preset vercel --skip-pack --skip-install
-```
-
-| Preset | Local runner |
-| --- | --- |
-| `vercel` | Import `.vercel/output/functions/__fallback.func/index.mjs` (Node listener) — same as Nitro CI |
-| `cloudflare_pages` | `wrangler pages dev dist` (Nitro `commands.preview`) |
-| `netlify` | Import `.netlify/functions-internal/server/main.mjs` (Fetch handler → local HTTP) |
-
-First run packs tarballs and installs `test/deploy-smoke` — that can take several minutes.
-Later runs with `--skip-pack --skip-install` only rebuild the chosen preset.
-
-#### What we deliberately skip
-
-- `vercel dev` — development, not the production Build Output
-- Firebase App Hosting emulator — **dev** `startCommand`, not dist
-- Node/adapter swap “for local preview” — different artifact
-- Pure filesystem asserts instead of HTTP SSR checks
-
-### Related
-
-- [Release Smoke Checks](/contributing/release-smoke)
-- [FAQ — Vercel SSR translations](/guide/faq)
-- [Maintenance Commands](/contributing/maintenance-commands)
+- [Maintenance commands](/contributing/maintenance-commands)
+- [Deployment](/guide/deployment)
+- [Contributing](/contributing/)

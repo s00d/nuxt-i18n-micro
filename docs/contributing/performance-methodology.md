@@ -1,58 +1,61 @@
 ---
-title: "Performance methodology"
-description: "Why default load is short; when to use --load full."
-outline: deep
+title: 'Benchmark methodology'
+description: 'How the performance suite compares a plain Nuxt app, @nuxtjs/i18n and nuxt-i18n-micro, and which load profile to use.'
+outline: [2, 3]
 ---
 
-# Performance methodology
+# Benchmark methodology
 
-Measured A/B on 2026-09-22 (logs: `/tmp/i18n-perf-ab-20260922095038/`). Same machine, `--runs 3`, `--cool strict`, forced rebuilds, **real** `nuxt-i18n-micro` dist (not jiti stub), Nitro `.output/server/index.mjs`.
+`pnpm test:performance` builds the same generated app without i18n, with `@nuxtjs/i18n` and with this module, then load-tests each build. Run it when a change may affect build time, memory or throughput. Results for the current release are on [Benchmarks](/guide/performance-results); this page explains what they measure and how to reproduce them.
 
-## What we measure
+## What is measured
 
 | Layer | Artifact |
-|-------|----------|
-| App under test | Fixture `nuxi build` → Nitro **node-server** `.output/server/index.mjs` |
-| Module under test | Root `dist/module.mjs` after `nuxt-module-build build` (fail if jiti stub) |
-| Packages | `@i18n-micro/*/dist` built before suite |
-| Load | Artillery knobs via `@untestutils/perf` ≥0.6.10 |
+| --- | --- |
+| App | Generated fixture, `nuxi build`, Nitro `node-server` output (`.output/server/index.mjs`) |
+| Module | Root `dist/module.mjs` from `nuxt-module-build build`; the suite fails on a jiti stub |
+| Packages | `@i18n-micro/*/dist`, built before the suite |
+| Load | Artillery through `@untestutils/perf` |
 
-Not measured: Vite SPA `dist/`, `nuxi preview`, `run: 'dev'`.
+Vite SPA output, `nuxi preview` and dev servers are not measured. The defaults are 4 locales, 10,000 leaf keys per tree and 3 consecutive runs (means reported), with paths for `prefix_except_default`.
 
 ## Load profiles
 
-| id | Window | Wall (≈) | plain RPS | v10 RPS | micro RPS | RPS order |
-|----|--------|----------|-----------|---------|-----------|-----------|
-| **short** | 2s@10 + 10s@40 / maxVU 40 | ~6 min | 42 | 66 | 109 | micro > v10 > plain |
-| **mid** | 6s@6 + 30s@60 uncapped | ~11 min | 55 | 112 | 199 | micro > v10 > plain |
-| **full** | 6s@6 + 60s@60 uncapped | ~14 min | 102 | 126 | 230 | micro > v10 > plain |
+| `--load` | Window | Use |
+| --- | --- | --- |
+| `short` (default) | Warm 2 s at 10/s, main 10 s at 40/s, max 40 VUs | Day to day and CI |
+| `mid` | Warm 6 s at 6/s, main 30 s at 60/s, uncapped | Between the two |
+| `full` | Warm 6 s at 6/s, main 60 s at 60/s, uncapped | Published numbers |
 
-Absolute RPS scales with window/VU (expected). **Relative ranking and the sign of micro−v10 never flipped.**
-
-## Decision
-
-- **CLI default** = `--load short` + `--cool fast` — cheapest profile that preserves ranking.
-- **Published docs** (`performance-results.md` / charts / marketing tables) = `--load full --only all` (writes docs only when `load === 'full'`).
-- Blind restore of historical 6+60 as the only path was wrong: it burns ~2× wall time without changing conclusions.
+Absolute RPS scales with the window and the machine. In an A/B of all three profiles the ranking of the three apps never changed, so `short` is the default and `full` is kept for the published page.
 
 ## Cool-downs
 
-| preset | postBuild | between runs | between targets | short RPS order (mean of 3) |
-|--------|-----------|--------------|-----------------|------------------------------|
-| **fast** (default) | 200 ms | 500 ms | 500 ms | micro 250 > v10 142 > plain 69 |
-| strict | 2000 ms | 3000 ms | 5000 ms | micro 109 > v10 66 > plain 42 |
+| `--cool` | After build | Between runs | Between targets |
+| --- | --- | --- | --- |
+| `fast` (default) | 200 ms | 500 ms | 500 ms |
+| `strict` | 2 s | 3 s | 5 s |
 
-Ranking unchanged with **fast**. Absolute RPS differs between sessions (machine load); relative order holds. Use `--cool strict` only when reproducing pre-migration pauses.
-
-Published snapshot in `performance-results.md` from this A/B used `--load full --cool strict`; regenerate with `--cool fast` when refreshing marketing numbers if you want defaults mirrored exactly.
+`fast` preserves the ranking; `strict` reproduces the older pauses.
 
 ## Commands
 
 ```bash
-# day-to-day / CI
+# day to day: --load short --cool fast --runs 3
 pnpm test:performance
-# same as: --load short --cool fast --runs 3
 
-# regenerate published numbers
+# one target, or build times only
+pnpm -C scripts cli performance --only micro
+pnpm -C scripts cli performance --skip-load
+
+# regenerate docs/guide/performance-results.md
 pnpm -C scripts cli performance --load full --cool fast --runs 3 --only all
 ```
+
+`--only` takes `plain`, `i18n`, `micro` or `all`. The results page is written only with `--load full --only all`.
+
+## Related
+
+- [Benchmarks](/guide/performance-results)
+- [Performance](/guide/performance)
+- [Maintenance commands](/contributing/maintenance-commands)

@@ -1,18 +1,12 @@
 ---
 title: 'Package APIs'
-description: 'The exported API of every workspace package, read at build time from the snapshots CI checks against the source.'
-outline: 'deep'
+description: 'The exported API of every @i18n-micro/* package, generated from the API snapshots CI checks against the source.'
+outline: [2, 3]
 ---
 
 # Package APIs
 
-`nuxt-i18n-micro` is built from a set of small packages, most of which are usable on
-their own — `@i18n-micro/vue` in a plain Vue app, `@i18n-micro/core` anywhere.
-
-Each page below is generated from the API snapshot that
-[`pnpm run api:surface`](/contributing/maintenance-commands#api-surface) checks against the
-TypeScript sources, so an export cannot disappear without either this reference changing
-or CI failing.
+The Nuxt module is built from small `@i18n-micro/*` packages, and most of them work on their own: `@i18n-micro/vue` in a Vue app, `@i18n-micro/core` anywhere. Use these pages to look up what a package exports, per entry point. Each page is generated from the snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface) checks against the TypeScript sources, so an export cannot change without CI noticing.
 
 <!-- generated:packages-index — do not edit; run `pnpm run docs:generate` -->
 
@@ -37,8 +31,8 @@ or CI failing.
 
 <!-- /generated:packages-index -->
 
-## See also
+## Related
 
-- [Integrations](/integrations/) — guides for using these packages in each framework
-- [Module Options](/api/module-options) — options accepted by the Nuxt module
-- [Methods](/api/methods) — the runtime helpers available inside components
+- [Framework packages](/integrations/) — setup guides for each package
+- [Module options](/api/module-options) — options of the Nuxt module
+- [Helpers](/api/methods) — runtime helpers of the Nuxt module

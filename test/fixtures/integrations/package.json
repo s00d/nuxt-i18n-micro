@@ -13,8 +13,5 @@
   "devDependencies": {
     "@nuxt/content": "catalog:",
     "@nuxtjs/seo": "catalog:"
-  },
-  "overrides": {
-    "nitropack": "catalog:"
   }
 }

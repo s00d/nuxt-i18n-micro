@@ -277,6 +277,9 @@ describe('journey: basic app', () => {
       await expect(page).toHaveURL('/locale-test')
       await expectLocaleTest(rows.en)
       await expect(page.locator('#number-params')).toHaveText('Distance: 5 km')
+      // useI18n's bare aliases: t answers like $t, helper is the plugin's
+      await expect(page.locator('#use-i18n-t')).toHaveText((await page.locator('h1').textContent())!)
+      await expect(page.locator('#use-i18n-helper')).toHaveText('function')
       await expect(page.locator('#link-de')).toHaveAttribute('href', '/de/locale-page-modify')
 
       // step 2: click #link-de → /de/locale-page-modify with de formatting

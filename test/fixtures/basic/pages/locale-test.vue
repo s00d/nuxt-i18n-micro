@@ -20,6 +20,13 @@
       <i18n-t keypath="page.items" :plural="3" />
     </p>
 
+    <p id="use-i18n-t">
+      {{ t('page.title') }}
+    </p>
+    <p id="use-i18n-helper">
+      {{ typeof helper.mergeTranslation }}
+    </p>
+
     <p id="number-tn">
       {{ $tn(1234567.89) }}
     </p>
@@ -58,9 +65,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useNuxtApp } from '#imports'
+import { useI18n, useNuxtApp } from '#imports'
 
 const { $defineI18nRoute, $tn, $td, $tdr } = useNuxtApp()
+// the bare aliases: same functions as the `$` names
+const { t, helper } = useI18n()
 
 // Calculate date approximately 1 year ago (13-14 months to ensure it's always >= 1 year)
 const oneYearAgo = computed(() => {

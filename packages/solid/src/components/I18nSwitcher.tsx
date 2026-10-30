@@ -68,7 +68,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
       return local.getLocaleName() || null
     }
     // Используем реактивный accessor для отслеживания изменений
-    const current = locales().find((l) => l.code === i18n.localeAccessor())
+    const current = allLocales().find((l) => l.code === i18n.localeAccessor())
     return current?.displayName || null
   })
 
@@ -86,7 +86,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   }
 
   const currentLocaleLabel = createMemo(() => {
-    const current = locales().find((l) => l.code === currentLocale())
+    const current = allLocales().find((l) => l.code === currentLocale())
     return current ? localeLabel(current) : currentLocaleName() || currentLocale()
   })
 

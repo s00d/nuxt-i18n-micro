@@ -63,13 +63,20 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
     const currentPath = router.getCurrentPath()
     const linkPath = targetPath()
 
-    // Normalize paths (remove trailing slashes)
-    const normalizedCurrent = currentPath.replace(/\/$/, '')
-    const normalizedLink = linkPath.replace(/\/$/, '')
+    // Normalize paths (remove trailing slashes); the root stays '/' so it is no parent of every path
+    const normalizedCurrent = currentPath.replace(/\/$/, '') || '/'
+    const normalizedLink = linkPath.replace(/\/$/, '') || '/'
 
     // Exact match (ignoring query params and hash)
     if (normalizedCurrent === normalizedLink) {
       return true
+    }
+
+    // A locale root ('/<code>'; '/' is covered by the normalization) is the parent of every page in that locale: exact match only.
+    // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
+    const codes = [i18n.locale, i18n.defaultLocale(), i18n.fallbackLocale, ...i18n.getLocales().map((l) => l.code)]
+    if (codes.some((code) => normalizedLink === `/${code}`)) {
+      return false
     }
 
     // Partial match: check if current path starts with link path

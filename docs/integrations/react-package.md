@@ -871,7 +871,7 @@ Language switcher component that generates links for all available locales. Uses
 | --------------- | ----------------------------------------------------------------------------------- | -------- | ------- | -------------------------------------------------------------------- |
 | `locales`       | `Locale[]`                                                                          | ❌       | -       | Array of locale objects (uses injected locales if not provided)      |
 | `currentLocale` | `string \| (() => string)`                                                          | ❌       | -       | Current locale (uses injected locale if not provided)                |
-| `getLocaleName` | `() => string \| null`                                                              | ❌       | -       | Function to get locale display name                                  |
+| `getLocaleName` | `() => string \| null`                                                              | ❌       | -       | Current locale label; wins over the `locales` name                   |
 | `switchLocale`  | `(locale: string) => void`                                                          | ❌       | -       | Function to switch locale (uses routing strategy if not provided)    |
 | `localeRoute`   | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route function (uses routing strategy if not provided) |
 | `customLabels`  | `Record<string, string>`                                                            | ❌       | `{}`    | Custom labels for locales                                            |

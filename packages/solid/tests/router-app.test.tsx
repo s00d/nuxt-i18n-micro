@@ -1,11 +1,11 @@
 // A shop app the way the playground wires it: @solidjs/router, createSolidRouterAdapter inside the
-// router root, the contexts provided around the app, I18nLink + I18nSwitcher in the nav.
+// router root, I18nProvider around the app, I18nLink + I18nSwitcher in the nav.
 import type { Locale } from '@i18n-micro/types'
 import { createMemoryHistory, MemoryRouter, Route, useLocation, useNavigate } from '@solidjs/router'
 import type { JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, expect, test } from 'vitest'
-import { createI18n, createSolidRouterAdapter, I18nLink, I18nSwitcher, I18nT, useI18n } from '../src'
+import { createI18n, createSolidRouterAdapter, I18nLink, I18nProvider, I18nSwitcher, I18nT, useI18n } from '../src'
 import { I18nContext, I18nDefaultLocaleContext, I18nLocalesContext, I18nRouterContext } from '../src/injection'
 import type { I18nRoutingStrategy } from '../src/router/types'
 
@@ -56,16 +56,10 @@ test('a visitor browses, switches language from code and from the switcher, and 
   const Root = (props: { children?: JSX.Element }) => {
     adapter = createSolidRouterAdapter(locales, 'en', useNavigate(), useLocation())
     return (
-      <I18nContext.Provider value={i18n}>
-        <I18nLocalesContext.Provider value={locales}>
-          <I18nDefaultLocaleContext.Provider value="en">
-            <I18nRouterContext.Provider value={adapter}>
-              <Nav />
-              {props.children}
-            </I18nRouterContext.Provider>
-          </I18nDefaultLocaleContext.Provider>
-        </I18nLocalesContext.Provider>
-      </I18nContext.Provider>
+      <I18nProvider i18n={i18n} locales={locales} defaultLocale="en" routingStrategy={adapter}>
+        <Nav />
+        {props.children}
+      </I18nProvider>
     )
   }
   const container = document.body.appendChild(document.createElement('div'))
@@ -91,9 +85,9 @@ test('a visitor browses, switches language from code and from the switcher, and 
   await settle()
   expect(history.get()).toBe('/products')
   expect(h1()).toBe('All products')
-  // the router's <A> marks it active; its href/style props are read once (the adapter's link
-  // wrapper destructures them), so only the text below follows the locale
+  // the router's <A> marks it active and the activeStyle is merged in
   expect(link().getAttribute('aria-current')).toBe('page')
+  expect(link().getAttribute('style')).toBe('color: green; font-weight: bold;')
 
   // switchLocale moves the URL into the locale prefix and re-renders every translation
   api.switchLocale('de')
@@ -107,6 +101,9 @@ test('a visitor browses, switches language from code and from the switcher, and 
   expect(api.localePath('/de/about', 'en')).toBe('/about')
   expect(h1()).toBe('Alle Produkte')
   expect(link().textContent).toBe('Produkte')
+  // href and style follow the locale through the router's link component
+  expect(link().getAttribute('href')).toBe('/de/products')
+  expect(link().getAttribute('style')).toBe('color: green; font-weight: bold;')
 
   // the switcher: closed by default, label from customLabels, opens on click
   const button = container.querySelector('button.i18n-switcher-button') as HTMLButtonElement

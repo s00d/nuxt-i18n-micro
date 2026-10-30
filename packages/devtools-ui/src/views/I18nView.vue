@@ -138,12 +138,6 @@ const handleSave = async () => {
   await saveCurrent()
 }
 
-watch(selectedFile, (val) => {
-  // Normalize path for lookup
-  const normalizedPath = val.replace(/^\/+/, '').replace(/\\/g, '/')
-  localContent.value = locales.value[normalizedPath] ?? locales.value[val] ?? (val.startsWith('/') ? locales.value[val.slice(1)] : {}) ?? {}
-})
-
 // Modal window for statistics
 const isStatisticsModalVisible = ref(false)
 

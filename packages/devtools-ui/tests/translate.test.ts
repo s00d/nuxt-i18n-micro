@@ -11,8 +11,9 @@ interface Sent {
 function translationApi(reply: (sent: Sent) => unknown) {
   const sent: Sent[] = []
   vi.stubGlobal('fetch', async (url: string, init?: RequestInit) => {
-    sent.push({ url, init })
-    return { json: async () => reply(sent.at(-1)!) }
+    const request = { url, init }
+    sent.push(request)
+    return { json: async () => reply(request) }
   })
   return sent
 }
@@ -39,6 +40,8 @@ test('editor round trip: a nested file flattens to dotted keys for the table and
     spaced: ' ',
     nothing: null,
     rows: [{ label: 'One' }, { label: 'Two', hint: 'Second' }],
+    tags: ['new', 'sale'],
+    matrix: [[1, 2], ['x']],
   }
   const flat = flattenTranslations(file)
   expect(flat).toEqual({
@@ -54,6 +57,11 @@ test('editor round trip: a nested file flattens to dotted keys for the table and
     'rows.[]0.label': 'One',
     'rows.[]1.label': 'Two',
     'rows.[]1.hint': 'Second',
+    'tags.[]0': 'new',
+    'tags.[]1': 'sale',
+    'matrix.[]0.[]0': '1',
+    'matrix.[]0.[]1': '2',
+    'matrix.[]1.[]0': 'x',
   })
   // Inherited keys are not translations.
   expect(flattenTranslations(Object.create({ inherited: 'x' }))).toEqual({})
@@ -69,45 +77,64 @@ test('editor round trip: a nested file flattens to dotted keys for the table and
     spaced: ' ',
     nothing: '',
     rows: [{ label: 'One' }, { label: 'Two', hint: 'Second' }, { label: 'Three' }],
+    tags: ['new', 'sale'],
+    matrix: [[1, 2], ['x']],
   })
 
-  // Malformed keys from hand edits: empty segments are skipped, an index past the end leaves a hole.
-  expect(unflattenTranslations({ 'a..b': 'x', '.lead': 'y', 'list.[]1.name': 'z' })).toEqual({
-    a: { b: 'x' },
-    lead: 'y',
-    list: [undefined, { name: 'z' }],
+  // Empty containers and a `__proto__` key (own data, as JSON.parse makes it) survive the round trip.
+  const parsed = JSON.parse('{"__proto__":"Proto","empty":[],"obj":{},"deep":{"none":[],"__proto__":{"k":"v"}}}')
+  const parsedFlat = flattenTranslations(parsed)
+  expect(parsedFlat).toEqual(JSON.parse('{"__proto__":"Proto","empty":"[]","obj":"{}","deep.none":"[]","deep.__proto__.k":"v"}'))
+  const restored = unflattenTranslations<Record<string, unknown>>(parsedFlat)
+  expect(JSON.stringify(restored)).toBe(JSON.stringify(parsed))
+  expect(Object.getPrototypeOf(restored)).toBe(Object.prototype)
+
+  // Malformed keys from hand edits: empty segments and bad indexes are skipped, an index past the
+  // end leaves a hole, a `__proto__` path stays own data and never reaches the prototype.
+  const malformed = unflattenTranslations<Record<string, unknown>>({
+    'a..b': 'x',
+    '.lead': 'y',
+    'list.[]1.name': 'z',
+    'bad.[]x.k': 'w',
+    '__proto__.polluted': 'p',
+    '': 'e',
   })
+  expect(JSON.stringify(malformed)).toBe('{"a":{"b":"x"},"lead":"y","list":[null,{"name":"z"}],"bad":{"k":"w"},"__proto__":{"polluted":"p"}}')
+  expect(Object.getPrototypeOf(malformed)).toBe(Object.prototype)
+  expect(({} as Record<string, unknown>).polluted).toBeUndefined()
 })
 
 test('translate missing keys: the default-locale file fills the gaps of the selected file through google-free', async () => {
   const sent = translationApi((s) => [[[`DE(${query(s).q})`, query(s).q]]])
-  const english = { title: 'Welcome', nav: { home: 'Home', help: 'Help' }, rows: [{ label: ':count items' }] }
+  const english = { title: 'Welcome', nav: { home: 'Home', help: 'Help' }, rows: [{ label: ':count items' }, { label: ':user left' }] }
   const german = { title: 'Willkommen', nav: { home: '' } }
 
-  // The same steps as I18nView.translateMissingKeys.
+  // The same steps as I18nView.translateMissingKeys: every missing key at once, on one translator.
   const defaults = flattenTranslations(english)
   const current = flattenTranslations(german)
   const missing = Object.keys(defaults).filter((key) => !current[key])
-  expect(missing).toEqual(['nav.home', 'nav.help', 'rows.[]0.label'])
+  expect(missing).toEqual(['nav.home', 'nav.help', 'rows.[]0.label', 'rows.[]1.label'])
   const translator = new Translator({ apiKey: '', driver: 'google-free' })
-  for (const key of missing) current[key] = await translator.translate(defaults[key]!, 'en', 'de')
+  await Promise.all(missing.map(async (key) => (current[key] = await translator.translate(defaults[key]!, 'en', 'de'))))
 
-  // Placeholders never reach the API: they travel as markers and come back verbatim.
-  expect(sent.map((s) => query(s).q)).toEqual(['Home', 'Help', ' _r0_ items'])
+  // Placeholders never reach the API: they travel as markers and come back verbatim, each to its own text.
+  expect(sent.map((s) => query(s).q)).toEqual(['Home', 'Help', ' _r0_ items', ' _r0_ left'])
   expect(unflattenTranslations(current)).toEqual({
     title: 'Willkommen',
     nav: { home: 'DE(Home)', help: 'DE(Help)' },
-    rows: [{ label: 'DE( :count items)' }],
+    rows: [{ label: 'DE( :count items)' }, { label: 'DE( :user left)' }],
   })
   expect(query(sent[0]!)).toMatchObject({ client: 'gtx', sl: 'en', tl: 'de', hl: 'en', dt: 't', ie: 'UTF-8', oe: 'UTF-8' })
   expect(sent[0]!.url.startsWith('https://translate.google.com/translate_a/single?')).toBe(true)
-  expect(sent.map((s) => query(s).tk)).toEqual(['754895.754895', '57935.57935', '134671.134671'])
+  expect(sent.map((s) => query(s).tk).slice(0, 3)).toEqual(['754895.754895', '57935.57935', '134671.134671'])
   expect(await translator.translate('Привет 世界', 'ru', 'en')).toBe('DE(Привет 世界)')
   expect(query(sent.at(-1)!).tk).toBe('178063.178063')
 
   // Nothing to translate: no request. A broken answer is an error, not an empty string.
   expect(await translator.translate('', 'en', 'de')).toBe('')
-  expect(sent).toHaveLength(4)
+  expect(sent).toHaveLength(5)
+  // The space the marker adds before a placeholder is collapsed, not deleted with the word gap.
+  expect(await translator.translate('Hi :name', 'en', 'de')).toBe('DE(Hi :name)')
   translationApi(() => ({ error: 'blocked' }))
   await expect(translator.translate('Hi', 'en', 'de')).rejects.toThrow('Invalid response from Google Free Translate')
   translationApi(() => null)
@@ -213,6 +240,9 @@ test('paid drivers send the API key and text the way each provider expects, and 
   // Markers come back from a provider that keeps them; the extra spacing around them is cleaned.
   translationApi(() => ({ translations: [{ text: ' _r0_&nbsp;Artikel' }] }))
   expect(await new Translator({ apiKey: 'KEY', driver: 'deepl' }).translate("{'@'} items", 'en', 'de')).toBe("{'@'} Artikel")
+  // `{'$'}` is restored as is, not read as a `$'` replacement pattern.
+  translationApi(() => ({ translations: [{ text: ' _r0_ Artikel\xA0\xA0neu\xA0' }] }))
+  expect(await new Translator({ apiKey: 'KEY', driver: 'deepl' }).translate("{'$'} items", 'en', 'de')).toBe("{'$'} Artikel\xA0neu")
 
   expect(() => new Translator({ apiKey: 'KEY', driver: 'yandex-cloud' })).toThrow('Yandex Cloud Translator requires folderId in options.')
   await expect(new Translator({ apiKey: 'KEY', driver: 'bing' as DriverType }).translate('Hi', 'en', 'de')).rejects.toThrow(

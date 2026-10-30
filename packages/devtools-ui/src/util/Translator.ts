@@ -14,7 +14,6 @@ export class Translator {
   private apiKey: string
   private driver: DriverType
   private options: { [key: string]: string | number | boolean }
-  private clearBuffer: string[] = [] // Buffer for storing replaced values
 
   constructor({ apiKey, driver, options = {} }: TranslatorOptions) {
     this.apiKey = apiKey
@@ -42,8 +41,10 @@ export class Translator {
       return text
     }
 
-    // Clean text before translation (for Google, Yandex, DeepL, Google Free, Yandex Cloud)
-    const cleanedText = this.clearText(text)
+    // Clean text before translation (for Google, Yandex, DeepL, Google Free, Yandex Cloud).
+    // The replaced values live per call: translate() runs concurrently on one instance.
+    const replaced: string[] = []
+    const cleanedText = this.clearText(text, replaced)
 
     let translatedText: string
     switch (this.driver) {
@@ -73,7 +74,7 @@ export class Translator {
     }
 
     // Restore text after translation (for Google, Yandex, DeepL, Google Free, Yandex Cloud)
-    const finalText = this.revertText(translatedText)
+    const finalText = this.revertText(translatedText, replaced)
 
     console.debug('Text was translated', { finalText })
 
@@ -82,29 +83,26 @@ export class Translator {
 
   /**
    * Cleans text before translation.
-   * Replaces special constructs with temporary markers.
+   * Replaces special constructs with temporary markers, collecting the originals in `replaced`.
    */
-  private clearText(text: string): string {
-    const regex = /:[a-zA-Z0-9]+|<[^>]*>|\{['"][@$|{}]['"]\}/gu
-    const matches = text.match(regex) || []
-    this.clearBuffer = matches
-
-    return matches.reduce((acc, match, index) => {
-      return acc.replace(match, ` _r${index}_`)
-    }, text)
+  private clearText(text: string, replaced: string[]): string {
+    return text.replace(/:[a-zA-Z0-9]+|<[^>]*>|\{['"][@$|{}]['"]\}/gu, (match) => ` _r${replaced.push(match) - 1}_`)
   }
 
   /**
    * Restores text after translation.
    * Replaces temporary markers with original values.
    */
-  private revertText(text: string): string {
-    const restoredText = this.clearBuffer.reduce((acc, match, index) => {
-      return acc.replace(`_r${index}_`, match)
-    }, text)
+  private revertText(text: string, replaced: string[]): string {
+    // a function replacer: `{'$'}` must not be read as a `$'` replacement pattern
+    const restoredText = replaced.reduce((acc, match, index) => acc.replace(`_r${index}_`, () => match), text)
 
-    // Remove extra spaces and non-breaking spaces
-    return restoredText.replace(/ {2,}|^ |^\xA0|\xA0{2,}|\xA0$/gmu, '').replace(/&nbsp;/g, ' ')
+    // Collapse runs of spaces / non-breaking spaces, trim a leading one and a trailing nbsp
+    return restoredText
+      .replace(/ {2,}/g, ' ')
+      .replace(/\xA0{2,}/gu, '\xA0')
+      .replace(/^[ \xA0]|\xA0$/gmu, '')
+      .replace(/&nbsp;/g, ' ')
   }
 
   /**

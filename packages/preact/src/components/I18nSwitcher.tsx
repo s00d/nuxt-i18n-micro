@@ -11,6 +11,25 @@ function resolveCurrentLocale(prop: string | (() => string) | undefined, fallbac
   return fallback
 }
 
+/** The `<button>` reset under the item styles, and the caller keys that belong to the same shorthand as each part. */
+const BUTTON_RESET: Record<string, [string, RegExp]> = {
+  border: ['none', /^border(?!.*Radius|Collapse|Spacing)/],
+  backgroundColor: ['transparent', /^background$/],
+}
+
+/**
+ * The reset parts no caller style touches: a shorthand mixed with its longhand (`background` over
+ * `backgroundColor`) restyles in key order on rerender, and the caller's own value replaces the reset anyway.
+ */
+function buttonReset(...custom: (Record<string, string | number> | undefined)[]): Record<string, string> {
+  const callerKeys = custom.flatMap((style) => Object.keys(style ?? {}))
+  const reset: Record<string, string> = {}
+  for (const [key, [value, family]] of Object.entries(BUTTON_RESET)) {
+    if (!callerKeys.some((k) => family.test(k))) reset[key] = value
+  }
+  return reset
+}
+
 export interface I18nSwitcherProps extends HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
@@ -50,6 +69,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     customActiveLinkStyle,
     customDisabledLinkStyle = {},
     customIconStyle,
+    className,
     ...restProps
   } = props
 
@@ -68,7 +88,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
   // Get current locale value (handle both string and function)
   const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
   const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
-  const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: Event) => {
     if (event) {
@@ -84,8 +103,9 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
   }
 
   const currentLocaleLabel = (): string => {
-    const current = locales.find((l) => l.code === currentLocale)
-    return current ? localeLabel(current) : currentLocaleName || currentLocale
+    // a caller's getLocaleName wins; then the list name (allLocales: a disabled current locale is still named); then the code
+    const current = allLocales.find((l) => l.code === currentLocale)
+    return getLocaleNameProp?.() || (current && localeLabel(current)) || currentLocale
   }
 
   const handleSwitchLocale = (code: string) => {
@@ -162,6 +182,9 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     textDecoration: 'none',
     transition: 'background-color 0.3s ease',
     cursor: 'pointer',
+    width: '100%',
+    textAlign: 'left',
+    ...buttonReset(customLinkStyle, customActiveLinkStyle),
   }
 
   const activeLinkStyle: Record<string, string | number> = {
@@ -222,10 +245,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
       ...(isActive ? activeLinkStyle : {}),
       ...customLinkStyle,
       ...(isActive ? customActiveLinkStyle : {}),
-      width: '100%',
-      textAlign: 'left',
-      border: 'none',
-      background: 'transparent',
     }
 
     return h(
@@ -255,7 +274,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     'div',
     {
       ref: wrapperRef,
-      className: 'i18n-switcher-wrapper',
+      className: className ? `i18n-switcher-wrapper ${className}` : 'i18n-switcher-wrapper',
       style: mergedWrapperStyle,
       ...restProps,
     },

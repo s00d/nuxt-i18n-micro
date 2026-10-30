@@ -4,7 +4,7 @@ import type { Locale } from '@i18n-micro/types'
 import { createSignal, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { createI18n, I18nGroup, I18nLink, I18nSwitcher, I18nT, type SolidI18n, useI18n } from '../src'
+import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, type SolidI18n, useI18n } from '../src'
 import { I18nContext, I18nDefaultLocaleContext, I18nLocalesContext, useI18nContext, useI18nDefaultLocale, useI18nLocales } from '../src/injection'
 
 const locales: Locale[] = [
@@ -42,11 +42,10 @@ function mountApp(i18n: SolidI18n, app: () => JSX.Element) {
   const container = document.body.appendChild(document.createElement('div'))
   dispose = render(
     () => (
-      <I18nContext.Provider value={i18n}>
-        <I18nLocalesContext.Provider value={locales}>
-          <I18nDefaultLocaleContext.Provider value="en">{app()}</I18nDefaultLocaleContext.Provider>
-        </I18nLocalesContext.Provider>
-      </I18nContext.Provider>
+      // children read inside the providers, not before them
+      <I18nProvider i18n={i18n} locales={locales} defaultLocale="en">
+        {app()}
+      </I18nProvider>
     ),
     container,
   )
@@ -147,7 +146,7 @@ test('translations load after mount and every reader re-renders: t in JSX, I18nT
   expect($('h1').textContent).toBe('greeting')
 })
 
-test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows the locale when html', () => {
+test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows the locale in both modes', () => {
   const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, de }, missingWarn: false })
   const now = Date.now()
   const $ = mountApp(i18n, () => (
@@ -199,6 +198,9 @@ test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows 
   expect(html('date')).toBe('<span id="date">Posted 1.5.2024</span>')
   expect(html('rel')).toBe('<span id="rel">Updated vor 2 Stunden</span>')
   expect(html('rule')).toBe('<span id="rule">de:4:Hallo, Z!</span>')
+  // text mode re-renders too
+  expect(html('plain')).toBe('<span id="plain">Hallo, &lt;i&gt;x&lt;/i&gt;!</span>')
+  expect(html('tc-default')).toBe('<span id="tc-default">none</span>')
 })
 
 test('I18nSwitcher driven by props and links without a router', () => {
@@ -243,8 +245,9 @@ test('I18nSwitcher driven by props and links without a router', () => {
   $('#plain').dispatchEvent(click)
   expect(click.defaultPrevented).toBe(false)
 
-  // a disabled current locale gets the disabled style on the button
+  // a disabled current locale gets the disabled style on the button and is still named
   expect(button().getAttribute('style')).toContain('opacity: 0.3;')
+  expect(button().textContent).toBe('Українська▼')
   button().click()
   expect([...document.querySelectorAll('.i18n-switcher-dropdown a')].map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
     ['EN', '/'],
@@ -313,6 +316,23 @@ test('misuse fails loudly with a pointer to the fix', () => {
     '[i18n-micro] I18nDefaultLocaleContext not found. Make sure I18nDefaultLocaleContext is provided.',
   )
   expect(tryRender(withI18n(useI18n))).toBe('[i18n-micro] I18nLocalesContext not found. Make sure I18nLocalesContext is provided.')
+  // a nested provider without locales/defaultLocale keeps the outer ones
+  expect(
+    tryRender(() => (
+      <I18nProvider i18n={i18n} locales={locales} defaultLocale="en">
+        <I18nProvider i18n={i18n}>
+          <Probe
+            use={() =>
+              useI18n().getLocales().length === 3 ||
+              (() => {
+                throw new Error('lost locales')
+              })()
+            }
+          />
+        </I18nProvider>
+      </I18nProvider>
+    )),
+  ).toBeUndefined()
   // explicit options win over the provided ones
   let api!: ReturnType<typeof useI18n>
   expect(

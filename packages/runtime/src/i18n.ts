@@ -144,7 +144,7 @@ export class I18n extends BaseI18n {
 
   // Only the active and the fallback locale can be read: preloading another one renders nothing.
   protected override onTranslationsChanged(locale?: string): void {
-    if (locale === undefined || locale === this.getLocale() || locale === this.getFallbackLocale()) this.store.notify()
+    if (locale === undefined || locale === this.store.getLocale() || locale === this.store.getFallbackLocale()) this.store.notify()
   }
 }
 

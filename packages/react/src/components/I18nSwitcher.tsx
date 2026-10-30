@@ -80,9 +80,10 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
 
   const label = (locale: Locale): string => customLabels?.[locale.code] || locale.displayName || locale.code
   const href = (code: string): string => {
+    const path = router?.getCurrentPath() ?? '/'
+    if (localeRoute) return routePath(localeRoute(path, code))
     if (!router) return '#'
-    const path = router.getCurrentPath()
-    return routePath(localeRoute ? localeRoute(path, code) : router.resolvePath ? router.resolvePath(path, code) : path)
+    return routePath(router.resolvePath ? router.resolvePath(path, code) : path)
   }
 
   const select = (event: HostMouseEvent<HTMLAnchorElement>, code: string) => {

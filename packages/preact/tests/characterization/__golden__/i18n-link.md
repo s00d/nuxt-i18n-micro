@@ -26,17 +26,17 @@
   - router → <a href="/de/a">L</a>
   - no router → <a href="/a">L</a>
 - `"https://e.com/x"`
-  - router → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="https://e.com/x">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="https://e.com/x">L</a>
 - `"HTTPS://e.com/x"`
-  - router → <a href="HTTPS://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="HTTPS://e.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="HTTPS://e.com/x">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="HTTPS://e.com/x">L</a>
 - `"mailto:a@b.c"`
-  - router → <a href="mailto:a@b.c" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="mailto:a@b.c" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="mailto:a@b.c">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="mailto:a@b.c">L</a>
 - `"tel:+1"`
-  - router → <a href="tel:+1" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="tel:+1" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="tel:+1">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="tel:+1">L</a>
 - `"report.pdf"`
   - router → <a href="/de/report.pdf">L</a>
   - no router → <a href="report.pdf">L</a>
@@ -44,11 +44,11 @@
   - router → <a href="/de/index.html">L</a>
   - no router → <a href="index.html">L</a>
 - `"example.com/x"`
-  - router → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="https://example.com/x" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="https://example.com/x">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="https://example.com/x">L</a>
 - `"www.example.com"`
-  - router → <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="https://www.example.com">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="https://www.example.com">L</a>
 - `"//cdn.e.com/y"`
-  - router → <a href="//cdn.e.com/y" target="_blank" rel="noopener noreferrer">L</a>
-  - no router → <a href="//cdn.e.com/y" target="_blank" rel="noopener noreferrer">L</a>
+  - router → <a target="_blank" rel="noopener noreferrer" href="//cdn.e.com/y">L</a>
+  - no router → <a target="_blank" rel="noopener noreferrer" href="//cdn.e.com/y">L</a>

@@ -16,7 +16,7 @@ export const I18nLink = (props: I18nLinkProps): HostElement => {
 
   const externalHref = externalLinkHref(to)
   if (externalHref !== undefined) {
-    return h('a', { ...restProps, onClick, style, href: externalHref, target: '_blank', rel: 'noopener noreferrer' }, children)
+    return h('a', { target: '_blank', rel: 'noopener noreferrer', ...restProps, onClick, style, href: externalHref }, children)
   }
 
   const href = routePath(localeRoute(to))

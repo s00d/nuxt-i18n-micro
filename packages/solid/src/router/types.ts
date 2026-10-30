@@ -1,4 +1,7 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
+
+/** Where a link or a switch goes. */
+export type RouteTarget = string | { path?: string }
 
 /**
  * Routing strategy interface for i18n
@@ -7,26 +10,10 @@ import type { Accessor, Component, JSX } from 'solid-js'
  */
 export interface I18nRoutingStrategy {
   /**
-   * Returns current path (without locale prefix if needed, or full path)
-   * Used for determining active classes in links
-   * Note: For SolidJS, this should return the current value synchronously.
-   * For reactive updates, use `getCurrentPathAccessor` instead.
+   * Returns the current path with its query and hash, so a locale switch keeps them. Links compare
+   * it by page. Read a signal or a reactive location here and links and the switcher follow it.
    */
   getCurrentPath: () => string
-
-  /**
-   * (SolidJS-specific, highly recommended) Returns reactive accessor for current path
-   * This is REQUIRED for proper reactivity in SolidJS components.
-   * Without this, active link states and path-dependent UI won't update reactively.
-   *
-   * @example
-   * ```tsx
-   * const pathnameAccessor = router.getCurrentPathAccessor?.()
-   * // Use inside createMemo for reactivity:
-   * const currentPath = createMemo(() => pathnameAccessor?.() ?? router.getCurrentPath())
-   * ```
-   */
-  getCurrentPathAccessor?: () => Accessor<string>
 
   /**
    * Component to use for rendering links (e.g., RouterLink)
@@ -36,7 +23,7 @@ export interface I18nRoutingStrategy {
     | Component<{
         href: string
         children?: JSX.Element
-        style?: JSX.CSSProperties
+        style?: JSX.CSSProperties | string
         class?: string
         [key: string]: unknown
       }>
@@ -54,7 +41,7 @@ export interface I18nRoutingStrategy {
   /**
    * Generate path for specific locale
    */
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
+  resolvePath?: (to: RouteTarget, locale: string) => RouteTarget
 
   /**
    * (Optional) Get current route object for SEO/Meta tags

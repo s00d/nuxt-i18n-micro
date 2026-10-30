@@ -1,5 +1,5 @@
 /** Characterization of the Solid components over the inputs the React family and Vue use. */
-import { createComponent, createRoot } from 'solid-js'
+import { createComponent } from 'solid-js'
 import { render } from 'solid-js/web'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { LINK_TARGETS, LOCALES, PATH_TARGETS, report } from '../../../core/tests/characterization/component-cases'
@@ -87,47 +87,36 @@ describe('components characterization', () => {
 
   test('i18n-link', async () => {
     const lines: string[] = []
-    createRoot((dispose) => {
-      const strategy = { ...adapter(), linkComponent: undefined }
-      for (const to of LINK_TARGETS) {
-        const link = (provider: object) =>
-          htmlOf(
-            withProvider({ i18n: instance('de'), locales: LOCALES, defaultLocale: 'en', ...provider }, () =>
-              createComponent(I18nLink, { to, activeStyle: { color: 'red' }, children: 'L' } as never),
-            ),
-          )
-        lines.push(`- \`${JSON.stringify(to)}\``, `  - router → ${link({ routingStrategy: strategy })}`, `  - no router → ${link({})}`)
-      }
-      dispose()
-    })
+    const { linkComponent: _, ...strategy } = adapter()
+    for (const to of LINK_TARGETS) {
+      const link = (provider: object) =>
+        htmlOf(
+          withProvider({ i18n: instance('de'), locales: LOCALES, defaultLocale: 'en', ...provider }, () =>
+            createComponent(I18nLink, { to, activeStyle: { color: 'red' }, children: 'L' } as never),
+          ),
+        )
+      lines.push(`- \`${JSON.stringify(to)}\``, `  - router → ${link({ routingStrategy: strategy })}`, `  - no router → ${link({})}`)
+    }
     await expect(report(lines)).toMatchFileSnapshot('./__golden__/i18n-link.md')
   })
 
   test('i18n-switcher', async () => {
-    const lines = createRoot((dispose) => {
-      const provider = { i18n: instance(), locales: LOCALES, defaultLocale: 'en', routingStrategy: adapter() }
-      const app = withProvider(provider, () => createComponent(I18nSwitcher, { customLabels: { de: 'DE' } } as never))
-      const closed = htmlOf(app)
-      const { container, unmount } = mount(app)
-      container.querySelector('button')!.click()
-      const open = container.innerHTML
-      unmount()
-      dispose()
-      return [`- closed → ${closed}`, `- open → ${open}`]
-    })
-    await expect(report(lines)).toMatchFileSnapshot('./__golden__/i18n-switcher.md')
+    const provider = { i18n: instance(), locales: LOCALES, defaultLocale: 'en', routingStrategy: adapter() }
+    const app = withProvider(provider, () => createComponent(I18nSwitcher, { customLabels: { de: 'DE' } } as never))
+    const closed = htmlOf(app)
+    const { container, unmount } = mount(app)
+    container.querySelector('button')!.click()
+    const open = container.innerHTML
+    unmount()
+    await expect(report([`- closed → ${closed}`, `- open → ${open}`])).toMatchFileSnapshot('./__golden__/i18n-switcher.md')
   })
 
   test('router adapter', async () => {
-    const lines = createRoot((dispose) => {
-      const strategy = adapter()
-      const out = PATH_TARGETS.flatMap((to) =>
-        ['en', 'de', 'fr'].map((locale) => `- \`${JSON.stringify(to)} ${locale}\` → ${JSON.stringify(strategy.resolvePath!(to as never, locale))}`),
-      )
-      out.push(`- getCurrentPath → ${strategy.getCurrentPath()}`, `- getRoute → ${JSON.stringify(strategy.getRoute!())}`)
-      dispose()
-      return out
-    })
+    const strategy = adapter()
+    const lines = PATH_TARGETS.flatMap((to) =>
+      ['en', 'de', 'fr'].map((locale) => `- \`${JSON.stringify(to)} ${locale}\` → ${JSON.stringify(strategy.resolvePath!(to as never, locale))}`),
+    )
+    lines.push(`- getCurrentPath → ${strategy.getCurrentPath()}`, `- getRoute → ${JSON.stringify(strategy.getRoute!())}`)
     await expect(report(lines)).toMatchFileSnapshot('./__golden__/router.md')
   })
 })

@@ -895,6 +895,9 @@ importers:
       '@i18n-micro/core':
         specifier: workspace:^
         version: link:../core
+      '@i18n-micro/runtime':
+        specifier: workspace:^
+        version: link:../runtime
       '@i18n-micro/types':
         specifier: workspace:^
         version: link:../types

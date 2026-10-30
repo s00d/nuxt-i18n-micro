@@ -44,7 +44,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['solid-js', 'solid-js/web', 'solid-js/store', '@solidjs/router', '@i18n-micro/core', '@i18n-micro/types'],
+      external: ['solid-js', 'solid-js/web', 'solid-js/store', '@solidjs/router', '@i18n-micro/core', '@i18n-micro/core/render', '@i18n-micro/runtime', '@i18n-micro/types'],
       output: {
         exports: 'named',
       },

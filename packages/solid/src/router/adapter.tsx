@@ -1,32 +1,25 @@
-// @ts-nocheck
-
+import { localizedPath } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import { A, type Location, type useNavigate } from '@solidjs/router'
-import { type Accessor, type Component, createEffect, createSignal, type JSX } from 'solid-js'
+import type { ComponentProps, JSX } from 'solid-js'
 import type { I18nRoutingStrategy } from './types'
 
 type NavigateFunction = ReturnType<typeof useNavigate>
 
+const RouterLink = (props: { href: string; [key: string]: unknown }): JSX.Element => <A {...(props as ComponentProps<typeof A>)} />
+
 /**
  * Factory for Solid Router adapter
- * Implements routing utilities for Solid Router
- * Uses @solidjs/router APIs for navigation and path resolution
  *
- * **IMPORTANT**: This function must be called inside a SolidJS component or reactive context
- * (e.g., inside a component function, not at module level). This is required because
- * `createSignal` and `createEffect` need to be within a reactive owner context.
+ * `location` is the router's reactive object, so reading the path inside a memo or JSX follows
+ * navigation without a signal of its own.
  *
  * @example
  * ```tsx
  * const RouterRoot: Component = () => {
  *   const navigate = useNavigate()
  *   const location = useLocation()
- *   const routingStrategy = createSolidRouterAdapter(
- *     locales,
- *     defaultLocale,
- *     navigate,
- *     location,
- *   )
+ *   const routingStrategy = createSolidRouterAdapter(locales, defaultLocale, navigate, location)
  *   // ...
  * }
  * ```
@@ -35,69 +28,22 @@ type NavigateFunction = ReturnType<typeof useNavigate>
  * @param defaultLocale - Default locale code
  * @param navigate - Navigation function from @solidjs/router's useNavigate hook
  * @param location - Location object from @solidjs/router's useLocation hook
- * @returns I18nRoutingStrategy with reactive pathname accessor
+ * @returns I18nRoutingStrategy
  */
-export function createSolidRouterAdapter(
-  locales: Locale[],
-  defaultLocale: string,
-  navigate: NavigateFunction,
-  location: Location,
-): I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string> } {
-  const localeCodes = locales.map((loc) => loc.code)
-
-  // Create signal to track pathname changes
-  // NOTE: This requires a reactive context (component/effect), so this function
-  // must be called inside a component, not at module level
-  const [pathname, setPathname] = createSignal(location.pathname)
-
-  // Track location.pathname changes
-  // NOTE: createEffect requires a reactive owner, so this function must be called
-  // inside a component or runWithOwner context
-  createEffect(() => {
-    setPathname(location.pathname)
-  })
-
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
-
-    if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-    return locale === defaultLocale ? cleanPath : `/${locale}${cleanPath === '/' ? '' : cleanPath}`
-  }
+export function createSolidRouterAdapter(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location): I18nRoutingStrategy {
+  const codes = locales.map((locale) => locale.code)
+  const fullPath = () => `${location.pathname}${location.search}${location.hash}`
 
   return {
-    getCurrentPath: () => pathname(), // Returns current value for compatibility
-    getCurrentPathAccessor: pathname, // Returns accessor for reactivity
-
-    push: (target: { path: string }) => {
-      // Use navigate from @solidjs/router
+    linkComponent: RouterLink,
+    getCurrentPath: fullPath,
+    push: (target) => {
       navigate(target.path)
     },
-
-    replace: (target: { path: string }) => {
-      // Use navigate with replace option
+    replace: (target) => {
       navigate(target.path, { replace: true })
     },
-
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
-
-    getRoute: () => ({
-      fullPath: pathname(),
-      query: {},
-    }),
-
-    // Use A component from @solidjs/router; spread (not destructured) so href/style stay reactive
-    linkComponent: ((props: { href: string; children?: JSX.Element; class?: string; style?: JSX.CSSProperties; [key: string]: unknown }) =>
-      (<A {...props} />) as unknown as JSX.Element) as unknown as Component<{
-      href: string
-      children?: JSX.Element
-      style?: JSX.CSSProperties
-      class?: string
-      [key: string]: unknown
-    }>,
+    resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
+    getRoute: () => ({ fullPath: fullPath(), query: Object.fromEntries(new URLSearchParams(location.search)) }),
   }
 }

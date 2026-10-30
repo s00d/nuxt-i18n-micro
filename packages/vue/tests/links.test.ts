@@ -48,6 +48,9 @@ describe('router adapter', () => {
     expect(resolve('#top', 'de')).toBe('/de/about#top')
     expect(resolve('?x=1', 'en')).toBe('/about?x=1')
     expect(resolve('/', 'de')).toBe('/de')
+    expect(resolve({}, 'de')).toBe('/de')
+    expect(resolve({ path: '' }, 'en')).toBe('/')
+    expect(resolve({ query: { x: '1' } }, 'de')).toBe('/de/about?x=1')
     wrapper.unmount()
   })
 })
@@ -107,6 +110,32 @@ describe('I18nLink', () => {
   })
 })
 
+describe('without a router', () => {
+  test('a location keeps its query, repeated values and hash', () => {
+    const wrapper = mount(I18nLink, {
+      props: { to: { path: '/a', query: { x: '1', y: ['2', '3'] }, hash: '#h' } },
+      slots: { default: () => 'L' },
+      global: { plugins: [createI18n({ locale: 'en', messages: {}, locales, defaultLocale: 'en' })] },
+    })
+    expect(wrapper.find('a').attributes('href')).toBe('/a?x=1&y=2&y=3#h')
+  })
+
+  test('the switcher keeps the query and hash of the page', () => {
+    window.history.replaceState(null, '', '/page?q=1#h')
+    const localeRoute = vi.fn((to: string, code?: string) => `/${code}${to}`)
+    const wrapper = mount(I18nSwitcher, {
+      props: { localeRoute: localeRoute as never },
+      global: { plugins: [createI18n({ locale: 'en', messages: {}, locales, defaultLocale: 'en' })] },
+    })
+    wrapper.find('button').element.click()
+    return flushPromises().then(() => {
+      expect(wrapper.find('.switcher-locale-de').attributes('href')).toBe('/de/page?q=1#h')
+      window.history.replaceState(null, '', '/')
+      wrapper.unmount()
+    })
+  })
+})
+
 describe('switching locale', () => {
   test('keeps the query and the hash, from code and from the switcher', async () => {
     let api!: ReturnType<typeof useI18n>
@@ -144,6 +173,49 @@ describe('useLocaleHead', () => {
     )
     expect(head.metaObject.value.link.map((link) => link.href)).toEqual(['/de', '/', '/de', '/'])
     wrapper.unmount()
+  })
+
+  test('no x-default for a default locale that is not listed', async () => {
+    const page = { render: () => null }
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: page }] })
+    await router.push('/')
+    const routing = createVueRouterAdapter(router, locales, 'en')
+    const i18n = createI18n({ locale: 'en', messages: {}, locales, defaultLocale: 'pt', routingStrategy: routing })
+    let head!: ReturnType<typeof useLocaleHead>
+    mount(
+      defineComponent({
+        setup() {
+          head = useLocaleHead()
+          head.updateMeta()
+          return () => null
+        },
+      }),
+      { global: { plugins: [router, i18n] } },
+    )
+    expect(head.metaObject.value.link.some((tag) => tag.hreflang === 'x-default')).toBe(false)
+  })
+
+  test('a strategy whose current path holds a query does not double it', async () => {
+    const routing = {
+      getCurrentPath: () => '/shop?page=2#top',
+      getRoute: () => ({ fullPath: '/shop?page=2#top', query: {} }),
+      push: () => {},
+      replace: () => {},
+      resolvePath: (to: unknown) => to as string,
+    }
+    const i18n = createI18n({ locale: 'en', messages: {}, locales, defaultLocale: 'en', routingStrategy: routing })
+    let head!: ReturnType<typeof useLocaleHead>
+    mount(
+      defineComponent({
+        setup() {
+          head = useLocaleHead()
+          head.updateMeta(['page'])
+          return () => null
+        },
+      }),
+      { global: { plugins: [i18n] } },
+    )
+    expect(head.metaObject.value.link[0]!.href).toBe('/shop?page=2')
   })
 
   test('canonical and hreflang of one page agree', async () => {

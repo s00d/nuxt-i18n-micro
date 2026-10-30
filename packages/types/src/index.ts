@@ -379,7 +379,7 @@ export interface ModuleOptions {
    * For the Nuxt module the function is serialized with `.toString()` into
    * `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
    * A file path string is **not** supported.
-   * @default built-in pluralization (form index by count; `=0 ` opens a template of `Intl.PluralRules` categories)
+   * @default built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)
    */
   plural?: PluralFunc
 

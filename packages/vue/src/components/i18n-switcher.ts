@@ -69,7 +69,11 @@ export const I18nSwitcher = /*#__PURE__*/ defineComponent({
     const locales = () => props.locales || injectedLocales || []
 
     const location = (code: string): string | { path?: string } => {
-      const current = routing ? currentFullPath(routing) : typeof window !== 'undefined' ? window.location.pathname : '/'
+      const current = routing
+        ? currentFullPath(routing)
+        : typeof window !== 'undefined'
+          ? window.location.pathname + window.location.search + window.location.hash
+          : '/'
       if (props.localeRoute) return props.localeRoute(current, code)
       return routing?.resolvePath ? routing.resolvePath(current, code) : current
     }

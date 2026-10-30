@@ -13,7 +13,8 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
 
   /** A target as a URL: a location goes through the router, so `name`, `query` and `hash` count. */
   const urlOf = (to: I18nRouteTarget): string => {
-    if (typeof to !== 'string') return router.resolve(to as RouteLocationRaw).fullPath
+    // `{}` names no target: the router would answer this page
+    if (typeof to !== 'string') return to.path || to.name || to.params || to.query || to.hash ? router.resolve(to as RouteLocationRaw).fullPath : '/'
     // `#top`, `?x=1`: relative to this page
     return /^[?#]/.test(to) ? `${router.currentRoute.value.path}${to}` : to
   }

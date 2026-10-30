@@ -6,8 +6,6 @@ import type { CSSProperties, PropType, SlotsType } from 'vue'
 import { defineComponent, Fragment, h, onMounted, onUnmounted, ref } from 'vue'
 import { useNuxtApp, useRouter } from '#imports'
 
-const styleProp = () => ({})
-
 /**
  * A locale switcher: a button showing the current locale and a dropdown of the rest,
  * each linking to the equivalent route in that locale.
@@ -20,23 +18,23 @@ export default defineComponent({
   name: 'I18nSwitcher',
   props: {
     /** Display name per locale code, overriding the `displayName` from the locale config. */
-    customLabels: { type: Object as PropType<Record<string, string>>, default: styleProp },
+    customLabels: { type: Object as PropType<Record<string, string>>, default: () => ({}) },
     /** Inline style for the outer wrapper. */
-    customWrapperStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customWrapperStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the button that opens the dropdown. */
-    customButtonStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customButtonStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the dropdown panel. */
-    customDropdownStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customDropdownStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for each item in the dropdown. */
-    customItemStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customItemStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the link inside an item. */
-    customLinkStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customLinkStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the link of the currently active locale. */
-    customActiveLinkStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customActiveLinkStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the *current* locale button when it is `disabled: true` in config. */
-    customDisabledLinkStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customDisabledLinkStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
     /** Inline style for the caret icon on the button. */
-    customIconStyle: { type: Object as PropType<CSSProperties>, default: styleProp },
+    customIconStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
   },
   slots: Object as SlotsType<{
     /** Content before the button that opens the dropdown. */

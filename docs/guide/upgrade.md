@@ -100,11 +100,13 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 - **A locale code `Intl` does not know gets the index rule**, with or without the marker's categories: `ua` no longer follows the machine's locale. Set `iso`: `{ code: 'ua', iso: 'uk-UA' }` plurals as Ukrainian, in the module and in `@i18n-micro/vue`.
 - **A custom `plural` rule keeps its signature** and still gets the locale code. It reads the raw value, so a marked template reaches it with `=0 ` in place. Returning `null` falls back to the built-in rule, which honours the marker.
 - `{placeholder}` names may hold any character but braces and spaces: `{имя}`, `{first-name}` and `{user.name}` are read from `params`. Without such a param they stay as written, as before.
-- **`timeZone` option.** Set it (`Europe/Berlin`) to render one date on the server and in every browser.
+- **`timeZone` option.** Set it (`Europe/Berlin`) to render one calendar date on the server and in every browser. It has no effect on `relativeDate`, which depends on the clock.
 
 ### `<i18n-t>`
 
-- **`html` escapes `params`** in the module, `@i18n-micro/vue`, `@i18n-micro/react`, `@i18n-micro/preact` and `@i18n-micro/solid`. Only the translation is trusted markup; the Astro `I18nT` does not escape yet. A param that held markup on purpose now shows as text: put the markup in the translation and pass the data as params, or use slots without `html`.
+This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. For the other frameworks see [Framework packages](#framework-packages).
+
+- **`html` escapes `params`, in every case, and ignores all slots.** Only the translation is trusted markup. A param that held markup on purpose now shows as text: put the markup in the translation and pass the data as params, or use slots without `html`.
 - **Slots work with `plural`, `number`, `date` and `relativeDate`,** and a `default` slot receives `{ translation }` in those cases too. Every `{name}` is filled, not only the first.
 - **A slot beats a param of the same name.** A param value that looks like a placeholder stays text. With a `customPluralRule` or a custom `plural` the rule returns a finished string, so a param it interpolated can be taken for a placeholder there.
 - **`null` means not set** for `plural`, `number`, `date` and `relativeDate`. `:plural="null"` used to fail the render, `:date="null"` rendered 1970.

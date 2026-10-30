@@ -41,7 +41,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     if (!locale) return
 
     const base = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-    const here = routing.getCurrentPath()
+    // a custom strategy's path may hold the query, which `query` adds back filtered
+    const here = routing.getCurrentPath().split(/[?#]/)[0] || '/'
     const kept = filterQuery(currentFullPath(routing), canonicalQueryWhitelist)
     const query = kept.slice(kept.search(/\?|$/))
     const hrefOf = (code: string): string => {
@@ -49,14 +50,14 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       if (!path) return ''
       return `${isAbsolute(path) ? path : joinBase(base, path)}${query}`
     }
-    const defaultLocaleSeo = allLocales.find((loc: Locale) => loc.code === defaultLocale)?.seo !== false
+    const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
 
     metaObject.value = buildLocaleHead({
       locale,
       seoLocales: allLocales.filter((loc: Locale) => !loc.disabled && loc.seo !== false),
       hrefOf,
       canonical: hrefOf(locale.code),
-      xDefault: defaultLocale && defaultLocaleSeo ? hrefOf(defaultLocale) : undefined,
+      xDefault: defaultLocaleObj && defaultLocaleObj.seo !== false ? hrefOf(defaultLocaleObj.code) : undefined,
       addDirAttribute,
       addSeoAttributes,
       identifierAttribute,

@@ -96,6 +96,7 @@ interface LocaleHeadMeta
 member LocaleHeadMeta.content: string
 member LocaleHeadMeta.property: string
 member LocaleHeadMeta.[string]: string
+function queryString: (query?: object | null) => string
 
 # ./merge-i18n-head (src/merge-i18n-head.ts)
 interface I18nHeadObject

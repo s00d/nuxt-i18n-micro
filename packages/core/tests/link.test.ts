@@ -14,6 +14,8 @@ describe('externalLinkHref', () => {
     ['example.com?x=1', 'https://example.com?x=1'],
     ['example.com:8080', 'https://example.com:8080'],
     ['example.com:8080/a', 'https://example.com:8080/a'],
+    ['example.com.', 'https://example.com.'],
+    ['example.com./a', 'https://example.com./a'],
     ['HTTPS://example.com', 'HTTPS://example.com'],
     ['Mailto:hi@example.com', 'Mailto:hi@example.com'],
     ['TEL:+100', 'TEL:+100'],
@@ -62,9 +64,12 @@ describe('isSamePage', () => {
 })
 
 describe('isPlainClick', () => {
-  const click = (init: Partial<MouseEvent> & { target?: string } = {}) => {
-    const { target, ...event } = init
-    return { defaultPrevented: false, button: 0, currentTarget: { getAttribute: () => target ?? null }, ...event } as unknown as MouseEvent
+  const click = (init: Partial<MouseEvent> & { target?: string; download?: string } = {}) => {
+    const { target, download, ...event } = init
+    const attrs: Record<string, string | undefined> = { target, download }
+    const getAttribute = (name: string) => attrs[name] ?? null
+    const hasAttribute = (name: string) => attrs[name] !== undefined
+    return { defaultPrevented: false, button: 0, currentTarget: { getAttribute, hasAttribute }, ...event } as unknown as MouseEvent
   }
 
   it('a primary click on a link without a target', () => {
@@ -80,6 +85,8 @@ describe('isPlainClick', () => {
     { button: 1 },
     { defaultPrevented: true },
     { target: '_blank' },
+    { download: '' },
+    { download: 'report.pdf' },
   ])('not with %j', (init) => {
     expect(isPlainClick(click(init))).toBe(false)
   })

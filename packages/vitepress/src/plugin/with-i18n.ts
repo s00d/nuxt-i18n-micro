@@ -83,6 +83,9 @@ export interface VirtualI18nConfig {
   localeKeyToCode: Record<string, string>
   /** VitePress `site.base` (normalized, trailing slash preserved from config). */
   base?: string
+  numberFormats?: CreateI18nOptions['numberFormats']
+  datetimeFormats?: CreateI18nOptions['datetimeFormats']
+  timeZone?: string
 }
 
 const VIRTUAL_CONFIG_ID = 'virtual:i18n-micro/config'
@@ -158,6 +161,9 @@ function createI18nVitePlugin(options: WithI18nOptions, siteBase?: string): Plug
     disablePageLocales,
     localeKeyToCode: options.localeKeyToCode ?? {},
     base: siteBase && siteBase !== '/' ? siteBase : undefined,
+    numberFormats: options.numberFormats,
+    datetimeFormats: options.datetimeFormats,
+    timeZone: options.timeZone,
   }
 
   let rootDir = process.cwd()

@@ -84,6 +84,7 @@ member UseI18nOptions.defaultLocale?: string | undefined
 member UseI18nOptions.locales?: Locale[] | undefined
 interface VirtualI18nConfig
 member VirtualI18nConfig.base?: string | undefined
+member VirtualI18nConfig.datetimeFormats?: import("@i18n-micro/core").DateTimeFormatsConfig | undefined
 member VirtualI18nConfig.defaultLocale: string
 member VirtualI18nConfig.disablePageLocales: boolean
 member VirtualI18nConfig.fallbackLocale: string
@@ -91,7 +92,9 @@ member VirtualI18nConfig.localeCodes: string[]
 member VirtualI18nConfig.localeKeyToCode: Record<string, string>
 member VirtualI18nConfig.locales: Locale[]
 member VirtualI18nConfig.missingWarn: boolean
+member VirtualI18nConfig.numberFormats?: import("@i18n-micro/core").NumberFormatsConfig | undefined
 member VirtualI18nConfig.syncWithVitePress: boolean
+member VirtualI18nConfig.timeZone?: string | undefined
 member VirtualI18nConfig.translationDir: string
 interface VitePressSiteDataLike
 member VitePressSiteDataLike.locales?: Record<string, { lang?: string; link?: string; label?: string; }> | undefined
@@ -160,6 +163,7 @@ member BuildVitePressLocalesOptions.localeKeyToCode?: Record<string, string> | u
 function relativePathToRoutePath: (relativePath: string) => string
 interface VirtualI18nConfig
 member VirtualI18nConfig.base?: string | undefined
+member VirtualI18nConfig.datetimeFormats?: import("@i18n-micro/core").DateTimeFormatsConfig | undefined
 member VirtualI18nConfig.defaultLocale: string
 member VirtualI18nConfig.disablePageLocales: boolean
 member VirtualI18nConfig.fallbackLocale: string
@@ -167,7 +171,9 @@ member VirtualI18nConfig.localeCodes: string[]
 member VirtualI18nConfig.localeKeyToCode: Record<string, string>
 member VirtualI18nConfig.locales: Locale[]
 member VirtualI18nConfig.missingWarn: boolean
+member VirtualI18nConfig.numberFormats?: import("@i18n-micro/core").NumberFormatsConfig | undefined
 member VirtualI18nConfig.syncWithVitePress: boolean
+member VirtualI18nConfig.timeZone?: string | undefined
 member VirtualI18nConfig.translationDir: string
 type VitePressHeadTuple: [string, Record<string, string>]
 interface VitePressLocaleEntry

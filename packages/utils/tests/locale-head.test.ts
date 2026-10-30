@@ -1,6 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { describe, expect, it } from 'vitest'
-import { buildLocaleHead, filterQuery, joinBase } from '../src/locale-head'
+import { buildLocaleHead, filterQuery, joinBase, queryString } from '../src/locale-head'
 
 const en: Locale = { code: 'en', iso: 'en-US' }
 const de: Locale = { code: 'de', iso: 'de-DE', dir: 'ltr' }
@@ -13,6 +13,8 @@ describe('joinBase', () => {
     ['https://x.com/', '/de', 'https://x.com/de'],
     ['https://x.com/', 'de', 'https://x.com/de'],
     ['/docs/', '/fr/guide', '/docs/fr/guide'],
+    ['/', '//evil.example/x', '/evil.example/x'],
+    ['https://x.com', '//evil.example', 'https://x.com/evil.example'],
   ])('%s + %s', (base, path, joined) => {
     expect(joinBase(base, path)).toBe(joined)
   })
@@ -31,6 +33,22 @@ describe('filterQuery', () => {
     ['/a?h=1#?q=2', ['q'], '/a'],
   ])('%s keeping %j', (url, whitelist, kept) => {
     expect(filterQuery(url, whitelist)).toBe(kept)
+  })
+})
+
+describe('queryString', () => {
+  it.each([
+    [undefined, ''],
+    [{}, ''],
+    [{ a: '1' }, '?a=1'],
+    [{ a: 1, b: true }, '?a=1&b=true'],
+    [{ a: ['1', '2'] }, '?a=1&a=2'],
+    [{ a: undefined, b: '2' }, '?b=2'],
+    [{ a: null }, '?a='],
+    [{ a: [null, '2'] }, '?a=&a=2'],
+    [{ q: 'a b&c' }, '?q=a+b%26c'],
+  ])('%j', (query, serialized) => {
+    expect(queryString(query)).toBe(serialized)
   })
 })
 
@@ -65,7 +83,7 @@ describe('buildLocaleHead', () => {
   it('skips a locale without a URL, x-default without one, and hreflang under one URL per page', () => {
     const noDe = buildLocaleHead({ ...base, hrefOf: (code) => (code === 'de' ? '' : `/${code}`), xDefault: undefined })
     expect(noDe.link.map((link) => link.hreflang)).toEqual([undefined, 'en-US'])
-    expect(buildLocaleHead({ ...base, alternates: false, xDefault: undefined }).link.map((link) => link.rel)).toEqual(['canonical'])
+    expect(buildLocaleHead({ ...base, alternates: false }).link.map((link) => link.rel)).toEqual(['canonical'])
   })
 
   it('names the tags by the identifier attribute', () => {

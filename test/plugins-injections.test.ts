@@ -1,5 +1,5 @@
 import type { BaseI18n } from '@i18n-micro/core'
-import type { CleanTranslation, DefineI18nRouteConfig, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, DefineI18nRouteConfig, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { readFileSync } from 'node:fs'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
@@ -23,6 +23,10 @@ describe('PluginsInjections typing', () => {
     expectTypeOf<ReturnType<P['$_ts']>>().toEqualTypeOf<TranslationFn<string>>()
     expectTypeOf<Parameters<P['$tc']>[0]>().toEqualTypeOf<TranslationKey>()
     expectTypeOf<ReturnType<P['$tc']>>().toEqualTypeOf<string>()
+    // what <i18n-t> asks for to pick a form: the rule, and the tag it goes by
+    expectTypeOf<P['$pluralFunc']>().toEqualTypeOf<PluralFunc>()
+    expectTypeOf<P['$pluralLocale']>().toEqualTypeOf<() => string>()
+    expectTypeOf<NuxtI18nPluginProvide['pluralFunc']>().toEqualTypeOf<PluralFunc>()
     // route-bound versions and the plugin API agree
     expectTypeOf<NuxtI18n['tForRoute']>().returns.toEqualTypeOf<TranslationFn<CleanTranslation>>()
     expectTypeOf<NuxtI18n['tsForRoute']>().returns.toEqualTypeOf<TranslationFn<string>>()

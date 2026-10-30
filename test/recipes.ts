@@ -109,6 +109,12 @@ export const recipes = defineRecipes(
       { STRATEGY: 'prefix', AUTO_DETECT_LANGUAGE: '1' },
       { router: { options: { hashMode: true } } },
     ),
+    'strategy-hash-prefix-slash': app(
+      'strategy-hash-prefix-slash',
+      'strategy',
+      { STRATEGY: 'prefix' },
+      { router: { options: { hashMode: true } }, i18n: { trailingSlash: 'append' } },
+    ),
     'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
     'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
 

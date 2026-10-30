@@ -72,7 +72,7 @@ export default defineNuxtPlugin({
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && served && !(redirects && anyPath)) writeCookie(urlLocale)
     // Under hash + prefix a document holds no route: it moves into the hash, the client takes it from there.
-    if (i18nConfig.hashMode && alwaysPrefixed) return navigateTo(`/#${path}${url.search}`, { redirectCode: 302 }) as Promise<void>
+    if (i18nConfig.hashMode && alwaysPrefixed) return navigateTo(`/#${applyTrailingSlash(path, i18nConfig.trailingSlash)}${url.search}`, { redirectCode: 302 }) as Promise<void>
     // Under hashMode the locale lives in the hash and the hash cookie: `/` keeps its document URL.
     if (!redirects || i18nConfig.hashMode) return
 

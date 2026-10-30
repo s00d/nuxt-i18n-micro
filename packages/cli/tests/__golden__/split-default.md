@@ -12,7 +12,7 @@ Split translations for locale ru into 12 files
 
 ## Files
 
-added split-out/de/common-2.json
+added split-out/de/common.2.json
 
 ```
 {
@@ -20,7 +20,7 @@ added split-out/de/common-2.json
 }
 ```
 
-added split-out/de/common-3.json
+added split-out/de/common.3.json
 
 ```
 {
@@ -44,7 +44,7 @@ added split-out/de/home.json
 }
 ```
 
-added split-out/de/limits-2.json
+added split-out/de/limits.2.json
 
 ```
 {
@@ -52,7 +52,7 @@ added split-out/de/limits-2.json
 }
 ```
 
-added split-out/de/limits-3.json
+added split-out/de/limits.3.json
 
 ```
 {
@@ -70,7 +70,7 @@ added split-out/de/limits.json
 }
 ```
 
-added split-out/en/common-2.json
+added split-out/en/common.2.json
 
 ```
 {
@@ -78,7 +78,7 @@ added split-out/en/common-2.json
 }
 ```
 
-added split-out/en/common-3.json
+added split-out/en/common.3.json
 
 ```
 {
@@ -102,7 +102,7 @@ added split-out/en/greeting.json
 }
 ```
 
-added split-out/en/home-2.json
+added split-out/en/home.2.json
 
 ```
 {
@@ -118,7 +118,7 @@ added split-out/en/home.json
 }
 ```
 
-added split-out/en/limits-2.json
+added split-out/en/limits.2.json
 
 ```
 {
@@ -126,7 +126,7 @@ added split-out/en/limits-2.json
 }
 ```
 
-added split-out/en/limits-3.json
+added split-out/en/limits.3.json
 
 ```
 {
@@ -169,7 +169,7 @@ added split-out/en/spaced.json
 }
 ```
 
-added split-out/ru/common-2.json
+added split-out/ru/common.2.json
 
 ```
 {
@@ -177,7 +177,7 @@ added split-out/ru/common-2.json
 }
 ```
 
-added split-out/ru/common-3.json
+added split-out/ru/common.3.json
 
 ```
 {
@@ -201,7 +201,7 @@ added split-out/ru/greeting.json
 }
 ```
 
-added split-out/ru/home-2.json
+added split-out/ru/home.2.json
 
 ```
 {
@@ -217,7 +217,7 @@ added split-out/ru/home.json
 }
 ```
 
-added split-out/ru/limits-2.json
+added split-out/ru/limits.2.json
 
 ```
 {
@@ -225,7 +225,7 @@ added split-out/ru/limits-2.json
 }
 ```
 
-added split-out/ru/limits-3.json
+added split-out/ru/limits.3.json
 
 ```
 {

@@ -97,13 +97,15 @@ const fence = (body: string): string => `\`\`\`\n${body.trimEnd()}\n\`\`\``
 const ISO_STAMP = /\d{4}-\d{2}-\d{2}T\d{2}[-:]\d{2}[-:]\d{2}[-.]\d{3}Z/g
 
 export function normalize(text: string, projectDir: string, port = 0): string {
-  return text
-    .replaceAll(projectDir, '<project>')
-    .replaceAll(`127.0.0.1:${port}`, '<mock>')
-    .replace(ISO_STAMP, '<timestamp>')
-    // oxlint-disable-next-line no-control-regex -- ANSI colors are what this strips
-    .replace(/\u001B\[[0-9;]*m/g, '')
-    .replace(/[ \t]+$/gm, '')
+  return (
+    text
+      .replaceAll(projectDir, '<project>')
+      .replaceAll(`127.0.0.1:${port}`, '<mock>')
+      .replace(ISO_STAMP, '<timestamp>')
+      // oxlint-disable-next-line no-control-regex -- ANSI colors are what this strips
+      .replace(/\u001B\[[0-9;]*m/g, '')
+      .replace(/[ \t]+$/gm, '')
+  )
 }
 
 export interface MockRequest {

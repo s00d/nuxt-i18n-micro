@@ -605,6 +605,186 @@ echo '<template/>' > "$PWD/$3/${appFile}"
   })
 })
 
+describe('review findings', () => {
+  it('clean: app.vue, middleware and stores count; a computed key needs --force', async () => {
+    fresh()
+    write(dir, 'locales/en.json', JSON.stringify({ a: { app: 'x', mw: 'y', store: 'z', cast: 'c', alias: 'd', gone: 'e' }, b: { concat: 'f' } }))
+    write(dir, 'app.vue', `<template>{{ $t('a.app') }}</template>\n`)
+    write(dir, 'middleware/auth.ts', `export default () => useNuxtApp().$t('a.mw')\n`)
+    write(dir, 'stores/user.ts', `export const s = (i: any) => i.$t(<string>'a.store')\n`)
+    write(
+      dir,
+      'composables/c.ts',
+      `const { t: tr } = useI18n()\nconst x = <string>tr('a.alias')\nconst y = useI18n().t('a.cast')\nconst z = $t('b.' + id)\n`,
+    )
+    await runCli(['clean'], { cwd: dir })
+    expect(readJson(dir, 'locales/en.json')).toEqual({ a: { app: 'x', mw: 'y', store: 'z', cast: 'c', alias: 'd' }, b: { concat: 'f' } })
+
+    write(dir, 'pages/x.vue', '<template>{{ $t(name) }}</template>\n')
+    const refused = await runCli(['clean'], { cwd: dir })
+    expect(refused.code).toBe(1)
+    expect(refused.stderr).toContain('computed at runtime')
+    expect((await runCli(['clean', '--force'], { cwd: dir })).code).toBe(0)
+  })
+
+  it('clean: pug templates and files with syntax errors still count', async () => {
+    fresh()
+    write(dir, 'locales/en.json', JSON.stringify({ p: 'x', q: 'y' }))
+    write(dir, 'pages/pug.vue', `<template lang="pug">\np {{ $t('p') }}\n</template>\n`)
+    write(dir, 'components/bad.ts', `const = $t('q')\n`)
+    await runCli(['clean'], { cwd: dir })
+    expect(readJson(dir, 'locales/en.json')).toEqual({ p: 'x', q: 'y' })
+  })
+
+  it('an unknown flag fails instead of being ignored', async () => {
+    fresh()
+    const result = await runCli(['clean', '--dryrun'], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(result.stderr).toContain('Unknown flag --dryrun')
+    expect(readJson(dir, 'locales/en.json').common.unused).toBe('Unused value')
+  })
+
+  it('remote and CSV paths cannot leave the project', async () => {
+    fresh()
+    write(dir, '.i18n-remote.json', JSON.stringify({ type: 'custom', url: mock.url, auth: { username: 'u', password: 'p' } }))
+    handler = (_request, response) => json(response, { '../../pwned': { a: 'b' } })
+    await runCli(['sync-remote'], { cwd: dir })
+    expect(existsSync(join(dir, '..', 'pwned.json'))).toBe(false)
+
+    write(dir, 'csv_exports/de.csv', 'File,Key,Translation\npages/../../../evil/de.json,a,b\n')
+    const result = await runCli(['import-csv'], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(result.stderr).toContain('Unsafe page scope')
+  })
+
+  it('import ignores empty translations and reads plural entries', async () => {
+    fresh()
+    write(
+      dir,
+      'pots/de.po',
+      'msgid "common.save"\nmsgstr ""\n\nmsgid "one"\nmsgid_plural "many"\nmsgstr[0] "ein"\nmsgstr[1] "viele"\n\nmsgid "next"\nmsgstr "weiter"\n',
+    )
+    await runCli(['import'], { cwd: dir })
+    const de = readJson(dir, 'locales/de.json')
+    expect(de.common.save).toBe('Speichern')
+    expect(de.one).toBe('ein')
+    expect(de.next).toBe('weiter')
+  })
+
+  it('extract does not turn a value into an object; rename refuses a clash', async () => {
+    fresh()
+    write(dir, 'components/Sub.vue', `<template>{{ $t('common.save.sub') }}</template>\n`)
+    const result = await runCli(['extract'], { cwd: dir })
+    expect(result.stderr).toContain('common.save already holds a value')
+    expect(readJson(dir, 'locales/en.json').common.save).toBe('Save')
+
+    const clash = await runCli(['rename', '--from', 'linked', '--to', 'common'], { cwd: dir })
+    expect(clash.code).toBe(1)
+    expect((await runCli(['rename', '--from', 'linked', '--to', 'spaced.x'], { cwd: dir })).code).toBe(1)
+  })
+
+  it('flat dotted keys are updated in place', async () => {
+    fresh()
+    write(dir, 'locales/en.json', JSON.stringify({ 'a.b': 'Old value' }))
+    await runCli(['replace-values', '--search', 'Old', '--replace', 'New'], { cwd: dir })
+    expect(readJson(dir, 'locales/en.json')).toEqual({ 'a.b': 'New value' })
+  })
+
+  it('a type conflict with the remote is a conflict', async () => {
+    fresh()
+    write(dir, '.i18n-remote.json', JSON.stringify({ type: 'custom', url: mock.url, auth: { username: 'u', password: 'p' } }))
+    handler = (_request, response) => json(response, { de: { common: { save: { nested: 'x' } } } })
+    const result = await runCli(['sync-remote'], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(readJson(dir, 'locales/de.json').common.save).toBe('Speichern')
+  })
+
+  it('an empty numeric flag fails instead of hanging', async () => {
+    const result = await runCli(['split', '--maxKeys'], { cwd: fresh(), timeoutMs: 10_000 })
+    expect(result.code).toBe(1)
+    expect(result.stderr).toContain('--maxKeys must be a positive integer')
+  })
+
+  it('restore repairs a broken locale; a corrupted archive is refused', async () => {
+    fresh()
+    await runCli(['backup'], { cwd: dir })
+    const [archive] = readdirSync(join(dir, 'locales/backups'))
+    write(dir, 'locales/en.json', '{ broken')
+    expect((await runCli(['restore', '--backup', archive!, '--force'], { cwd: dir })).code).toBe(0)
+    expect(readJson(dir, 'locales/en.json').common.save).toBe('Save')
+
+    const path = join(dir, 'locales/backups', archive!)
+    const zip = readFileSync(path)
+    zip[60] = zip[60]! ^ 0xff
+    writeFileSync(path, zip)
+    const corrupted = await runCli(['restore', '--backup', archive!, '--force'], { cwd: dir })
+    expect(corrupted.code).toBe(1)
+  })
+
+  it('backup refuses an empty password', async () => {
+    fresh()
+    const result = await runCli(['backup', '--password='], { cwd: dir })
+    expect(result.stderr).toContain('--password cannot be empty')
+  })
+
+  it('text-to-i18n: known text is still rewritten, tagged templates and composables stay', async () => {
+    fresh()
+    write(dir, 'pages/k.vue', '<template><p>Fast i18n</p></template>\n')
+    write(dir, 'composables/useT.ts', `export const a = 'Plain words here'\n`)
+    write(dir, 'components/q.ts', 'export const q = gql`query Foo bar`\n')
+    await runCli(['text-to-i18n'], { cwd: dir })
+    expect(read(dir, 'pages/k.vue')).toContain(`$t('home.tagline')`)
+    expect(read(dir, 'composables/useT.ts')).toContain('Plain words here')
+    expect(read(dir, 'components/q.ts')).toContain('gql`query Foo bar`')
+  })
+
+  it('text-to-i18n --interactive: a skip covers repeats, closed stdin changes nothing', async () => {
+    fresh()
+    write(dir, 'pages/one.vue', '<template><p>Hello there</p><b>Hello there</b></template>\n')
+    const before = read(dir, 'locales/en.json')
+    const closed = await runCli(['text-to-i18n', '--path', 'pages/one.vue', '--interactive'], { cwd: dir })
+    expect(closed.code).toBe(1)
+    expect(read(dir, 'locales/en.json')).toBe(before)
+
+    await runCli(['text-to-i18n', '--path', 'pages/one.vue', '--interactive'], { cwd: dir, stdin: '3\n' })
+    expect(read(dir, 'pages/one.vue')).toBe('<template><p>Hello there</p><b>Hello there</b></template>\n')
+    expect(read(dir, 'locales/en.json')).toBe(before)
+  })
+
+  it('source files stay untouched when the translation file cannot be written', async () => {
+    fresh()
+    write(dir, 'pages/one.vue', '<template><p>Some words</p></template>\n')
+    write(dir, 'blocker', '')
+    const result = await runCli(['text-to-i18n', '--path', 'pages/one.vue', '--translationFile', 'blocker/x.json'], { cwd: dir })
+    expect(result.code).toBe(1)
+    expect(read(dir, 'pages/one.vue')).toContain('<p>Some words</p>')
+  })
+
+  it('translate skips empty source strings', async () => {
+    fresh()
+    write(dir, 'locales/en.json', JSON.stringify({ empty: '', full: 'Hello' }))
+    handler = (request, response) => json(response, { translatedText: JSON.parse(request.text).q.map(() => 'x') })
+    await runCli(['translate', '--service', 'libretranslate', '--options', `baseUrl:${mock.url}`], { cwd: dir })
+    expect(mock.requests.flatMap((request) => JSON.parse(request.text).q)).not.toContain('')
+  })
+
+  it('stats: pages.* global keys are not clobbered, extra keys do not inflate completion', async () => {
+    fresh()
+    write(dir, 'locales/en.json', JSON.stringify({ pages: { a: 'x' } }))
+    write(dir, 'locales/de.json', JSON.stringify({ pages: { a: 'y' }, extra: 'z', more: 'w' }))
+    const report = JSON.parse((await runCli(['stats', '--json'], { cwd: dir })).stdout)
+    expect(report.locales.find((locale: { code: string }) => locale.code === 'de').global.completion).toBe(100)
+  })
+
+  it('a custom remote without credentials sends no Authorization header', async () => {
+    fresh()
+    write(dir, '.i18n-remote.json', JSON.stringify({ type: 'custom', url: mock.url }))
+    handler = (_request, response) => json(response, {})
+    await runCli(['sync-remote'], { cwd: dir })
+    expect(mock.requests[0]?.headers.authorization).toBeUndefined()
+  })
+})
+
 describe('remaining commands', () => {
   it('estimate --replace counts more than the default', async () => {
     fresh()
@@ -617,7 +797,7 @@ describe('remaining commands', () => {
   it('split --maxKeys splits oversized groups', async () => {
     fresh()
     await runCli(['split', '--maxKeys', '1', '--outputDir', 'parts'], { cwd: dir })
-    expect(readdirSync(join(dir, 'parts/en'))).toContain('common-2.json')
+    expect(readdirSync(join(dir, 'parts/en'))).toContain('common.2.json')
   })
 
   it('pseudo fails for an unconfigured locale and keeps placeholders', async () => {

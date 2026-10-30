@@ -56,7 +56,7 @@ Combined:
 Global Translations:
   Total Keys:           9
   Translated Keys:      3
-  Completion:           33.33%
+  Completion:           22.22%
   Average Key Length:   11.50
   Average Value Length: 10.25
   Special Characters:   2
@@ -93,7 +93,7 @@ Page index:
 Combined:
   Total Keys:      13
   Translated Keys: 5
-  Completion:      38.46%
+  Completion:      30.77%
 
 == Locale: ru ==
 Global Translations:
@@ -143,7 +143,7 @@ Combined:
 Total Locales:           3
 Total Files:             9
 Total Keys:              39
-Average Completion:      79.49%
+Average Completion:      76.92%
 Most Translated Locale:  en
 Least Translated Locale: de
 ```

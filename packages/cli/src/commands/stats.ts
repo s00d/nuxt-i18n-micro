@@ -15,15 +15,18 @@ export interface StatsArgs {
   baseRef?: string
 }
 
+/** Not `pages`: `text-to-i18n` generates global keys under that name. */
+const COMBINED_PAGES = '$pages'
+
 type LocaleTree = Pick<StatsInput['locales'][number], 'code' | 'global' | 'pages'>
 
 function buildInput(trees: LocaleTree[], defaultLocale: string, pageScopes: string[]): StatsInput {
   const reference = trees.find((tree) => tree.code === defaultLocale)
   const referenceGlobalKeys = Object.keys(flattenStrings(reference?.global ?? {}))
   const referencePageKeys = Object.fromEntries(pageScopes.map((scope) => [scope, Object.keys(flattenStrings(reference?.pages[scope] ?? {}))]))
-  const pageCombined = Object.entries(referencePageKeys).flatMap(([scope, keys]) => keys.map((key) => `pages.${scope}.${key}`))
+  const pageCombined = Object.entries(referencePageKeys).flatMap(([scope, keys]) => keys.map((key) => `${COMBINED_PAGES}.${scope}.${key}`))
   return {
-    locales: trees.map((tree) => ({ ...tree, combined: { ...tree.global, pages: tree.pages } })),
+    locales: trees.map((tree) => ({ ...tree, combined: { ...tree.global, [COMBINED_PAGES]: tree.pages } })),
     pageScopes,
     referenceGlobalKeys,
     referencePageKeys,

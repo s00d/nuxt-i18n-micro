@@ -285,29 +285,29 @@
         "totalKeys": 13,
         "translatedKeys": 13,
         "completion": 100,
-        "averageKeyLength": 13.923076923076923,
+        "averageKeyLength": 14.23076923076923,
         "averageValueLength": 11.538461538461538,
         "specialCharsCount": 8,
         "emptyValues": 0,
         "duplicateValues": [
-          "common.save, pages.index.footer: \"Save\""
+          "common.save, $pages.index.footer: \"Save\""
         ],
         "longestKeys": [
           {
-            "key": "pages.about.about.title",
+            "key": "$pages.about.about.title",
+            "length": 24
+          },
+          {
+            "key": "$pages.about.about.more",
             "length": 23
           },
           {
-            "key": "pages.about.about.more",
-            "length": 22
+            "key": "$pages.index.hero.cta",
+            "length": 21
           },
           {
-            "key": "pages.index.hero.cta",
-            "length": 20
-          },
-          {
-            "key": "pages.index.footer",
-            "length": 18
+            "key": "$pages.index.footer",
+            "length": 19
           },
           {
             "key": "greeting.hello",
@@ -415,7 +415,7 @@
       "global": {
         "totalKeys": 9,
         "translatedKeys": 3,
-        "completion": 33.33333333333333,
+        "completion": 22.22222222222222,
         "averageKeyLength": 11.5,
         "averageValueLength": 10.25,
         "specialCharsCount": 2,
@@ -649,26 +649,26 @@
       "combined": {
         "totalKeys": 13,
         "translatedKeys": 5,
-        "completion": 38.46153846153847,
-        "averageKeyLength": 15.857142857142858,
+        "completion": 30.76923076923077,
+        "averageKeyLength": 16.285714285714285,
         "averageValueLength": 8.857142857142858,
         "specialCharsCount": 3,
         "emptyValues": 2,
         "duplicateValues": [
-          "common.cancel, pages.about.about.more: \"\""
+          "common.cancel, $pages.about.about.more: \"\""
         ],
         "longestKeys": [
           {
-            "key": "pages.about.about.title",
+            "key": "$pages.about.about.title",
+            "length": 24
+          },
+          {
+            "key": "$pages.about.about.more",
             "length": 23
           },
           {
-            "key": "pages.about.about.more",
-            "length": 22
-          },
-          {
-            "key": "pages.index.hero.cta",
-            "length": 20
+            "key": "$pages.index.hero.cta",
+            "length": 21
           },
           {
             "key": "common.cancel",
@@ -691,7 +691,7 @@
             "length": 15
           },
           {
-            "key": "pages.index.hero.cta",
+            "key": "$pages.index.hero.cta",
             "value": "Jetzt starten",
             "length": 13
           },
@@ -701,7 +701,7 @@
             "length": 9
           },
           {
-            "key": "pages.about.about.title",
+            "key": "$pages.about.about.title",
             "value": "Über uns",
             "length": 8
           }
@@ -1019,29 +1019,29 @@
         "totalKeys": 13,
         "translatedKeys": 13,
         "completion": 100,
-        "averageKeyLength": 13.923076923076923,
+        "averageKeyLength": 14.23076923076923,
         "averageValueLength": 12.461538461538462,
         "specialCharsCount": 124,
         "emptyValues": 0,
         "duplicateValues": [
-          "common.save, pages.index.footer: \"Сохранить\""
+          "common.save, $pages.index.footer: \"Сохранить\""
         ],
         "longestKeys": [
           {
-            "key": "pages.about.about.title",
+            "key": "$pages.about.about.title",
+            "length": 24
+          },
+          {
+            "key": "$pages.about.about.more",
             "length": 23
           },
           {
-            "key": "pages.about.about.more",
-            "length": 22
+            "key": "$pages.index.hero.cta",
+            "length": 21
           },
           {
-            "key": "pages.index.hero.cta",
-            "length": 20
-          },
-          {
-            "key": "pages.index.footer",
-            "length": 18
+            "key": "$pages.index.footer",
+            "length": 19
           },
           {
             "key": "greeting.hello",
@@ -1135,7 +1135,7 @@
     "totalLocales": 3,
     "totalFiles": 9,
     "totalKeys": 39,
-    "averageCompletion": 79.48717948717949,
+    "averageCompletion": 76.92307692307692,
     "localesByCompletion": [
       {
         "code": "en",
@@ -1147,7 +1147,7 @@
       },
       {
         "code": "de",
-        "completion": 38.46153846153847
+        "completion": 30.76923076923077
       }
     ],
     "mostTranslatedLocale": "en",

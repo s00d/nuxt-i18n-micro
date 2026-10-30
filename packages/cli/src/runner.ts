@@ -13,7 +13,7 @@ function citty(spec: ArgSpec): ArgsDef[string] {
 }
 
 function convert(name: string, spec: ArgSpec, value: unknown): unknown {
-  if (value === undefined || value === '') return value
+  if (value === undefined || (value === '' && !spec.numeric)) return value
   if (spec.values && !spec.values.includes(String(value))) {
     throw usageError(`Invalid value "${String(value)}" for --${name}`, [`Accepted: ${spec.values.join(', ')}`])
   }
@@ -22,6 +22,21 @@ function convert(name: string, spec: ArgSpec, value: unknown): unknown {
   const valid = Number.isFinite(number) && number > 0 && (spec.numeric === 'number' || Number.isInteger(number))
   if (!valid) throw validationError(`--${name} must be a positive ${spec.numeric === 'int' ? 'integer' : 'number'}`, [`Example: --${name} 10`])
   return number
+}
+
+const toCamel = (name: string): string => name.replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase())
+
+/** A mistyped `--dryrun` on `clean` must not run the real thing. */
+function assertKnownFlags(name: string, spec: CommandSpec, rawArgs: string[]): void {
+  const known = new Set(['debug', 'help', ...Object.keys(spec.args)])
+  for (const raw of rawArgs.slice(0, rawArgs.includes('--') ? rawArgs.indexOf('--') : undefined)) {
+    if (!raw.startsWith('--')) continue
+    const flag = toCamel(raw.slice(2).split('=')[0]!)
+    const positive = flag.replace(/^no([A-Z])/, (_match, letter: string) => letter.toLowerCase())
+    if (!known.has(flag) && !known.has(positive)) {
+      throw usageError(`Unknown flag ${raw.split('=')[0]} for ${name}`, [`See i18n-micro ${name} --help`])
+    }
+  }
 }
 
 function validated(spec: CommandSpec, args: ParsedArgs): ParsedArgs {
@@ -35,7 +50,8 @@ function toCommand(name: string, spec: CommandSpec): CommandDef {
   return defineCommand({
     meta: { name, description: spec.description },
     args,
-    async run({ args: parsed }) {
+    async run({ args: parsed, rawArgs }) {
+      assertKnownFlags(name, spec, rawArgs)
       log.setSilent(parsed.logLevel === 'silent')
       const handler = await spec.load()
       await handler.default(validated(spec, parsed) as never)

@@ -53,7 +53,21 @@ const google: Driver = {
   },
 }
 
-const DEEPL_TARGETS: Record<string, string> = { en: 'EN-US', pt: 'PT-PT', zh: 'ZH-HANS', 'zh-tw': 'ZH-HANT', 'zh-hant': 'ZH-HANT' }
+const DEEPL_TARGETS: Record<string, string> = {
+  en: 'EN-US',
+  'en-us': 'EN-US',
+  'en-gb': 'EN-GB',
+  es: 'ES',
+  'es-419': 'ES-419',
+  pt: 'PT-PT',
+  'pt-pt': 'PT-PT',
+  'pt-br': 'PT-BR',
+  zh: 'ZH-HANS',
+  'zh-cn': 'ZH-HANS',
+  'zh-hans': 'ZH-HANS',
+  'zh-tw': 'ZH-HANT',
+  'zh-hant': 'ZH-HANT',
+}
 
 const deeplHost = (token: string): string => (token.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com')
 
@@ -62,7 +76,7 @@ const deepl: Driver = {
   maxBatch: 50,
   maxChars: 100_000,
   sourceLang: (code) => bareLanguage(code).toUpperCase(),
-  targetLang: (code) => DEEPL_TARGETS[code.toLowerCase()] ?? code.toUpperCase(),
+  targetLang: (code) => DEEPL_TARGETS[code.toLowerCase()] ?? bareLanguage(code).toUpperCase(),
   async translate({ texts, from, to, token, options, http }) {
     const body = {
       text: texts,

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
-import { notFoundError } from './errors'
+import { notFoundError, validationError } from './errors'
 import { readJsonIfExists, stringifyJson, walkFiles, writeFilesAtomic } from './fs'
 import { type JsonObject, type JsonValue, flatten, flattenStrings, getPath, isObject, setPath } from './json'
 import { type ProjectConfig, loadProjectConfig } from './nuxt'
@@ -43,8 +43,8 @@ function mergeLayers(layers: LocaleLayer[]): LocaleLayer {
 function ownPart(tree: JsonObject, inherited: JsonObject, own: JsonObject): JsonObject {
   const out: JsonObject = {}
   for (const [key, value] of Object.entries(tree)) {
-    const base = inherited[key]
-    const mine = own[key]
+    const base = Object.hasOwn(inherited, key) ? inherited[key] : undefined
+    const mine = Object.hasOwn(own, key) ? own[key] : undefined
     if (isObject(value) && isObject(base)) {
       const nested = ownPart(value, base, isObject(mine) ? mine : {})
       if (Object.keys(nested).length > 0 || mine !== undefined) out[key] = nested
@@ -53,6 +53,11 @@ function ownPart(tree: JsonObject, inherited: JsonObject, own: JsonObject): Json
     if (mine !== undefined || JSON.stringify(value) !== JSON.stringify(base)) out[key] = value
   }
   return out
+}
+
+/** Scopes also arrive from imported files, and become directories. */
+function assertSafeScope(scope: string): void {
+  if (scope.startsWith('/') || scope.split(/[/\\]/).includes('..')) throw validationError(`Unsafe page scope: ${scope}`)
 }
 
 export class LocaleSet {
@@ -101,6 +106,7 @@ export class LocaleSet {
   }
 
   set(key: string, value: JsonValue, scope: string = GLOBAL_SCOPE): void {
+    assertSafeScope(scope)
     if (scope !== GLOBAL_SCOPE && !this.pages[scope]) this.pages[scope] = {}
     setPath(this.tree(scope), key, value)
     this.modified = true
@@ -167,12 +173,17 @@ export class Project {
     return files
   }
 
-  /** Write modified locales in one step: either every file is replaced or none is. Returns the paths written. */
-  save(options: SaveOptions = {}): string[] {
-    const files = this.codes.flatMap((code) => {
+  /** The writes a save would make, for a caller that has other files to change in the same step. */
+  pendingFiles(options: SaveOptions = {}): Array<[string, string]> {
+    return this.codes.flatMap((code) => {
       const set = this.locale(code)
       return set.modified ? this.filesOf(code, set, options.indent ?? 2) : []
     })
+  }
+
+  /** Write modified locales in one step: either every file is replaced or none is. Returns the paths written. */
+  save(options: SaveOptions = {}): string[] {
+    const files = this.pendingFiles(options)
     writeFilesAtomic(files)
     for (const code of this.codes) this.locale(code).modified = false
     return files.map(([path]) => path)

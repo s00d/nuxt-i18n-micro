@@ -50,7 +50,10 @@ async function attempt(url: string, options: RequestOptions, retriesLeft: number
   try {
     response = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) })
   } catch (error) {
-    if (retriesLeft > 0) return attempt(url, options, retriesLeft - 1, delayMs * 2).then((result) => result)
+    if (retriesLeft > 0) {
+      await sleep(delayMs)
+      return attempt(url, options, retriesLeft - 1, delayMs * 2)
+    }
     throw new CliError(`Request failed: ${(error as Error).message}`, { code: 'HTTP_ERROR', details: { URL: safeUrl(url) }, cause: error })
   }
   if (response.ok) return response

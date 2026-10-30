@@ -1,11 +1,11 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
-import { notFoundError, validationError } from '../errors'
-import { readJsonIfExists, stringifyJson, walkFiles, writeFileAtomic, writeFilesAtomic } from '../fs'
+import { notFoundError, usageError, validationError } from '../errors'
+import { readJsonIfExists, stringifyJson, walkFiles, writeFilesAtomic } from '../fs'
 import { flattenStrings, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
-import { allProjectSources, isSourceFile } from '../source'
+import { isSourceFile, rewritableSources } from '../source'
 import { KeyRegistry, type NewTranslation, convertSource, extractOnlyMatcher } from '../text-to-i18n'
 
 export interface TextToI18nArgs {
@@ -32,7 +32,7 @@ const splitList = (value: string | undefined): string[] =>
     .filter(Boolean)
 
 function filesToProcess(config: ProjectConfig, customPath: string | undefined): string[] {
-  if (!customPath) return allProjectSources(config)
+  if (!customPath) return rewritableSources(config)
   const target = resolve(config.rootDir, customPath)
   if (!existsSync(target)) throw notFoundError(`Path does not exist: ${target}`)
   if (statSync(target).isDirectory()) return walkFiles(target, isSourceFile)
@@ -66,6 +66,7 @@ function convertAll(files: string[], config: ProjectConfig, args: TextToI18nArgs
 async function askDecision(entry: NewTranslation, decisions: Decisions, reserved: Set<string>): Promise<void> {
   log.info(`\n[${entry.file}:${entry.line}] "${entry.value}" -> ${entry.key}`)
   const action = await choose('Action', ['accept', 'edit', 'skip'])
+  if (!action) throw usageError('No answer: stopping without changing anything.')
   if (action === 'skip') {
     decisions.skippedKeys.push(entry.key)
     reserved.delete(entry.key)
@@ -84,9 +85,9 @@ async function askDecision(entry: NewTranslation, decisions: Decisions, reserved
   reserved.add(edited)
 }
 
-async function collectDecisions(created: Map<string, NewTranslation>): Promise<Decisions> {
+async function collectDecisions(created: Map<string, NewTranslation>, existing: Record<string, string>): Promise<Decisions> {
   const decisions: Decisions = { keyOverrides: {}, skippedKeys: [] }
-  const reserved = new Set(created.keys())
+  const reserved = new Set([...created.keys(), ...Object.keys(existing)])
   for (const entry of created.values()) {
     // oxlint-disable-next-line no-await-in-loop -- one question at a time
     await askDecision(entry, decisions, reserved)
@@ -105,11 +106,11 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
 
   let result = convertAll(files, config, args, existing, { keyOverrides: {}, skippedKeys: [] })
   if (args.interactive && result.created.size > 0) {
-    result = convertAll(files, config, args, existing, await collectDecisions(result.created))
+    result = convertAll(files, config, args, existing, await collectDecisions(result.created, existing))
   }
 
   log.info(`Found ${files.length} files to process.`)
-  if (result.created.size === 0) {
+  if (result.created.size === 0 && result.changes.length === 0) {
     log.info('No new translations found.')
     return
   }
@@ -125,8 +126,8 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
     return
   }
 
-  writeFilesAtomic(result.changes)
   for (const { key, value } of result.created.values()) setPath(translations, key, value)
-  writeFileAtomic(translationFile, stringifyJson(translations))
+  // One step: rewritten sources must not exist without the keys they call.
+  writeFilesAtomic([...result.changes, [translationFile, stringifyJson(translations)]])
   log.success(`Updated ${result.changes.length} files and ${relative(config.rootDir, translationFile)}.`)
 }

@@ -92,7 +92,7 @@ function safeName(name: string): string {
   return normalized
 }
 
-function readEntryData(zip: Buffer, method: number, localOffset: number, compressedSize: number, size: number): Buffer {
+function inflate(zip: Buffer, method: number, localOffset: number, compressedSize: number, size: number): Buffer {
   if (size > MAX_ENTRY_BYTES) throw invalid('entry too large')
   if (zip.readUInt32LE(localOffset) !== LOCAL_HEADER) throw invalid('bad local header')
   const start = localOffset + 30 + zip.readUInt16LE(localOffset + 26) + zip.readUInt16LE(localOffset + 28)
@@ -114,7 +114,8 @@ export function readZip(zip: Buffer): ZipEntry[] {
     const nameLength = zip.readUInt16LE(offset + 28)
     const name = safeName(zip.toString('utf8', offset + 46, offset + 46 + nameLength))
     const method = zip.readUInt16LE(offset + 10)
-    const data = readEntryData(zip, method, zip.readUInt32LE(offset + 42), zip.readUInt32LE(offset + 20), zip.readUInt32LE(offset + 24))
+    const data = inflate(zip, method, zip.readUInt32LE(offset + 42), zip.readUInt32LE(offset + 20), zip.readUInt32LE(offset + 24))
+    if (crc32(data) !== zip.readUInt32LE(offset + 16)) throw invalid(`checksum mismatch in ${name}`)
     if (!name.endsWith('/')) entries.push({ name, data })
     offset += 46 + nameLength + zip.readUInt16LE(offset + 30) + zip.readUInt16LE(offset + 32)
   }

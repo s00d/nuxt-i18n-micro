@@ -37,13 +37,13 @@ function groupByPrefix(entries: Group): Record<string, Group> {
   return groups
 }
 
-/** A group over `maxKeys` continues in `<prefix>-2`, `<prefix>-3`, and so on. */
+/** A group over `maxKeys` continues in `<prefix>.2`, `<prefix>.3`: a prefix has no dot, so no name can clash. */
 function limitGroup(prefix: string, group: Group, maxKeys: number): Array<[string, Group]> {
   const entries = Object.entries(group)
   const parts: Array<[string, Group]> = []
   for (let index = 0; index < entries.length; index += maxKeys) {
     const part = index / maxKeys + 1
-    parts.push([part === 1 ? prefix : `${prefix}-${part}`, Object.fromEntries(entries.slice(index, index + maxKeys))])
+    parts.push([part === 1 ? prefix : `${prefix}.${part}`, Object.fromEntries(entries.slice(index, index + maxKeys))])
   }
   return parts
 }

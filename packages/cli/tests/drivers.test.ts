@@ -84,6 +84,8 @@ describe('translation services send the documented request', () => {
     expect(targetLang?.('pt-br')).toBe('PT-BR')
     expect(targetLang?.('zh')).toBe('ZH-HANS')
     expect(targetLang?.('zh-TW')).toBe('ZH-HANT')
+    expect(targetLang?.('de-DE')).toBe('DE')
+    expect(targetLang?.('zh-CN')).toBe('ZH-HANS')
   })
 
   it('yandexcloud: REST v2, Api-Key auth, optional folder, bare language codes', async () => {

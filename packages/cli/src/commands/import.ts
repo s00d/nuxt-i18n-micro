@@ -32,6 +32,7 @@ export default async function run(args: ImportArgs): Promise<void> {
     }
     const scope = scopeOf(file, potsDir)
     for (const [key, value] of Object.entries(parsePo(readFileSync(file, 'utf8')))) {
+      if (value === '') continue // an untranslated entry says nothing about the existing value
       project.locale(code).set(key, value, scope)
       imported += 1
     }

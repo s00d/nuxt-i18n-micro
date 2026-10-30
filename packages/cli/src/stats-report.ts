@@ -279,7 +279,7 @@ function analyzeTranslationStats(translations: Record<string, unknown>, referenc
   return {
     totalKeys: referenceKeys.length,
     translatedKeys: translatedKeys.length,
-    completion: referenceKeys.length > 0 ? (translatedKeys.length / referenceKeys.length) * 100 : 0,
+    completion: referenceKeys.length > 0 ? (referenceKeys.filter((key) => flatTranslations[key]).length / referenceKeys.length) * 100 : 0,
     averageKeyLength,
     averageValueLength,
     specialCharsCount,

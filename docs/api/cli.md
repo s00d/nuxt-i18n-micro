@@ -135,6 +135,7 @@ Remove keys no source file uses
 | `--include` | — | Regular expression: consider only matching keys for removal |
 | `--exclude` | — | Regular expression: never remove matching keys |
 | `--dryRun` | `false` | List what would be removed; write nothing |
+| `--force` | `false` | Remove keys even though some keys are computed at runtime |
 
 ```bash
 i18n-micro clean --dryRun
@@ -232,6 +233,7 @@ Report oversized files, deep nesting and duplicated values
 | --- | --- | --- |
 | `--minSize` | `1024` | Report files above this size in bytes |
 | `--maxDepth` | `3` | Report keys nested deeper than this |
+| `--dryRun` | `false` | Accepted for compatibility: this command never writes |
 | `--json` | `false` | Print JSON instead of text |
 
 ### `format`

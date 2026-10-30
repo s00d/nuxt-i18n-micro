@@ -24,7 +24,7 @@ export interface LocaleEstimate {
 const estimateTokens = (text: string): number => Math.max(1, Math.ceil(text.length / 4))
 
 export function keysToTranslate(reference: Record<string, string>, target: Record<string, unknown>, replace: boolean): string[] {
-  return Object.keys(reference).filter((key) => replace || target[key] === undefined || target[key] === '')
+  return Object.keys(reference).filter((key) => reference[key] !== '' && (replace || target[key] === undefined || target[key] === ''))
 }
 
 function estimateLocale(project: Project, code: string, args: EstimateArgs): LocaleEstimate {

@@ -382,8 +382,9 @@ function weblate(config: RemoteConfig): RemoteProvider {
 function custom(config: RemoteConfig): RemoteProvider {
   const url = `${trim(requireField(config.url, 'custom', 'url'))}/${(config.path ?? 'translations').replace(/^\/+/, '')}`
   const { username, password } = config.auth ?? {}
-  const authorization = username ? `Basic ${Buffer.from(`${username}:${password ?? ''}`).toString('base64')}` : `Bearer ${config.token}`
-  const headers = { Authorization: authorization }
+  const basic = username ? `Basic ${Buffer.from(`${username}:${password ?? ''}`).toString('base64')}` : undefined
+  const authorization = basic ?? (config.token ? `Bearer ${config.token}` : undefined)
+  const headers: Record<string, string> = authorization ? { Authorization: authorization } : {}
   const options = (extra: RequestOptions = {}): RequestOptions => ({ ...extra, headers: { ...headers, ...extra.headers } })
 
   return {

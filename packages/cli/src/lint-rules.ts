@@ -28,7 +28,7 @@ export const lintRules: LintRule[] = [
     description: 'Check for trailing spaces',
     check: (value) => !value.includes('  \n') && !value.endsWith(' '),
     message: (value, { key, locale, file }) => `Found trailing spaces in file ${file} for key ${key} (${locale})`,
-    fix: (value) => value.replace(/\s+$/gm, ''),
+    fix: (value) => value.replace(/[ \t]+$/gm, ''),
   },
   {
     name: 'no-multiple-spaces',

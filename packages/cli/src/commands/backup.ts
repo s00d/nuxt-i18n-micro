@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import { encrypt } from '../backup'
-import { notFoundError } from '../errors'
+import { notFoundError, validationError } from '../errors'
 import { walkFiles, writeFileAtomic } from '../fs'
 import { log } from '../log'
 import { Project } from '../project'
@@ -18,6 +18,7 @@ export interface BackupArgs {
 const stamp = (): string => new Date().toISOString().replace(/[:.]/g, '-')
 
 export default async function run(args: BackupArgs): Promise<void> {
+  if (args.password === '') throw validationError('--password cannot be empty')
   const project = await Project.load(args)
   const { rootDir, translationDir } = project.config
   const backupDir = args.backupDir ? resolve(rootDir, args.backupDir) : join(translationDir, 'backups')

@@ -193,7 +193,7 @@ function isQueryInsideLocalizedExpression(line: string, query: string, caseSensi
 
 function buildUsageRegex(key: string): RegExp {
   const escaped = escapeRegExp(key)
-  return new RegExp(`(?:\\$t|\\$tc|\\$tm|\\$te|\\bt|\\btc|\\bte)\\s*\\(\\s*['"\`]${escaped}['"\`]`)
+  return new RegExp(`(?:\\$t|\\$ts|\\$tc|\\$has|\\bt|\\bts|\\btc|\\bhas)\\s*\\(\\s*['"\`]${escaped}['"\`]`)
 }
 
 function scoreTextMatch(value: string, query: string, caseSensitive: boolean, weights: { exact: number; prefix: number; contains: number }): number {
@@ -266,7 +266,9 @@ function estimateJsonLine(content: string, keyPath: string): number {
 
 function collectSourceFiles(layerRootDirs: string[], onlyVue: boolean, translationDirs: string[]): string[] {
   const inTranslations = (file: string): boolean => translationDirs.some((dir) => file.startsWith(`${dir}${path.sep}`))
-  const accept = (file: string): boolean => (onlyVue ? file.endsWith('.vue') : SOURCE_EXTENSIONS.test(file)) && !inTranslations(file)
+  const built = `${path.sep}dist${path.sep}`
+  const accept = (file: string): boolean =>
+    (onlyVue ? file.endsWith('.vue') : SOURCE_EXTENSIONS.test(file)) && !inTranslations(file) && !file.includes(built)
   return [...new Set(layerRootDirs.flatMap((root) => walkFiles(root, accept)))]
 }
 
@@ -284,10 +286,8 @@ async function collectLocaleEntries(translationDirs: string[], localeCode: strin
   for (const translationDir of translationDirs) {
     const globalPath = path.join(translationDir, `${localeCode}.json`)
     if (fs.existsSync(globalPath)) {
-      // oxlint-disable-next-line no-await-in-loop -- sequential, keeps file handles bounded
-      const globalContent = await fsPromises.readFile(globalPath, 'utf8')
-      const globalJson = JSON.parse(globalContent) as Record<string, unknown>
-      const globalFlat = flattenStrings(globalJson as JsonObject)
+      const globalContent = fs.readFileSync(globalPath, 'utf8')
+      const globalFlat = flattenStrings(readJsonIfExists(globalPath))
       for (const [key, value] of Object.entries(globalFlat)) {
         entries.push({
           scope: 'global',

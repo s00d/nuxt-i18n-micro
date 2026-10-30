@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Found 7 files to process.
+Found 6 files to process.
 Found 4 new translations.
 Updated 2 files and locales/en.json.
 ```

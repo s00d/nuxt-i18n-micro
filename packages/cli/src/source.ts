@@ -1,28 +1,61 @@
-import { readFileSync } from 'node:fs'
-import { extname, join, relative, sep } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, extname, join, relative, sep } from 'node:path'
 import { babelParse, parse as parseSfc, walk } from '@vue/compiler-sfc'
 import { walkFiles } from './fs'
 import type { ProjectConfig } from './nuxt'
 
 const SOURCE_EXTENSIONS = new Set(['.vue', '.js', '.ts', '.jsx', '.tsx'])
-const GLOBAL_DIRS = ['components', 'layouts', 'plugins', 'composables', 'utils']
+const GLOBAL_DIRS = ['components', 'layouts', 'plugins', 'composables', 'utils', 'middleware', 'stores', 'store', 'server']
+const ROOT_FILES = ['app.vue', 'error.vue', 'app.config.ts']
+const REWRITABLE_DIRS = ['pages', 'components', 'plugins', 'layouts']
 const NODE_TYPES = { ELEMENT: 1, ATTRIBUTE: 6, DIRECTIVE: 7, INTERPOLATION: 5 }
 
 const TRANSLATION_CALLS = new Set(['$t', '$ts', '$tc', '$has'])
 /** Plain `t()` is `useI18n()`'s; in a file without `useI18n` it is somebody else's function. */
-const COMPOSABLE_CALLS = new Set(['t', 'ts', 'tc', 'has'])
+const COMPOSABLE_CALLS = ['t', 'ts', 'tc', 'has']
+const NO_NAMES: ReadonlySet<string> = new Set()
+const DESTRUCTURED_I18N = /\{([^{}]*)\}\s*=\s*useI18n\s*\(/g
+
+/** Names that translate in this file, aliases included: `const { t: tr } = useI18n()`. */
+export function composableNames(content: string): ReadonlySet<string> {
+  if (!/useI18n|i18n-?group/i.test(content)) return NO_NAMES
+  const names = new Set(COMPOSABLE_CALLS)
+  for (const match of content.matchAll(DESTRUCTURED_I18N)) {
+    for (const part of match[1]!.split(',')) {
+      const [original, alias] = part.split(':').map((text) => text.trim())
+      if (alias && COMPOSABLE_CALLS.includes(original!)) names.add(alias)
+    }
+  }
+  return names
+}
+
+export const ALL_COMPOSABLE_NAMES: ReadonlySet<string> = new Set(COMPOSABLE_CALLS)
 
 export const isSourceFile = (path: string): boolean => SOURCE_EXTENSIONS.has(extname(path).toLowerCase())
 
 const sourceRoots = (config: ProjectConfig): string[] => [...new Set([config.srcDir, config.rootDir])]
 
-/** Files under `dirs` of the source root (Nuxt 4 `app/`) and of the project root. */
-export function projectSources(config: ProjectConfig, dirs: string[]): string[] {
-  const files = sourceRoots(config).flatMap((root) => dirs.flatMap((dir) => walkFiles(join(root, dir), isSourceFile)))
-  return [...new Set(files)]
+/** A layer's pages count too: an app key may be used only there. */
+const scanRoots = (config: ProjectConfig): string[] => {
+  const layers = config.translationDirs.flatMap((dir) => [dirname(dir), join(dirname(dir), 'app')])
+  return [...new Set([...sourceRoots(config), ...layers])]
 }
 
-export const allProjectSources = (config: ProjectConfig): string[] => projectSources(config, ['pages', ...GLOBAL_DIRS])
+const sourcesIn = (roots: string[], dirs: string[]): string[] => [
+  ...new Set(roots.flatMap((root) => dirs.flatMap((dir) => walkFiles(join(root, dir), isSourceFile)))),
+]
+
+const rootFilesIn = (roots: string[]): string[] =>
+  roots.flatMap((root) => ROOT_FILES.map((name) => join(root, name))).filter((file) => existsSync(file))
+
+/** Everything of the app itself that can use a key. */
+export const allProjectSources = (config: ProjectConfig): string[] => {
+  const roots = sourceRoots(config)
+  return [...sourcesIn(roots, ['pages', ...GLOBAL_DIRS]), ...rootFilesIn(roots)]
+}
+
+/** What `text-to-i18n` may rewrite: places where `$t` is in scope, not composables or server code. */
+export const rewritableSources = (config: ProjectConfig): string[] => sourcesIn(sourceRoots(config), REWRITABLE_DIRS)
 
 const SEGMENT_TOKEN = /\[{1,2}(?:\.\.\.)?([^\]]+)\]{1,2}/g
 
@@ -85,19 +118,24 @@ function calleeName(callee: AstNode | undefined): string | null {
 
 function objectName(callee: AstNode | undefined): string {
   const object = asNode(callee?.object)
-  return String(object?.name ?? asNode(object?.property)?.name ?? '')
+  return String(object?.name ?? asNode(object?.property)?.name ?? asNode(object?.callee)?.name ?? '')
 }
 
-export function isTranslationCall(callee: AstNode | undefined, composableInFile: boolean): boolean {
+export function isTranslationCall(callee: AstNode | undefined, names: ReadonlySet<string>): boolean {
   const name = calleeName(callee)
   if (!name) return false
   if (TRANSLATION_CALLS.has(name)) return true
-  if (!COMPOSABLE_CALLS.has(name)) return false
-  if (callee?.type === 'Identifier') return composableInFile
-  return /i18n$/i.test(objectName(callee))
+  if (callee?.type === 'Identifier') return names.has(name)
+  return ALL_COMPOSABLE_NAMES.has(name) && /i18n$/i.test(objectName(callee))
 }
 
-function collectArgument(argument: AstNode | undefined, code: string, file: string, usage: KeyUsage): void {
+const TYPE_WRAPPERS = new Set(['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSSatisfiesExpression', 'ParenthesizedExpression'])
+
+/** `$t('a' as string)` is still the key `a`. */
+const unwrap = (node: AstNode | undefined): AstNode | undefined => (node && TYPE_WRAPPERS.has(node.type) ? unwrap(asNode(node.expression)) : node)
+
+function collectArgument(wrapped: AstNode | undefined, code: string, file: string, usage: KeyUsage): void {
+  const argument = unwrap(wrapped)
   const literal = staticString(argument)
   if (literal !== null) {
     usage.keys.add(literal)
@@ -109,57 +147,83 @@ function collectArgument(argument: AstNode | undefined, code: string, file: stri
     return
   }
   if (!argument) return
-  const expression = code.slice(argument.start, argument.end)
-  const quasis = argument.quasis as Array<{ value: { cooked: string } }> | undefined
-  usage.dynamic.push({ file, expression, prefix: quasis?.[0]?.value.cooked ?? '' })
+  usage.dynamic.push({ file, expression: code.slice(argument.start, argument.end), prefix: staticPrefix(argument) })
 }
 
-export function parseCode(code: string): unknown | null {
+/** `\`a.${x}\`` and `'a.' + x` both pin down `a.`. */
+function staticPrefix(node: AstNode | undefined): string {
+  if (node?.type === 'BinaryExpression') return staticPrefix(asNode(node.left))
+  const quasis = node?.quasis as Array<{ value: { cooked: string } }> | undefined
+  return quasis?.[0]?.value.cooked ?? staticString(node) ?? ''
+}
+
+/** JSX only where the file allows it: in plain TypeScript `<string>x` is a cast. */
+export function parseCode(code: string, lang = 'ts'): unknown | null {
+  const plugins: Array<'typescript' | 'jsx' | 'decorators'> = ['typescript', 'decorators']
+  if (/x$/.test(lang)) plugins.push('jsx')
   try {
-    return babelParse(code, { sourceType: 'module', errorRecovery: true, plugins: ['typescript', 'jsx'] })
+    return babelParse(code, { sourceType: 'module', errorRecovery: true, plugins })
   } catch {
     return null
   }
 }
 
-function collectFromCode(code: string, file: string, usage: KeyUsage, composableInFile: boolean): void {
-  const ast = parseCode(code)
-  if (!ast) return
+const CALL_TEXT = /(?:\$t|\$ts|\$tc|\$has|\bt|\bts|\btc)\s*\(\s*['"`]([^'"`$]+)['"`]/g
+
+/** For what no parser here reads, such as Pug templates: finding a key too many is the safe mistake. */
+function collectFromText(code: string, usage: KeyUsage): void {
+  for (const match of code.matchAll(CALL_TEXT)) usage.keys.add(match[1]!)
+}
+
+function collectFromCode(code: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>, lang = 'ts'): void {
+  const ast = parseCode(code, lang)
+  if (!ast) {
+    collectFromText(code, usage)
+    return
+  }
   walk(ast as Parameters<typeof walk>[0], {
     enter(node: unknown) {
       const current = node as unknown as AstNode
       if (current.type !== 'CallExpression' && current.type !== 'OptionalCallExpression') return
-      if (!isTranslationCall(asNode(current.callee), composableInFile)) return
+      if (!isTranslationCall(asNode(current.callee), composable)) return
       collectArgument((current.arguments as AstNode[])[0], code, file, usage)
     },
   })
 }
 
-function collectFromExpression(expression: string, file: string, usage: KeyUsage, composable: boolean): void {
-  if (!/\b(?:\$?t[sc]?|\$has|has)\s*\(/.test(expression)) return
+function collectFromExpression(expression: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
+  if (!expression.includes('(')) return
   // Parenthesized first so `{ a: $t('x') }` reads as an object, not as a block with a label.
   const ast = parseCode(`(${expression}\n)`)
   const isExpression = ast && !(ast as { errors?: unknown[] }).errors?.length
   collectFromCode(isExpression ? `(${expression}\n)` : expression, file, usage, composable)
 }
 
-function collectFromProp(prop: unknown, tag: string, file: string, usage: KeyUsage, composable: boolean): void {
+function collectFromProp(prop: unknown, tag: string, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
   const current = prop as {
     type: number
     name: string
     value?: { content: string }
     exp?: { content?: string }
+    arg?: { content?: string }
     forParseResult?: { source?: { content?: string } }
   }
   if (current.type === NODE_TYPES.ATTRIBUTE && current.name === 'keypath' && /^i18n-?t$/i.test(tag) && current.value) {
     usage.keys.add(current.value.content)
   }
+  if (current.type === NODE_TYPES.ATTRIBUTE && current.name === 'prefix' && /^i18n-?group$/i.test(tag) && current.value) {
+    usage.dynamic.push({ file, expression: `<${tag} prefix="${current.value.content}">`, prefix: current.value.content })
+  }
   if (current.type !== NODE_TYPES.DIRECTIVE) return
   const expression = current.forParseResult?.source?.content ?? current.exp?.content
+  if (expression && current.arg?.content === 'keypath' && /^i18n-?t$/i.test(tag)) {
+    collectFromCode(`$t(${expression}\n)`, file, usage, composable)
+    return
+  }
   if (expression) collectFromExpression(expression, file, usage, composable)
 }
 
-function collectFromTemplate(node: unknown, file: string, usage: KeyUsage, composable: boolean): void {
+function collectFromTemplate(node: unknown, file: string, usage: KeyUsage, composable: ReadonlySet<string>): void {
   const current = node as { type?: number; tag?: string; content?: { content?: string }; props?: unknown[]; children?: unknown[] }
   if (current.type === NODE_TYPES.INTERPOLATION && current.content?.content) {
     collectFromExpression(current.content.content, file, usage, composable)
@@ -173,15 +237,17 @@ function collectFromTemplate(node: unknown, file: string, usage: KeyUsage, compo
 /** Translation keys a source file uses. Parses instead of matching text, so comments and strings do not count. */
 export function collectKeys(content: string, file: string): KeyUsage {
   const usage: KeyUsage = { keys: new Set(), dynamic: [] }
-  const composable = content.includes('useI18n')
+  const composable = composableNames(content)
   if (!file.endsWith('.vue')) {
-    collectFromCode(content, file, usage, composable)
+    collectFromCode(content, file, usage, composable, extname(file).slice(1))
     return usage
   }
   const { descriptor } = parseSfc(content, { filename: file })
-  if (descriptor.template?.ast) collectFromTemplate(descriptor.template.ast, file, usage, composable)
+  const { template } = descriptor
+  if (template?.ast && (!template.lang || template.lang === 'html')) collectFromTemplate(template.ast, file, usage, composable)
+  else if (template) collectFromText(template.content, usage)
   for (const block of [descriptor.script, descriptor.scriptSetup]) {
-    if (block) collectFromCode(block.content, file, usage, composable)
+    if (block) collectFromCode(block.content, file, usage, composable, block.lang ?? 'ts')
   }
   return usage
 }
@@ -197,7 +263,8 @@ export interface ProjectUsage {
 export function scanProject(config: ProjectConfig): ProjectUsage {
   const usage: ProjectUsage = { global: new Set(), pages: {}, dynamic: [], files: 0 }
 
-  for (const root of sourceRoots(config)) {
+  const roots = scanRoots(config)
+  for (const root of roots) {
     const pagesRoot = join(root, 'pages')
     for (const file of walkFiles(pagesRoot, isSourceFile)) {
       const content = readFileSync(file, 'utf8')
@@ -209,7 +276,7 @@ export function scanProject(config: ProjectConfig): ProjectUsage {
     }
   }
 
-  for (const file of projectSources(config, GLOBAL_DIRS)) {
+  for (const file of [...sourcesIn(roots, GLOBAL_DIRS), ...rootFilesIn(roots)]) {
     const found = collectKeys(readFileSync(file, 'utf8'), file)
     for (const key of found.keys) usage.global.add(key)
     usage.dynamic.push(...found.dynamic)

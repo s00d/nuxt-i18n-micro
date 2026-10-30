@@ -14,14 +14,15 @@ export interface Glossary {
 const optionalString = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined)
 
 export function loadGlossary(path: string): Glossary {
-  const raw = readJsonIfExists(path).entries
+  const file = readJsonIfExists(path)
+  const raw = file.entries
   if (!Array.isArray(raw)) return { entries: [] }
-  const entries = raw.flatMap((item) => {
+  const entries = raw.flatMap((item): GlossaryEntry[] => {
     const entry = item as Record<string, unknown> | null
     if (typeof entry?.source !== 'string' || typeof entry.target !== 'string') return []
-    return [{ source: entry.source, target: entry.target, from: optionalString(entry.from), to: optionalString(entry.to) }]
+    return [{ ...entry, source: entry.source, target: entry.target, from: optionalString(entry.from), to: optionalString(entry.to) }]
   })
-  return { entries }
+  return { ...file, entries }
 }
 
 const same = (a: string | undefined, b: string | undefined): boolean => a?.toLowerCase() === b?.toLowerCase()

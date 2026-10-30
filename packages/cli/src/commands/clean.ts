@@ -1,7 +1,7 @@
 import { commandFailed, validationError } from '../errors'
-import { unflatten } from '../json'
+import { getPath, unflatten } from '../json'
 import { log } from '../log'
-import { GLOBAL_SCOPE, Project } from '../project'
+import { GLOBAL_SCOPE, type LocaleSet, Project } from '../project'
 import { type ProjectUsage, scanProject } from '../source'
 
 export interface CleanArgs {
@@ -10,6 +10,7 @@ export interface CleanArgs {
   include?: string
   exclude?: string
   dryRun?: boolean
+  force?: boolean
 }
 
 const LINKED_KEY = /@:([\w.-]+)/g
@@ -68,10 +69,16 @@ export default async function run(args: CleanArgs): Promise<void> {
     throw commandFailed('No source files found: refusing to treat every key as unused.', ['Run from the app root, or pass --cwd.'])
   }
   const opaque = usage.dynamic.filter((entry) => !entry.prefix)
-  for (const { file, expression } of opaque) log.warn(`Key computed at runtime in ${file}: ${expression}. Its keys cannot be told from unused ones.`)
+  for (const { file, expression } of opaque) log.warn(`Key computed at runtime in ${file}: ${expression}`)
+  if (opaque.length > 0 && !args.force && !args.dryRun) {
+    throw commandFailed('Some keys are computed at runtime, so any key may be in use.', [
+      'Review the list with --dryRun, protect keys with --exclude, then rerun with --force.',
+    ])
+  }
 
   const { used } = retention(project, usage)
-  const removable = (key: string, scope: string): boolean => {
+  const removable = (key: string, scope: string, locale: LocaleSet): boolean => {
+    if (getPath(scope === GLOBAL_SCOPE ? locale.inherited.global : (locale.inherited.pages[scope] ?? {}), key) !== undefined) return false
     if (include && !include.test(key)) return false
     if (exclude?.test(key)) return false
     return !used(key, scope)
@@ -82,9 +89,9 @@ export default async function run(args: CleanArgs): Promise<void> {
     const locale = project.locale(code)
     for (const scope of locale.scopes) {
       const leaves = Object.entries(locale.leaves(scope))
-      const kept = leaves.filter(([key]) => !removable(key, scope))
+      const kept = leaves.filter(([key]) => !removable(key, scope, locale))
       if (kept.length === leaves.length) continue
-      for (const [key] of leaves) if (removable(key, scope)) removed.push(`${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`)
+      for (const [key] of leaves) if (removable(key, scope, locale)) removed.push(`${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`)
       if (!args.dryRun) locale.replaceTree(scope, unflatten(Object.fromEntries(kept)))
     }
   }

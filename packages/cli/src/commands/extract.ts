@@ -1,3 +1,4 @@
+import { blockingLeaf } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { scanProject } from '../source'
@@ -10,7 +11,9 @@ export interface ExtractArgs {
 function addMissing(project: Project, key: string, scope: string): void {
   for (const code of project.codes) {
     const locale = project.locale(code)
-    if (locale.get(key, scope) === undefined) locale.set(key, '', scope)
+    const blocker = blockingLeaf(locale.tree(scope), key)
+    if (blocker) log.warn(`Skipping ${key} in ${code}: ${blocker} already holds a value.`)
+    else if (locale.get(key, scope) === undefined) locale.set(key, '', scope)
   }
 }
 

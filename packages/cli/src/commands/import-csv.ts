@@ -26,6 +26,7 @@ export default async function run(args: ImportCsvArgs): Promise<void> {
     if (!existsSync(path)) continue
     for (const [file, key, value] of parseCsv(readFileSync(path, 'utf8')).slice(1)) {
       if (!file || !key || value === undefined) throw validationError(`Malformed row in ${path}: expected File,Key,Translation`)
+      if (value === '') continue // an empty cell says nothing about the existing value
       project.locale(code).set(key, value, scopeOf(file, code))
       imported += 1
     }

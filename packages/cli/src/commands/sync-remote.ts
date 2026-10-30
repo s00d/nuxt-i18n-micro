@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { commandFailed, remoteConfigError } from '../errors'
 import { readJsonObject, writeJson } from '../fs'
-import { type JsonObject, flattenStrings } from '../json'
+import { type JsonObject, blockingLeaf, flattenStrings, getPath } from '../json'
 import { log } from '../log'
 import { Project } from '../project'
 import { type LocaleTranslations, type RemoteConfig, providers } from '../remote/providers'
@@ -25,6 +25,7 @@ export interface Conflict {
 }
 
 const TOKENLESS = new Set(['custom'])
+const LOCALE_CODE = /^[\w-]+$/
 
 function loadConfig(rootDir: string): RemoteConfig {
   const path = join(rootDir, '.i18n-remote.json')
@@ -44,11 +45,12 @@ function loadConfig(rootDir: string): RemoteConfig {
 export function findConflicts(local: LocaleTranslations, remote: LocaleTranslations): Conflict[] {
   const conflicts: Conflict[] = []
   for (const [locale, tree] of Object.entries(remote)) {
-    const current = flattenStrings(local[locale] ?? {})
+    const current = local[locale] ?? {}
     for (const [key, value] of Object.entries(flattenStrings(tree))) {
-      const mine = current[key]
+      const blocker = blockingLeaf(current, key)
+      const mine = blocker ? getPath(current, blocker) : getPath(current, key)
       // An empty local value is a gap to fill, not an opinion.
-      if (mine && mine !== value) conflicts.push({ locale, key, local: mine, remote: value })
+      if (mine && mine !== value) conflicts.push({ locale, key, local: typeof mine === 'string' ? mine : JSON.stringify(mine), remote: value })
     }
   }
   return conflicts
@@ -59,6 +61,11 @@ function applyPull(project: Project, remote: LocaleTranslations, local: LocaleTr
   const updated: string[] = []
 
   for (const [code, tree] of Object.entries(remote)) {
+    // Remote names become file names.
+    if (!LOCALE_CODE.test(code)) {
+      log.warn(`Skipping remote locale with an unsafe name: ${code}`)
+      continue
+    }
     const merged = deepMergeTranslationsRecursive(local[code] ?? {}, tree) as JsonObject
     if (JSON.stringify(merged) === JSON.stringify(local[code] ?? {})) continue
     const known = project.codes.includes(code)

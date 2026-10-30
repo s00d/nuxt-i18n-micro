@@ -26,16 +26,43 @@ export function flattenStrings(tree: JsonObject): Record<string, string> {
   return out
 }
 
-export function getPath(tree: JsonObject, path: string): JsonValue | undefined {
-  let current: JsonValue | undefined = tree
-  for (const part of path.split('.')) {
-    if (!isObject(current) || !Object.hasOwn(current, part)) return undefined
-    current = current[part]
+/**
+ * The object and key holding `path`. Dotted names are valid keys and the runtime reads them
+ * first, so `{ "a.b": 1 }` and `{ a: { "b.c": 1 } }` resolve like nested ones.
+ */
+function locate(tree: JsonObject, path: string): [JsonObject, string] | null {
+  if (Object.hasOwn(tree, path)) return [tree, path]
+  for (let index = path.indexOf('.'); index !== -1; index = path.indexOf('.', index + 1)) {
+    const head = path.slice(0, index)
+    const child = Object.hasOwn(tree, head) ? tree[head] : undefined
+    const found = isObject(child) ? locate(child, path.slice(index + 1)) : null
+    if (found) return found
   }
-  return current
+  return null
+}
+
+export function getPath(tree: JsonObject, path: string): JsonValue | undefined {
+  const found = locate(tree, path)
+  return found ? found[0][found[1]] : undefined
+}
+
+/** The leaf a new `path` would have to replace: `a` when `a` is text and `a.b` is wanted. */
+export function blockingLeaf(tree: JsonObject, path: string): string | null {
+  const parts = path.split('.')
+  for (let length = 1; length < parts.length; length += 1) {
+    const prefix = parts.slice(0, length).join('.')
+    const value = getPath(tree, prefix)
+    if (value !== undefined && !isObject(value)) return prefix
+  }
+  return null
 }
 
 export function setPath(tree: JsonObject, path: string, value: JsonValue): void {
+  const found = locate(tree, path)
+  if (found) {
+    found[0][found[1]] = value
+    return
+  }
   const parts = path.split('.')
   const last = parts.pop()!
   if ([...parts, last].includes('__proto__')) return

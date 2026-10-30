@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Found 7 files to process.
+Found 6 files to process.
 Found 4 new translations.
 Dry run: no files were modified.
 [1] pages.about.read-more: "Read more" (pages/about.vue:4)

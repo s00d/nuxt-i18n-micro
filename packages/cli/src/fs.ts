@@ -1,10 +1,10 @@
 import { randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { CliError } from './errors'
 import type { JsonObject } from './json'
 
-const SKIPPED_DIRS = new Set(['node_modules', '.git', '.nuxt', '.output', 'dist'])
+const SKIPPED_DIRS = new Set(['node_modules', '.git', '.nuxt', '.output'])
 
 /** Every file under `dir` that `accept` wants, sorted. A missing directory is an empty result. */
 export function walkFiles(dir: string, accept: (path: string) => boolean = () => true, out: string[] = []): string[] {
@@ -34,6 +34,7 @@ export function writeFilesAtomic(files: Array<[path: string, content: string | B
       const temp = tempName(path)
       pending.push([temp, path])
       writeFileSync(temp, content)
+      if (existsSync(path)) chmodSync(temp, statSync(path).mode)
     }
   } catch (error) {
     for (const [temp] of pending) rmSync(temp, { force: true })

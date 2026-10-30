@@ -1,6 +1,6 @@
 import { basename, dirname, extname, parse as parsePath, relative, sep } from 'node:path'
 import { MagicString, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { type AstNode, isTranslationCall, parseCode, staticString } from './source'
+import { ALL_COMPOSABLE_NAMES, type AstNode, isTranslationCall, parseCode, staticString } from './source'
 
 const NODE_TEXT = 2
 const NODE_ELEMENT = 1
@@ -136,9 +136,12 @@ export class KeyRegistry {
   /** Key for `text`, or `null` when the user skipped it. */
   keyFor(text: string, file: string, content: string): string | null {
     const known = this.byText.get(text)
-    if (known) return known
+    if (known !== undefined) return known || null
     const generated = this.generate(text, file)
-    if (this.options.skippedKeys?.includes(generated)) return null
+    if (this.options.skippedKeys?.includes(generated)) {
+      this.byText.set(text, '') // every occurrence of the text is skipped, not only the first
+      return null
+    }
     const key = this.options.keyOverrides?.[generated] ?? generated
     const index = content.indexOf(text)
     this.created.set(key, { key, value: text, file, line: index < 0 ? 0 : content.slice(0, index).split('\n').length })
@@ -211,14 +214,14 @@ function isDataLiteral(node: AstNode, parent: AstNode | null, key: unknown): boo
   if (SKIPPED_PARENTS.has(parent.type)) return true
   if (parent.type === 'ObjectProperty' && key === 'key' && !parent.computed) return true
   if (parent.type === 'MemberExpression' && key === 'property') return true
-  if (parent.type === 'BinaryExpression') return true
+  if (parent.type === 'BinaryExpression' || parent.type === 'TaggedTemplateExpression') return true
   if (parent.type === 'JSXAttribute') return true
   if (parent.type !== 'CallExpression' && parent.type !== 'OptionalCallExpression' && parent.type !== 'NewExpression') return false
-  return NON_TEXT_CALLS.has(calleeName(parent)) || isTranslationCall(parent.callee as AstNode, true) || node === parent.callee
+  return NON_TEXT_CALLS.has(calleeName(parent)) || isTranslationCall(parent.callee as AstNode, ALL_COMPOSABLE_NAMES) || node === parent.callee
 }
 
 function convertCode(content: string, file: string, keys: KeyRegistry, extractOnly: boolean): string {
-  const ast = parseCode(content)
+  const ast = parseCode(content, extname(file).slice(1))
   if (!ast) throw new Error('parse failed')
   const magic = new MagicString(content)
 

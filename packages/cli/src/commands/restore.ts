@@ -4,7 +4,7 @@ import { decrypt, isEncrypted } from '../backup'
 import { notFoundError, usageError } from '../errors'
 import { writeFilesAtomic } from '../fs'
 import { confirm, log } from '../log'
-import { Project } from '../project'
+import { loadProjectConfig } from '../nuxt'
 import { readZip } from '../zip'
 
 export interface RestoreArgs {
@@ -33,8 +33,9 @@ function readArchive(path: string, password: string | undefined): Buffer {
 }
 
 export default async function run(args: RestoreArgs): Promise<void> {
-  const project = await Project.load(args)
-  const { rootDir, translationDir } = project.config
+  // Not Project.load: a broken locale file is exactly what a restore has to get past.
+  const { rootDir, translationDir: configured } = await loadProjectConfig(args.cwd ?? '.')
+  const translationDir = args.translationDir ? resolve(rootDir, args.translationDir) : configured
   const backupDir = args.backupDir ? resolve(rootDir, args.backupDir) : join(translationDir, 'backups')
   const backups = listBackups(backupDir)
 

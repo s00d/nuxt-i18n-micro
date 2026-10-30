@@ -198,6 +198,16 @@ describe('safe writes', () => {
   })
 })
 
+describe('paths with dots', () => {
+  it('finds literal dotted keys at any level', () => {
+    expect(getPath({ 'a.b': 'x' }, 'a.b')).toBe('x')
+    expect(getPath({ a: { 'b.c': 'x' } }, 'a.b.c')).toBe('x')
+    const tree = { 'a.b': 'x' }
+    setPath(tree, 'a.b', 'y')
+    expect(tree).toEqual({ 'a.b': 'y' })
+  })
+})
+
 describe('page names match Nuxt route names', () => {
   it.each([
     ['index.vue', 'index'],

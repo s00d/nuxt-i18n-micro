@@ -19,22 +19,27 @@ interface PoEntry {
   msgstr: string
 }
 
-type PoField = keyof PoEntry
-
 const QUOTED = /^"((?:[^"\\]|\\.)*)"$/
-const FIELD = /^(msgctxt|msgid|msgstr)(?:\[(\d+)\])?\s+(".*")$/
+const FIELD = /^(msgctxt|msgid_plural|msgid|msgstr)(?:\[(\d+)\])?\s+(".*")$/
+
+const emptyEntry = (): PoEntry => ({ msgctxt: '', msgid: '', msgstr: '' })
 
 function finish(entry: PoEntry, out: Record<string, string>): void {
   if (entry.msgid === '') return
   out[entry.msgctxt ? `${entry.msgctxt}.${entry.msgid}` : entry.msgid] = entry.msgstr
 }
 
-const emptyEntry = (): PoEntry => ({ msgctxt: '', msgid: '', msgstr: '' })
+/** The field a line feeds. Plural msgids and forms past the first have no place in a flat catalog. */
+const targetField = (name: string, form: string | undefined): keyof PoEntry | null => {
+  if (name === 'msgid_plural' || (form && form !== '0')) return null
+  return name as keyof PoEntry
+}
 
 export function parsePo(content: string): Record<string, string> {
   const out: Record<string, string> = {}
   let entry = emptyEntry()
-  let field: PoField | null = null
+  let field: keyof PoEntry | null = null
+  let inTranslation = false
 
   for (const raw of content.split(/\r?\n/)) {
     const line = raw.trim()
@@ -42,13 +47,14 @@ export function parsePo(content: string): Record<string, string> {
 
     const match = line.match(FIELD)
     if (match) {
-      const name = match[1] as PoField
-      if (name !== 'msgstr' && field === 'msgstr') {
+      const name = match[1]!
+      if (name !== 'msgstr' && name !== 'msgid_plural' && inTranslation) {
         finish(entry, out)
         entry = emptyEntry()
+        inTranslation = false
       }
-      // Plural entries: the first form is the one a flat key can hold.
-      field = match[2] && match[2] !== '0' ? null : name
+      if (name === 'msgstr') inTranslation = true
+      field = targetField(name, match[2])
       if (field) entry[field] = unescapePo(match[3]!.slice(1, -1))
       continue
     }

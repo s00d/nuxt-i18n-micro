@@ -11,7 +11,7 @@ export interface SyncArgs {
 export function alignToReference(reference: JsonObject, target: JsonObject): JsonObject {
   const out: JsonObject = {}
   for (const [key, value] of Object.entries(reference)) {
-    const current = target[key]
+    const current = Object.hasOwn(target, key) ? target[key] : undefined
     if (isObject(value)) out[key] = alignToReference(value, isObject(current) ? current : {})
     else out[key] = current === undefined || isObject(current) ? '' : current
   }

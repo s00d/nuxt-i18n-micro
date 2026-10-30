@@ -46,7 +46,8 @@ function replaceKeyInSource(content: string, from: string, to: string): Replaced
 function renameInTree(tree: JsonObject, from: string, to: string): { tree: JsonObject; renamed: boolean; links: number } {
   const flat = flatten(tree)
   const renamed = Object.hasOwn(flat, from)
-  if (renamed && Object.hasOwn(flat, to)) throw validationError(`Target key already exists: ${to}`, [], { Key: to })
+  const clash = Object.keys(flat).find((key) => key !== from && (key === to || key.startsWith(`${to}.`) || to.startsWith(`${key}.`)))
+  if (renamed && clash) throw validationError(`Target key already exists: ${clash}`, [], { Key: clash })
 
   const next: Record<string, JsonValue> = {}
   let links = 0
@@ -60,6 +61,7 @@ function renameInTree(tree: JsonObject, from: string, to: string): { tree: JsonO
 
 export default async function run(args: RenameArgs): Promise<void> {
   const { from, to, dryRun } = args
+  if (!from || !to) throw validationError('--from and --to cannot be empty')
   if (from === to) throw validationError('Source and target keys must be different')
 
   const project = await Project.load(args)
@@ -95,8 +97,7 @@ export default async function run(args: RenameArgs): Promise<void> {
   if (dryRun) {
     log.info('Dry run: no files were modified.')
   } else {
-    project.save()
-    writeFilesAtomic(sourceChanges)
+    writeFilesAtomic([...project.pendingFiles(), ...sourceChanges])
     log.success(`Key renamed: ${from} -> ${to}`)
   }
   log.info(

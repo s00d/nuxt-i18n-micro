@@ -16,7 +16,7 @@ npx i18n-micro --help
 Run it from the app root, or point at it with `--cwd`. Every flag of every command is on the [command reference](/api/cli).
 
 ::: tip Moving from nuxt-i18n-micro-cli
-`@i18n-micro/cli` replaces `nuxt-i18n-micro-cli`. The bins, `i18n-micro` and `i18n-micro-cli`, and the flags stay. See [what changed](#moving-from-nuxt-i18n-micro-cli).
+`@i18n-micro/cli` replaces `nuxt-i18n-micro-cli`. The bins, `i18n-micro` and `i18n-micro-cli`, stay, and so do the flags of the commands that remain. See [what changed](#moving-from-nuxt-i18n-micro-cli).
 :::
 
 ## Turn hardcoded text into keys
@@ -45,7 +45,7 @@ Text next to an interpolation stays as it is: half a sentence cannot be translat
 | `clean` | Remove keys no source file uses. Try `--dryRun` first. |
 | `stats` | Completion per locale; `--baseRef main` compares with a git ref. |
 
-`extract` and `clean` read templates and scripts with a parser, and understand `$t`, `$ts`, `$tc`, `$has`, `t()` from `useI18n()` and `<i18n-t keypath>`. A key built at runtime cannot be found this way. `$t(\`status.${state}\`)` protects everything under `status.` from `clean`; `$t(name)` is reported as a warning, so review what `clean --dryRun` lists.
+`extract` and `clean` read templates and scripts with a parser, and understand `$t`, `$ts`, `$tc`, `$has`, `t()` from `useI18n()` and `<i18n-t keypath>`. A key built at runtime cannot be found this way. `$t(\`status.${state}\`)` protects everything under `status.` from `clean`; With `$t(name)` any key may be in use, so `clean` stops: review what `--dryRun` lists, protect keys with `--exclude`, then pass `--force`.
 
 Keys a layer provides are read, never copied into the app's files.
 
@@ -124,6 +124,7 @@ Changed behaviour:
 - `sync` and `validate` use the default locale as the reference, and `validate` checks page files.
 - `clean --include` and `--exclude` now choose what may be removed. They used to remove everything else.
 - `optimize` only reports: its write mode broke the layout the module reads, so `--updatePaths` is gone.
+- A mistyped or removed flag is now an error, not silently ignored.
 - Paths such as `--csvDir` are relative to the project, not to the shell.
 - `ai` no longer loads `@ai-sdk/*` packages: use `provider` `gateway`, `openai` or `anthropic`, or `baseUrl` for an OpenAI-compatible server.
 - Password-protected backups from the old CLI cannot be restored. It could not restore them either.

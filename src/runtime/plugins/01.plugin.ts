@@ -338,9 +338,11 @@ export interface PluginsInjections {
    * Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
    * locale's translations before navigating; under `no_prefix` the route is replaced in place (no
    * new history entry). An unknown locale is ignored.
-   * The call is async: `await` it to run code after the navigation.
+   * The call is async: `await` it to run code after the navigation. It resolves `true` when the
+   * locale's dictionary is active, `false` when it is not: the chunk failed to load (the current
+   * dictionary stays; call it again to retry) or a newer switch won.
    */
-  $switchLocale: (locale: string) => Promise<void>
+  $switchLocale: (locale: string) => Promise<boolean>
   /**
    * Navigate to another route, keeping the active locale or switching to `toLocale`. Async like
    * `$switchLocale`.

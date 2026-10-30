@@ -19,7 +19,7 @@ function watchErrors(context: BrowserContext) {
   context.on('weberror', (err) => issues.push(`pageerror: ${err.error().message}`))
   context.on('console', (msg) => {
     const text = msg.text()
-    if (msg.type() === 'error' || (msg.type() === 'warning' && isHydrationText(text))) issues.push(`console ${msg.type()}: ${text}`)
+    if (msg.type() === 'error' || (msg.type() === 'warning' && isHydrationText(text))) issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   return issues
 }

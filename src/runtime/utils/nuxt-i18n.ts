@@ -662,19 +662,21 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     switchLocale: async (toLocale: string) => {
       if (!isValidLocale(toLocale)) {
         if (isDev) console.warn(`[i18n] Invalid locale '${toLocale}'`)
-        return
+        return false
       }
 
-      if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
-        const route = router.currentRoute.value as unknown as ResolvedRouteLike
-        const routeName = getPluginRouteName(route, toLocale)
-        const applied = await loader.switchContext(toLocale, routeName)
-        // A newer switchLocale / navigation won — do not setLocale or navigate for this call.
-        if (!applied) return
-      }
+      // no URL to move: the dictionary is the switch. After a failed switch the URL already says
+      // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
+      const urlless = isNoPrefix || i18nConfig.hashMode
+      const retry = getCurrentLocale() === toLocale && i18n.getCurrentLocale() !== toLocale
+      const route = router.currentRoute.value as unknown as ResolvedRouteLike
+      const loaded = urlless || retry ? await loader.switchContext(toLocale, getPluginRouteName(route, toLocale)) : null
+      // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
+      if (loaded === false) return false
 
       setLocale(toLocale)
-      return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)

@@ -62,7 +62,7 @@ describe('PluginsInjections typing', () => {
   it('useI18n() types clearCache and promises for switchLocale / switchRoute', () => {
     type PluginApi = ReturnType<typeof createNuxtI18nPluginApi>['provide']
     expectTypeOf<PluginsInjectionsWithAliases['clearCache']>().toEqualTypeOf<PluginApi['clearCache']>()
-    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['switchLocale']>>().toEqualTypeOf<Promise<void>>()
+    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['switchLocale']>>().toEqualTypeOf<Promise<boolean>>()
     expectTypeOf<ReturnType<PluginsInjectionsWithAliases['$switchRoute']>>().toEqualTypeOf<Promise<void>>()
     expectTypeOf<PluginApi['switchLocale']>().returns.toMatchTypeOf<Promise<unknown>>()
     expectTypeOf<PluginApi['switchRoute']>().returns.toMatchTypeOf<Promise<unknown>>()

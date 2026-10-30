@@ -90,6 +90,7 @@ export const I18nSwitcher = /*#__PURE__*/ defineComponent({
           const path = typeof target === 'string' ? target : target.path
           return path ? (routing?.toHref?.(path) ?? path) : '#'
         },
+        browserNavigates: () => !routing && !props.switchLocale && props.localeRoute !== undefined,
         select: (code) => {
           if (props.switchLocale) return props.switchLocale(code)
           const path = routing && pathOf(location(code))

@@ -1,5 +1,5 @@
 import { externalLinkHref, isActiveLink, isPlainClick } from '@i18n-micro/core'
-import { h, type HostAnchorAttrs, type HostElement, type HostMouseEvent, type HostNode, type HostStyle } from '#host'
+import { h, type HostAnchorAttrs, type HostElement, type HostMouseEvent, type HostNode, type HostStyle, mergeStyles } from '#host'
 import { routePath, useI18n } from '../context'
 import { type RouteTarget, useI18nRouter } from '../injection'
 
@@ -25,7 +25,7 @@ export const I18nLink = (props: I18nLinkProps): HostElement => {
   // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
   const codes = () => [i18n.locale, i18n.defaultLocale(), i18n.fallbackLocale, ...i18n.getLocales().map((l) => l.code)]
   const active = activeStyle && router && isActiveLink(router.getCurrentPath(), href, codes())
-  const linkProps = { ...restProps, href, style: active ? { ...(style as object), ...activeStyle } : style }
+  const linkProps = { ...restProps, href, style: active ? mergeStyles(style as HostStyle, activeStyle) : style }
 
   if (router?.linkComponent) return h(router.linkComponent as never, { ...linkProps, onClick }, children)
 

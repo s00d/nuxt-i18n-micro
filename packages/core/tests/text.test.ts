@@ -491,6 +491,15 @@ describe('defaults', () => {
   it('a configured plural rule gets defaultValue through tc', () => {
     const rules = new TestI18n('en', {}, () => null)
     expect(resolveText(rules, { keypath: 'nope', plural: 1, defaultValue: 'dv' })?.template).toBe('dv')
+    expect(text(rules, { keypath: 'nope', plural: 2, params: { who: 'Al' }, defaultValue: 'dv {who} {count}' })).toBe('dv Al 2')
+  })
+
+  it('tc interpolates a default as t does', () => {
+    const none = new TestI18n('en', {})
+    expect(none.tc('nope', { count: 2, who: 'Al' }, 'dv {who} {count}')).toBe('dv Al 2')
+    expect(none.tc('nope', { who: 'Al' }, 'dv {who}')).toBe('dv Al')
+    expect(none.tc('nope', 2, '')).toBe('')
+    expect(none.tc('nope', 2)).toBe('nope')
   })
 })
 

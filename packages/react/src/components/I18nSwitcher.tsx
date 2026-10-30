@@ -1,7 +1,7 @@
 import { isPlainClick, ownValue } from '@i18n-micro/core'
 import { SWITCHER_STYLES as STYLES } from '@i18n-micro/core/render'
 import type { Locale } from '@i18n-micro/types'
-import { h, type HostAttrs, type HostElement, type HostMouseEvent, type HostStyle, useEffect, useRef, useState } from '#host'
+import { h, type HostAttrs, type HostElement, type HostMouseEvent, type HostStyle, mergeStyles, useEffect, useRef, useState } from '#host'
 import { routePath, useI18n } from '../context'
 import { type RouteTarget, useI18nLocales, useI18nRouter } from '../injection'
 
@@ -88,7 +88,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
 
   const select = (event: HostMouseEvent<HTMLAnchorElement>, code: string) => {
     if (!isPlainClick(event as unknown as MouseEvent)) return
-    event.preventDefault()
+    // a custom `localeRoute` with nothing to navigate: `href` is a real page, the browser's to follow
+    if (switchLocale || router || !localeRoute) event.preventDefault()
     setOpen(false)
     if (switchLocale) return switchLocale(code)
     if (!localeRoute) return i18n.switchLocale(code)
@@ -125,7 +126,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
       ...restProps,
       ref: wrapper,
       className: ['i18n-switcher-wrapper', className, userClass].filter(Boolean).join(' '),
-      style: { ...STYLES.wrapper, ...customWrapperStyle, ...(style as object) },
+      style: mergeStyles(STYLES.wrapper as HostStyle, customWrapperStyle, style as HostStyle),
     },
     h(
       'button',

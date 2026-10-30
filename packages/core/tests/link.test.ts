@@ -7,6 +7,10 @@ describe('routeQuery', () => {
     ['?a=1', { a: '1' }],
     ['?tag=a&tag=b&tag=c&x=1', { tag: ['a', 'b', 'c'], x: '1' }],
     ['?a=&a=', { a: ['', ''] }],
+    ['?flag', { flag: null }],
+    ['?flag=', { flag: '' }],
+    ['?a&a=1&&b', { a: [null, '1'], b: null }],
+    ['?q=a+b%20c', { q: 'a b c' }],
   ])('%s', (search, query) => {
     expect(routeQuery(search)).toEqual(query)
   })

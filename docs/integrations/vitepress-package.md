@@ -1,19 +1,19 @@
 ---
-title: 'VitePress Package (`@i18n-micro/vitepress`)'
-description: 'Runtime i18n for VitePress themes and markdown pages.'
+title: 'VitePress'
+description: 'Runtime translations, $t in markdown, locale sync and SEO tags for VitePress sites with @i18n-micro/vitepress.'
 outline: 'deep'
 ---
 
-# VitePress Package (`@i18n-micro/vitepress`)
+# VitePress
 
-Runtime dictionaries, `$t` / `<I18nT>` inside markdown, and an optional `<I18nSwitcher>` — built on `@i18n-micro/vue`, synced with VitePress path locales.
+`@i18n-micro/vitepress` adds runtime dictionaries to a VitePress site: `$t` and `<I18nT>` inside markdown, path helpers and SEO tags, built on [`@i18n-micro/vue`](./vue-package). Use it when the same UI strings appear on many pages and you do not want to duplicate them per locale. The locale follows VitePress's own path locales (`/`, `/fr/`).
 
-## Positioning
+## When to use it
 
 | Need | Solution |
 |------|----------|
 | Duplicate `.md`, URL prefixes | VitePress `locales` |
-| Runtime `$t` / components / path sync / SEO head | **`@i18n-micro/vitepress`** |
+| Runtime `$t` / components / path sync / SEO head | `@i18n-micro/vitepress` |
 | Default theme chrome labels (`docFooter`, search UI) | Your own `themeConfig` per locale |
 
 ::: tip Playground
@@ -38,7 +38,7 @@ yarn add @i18n-micro/vitepress
 
 :::
 
-Peers: `vitepress`, `vue`. Node scripts also use the workspace dependency **`@i18n-micro/node`** (re-exported through `/node`).
+Peer dependencies: `vitepress` `>=1.0.0 || >=2.0.0-alpha.0`, `vue` `^3.5.43`. Node scripts use `@i18n-micro/node`, installed with the package and re-exported through `/node`.
 
 ## Setup
 
@@ -114,7 +114,7 @@ i18n.enhanceApp({ app, router })
 
 ### Node scripts — `@i18n-micro/vitepress/node`
 
-Uses **`@i18n-micro/node`** `createI18n` / `loadTranslations` (same as Astro & CLI), then attaches VitePress path methods with `BaseI18n.extend`:
+Uses `@i18n-micro/node` `createI18n` / `loadTranslations` (same as Astro & CLI), then attaches VitePress path methods with `BaseI18n.extend`:
 
 ```ts
 import { createI18n } from '@i18n-micro/vitepress/node'
@@ -137,7 +137,7 @@ Plain Node without paths: `import { createI18n } from '@i18n-micro/node'`.
 
 Each VitePress markdown file is a Vue SFC.
 
-### Global components + `$t` (recommended in MD)
+### Global components and `$t` (recommended in markdown)
 
 `createI18n` / `defineI18nTheme` install `@i18n-micro/vue`, which registers `I18nT` / `I18nLink` / `I18nGroup` / `I18nSwitcher` and `$t` / `$tc` / `$ts`.
 
@@ -162,9 +162,9 @@ const { t, tc, locale, localePath, switchLocale } = useI18n()
 
 ## Language dropdown
 
-When `locales` has more than one entry, VitePress shows **`VPNavBarTranslations`**. `withI18n` wires `themeConfig.i18nRouting` so the globe matches `<I18nSwitcher>` / path helpers.
+When `locales` has more than one entry, VitePress shows its own language menu (`VPNavBarTranslations`). `withI18n` wires `themeConfig.i18nRouting` so the globe matches `<I18nSwitcher>` / path helpers.
 
-Use `<I18nSwitcher>` only in custom layouts — **not** next to the default globe.
+Use `<I18nSwitcher>` only in custom layouts, not next to the default globe.
 
 ## SSR notes
 
@@ -200,11 +200,8 @@ Regression suite: `packages/vitepress/tests/integration-openapi.test.ts` (deep p
 | Package SEO with site base | `metaBaseUrl` + VitePress `base` → absolute URLs include base |
 | Rename from older package builds | `withI18nMicro` → `withI18n`, `createVitePressI18n` → `createI18n`, `loadMessages` → node `createI18n` |
 
-## Resources
+## Related
 
-- **Playground**: [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground)
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-
-## License
-
-MIT
+- [Vue](./vue-package) — the components and `useI18n` this package re-exports
+- [Node.js](./nodejs-package) — the loader behind `/node`
+- [Package reference](/api/packages/vitepress)

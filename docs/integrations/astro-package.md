@@ -104,7 +104,7 @@ Messages, plural rules, a missing-key handler and a router adapter cannot cross 
 | `locales` | required | Locale codes. |
 | `localeObjects` | `locales` as `{ code }` | Full `Locale` objects (`iso`, `dir`, `displayName`) for components and SEO. |
 | `autoDetect` | `true` | Home-page redirect, see [Locale detection](#locale-detection). |
-| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale, to the default locale's home. |
+| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale, to the default locale's home as the routing strategy resolves it. Without a strategy that home is `/`, so nothing redirects. |
 | `localeCookie` | `'i18n-locale'` | `null` disables the cookie. |
 | `routingStrategy` | — | Router adapter. |
 

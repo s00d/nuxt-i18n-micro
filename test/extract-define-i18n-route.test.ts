@@ -143,6 +143,21 @@ describe('mergeDefineI18nRouteMeta', () => {
     expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
   })
 
+  it.each([
+    ['blog/[slug]', 'blog-slug'],
+    ['blog/[slug]', 'blog/:slug'],
+    ['/', 'index'],
+    ['docs/[...rest]', 'docs-rest'],
+  ])('%s: the config wins under the name or path %s', (routePath, key) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
+  })
+
+  it.each(['constructor', 'toString', 'valueOf'])('a page named %s keeps its entry', (routePath) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], { globalLocaleRoutes: {} })
+    expect(Object.keys(merged.globalLocaleRoutes)).toEqual([routePath])
+  })
+
   it('keeps the page entry when the config names another page', () => {
     const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
     expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })

@@ -1,5 +1,5 @@
 export { isInternalPath } from '@i18n-micro/utils/app-path'
-export { type GenerateOptions, generateRoutes, type RouteI18nMeta } from './generate'
-export { normalizePath, normalizeRouteKey } from './paths'
+export { type GenerateOptions, generateRoutes, nameOfPath, type RouteI18nMeta } from './generate'
+export { normalizePath, normalizeRouteKey, routeKey } from './paths'
 export { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 export { isLocaleAllowedForUnlocalizedRoute, Rules } from './rules'

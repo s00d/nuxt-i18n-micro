@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md",
     "LICENSE"
   ],
@@ -30,6 +31,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "solid": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
@@ -41,6 +43,7 @@
       "default": "./dist/index.mjs"
     },
     "./router": {
+      "solid": "./src/router/index.ts",
       "import": {
         "types": "./dist/router.d.ts",
         "default": "./dist/router.mjs"

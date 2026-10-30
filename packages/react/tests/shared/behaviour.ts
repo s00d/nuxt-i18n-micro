@@ -679,12 +679,14 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     test('a custom localeRoute with no router links to this page in that locale', () => {
       const here = window.location.href
       window.history.replaceState(null, '', '/about?x=1#h')
-      const localeRoute = (to: string, code: string) => `/${code}${to}`
-      const { container } = render(h(I18nProvider, { i18n: instance(), locales }, h(I18nSwitcher, { localeRoute })))
-      fireEvent.click(container.querySelector('button')!)
-      const href = container.querySelector('.switcher-locale-de')!.getAttribute('href')
-      window.history.replaceState(null, '', here)
-      expect(href).toBe('/de/about?x=1#h')
+      try {
+        const localeRoute = (to: string, code: string) => `/${code}${to}`
+        const { container } = render(h(I18nProvider, { i18n: instance(), locales }, h(I18nSwitcher, { localeRoute })))
+        fireEvent.click(container.querySelector('button')!)
+        expect(container.querySelector('.switcher-locale-de')!.getAttribute('href')).toBe('/de/about?x=1#h')
+      } finally {
+        window.history.replaceState(null, '', here)
+      }
     })
 
     test('switchLocale keeps the click, with or without a router', () => {

@@ -26,24 +26,23 @@ async function resolver(strategy: 'prefix' | 'prefix_except_default') {
 }
 
 describe('createLocalizedPathResolver (prerender)', () => {
-  test('localizes pages with their custom paths, dynamic ones included', async () => {
+  test('custom and dynamic paths per locale; nothing for pages a locale does not serve', async () => {
+    // step 1: prefix_except_default → custom paths, dynamic ones included; the default keeps the URL as written
     const r = await resolver('prefix_except_default')
     expect(r.path('/about', 'de')).toBe('/de/ueber-uns')
     expect(r.path('/about', 'fr')).toBe('/fr/about')
     expect(r.path('/blog/hello', 'de')).toBe('/de/artikel/hello')
     expect(r.path('/', 'de')).toBe('/de')
-    // the default locale keeps the URL as written
     expect(r.path('/about', 'en')).toBeNull()
-  })
 
-  test('no URLs for locales a page is not served in, for unlocalized pages or for non-pages', async () => {
-    const r = await resolver('prefix')
-    expect(r.path('/de-only', 'fr')).toBeNull()
-    expect(r.path('/de-only', 'de')).toBe('/de/de-only')
-    expect(r.path('/unloc', 'de')).toBeNull()
-    expect(r.isUnlocalized('/unloc')).toBe(true)
-    expect(r.path('/api/data', 'de')).toBeNull()
-    expect(r.isPage('/api/data')).toBe(false)
-    expect(r.localeOf('/de/about')).toBe('de')
+    // step 2: prefix → no URL for a locale the page is not served in, an unlocalized page or a non-page
+    const p = await resolver('prefix')
+    expect(p.path('/de-only', 'fr')).toBeNull()
+    expect(p.path('/de-only', 'de')).toBe('/de/de-only')
+    expect(p.path('/unloc', 'de')).toBeNull()
+    expect(p.isUnlocalized('/unloc')).toBe(true)
+    expect(p.path('/api/data', 'de')).toBeNull()
+    expect(p.isPage('/api/data')).toBe(false)
+    expect(p.localeOf('/de/about')).toBe('de')
   })
 })

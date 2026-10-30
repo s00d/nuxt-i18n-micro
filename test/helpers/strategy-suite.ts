@@ -1,20 +1,23 @@
 /**
- * Shared suite for the i18n strategy tests.
+ * Shared suite for the i18n strategy tests: `nuxi generate` and `nuxi build` of
+ * test/fixtures/strategy for one strategy. The journeys (test/journeys/strategies-*.spec.ts)
+ * walk the same fixture in a browser on a server build; generate is what they cannot do, and
+ * here every localized URL is requested directly instead of reached by a click.
  *
- * Each strategy lives in its own test file (test/strategies-<strategy>.test.ts) so
- * Vitest — which parallelizes per file, not per describe — can run them
- * concurrently. Every phase gets its own `NUXT_TEST_BUILD_DIR`
- * (`strategies-<strategy>-<phase>`), so concurrent files never rimraf or read
- * each other's build output while sharing the same fixture sources.
+ * One file per strategy (test/strategies-<strategy>.test.ts) so Vitest — which parallelizes
+ * per file — runs the four at once. Each phase builds into its own `NUXT_TEST_BUILD_DIR`
+ * (`strategies-<strategy>-<phase>`), so concurrent files never touch each other's output.
  *
- * Ports come from getFreePort() (`listen(0)`); servers are stopped through their
- * ChildProcess handle via stopChild(), which kills the whole process group. Never
- * free a port by killing whoever owns it — that can hit a sibling worker.
+ * Ports come from getFreePort() (`listen(0)`); the server is stopped through its ChildProcess
+ * handle via stopChild(), which kills the whole process group. Never free a port by killing
+ * whoever owns it — that can hit a sibling worker.
  */
 import type { ChildProcess } from 'node:child_process'
-import { setTimeout as delay } from 'node:timers/promises'
+import { existsSync, readFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { join } from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
+import { afterAll, expect, test } from 'vitest'
 import { isolatedBuild } from './isolated-build'
 import { getFreePort } from './port'
 import { runCommand, spawnServer, stopChild } from './subprocess'
@@ -23,124 +26,112 @@ const HOST = '127.0.0.1'
 
 export type StrategyName = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 
-type Route = readonly [path: string, expectedText: string]
-
-export const STRATEGY_ROUTES: Record<StrategyName, readonly Route[]> = {
-  no_prefix: [
-    ['/', 'en'],
-    ['/contact', 'contact'],
-    ['/kontakt', 'contact'],
-  ],
-  prefix_except_default: [
-    ['/', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
-  ],
-  prefix: [
-    ['/en', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/en/contact', 'contact'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
-  ],
-  prefix_and_default: [
-    ['/', 'en'],
-    ['/en', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/en/contact', 'contact'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
-  ],
+interface StrategyCase {
+  /** URL → the `#content` text the page renders (index: the locale, contact: `contact`). */
+  routes: Record<string, string>
+  /** Extra prerendered pages (`<dir>/index.html`) besides `routes`. */
+  pages: string[]
+  /** Prerendered pages that must not exist. */
+  absent?: string[]
+  /** `prefix` prerenders `/` as a redirect page to the default locale. */
+  rootRedirect?: string
 }
 
-/** Wait for text to appear on page */
-async function waitForText(url: string, text: string, tries = 40, ms = 500) {
-  async function attempt(index: number): Promise<void> {
-    if (index >= tries) throw new Error(`"${text}" not found at ${url}`)
+const SETTINGS = (prefix: string) => [`${prefix}settings/profile`, `${prefix}settings/team`]
 
-    try {
-      if ((await (await fetch(url)).text()).includes(text)) return
-    } catch {
-      /* server not started */
-    }
-    await delay(ms)
-    return attempt(index + 1)
+const CASES: Record<StrategyName, StrategyCase> = {
+  no_prefix: {
+    routes: { '/': 'en', '/contact': 'contact', '/kontakt': 'contact' },
+    pages: ['about', 'a-propos', ...SETTINGS('')],
+    absent: ['de'],
+  },
+  prefix_except_default: {
+    routes: { '/': 'en', '/ru': 'ru', '/de': 'de', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
+    pages: ['about', 'contact', 'de/a-propos', 'ru/about', ...SETTINGS(''), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+  },
+  prefix: {
+    routes: { '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
+    pages: ['en/about', 'de/a-propos', 'ru/about', ...SETTINGS('en/'), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+    rootRedirect: '/en',
+  },
+  prefix_and_default: {
+    routes: { '/': 'en', '/en': 'en', '/ru': 'ru', '/de': 'de', '/en/contact': 'contact', '/ru/contact': 'contact', '/de/kontakt': 'contact' },
+    pages: ['en/about', 'de/a-propos', 'ru/about', ...SETTINGS('en/'), ...SETTINGS('de/'), ...SETTINGS('ru/')],
+  },
+}
+
+/** Every page × locale payload the premerged build publishes, with one key it must carry. */
+const PAYLOAD_KEYS: Record<string, string> = {
+  index: 'key0',
+  about: 'key0',
+  contact: 'key0',
+  'settings-profile': 'profileTitle',
+  'settings-team': 'teamTitle',
+}
+const PAYLOADS = Object.entries(PAYLOAD_KEYS).flatMap(([page, key]) =>
+  ['en', 'de', 'ru'].map((locale) => ({ file: join('_locales', page, locale, 'data.json'), key })),
+)
+
+const contentOf = (html: string) => /<p id="content">\s*([^<]*?)\s*<\/p>/.exec(html)?.[1]
+const htmlFile = (publicDir: string, path: string) => join(publicDir, path.replace(/^\/+/, ''), 'index.html')
+
+async function fetchHtml(url: string): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const html = await fetch(url).then(
+      (res) => res.text(),
+      () => null,
+    )
+    if (html !== null) return html
+    await delay(500)
   }
-
-  await attempt(0)
+  throw new Error(`server did not answer at ${url}`)
 }
 
-async function htmlIncludes(port: number, path: string, text: string) {
-  const res = await fetch(`http://${HOST}:${port}${path}`)
-  expect(await res.text()).toContain(text)
-}
-
-/**
- * Register the `static generate` + `ssr build` suites for one strategy.
- * Both phases build the same fixture into separate directories.
- */
 export function registerStrategySuite(strategy: StrategyName): void {
-  const routes = STRATEGY_ROUTES[strategy]
-  const first = routes[0]
-  if (!first) throw new Error(`No routes configured for strategy ${strategy}`)
+  const { routes, pages, absent = [], rootRedirect } = CASES[strategy]
+  const build = (script: 'generate' | 'build', dir: ReturnType<typeof isolatedBuild>) =>
+    runCommand('npx', ['nuxi', script], { cwd: dir.fixtureDir, env: { ...dir.env, STRATEGY: strategy } })
 
-  /** npm run generate / npm run build for one phase's build dir */
-  const runNuxt = (script: 'generate' | 'build', build: ReturnType<typeof isolatedBuild>) => {
-    const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
-    return runCommand(npmCmd, ['run', script], {
-      cwd: build.fixtureDir,
-      env: { ...build.env, STRATEGY: strategy },
-    })
-  }
+  const generated = isolatedBuild('strategy', `strategies-${strategy}-static`)
+  const ssr = isolatedBuild('strategy', `strategies-${strategy}-ssr`)
+  let server: ChildProcess | null = null
+  afterAll(async () => {
+    await stopChild(server)
+    await rm(generated.buildDir, { recursive: true, force: true }).catch(() => {})
+    await rm(ssr.buildDir, { recursive: true, force: true }).catch(() => {})
+  })
 
-  const registerPhase = (
-    title: string,
-    build: ReturnType<typeof isolatedBuild>,
-    script: 'generate' | 'build',
-    serverCommand: (port: number) => readonly string[],
-  ) => {
-    describe(title, () => {
-      let port = 0
-      let server: ChildProcess | null = null
+  test('nuxi generate: no prerender errors, every localized page and payload on disk', { timeout: 300_000 }, async () => {
+    // step 1: generate (prerender crawls the localized links; a broken one is a prerender error)
+    await rm(generated.buildDir, { recursive: true, force: true })
+    const output = await build('generate', generated)
+    expect(output).not.toContain('Exiting due to prerender errors')
+    expect(output).not.toMatch(/├─ \/ .*\[404\]/)
 
-      const stop = async () => {
-        // stopChild kills the whole process group, releasing the port with it.
-        await stopChild(server)
-        server = null
-      }
+    // step 2: each URL is a static page rendering its locale / page content
+    for (const [path, content] of Object.entries(routes)) {
+      expect(contentOf(readFileSync(htmlFile(generated.publicDir, path), 'utf-8'))).toBe(content)
+    }
 
-      beforeAll(async () => {
-        await rm(build.buildDir, { recursive: true, force: true })
-        await runNuxt(script, build)
+    // step 3: the localized custom paths and nested pages exist, pages a strategy must not have do not
+    for (const page of pages) expect(existsSync(htmlFile(generated.publicDir, page))).toBe(true)
+    for (const page of absent) expect(existsSync(htmlFile(generated.publicDir, page))).toBe(false)
+    if (rootRedirect) expect(readFileSync(htmlFile(generated.publicDir, '/'), 'utf-8')).toMatch(new RegExp(`<meta[^>]+url=${rootRedirect}"`))
 
-        port = await getFreePort()
-        const [command, ...args] = serverCommand(port)
-        if (!command) throw new Error('Command is required')
-        server = spawnServer(command, args, {
-          cwd: build.fixtureDir,
-          env: { PORT: String(port) },
-        })
+    // step 4: the premerged payload of every page × locale is published next to the pages
+    for (const { file, key } of PAYLOADS) {
+      expect(JSON.parse(readFileSync(join(generated.publicDir, file), 'utf-8'))).toHaveProperty(key)
+    }
+  })
 
-        await waitForText(`http://${HOST}:${port}${first[0]}`, first[1])
-      }, 300_000)
+  test('nuxi build: the SSR server renders every localized URL on a direct request', { timeout: 300_000 }, async () => {
+    await rm(ssr.buildDir, { recursive: true, force: true })
+    await build('build', ssr)
+    const port = await getFreePort()
+    server = spawnServer('node', [ssr.serverEntry], { cwd: ssr.fixtureDir, env: { PORT: String(port) } })
 
-      afterAll(stop)
-
-      routes.forEach(([path, text]) => {
-        it(`GET ${path} → contains "${text}"`, async () => {
-          await htmlIncludes(port, path, text)
-        })
-      })
-    })
-  }
-
-  const staticBuild = isolatedBuild('strategy', `strategies-${strategy}-static`)
-  const ssrBuild = isolatedBuild('strategy', `strategies-${strategy}-ssr`)
-
-  registerPhase('static generate', staticBuild, 'generate', (port) => ['npx', 'serve', staticBuild.publicDir, '-p', String(port)])
-  registerPhase('ssr build', ssrBuild, 'build', () => ['node', ssrBuild.serverEntry])
+    for (const [path, content] of Object.entries(routes)) {
+      expect(contentOf(await fetchHtml(`http://${HOST}:${port}${path}`))).toBe(content)
+    }
+  })
 }

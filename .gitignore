@@ -109,3 +109,4 @@ test/deploy-smoke/pnpm-lock.yaml
 # `vercel link` writes the project ids here; CI reads them from secrets instead
 .vercel
 .claude/worktrees
+scripts/perf-fixtures/perf-shared/.locale-fingerprint

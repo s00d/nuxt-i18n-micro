@@ -7,6 +7,12 @@ export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
+  // localized by the module for fr: /fr/prerendered, never /fr/fr/prerendered (#218); /fr/spa is a SPA shell too
+  routeRules: {
+    '/prerendered': { prerender: true },
+    '/products/**': { isr: true },
+    '/spa': { ssr: false },
+  },
   ...(testBuildDir ? { buildDir: testBuildDir } : {}),
   nitro: {
     prerender: {
@@ -24,6 +30,7 @@ export default defineNuxtConfig({
         '/full/full-meta',
         '/blog/shared-blog',
         '/guides/shared-guide',
+        '/spa',
       ],
     },
     ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),

@@ -171,4 +171,18 @@ describe('J7 useI18nHead page head', () => {
     // in-flight emulated requests would reject with "Route is already handled" when the page closes
     await page.unrouteAll({ behavior: 'ignoreErrors' })
   })
+
+  test('U-T4: route rules are localized once on the server build (#218)', async ({ request }) => {
+    // step 1: the prerender rule's fr copy serves the fr page; the double-localized path does not exist
+    // was: generate-issue-218 › builds without /fr/fr prerender errors
+    const fr = await request.get('/fr/prerendered')
+    expect(fr.status()).toBe(200)
+    expect(await fr.text()).toContain('Page prérendue')
+    expect((await request.get('/fr/fr/prerendered', { maxRedirects: 0 })).status()).toBe(404)
+
+    // step 2: the isr rule's fr copy serves a dynamic page
+    const product = await request.get('/fr/products/7')
+    expect(product.status()).toBe(200)
+    expect(await product.text()).toMatch(/id="product"[^>]*>\s*Produit 7\s*</)
+  })
 })

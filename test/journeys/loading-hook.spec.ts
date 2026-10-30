@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'untestutils/vitest'
 
+// `serverless` fixture: a local module adds /test and an `i18n:register` plugin; an app plugin registers `hook`.
 describe('J8 translation loading: module hook', () => {
-  test.override({ harness: 'hook' })
+  test.override({ harness: 'serverless' })
 
   // was: hook › hook value and locale switch
   test('page added by a module gets translations, plugin survives a switch', async ({ page, goto }) => {

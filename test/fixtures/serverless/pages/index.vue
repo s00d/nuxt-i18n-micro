@@ -21,5 +21,9 @@ const { $t, $getLocale } = useNuxtApp()
     <p id="pageContent">
       {{ $t('pageContent') }}
     </p>
+    <p id="hook">
+      {{ $t('hook') }}
+    </p>
+    <NuxtLink id="test-page" to="/test"> Module page </NuxtLink>
   </div>
 </template>

@@ -39,12 +39,10 @@ export const recipes = defineRecipes(
     // basic under prefix: the default locale gets a prefix too
     'basic-prefix': app('basic-prefix', 'basic', undefined, { i18n: { strategy: 'prefix' } }),
     named: app('named'),
-    'async-components': app('async-components'),
     content: app('content'),
     'custom-regex': app('custom-regex'),
     'define-i18n-route': app('define-i18n-route'),
     'fallback-locale': app('fallback-locale'),
-    hook: app('hook'),
     layer: app('layer'),
     'layout-switch': app('layout-switch'),
     n3: app('n3'),
@@ -56,7 +54,6 @@ export const recipes = defineRecipes(
     seo: app('seo'),
     serverless: app('serverless'),
     'use-i18n-head': app('use-i18n-head'),
-    'use-locale-head': app('use-locale-head'),
     'seo-trailing-slash': nuxt({
       id: 'seo-trailing-slash',
       root: resolve(fixtures, 'seo'),

@@ -1,7 +1,8 @@
 import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
-  modules: [MyModule],
+  // a local module adds /test and an `i18n:register` plugin with its own locale files
+  modules: ['~/modules/pages/index', MyModule],
   devtools: { enabled: false },
 
   // Route rules with ISR-like caching (similar to Cloudflare setup)

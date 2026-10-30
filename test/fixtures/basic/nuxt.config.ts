@@ -5,6 +5,8 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   routeRules: {
     '/client': { ssr: false },
+    '/async-components-test': { ssr: false },
+    '/async-components-test-2': { ssr: false },
     '/old-product': { redirect: '/page' },
     '/ru/old-product': { redirect: '/ru/page' },
   },

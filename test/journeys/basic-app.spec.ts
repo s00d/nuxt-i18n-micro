@@ -539,6 +539,14 @@ describe('journey: basic app', () => {
     expect((await info('/api/locale-info', { Cookie: 'user-locale=ru' })).current).toBe('en')
     expect(await info('/api/locale-info')).toMatchObject({ current: 'en', isDefault: true })
 
+    // step 2b: a server route outside /api keeps the API order: ?locale and a [locale] param pick the
+    // locale (the page-render locale of that URL would be en)
+    for (const path of ['/server-locale?locale=ru', '/server-locale/ru']) {
+      const res = await request.get(path)
+      expect(res.status(), path).toBe(200)
+      expect(await res.json(), path).toEqual({ current: 'ru', hello: 'test_val_ru' })
+    }
+
     // step 3: a page without its own folder → a non-empty subset of index's dictionary
     // was: server › a page without its own folder gets the root dictionary
     const index = await (await request.get('/_locales/index/en/data.json')).json()

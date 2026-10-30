@@ -132,6 +132,7 @@ interface ResolveHreflangAlternatesOptions
 member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefined
 
 # ./resolve-locale (src/resolve-locale.ts)
+function explicitLocale: (input: Omit<ResolveLocaleInput, "defaultLocale">) => string | null
 function firstQueryValue: (value: unknown) => string | null
 function localeFromPath: (path: string, validLocales: readonly string[]) => string | null
 function resolveLocale: (input: ResolveLocaleInput) => string
@@ -141,6 +142,7 @@ member ResolveLocaleInput.autoDetectLanguage?: boolean | undefined
 member ResolveLocaleInput.cookie?: string | null | undefined
 member ResolveLocaleInput.defaultLocale: string
 member ResolveLocaleInput.query?: string | null | undefined
+member ResolveLocaleInput.queryFirst?: boolean | undefined
 member ResolveLocaleInput.state?: string | null | undefined
 member ResolveLocaleInput.url?: string | null | undefined
 member ResolveLocaleInput.validLocales: readonly string[]
@@ -173,6 +175,7 @@ member WarnUnresolvedOgLocaleOptions.tag?: "og:locale" | "og:locale:alternate" |
 
 # ./runtime-config (src/runtime-config.ts)
 function applyI18nRuntimeOverrides: (baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend
+function createI18nConfigResolver: (warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend
 function i18nOverridesKey: (overrides: RuntimeI18nOverrides) => string
 function mergeI18nOverrides: (primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides
 function readI18nEnvOverrides: () => RuntimeI18nOverrides

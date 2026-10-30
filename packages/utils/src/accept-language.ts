@@ -3,15 +3,17 @@ interface WeightedTag {
   q: number
 }
 
-/** `q` of the parameters after a tag (`;q=0.8`): 1 when absent, NaN when malformed or out of range. */
+/** RFC 9110 `qvalue`: `0`, `0.` + up to 3 digits, `1`, `1.` + up to 3 zeros. */
+const QVALUE = /^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/
+
+/** `q` of the parameters after a tag (`;q=0.8`): 1 when absent, NaN when not a qvalue (`0x1`, `1e-1`, `.5`). */
 function weightOf(params: string): number {
   const at = params.search(/(?:^|;)\s*q=/i)
   if (at === -1) return 1
   const start = params.indexOf('=', at) + 1
   const end = params.indexOf(';', start)
   const raw = params.slice(start, end === -1 ? undefined : end).trim()
-  const q = raw === '' ? Number.NaN : Number(raw)
-  return q >= 0 && q <= 1 ? q : Number.NaN
+  return QVALUE.test(raw) ? Number(raw) : Number.NaN
 }
 
 /** `en_US` → `en-US`; `__proto__` stays junk rather than becoming a tag. */
@@ -44,10 +46,36 @@ export function parseAcceptLanguage(header: string | undefined): string[] {
   return entries.map((entry) => entry.tag)
 }
 
+/** Chinese regions that imply a script: a `zh-TW` reader does not read Simplified. */
+const IMPLIED_SCRIPT = new Map([
+  ['cn', 'hans'],
+  ['sg', 'hans'],
+  ['my', 'hans'],
+  ['tw', 'hant'],
+  ['hk', 'hant'],
+  ['mo', 'hant'],
+])
+
+/** The script of a lowercased tag: an explicit 4-letter subtag, else the one a zh region implies, else ''. */
+function scriptOf(tag: string): string {
+  const parts = tag.split('-')
+  const explicit = parts.find((part, i) => i > 0 && part.length === 4)
+  if (explicit) return explicit
+  return (parts[0] === 'zh' && IMPLIED_SCRIPT.get(parts[1] ?? '')) || ''
+}
+
+/** Same language may stand in, but never across scripts both sides name (`zh-CN` is not `zh-Hant`). */
+function sameScript(script: string, code: string): boolean {
+  if (script === '') return true
+  const other = scriptOf(code)
+  return other === '' || other === script
+}
+
 /**
  * The config locale one language tag asks for: the tag itself or a shorter form of it
- * (`zh-Hant-TW` → `zh-Hant` → `zh`), else a regional locale of the same language (`en` → `en-US`).
- * Independent of config order. `lower` is `validLocales` lowercased.
+ * (`zh-Hant-TW` → `zh-Hant` → `zh`), else a regional locale of the same language and script
+ * (`en` → `en-US`, `zh-TW` → `zh-Hant-HK`, never `zh-Hans`). Independent of config order.
+ * `lower` is `validLocales` lowercased.
  */
 function matchTag(tag: string, validLocales: readonly string[], lower: readonly string[]): string | null {
   let candidate = tag
@@ -60,7 +88,9 @@ function matchTag(tag: string, validLocales: readonly string[], lower: readonly 
   }
   // `candidate` is the primary language now
   const regional = `${candidate}-`
-  const index = lower.findIndex((code) => code.startsWith(regional))
+  // no other language's locale can match: skip the script work
+  const script = lower.some((code) => code.startsWith(regional)) ? scriptOf(tag) : ''
+  const index = lower.findIndex((code) => code.startsWith(regional) && sameScript(script, code))
   return index === -1 ? null : validLocales[index]!
 }
 

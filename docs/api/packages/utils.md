@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-83 exports across 19 entry points.
+85 exports across 19 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -337,17 +337,18 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `explicitLocale` | function | `(input: Omit<ResolveLocaleInput, "defaultLocale">) => string \| null` |
 | `firstQueryValue` | function | `(value: unknown) => string \| null` |
 | `localeFromPath` | function | `(path: string, validLocales: readonly string[]) => string \| null` |
 | `resolveLocale` | function | `(input: ResolveLocaleInput) => string` |
-| `ResolveLocaleInput` | interface | 8 members |
+| `ResolveLocaleInput` | interface | 9 members |
 | `resolvePreferredLocale` | function | `(input: ResolvePreferredLocaleInput) => string` |
 | `ResolvePreferredLocaleInput` | interface | 7 members |
 | `resolveServerLocale` | function | `(input: ResolveServerLocaleInput) => string` |
 | `ResolveServerLocaleInput` | interface | 8 members |
 
 <details>
-<summary><code>ResolveLocaleInput</code> — 8 members</summary>
+<summary><code>ResolveLocaleInput</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -356,6 +357,7 @@ import { /* … */ } from '@i18n-micro/utils/resolve-locale'
 | `cookie?` | `string \| null \| undefined` |
 | `defaultLocale` | `string` |
 | `query?` | `string \| null \| undefined` |
+| `queryFirst?` | `boolean \| undefined` |
 | `state?` | `string \| null \| undefined` |
 | `url?` | `string \| null \| undefined` |
 | `validLocales` | `readonly string[]` |
@@ -422,6 +424,7 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `applyI18nRuntimeOverrides` | function | `(baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend` |
+| `createI18nConfigResolver` | function | `(warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend` |
 | `i18nOverridesKey` | function | `(overrides: RuntimeI18nOverrides) => string` |
 | `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
 | `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |

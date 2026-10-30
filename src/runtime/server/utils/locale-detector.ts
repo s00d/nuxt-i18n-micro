@@ -3,14 +3,7 @@ import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getPreferenceCookieName } from '@i18n-micro/utils/cookie'
 import { firstQueryValue, localeFromPath, resolveLocale } from '@i18n-micro/utils/resolve-locale'
-import {
-  applyI18nRuntimeOverrides,
-  i18nOverridesKey,
-  mergeI18nOverrides,
-  readI18nEnvOverrides,
-  readI18nRuntimeOverrides,
-  type RuntimeI18nOverrides,
-} from '@i18n-micro/utils/runtime-config'
+import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
 import { getCookie, getHeader, getQuery, getRequestURL } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
@@ -18,22 +11,15 @@ import { useRuntimeConfig } from '#imports'
 
 // ponytail: env is read once per process (Nitro's env does not change while it runs); a
 // runtime env switch needs a restart, as for the rest of runtimeConfig.
-let envOverrides: RuntimeI18nOverrides | undefined
-let resolved: { base: ModuleOptionsExtend; key: string; config: ModuleOptionsExtend } | undefined
+const resolveConfig = createI18nConfigResolver()
 
 /**
  * The module config with runtime overrides (`runtimeConfig.public.i18nRuntime`, then env), resolved
  * once: every caller of a request, and every request with the same overrides, gets the same object
- * (so override warnings are logged once). Treat it as read-only.
+ * (so override warnings are logged once). Read-only: deep-frozen in dev.
  */
 export function getI18nServerConfig(event?: H3Event): ModuleOptionsExtend {
-  envOverrides ??= readI18nEnvOverrides()
-  const base = getI18nConfig() as ModuleOptionsExtend
-  const overrides = mergeI18nOverrides(readI18nRuntimeOverrides(useRuntimeConfig(event).public as Record<string, unknown>), envOverrides)
-  const key = i18nOverridesKey(overrides)
-  if (resolved && resolved.base === base && resolved.key === key) return resolved.config
-  resolved = { base, key, config: applyI18nRuntimeOverrides(base, overrides) }
-  return resolved.config
+  return resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
 }
 
 type DetectionConfig = Pick<ModuleOptionsExtend, 'defaultLocale' | 'localeCookie' | 'autoDetectLanguage' | 'strategy' | 'hashMode'> & {
@@ -58,8 +44,12 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
     defaultLocale,
     validLocales,
     autoDetectLanguage: config.autoDetectLanguage,
-    url: urlless ? null : urlLocale(event, mode, path, validLocales, config.strategy === 'prefix_except_default' ? defaultLocale : null),
+    url:
+      urlless && mode === 'page'
+        ? null
+        : urlLocale(event, mode, path, validLocales, config.strategy === 'prefix_except_default' ? defaultLocale : null),
     query: mode === 'api' || config.strategy === 'no_prefix' ? firstQueryValue(getQuery(event).locale) : null,
+    queryFirst: mode === 'api',
     cookie: cookieName ? getCookie(event, cookieName) : null,
     acceptLanguage: getHeader(event, 'accept-language'),
   })
@@ -87,7 +77,11 @@ export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleC
   return detectRequestLocale(event, { ...config, defaultLocale: defaultLocale || config.defaultLocale } as DetectionConfig, 'api')
 }
 
-/** This request's locale for server API helpers: the page render's when there is one, else detected. */
+/**
+ * This request's locale for server API helpers, with the documented API order (query → route
+ * param / prefix → cookie → Accept-Language) on every route, `/api` or not — never the page
+ * render's locale, which ignores `?locale` under the prefix strategies.
+ */
 export function getRequestLocale(event: H3Event, config: ModuleOptionsExtend, defaultLocale?: string): string {
-  return event.context.i18n?.locale ?? detectRequestLocale(event, defaultLocale ? { ...config, defaultLocale } : config, 'api')
+  return detectRequestLocale(event, defaultLocale ? { ...config, defaultLocale } : config, 'api')
 }

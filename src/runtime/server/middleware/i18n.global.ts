@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
   const config = getI18nServerConfig(event)
   const path = withoutAppBaseURL(getRequestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
 
-  if (isInternalPath(path, config.excludePatterns, config.apiBaseUrl)) return
+  // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
+  if (isInternalPath(path, undefined, config.apiBaseUrl)) return
 
   const locale = detectRequestLocale(event, config, 'page', path)
 

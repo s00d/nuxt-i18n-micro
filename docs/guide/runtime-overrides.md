@@ -66,7 +66,7 @@ At runtime, the module validates overrides to avoid broken state:
 - `defaultLocale` must point to an enabled locale (and is fixed at build under `prefix_except_default` / `prefix_and_default`, see above).
 - `fallbackLocale` must point to an enabled locale; otherwise the build `fallbackLocale` is kept when it is enabled, else there is no fallback.
 
-If an override is invalid, the module keeps a safe value and logs a warning once.
+If an override is invalid, the module keeps a safe value and logs one warning (once per server process; the browser does not repeat it). The resolved config is shared by every request: treat `$getI18nConfig()` as read-only (it is deep-frozen in development).
 
 ## Where overrides apply
 

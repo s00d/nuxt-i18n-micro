@@ -1334,7 +1334,7 @@ Creates and configures the Astro integration for i18n-micro.
 | `missingWarn`        | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations                                     |
 | `missingHandler`     | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations                                            |
 | `localeCookie`       | `string \| null`                                           | ❌       | `'i18n-locale'`  | Cookie name for storing locale. Set to `null` to disable cookie                    |
-| `autoDetect`         | `boolean`                                                  | ❌       | `true`           | Enable automatic locale detection                                                  |
+| `autoDetect`         | `boolean`                                                  | ❌       | `true`           | Home page (`/`) redirects to the cookie / Accept-Language locale (see Locale Detection) |
 | `redirectToDefault`  | `boolean`                                                  | ❌       | `false`          | Redirect to default locale if not found                                            |
 | `translationDir`     | `string`                                                   | ❌       | `'src/locales'`  | Directory path for translation files                                               |
 | `disablePageLocales` | `boolean`                                                  | ❌       | `false`          | If `true`, ignores `pages/` folder and treats all files as root-level translations |
@@ -1630,7 +1630,7 @@ Creates Astro middleware for automatic locale detection and i18n instance setup.
 | `defaultLocale`     | `string`              | ✅       | Default locale code                                        |
 | `locales`           | `string[]`            | ✅       | Array of available locale codes                            |
 | `localeObjects`     | `Locale[]`            | ❌       | Array of locale objects with metadata                      |
-| `autoDetect`        | `boolean`             | ❌       | Cookie and Accept-Language may pick the locale of a URL without a locale prefix (default: `true`) |
+| `autoDetect`        | `boolean`             | ❌       | `/` redirects to the locale the cookie / Accept-Language prefer (default: `true`) |
 | `localeCookie`      | `string \| null`      | ❌       | Cookie holding the visitor's locale (default: `'i18n-locale'`); `null` disables it |
 | `redirectToDefault` | `boolean`             | ❌       | Redirect to default locale if not found (default: `false`) |
 | `routingStrategy`   | `I18nRoutingStrategy` | ❌       | Router adapter for routing features                        |
@@ -1673,18 +1673,19 @@ export const onRequest = createI18nMiddleware({
 
 ### Locale Detection
 
-The middleware detects the locale with the same precedence as the Nuxt module (`resolveLocale` from `@i18n-micro/utils/resolve-locale`):
+The URL decides the locale of a page, as in the Nuxt module:
 
-1. **URL Path** - a locale code as the first path segment (e.g. `/fr/about`). An explicit prefix always wins, the default locale's included (`/en/about` is `en` whatever the cookie says)
-2. **Cookie** - the `localeCookie` cookie (`i18n-locale` by default; `null` disables it)
-3. **Accept-Language Header** - the browser's preference, `q` weights honoured (`en` matches a configured `en-US`)
-4. **Default Locale** - the configured default locale
+1. **URL Path** - a locale code as the first path segment (e.g. `/fr/about`), the default locale's included (`/en/about` is `en`)
+2. **Routing strategy** - what its `getLocaleFromPath` maps an unprefixed path to
+3. **Default Locale** - any other unprefixed URL is the default locale's page (`/about` is `en`, whatever the cookie or header says)
 
-Cookie and header count only with `autoDetect: true` (the default) and are not read for prerendered pages. A response whose locale they may pick (no locale prefix) carries `Vary: Cookie, Accept-Language`, so shared caches keep one copy per visitor language. With or without a `routingStrategy`, the locale prefix is stripped from the route name (`/fr/blog/post` → locale `fr`, route `blog-post`); a strategy's `getLocaleFromPath` / `getRouteName` are used when it has them.
+`autoDetect` (default `true`) is a redirect hint for the home page only, like the Nuxt module's `autoDetectPath: '/'`: a request for `/` whose cookie (`localeCookie`, `i18n-locale` by default, `null` disables it) or `Accept-Language` header (`q` weights honoured, `en` matches a configured `en-US`) prefers another locale gets a `302` to that locale's home (`/fr`, or the strategy's `resolvePath('/', locale)`). The `/` response carries `Vary: Cookie, Accept-Language` (only `Accept-Language` with `localeCookie: null`), so shared caches keep the redirect per visitor; no other page varies. Prerendered pages read no cookie or header and never redirect.
+
+With or without a `routingStrategy`, the locale prefix is stripped from the route name (`/fr/blog/post` → locale `fr`, route `blog-post`); a strategy's `getRouteName` is used when it has one.
 
 ### `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?): string`
 
-Utility function for custom locale detection logic, with the middleware's precedence (URL prefix → cookie → Accept-Language → default). Set `localeCookie` to `null` to disable cookie-based detection; `autoDetect: false` leaves only the URL.
+Utility function for the visitor's preferred locale (what the home-page redirect uses): URL prefix or the strategy's non-default answer → cookie → Accept-Language → default. Set `localeCookie` to `null` to disable cookie-based detection; `autoDetect: false` leaves only the URL.
 
 ```typescript
 import { detectLocale } from '@i18n-micro/astro'

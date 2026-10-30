@@ -1,5 +1,6 @@
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
+import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
 import { useCookie, useNuxtApp, useState } from '#app'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 
@@ -51,10 +52,8 @@ export function useI18nLocale() {
 
   const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
 
-  const getPreferredLocale = (): string | null => {
-    const preferred = localeState.value ?? preferenceCookie.value
-    return isValidLocale(preferred) ? preferred : null
-  }
+  /** The state or the cookie, whichever is first valid (an invalid state does not hide a valid cookie). */
+  const getPreferredLocale = (): string | null => explicitLocale({ validLocales, state: localeState.value, cookie: preferenceCookie.value })
 
   const getLocale = (): string | null => {
     return localeState.value ?? preferenceCookie.value ?? null

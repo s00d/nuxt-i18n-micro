@@ -13,7 +13,7 @@ export interface I18nMiddlewareOptions {
   defaultLocale: string
   locales: string[]
   localeObjects?: Locale[]
-  /** Cookie and Accept-Language may pick the locale of a URL without a locale prefix (default `true`). */
+  /** `/` redirects to the locale the cookie / Accept-Language prefer (default `true`); pages keep the URL's locale. */
   autoDetect?: boolean
   redirectToDefault?: boolean
   routingStrategy?: I18nRoutingStrategy
@@ -50,6 +50,8 @@ function cookie(cookies: CookieReader, name: string | null): string | null {
  * (a strategy's `getLocaleFromPath` answers the default for a URL without a locale).
  */
 function urlLocale(pathname: string, defaultLocale: string, locales: string[], strategy?: I18nRoutingStrategy | null): string | null {
+  // a literal locale prefix is explicit, even the default one (/en/x); a strategy then maps the
+  // unprefixed paths, and its default answer means "none named" so cookie / header can still pick
   const prefix = localeFromPath(pathname, locales)
   if (prefix || !strategy?.getLocaleFromPath) return prefix
   const read = strategy.getLocaleFromPath(pathname, defaultLocale, locales)
@@ -95,9 +97,18 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 
     const url = context.url
     const pathname = url.pathname
-    // a prerendered page has no visitor: no cookie, no header
-    const detect = autoDetect && !context.isPrerendered
-    const locale = detectLocale(pathname, context.cookies, context.request.headers, defaultLocale, locales, localeCookie, strategy, detect)
+    // The URL decides the page's locale: its prefix, what the strategy maps it to, else the default
+    // (an unprefixed URL is the default locale's page — a cookie must not render `de` on it).
+    const locale = urlLocale(pathname, defaultLocale, locales, strategy) ?? defaultLocale
+
+    // autoDetect is a redirect hint on the home page only (as the Nuxt module's autoDetectPath '/'):
+    // a visitor whose cookie / Accept-Language prefers another locale is sent to that locale's home.
+    // A prerendered page has no visitor: no cookie, no header, no redirect.
+    const hinted = autoDetect && !context.isPrerendered && (pathname === '/' || pathname === '')
+    const preferred = hinted
+      ? detectLocale(pathname, context.cookies, context.request.headers, defaultLocale, locales, localeCookie, strategy)
+      : locale
+    if (preferred !== locale) return withVary(context.redirect(homeOf(preferred, strategy) + url.search, 302), true, localeCookie)
 
     // per-request instance sharing the global cache
     const requestI18n = globalI18n.clone(locale)
@@ -109,9 +120,8 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     context.locals.defaultLocale = defaultLocale
     context.locals.locales = localeObjects || locales.map((code) => ({ code }))
     context.locals.currentUrl = url
-    // without a URL locale the page depends on the cookie and the header: shared caches must key on them
-    const varies = detect && urlLocale(pathname, defaultLocale, locales, strategy) === null
-    if (!strategy) return withVary(await next(), varies, localeCookie)
+    // the home page is a redirect or not depending on the cookie and the header: shared caches key on them
+    if (!strategy) return withVary(await next(), hinted, localeCookie)
 
     const contextStrategy: I18nRoutingStrategy = {
       ...strategy,
@@ -119,8 +129,14 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       getRoute: () => ({ fullPath: url.pathname + url.search, query: Object.fromEntries(url.searchParams) }),
     }
     context.locals.routingStrategy = contextStrategy
-    return withVary(await runWithRoutingStrategy(contextStrategy, () => next()), varies, localeCookie)
+    return withVary(await runWithRoutingStrategy(contextStrategy, () => next()), hinted, localeCookie)
   }
+}
+
+/** A locale's home: the strategy's path for `/` in that locale, else `/<locale>`. */
+function homeOf(locale: string, strategy?: I18nRoutingStrategy | null): string {
+  const resolved = strategy?.resolvePath?.('/', locale)
+  return typeof resolved === 'string' ? resolved : `/${locale}`
 }
 
 function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {

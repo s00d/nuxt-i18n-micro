@@ -13,10 +13,11 @@ function request(path: string, { cookies = {} as Record<string, string>, headers
     cookies: { get: (name: string) => (name in cookies ? { value: cookies[name]! } : undefined) },
     request: { headers: new Headers(headers) },
     isPrerendered,
+    redirect: (location: string, status: number) => new Response(null, { status, headers: { Location: location } }),
   }
 }
 
-const vary: { last: string | null } = { last: null }
+const vary: { last: string | null; location: string | null } = { last: null, location: null }
 
 async function run(path: string, init: Parameters<typeof request>[1] = {}, options: Record<string, unknown> = {}) {
   const i18n = createI18n({ locale: 'en', messages: { en: {} } })
@@ -24,8 +25,9 @@ async function run(path: string, init: Parameters<typeof request>[1] = {}, optio
   const context = request(path, init)
   const response = (await middleware(context as never, async () => new Response(''))) as Response
   vary.last = response.headers.get('vary')
-  const requestI18n = context.locals.i18n as ReturnType<typeof createI18n>
-  return { locale: context.locals.locale, route: requestI18n.getRoute() }
+  vary.location = response.headers.get('location')
+  const requestI18n = context.locals.i18n as ReturnType<typeof createI18n> | undefined
+  return { locale: context.locals.locale, route: requestI18n?.getRoute() }
 }
 
 describe('createI18nMiddleware (F10, D5)', () => {
@@ -39,33 +41,42 @@ describe('createI18nMiddleware (F10, D5)', () => {
     expect(await run('/en/about', init, { routingStrategy })).toEqual({ locale: 'en', route: 'about' })
   })
 
-  test('unprefixed: cookie, then Accept-Language (q-aware), then default', async () => {
-    expect((await run('/about', { cookies: { 'i18n-locale': 'fr' }, headers: { 'accept-language': 'de' } }, { routingStrategy })).locale).toBe('fr')
-    expect((await run('/about', { headers: { 'accept-language': 'de;q=0.1, fr;q=0.9' } }, { routingStrategy })).locale).toBe('fr')
-    expect((await run('/about', {}, { routingStrategy })).locale).toBe('en')
+  test("an unprefixed URL is the default locale's page: cookie and header do not re-render it", async () => {
+    const init = { cookies: { 'i18n-locale': 'fr' }, headers: { 'accept-language': 'de' } }
+    expect(await run('/about', init, { routingStrategy })).toEqual({ locale: 'en', route: 'about' })
+    expect(vary.last).toBeNull()
   })
 
-  test('localeCookie is configurable and null disables it; autoDetect: false leaves the URL only', async () => {
-    const init = { cookies: { 'user-locale': 'de', 'i18n-locale': 'fr' } }
-    expect((await run('/about', init, { routingStrategy, localeCookie: 'user-locale' })).locale).toBe('de')
-    expect((await run('/about', init, { routingStrategy, localeCookie: null })).locale).toBe('en')
-    expect((await run('/about', { ...init, headers: { 'accept-language': 'de' } }, { routingStrategy, autoDetect: false })).locale).toBe('en')
-  })
-
-  test('a page picked by cookie or header varies on them; a prefixed or prerendered one does not', async () => {
-    await run('/about', {}, { routingStrategy })
+  test('autoDetect: the home page redirects to the preferred locale (cookie, then q-aware header)', async () => {
+    await run('/', { cookies: { 'i18n-locale': 'fr' }, headers: { 'accept-language': 'de' } }, { routingStrategy })
+    expect(vary.location).toBe('/fr')
+    await run('/', { headers: { 'accept-language': 'de;q=0.1, fr;q=0.9' } }, { routingStrategy })
+    expect(vary.location).toBe('/fr')
     expect(vary.last).toBe('Cookie, Accept-Language')
-    await run('/about', {}, { routingStrategy, localeCookie: null })
+    // the default locale's visitor stays, and the page still varies on what decided that
+    expect(await run('/', {}, { routingStrategy })).toEqual({ locale: 'en', route: 'index' })
+    expect(vary.location).toBeNull()
+    expect(vary.last).toBe('Cookie, Accept-Language')
+  })
+
+  test('localeCookie is configurable and null disables it; autoDetect: false never redirects', async () => {
+    const init = { cookies: { 'user-locale': 'de', 'i18n-locale': 'fr' } }
+    await run('/', init, { routingStrategy, localeCookie: 'user-locale' })
+    expect(vary.location).toBe('/de')
+    await run('/', init, { routingStrategy, localeCookie: null })
+    expect(vary.location).toBeNull()
     expect(vary.last).toBe('Accept-Language')
-    await run('/de/about', {}, { routingStrategy })
-    expect(vary.last).toBeNull()
-    await run('/about', { isPrerendered: true }, { routingStrategy })
+    expect(await run('/', { ...init, headers: { 'accept-language': 'de' } }, { routingStrategy, autoDetect: false })).toEqual({
+      locale: 'en',
+      route: 'index',
+    })
     expect(vary.last).toBeNull()
   })
 
-  test('a prerendered page reads no cookie or header', async () => {
-    const init = { cookies: { 'i18n-locale': 'fr' }, isPrerendered: true }
-    expect((await run('/about', init, { routingStrategy })).locale).toBe('en')
+  test('a prerendered home reads no cookie or header and does not vary', async () => {
+    expect((await run('/', { cookies: { 'i18n-locale': 'fr' }, isPrerendered: true }, { routingStrategy })).locale).toBe('en')
+    expect(vary.location).toBeNull()
+    expect(vary.last).toBeNull()
   })
 
   test('without a routing strategy the prefix still names the locale and leaves the route name', async () => {

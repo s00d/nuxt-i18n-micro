@@ -12,7 +12,7 @@ describe('journey: routing variants — customRegexMatcher', () => {
     // was: custom-regex › test 404 on unknown locale
     expect((await request.get('/un-kn')).status()).toBe(404)
 
-    // step 2: open / → en; open /de-de → de
+    // step 2: open / → en
     // was: custom-regex › test index
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#locale')).toHaveText('en')

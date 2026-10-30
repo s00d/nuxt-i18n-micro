@@ -7,7 +7,8 @@ import pages from './app/locales/pages'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// A real app kept as a regression matrix (test/journeys/n3-matrix.spec.ts): tailwind and the vue-final-modal
+// plugin are there for realism only, no assertion reads them.
 export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },

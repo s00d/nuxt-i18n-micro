@@ -144,7 +144,7 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - `routeDisableMeta` set in `nuxt.config` is honoured.
 
 - **`detectCurrentLocale` is deprecated.** It still works and is still a server auto-import; use [`useLocaleServerMiddleware(event).current`](/guide/server-side-translations), which applies the same rules.
-- **`$getI18nConfig()` no longer has `isSSG`, `hmr`, `hooks`, `noPrefixRedirect`, `routeLocales` or `routeDisableMeta`.** Only the build read them. The options themselves are unchanged. The `ModuleOptionsExtend` type drops `isSSG`.
+- **`$getI18nConfig()` no longer has `isSSG`, `hmr`, `hooks`, `noPrefixRedirect`, `routeLocales` or `routeDisableMeta`.** Only the build read them. The options themselves are unchanged. `ModuleOptionsExtend.isSSG` stays as an optional, deprecated property, but nothing sets it at runtime.
 - **`resolveServerLocale` and `resolvePreferredLocale` are gone** from `@i18n-micro/utils/resolve-locale`, with their input types. Both were deprecated: call `resolveLocale` with `url`, `query`, `state`, `cookie` and `acceptLanguage`.
 
 ### Framework packages

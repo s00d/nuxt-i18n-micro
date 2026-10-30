@@ -20,6 +20,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * would have to walk the whole incoming chunk to be correct — ~3.8 ms on the playground's
  * 103k-key dictionary, on every navigation.
  */
+import { externalLinkHref } from '@i18n-micro/core'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {
@@ -253,15 +254,16 @@ export class NuxtI18n extends BaseI18n {
    * a shallow merge loses nested keys. Two plain objects + fallthrough on miss is cheaper
    * and correct for the short hot-reload window.
    */
-  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
+  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): void {
     // Stash / swap the view layer before setChunk so eviction sees keep === current
     // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
-    this.cachedTranslations = data
+    this.cachedTranslations = data ?? {}
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
-    this.setChunk(locale, routeName, data)
+    // a failed first load renders with nothing, but stores nothing: the next navigation loads it
+    if (data) this.setChunk(locale, routeName, data)
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
   }
@@ -539,7 +541,7 @@ export class NuxtTranslationLoader {
     // still work (a layout's) into raw keys. Only a first render has nothing to keep.
     if (data === null && i18n.getCurrentLocale()) return false
 
-    i18n.applySwitchContext(locale, routeName, data ?? {})
+    i18n.applySwitchContext(locale, routeName, data)
     return true
   }
 }
@@ -587,6 +589,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     i18nConfig.trailingSlash ? applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash) : switched
 
   const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
+    const external = externalLinkHref(to)
+    if (external) return navigateTo(external, { redirectCode: 200, external: true })
+
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
@@ -675,11 +680,15 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
+      const external = externalLinkHref(to)
+      if (external) return toRouteLocationResolved({ path: external, fullPath: external })
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return toRouteLocationResolved(result)
     },
     localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
+      const external = externalLinkHref(to)
+      if (external) return external
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
       return applyTrailingSlash((result.fullPath ?? result.path ?? '') as string, i18nConfig.trailingSlash)

@@ -405,8 +405,8 @@ export class I18nPathStrategy {
 
   private notFoundReason(path: string): string | null {
     const segment = path.split('/')[1] ?? ''
-    if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
     if (this.disabledCodes.has(segment) && this.ctx.strategy !== 'no_prefix') return 'Locale disabled'
+    if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
     if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
     if (!locale) return null
@@ -431,6 +431,8 @@ export class I18nPathStrategy {
   getClientRedirect(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}): string | null {
     if (this.ctx.strategy === 'no_prefix') return null
     const path = splitUrl(currentPath).path || '/'
+    // a runtime-disabled prefix is a 404 (`shouldReturn404`), not an unprefixed URL
+    if (this.disabledCodes.has(path.split('/')[1] ?? '')) return null
     const locale = this.getLocaleFromPath(path)
     if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
     if (this.ctx.strategy === 'prefix_and_default') return null

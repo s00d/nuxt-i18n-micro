@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { defineCommand } from 'citty'
 import { indexSnapshot } from '../utils/api-surface'
 import { parseComponent } from '../utils/component-docs'
@@ -366,6 +367,99 @@ function packagesIndex(packages: ApiPackage[]): string {
   return table(['Package', 'Entry points', 'Exports'], rows)
 }
 
+/* ------------------------------------------------------------------------------- CLI */
+
+interface CliArg {
+  type: 'string' | 'boolean' | 'positional'
+  description: string
+  default?: string | boolean
+  required?: boolean
+  values?: readonly string[]
+  defaultHint?: string
+}
+
+interface CliCommand {
+  description: string
+  group: string
+  args: Record<string, CliArg>
+  examples?: string[]
+}
+
+interface CliSpec {
+  COMMAND_GROUPS: readonly string[]
+  commands: Record<string, CliCommand>
+  CHECK_TYPES: readonly string[]
+  LINT_RULES: ReadonlyArray<{ name: string; description: string; fixable: boolean }>
+  EXIT_CODES: ReadonlyArray<readonly [number, string]>
+  CONFIG_FILES: ReadonlyArray<readonly [string, string]>
+  ENVIRONMENT: ReadonlyArray<readonly [string, string]>
+  REMOVED_COMMANDS: Record<string, string>
+}
+
+/** On every command, so the reference states them once. */
+const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug'])
+
+const cliFlag = (name: string, arg: CliArg): string => code(arg.type === 'positional' ? `<${name}>` : `--${name}`) + (arg.required ? ' **\\***' : '')
+
+function cliDefault(arg: CliArg): string {
+  if (arg.defaultHint) return cell(arg.defaultHint)
+  if (arg.default === undefined || arg.default === '') return '—'
+  return code(String(arg.default))
+}
+
+const cliDescription = (arg: CliArg): string => cell(arg.values ? `${arg.description}: ${arg.values.join(', ')}` : arg.description)
+
+const cliFlagTable = (args: [string, CliArg][]): string =>
+  table(
+    ['Flag', 'Default', 'Description'],
+    args.map(([name, arg]) => [cliFlag(name, arg), cliDefault(arg), cliDescription(arg)]),
+  )
+
+function cliCommandBlock(name: string, command: CliCommand): string {
+  const flags = Object.entries(command.args).filter(([flag]) => !CLI_COMMON_FLAGS.has(flag))
+  const parts = [`### \`${name}\``, '', command.description, '']
+  if (flags.length > 0) parts.push(cliFlagTable(flags), '')
+  if (flags.some(([, arg]) => arg.required)) parts.push('**\\*** required.', '')
+  if (command.examples?.length) parts.push('```bash', ...command.examples, '```', '')
+  return parts.join('\n').trim()
+}
+
+/**
+ * The command table of `@i18n-micro/cli`, read from its source.
+ *
+ * Through a computed path: this package has no dependency on the CLI, and a static import
+ * would pull every command's parser into the type-check of the tooling.
+ */
+export async function cliReference(): Promise<string> {
+  const spec = (await import(/* @vite-ignore */ pathToFileURL(join(repoRoot, 'packages/cli/src/spec.ts')).href)) as CliSpec
+  const { COMMAND_GROUPS, commands, LINT_RULES, EXIT_CODES, CONFIG_FILES, ENVIRONMENT, REMOVED_COMMANDS } = spec
+  const entries = Object.entries(commands)
+  const common = entries.flatMap(([, command]) => Object.entries(command.args)).filter(([name]) => CLI_COMMON_FLAGS.has(name))
+  const uniqueCommon = [...new Map(common).entries()]
+
+  const groups = COMMAND_GROUPS.map((group) => {
+    const members = entries.filter(([, command]) => command.group === group)
+    return [`## ${group}`, '', ...members.flatMap(([name, command]) => [cliCommandBlock(name, command), ''])].join('\n').trim()
+  })
+
+  const reference: Array<[string, string[], string[][]]> = [
+    [
+      'Lint rules',
+      ['Rule', 'Finds', 'Fixed by `--fix`'],
+      LINT_RULES.map(({ name, description, fixable }) => [code(name), description, fixable ? 'yes' : 'no']),
+    ],
+    ['Exit codes', ['Code', 'Meaning'], EXIT_CODES.map(([exit, meaning]) => [code(String(exit)), meaning])],
+    ['Configuration files', ['File', 'Used by'], CONFIG_FILES.map(([file, purpose]) => [code(file), purpose])],
+    ['Environment variables', ['Name', 'Used for'], ENVIRONMENT.map(([name, purpose]) => [code(name), purpose])],
+    ['Removed commands', ['Command', 'Instead'], Object.entries(REMOVED_COMMANDS).map(([name, replacement]) => [code(name), replacement])],
+  ]
+  const tables = reference.map(([title, head, rows]) => [`## ${title}`, '', table(head, rows)].join('\n'))
+
+  return ['## Common flags', '', cliFlagTable(uniqueCommon), '', ...groups.flatMap((group) => [group, '']), ...tables.flatMap((block) => [block, ''])]
+    .join('\n')
+    .trim()
+}
+
 /* -------------------------------------------------------------------------------- budget */
 
 function budgetTable(): string {
@@ -409,8 +503,9 @@ export const docsGenerateCommand = defineCommand({
       'except a browser.',
       '',
       'Sources: vue-docgen-api for the components, TypeDoc for the composables and the',
-      'injected helpers, the `ModuleOptions` type for the option reference, and the',
-      'artifacts `api-surface` and `payload-budget` already produce.',
+      'injected helpers, the `ModuleOptions` type for the option reference, the command',
+      'table of @i18n-micro/cli, and the artifacts `api-surface` and `payload-budget`',
+      'already produce.',
       '',
       'Examples:',
       '  pnpm -C scripts cli docs-generate',
@@ -530,6 +625,9 @@ export const docsGenerateCommand = defineCommand({
         else rmSync(join(packagesDir, file))
       }
     }
+
+    // --- CLI ---------------------------------------------------------------------------
+    inBlock('docs/api/cli.md', 'cli-commands', await cliReference())
 
     // --- payload budget ---------------------------------------------------------------
     inBlock('docs/guide/performance.md', 'payload-budget', budgetTable())

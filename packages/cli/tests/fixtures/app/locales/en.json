@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "unused": "Unused value"
+  },
+  "home": {
+    "title": "Welcome {name}",
+    "tagline": "Fast i18n"
+  },
+  "greeting": {
+    "hello": "Hello"
+  },
+  "plural": {
+    "apples": "no apples | one apple | {count} apples"
+  },
+  "spaced": "Trailing space ",
+  "limits": {
+    "max": 10,
+    "enabled": true,
+    "list": ["a", "b"]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "@i18n-micro/cli",
+  "version": "1.0.0",
+  "description": "Command-line tools for nuxt-i18n-micro: extract, sync, translate, lint and audit locale files.",
+  "keywords": [
+    "cli",
+    "i18n",
+    "localization",
+    "nuxt",
+    "translation"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/cli#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/cli"
+  },
+  "bin": {
+    "i18n-micro": "./dist/cli.mjs",
+    "i18n-micro-cli": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check:package": "publint",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
+  },
+  "dependencies": {
+    "@i18n-micro/utils": "workspace:^",
+    "@vue/compiler-sfc": "catalog:",
+    "citty": "catalog:"
+  },
+  "devDependencies": {
+    "@nuxt/kit": "catalog:",
+    "@types/node": "catalog:",
+    "nuxt": "catalog:",
+    "publint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,95 @@
+import { type Interface, createInterface } from 'node:readline'
+
+let silent = false
+
+const secrets = new Set<string>()
+
+/** Anything printed from now on shows `***` instead. Shorter than a real key, it would only garble the text. */
+export function addSecret(value: string | undefined): void {
+  if (!value || value.length < 4) return
+  secrets.add(value)
+  secrets.add(encodeURIComponent(value))
+}
+
+/** A URL somebody typed: what is after its path and before its host can be a key, whatever a server echoes back. */
+export function addUrlSecrets(url: string | undefined): void {
+  if (!url) return
+  const [address, ...tail] = url.split(/[?#;&]/)
+  for (const pair of tail) addSecret(pair.slice(pair.indexOf('=') + 1))
+  const credentials = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(.*)@/i.exec(address!)?.[1]
+  for (const part of credentials?.split(':') ?? []) addSecret(part)
+}
+
+const URL_CREDENTIALS = /(\/\/)[^/@\s]+@/g
+
+const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text).replace(URL_CREDENTIALS, '$1***@')
+
+const useColor = (stream: NodeJS.WriteStream): boolean => Boolean(stream.isTTY) && !process.env.NO_COLOR
+const paint = (stream: NodeJS.WriteStream, code: number, text: string): string => (useColor(stream) ? `\u001B[${code}m${text}\u001B[39m` : text)
+
+export const log = {
+  setSilent(value: boolean): void {
+    silent = value
+  },
+  info(message: string): void {
+    if (!silent) console.log(redact(message))
+  },
+  success(message: string): void {
+    if (!silent) console.log(paint(process.stdout, 32, redact(message)))
+  },
+  warn(message: string): void {
+    console.error(paint(process.stderr, 33, redact(message)))
+  },
+  error(message: string): void {
+    console.error(paint(process.stderr, 31, redact(message)))
+  },
+  /** Machine-readable output: not muted by `--logLevel silent`. */
+  json(value: unknown): void {
+    console.log(redact(JSON.stringify(value, null, 2)))
+  },
+  section(title: string): void {
+    log.info(`\n== ${title} ==`)
+  },
+  rows(rows: Array<[label: string, value: string | number]>, indent = ''): void {
+    const width = Math.max(0, ...rows.map(([label]) => label.length))
+    for (const [label, value] of rows) log.info(`${indent}${`${label}:`.padEnd(width + 2)}${value}`)
+  },
+  list(title: string, items: string[]): void {
+    if (items.length === 0) return
+    log.info(`\n${title}:`)
+    for (const item of items) log.info(`  - ${item}`)
+  },
+}
+
+let prompt: Interface | undefined
+let lines: AsyncIterableIterator<string> | undefined
+
+/**
+ * One line of input. Closed stdin (CI, a pipe that ended) answers `null`, never hangs.
+ *
+ * A single reader for the whole run: readline buffers ahead, so a second one would miss
+ * lines a pipe already delivered.
+ */
+export async function ask(question: string): Promise<string | null> {
+  prompt ??= createInterface({ input: process.stdin, terminal: false })
+  lines ??= prompt[Symbol.asyncIterator]()
+  process.stdout.write(`${question} `)
+  const line = await lines.next()
+  return line.done ? null : String(line.value).trim()
+}
+
+export function closePrompts(): void {
+  prompt?.close()
+  prompt = undefined
+  lines = undefined
+}
+
+export async function confirm(question: string): Promise<boolean> {
+  return /^y(es)?$/i.test((await ask(`${question} [y/N]`)) ?? '')
+}
+
+export async function choose(question: string, options: string[]): Promise<string | null> {
+  for (const [index, option] of options.entries()) log.info(`  ${index + 1}. ${option}`)
+  const answer = await ask(`${question} [1-${options.length}]`)
+  return options[Number(answer) - 1] ?? null
+}

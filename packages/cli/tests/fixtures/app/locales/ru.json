@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "unused": "Не используется"
+  },
+  "home": {
+    "title": "Добро пожаловать {name}",
+    "tagline": "Быстрый i18n"
+  },
+  "greeting": {
+    "hello": "Привет"
+  },
+  "plural": {
+    "apples": "нет яблок | одно яблоко | {count} яблок"
+  },
+  "spaced": "Пробел",
+  "limits": {
+    "max": 10,
+    "enabled": true,
+    "list": ["a", "b"]
+  }
+}

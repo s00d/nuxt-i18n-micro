@@ -1,0 +1,20 @@
+# . (src/index.ts)
+interface ArgSpec
+member ArgSpec.alias?: string | undefined
+member ArgSpec.default?: string | boolean | undefined
+member ArgSpec.defaultHint?: string | undefined
+member ArgSpec.description: string
+member ArgSpec.numeric?: "number" | "int" | undefined
+member ArgSpec.required?: boolean | undefined
+member ArgSpec.type: "string" | "boolean" | "positional"
+member ArgSpec.values?: readonly string[] | undefined
+const COMMAND_GROUPS: readonly ["Inspect", "Translation workflow", "Refactoring", "Exchange"]
+type CommandGroup: (typeof COMMAND_GROUPS)[number]
+const commands: Record<string, CommandSpec>
+interface CommandSpec
+member CommandSpec.args: Record<string, ArgSpec>
+member CommandSpec.description: string
+member CommandSpec.examples?: string[] | undefined
+member CommandSpec.group: "Inspect" | "Translation workflow" | "Refactoring" | "Exchange"
+member CommandSpec.load: () => Promise<{ default: CommandHandler; }>
+function runCli: (rawArgs: string[]) => Promise<void>

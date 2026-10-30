@@ -1,0 +1,15 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "",
+    "extra": "Nur auf Deutsch"
+  },
+  "home": {
+    "title": "Willkommen {name}"
+  },
+  "limits": {
+    "max": 20,
+    "enabled": false,
+    "list": ["x"]
+  }
+}

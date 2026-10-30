@@ -1,0 +1,9 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+
+msgid "po.greeting"
+msgstr "Hallo aus PO"
+
+msgid "po.quoted"
+msgstr "Sag \"hallo\""

@@ -5,7 +5,6 @@
  */
 
 import type { ChildProcess } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -14,7 +13,6 @@ import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 import { tmpFixture } from './helpers/tmp-fixture'
 
 const FIXTURE = tmpFixture('basic')
-const CONFIG = join(FIXTURE, 'nuxt.config.ts')
 const HOST = '127.0.0.1'
 const ENTRY = join(FIXTURE, '.output', 'server', 'index.mjs')
 
@@ -45,8 +43,8 @@ describe('i18n public payload ignores process.cwd()', () => {
   beforeAll(async () => {
     port = await getFreePort()
     await stop()
-    writeFileSync(CONFIG, readFileSync(CONFIG, 'utf8').replace(/i18n: \{/, `i18n: {\n    translationPayloads: { prerenderRoutes: false },`))
-    await runCommand('npx', ['nuxi', 'build'], { cwd: FIXTURE, timeoutMs: 300_000 })
+    // translationPayloads.prerenderRoutes: false, so the payload comes from the handler at runtime
+    await runCommand('npx', ['nuxi', 'build'], { cwd: FIXTURE, env: { PRERENDER_PAYLOADS: '0' }, timeoutMs: 300_000 })
 
     server = spawnServer(process.execPath, [ENTRY], {
       cwd: '/',

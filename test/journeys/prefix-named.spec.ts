@@ -3,39 +3,44 @@ import { describe, expect, test } from 'untestutils/vitest'
 
 type Goto = (path: string, options?: Record<string, unknown>) => Promise<unknown>
 
-/** Named-route links and buttons on the locale home; each hop restarts from `home`. was: named-params › links and buttons */
-async function namedLinks(page: Page, goto: Goto, home: string) {
+/** Named-route links and buttons on `/<locale>/named`; each hop restarts there. was: named-params › links and buttons */
+async function namedLinks(page: Page, goto: Goto, locale: string) {
+  const prefix = `/${locale}`
+  const home = `${prefix}/named`
+  await goto(home, { waitUntil: 'hydration' })
+
   // step 2: localeRoute / localePath with params + query
-  await expect(page.locator('#localized-route-2')).toHaveText(`${home}/page/id-222?info=1111`)
-  await expect(page.locator('#localized-path')).toHaveText(`${home}/page/id-222?info=1111`)
+  await expect(page.locator('#localized-route-2')).toHaveText(`${prefix}/page/id-222?info=1111`)
+  await expect(page.locator('#localized-path')).toHaveText(`${prefix}/page/id-222?info=1111`)
 
   // step 3a: #link1 (NuxtLink, name page) → page/my-id
   await page.click('#link1')
-  await expect(page).toHaveURL(`${home}/page/my-id`)
+  await expect(page).toHaveURL(`${prefix}/page/my-id`)
 
   // step 3b: #link2 (NuxtLink, name test-id) → test-my-id
   await goto(home, { waitUntil: 'hydration' })
   await page.click('#link2')
-  await expect(page).toHaveURL(`${home}/test-my-id`)
+  await expect(page).toHaveURL(`${prefix}/test-my-id`)
 
   // step 3c: #link3 (navigateTo, name page) → page/my-id
   await goto(home, { waitUntil: 'hydration' })
   await page.click('#link3')
-  await expect(page).toHaveURL(`${home}/page/my-id`)
+  await expect(page).toHaveURL(`${prefix}/page/my-id`)
 
   // step 3d: #link4 (navigateTo, name test-id) → test-my-id
   await goto(home, { waitUntil: 'hydration' })
   await page.click('#link4')
-  await expect(page).toHaveURL(`${home}/test-my-id`)
+  await expect(page).toHaveURL(`${prefix}/test-my-id`)
 
   // step 3e: #link6 (string path) → page/id-123
   await goto(home, { waitUntil: 'hydration' })
   await page.click('#link6')
-  await expect(page).toHaveURL(`${home}/page/id-123`)
+  await expect(page).toHaveURL(`${prefix}/page/id-123`)
 }
 
-describe('J3 prefix strategy with default de (named)', () => {
-  test.override({ harness: 'named' })
+// strategy fixture under prefix, default de at runtime (strategy-prefix-overrides); ru is disabled and never visited.
+describe('J3 prefix strategy with default de (named routes)', () => {
+  test.override({ harness: 'strategy-prefix-overrides' })
 
   // was: named-params › links and buttons (de); cookie-redirect › empty cookie
   test('T1 default-locale visitor', async ({ page, goto }) => {
@@ -45,7 +50,7 @@ describe('J3 prefix strategy with default de (named)', () => {
     await expect(page).toHaveURL('/de')
 
     // steps 2–3: localized routes and links under /de
-    await namedLinks(page, goto, '/de')
+    await namedLinks(page, goto, 'de')
   })
 
   // was: named-params › links and buttons (en); cookie-redirect › valid cookie / invalid cookie / valid non-default
@@ -57,7 +62,7 @@ describe('J3 prefix strategy with default de (named)', () => {
     await expect(page).toHaveURL('/en')
 
     // steps 2–3: localized routes and links under /en
-    await namedLinks(page, goto, '/en')
+    await namedLinks(page, goto, 'en')
 
     // step 4: cookie fr (not a locale) → / falls back to /de
     await page.context().clearCookies()

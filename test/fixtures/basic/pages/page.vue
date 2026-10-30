@@ -63,14 +63,8 @@
     <p id="has-global-key">
       {{ $has('generic.example') ? 'true' : 'false' }}
     </p>
-    <p id="has-with-routename">
-      {{ $has('page.example', 'page') ? 'true' : 'false' }}
-    </p>
     <p id="has-with-route-object">
       {{ $has('page.example', $route) ? 'true' : 'false' }}
-    </p>
-    <p id="has-different-route">
-      {{ $has('page2.content', 'page2') ? 'true' : 'false' }}
     </p>
 
     <!-- Test computed reactivity with $ts (issue: computed should update on locale change) -->

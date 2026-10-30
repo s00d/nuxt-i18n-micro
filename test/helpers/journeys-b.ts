@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import { collectConsole, collectHydrationIssues, getLocaleCookie } from 'untestutils/utils'
 import { expect } from 'untestutils/vitest'
+import { CASES, contentOf, type StrategyName } from './strategy-suite.ts'
 
 type Goto = (path: string, options?: Record<string, unknown>) => Promise<unknown>
 
@@ -103,4 +104,16 @@ export async function pagesFalseCookieCases(page: Page, goto: Goto, baseURL: str
   await goto('/', { waitUntil: 'hydration' })
   await expect(page.locator('#locale')).toHaveText('en')
   await expect(page.locator('#greeting')).toHaveText('Hello')
+}
+
+/**
+ * Every localized URL of a strategy answers 200 on a direct (cookie-less) request and renders its content.
+ * was: strategies-<strategy>.test.ts › nuxi build: the SSR server renders every localized URL on a direct request
+ */
+export async function directRoutes(baseURL: string, strategy: StrategyName) {
+  for (const [path, content] of Object.entries(CASES[strategy].routes)) {
+    const res = await ssr(baseURL, path)
+    expect(res.status, path).toBe(200)
+    expect(contentOf(res.html), path).toBe(content)
+  }
 }

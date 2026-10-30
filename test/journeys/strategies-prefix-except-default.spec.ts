@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'untestutils/vitest'
-import { forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
+import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
 describe('J2 strategies: prefix_except_default', () => {
   test.override({ harness: 'strategy-prefix-except-default' })
 
   // was: prefix-except-default › navigate/switch
-  test('PEC-T1 walk: default unprefixed, /en is 404', async ({ page, goto, request }) => {
+  test('PEC-T1 walk: default unprefixed, /en is 404', async ({ page, goto, request, baseURL }) => {
     // steps 1–5: shared walk
     await walkStrategy(page, goto, { home: '/', contact: '/contact', deHome: '/de', deContact: '/de/kontakt' })
 
@@ -16,6 +16,9 @@ describe('J2 strategies: prefix_except_default', () => {
     // step 7: /de stays /de
     await goto('/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
+
+    // step 8: every localized URL on a direct cookie-less request → 200 and its content
+    await directRoutes(baseURL, 'prefix_except_default')
   })
 
   test('PEC-T3 the URL decides the page locale; bad cookies are absent', async ({ baseURL }) => {

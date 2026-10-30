@@ -149,6 +149,6 @@ export function fixtureProfileMarkdown(profile: PerfRuntimeProfile): string {
 | Secondary pages | depth **${profile.secondaryDepth}**, branch **${profile.secondaryBranch}** → **${secondaryLeaves.toLocaleString('en-US')}** leaf keys / page / locale |
 | Goal | Default CLI profile (\`--locales 4 --keys 10000\`); raise knobs for regression-radar loads |
 
-Dictionaries come from \`test/fixtures/perf-shared/runtime.json\` (written by the CLI) so all three fixtures stay aligned.
+Dictionaries come from \`scripts/perf-fixtures/perf-shared/runtime.json\` (written by the CLI) so all three fixtures stay aligned.
 `
 }

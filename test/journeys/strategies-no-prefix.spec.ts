@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'untestutils/vitest'
-import { forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
+import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
 describe('J2 strategies: no_prefix', () => {
   test.override({ harness: 'strategy-no-prefix' })
 
   // was: no-prefix › navigate/switch
-  test('NP-T1 walk: URLs never get a prefix, the cookie keeps de', async ({ page, goto }) => {
+  test('NP-T1 walk: URLs never get a prefix, the cookie keeps de', async ({ page, goto, baseURL }) => {
     // steps 1–5: shared walk
     await walkStrategy(page, goto, { home: '/', contact: '/contact', deHome: '/', deContact: '/kontakt' })
 
@@ -13,6 +13,9 @@ describe('J2 strategies: no_prefix', () => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/')
     await expect(page.locator('#content')).toHaveText('de')
+
+    // step 7: every localized URL on a direct cookie-less request → 200 and its content
+    await directRoutes(baseURL, 'no_prefix')
   })
 
   // was: auto-detect-no-prefix › * (fixture merged into strategy-no-prefix via AUTO_DETECT_LANGUAGE)

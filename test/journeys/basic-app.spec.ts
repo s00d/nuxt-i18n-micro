@@ -93,6 +93,15 @@ describe('journey: basic app', () => {
     await expect(page.locator('#computed-ts')).toHaveText('Page example in en')
     await expect(page.locator('#computed-t')).toHaveText('example en')
     await expect(page.locator('#external-link')).toHaveAttribute('href', 'https://www.external-link.fr')
+    // $has: own page key, missing key, root key, a key of the route object passed in
+    for (const [id, value] of [
+      ['#has-existing-key', 'true'],
+      ['#has-missing-key', 'false'],
+      ['#has-global-key', 'true'],
+      ['#has-with-route-object', 'true'],
+    ]) {
+      await expect(page.locator(id!), id).toHaveText(value!)
+    }
 
     // step 6: open the switcher → label, names, hrefs (with locale baseUrl), hreflang, current locale disabled
     // was: basic › test locale switching on page (en half)

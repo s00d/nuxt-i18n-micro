@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "nuxt": "catalog:"
+  },
+  "devDependencies": {
+    "glob": "catalog:"
   }
 }

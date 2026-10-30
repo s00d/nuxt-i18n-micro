@@ -6,5 +6,10 @@
   "generic": {
     "welcome": "Welcome to the page!",
     "example": "example en"
-  }
+  },
+  "name": "en",
+  "hello": "Hello World",
+  "welcome": "Welcome to our site",
+  "global": "global en",
+  "greeting": "Hello"
 }

@@ -1,0 +1,30 @@
+{
+  "about": {
+    "title": "O nás",
+    "description": "Zjistěte více o naší misi a hodnotách.",
+    "section1": {
+      "title": "Naše mise",
+      "content": "Usilujeme o to, aby svět byl lepším místem."
+    },
+    "section2": {
+      "title": "Naše hodnoty",
+      "content": "Integrita, inovace a inkluzivita."
+    }
+  },
+  "contact": {
+    "title": "Kontaktujte nás",
+    "description": "Spojte se s naším týmem.",
+    "phone": {
+      "title": "Telefon",
+      "content": "+1 234 567 891"
+    },
+    "email": {
+      "title": "Email",
+      "content": "info@example.com"
+    },
+    "address": {
+      "title": "Adresa",
+      "content": "1234 Název ulice, Město, Země"
+    }
+  }
+}

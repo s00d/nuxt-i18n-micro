@@ -1,12 +1,13 @@
 import { describe, expect, test } from 'untestutils/vitest'
 
+// basic: a local module (modules/hook) adds /test and an `i18n:register` plugin; an app plugin registers `hook`.
 describe('J8 translation loading: module hook', () => {
-  test.override({ harness: 'hook' })
+  test.override({ harness: 'basic-serverless' })
 
   // was: hook › hook value and locale switch
   test('page added by a module gets translations, plugin survives a switch', async ({ page, goto }) => {
-    // step 1: open / → plugin value
-    await goto('/', { waitUntil: 'hydration' })
+    // step 1: open /cache → plugin value
+    await goto('/cache', { waitUntil: 'hydration' })
     await expect(page.locator('#hook')).toHaveText('hook value')
 
     // step 2: go to the module page → en title

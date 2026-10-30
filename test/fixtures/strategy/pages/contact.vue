@@ -20,6 +20,10 @@ $defineI18nRoute({
     en: '/contact',
     de: '/kontakt',
     ru: '/contact',
+    // REGION_CODES=1 (keys of codes a build does not have are ignored)
+    'en-us': '/contact',
+    'de-de': '/kontakt',
+    'ru-ru': '/contact',
   },
 })
 </script>

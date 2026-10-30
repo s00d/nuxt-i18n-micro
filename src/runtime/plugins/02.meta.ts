@@ -1,10 +1,10 @@
 import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import type { I18nAppInternals } from '../utils/nuxt-i18n'
 
 function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } }): string | undefined {
   // Soft probe: only present when nuxt-site-config (via @nuxtjs/seo etc.) is installed.
@@ -65,9 +65,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
     const head = build()
-    const merge = (nuxtApp as I18nAppInternals)._i18nMergeHead
     // a route that disables meta drops the page-defined i18n head too: `build` already left it empty
-    if (!pageHead.value || !merge || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
-    return merge(head, pageHead.value, { identifierAttribute: 'id', locales: allLocales as Locale[], currentLocale: locale }) as unknown as Head
+    if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
+    return mergeI18nHead(head, pageHead.value, {
+      identifierAttribute: 'id',
+      locales: allLocales as Locale[],
+      currentLocale: locale,
+    }) as unknown as Head
   })
 })

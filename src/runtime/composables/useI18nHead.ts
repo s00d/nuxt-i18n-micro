@@ -1,10 +1,7 @@
 import type { I18nHeadInput } from '@i18n-micro/types'
-import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import type { MaybeRefOrGetter } from 'vue'
-import { toValue, triggerRef, watch } from 'vue'
+import { toValue, watch } from 'vue'
 import { useState } from '#app/composables/state'
-import { useNuxtApp } from '#app/nuxt'
-import type { I18nAppInternals } from '../utils/nuxt-i18n'
 import { usePageHead } from '../utils/page-head'
 
 /**
@@ -16,12 +13,6 @@ import { usePageHead } from '../utils/page-head'
  */
 export function useI18nHead(input?: MaybeRefOrGetter<I18nHeadInput | null>) {
   const pageHead = usePageHead()
-  const nuxtApp = useNuxtApp() as I18nAppInternals
-  if (!nuxtApp._i18nMergeHead) {
-    nuxtApp._i18nMergeHead = mergeI18nHead
-    // a head resolved before this, while hydrating, saw the payload's page head and no merge
-    triggerRef(pageHead)
-  }
   const localeState = useState<string | null>('i18n-locale', () => null)
 
   const resetPageHead = () => {

@@ -29,7 +29,7 @@ import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRunti
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
@@ -235,8 +235,14 @@ export default defineNuxtPlugin({
       })
     }
 
+    // START_LOCATION by the router's own hands: the one imported here can be another install's object
+    const startLocation = router.currentRoute.value
+
     router.beforeEach(async (to, from) => {
-      if (to.name !== from.name) {
+      // the first navigation opens the page the server rendered, unless it redirects: what that page set
+      // came in the payload, and a component that does not run here (server-only, `hydrate-never`) will not set it again
+      const opensRenderedPage = from === startLocation && !to.redirectedFrom
+      if (to.name !== from.name && !opensRenderedPage) {
         i18nRouteParams.value = {}
         pageHead.value = null
       }

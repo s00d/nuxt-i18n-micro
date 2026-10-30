@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { effect, ref, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useI18nHead } from '../../src/runtime/composables/useI18nHead'
 import plugin from '../../src/runtime/plugins/02.meta'
 
@@ -64,16 +64,10 @@ describe('02.meta', () => {
     expect(app.head!()).toEqual({ htmlAttrs: {}, link: [], meta: [] })
   })
 
-  test('hydration: a page head from the payload applies once useI18nHead has run, without a change to it', () => {
-    // the payload restores the state before any page runs, so the plugin sees it first
+  test('hydration: a page head from the payload applies though no client code calls useI18nHead', () => {
+    // server-only code and `hydrate-never` children leave only the payload to go on
     app.state.set('i18n-head-page', ref({ replace: { canonical: 'https://example.com/ssr' } }))
     setup()
-    let canonical: string | undefined
-    effect(() => {
-      canonical = app.head!().link.find((link) => link.rel === 'canonical')?.href
-    })
-    expect(canonical).not.toBe('https://example.com/ssr')
-    useI18nHead()
-    expect(canonical).toBe('https://example.com/ssr')
+    expect(app.head!().link.find((link) => link.rel === 'canonical')?.href).toBe('https://example.com/ssr')
   })
 })

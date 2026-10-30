@@ -27,18 +27,27 @@ export interface LoadResult {
 
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
-function getStorageCacheControl(): CacheControl<Record<string, unknown>> {
+/** The process-wide chunk cache. `clears` lives with it: the HMR watcher empties it without this module. */
+class ChunkCache extends CacheControl<Record<string, unknown>> {
+  /** A response requested before a clear may predate the edit the clear is for. */
+  clears = 0
+
+  override clear(): void {
+    this.clears++
+    super.clear()
+  }
+}
+
+function getStorageCacheControl(): ChunkCache {
   const g = globalThis as GlobalWithCC
   if (!g[STORAGE_CC_KEY]) {
-    g[STORAGE_CC_KEY] = new CacheControl<Record<string, unknown>>()
+    g[STORAGE_CC_KEY] = new ChunkCache()
   }
-  return g[STORAGE_CC_KEY] as CacheControl<Record<string, unknown>>
+  return g[STORAGE_CC_KEY] as ChunkCache
 }
 
 class TranslationStorage {
-  private cc: CacheControl<Record<string, unknown>>
-  /** Bumped by `clear()`: a response requested before it may predate the edit the clear is for. */
-  private clears = 0
+  private cc: ChunkCache
 
   constructor() {
     this.cc = getStorageCacheControl()
@@ -141,9 +150,9 @@ class TranslationStorage {
     if (cached) return cached
 
     const cacheKey = this.getCacheKey(locale, routeName)
-    const clears = this.clears
+    const clears = this.cc.clears
     const data = await this.fetchTranslations(locale, routeName, options)
-    if (clears !== this.clears) return this.load(locale, routeName, options)
+    if (clears !== this.cc.clears) return this.load(locale, routeName, options)
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.
@@ -156,7 +165,6 @@ class TranslationStorage {
    * Clear cache and metadata.
    */
   clear(): void {
-    this.clears++
     this.cc.clear()
   }
 }

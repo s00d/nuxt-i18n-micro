@@ -14,11 +14,9 @@
   "devDependencies": {
     "axios": "catalog:",
     "chart.js": "catalog:",
-    "mermaid": "catalog:",
     "vitepress": "catalog:",
     "vitepress-plugin-chartjs": "catalog:",
     "vitepress-plugin-folder-tree": "catalog:",
-    "vitepress-plugin-llms": "catalog:",
-    "vitepress-plugin-mermaid": "catalog:"
+    "vitepress-plugin-llms": "catalog:"
   }
 }

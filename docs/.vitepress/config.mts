@@ -1,6 +1,5 @@
 import { readdirSync } from 'node:fs'
 import llmstxt from 'vitepress-plugin-llms'
-import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
@@ -16,6 +15,16 @@ const packagePages = readdirSync(new URL('../api/packages/', import.meta.url))
   .filter((file) => file.endsWith('.md'))
   .map((file) => file.replace(/\.md$/, ''))
   .sort()
+
+// One file per release, newest first; a new `news/vX.Y.Z.md` appears here without touching this file.
+const versionParts = (page: string) => page.slice(1).split('.').map(Number)
+const newsPages = readdirSync(new URL('../news/', import.meta.url))
+  .filter((file) => file.endsWith('.md') && file !== 'index.md')
+  .map((file) => file.replace(/\.md$/, ''))
+  .sort((a, b) => {
+    const [x, y] = [versionParts(a), versionParts(b)]
+    return y[0]! - x[0]! || y[1]! - x[1]! || y[2]! - x[2]!
+  })
 
 /** `/api/`, `/composables/` and `/components/` are one reference with one sidebar. */
 const apiSidebar = [
@@ -59,7 +68,7 @@ const apiSidebar = [
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(
   withChartjs(
-    withMermaid({
+    {
       vite: {
         plugins: [
           // Publishes the docs in the form an LLM can actually read: `/llms.txt` as an
@@ -85,7 +94,6 @@ export default withFolderTree(
             output: {
               manualChunks(id) {
                 if (id.includes('chart.js')) return 'chartjs'
-                if (id.includes('mermaid')) return 'mermaid'
                 if (id.includes('vitepress-plugin-folder-tree')) return 'folder-tree'
                 if (id.includes('vitepress-plugin-chartjs')) return 'vp-chartjs'
               },
@@ -333,20 +341,15 @@ new MutationObserver(() => {
             {
               text: 'News',
               base: '/news',
-              items: [{ text: 'Release notes', link: '/' }],
+              items: [
+                { text: 'All releases', link: '/' },
+                ...newsPages.map((page) => ({ text: page, link: `/${page}` })),
+              ],
             },
           ],
         },
 
         socialLinks: [{ icon: 'github', link: 'https://github.com/s00d/nuxt-i18n-micro' }],
-      },
-
-      // Mermaid configuration
-      mermaid: {
-        theme: 'default',
-      },
-      mermaidPlugin: {
-        class: 'mermaid-chart',
       },
 
       // Chart.js configuration
@@ -361,6 +364,6 @@ new MutationObserver(() => {
           'rgba(153, 102, 255, 0.8)',
         ],
       },
-    }),
+    },
   ),
 )

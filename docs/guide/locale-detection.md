@@ -27,17 +27,7 @@ The first source that names an **enabled** locale wins. An invalid or malformed 
 
 So under a prefix strategy the URL decides what a page shows; the preference sources (3–5) only decide where a visitor is **redirected**, and only on the paths `autoDetectPath` allows. Under `no_prefix` there is nothing to redirect, and the preference sources decide what the page shows.
 
-```mermaid
-flowchart TB
-  R[Request] --> P{Locale prefix in URL?}
-  P -->|yes| U[Render that locale]
-  P -->|no| S{Strategy}
-  S -->|no_prefix| N["Render: ?locale → state → cookie → Accept-Language → default"]
-  S -->|prefix_and_default| D["Render the default locale, no redirect"]
-  S -->|prefix / prefix_except_default| A{"autoDetectPath allows this path?"}
-  A -->|yes| X["Redirect to: state → cookie → Accept-Language → default"]
-  A -->|no| Y["Redirect to default locale (prefix) or render it (prefix_except_default)"]
-```
+![Decision flow: a locale prefix in the URL renders that locale. Without one, no_prefix renders from the preference sources, prefix_and_default renders the default locale, and prefix or prefix_except_default redirect by preference when autoDetectPath allows the path](/diagrams/locale-detection.svg)
 
 ## Redirects per strategy
 

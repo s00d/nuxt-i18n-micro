@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { TranslationContentTracker } from '../src/watcher'
+import { TranslationContentTracker } from '../../../src/runtime/server/utils/translation-watcher'
 
 /**
  * Guards the dev watcher against work it does not need to do: a root locale change

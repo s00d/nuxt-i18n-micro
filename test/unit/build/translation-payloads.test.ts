@@ -5,7 +5,7 @@ import {
   resolveTranslationPayloadPublicRel,
   shouldCopyTranslationPayloadsToPublic,
   shouldRegisterNitroServerAssets,
-} from '../src/payload-config'
+} from '../../../src/build/payload-config'
 import { describe, expect, it } from 'vitest'
 
 describe('translationPayloads build options', () => {

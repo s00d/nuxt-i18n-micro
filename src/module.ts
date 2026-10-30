@@ -2,8 +2,8 @@ import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
-import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '@i18n-micro/hmr/generate-plugin'
-import { resolveLiveTranslationDirs, translationRelativePath } from '@i18n-micro/hmr/watcher'
+import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
+import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
 import type {
   Getter,
@@ -16,7 +16,7 @@ import type {
   PluralFunc,
   Strategies,
 } from '@i18n-micro/types'
-import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from '@i18n-micro/utils/build'
+import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from './build/build'
 import {
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
@@ -28,8 +28,8 @@ import {
   shouldReadPayloadsFromPublicDir,
   shouldRegisterNitroServerAssets,
   type TranslationPayloadMode,
-} from '@i18n-micro/utils/payload-config'
-import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
+} from './build/payload-config'
+import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from './build/payload-stats'
 import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
 import { buildI18nPluralTemplate } from './plural-template'
 import {
@@ -56,7 +56,7 @@ import { createLocalizedPathResolver } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
-export type { TranslationPayloadMode } from '@i18n-micro/utils/payload-config'
+export type { TranslationPayloadMode } from './build/payload-config'
 export {
   resolveTranslationPayloadMode,
   resolveTranslationPayloadOptions,
@@ -64,7 +64,7 @@ export {
   resolveTranslationPayloadPublicRel,
   shouldCopyTranslationPayloadsToPublic,
   shouldRegisterNitroServerAssets,
-} from '@i18n-micro/utils/payload-config'
+} from './build/payload-config'
 
 /** Absolute path of the path-strategy entry the generated `i18n.strategy.mjs` imports. */
 async function resolveStrategyPath(): Promise<string> {

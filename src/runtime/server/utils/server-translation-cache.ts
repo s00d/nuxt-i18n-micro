@@ -3,7 +3,7 @@
  * Whoever creates first must apply `cacheMaxSize` / `cacheTtl` from config —
  * both call sites go through here (no bare `new CacheControl()`).
  */
-import { SERVER_CC_KEY } from '@i18n-micro/hmr/cache-keys'
+import { SERVER_CC_KEY } from '../../utils/cache-keys'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'

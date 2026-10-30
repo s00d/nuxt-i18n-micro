@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-111 exports across 24 entry points.
+72 exports across 19 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -61,30 +61,6 @@ import { /* … */ } from '@i18n-micro/utils/auto-detect-path'
 | `shouldAttemptLocaleRedirect` | function | `(path: string, options?: { autoDetectPath?: string; hasLocalePrefix?: boolean; }) => boolean` |
 
 
-## `@i18n-micro/utils/build`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/build'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `buildTranslationSourceLayers` | function | `(rootDirs: string[], translationDirName: string, outputDir: string, additionalTranslationDirs?: string[]) => Promise<void>` |
-| `listAdditionalRootLocales` | function | `(rootDirs: string[], additionalDirNames: string[]) => string[]` |
-| `mergeAdditionalRootLocaleFiles` | function | `(rootDirs: string[], additionalDirNames: string[], locale: string, primaryContent?: Record<string, unknown>) => Record<string, unknown>` |
-| `PreMergeLocaleInfo` | interface | 2 members |
-| `preMergeLocales` | function | `(rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean, additionalTranslationDirs?: string[]) => Promise<void>` |
-| `readTranslationJsonFile` | function | `(filePath: string) => Record<string, unknown>` |
-
-<details>
-<summary><code>PreMergeLocaleInfo</code> — 2 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `code` | `string` |
-| `fallbackLocale?` | `string \| undefined` |
-
-</details>
 ## `@i18n-micro/utils/cache-control`
 
 ```ts
@@ -200,7 +176,6 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `buildSourceRootPath` | function | `(localeCode: string) => string` |
 | `mergeSourceTranslations` | function | `(input: MergeSourceTranslationsInput) => Promise<Record<string, unknown>>` |
 | `MergeSourceTranslationsInput` | interface | 6 members |
-| `mergeTranslationsFromFallbackChain` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown>, relativePathForLocale: (localeCode: string) => string) => Record<string, unknown>` |
 | `mergeTranslationsFromFallbackChainAsync` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>` |
 | `normalizeConfiguredLocales` | function | `(locales: Array<string \| Locale> \| undefined) => SourceLocaleInfo[]` |
 | `PREMERGED_ROOT_PAGE` | const | `"__root"` |
@@ -223,7 +198,15 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 
 </details>
 
-<code>SourceLocaleInfo</code> — 2 members, identical to `PreMergeLocaleInfo` above.
+<details>
+<summary><code>SourceLocaleInfo</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `code` | `string` |
+| `fallbackLocale?` | `string \| undefined` |
+
+</details>
 ## `@i18n-micro/utils/normalize`
 
 ```ts
@@ -245,7 +228,6 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `classifyTranslationRelativePath` | function | `(relativePath: string, disablePageLocales?: boolean) => ParsedTranslationRelativePath` |
-| `mergeRouteTranslationsWithRoot` | function | `<T extends Record<string, unknown>>(rootTranslations: T \| undefined, routeTranslations: T) => T` |
 | `pagePathSegmentsToRouteName` | function | `(segments: string[]) => string \| null` |
 | `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string } \| { type: 'root'; locale: string } \| { type: 'ignore' }` |
 | `parseTranslationRelativePath` | function | `(relativePath: string) => ParsedTranslationRelativePath` |
@@ -259,81 +241,6 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | --- | --- |
 | `root` | `Record<string, T>` |
 | `routes` | `Record<string, Record<string, T>>` |
-
-</details>
-## `@i18n-micro/utils/payload-config`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/payload-config'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT` | const | `500` |
-| `DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES` | const | `number` |
-| `formatBytes` | function | `(bytes: number) => string` |
-| `getTranslationPayloadMisconfigurationWarnings` | function | `(input: TranslationPayloadMisconfigurationInput) => string[]` |
-| `getTranslationPayloadSizeWarning` | function | `(stats: TranslationPayloadStats, thresholds?: TranslationPayloadSizeThresholds) => string \| null` |
-| `hasLocalTranslationPayloadOutput` | function | `(translationPayloads: ResolvedTranslationPayloadOptions) => boolean` |
-| `NitroServeStatic` | type | `boolean \| 'node' \| 'deno' \| 'inline'` |
-| `ResolvedTranslationPayloadOptions` | interface | 8 members |
-| `resolveTranslationPayloadMode` | function | `(options: ModuleOptions) => TranslationPayloadMode` |
-| `resolveTranslationPayloadOptions` | function | `(options: ModuleOptions) => ResolvedTranslationPayloadOptions` |
-| `resolveTranslationPayloadPublicDir` | function | `(outputPublicDir: string \| undefined, options: ModuleOptions, apiBaseUrl?: string) => string` |
-| `resolveTranslationPayloadPublicRel` | function | `(options: ModuleOptions, apiBaseUrl?: string) => string` |
-| `resolveTranslationPayloadWarningThresholds` | function | `(options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>` |
-| `shouldCopyTranslationPayloadsToPublic` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean` |
-| `shouldReadPayloadsFromPublicDir` | function | `(nitroOptions: { node: boolean; serveStatic: NitroServeStatic; }) => boolean` |
-| `shouldRegisterNitroServerAssets` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean` |
-| `TranslationPayloadMisconfigurationInput` | interface | 3 members |
-| `TranslationPayloadMode` | type | `'premerged' \| 'source'` |
-| `TranslationPayloadSizeThresholds` | interface | 2 members |
-| `TranslationPayloadStats` | interface | 2 members |
-
-<details>
-<summary><code>ResolvedTranslationPayloadOptions</code> — 8 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `mode` | `TranslationPayloadMode` |
-| `prerenderRoutes` | `boolean` |
-| `publicAssets` | `boolean` |
-| `publicDir?` | `string \| undefined` |
-| `serverAssets` | `boolean` |
-| `serverHandler` | `boolean` |
-| `warnFileCount?` | `number \| undefined` |
-| `warnSizeBytes?` | `number \| undefined` |
-
-</details>
-
-<details>
-<summary><code>TranslationPayloadMisconfigurationInput</code> — 3 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `apiBaseClientHost?` | `string \| undefined` |
-| `apiBaseServerHost?` | `string \| undefined` |
-| `translationPayloads` | `ResolvedTranslationPayloadOptions` |
-
-</details>
-
-<details>
-<summary><code>TranslationPayloadSizeThresholds</code> — 2 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `warnFileCount?` | `number \| undefined` |
-| `warnSizeBytes?` | `number \| undefined` |
-
-</details>
-
-<details>
-<summary><code>TranslationPayloadStats</code> — 2 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `fileCount` | `number` |
-| `totalBytes` | `number` |
 
 </details>
 ## `@i18n-micro/utils/payload-fetch`
@@ -358,20 +265,6 @@ import { /* … */ } from '@i18n-micro/utils/payload-fetch'
 | `dateBuild?` | `string \| number \| undefined` |
 
 </details>
-## `@i18n-micro/utils/payload-stats`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/payload-stats'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `compressTranslationPayloads` | function | `(dir: string, compression: PublicAssetCompression) => number` |
-| `hashTranslationSources` | function | `(rootDirs: string[], translationDirName: string, additionalTranslationDirs?: string[]) => string \| null` |
-| `PublicAssetCompression` | type | `boolean \| { gzip?: boolean; brotli?: boolean } \| undefined` |
-| `scanTranslationPayloadDirectory` | function | `(dir: string) => TranslationPayloadStats` |
-
-
 ## `@i18n-micro/utils/payload-url`
 
 ```ts
@@ -498,42 +391,6 @@ import { /* … */ } from '@i18n-micro/utils/resolve-og-locale'
 | `tag?` | `"og:locale" \| "og:locale:alternate" \| undefined` |
 
 </details>
-## `@i18n-micro/utils/route`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/route'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `findAllowedLocalesForRoute` | function | `(route: I18nRouteContext, routeLocales: Record<string, string[]> \| undefined, localizedRouteNamePrefix?: string, localeCodes?: string[]) => string[] \| null` |
-| `I18nRouteContext` | interface | 3 members |
-| `isMetaDisabledForRoute` | function | `(route: I18nRouteContext, routeDisableMeta: Record<string, boolean \| string[]> \| undefined, currentLocale?: string, localizedRouteNamePrefix?: string) => boolean` |
-
-<details>
-<summary><code>I18nRouteContext</code> — 3 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `matched?` | `{ path: string; }[] \| undefined` |
-| `name?` | `string \| symbol \| null \| undefined` |
-| `path` | `string` |
-
-</details>
-## `@i18n-micro/utils/route-pattern`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/route-pattern'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `extractBaseRoutePattern` | function | `(matchedPath: string) => string` |
-| `routeNameToPath` | function | `(normalizedRouteName: string \| undefined) => string \| undefined` |
-| `stripLeadingSlash` | function | `(path: string) => string` |
-| `stripLocalizedRouteNamePrefix` | function | `(routeName: string \| undefined \| null, localizedRouteNamePrefix?: string) => string \| undefined` |
-
-
 ## `@i18n-micro/utils/runtime-config`
 
 ```ts

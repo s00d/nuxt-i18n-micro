@@ -8,7 +8,7 @@ import {
   mergeDevTranslations,
   readTranslationFile,
   resolveLiveTranslationDirs,
-} from '../src/watcher'
+} from '../../../src/runtime/server/utils/translation-watcher'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('resolveLiveTranslationDirs', () => {

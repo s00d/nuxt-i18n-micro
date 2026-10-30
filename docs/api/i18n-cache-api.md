@@ -9,7 +9,7 @@ description: 'Translation cache layers and payload modes in v3.'
 
 Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Payload loading depends on `translationPayloads.mode`:
 
-- **`premerged`** (default) — root, page, fallback, and layer files are merged at build time via `@i18n-micro/utils/build` into `{page}/{locale}/data.json`
+- **`premerged`** (default) — root, page, fallback, and layer files are merged at build time by the module (`src/build/build.ts`) into `{page}/{locale}/data.json`
 - **`source`** — compact source files are kept for runtime merge via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source` (Edge embeds them in Nitro `serverAssets`; Node reads them from `public/` when copied)
 
 This page describes how the built-in cache works and how to extend it for custom use cases (admin tools, external APIs, cache invalidation).
@@ -21,13 +21,13 @@ This page describes how the built-in cache works and how to extend it for custom
 ```mermaid
 flowchart TB
     subgraph BuildPremerged["Build Time — mode: premerged (default)"]
-        F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["preMergeLocales<br/>(@i18n-micro/utils/build)"]
+        F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["preMergeLocales<br/>(src/build)"]
         F2["locales/pages/**/*.json"] -->|Merge layers + fallback| PM
         PM -->|"page/locale/data.json"| OUT1["public/&lt;apiBaseUrl&gt;<br/>+ Edge assets:i18n"]
     end
 
     subgraph BuildSource["Build Time — mode: source"]
-        SF1["locales/*.json"] --> SLayers["buildTranslationSourceLayers<br/>(@i18n-micro/utils/build)"]
+        SF1["locales/*.json"] --> SLayers["buildTranslationSourceLayers<br/>(src/build)"]
         SF2["locales/pages/**/*.json"] --> SLayers
         SLayers --> OUT2["compact source tree<br/>(Edge embed / optional public)"]
     end
@@ -99,7 +99,7 @@ export default defineNuxtConfig({
 
 **File**: `src/runtime/server/utils/server-loader.ts`
 
-Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map keyed by `@i18n-micro/hmr/cache-keys` (`SERVER_CC_KEY`).
+Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map, keyed by `locale:page` and stored on `globalThis` under `SERVER_CC_KEY` (`src/runtime/utils/cache-keys.ts`).
 
 Behavior: SSR loads from `#i18n-internal/payload-source` — **Node** `readFile` under `public/<apiBaseUrl>` (`{page}/{locale}/data.json` in premerged mode), **Edge** `assets:i18n`. `premerged` reads one file; `source` merges root/page/fallback via `@i18n-micro/utils/source-loader`.
 

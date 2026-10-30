@@ -34,19 +34,19 @@ console.log(fileURLToPath(resolved));
 
 describe('Nitro file trace (#233)', () => {
   it('require still resolves CJS for dual-package consumers', () => {
-    expect(utilsRequire.resolve('@i18n-micro/utils/route')).toMatch(/route\.cjs$/)
+    expect(utilsRequire.resolve('@i18n-micro/utils/cookie')).toMatch(/cookie\.cjs$/)
   })
 
-  it('production resolve picks route.mjs as Nitro trace seed (not createRequire → .cjs)', () => {
-    const productionPath = resolveWithNodeConditions('@i18n-micro/utils/route', ['production', 'import', 'node'])
-    const requirePath = utilsRequire.resolve('@i18n-micro/utils/route')
-    expect(productionPath).toMatch(/route\.mjs$/)
-    expect(requirePath).toMatch(/route\.cjs$/)
+  it('production resolve picks cookie.mjs as Nitro trace seed (not createRequire → .cjs)', () => {
+    const productionPath = resolveWithNodeConditions('@i18n-micro/utils/cookie', ['production', 'import', 'node'])
+    const requirePath = utilsRequire.resolve('@i18n-micro/utils/cookie')
+    expect(productionPath).toMatch(/cookie\.mjs$/)
+    expect(requirePath).toMatch(/cookie\.cjs$/)
     expect(productionPath).not.toBe(requirePath)
   })
 
-  it('file-trace from production-resolved route.mjs does not pull route.cjs', async () => {
-    const seed = resolveWithNodeConditions('@i18n-micro/utils/route', nitroTraceConditions)
+  it('file-trace from production-resolved cookie.mjs does not pull cookie.cjs', async () => {
+    const seed = resolveWithNodeConditions('@i18n-micro/utils/cookie', nitroTraceConditions)
     const result = await nodeFileTrace([seed], {
       base: rootDir,
       processCwd: rootDir,
@@ -55,7 +55,7 @@ describe('Nitro file trace (#233)', () => {
     })
 
     const files = [...result.fileList]
-    expect(files.some((f) => f.endsWith('route.mjs'))).toBe(true)
-    expect(files.some((f) => f.endsWith('route.cjs'))).toBe(false)
+    expect(files.some((f) => f.endsWith('cookie.mjs'))).toBe(true)
+    expect(files.some((f) => f.endsWith('cookie.cjs'))).toBe(false)
   })
 })

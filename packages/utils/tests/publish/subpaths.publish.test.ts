@@ -9,10 +9,8 @@ const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 const subpaths = [
   { subpath: './deep-merge', exportName: 'deepMergeTranslations' },
   { subpath: './merge-source', exportName: 'mergeSourceTranslations' },
-  { subpath: './payload-config', exportName: 'resolveTranslationPayloadOptions' },
   { subpath: './resolve-og-locale', exportName: 'resolveOgLocale' },
   { subpath: './resolve-hreflang', exportName: 'resolveHreflangAlternates' },
-  { subpath: './route', exportName: 'findAllowedLocalesForRoute' },
   { subpath: './parse-path', exportName: 'parseTranslationRelativePath' },
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },
   { subpath: './auto-detect-path', exportName: 'shouldAttemptLocaleRedirect' },

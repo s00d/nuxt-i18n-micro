@@ -1,6 +1,5 @@
 import {
   classifyTranslationRelativePath,
-  mergeRouteTranslationsWithRoot,
   pagePathSegmentsToRouteName,
   parseTranslationRelativePath,
   storeLoadedTranslationFile,
@@ -65,17 +64,5 @@ describe('storeLoadedTranslationFile', () => {
 
     expect(buckets.root.en).toEqual({ title: 'About' })
     expect(buckets.routes).toEqual({})
-  })
-})
-
-describe('mergeRouteTranslationsWithRoot', () => {
-  it('deep merges route translations over root translations', () => {
-    const merged = mergeRouteTranslationsWithRoot({ common: 'root', page: { a: 1 } }, { page: { b: 2 }, extra: true })
-
-    expect(merged).toEqual({
-      common: 'root',
-      page: { a: 1, b: 2 },
-      extra: true,
-    })
   })
 })

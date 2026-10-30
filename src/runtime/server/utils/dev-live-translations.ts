@@ -5,7 +5,7 @@
  * Avoids serving stale `.nuxt/i18n-merged` / `i18n-source` after a cache miss when
  * locale files changed but `build:before` has not re-run.
  */
-import { createTranslationDirReader, mergeDevTranslations, resolveLiveTranslationDirs } from '@i18n-micro/hmr/watcher'
+import { createTranslationDirReader, mergeDevTranslations, resolveLiveTranslationDirs } from './translation-watcher'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { toTranslations } from '@i18n-micro/utils/normalize'
 import { getI18nPrivateConfig } from '#i18n-internal/config'

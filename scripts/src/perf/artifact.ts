@@ -10,7 +10,6 @@ export const MODULE_PACKAGE_SRC_DIRS = [
   'packages/types/src',
   'packages/path-strategy/src',
   'packages/route-strategy/src',
-  'packages/hmr/src',
 ] as const
 
 const MODULE_DIST = join(repoRoot, 'dist/module.mjs')

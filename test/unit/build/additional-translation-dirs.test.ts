@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { buildTranslationSourceLayers, mergeAdditionalRootLocaleFiles, preMergeLocales } from '../src/build'
+import { buildTranslationSourceLayers, mergeAdditionalRootLocaleFiles, preMergeLocales } from '../../../src/build/build'
 
 describe('additionalTranslationDirs', () => {
   const dirs: string[] = []

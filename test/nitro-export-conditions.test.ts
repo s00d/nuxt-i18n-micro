@@ -32,22 +32,22 @@ console.log(fileURLToPath(resolved));
 
 describe('Nitro export conditions (#233)', () => {
   it('require still resolves CJS for dual-package consumers', () => {
-    expect(utilsRequire.resolve('@i18n-micro/utils/route')).toMatch(/route\.cjs$/)
+    expect(utilsRequire.resolve('@i18n-micro/utils/cookie')).toMatch(/cookie\.cjs$/)
   })
 
   it('import resolves ESM for runtime chunks', () => {
-    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['import'])
-    expect(resolved).toMatch(/route\.mjs$/)
+    const resolved = resolveWithNodeConditions('@i18n-micro/utils/cookie', ['import'])
+    expect(resolved).toMatch(/cookie\.mjs$/)
   })
 
   it('production condition resolves ESM for Nitro file trace', () => {
-    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['production', 'node'])
-    expect(resolved).toMatch(/route\.mjs$/)
+    const resolved = resolveWithNodeConditions('@i18n-micro/utils/cookie', ['production', 'node'])
+    expect(resolved).toMatch(/cookie\.mjs$/)
   })
 
-  it('route export declares production → .mjs with default last (publint)', () => {
-    const entry = utilsPkg.exports['./route']
-    expect(entry.production.default).toBe('./dist/route.mjs')
+  it('cookie export declares production → .mjs with default last (publint)', () => {
+    const entry = utilsPkg.exports['./cookie']
+    expect(entry.production.default).toBe('./dist/cookie.mjs')
     expect(entry.node).toBeUndefined()
     const keys = Object.keys(entry)
     expect(keys.indexOf('production')).toBeLessThan(keys.indexOf('import'))

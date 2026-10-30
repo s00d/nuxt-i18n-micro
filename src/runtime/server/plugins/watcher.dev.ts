@@ -1,8 +1,13 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
 import { existsSync } from 'node:fs'
-import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
-import { handleTranslationWatchChange, resolveLiveTranslationDirs, TranslationContentTracker, translationRelativePath } from '@i18n-micro/hmr/watcher'
+import { STORAGE_CC_KEY } from '../../utils/cache-keys'
+import {
+  handleTranslationWatchChange,
+  resolveLiveTranslationDirs,
+  TranslationContentTracker,
+  translationRelativePath,
+} from '../utils/translation-watcher'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'

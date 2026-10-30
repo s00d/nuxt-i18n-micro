@@ -116,10 +116,17 @@ export default defineNuxtPlugin({
     })
 
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
-    // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's
-    const urlLocale =
-      isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode ? null : i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-    const serverLocale = import.meta.server && !urlLocale ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
+    // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
+    const requestLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
+    const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
+    const urlLocale = i18nConfig.hashMode
+      ? null
+      : isNoPrefixStrategy(i18nConfig.strategy!)
+        ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale)
+        : i18nStrategy.getLocaleFromPath(initialRoute.path)
+    const serverLocale = urlLocale ? undefined : requestLocale
     const initialLocale = resolveInitialLocale({
       route: router.currentRoute.value,
       urlLocale,

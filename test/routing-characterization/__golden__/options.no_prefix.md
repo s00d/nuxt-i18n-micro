@@ -27,8 +27,8 @@ Every URL is resolved with `?q=1#top`.
 | /api-docs | api-docs | en-us | api-docs | api-docs | null | null | null | null |
 | /blog/hello-world | blog-slug | en-us | blog-slug | blog-slug | null | null | null | null |
 | /go | go | en-us | go | go | null | null | null | null |
-| /sobre | i18n-about-pt-br | en-us | about | about | null | null | null | null |
-| /ueber-uns | i18n-about-de | en-us | about | about | null | null | null | null |
+| /sobre | i18n-about-pt-br | pt-br | about | about | null | null | null | null |
+| /ueber-uns | i18n-about-de | de | about | about | null | null | null | null |
 | /en-us | null | en-us | index | index | null | en-us | null | null |
 | /en-us/ | null | en-us | index | index | null | en-us | null | null |
 | /pt-br | null | en-us | index | index | null | pt-br | null | null |

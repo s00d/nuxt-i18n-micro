@@ -371,7 +371,8 @@ export class I18nPathStrategy {
 
   getCurrentLocale(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string {
     const { strategy, defaultLocale } = this.ctx
-    if (this.ctx.hashMode || strategy === 'no_prefix') return defaultLocaleOverride || defaultLocale
+    if (this.ctx.hashMode) return defaultLocaleOverride || defaultLocale
+    if (strategy === 'no_prefix') return this.servedLocale(route, defaultLocaleOverride || defaultLocale)
     const path = route.path || route.fullPath || ''
     const param = route.params?.locale
     const fromParams = Array.isArray(param) ? String(param[0] ?? '') : param ? String(param) : ''
@@ -379,6 +380,19 @@ export class I18nPathStrategy {
     const fromPath = this.getLocaleFromPath(path)
     if (fromPath) return fromPath
     return unprefixedIsDefault(strategy) ? defaultLocale : defaultLocaleOverride || defaultLocale
+  }
+
+  /**
+   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locale,
+   * and a page restricted to some locales never renders in another one.
+   */
+  private servedLocale(route: ResolvedRouteLike, preferred: string): string {
+    const name = named(route.name)
+    const entry = name ? this.index.records.get(name) : undefined
+    if (!entry) return preferred
+    const own = name !== entry.base && entry.locales.length === 1
+    if (!own && this.index.pages.get(entry.base)?.has(preferred)) return preferred
+    return entry.locales[0] ?? preferred
   }
 
   getCurrentLocaleName(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null {

@@ -39,13 +39,13 @@ Every URL is resolved with `?q=1#top`.
 | /change-activity | localized-activity-en | en | activity | activity | English | null | null | null |
 | /change-activity/book-activity/skiing | localized-activity-skiing-en | en | activity-skiing | activity-skiing | English | null | null | null |
 | /change-activity/hiking | localized-activity-hiking-en | en | activity-hiking | activity-hiking | English | null | null | null |
-| /change-buchen | localized-activity-de | en | activity | activity | English | null | null | null |
-| /change-buchen/aktivitaet-buchen/ski-fahren | localized-activity-skiing-de | en | activity-skiing | activity-skiing | English | null | null | null |
-| /change-buchen/hiking | localized-activity-hiking-de | en | activity-hiking | activity-hiking | English | null | null | null |
+| /change-buchen | localized-activity-de | de | activity | activity | Deutsch | null | null | null |
+| /change-buchen/aktivitaet-buchen/ski-fahren | localized-activity-skiing-de | de | activity-skiing | activity-skiing | Deutsch | null | null | null |
+| /change-buchen/hiking | localized-activity-hiking-de | de | activity-hiking | activity-hiking | Deutsch | null | null | null |
 | /page | page | en | page | page | English | null | null | null |
 | /page/42 | localized-page-en | en | page | page | English | null | null | null |
 | /product/hello-world | product-slug | en | product-slug | product-slug | English | null | null | null |
-| /produkte/hello-world | localized-product-slug-de | en | product-slug | product-slug | English | null | null | null |
+| /produkte/hello-world | localized-product-slug-de | de | product-slug | product-slug | Deutsch | null | null | null |
 | /same | same | en | same | same | English | null | null | null |
 | /unlocalized | unlocalized | en | unlocalized | unlocalized | English | null | null | null |
 | /en | null | en | index | index | English | en | null | null |

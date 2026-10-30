@@ -37,25 +37,25 @@ Every URL is resolved with `?q=1#top`.
 | url | router name | getCurrentLocale | getPluginRouteName | getRouteBaseName | getCurrentLocaleName | getLocaleFromPath | resolveLocaleFromPath | shouldReturn404 |
 |---|---|---|---|---|---|---|---|---|
 | / | index | en | index | index | English | null | null | null |
-| /a-propos | localized-about-fr | en | about | about | English | null | null | null |
+| /a-propos | localized-about-fr | fr | about | about | Français | null | null | null |
 | /about | about | en | about | about | English | null | null | null |
 | /about-us | localized-about-en | en | about | about | English | null | null | null |
-| /article/hello-world | localized-blog-slug-fr | en | blog-slug | blog-slug | English | null | null | null |
-| /artikel/hello-world | localized-blog-slug-de | en | blog-slug | blog-slug | English | null | null | null |
+| /article/hello-world | localized-blog-slug-fr | fr | blog-slug | blog-slug | Français | null | null | null |
+| /artikel/hello-world | localized-blog-slug-de | de | blog-slug | blog-slug | Deutsch | null | null | null |
 | /blog | blog | en | blog | blog | English | null | null | null |
 | /blog/hello-world | blog-slug | en | blog-slug | blog-slug | English | null | null | null |
 | /careers | careers | en | careers | careers | English | null | null | null |
 | /contact | contact | en | contact | contact | English | null | null | null |
-| /contact-fr | localized-contact-fr | en | contact | contact | English | null | null | null |
+| /contact-fr | localized-contact-fr | fr | contact | contact | Français | null | null | null |
 | /hello-world | slug | en | slug | slug | English | null | null | null |
-| /kontakt | localized-contact-de | en | contact | contact | English | null | null | null |
+| /kontakt | localized-contact-de | de | contact | contact | Deutsch | null | null | null |
 | /legal/imprint | legal-imprint | en | legal-imprint | legal-imprint | English | null | null | null |
 | /old | null | en |  | null | English | null | null | null |
 | /products | products | en | products | products | English | null | null | null |
 | /products/42 | products-id | en | products-id | products-id | English | null | null | null |
-| /produits/42 | localized-products-id-fr | en | products-id | products-id | English | null | null | null |
-| /produkte/42 | localized-products-id-de | en | products-id | products-id | English | null | null | null |
-| /ueber-uns | localized-about-de | en | about | about | English | null | null | null |
+| /produits/42 | localized-products-id-fr | fr | products-id | products-id | Français | null | null | null |
+| /produkte/42 | localized-products-id-de | de | products-id | products-id | Deutsch | null | null | null |
+| /ueber-uns | localized-about-de | de | about | about | Deutsch | null | null | null |
 | /en | slug | en | slug | slug | English | en | null | null |
 | /en/ | slug | en | slug | slug | English | en | null | null |
 | /de | slug | en | slug | slug | English | de | null | null |

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'untestutils/vitest'
+import { collectHydrationIssues } from 'untestutils/utils'
 import { forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
 
 describe('J2 strategies: prefix', () => {
@@ -41,5 +42,30 @@ describe('J2 strategies: prefix', () => {
   // was: locale-state-prefix › *
   test('P-T2 forced locale: / redirects to /ru', async ({ page, goto }) => {
     await forcedLocale(page, goto, '/ru')
+  })
+})
+
+describe('J2 strategies: prefix with runtime overrides (env default de, ru disabled)', () => {
+  test.override({ harness: 'strategy-prefix-overrides' })
+
+  test('P-T3 runtime overrides reach routing, server and client', async ({ page, goto, request, baseURL }) => {
+    // step 1: GET / → 302 /de (runtime defaultLocale)
+    const root = await request.get('/', { maxRedirects: 0 })
+    expect(root.status()).toBe(302)
+    expect(new URL(root.headers().location!, baseURL).pathname).toBe('/de')
+
+    // step 2 (F1): the runtime-disabled /ru is a 404, not a page with raw keys
+    expect((await request.get('/ru', { maxRedirects: 0 })).status()).toBe(404)
+
+    // step 3 (F11): the client sees the same config: de content, no ru in the switcher, no hydration mismatch
+    const issues = collectHydrationIssues(page)
+    await goto('/', { waitUntil: 'hydration' })
+    await expect(page).toHaveURL('/de')
+    await expect(page.locator('#content')).toHaveText('de')
+    await page.click('.language-switcher')
+    await expect(page.locator('a.switcher-locale-en')).toBeVisible()
+    await expect(page.locator('a.switcher-locale-ru')).toHaveCount(0)
+    issues.stop()
+    expect(issues.messages).toEqual([])
   })
 })

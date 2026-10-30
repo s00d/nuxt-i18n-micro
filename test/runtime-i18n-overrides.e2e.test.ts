@@ -16,7 +16,9 @@ describe('runtime i18n overrides (Nuxt runtimeConfig)', async () => {
         },
       },
       // Build-time disabled: no public/_locales/.../fr/data.json (static would bypass the handler).
+      // prefix: under prefix_except_default the default locale is fixed at build (its unprefixed routes)
       i18n: {
+        strategy: 'prefix',
         locales: [
           { code: 'en', iso: 'en_EN' },
           { code: 'de', iso: 'de_DE' },
@@ -36,6 +38,7 @@ describe('runtime i18n overrides (Nuxt runtimeConfig)', async () => {
   })
 
   it('uses overridden defaultLocale for SSR page rendering', async () => {
+    // / redirects to the runtime default's home
     const html = (await $fetch('/', { responseType: 'text' })) as string
 
     expect(html).toContain('<p id="locale">de</p>')

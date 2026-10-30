@@ -434,7 +434,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
     const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = {}
+    const routeDisableMeta: Record<string, boolean | string[]> = { ...(options.routeDisableMeta ?? {}) }
 
     const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
     const pageFiles = await globby(pageGlobs, { absolute: true })

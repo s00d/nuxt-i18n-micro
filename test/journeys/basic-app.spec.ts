@@ -470,7 +470,8 @@ describe('journey: basic app', () => {
 
     // step 1: /disable-meta-all in en, de, fr → no i18n tags
     // was: basic › disable meta tags completely
-    for (const url of ['/disable-meta-all', '/de/disable-meta-all', '/fr/disable-meta-all']) {
+    // /disable-meta-config: the same through the routeDisableMeta option
+    for (const url of ['/disable-meta-all', '/de/disable-meta-all', '/fr/disable-meta-all', '/disable-meta-config']) {
       await goto(url, { waitUntil: 'hydration' })
       for (const tag of i18nTags) await expect(page.locator(tag)).not.toBeAttached()
     }

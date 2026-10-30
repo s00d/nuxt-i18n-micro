@@ -3,7 +3,7 @@ import path from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { generateRoutes, type LocalizedPaths } from './generate'
-import { absolute, removeLeadingSlash, routeKey, staticPrefix } from './paths'
+import { absolute, removeLeadingSlash, routeKey, rulePattern } from './paths'
 import { Rules } from './rules'
 
 export interface RouteGeneratorOptions {
@@ -102,14 +102,14 @@ export class RouteGenerator {
 
   /**
    * Every URL pattern a route rule covers in a locale. A wildcard (`/blog/**`) also reaches the
-   * pages under it that moved to a custom path: `/de/artikel/**` for `/artikel/[slug]`.
+   * pages under it that moved to a custom path, and only those: `/de/artikel/:slug` for `/artikel/[slug]`.
    */
   resolveLocalizedRulePaths(originalPath: string, localeCode: string): string[] {
     const paths = new Set([this.resolveLocalizedPath(originalPath, localeCode)])
     if (!originalPath.endsWith('/**')) return [...paths]
     for (const custom of this.rules.customPathsUnder(routeKey(originalPath.slice(0, -3)), localeCode)) {
-      const prefix = staticPrefix(custom)
-      if (prefix) paths.add(this.resolveLocalizedPath(`${prefix}/**`, localeCode))
+      const pattern = rulePattern(custom)
+      if (pattern) paths.add(this.resolveLocalizedPath(pattern, localeCode))
     }
     return [...paths]
   }

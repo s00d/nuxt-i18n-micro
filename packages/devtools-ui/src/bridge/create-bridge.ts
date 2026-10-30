@@ -49,6 +49,29 @@ export interface CreateBridgeOptions {
 }
 
 /**
+ * POST the file to the dev server's save endpoint. Without one (a preview build) the edit is kept
+ * in localStorage instead; with neither, the error reaches the caller.
+ */
+async function saveToDisk(realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
+  try {
+    const response = await fetch('/__i18n_api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: realFilePath, content }),
+    })
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      throw new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
+    }
+    console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
+  } catch (serverError) {
+    if (typeof localStorage === 'undefined') throw serverError
+    console.warn('[i18n-bridge] Server save failed, falling back to localStorage:', serverError)
+    localStorage.setItem(`i18n_save_${filePath}`, JSON.stringify(content, null, 2))
+  }
+}
+
+/**
  * Create a universal bridge for DevTools communication
  * This bridge works with any framework by using an adapter pattern
  */
@@ -80,6 +103,21 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
     return data
   }
 
+  /** How a translation file maps onto the instance: its `locale:route` cache key and its writer. */
+  const hotWriter = (relativePath: string) => {
+    const parsed = parseTranslationRelativePath(relativePath)
+    if (parsed.type === 'page') {
+      return {
+        cacheKey: `${parsed.locale}:${parsed.pageName}`,
+        apply: (content: TranslationContent) => adapter.addRouteTranslations(parsed.locale, parsed.pageName, content, false),
+      }
+    }
+    if (parsed.type === 'root') {
+      return { cacheKey: `${parsed.locale}:index`, apply: (content: TranslationContent) => adapter.addTranslations(parsed.locale, content, false) }
+    }
+    return null
+  }
+
   return {
     async getLocalesAndTranslations(): Promise<LocaleData> {
       return buildLocaleData()
@@ -96,52 +134,22 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
 
     async saveTranslation(filePath: string, content: TranslationContent): Promise<void> {
       try {
-        // 1. Update state in memory (Hot Update)
         // Normalize path: remove leading / and extra slashes
         const normalizedPath = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
+        const write = hotWriter(normalizedPath)
+        if (!write) throw new Error(`Unknown file path format: ${filePath}`)
 
-        const parsedPath = parseTranslationRelativePath(normalizedPath)
+        // 1. Hot update in memory, keeping what was there so a failed disk save can put it back
+        const previous = adapter.getRouteCache()[write.cacheKey]
+        write.apply(content)
 
-        if (parsedPath.type === 'page') {
-          adapter.addRouteTranslations(parsedPath.locale, parsedPath.pageName, content, false)
-        } else if (parsedPath.type === 'root') {
-          adapter.addTranslations(parsedPath.locale, content, false)
-        } else {
-          throw new Error(`Unknown file path format: ${filePath}`)
-        }
-
-        // 2. Send request to server to save file to disk
-        // Build real path relative to project root
+        // 2. Save to disk; the app must not keep an edit that is neither on disk nor in localStorage
         const realFilePath = translationDir ? `${translationDir}/${normalizedPath}` : normalizedPath
-
         try {
-          const response = await fetch('/__i18n_api/save', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              file: realFilePath,
-              content,
-            }),
-          })
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-            throw new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
-          }
-
-          console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
-        } catch (serverError) {
-          // Fallback: Save to localStorage if server is unavailable (e.g., in production preview)
-          if (typeof localStorage !== 'undefined') {
-            console.warn('[i18n-bridge] Server save failed, falling back to localStorage:', serverError)
-            const storageKey = `i18n_save_${filePath}`
-            localStorage.setItem(storageKey, JSON.stringify(content, null, 2))
-          } else {
-            // If no server and no localStorage, throw error
-            throw serverError
-          }
+          await saveToDisk(realFilePath, content, filePath)
+        } catch (error) {
+          write.apply(previous ?? {})
+          throw error
         }
       } catch (error) {
         throw new Error(`Failed to save: ${error instanceof Error ? error.message : String(error)}`)

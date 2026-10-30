@@ -4,6 +4,7 @@ import type { TranslationContent } from '../src/bridge/interface'
 import { createI18nState } from '../src/composables/useI18nState'
 import { createRpcClient } from '../src/rpc/client'
 import { setupRpcHost } from '../src/rpc/host'
+import { buildFileTree } from '../src/util/i18nUtils'
 
 // The devtools tab runs in an iframe: the UI state talks to an RPC client, the host page answers
 // through `setupRpcHost` with a bridge over the app's i18n instance. Two EventTargets stand in for
@@ -120,9 +121,17 @@ test('devtools tab lists the app translations, edits a page file, saves it throu
     translationDir: 'locales',
   })
 
-  // The tree hands paths with a leading slash or Windows separators; both open the same file.
+  // The file tree: folders first, and every file node carries the listed key itself.
+  const tree = buildFileTree(Object.keys(state.locales.value))
+  const paths = (nodes: typeof tree): unknown[] => nodes.map((n) => (n.isFile ? n.fullPath : [n.fullPath, paths(n.children)]))
+  expect(paths(tree)).toEqual([['pages', [['pages/about', ['pages/about/de.json', 'pages/about/en.json']]]], 'de.json', 'en.json'])
+  expect(paths(buildFileTree(['pages/about/en.json', 'pages/about/de.json']))).toEqual(['pages/about/de.json', 'pages/about/en.json'])
+  expect(paths(buildFileTree(['en.json']))).toEqual(['en.json'])
+  expect(buildFileTree([])).toEqual([])
+
+  // Paths with a leading slash or Windows separators open the same file, under its listed key.
   state.handleFileSelected('/pages/about/de.json')
-  expect(state.selectedFile.value).toBe('/pages/about/de.json')
+  expect(state.selectedFile.value).toBe('pages/about/de.json')
   expect(state.selectedFileContent.value).toEqual({ title: 'Über' })
   state.handleFileSelected('pages\\about\\en.json')
   expect(state.selectedFileContent.value).toEqual({ title: 'About us' })
@@ -154,6 +163,8 @@ test('devtools tab lists the app translations, edits a page file, saves it throu
   expect(app.writes.at(-1)).toEqual(['root', 'de', false])
   expect(JSON.parse(fetchMock.mock.calls[1]![1].body as string).file).toBe('locales/de.json')
   expect(state.locales.value['de.json']).toEqual({ hello: 'Hallo!', nav: { home: 'Start' } })
+  // ...and lands on the listed file, not on a `/de.json` twin.
+  expect(Object.keys(state.locales.value).sort()).toEqual(['de.json', 'en.json', 'pages/about/de.json', 'pages/about/en.json'])
 
   // The app changes a file on its own (HMR from disk): the open file follows.
   state.handleFileSelected('en.json')
@@ -217,13 +228,26 @@ test('a failed disk save reaches the editor as an error after the app was alread
   await expect(state.saveCurrent()).rejects.toThrow('Failed to save: Unknown error')
   saveEndpoint(() => ({ ok: false, statusText: 'Bad Gateway', json: async () => ({}) }))
   await expect(state.saveCurrent()).rejects.toThrow('Failed to save: Network response was not ok: Bad Gateway')
-  // The in-memory write runs before the disk write and is not rolled back on failure.
-  expect(state.locales.value['de.json']).toEqual({ hello: 'Servus' })
-  expect(app.writes).toEqual([
-    ['root', 'de', false],
-    ['root', 'de', false],
-    ['root', 'de', false],
-  ])
+  // Each failed disk save rolls the hot update back: the app keeps what is on disk, the editor keeps the edit.
+  expect(state.locales.value['de.json']).toEqual({ hello: 'Hallo' })
+  expect(app.adapter.getRouteCache()['de:index']).toEqual({ hello: 'Hallo' })
+  expect(state.selectedFileContent.value).toEqual({ hello: 'Servus' })
+  expect(app.writes).toEqual(Array.from({ length: 6 }, () => ['root', 'de', false]))
+
+  // A page file goes back to its own chunk; one the app had no chunk for, to an empty one the list skips.
+  app.adapter.addRouteTranslations('de', 'shop', { cart: 'Korb' }, true)
+  state.handleFileSelected('pages/shop/de.json')
+  state.selectedFileContent.value = { cart: 'Warenkorb' }
+  await expect(state.saveCurrent()).rejects.toThrow('Failed to save: Network response was not ok: Bad Gateway')
+  expect(state.locales.value['pages/shop/de.json']).toEqual({ cart: 'Korb' })
+  expect(state.selectedFileContent.value).toEqual({ cart: 'Warenkorb' })
+  state.locales.value['pages/new/de.json'] = {}
+  state.handleFileSelected('pages/new/de.json')
+  state.selectedFileContent.value = { fresh: 'Neu' }
+  await expect(state.saveCurrent()).rejects.toThrow('Failed to save: Network response was not ok: Bad Gateway')
+  expect(app.adapter.getRouteCache()['de:new']).toEqual({})
+  expect(state.locales.value['pages/new/de.json']).toBeUndefined()
+  state.handleFileSelected('de.json')
 
   // A preview build without the save endpoint keeps the edit in localStorage instead.
   const stored = new Map<string, string>()
@@ -262,6 +286,46 @@ test('file tools: export downloads the open file, import replaces it, the defaul
   expect(state.getDefaultLocaleTranslation()).toEqual({ nested: 'yes' })
   state.locales.value = { 'de.json': {} }
   expect(state.getDefaultLocaleTranslation()).toEqual({})
+
+  // A page file compares with its own default-locale sibling, never with the root file.
+  state.locales.value = {
+    'en.json': { root: 'yes' },
+    'pages/about/en.json': { title: 'About' },
+    'pages/about/de.json': {},
+    'pages/contact/de.json': {},
+    'additional:extra/en.json': { extra: 'yes' },
+    'additional:extra/de.extra.json': {},
+  }
+  state.handleFileSelected('pages/about/de.json')
+  expect(state.getDefaultLocaleTranslation()).toEqual({ title: 'About' })
+  state.handleFileSelected('pages/contact/de.json')
+  expect(state.getDefaultLocaleTranslation()).toEqual({})
+  state.handleFileSelected('additional:extra/de.extra.json')
+  expect(state.getDefaultLocaleTranslation()).toEqual({})
+  state.locales.value['additional:extra/en.extra.json'] = { suffix: 'kept' }
+  expect(state.getDefaultLocaleTranslation()).toEqual({ suffix: 'kept' })
+  state.handleFileSelected('constructor')
+  expect(state.selectedFileContent.value).toEqual({})
+
+  // A bridge without live updates (the Nuxt DevTools RPC): the file the tree hands over is saved
+  // under its own key, and opening it again shows the saved content.
+  const saved: unknown[][] = []
+  state.locales.value = { 'en.json': { a: 'A' }, 'de.json': { a: 'Ä' } }
+  state.setBridge({
+    getLocalesAndTranslations: async () => ({}),
+    getConfigs: async () => ({}),
+    saveTranslation: async (file, content) => void saved.push([file, content]),
+    onLocalesUpdate: () => () => {},
+  })
+  const deFile = buildFileTree(Object.keys(state.locales.value)).find((n) => n.name === 'de.json')!.fullPath
+  state.handleFileSelected(deFile)
+  state.selectedFileContent.value = { a: 'Ä!' }
+  await state.saveCurrent()
+  expect(saved).toEqual([['de.json', { a: 'Ä!' }]])
+  state.handleFileSelected('en.json')
+  state.handleFileSelected(deFile)
+  expect(state.selectedFileContent.value).toEqual({ a: 'Ä!' })
+  expect(Object.keys(state.locales.value)).toEqual(['en.json', 'de.json'])
 
   const clicked: Array<{ href: string; download: string }> = []
   vi.stubGlobal('document', {

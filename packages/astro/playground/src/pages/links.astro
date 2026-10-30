@@ -1,0 +1,30 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
+import I18nT from '@i18n-micro/astro/i18n-t'
+
+const { locale } = useI18n(Astro)
+---
+
+<html>
+  <body>
+    <i id="locale">{locale}</i>
+    <nav id="links">
+      <I18nLink href="https://example.com/x">external</I18nLink>
+      <I18nLink href="mailto:a@b.c">mail</I18nLink>
+      <I18nLink href="#top">hash</I18nLink>
+      <I18nLink href="/about?x=1#y">query</I18nLink>
+      <I18nLink href="/about/">slash</I18nLink>
+      <I18nLink href="/about" locale="fr" class="to-fr" data-x="1">locale</I18nLink>
+    </nav>
+    <I18nSwitcher class="mine" id="switcher" />
+    <I18nSwitcher />
+    <div id="texts">
+      <I18nT keypath="greeting" params={{ name: '<b>x</b>' }} tag="h2" class="t" />
+      <I18nT keypath="greeting" params={{ name: '<b>x</b>' }} html tag="section" />
+      <I18nT keypath="apples" plural={5} />
+      <I18nT keypath="nope" defaultValue="Fallback text" tag="em" />
+    </div>
+  </body>
+</html>

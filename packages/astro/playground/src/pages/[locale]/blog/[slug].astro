@@ -1,0 +1,8 @@
+---
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
+
+const rewriteTarget = prepareLocaleRewrite(Astro)
+if (rewriteTarget instanceof Response) return rewriteTarget
+
+return Astro.rewrite(rewriteTarget)
+---

@@ -1,13 +1,16 @@
 import { describe, expect, test } from 'vitest'
 import { AstroI18n } from '../src/composer'
 
-describe('AstroI18n.clone', () => {
-  test('clearCache on a clone restores the initial messages', () => {
+describe('AstroI18n.fork', () => {
+  test('clearCache on a fork restores the initial messages and leaves the parent alone', () => {
     const global = new AstroI18n({ locale: 'en', messages: { en: { hello: 'Hi' } }, missingWarn: false })
-    const request = global.clone()
+    global.addTranslations('en', { later: 'Later' })
+    const request = global.fork()
     request.addTranslations('en', { hello: 'Changed' })
     request.clearCache()
     expect(request.t('hello')).toBe('Hi')
+    expect(request.t('later')).toBe('later')
+    expect(global.t('later')).toBe('Later')
   })
 
   test('resolveTranslations and setTranslation work on the active tree of an instance', () => {
@@ -16,5 +19,11 @@ describe('AstroI18n.clone', () => {
     i18n.setTranslation('greeting', 'Hi')
     expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
     expect(i18n.t('greeting')).toBe('Hi')
+  })
+
+  test('a request keeps the Intl formatters of the site: building them is the slow part', () => {
+    const global = new AstroI18n({ locale: 'en', numberFormats: { en: { pct: { style: 'percent' } } } })
+    expect(global.fork('de').formatter).toBe(global.formatter)
+    expect(global.fork().tn(0.5, 'pct')).toBe('50%')
   })
 })

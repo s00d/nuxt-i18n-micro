@@ -1,5 +1,3 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
 import node from '@astrojs/node'
 import react from '@astrojs/react'
 import svelte from '@astrojs/svelte'
@@ -8,15 +6,16 @@ import { i18nIntegration } from '@i18n-micro/astro'
 import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 import { defineConfig } from 'astro/config'
 
+// `tests/publish/ssr.publish.test.ts` builds this site twice: as it is, and under a `base`
+const base = process.env.I18N_BASE
+
 export default defineConfig({
   output: 'server',
+  ...(base ? { base, outDir: './dist-base' } : {}),
   adapter: node({
     mode: 'standalone',
   }),
   vite: {
-    ssr: {
-      noExternal: ['@i18n-micro/astro'],
-    },
     optimizeDeps: {
       include: ['react', 'react-dom'],
     },
@@ -39,31 +38,9 @@ export default defineConfig({
         { code: 'en', iso: 'en-US', displayName: 'English' },
         { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
         { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
+        { code: 'es', iso: 'es-ES', displayName: 'Español', disabled: true },
       ],
       translationDir: 'src/locales',
     }),
-    {
-      name: 'copy-locales',
-      hooks: {
-        'astro:build:done': ({ dir }) => {
-          // Copy locales to dist/server/locales
-          const srcLocales = resolve('./src/locales')
-          const distLocales = join(dir.pathname, 'server', 'locales')
-
-          if (existsSync(srcLocales)) {
-            mkdirSync(distLocales, { recursive: true })
-            const files = readdirSync(srcLocales)
-            for (const file of files) {
-              const srcFile = join(srcLocales, file)
-              const distFile = join(distLocales, file)
-              if (statSync(srcFile).isFile()) {
-                copyFileSync(srcFile, distFile)
-              }
-            }
-            console.log(`✓ Copied locales to ${distLocales}`)
-          }
-        },
-      },
-    },
   ],
 })

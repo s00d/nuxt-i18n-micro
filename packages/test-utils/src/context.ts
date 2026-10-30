@@ -1,11 +1,4 @@
-import {
-  defaultPlural,
-  interpolate,
-  mergeTranslationLayers,
-  setTranslationAtKey,
-  useTranslationHelper,
-  type TranslationStorage,
-} from '@i18n-micro/core'
+import { BaseI18n } from '@i18n-micro/core'
 import type { MissingHandler, Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 export type LocaleCode = string
@@ -39,15 +32,11 @@ export interface ResetI18nOptions {
   messages?: Record<string, Record<string, unknown>>
 }
 
-export interface CreateI18nTestContextOptions extends ResetI18nOptions {
-  /**
-   * When `true`, uses a private translation `Map` (no shared module cache).
-   * Prefer this for parallel suites / `setupNuxtI18nMock`.
-   */
-  isolated?: boolean
-}
+export type CreateI18nTestContextOptions = ResetI18nOptions
 
 export interface CreateFakeI18nOptions extends CreateI18nTestContextOptions {
+  /** A context of its own instead of the module's shared one. */
+  isolated?: boolean
   /** Wrap each method (e.g. `vi.fn`). Defaults to identity — no Vitest dependency. */
   spy?: SpyFn
 }
@@ -55,13 +44,9 @@ export interface CreateFakeI18nOptions extends CreateI18nTestContextOptions {
 const DEFAULT_LOCALES: Locale[] = [{ code: 'en' }]
 
 function routeNameFromUnknown(route: unknown, fallback: string): string {
-  if (route === null || route === undefined) return fallback
   if (typeof route === 'string') return route
-  if (typeof route === 'object' && 'name' in route) {
-    const name = (route as { name?: string | symbol | null }).name
-    if (name !== null && name !== undefined) return String(name)
-  }
-  return fallback
+  const name = route && typeof route === 'object' ? (route as { name?: string | symbol | null }).name : undefined
+  return name === null || name === undefined ? fallback : String(name)
 }
 
 function normalizePathInput(to: unknown): string {
@@ -70,40 +55,18 @@ function normalizePathInput(to: unknown): string {
     if (!bare || bare === '/') return '/'
     return bare.startsWith('/') ? bare : `/${bare}`
   }
-  if (to && typeof to === 'object') {
-    const obj = to as { path?: string; name?: string | symbol | null }
-    if (typeof obj.path === 'string' && obj.path.length > 0) {
-      return obj.path.startsWith('/') ? obj.path : `/${obj.path}`
-    }
-    if (obj.name !== null && obj.name !== undefined) {
-      const name = String(obj.name)
-      return name.startsWith('/') ? name : `/${name}`
-    }
-  }
-  return '/'
+  if (!to || typeof to !== 'object') return '/'
+  const { path, name } = to as { path?: string; name?: string | symbol | null }
+  const target = path || (name === null || name === undefined ? '' : String(name))
+  if (!target) return '/'
+  return target.startsWith('/') ? target : `/${target}`
 }
 
 function joinLocalePath(code: string, path: string, strategy: TestStrategy, defaultLocale: string | undefined): string {
   const normalized = !path || path === '/' ? '/' : path.startsWith('/') ? path : `/${path}`
-
-  if (strategy === 'no_prefix') {
-    return normalized
-  }
-
-  if ((strategy === 'prefix_except_default' || strategy === 'prefix_and_default') && defaultLocale && code === defaultLocale) {
-    return normalized
-  }
-
-  if (normalized === '/') return `/${code}`
-  return `/${code}${normalized}`
-}
-
-function formatNumber(value: number, loc: string, options?: Intl.NumberFormatOptions): string {
-  return new Intl.NumberFormat(loc, options).format(value)
-}
-
-function formatDate(value: Date | number | string, loc: string, options?: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat(loc, options).format(new Date(value))
+  if (strategy === 'no_prefix') return normalized
+  if ((strategy === 'prefix_except_default' || strategy === 'prefix_and_default') && defaultLocale && code === defaultLocale) return normalized
+  return normalized === '/' ? `/${code}` : `/${code}${normalized}`
 }
 
 function createPathStrategyStub(ctx: I18nTestContext) {
@@ -142,12 +105,11 @@ function createPathStrategyStub(ctx: I18nTestContext) {
 }
 
 /**
- * Stateful i18n mock: translations, locale, and path stubs.
- * Use {@link createI18nTestContext} for isolation; the package default singleton
- * backs module-level helpers (`t`, `resetI18n`, …).
+ * Stateful i18n mock. Translation, plural and format calls are `BaseI18n`'s own: a test answers
+ * what the app answers. What is added here is the test state: setters, seeds and path stubs.
+ * The package's default singleton backs the module-level helpers (`t`, `resetI18n`, …).
  */
-export class I18nTestContext {
-  readonly helper: ReturnType<typeof useTranslationHelper>
+export class I18nTestContext extends BaseI18n {
   strategy: TestStrategy = 'prefix'
   pagePath = '/'
 
@@ -156,14 +118,14 @@ export class I18nTestContext {
   private defLocale: string | undefined = 'en'
   private localeName: string | null = 'English'
   private routeName = 'test'
-  private missingHandler: MissingHandler | null = null
+  private customMissingHandler: MissingHandler | null = null
   private i18nRouteParams: unknown = {}
   private readonly initial: Required<Pick<ResetI18nOptions, 'locale' | 'locales' | 'routeName' | 'localeName' | 'strategy'>> &
     Pick<ResetI18nOptions, 'defaultLocale' | 'translations' | 'messages'>
 
   constructor(options: CreateI18nTestContextOptions = {}) {
-    const storage: TranslationStorage | undefined = options.isolated ? { translations: new Map() } : undefined
-    this.helper = useTranslationHelper(storage)
+    super({ missingWarn: false })
+    this.getCustomMissingHandler = () => this.customMissingHandler
     this.initial = {
       locale: options.locale ?? 'en',
       defaultLocale: options.defaultLocale !== undefined ? options.defaultLocale : 'en',
@@ -177,6 +139,18 @@ export class I18nTestContext {
     this.applyReset(this.initial)
   }
 
+  getLocale(): string {
+    return this.locale
+  }
+
+  getFallbackLocale(): string {
+    return this.defLocale ?? this.locale
+  }
+
+  getRoute(): string {
+    return this.routeName
+  }
+
   private applyReset(options: ResetI18nOptions): void {
     this.helper.clearCache()
     this.locale = options.locale ?? this.initial.locale
@@ -186,18 +160,13 @@ export class I18nTestContext {
     this.routeName = options.routeName ?? this.initial.routeName
     this.strategy = options.strategy ?? this.initial.strategy
     this.pagePath = '/'
-    this.missingHandler = null
+    this.customMissingHandler = null
     this.i18nRouteParams = {}
 
-    if (options.messages) {
-      for (const [loc, dict] of Object.entries(options.messages)) {
-        this.helper.setTranslations(loc, { ...dict } as Translations, this.routeName)
-      }
+    for (const [locale, dictionary] of Object.entries(options.messages ?? {})) {
+      this.helper.setTranslations(locale, { ...dictionary } as Translations, this.routeName)
     }
-
-    if (options.translations) {
-      this.helper.setTranslations(this.locale, { ...options.translations } as Translations, this.routeName)
-    }
+    if (options.translations) this.helper.setTranslations(this.locale, { ...options.translations } as Translations, this.routeName)
   }
 
   /**
@@ -218,46 +187,10 @@ export class I18nTestContext {
     })
   }
 
-  t(key: TranslationKey, params?: Params, defaultValue?: string | null): Translation {
-    let value = this.helper.getTranslation(this.locale, this.routeName, key)
-    if (value === null && this.defLocale && this.locale !== this.defLocale) {
-      value = this.helper.getTranslation(this.defLocale, this.routeName, key)
-    }
-
-    if (value === null || value === undefined) {
-      this.missingHandler?.(this.locale, key, this.routeName)
-      console.warn(`Missing translation key: ${key}`)
-      return (defaultValue ?? key) as Translation
-    }
-
-    return typeof value === 'string' && params ? interpolate(value, params) : value
-  }
-
-  tc(key: TranslationKey, params: number | Params, defaultValue?: string): string {
-    const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params
-    if (count === undefined) {
-      return defaultValue ?? key
-    }
-
-    return defaultPlural(key, Number.parseInt(count.toString(), 10), otherParams, this.locale, this.t.bind(this)) ?? defaultValue ?? key
-  }
-
-  ts(key: TranslationKey, params?: Params, defaultValue?: string | null): string {
-    const value = this.t(key, params, defaultValue)
-    return value?.toString() ?? defaultValue ?? key
-  }
-
   _t(route: unknown) {
     const boundRoute = routeNameFromUnknown(route, this.routeName)
-    return (key: TranslationKey, params?: Params, defaultValue?: string | null): Translation => {
-      const previous = this.routeName
-      this.routeName = boundRoute
-      try {
-        return this.t(key, params, defaultValue)
-      } finally {
-        this.routeName = previous
-      }
-    }
+    return (key: TranslationKey, params?: Params, defaultValue?: string | null): Translation =>
+      this.t(key, params, defaultValue, boundRoute) as Translation
   }
 
   _ts(route: unknown) {
@@ -268,15 +201,14 @@ export class I18nTestContext {
     }
   }
 
-  async setTranslationsFromJson(loc: string, translations: Record<string, unknown>): Promise<void> {
-    this.helper.setTranslations(loc, { ...translations } as Translations, this.routeName)
+  async setTranslationsFromJson(locale: string, translations: Record<string, unknown>): Promise<void> {
+    this.helper.setTranslations(locale, { ...translations } as Translations, this.routeName)
   }
 
-  async loadPageTranslations(loc: string, page: string, translations: Translations): Promise<void> {
-    this.helper.loadPageTranslations(loc, page, translations)
+  async loadPageTranslations(locale: string, page: string, translations: Translations): Promise<void> {
+    this.helper.loadPageTranslations(locale, page, translations)
   }
 
-  getLocale = (_route?: unknown) => this.locale
   setLocale = (val: string) => {
     this.locale = val
   }
@@ -305,51 +237,12 @@ export class I18nTestContext {
     this.routeName = val
   }
 
-  tn = (value: number, options?: Intl.NumberFormatOptions) => formatNumber(value, this.locale, options)
-  td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => formatDate(value, this.locale, options)
-
-  tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
-    const date = new Date(value)
-    const diffMs = date.getTime() - Date.now()
-    const abs = Math.abs(diffMs)
-    const units: [Intl.RelativeTimeFormatUnit, number][] = [
-      ['year', 365 * 24 * 60 * 60 * 1000],
-      ['month', 30 * 24 * 60 * 60 * 1000],
-      ['day', 24 * 60 * 60 * 1000],
-      ['hour', 60 * 60 * 1000],
-      ['minute', 60 * 1000],
-      ['second', 1000],
-    ]
-    for (const [unit, ms] of units) {
-      if (abs >= ms || unit === 'second') {
-        return new Intl.RelativeTimeFormat(this.locale, { numeric: 'auto', ...options }).format(Math.round(diffMs / ms), unit)
-      }
-    }
-    return ''
-  }
-
-  has = (key: TranslationKey): boolean => this.helper.getTranslation(this.locale, this.routeName, String(key)) !== null
-
   mergeTranslations = (newTranslations: Translations): void => {
     this.helper.mergeTranslation(this.locale, this.routeName, newTranslations, true)
   }
 
-  resolveTranslations = (): Record<string, unknown> => {
-    const active = (this.helper.getCache(this.locale, this.routeName) ?? {}) as Record<string, unknown>
-    const fallback = this.defLocale
-    if (!fallback || this.locale === fallback) return active
-
-    const fb = (this.helper.getCache(fallback, this.routeName) ?? {}) as Record<string, unknown>
-    return mergeTranslationLayers(fb, active)
-  }
-
-  setTranslation = (key: TranslationKey, value: unknown): void => {
-    const current = (this.helper.getCache(this.locale, this.routeName) ?? {}) as Record<string, unknown>
-    this.helper.setTranslations(this.locale, setTranslationAtKey(current, String(key), value), this.routeName)
-  }
-
   setMissingHandler = (handler: MissingHandler | null): void => {
-    this.missingHandler = handler
+    this.customMissingHandler = handler
   }
 
   getI18nConfig = () => ({
@@ -400,10 +293,12 @@ export class I18nTestContext {
   }
 
   createFake(spy: SpyFn = (fn) => fn) {
+    const bound = <K extends 'getLocale' | 't' | 'ts' | 'tc' | 'tn' | 'td' | 'tdr' | 'has' | 'resolveTranslations' | 'setTranslation'>(name: K) =>
+      spy(this[name].bind(this) as I18nTestContext[K])
     const injections = {
       $i18nStrategy: this.i18nStrategy,
       $getI18nConfig: spy(this.getI18nConfig),
-      $getLocale: spy(this.getLocale),
+      $getLocale: bound('getLocale'),
       $setLocale: spy(this.setLocale),
       $getLocaleName: spy(this.getLocaleName),
       $setLocaleName: spy(this.setLocaleName),
@@ -414,17 +309,17 @@ export class I18nTestContext {
       $getRouteName: spy(this.getRouteName),
       $settRouteName: spy(this.settRouteName),
       $setRouteName: spy(this.setRouteName),
-      $t: spy(this.t.bind(this)),
+      $t: bound('t'),
       $_t: spy(this._t.bind(this)),
-      $ts: spy(this.ts.bind(this)),
+      $ts: bound('ts'),
       $_ts: spy(this._ts.bind(this)),
-      $tc: spy(this.tc.bind(this)),
-      $tn: spy(this.tn),
-      $td: spy(this.td),
-      $tdr: spy(this.tdr.bind(this)),
-      $has: spy(this.has),
-      $resolveTranslations: spy(this.resolveTranslations),
-      $setTranslation: spy(this.setTranslation),
+      $tc: bound('tc'),
+      $tn: bound('tn'),
+      $td: bound('td'),
+      $tdr: bound('tdr'),
+      $has: bound('has'),
+      $resolveTranslations: bound('resolveTranslations'),
+      $setTranslation: bound('setTranslation'),
       $mergeTranslations: spy(this.mergeTranslations),
       $switchLocaleRoute: spy(this.switchLocaleRoute),
       $switchLocalePath: spy(this.switchLocalePath),

@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import type { Locale } from '@i18n-micro/types'
 import type { APIContext, AstroGlobal, MiddlewareNext } from 'astro'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
@@ -11,19 +12,15 @@ import {
   createI18nMiddleware,
   detectLocale,
   getDefaultLocale,
-  getGlobalRoutingStrategy,
-  runWithRoutingStrategy,
   getI18n,
   getI18nProps,
   getLocale,
   getLocales,
   i18nIntegration,
-  loadTranslationsFromDir,
-  loadTranslationsIntoI18n,
-  setGlobalRoutingStrategy,
   useI18n,
   useLocaleHead,
 } from '../src'
+import { loadTranslationsFromDir, loadTranslationsIntoI18n } from '../src/node'
 import type { I18nRoutingStrategy } from '../src/router/types'
 
 const locales: Locale[] = [
@@ -58,7 +55,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers()
   rmSync(root, { recursive: true, force: true })
-  setGlobalRoutingStrategy(null)
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
@@ -74,16 +70,12 @@ interface Ctx {
 async function request(mw: ReturnType<typeof createI18nMiddleware>, path: string, locals: Partial<App.Locals> = {}) {
   const url = new URL(`http://site.test${path}`)
   const ctx: Ctx = { url, request: new Request(url), cookies: { get: () => undefined }, locals }
-  let strategyInPage: I18nRoutingStrategy | null = null
-  const next = vi.fn(async () => {
-    strategyInPage = getGlobalRoutingStrategy()
-    return new Response('ok')
-  })
+  const next = vi.fn(async () => new Response('ok'))
   const res = await mw(ctx as unknown as APIContext, next as unknown as MiddlewareNext)
   expect(res).toBeInstanceOf(Response)
   expect(next).toHaveBeenCalledTimes(1)
   const astro = { url: ctx.url, params: {}, locals: ctx.locals } as unknown as AstroGlobal
-  return { astro, locals: ctx.locals as App.Locals, strategyInPage: strategyInPage as I18nRoutingStrategy | null }
+  return { astro, locals: ctx.locals as App.Locals }
 }
 
 test('integration publishes its config as a virtual module', () => {
@@ -93,7 +85,7 @@ test('integration publishes its config as a virtual module', () => {
   const setup = (opts: Parameters<typeof i18nIntegration>[0]) => {
     const updateConfig = vi.fn()
     const it = i18nIntegration(opts)
-    ;(it.hooks['astro:config:setup'] as (p: unknown) => void)({ updateConfig })
+    ;(it.hooks['astro:config:setup'] as (p: unknown) => void)({ updateConfig, addMiddleware: vi.fn(), config: { root: new URL('file:///app/'), base: '/' } })
     const plugin = updateConfig.mock.calls[0]![0].vite.plugins[0]
     expect(plugin.name).toBe('vite-plugin-i18n-micro-config')
     expect(plugin.resolveId('other')).toBeUndefined()
@@ -120,12 +112,13 @@ test('integration publishes its config as a virtual module', () => {
     defaultLocale: 'en',
     fallbackLocale: 'fr',
     locales,
-    localeCodes: ['en', 'fr', 'de', 'ja'],
+    localeCodes: ['en', 'fr', 'de'],
     translationDir: 'src/locales',
     autoDetect: false,
     redirectToDefault: true,
     localeCookie: 'lang',
     missingWarn: true,
+    base: '',
   })
   expect(setup({ locale: 'de' })).toEqual({
     defaultLocale: 'de',
@@ -137,6 +130,7 @@ test('integration publishes its config as a virtual module', () => {
     redirectToDefault: false,
     localeCookie: 'i18n-locale',
     missingWarn: false,
+    base: '',
   })
   expect(setup({ locale: 'en', localeCookie: null }).localeCookie).toBeNull()
 
@@ -153,6 +147,51 @@ test('integration publishes its config as a virtual module', () => {
   expect(content).toContain('/// <reference types="@i18n-micro/astro/env" />')
   expect(content).toContain("declare module 'virtual:i18n-micro/config'")
   expect(content).toContain('localeCookie: string | null;')
+})
+
+test('the integration installs the middleware; with `middleware: false` Astro learns the locales instead', () => {
+  const hook = (options: Parameters<typeof i18nIntegration>[0], config: Record<string, unknown> = {}) => {
+    const updateConfig = vi.fn()
+    const addMiddleware = vi.fn()
+    const setup = i18nIntegration(options).hooks['astro:config:setup'] as (params: unknown) => void
+    setup({ updateConfig, addMiddleware, config: { root: new URL('file:///app/'), base: '/', ...config } })
+    return { update: updateConfig.mock.calls[0]![0], addMiddleware }
+  }
+
+  const auto = hook({ locale: 'en', locales })
+  expect(auto.addMiddleware).toHaveBeenCalledWith({ order: 'pre', entrypoint: '@i18n-micro/astro/middleware' })
+  expect(auto.update.i18n).toBeUndefined()
+  expect(auto.update.vite.ssr.noExternal).toEqual(['@i18n-micro/astro'])
+
+  const manual = hook({ locale: 'en', locales, middleware: false })
+  expect(manual.addMiddleware).not.toHaveBeenCalled()
+  expect(manual.update.i18n).toEqual({ locales: ['en', 'fr', 'de'], defaultLocale: 'en', routing: 'manual' })
+  // the site's own i18n config stays, and Astro requires the default locale among the locales
+  expect(hook({ locale: 'en', locales, middleware: false }, { i18n: {} }).update.i18n).toBeUndefined()
+  expect(hook({ locale: 'ja', locales, middleware: false }).update.i18n).toBeUndefined()
+})
+
+test('the virtual modules: the base without its slash, the dictionaries as code', async () => {
+  const load = async (options: Parameters<typeof i18nIntegration>[0], base = '/') => {
+    const updateConfig = vi.fn()
+    const setup = i18nIntegration(options).hooks['astro:config:setup'] as (params: unknown) => void
+    setup({ updateConfig, addMiddleware: vi.fn(), config: { root: pathToFileURL(`${root}/`), base } })
+    const plugin = updateConfig.mock.calls[0]![0].vite.plugins[0]
+    const addWatchFile = vi.fn()
+    return {
+      addWatchFile,
+      config: JSON.parse(plugin.load.call({ addWatchFile }, '\0virtual:i18n-micro/config').slice('export const config = '.length)),
+      messages: JSON.parse((await plugin.load.call({ addWatchFile }, '\0virtual:i18n-micro/messages')).slice('export const messages = '.length)),
+    }
+  }
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const { config, messages, addWatchFile } = await load({ locale: 'en', translationDir: 'src/locales' }, '/docs')
+  expect(addWatchFile).toHaveBeenCalledWith(join(root, 'src/locales/en.json'))
+  expect(config.base).toBe('/docs')
+  expect(messages.root.en.title).toBe('Site')
+  expect(messages.routes['blog-post'].en).toEqual({ title: 'Post' })
+  expect((await load({ locale: 'en' })).messages).toEqual({ root: {}, routes: {} })
+  expect((await load({ locale: 'en', translationDir: 'src/locales', disablePageLocales: true })).messages.routes).toEqual({})
 })
 
 test('a site loads its locales dir; requests through the middleware get a per-request i18n and page helpers', async () => {
@@ -177,7 +216,6 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   expect(fr.locals.defaultLocale).toBe('en')
   expect(fr.locals.locales).toBe(locales)
   expect(fr.locals.currentUrl.pathname).toBe('/fr/about')
-  expect(fr.strategyInPage).toBe(fr.locals.routingStrategy)
   expect(fr.locals.routingStrategy!.getCurrentPath()).toBe('/fr/about')
   expect(fr.locals.routingStrategy!.getRoute!()).toEqual({ fullPath: '/fr/about?tab=2', query: { tab: '2' } })
   expect(getI18n(fr.astro)).toBe(fr.locals.i18n)
@@ -208,7 +246,7 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   expect(page.getLocaleFromPath('/xx/about')).toBe('en')
   expect(page.switchLocalePath('en')).toBe('/about')
   expect(page.switchLocalePath('de')).toBe('/de/about')
-  expect(page.localizePath('/fr/contact/')).toBe('/fr/contact')
+  expect(page.localizePath('/fr/contact/')).toBe('/fr/contact/')
   expect(page.localizePath('/contact', 'en')).toBe('/contact')
   expect(page.getBasePath()).toBe('/about')
   expect(page.getBasePath(new URL('http://site.test/fr'))).toBe('/')
@@ -221,24 +259,30 @@ test('a site loads its locales dir; requests through the middleware get a per-re
     currentRoute: 'about',
     translations: { about: { island: { cta: 'Acheter', more: 'Plus' }, title: 'À propos' } },
   })
-  expect(getI18nProps(fr.astro, ['nope']).translations).toEqual({})
+  expect(getI18nProps(fr.astro, ['nope']).translations).toEqual({ about: {} })
   expect(getI18nProps(fr.astro, []).translations).toEqual(getI18nProps(fr.astro).translations)
-  expect(getI18nProps(fr.astro).translations).toEqual({ about: { title: 'À propos', island: { cta: 'Acheter', more: 'Plus' } } })
+  // no keys: what `t()` answers on this page, root and fallback keys too
+  expect(getI18nProps(fr.astro).translations.about).toMatchObject({
+    title: 'À propos',
+    island: { cta: 'Acheter', more: 'Plus' },
+    nav: { home: 'Accueil' },
+    hi: 'Hi, {name}',
+  })
 
   // SEO head: disabled locales dropped, seo:false kept out of alternates, x-default → default locale
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   expect(useLocaleHead(fr.astro, { baseUrl: 'https://site.test' })).toEqual({
     htmlAttrs: { lang: 'fr-FR', dir: 'auto' },
     link: [
-      { rel: 'canonical', href: 'https://site.test/fr/about' },
-      { rel: 'alternate', href: 'https://site.test/about', hreflang: 'en-US' },
-      { rel: 'alternate', href: 'https://site.test/fr/about', hreflang: 'fr-FR' },
-      { rel: 'alternate', href: 'https://site.test/about', hreflang: 'x-default' },
+      { id: 'i18n-can', rel: 'canonical', href: 'https://site.test/fr/about' },
+      { id: 'i18n-alternate-en-US', rel: 'alternate', href: 'https://site.test/about', hreflang: 'en-US' },
+      { id: 'i18n-alternate-fr-FR', rel: 'alternate', href: 'https://site.test/fr/about', hreflang: 'fr-FR' },
+      { id: 'i18n-xd', rel: 'alternate', href: 'https://site.test/about', hreflang: 'x-default' },
     ],
     meta: [
-      { property: 'og:locale', content: 'fr_FR' },
-      { property: 'og:url', content: 'https://site.test/fr/about' },
-      { property: 'og:locale:alternate', content: 'en_US' },
+      { id: 'i18n-og', property: 'og:locale', content: 'fr_FR' },
+      { id: 'i18n-og-url', property: 'og:url', content: 'https://site.test/fr/about' },
+      { id: 'i18n-og-alt-en_US', property: 'og:locale:alternate', content: 'en_US' },
     ],
   })
   expect(useLocaleHead(fr.astro, { hreflangBaseLanguage: true }).link.map((l) => l.hreflang)).toEqual([
@@ -272,7 +316,7 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   expect(en.locals.locale).toBe('en')
   expect(en.locals.i18n.t('title')).toBe('About')
   expect(en.locals.i18n.t('extra')).toBe('extra')
-  expect(useLocaleHead(en.astro).link[0]).toEqual({ rel: 'canonical', href: '//about' })
+  expect(useLocaleHead(en.astro).link[0]).toEqual({ id: 'i18n-can', rel: 'canonical', href: '/about' })
 
   // locale without an instance is not a rewrite: detection runs again
   expect((await request(mw, '/fr/about', { locale: 'de' })).locals.locale).toBe('fr')
@@ -288,9 +332,9 @@ test('a site loads its locales dir; requests through the middleware get a per-re
 
   // 4. unknown locale in locals → head is empty, page helper defaults apply
   const bare = { url: new URL('http://site.test/'), params: {}, locals: {} } as unknown as AstroGlobal
-  expect(useLocaleHead({ ...bare, locals: { locale: 'xx', locales } } as unknown as AstroGlobal)).toEqual({ htmlAttrs: {}, link: [], meta: [] })
-  expect([getLocale(bare), getDefaultLocale(bare), getLocales(bare)]).toEqual(['en', 'en', []])
-  expect(() => getI18n(bare)).toThrow('i18n instance not found. Make sure i18n middleware is configured.')
+  expect(useLocaleHead({ ...bare, locals: { locale: 'xx', defaultLocale: 'en', locales } } as unknown as AstroGlobal)).toEqual({ htmlAttrs: {}, link: [], meta: [] })
+  expect(getLocales(bare)).toEqual([])
+  for (const read of [getI18n, getLocale, getDefaultLocale]) expect(() => read(bare)).toThrow('i18n instance not found. Make sure i18n middleware is configured.')
 })
 
 test('without a routing strategy the middleware and helpers fall back to plain path parsing', async () => {
@@ -300,7 +344,6 @@ test('without a routing strategy the middleware and helpers fall back to plain p
   const home = await request(mw, '/')
   expect(home.locals.i18n.getRoute()).toBe('index')
   expect(home.locals.locales).toEqual([{ code: 'en' }, { code: 'fr' }])
-  expect(home.locals.routingStrategy).toBeUndefined()
 
   const post = await request(mw, '/fr/blog/post')
   // the plain fallback still reads the locale prefix, and the route name drops it like useI18n does
@@ -316,9 +359,9 @@ test('without a routing strategy the middleware and helpers fall back to plain p
   expect(page.getLocaleFromPath('/blog')).toBe('en')
   expect(page.switchLocalePath('en')).toBe('/blog/post')
   expect(page.switchLocalePath('fr')).toBe('/fr/blog/post')
-  expect(page.localizePath('/fr/x/', 'en')).toBe('/x')
+  expect(page.localizePath('/fr/x/', 'en')).toBe('/x/')
   expect(page.localizePath('/x', 'fr')).toBe('/fr/x')
-  expect(page.localizePath('/x')).toBe('/x')
+  expect(page.localizePath('/x')).toBe('/fr/x')
   expect(page.getRouteName('/blog/x')).toBe('blog-x')
   expect(page.localizePath('/blog/x', 'fr')).toBe('/fr/blog/x')
 
@@ -337,14 +380,14 @@ test('without a routing strategy the middleware and helpers fall back to plain p
   expect(useLocaleHead(astro)).toEqual({
     htmlAttrs: { lang: 'fr', dir: 'ltr' },
     link: [
-      { rel: 'canonical', href: '//fr/blog' },
-      { rel: 'alternate', href: '//blog', hreflang: 'en-US' },
-      { rel: 'alternate', href: '//fr/blog', hreflang: 'fr' },
-      { rel: 'alternate', href: '//blog', hreflang: 'x-default' },
+      { id: 'i18n-can', rel: 'canonical', href: '/fr/blog/post' },
+      { id: 'i18n-alternate-en-US', rel: 'alternate', href: '/blog/post', hreflang: 'en-US' },
+      { id: 'i18n-alternate-fr', rel: 'alternate', href: '/fr/blog/post', hreflang: 'fr' },
+      { id: 'i18n-xd', rel: 'alternate', href: '/blog/post', hreflang: 'x-default' },
     ],
     meta: [
-      { property: 'og:url', content: '//fr/blog' },
-      { property: 'og:locale:alternate', content: 'en_US' },
+      { id: 'i18n-og-url', property: 'og:url', content: '/fr/blog/post' },
+      { id: 'i18n-og-alt-en_US', property: 'og:locale:alternate', content: 'en_US' },
     ],
   })
   // `fr` has no region → no og:locale, a dev warning instead
@@ -352,16 +395,19 @@ test('without a routing strategy the middleware and helpers fall back to plain p
   expect(warn.mock.calls[0]![0]).toContain("Cannot derive og:locale for locale 'fr'")
 
   // same page in the default locale (no prefix): the region-less fr only gets a warning as an alternate
-  const enAstro = { url: new URL('http://site.test/blog'), locals: { ...astro.locals, locale: 'en' } } as unknown as AstroGlobal
-  expect(useLocaleHead(enAstro).link).toEqual([
-    { rel: 'canonical', href: '//blog' },
-    { rel: 'alternate', href: '//blog', hreflang: 'en-US' },
-    { rel: 'alternate', href: '//fr/blog', hreflang: 'fr' },
-    { rel: 'alternate', href: '//blog', hreflang: 'x-default' },
+  const enAstro = {
+    url: new URL('http://site.test/blog'),
+    locals: { ...astro.locals, locale: 'en', currentUrl: new URL('http://site.test/blog') },
+  } as unknown as AstroGlobal
+  expect(useLocaleHead(enAstro).link.map(({ href, hreflang }) => [href, hreflang])).toEqual([
+    ['/blog', undefined],
+    ['/blog', 'en-US'],
+    ['/fr/blog', 'fr'],
+    ['/blog', 'x-default'],
   ])
   expect(warn.mock.calls[1]![0]).toContain("Cannot derive og:locale:alternate for locale 'fr'")
   const enPage = useI18n(enAstro)
-  expect([enPage.switchLocalePath('fr'), enPage.getBasePath(), enPage.getRouteName()]).toEqual(['/fr/blog', '/blog', 'blog'])
+  expect([enPage.switchLocalePath('fr'), enPage.getBasePath(), enPage.getRouteName('/blog')]).toEqual(['/fr/blog', '/blog', 'blog'])
 })
 
 test('a custom routing strategy decides locale, route name and every link the page builds', async () => {
@@ -387,7 +433,7 @@ test('a custom routing strategy decides locale, route name and every link the pa
 
   const page = useI18n(de.astro)
   expect([
-    page.getRouteName(),
+    page.getRouteName('/x'),
     page.getLocaleFromPath(),
     page.switchLocalePath('fr'),
     page.localizePath('/y'),
@@ -405,15 +451,6 @@ test('a custom routing strategy decides locale, route name and every link the pa
   expect([res.locals.locale, res.locals.i18n.getRoute()]).toEqual(['en', 'x-y'])
   const prefixed = await request(bare, '/fr/x/y')
   expect([prefixed.locals.locale, prefixed.locals.i18n.getRoute()]).toEqual(['fr', 'x-y'])
-})
-
-test('a per-request strategy is seen inside the request only: the installed one stays', () => {
-  const strategy = (path: string): I18nRoutingStrategy => ({ getCurrentPath: () => path })
-  const installed = strategy('/')
-  const perRequest = strategy('/de')
-  setGlobalRoutingStrategy(installed)
-  expect(runWithRoutingStrategy(perRequest, () => getGlobalRoutingStrategy())).toBe(perRequest)
-  expect(getGlobalRoutingStrategy()).toBe(installed)
 })
 
 test('detectLocale: path, then cookie, then Accept-Language, else default', () => {
@@ -436,12 +473,10 @@ test('detectLocale: path, then cookie, then Accept-Language, else default', () =
   } as unknown as Headers
   expect(detectLocale('/x', jar(), throwing, 'en', L, 'lang')).toBe('en')
 
-  // a strategy maps unprefixed paths (explicit, then the installed one); a literal prefix stays explicit
+  // a strategy maps unprefixed paths; a literal prefix stays explicit
   const strategy: I18nRoutingStrategy = { getCurrentPath: () => '/', getLocaleFromPath: () => 'de' }
   expect(detectLocale('/x', jar(), headers(), 'en', L, 'lang', strategy)).toBe('de')
   expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang', strategy)).toBe('fr')
-  setGlobalRoutingStrategy(strategy)
-  expect(detectLocale('/x', jar(), headers(), 'en', L, 'lang')).toBe('de')
   // a strategy without getLocaleFromPath → first-segment parsing
   expect(detectLocale('/fr/x', jar(), headers(), 'en', L, 'lang', { getCurrentPath: () => '/' })).toBe('fr')
 })
@@ -476,8 +511,8 @@ test('router adapter outside a request reads the browser location, or `/` on the
   expect(server.removeLocaleFromPath!('/fr/a/b', codes)).toBe('/a/b')
   expect(server.removeLocaleFromPath!('/a/b', codes)).toBe('/a/b')
   expect(server.getRouteName!('/fr', codes)).toBe('index')
-  expect(server.getRouteName!('/fr/a')).toBe('fr-a')
-  expect(server.getLocaleFromPath!('/fr/a')).toBe('en')
+  expect(server.getRouteName!('/fr/a', [])).toBe('fr-a')
+  expect(server.getLocaleFromPath!('/fr/a', 'en', [])).toBe('en')
   // no default given → the locale prefix is always added
   expect(server.switchLocalePath!('/fr/a', 'en', codes)).toBe('/en/a')
   expect(server.localizePath!('/a', 'en', codes)).toBe('/en/a')

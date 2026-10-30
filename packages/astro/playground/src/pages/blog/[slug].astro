@@ -1,0 +1,20 @@
+---
+import { getI18nProps, useI18n, useLocaleHead } from '@i18n-micro/astro'
+import ReactCard from '../../components/islands/ReactCard'
+import VueCounter from '../../components/islands/VueCounter.vue'
+
+const { t, getRoute } = useI18n(Astro)
+const i18n = getI18nProps(Astro)
+const head = useLocaleHead(Astro, { baseUrl: 'https://site.test' })
+---
+
+<html lang={head.htmlAttrs.lang}>
+  <head>{head.link.map((link) => <link rel={link.rel} href={link.href} hreflang={link.hreflang} />)}</head>
+  <body>
+    <p id="route">{getRoute()}</p>
+    <p id="title">{t('post.title')}</p>
+    <pre id="props">{JSON.stringify(i18n)}</pre>
+    <VueCounter client:load i18n={i18n} />
+    <ReactCard client:load i18n={i18n} />
+  </body>
+</html>

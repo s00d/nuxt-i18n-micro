@@ -1,24 +1,22 @@
-import { FormatService } from '@i18n-micro/core'
-import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
-import { computed, type InjectionKey, inject, provide, type Ref, ref } from 'vue'
+import { computed, type InjectionKey, inject, type MaybeRefOrGetter, provide, type Ref, shallowRef, toValue, watch } from 'vue'
 import type { I18nClientProps } from '../utils'
-import { hasTranslation, type I18nState, translate, translatePlural } from './core'
-
-const formatter = new FormatService()
+import { createIslandApi, type I18nState } from './core'
 
 const I18nSymbol = Symbol('i18n-astro') as InjectionKey<Ref<I18nState>>
 
 /**
- * Initializes the i18n provider for a Vue island
- * Call in the island's root component
+ * Initializes the i18n provider for a Vue island. Call in the island's root component, with a
+ * getter (`() => props.i18n`) so an island kept by `transition:persist` follows its new props.
+ * `shallowRef`: translations are never edited in place, and deep tracking costs 11× on every `t`.
  */
-export function provideI18n(props: I18nClientProps): Ref<I18nState> {
-  const state = ref<I18nState>({
-    locale: props.locale,
-    fallbackLocale: props.fallbackLocale,
-    translations: props.translations,
-    currentRoute: props.currentRoute,
-  })
+export function provideI18n(props: MaybeRefOrGetter<I18nClientProps>): Ref<I18nState> {
+  const state = shallowRef<I18nState>(toValue(props))
+  watch(
+    () => toValue(props),
+    (next) => {
+      state.value = next
+    },
+  )
   provide(I18nSymbol, state)
   return state
 }
@@ -31,68 +29,26 @@ export function useAstroI18n() {
   if (!state) {
     throw new Error('useAstroI18n must be used within a component that calls provideI18n')
   }
-
-  const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation => {
-    return translate(state.value, key as string, params, defaultValue, routeName)
-  }
-
-  const ts = (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string => {
-    const value = t(key, params, defaultValue, routeName)
-    return value?.toString() ?? defaultValue ?? (key as string)
-  }
-
-  const tc = (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(state.value, key, count, defaultValue)
-
-  const tn = (value: number, options?: Intl.NumberFormatOptions): string => {
-    return formatter.formatNumber(value, state.value.locale, options)
-  }
-
-  const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => {
-    return formatter.formatDate(value, state.value.locale, options)
-  }
-
-  const tdr = (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
-    return formatter.formatRelativeTime(value, state.value.locale, options)
-  }
-
-  const has = (key: TranslationKey, routeName?: string): boolean => {
-    return hasTranslation(state.value, key as string, routeName)
+  const patch = (change: Partial<I18nState>) => {
+    state.value = { ...state.value, ...change }
   }
 
   return {
-    // Translation methods
-    t,
-    ts,
-    tc,
-    tn,
-    td,
-    tdr,
-    has,
+    ...createIslandApi(() => state.value),
 
     // Reactive locale state
     locale: computed({
       get: () => state.value.locale,
-      set: (val: string) => {
-        state.value = { ...state.value, locale: val }
-      },
+      set: (locale: string) => patch({ locale }),
     }),
     fallbackLocale: computed(() => state.value.fallbackLocale),
     currentRoute: computed({
       get: () => state.value.currentRoute,
-      set: (val: string) => {
-        state.value = { ...state.value, currentRoute: val }
-      },
+      set: (currentRoute: string) => patch({ currentRoute }),
     }),
 
     // Route management
-    setLocale: (locale: string) => {
-      state.value = { ...state.value, locale }
-    },
-    setRoute: (routeName: string) => {
-      state.value = { ...state.value, currentRoute: routeName }
-    },
-    getRoute: (): string => {
-      return state.value.currentRoute
-    },
+    setLocale: (locale: string) => patch({ locale }),
+    setRoute: (currentRoute: string) => patch({ currentRoute }),
   }
 }

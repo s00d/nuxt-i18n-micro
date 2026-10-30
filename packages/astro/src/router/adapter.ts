@@ -2,146 +2,56 @@ import type { Locale } from '@i18n-micro/types'
 import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
 import type { I18nRoutingStrategy } from './types'
 
-/** Route name of an Astro path, without its locale prefix: `/en/blog/post` → `blog-post`, `/` → `index`. */
-export function routeNameFromPath(path: string, locales: string[] = []): string {
+/** A dynamic segment by its name: `[slug]` and `[...slug]` are `slug`, as a page dictionary's folder names them. */
+const PARAM = /\[(?:\.\.\.)?([^\]]+)\]/g
+
+function segmentsOf(path: string, locales: readonly string[]): string[] {
   const segments = path.split('/').filter(Boolean)
   if (segments[0] !== undefined && locales.includes(segments[0])) segments.shift()
-  return segments.length === 0 ? 'index' : segments.join('-')
+  return segments
+}
+
+/** `/en/blog/post` → `blog-post`, `/blog/[slug]` → `blog-slug`, `/` → `index`. */
+export function routeNameFromPath(path: string, locales: readonly string[] = []): string {
+  const segments = segmentsOf(path, locales)
+  return segments.length === 0 ? 'index' : segments.join('-').replace(PARAM, '$1')
+}
+
+const removeLocale = (path: string, locales: readonly string[] = []): string => `/${segmentsOf(path, locales).join('/')}`
+
+/** `path` in `locale`: no prefix for the default locale, or for every locale when no default is given and `locale` is empty. */
+function addLocale(path: string, locale: string, locales: readonly string[] = [], defaultLocale?: string): string {
+  const segments = segmentsOf(path, locales)
+  if (locale !== defaultLocale) segments.unshift(locale)
+  return `/${segments.join('/')}`
 }
 
 /**
- * Factory for Astro router adapter
- * Implements routing utilities for Astro file-based routing
- * Uses standard Astro APIs: Astro.url, context.url
+ * Prefix-except-default routing over plain paths. Paths here never carry Astro's `base`: the
+ * middleware strips it from what comes in and adds it to what goes out.
  */
 export function createAstroRouterAdapter(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL): I18nRoutingStrategy {
-  const localeCodes = locales.map((loc) => loc.code)
-
-  /**
-   * Get route name from Astro path
-   * Extracts route name from path (e.g., /en/about -> about)
-   */
-  const getRouteName = routeNameFromPath
-
-  /**
-   * Get locale from path
-   * Checks if first segment is a locale code
-   */
-  const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string =>
-    localeFromPath(`/${path.replace(/^\/+/, '')}`, locales) ?? defaultLocale
-
-  /**
-   * Switch locale in path
-   * Replaces or adds locale prefix to path
-   */
-  const switchLocalePath = (path: string, newLocale: string, locales: string[] = [], defaultLocale?: string): string => {
-    const segments = path.split('/').filter(Boolean)
-
-    // Remove existing locale if present
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
-    }
-
-    // Add new locale if not default or if default should be included
-    if (newLocale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(newLocale)
-    }
-
-    return `/${segments.join('/')}`
-  }
-
-  /**
-   * Localize path with locale prefix
-   */
-  const localizePath = (path: string, locale: string, locales: string[] = [], defaultLocale?: string): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
-    const segments = cleanPath.split('/').filter(Boolean)
-
-    // Remove existing locale if present
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
-    }
-
-    // Add locale if not default or if defaultLocale should be included
-    if (locale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(locale)
-    }
-
-    return `/${segments.join('/')}`
-  }
-
-  /**
-   * Remove locale from path
-   */
-  const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
-    }
-    return `/${segments.join('/')}`
-  }
-
-  /**
-   * Resolve path for specific locale
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const localeCodes = locales.map((locale) => locale.code)
+  const currentUrl = () => getCurrentUrl?.() ?? (typeof window !== 'undefined' ? new URL(window.location.href) : null)
 
   return {
-    getCurrentPath: () => {
-      // Use provided URL getter (from Astro.url or context.url)
-      if (getCurrentUrl) {
-        return getCurrentUrl().pathname
-      }
-      // Fallback for client-side islands
-      if (typeof window !== 'undefined') {
-        return window.location.pathname
-      }
-      return '/'
-    },
-    getRouteName,
-    getLocaleFromPath,
-    switchLocalePath,
-    localizePath,
-    removeLocaleFromPath,
-    resolvePath,
+    getCurrentPath: () => currentUrl()?.pathname ?? '/',
+    // the pattern names one route for every URL it matches: `/blog/hello` is `blog-slug`
+    getRouteName: (path, codes = [], pattern) => routeNameFromPath(pattern ?? path, codes),
+    getLocaleFromPath: (path, fallback = 'en', codes = []) => localeFromPath(`/${path.replace(/^\/+/, '')}`, codes) ?? fallback,
+    switchLocalePath: addLocale,
+    localizePath: addLocale,
+    removeLocaleFromPath: removeLocale,
+    resolvePath: (to, locale) => addLocale(typeof to === 'string' ? to : to.path || '/', locale, localeCodes, defaultLocale),
     getRoute: () => {
-      // Use provided URL getter (from Astro.url or context.url)
-      if (getCurrentUrl) {
-        const url = getCurrentUrl()
-        return {
-          fullPath: url.pathname + url.search,
-          query: Object.fromEntries(url.searchParams),
-        }
-      }
-      // Fallback for client-side islands
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href)
-        return {
-          fullPath: url.pathname + url.search,
-          query: Object.fromEntries(url.searchParams),
-        }
-      }
-      return {
-        fullPath: '/',
-        query: {},
-      }
+      const url = currentUrl()
+      return url ? { fullPath: url.pathname + url.search, query: Object.fromEntries(url.searchParams) } : { fullPath: '/', query: {} }
     },
-    // Optional: client-side navigation for islands
-    push: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.href = target.path
-      }
+    push: (target) => {
+      if (typeof window !== 'undefined') window.location.href = target.path
     },
-    replace: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.replace(target.path)
-      }
+    replace: (target) => {
+      if (typeof window !== 'undefined') window.location.replace(target.path)
     },
   }
 }

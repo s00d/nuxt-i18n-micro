@@ -8,30 +8,30 @@
 - `GET /de/about/ {}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 - `GET /ar/x/y {}` → {"status":200,"location":null,"vary":null,"locale":"ar","route":"x-y","cookie":{}}
 - `GET /en/about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
-- `GET /fr {}` → {"status":200,"location":null,"vary":null,"locale":"fr","route":"index","cookie":{}}
-- `GET /fr/about {}` → {"status":200,"location":null,"vary":null,"locale":"fr","route":"about","cookie":{}}
+- `GET /fr {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"fr","cookie":{}}
+- `GET /fr/about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"fr-about","cookie":{}}
 - `GET /about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET /about/ {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET /deutsch {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"deutsch","cookie":{}}
 - `GET /about {"cookie":"de","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET / {"acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"acceptLanguage":"de-DE,en;q=0.5"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET / {"acceptLanguage":"fr"}` → {"status":302,"location":"/fr","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
+- `GET / {"acceptLanguage":"fr"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"ja"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"cookie":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET / {"cookie":"fr"}` → {"status":302,"location":"/fr","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
+- `GET / {"cookie":"fr"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"cookie":"xx","acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"cookie":"en","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"de","prerendered":true}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{}}
-- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
+- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
+- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
 - `GET /de {"cookie":"en","referer":"https://elsewhere.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
-- `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-hello","cookie":{}}
-- `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-hello","cookie":{}}
-- `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-a-b","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
+- `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
+- `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}
+- `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-path","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 - `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
-- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_actions-like","cookie":{}}
+- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 
 ## requests, adapter
 
@@ -43,30 +43,30 @@
 - `GET /de/about/ {}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 - `GET /ar/x/y {}` → {"status":200,"location":null,"vary":null,"locale":"ar","route":"x-y","cookie":{}}
 - `GET /en/about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
-- `GET /fr {}` → {"status":200,"location":null,"vary":null,"locale":"fr","route":"index","cookie":{}}
-- `GET /fr/about {}` → {"status":200,"location":null,"vary":null,"locale":"fr","route":"about","cookie":{}}
+- `GET /fr {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"fr","cookie":{}}
+- `GET /fr/about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"fr-about","cookie":{}}
 - `GET /about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET /about/ {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET /deutsch {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"deutsch","cookie":{}}
 - `GET /about {"cookie":"de","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 - `GET / {"acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"acceptLanguage":"de-DE,en;q=0.5"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET / {"acceptLanguage":"fr"}` → {"status":302,"location":"/fr","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
+- `GET / {"acceptLanguage":"fr"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"ja"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"cookie":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET / {"cookie":"fr"}` → {"status":302,"location":"/fr","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
+- `GET / {"cookie":"fr"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"cookie":"xx","acceptLanguage":"de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
 - `GET / {"cookie":"en","acceptLanguage":"de"}` → {"status":200,"location":null,"vary":"Cookie, Accept-Language","locale":"en","route":"index","cookie":{}}
 - `GET / {"acceptLanguage":"de","prerendered":true}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{}}
-- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":302,"location":"/de","vary":"Cookie, Accept-Language","locale":"«undefined»","route":"«undefined»","cookie":{}}
-- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
+- `GET / {"acceptLanguage":"de","referer":"http://site.test/de"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"index","cookie":{"i18n-locale":"en"}}
+- `GET /de {"cookie":"en","referer":"http://site.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{"i18n-locale":"de"}}
 - `GET /de {"cookie":"en","referer":"https://elsewhere.test/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"index","cookie":{}}
-- `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-hello","cookie":{}}
-- `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-hello","cookie":{}}
-- `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-a-b","cookie":{}}
-- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
+- `GET /blog/hello {"routePattern":"/blog/[slug]","params":{"slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"blog-slug","cookie":{}}
+- `GET /de/blog/hello {"routePattern":"/[locale]/blog/[slug]","params":{"locale":"de","slug":"hello"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"blog-slug","cookie":{}}
+- `GET /de/docs/a/b {"routePattern":"/de/docs/[...path]","params":{"path":"a/b"}}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"docs-path","cookie":{}}
+- `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 - `GET /_server-islands/Late {"routePattern":"/_server-islands/[name]","params":{"name":"Late"}}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_server-islands-Late","cookie":{}}
-- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"_actions-like","cookie":{}}
+- `GET /_actions/like {"routePattern":"/_actions/[...path]","params":{"path":"like"},"referer":"http://site.test/de/about"}` → {"status":200,"location":null,"vary":null,"locale":"de","route":"about","cookie":{}}
 
 ## requests, options
 
@@ -85,12 +85,12 @@
 - `getRouteName(/de/)` → "index"
 - `getRouteName(/de/a/b)` → "a-b"
 - `getRouteName(/a/b/)` → "a-b"
-- `getRouteName(/fr/x)` → "x"
+- `getRouteName(/fr/x)` → "fr-x"
 - `getLocaleFromPath(undefined)` → "de"
 - `getLocaleFromPath(/)` → "en"
 - `getLocaleFromPath(/de/x)` → "de"
 - `getLocaleFromPath(/ar)` → "ar"
-- `getLocaleFromPath(/fr/x)` → "fr"
+- `getLocaleFromPath(/fr/x)` → "en"
 - `getLocaleFromPath(/x)` → "en"
 - `switchLocalePath(en)` → "/about"
 - `switchLocalePath(de)` → "/de/about"
@@ -99,7 +99,7 @@
 - `localizePath(/, undefined)` → "/de"
 - `localizePath(/, de)` → "/de"
 - `localizePath(/x, de)` → "/de/x"
-- `localizePath(/x/, de)` → "/de/x"
+- `localizePath(/x/, de)` → "/de/x/"
 - `localizePath(/de/x, en)` → "/x"
 - `localizePath(/x, en)` → "/x"
 - `localizePath(x, de)` → "/de/x"
@@ -119,14 +119,14 @@
 
 ## head on /de/about?x=1
 
-- `useLocaleHead()` → {"htmlAttrs":{"lang":"de-DE","dir":"auto"},"link":[{"rel":"canonical","href":"//de/about"},{"rel":"alternate","href":"//about","hreflang":"en-US"},{"rel":"alternate","href":"//de/about","hreflang":"de-DE"},{"rel":"alternate","href":"//ar/about","hreflang":"ar-EG"},{"rel":"alternate","href":"//about","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"de_DE"},{"property":"og:url","content":"//de/about"},{"property":"og:locale:alternate","content":"en_US"},{"property":"og:locale:alternate","content":"ar_EG"}]}
-- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"de-DE","dir":"auto"},"link":[{"rel":"canonical","href":"https://site.test/de/about"},{"rel":"alternate","href":"https://site.test/about","hreflang":"en-US"},{"rel":"alternate","href":"https://site.test/de/about","hreflang":"de-DE"},{"rel":"alternate","href":"https://site.test/ar/about","hreflang":"ar-EG"},{"rel":"alternate","href":"https://site.test/about","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"de_DE"},{"property":"og:url","content":"https://site.test/de/about"},{"property":"og:locale:alternate","content":"en_US"},{"property":"og:locale:alternate","content":"ar_EG"}]}
+- `useLocaleHead()` → {"htmlAttrs":{"lang":"de-DE","dir":"auto"},"link":[{"id":"i18n-can","rel":"canonical","href":"/de/about"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"/about","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"/de/about","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"/ar/about","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"/about","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"de_DE"},{"id":"i18n-og-url","property":"og:url","content":"/de/about"},{"id":"i18n-og-alt-en_US","property":"og:locale:alternate","content":"en_US"},{"id":"i18n-og-alt-ar_EG","property":"og:locale:alternate","content":"ar_EG"}]}
+- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"de-DE","dir":"auto"},"link":[{"id":"i18n-can","rel":"canonical","href":"https://site.test/de/about"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"https://site.test/about","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"https://site.test/de/about","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"https://site.test/ar/about","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"https://site.test/about","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"de_DE"},{"id":"i18n-og-url","property":"og:url","content":"https://site.test/de/about"},{"id":"i18n-og-alt-en_US","property":"og:locale:alternate","content":"en_US"},{"id":"i18n-og-alt-ar_EG","property":"og:locale:alternate","content":"ar_EG"}]}
 - `useLocaleHead(no seo)` → {"htmlAttrs":{"lang":"de-DE"},"link":[],"meta":[]}
 
 ## props on /de/about?x=1
 
-- `getI18nProps()` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"Über"}}}
-- `getI18nProps([])` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"Über"}}}
+- `getI18nProps()` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps([])` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
 - `getI18nProps(keys)` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"Über","a":{"b":"DE AB"},"only":"en only","island":{"cta":"Buy"}}}}
 - `getI18nProps(a, a.b)` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"DE AB"}}}}
 - `GET /about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
@@ -141,12 +141,12 @@
 - `getRouteName(/de/)` → "index"
 - `getRouteName(/de/a/b)` → "a-b"
 - `getRouteName(/a/b/)` → "a-b"
-- `getRouteName(/fr/x)` → "x"
+- `getRouteName(/fr/x)` → "fr-x"
 - `getLocaleFromPath(undefined)` → "en"
 - `getLocaleFromPath(/)` → "en"
 - `getLocaleFromPath(/de/x)` → "de"
 - `getLocaleFromPath(/ar)` → "ar"
-- `getLocaleFromPath(/fr/x)` → "fr"
+- `getLocaleFromPath(/fr/x)` → "en"
 - `getLocaleFromPath(/x)` → "en"
 - `switchLocalePath(en)` → "/about"
 - `switchLocalePath(de)` → "/de/about"
@@ -155,7 +155,7 @@
 - `localizePath(/, undefined)` → "/"
 - `localizePath(/, de)` → "/de"
 - `localizePath(/x, de)` → "/de/x"
-- `localizePath(/x/, de)` → "/de/x"
+- `localizePath(/x/, de)` → "/de/x/"
 - `localizePath(/de/x, en)` → "/x"
 - `localizePath(/x, en)` → "/x"
 - `localizePath(x, de)` → "/de/x"
@@ -175,14 +175,14 @@
 
 ## head on /about
 
-- `useLocaleHead()` → {"htmlAttrs":{"lang":"en-US","dir":"auto"},"link":[{"rel":"canonical","href":"//about"},{"rel":"alternate","href":"//about","hreflang":"en-US"},{"rel":"alternate","href":"//de/about","hreflang":"de-DE"},{"rel":"alternate","href":"//ar/about","hreflang":"ar-EG"},{"rel":"alternate","href":"//about","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"en_US"},{"property":"og:url","content":"//about"},{"property":"og:locale:alternate","content":"de_DE"},{"property":"og:locale:alternate","content":"ar_EG"}]}
-- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"en-US","dir":"auto"},"link":[{"rel":"canonical","href":"https://site.test/about"},{"rel":"alternate","href":"https://site.test/about","hreflang":"en-US"},{"rel":"alternate","href":"https://site.test/de/about","hreflang":"de-DE"},{"rel":"alternate","href":"https://site.test/ar/about","hreflang":"ar-EG"},{"rel":"alternate","href":"https://site.test/about","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"en_US"},{"property":"og:url","content":"https://site.test/about"},{"property":"og:locale:alternate","content":"de_DE"},{"property":"og:locale:alternate","content":"ar_EG"}]}
+- `useLocaleHead()` → {"htmlAttrs":{"lang":"en-US","dir":"auto"},"link":[{"id":"i18n-can","rel":"canonical","href":"/about"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"/about","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"/de/about","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"/ar/about","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"/about","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"en_US"},{"id":"i18n-og-url","property":"og:url","content":"/about"},{"id":"i18n-og-alt-de_DE","property":"og:locale:alternate","content":"de_DE"},{"id":"i18n-og-alt-ar_EG","property":"og:locale:alternate","content":"ar_EG"}]}
+- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"en-US","dir":"auto"},"link":[{"id":"i18n-can","rel":"canonical","href":"https://site.test/about"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"https://site.test/about","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"https://site.test/de/about","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"https://site.test/ar/about","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"https://site.test/about","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"en_US"},{"id":"i18n-og-url","property":"og:url","content":"https://site.test/about"},{"id":"i18n-og-alt-de_DE","property":"og:locale:alternate","content":"de_DE"},{"id":"i18n-og-alt-ar_EG","property":"og:locale:alternate","content":"ar_EG"}]}
 - `useLocaleHead(no seo)` → {"htmlAttrs":{"lang":"en-US"},"link":[],"meta":[]}
 
 ## props on /about
 
-- `getI18nProps()` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"About","island":{"cta":"Buy"}}}}
-- `getI18nProps([])` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"About","island":{"cta":"Buy"}}}}
+- `getI18nProps()` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps([])` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
 - `getI18nProps(keys)` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"About","a":{"b":"AB"},"only":"en only","island":{"cta":"Buy"}}}}
 - `getI18nProps(a, a.b)` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"AB"}}}}
 - `GET /ar/x {}` → {"status":200,"location":null,"vary":null,"locale":"ar","route":"x","cookie":{}}
@@ -197,12 +197,12 @@
 - `getRouteName(/de/)` → "index"
 - `getRouteName(/de/a/b)` → "a-b"
 - `getRouteName(/a/b/)` → "a-b"
-- `getRouteName(/fr/x)` → "x"
+- `getRouteName(/fr/x)` → "fr-x"
 - `getLocaleFromPath(undefined)` → "ar"
 - `getLocaleFromPath(/)` → "en"
 - `getLocaleFromPath(/de/x)` → "de"
 - `getLocaleFromPath(/ar)` → "ar"
-- `getLocaleFromPath(/fr/x)` → "fr"
+- `getLocaleFromPath(/fr/x)` → "en"
 - `getLocaleFromPath(/x)` → "en"
 - `switchLocalePath(en)` → "/x"
 - `switchLocalePath(de)` → "/de/x"
@@ -211,7 +211,7 @@
 - `localizePath(/, undefined)` → "/ar"
 - `localizePath(/, de)` → "/de"
 - `localizePath(/x, de)` → "/de/x"
-- `localizePath(/x/, de)` → "/de/x"
+- `localizePath(/x/, de)` → "/de/x/"
 - `localizePath(/de/x, en)` → "/x"
 - `localizePath(/x, en)` → "/x"
 - `localizePath(x, de)` → "/de/x"
@@ -231,14 +231,14 @@
 
 ## head on /ar/x
 
-- `useLocaleHead()` → {"htmlAttrs":{"lang":"ar-EG","dir":"rtl"},"link":[{"rel":"canonical","href":"//ar/x"},{"rel":"alternate","href":"//x","hreflang":"en-US"},{"rel":"alternate","href":"//de/x","hreflang":"de-DE"},{"rel":"alternate","href":"//ar/x","hreflang":"ar-EG"},{"rel":"alternate","href":"//x","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"ar_EG"},{"property":"og:url","content":"//ar/x"},{"property":"og:locale:alternate","content":"en_US"},{"property":"og:locale:alternate","content":"de_DE"}]}
-- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"ar-EG","dir":"rtl"},"link":[{"rel":"canonical","href":"https://site.test/ar/x"},{"rel":"alternate","href":"https://site.test/x","hreflang":"en-US"},{"rel":"alternate","href":"https://site.test/de/x","hreflang":"de-DE"},{"rel":"alternate","href":"https://site.test/ar/x","hreflang":"ar-EG"},{"rel":"alternate","href":"https://site.test/x","hreflang":"x-default"}],"meta":[{"property":"og:locale","content":"ar_EG"},{"property":"og:url","content":"https://site.test/ar/x"},{"property":"og:locale:alternate","content":"en_US"},{"property":"og:locale:alternate","content":"de_DE"}]}
+- `useLocaleHead()` → {"htmlAttrs":{"lang":"ar-EG","dir":"rtl"},"link":[{"id":"i18n-can","rel":"canonical","href":"/ar/x"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"/x","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"/de/x","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"/ar/x","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"/x","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"ar_EG"},{"id":"i18n-og-url","property":"og:url","content":"/ar/x"},{"id":"i18n-og-alt-en_US","property":"og:locale:alternate","content":"en_US"},{"id":"i18n-og-alt-de_DE","property":"og:locale:alternate","content":"de_DE"}]}
+- `useLocaleHead(baseUrl)` → {"htmlAttrs":{"lang":"ar-EG","dir":"rtl"},"link":[{"id":"i18n-can","rel":"canonical","href":"https://site.test/ar/x"},{"id":"i18n-alternate-en-US","rel":"alternate","href":"https://site.test/x","hreflang":"en-US"},{"id":"i18n-alternate-de-DE","rel":"alternate","href":"https://site.test/de/x","hreflang":"de-DE"},{"id":"i18n-alternate-ar-EG","rel":"alternate","href":"https://site.test/ar/x","hreflang":"ar-EG"},{"id":"i18n-xd","rel":"alternate","href":"https://site.test/x","hreflang":"x-default"}],"meta":[{"id":"i18n-og","property":"og:locale","content":"ar_EG"},{"id":"i18n-og-url","property":"og:url","content":"https://site.test/ar/x"},{"id":"i18n-og-alt-en_US","property":"og:locale:alternate","content":"en_US"},{"id":"i18n-og-alt-de_DE","property":"og:locale:alternate","content":"de_DE"}]}
 - `useLocaleHead(no seo)` → {"htmlAttrs":{"lang":"ar-EG"},"link":[],"meta":[]}
 
 ## props on /ar/x
 
-- `getI18nProps()` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{}}
-- `getI18nProps([])` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{}}
+- `getI18nProps()` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
+- `getI18nProps([])` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
 - `getI18nProps(keys)` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"title":"Root title","a":{"b":"AB"},"only":"en only"}}}
 - `getI18nProps(a, a.b)` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"a":{"b":"AB"}}}}
 
@@ -248,7 +248,7 @@
 - `prepareLocaleRewrite ok` → "/about"
 - `locals.locale` → "ar"
 - `prepareLocaleRewrite bad` → 404
-- `prepareLocaleRewrite disabled` → "/about"
+- `prepareLocaleRewrite disabled` → 404
 
 ## adapter
 
@@ -324,7 +324,7 @@
 - `has(title)` → true
 - `translate(o)` → {"x":"X"}
 - `translate(o, D)` → {"x":"X"}
-- `has(o)` → false
+- `has(o)` → true
 - `translate(o.x)` → "X"
 - `translate(o.x, D)` → "X"
 - `has(o.x)` → true
@@ -338,7 +338,7 @@
 - `translate(nope, D)` → "D"
 - `has(nope)` → false
 - `translate()` → ""
-- `translate(, D)` → "D"
+- `translate(, D)` → ""
 - `has()` → false
 - `translate(toString)` → "toString"
 - `translate(toString, D)` → "D"

@@ -22,7 +22,7 @@ describe('loadTranslationBuckets (plugin-internal)', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const buckets = loadTranslationBuckets({ translationDir: tmp })
     expect(buckets.root).toEqual({ fr: { ok: true } })
-    expect(error).toHaveBeenCalledWith(expect.stringContaining('Skipping en.json'))
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('Skipping translation file'))
     error.mockRestore()
   })
 

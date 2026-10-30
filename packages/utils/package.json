@@ -345,6 +345,21 @@
       },
       "default": "./dist/app-path.mjs"
     },
+    "./load-dir": {
+      "production": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "import": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "require": {
+        "types": "./dist/load-dir.d.cts",
+        "default": "./dist/load-dir.cjs"
+      },
+      "default": "./dist/load-dir.mjs"
+    },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },

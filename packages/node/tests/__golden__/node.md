@@ -1,18 +1,18 @@
 ## loader
 
-- `root locales` → ["en","list","null"]
+- `root locales` → ["de","en","fr"]
 - `root.en` → {"hello":"Hello","a":{"b":"AB"}}
-- `root.de` → undefined
-- `root.fr` → undefined
+- `root.de` → {"hello":"Hallo"}
+- `root.fr` → {"hello":"Salut"}
 - `route names` → ["about","constructor","user-profile"]
 - `({}).polluted` → undefined
 - `missing dir` → {"root":{},"routes":{}}
 
 ## instance
 
-- `load` → "Invalid value used as weak map key"
-- `t` → ["Hello","AB","title"]
-- `t de` → "Hello"
-- `has` → [false,false]
-- `reload` → "Invalid value used as weak map key"
+- `load` → "ok"
+- `t` → ["Hello","AB","About"]
+- `t de` → "Hallo"
+- `has` → [true,true]
+- `reload` → "ok"
 - `after reload` → ["Changed","a.b"]

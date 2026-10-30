@@ -55,8 +55,7 @@
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
-    "@i18n-micro/types": "workspace:^",
-    "@i18n-micro/utils": "workspace:^"
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

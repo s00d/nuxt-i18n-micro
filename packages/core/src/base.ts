@@ -7,6 +7,10 @@ import { mergeTranslationLayers, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
   storage?: TranslationStorage
+  /** Instead of `storage`: a helper of the adapter's own, such as a fork's copy-on-write one. */
+  helper?: TranslationHelper
+  /** Shared formatters: a request instance keeps its parent's `Intl` objects, which are costly to build. */
+  formatter?: FormatService
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
@@ -73,8 +77,8 @@ export abstract class BaseI18n {
   private fallbackRootKey = new ChunkKey()
 
   constructor(options: BaseI18nOptions = {}) {
-    this.helper = new TranslationHelper(options.storage)
-    this.formatter = new FormatService(options)
+    this.helper = options.helper ?? new TranslationHelper(options.storage)
+    this.formatter = options.formatter ?? new FormatService(options)
     const plural = options.plural
     // A custom rule returning null/undefined falls back to the default one (#241).
     this.pluralFunc = plural && plural !== defaultPlural ? (...args) => plural(...args) ?? defaultPlural(...args) : defaultPlural

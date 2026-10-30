@@ -4,21 +4,21 @@
 - `ts(hi, {"name":"Jo"}, undefined)` → "Hallo Jo"
 - `t(only, undefined, undefined)` → "en only"
 - `ts(only, undefined, undefined)` → "en only"
-- `t(root, undefined, undefined)` → "root"
-- `ts(root, undefined, undefined)` → "root"
+- `t(root, undefined, undefined)` → "R"
+- `ts(root, undefined, undefined)` → "R"
 - `t(miss, undefined, undefined)` → "miss"
 - `ts(miss, undefined, undefined)` → "miss"
-- `t(miss, undefined, )` → ""
-- `ts(miss, undefined, )` → ""
+- `t(miss, undefined, )` → "miss"
+- `ts(miss, undefined, )` → "miss"
 - `t(miss, undefined, D)` → "D"
 - `ts(miss, undefined, D)` → "D"
 - `t(o, undefined, undefined)` → {"p":"P"}
 - `ts(o, undefined, undefined)` → "[object Object]"
 - `t(o.p, undefined, undefined)` → "P"
 - `ts(o.p, undefined, undefined)` → "P"
-- `t(, undefined, D)` → "D"
-- `ts(, undefined, D)` → "D"
-- `has` → [true,false,false,false]
+- `t(, undefined, D)` → ""
+- `ts(, undefined, D)` → ""
+- `has` → [true,false,true,false]
 - `_t(other)` → "hi"
 - `_t({name})` → "Hallo Jo"
 
@@ -28,27 +28,27 @@
 - `tc(a, 1)` → "y"
 - `tc(a, 2)` → "z"
 - `tc(a, 5)` → "z"
-- `tc(a, 1.5)` → "y"
+- `tc(a, 1.5)` → "z"
 - `tc(a, -1)` → "z"
 - `tc(a, NaN)` → "z"
-- `tc(a, {count: null})` → throws TypeError: Cannot read properties of null (reading 'toString')
+- `tc(a, {count: null})` → "a"
 - `tc(a, {})` → "a"
-- `tc(miss, 1, D)` → "miss"
+- `tc(miss, 1, D)` → "D"
 
 ## format
 
 - `tn` → "1.234,5"
 - `tn currency` → "1,00 €"
 - `td` → "15.6.2024"
-- `td(nope)` → throws RangeError: Invalid time value
-- `tdr +1 day` → "morgen"
-- `tdr +1.6h` → "in 2 Stunden"
+- `td(nope)` → "Invalid Date"
+- `tdr +1 day` → "in 1 Tag"
+- `tdr +1.6h` → "in 1 Stunde"
 - `tdr -3 days` → "vor 3 Tagen"
 
 ## writes
 
-- `resolveTranslations` → {"hi":"Hallo {name}","only":"en only","a":"x | y | z","o":{"p":"P"}}
-- `after writes` → ["A","Q",{"hi":"Hallo {name}","only":"en only","a":"x | y | z","o":{"p":"P","q":"Q"},"added":"A"}]
+- `resolveTranslations` → {"hi":"Hallo {name}","only":"en only","a":"x | y | z","o":{"p":"P"},"root":"R"}
+- `after writes` → ["A","Q",{"hi":"Hallo {name}","only":"en only","a":"x | y | z","o":{"p":"P","q":"Q"},"root":"R","added":"A"}]
 
 ## paths
 

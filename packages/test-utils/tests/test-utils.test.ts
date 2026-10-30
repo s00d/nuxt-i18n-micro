@@ -204,8 +204,8 @@ describe('isolation', () => {
   })
 
   test('two isolated contexts stay independent', () => {
-    const a = createI18nTestContext({ isolated: true, translations: { k: 'A' } })
-    const b = createI18nTestContext({ isolated: true, translations: { k: 'B' } })
+    const a = createI18nTestContext({ translations: { k: 'A' } })
+    const b = createI18nTestContext({ translations: { k: 'B' } })
 
     expect(a.t('k')).toBe('A')
     expect(b.t('k')).toBe('B')

@@ -34,12 +34,16 @@ function optionsKey(options: object | undefined): string {
   return key
 }
 
-/** One formatter per locale + options, created on first use. */
+/** Enough for every format a real app uses; a loop over generated options cannot grow the cache past it. */
+const MAX_FORMATTERS = 500
+
+/** One formatter per locale + options, created on first use. Bounded, cleared wholesale. */
 function cached<F, O extends object>(cache: Map<string, F>, locale: string, options: O | undefined, create: (locale: string, options?: O) => F): F {
   const key = `${locale}\0${optionsKey(options)}`
   let formatter = cache.get(key)
   if (formatter === undefined) {
     formatter = create(locale, options)
+    if (cache.size >= MAX_FORMATTERS) cache.clear()
     cache.set(key, formatter)
   }
   return formatter

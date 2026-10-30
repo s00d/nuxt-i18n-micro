@@ -1,110 +1,44 @@
-import { FormatService } from '@i18n-micro/core'
-import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, type Dispatch, type SetStateAction, useContext, useMemo, useState } from 'react'
 import type { I18nClientProps } from '../utils'
-import { hasTranslation, type I18nState, translate, translatePlural } from './core'
+import { createIslandApi, type I18nState } from './core'
 
-const formatter = new FormatService()
-
-const I18nContext = createContext<I18nState | null>(null)
-
-/**
- * Провайдер для i18n в React островах
- */
-export function I18nProvider({ children, value }: { children: React.ReactNode; value: I18nClientProps }): React.ReactElement {
-  const [state] = useState<I18nState>(() => ({
-    locale: value.locale,
-    fallbackLocale: value.fallbackLocale,
-    translations: value.translations,
-    currentRoute: value.currentRoute,
-  }))
-
-  return React.createElement(I18nContext.Provider, { value: state }, children)
+interface I18nContextValue {
+  state: I18nState
+  setState: Dispatch<SetStateAction<I18nState>>
 }
 
-/**
- * Хук для использования i18n в React компонентах
- */
+const I18nContext = createContext<I18nContextValue | null>(null)
+
+/** Провайдер для i18n в React островах. Новый `value` (остров с `transition:persist`) заменяет состояние. */
+export function I18nProvider({ children, value }: { children: React.ReactNode; value: I18nClientProps }): React.ReactElement {
+  const [state, setState] = useState<I18nState>(value)
+  const [seen, setSeen] = useState(value)
+  if (seen !== value) {
+    setSeen(value)
+    setState(value)
+  }
+  const context = useMemo(() => ({ state, setState }), [state])
+  return React.createElement(I18nContext.Provider, { value: context }, children)
+}
+
+/** Хук для использования i18n в React компонентах */
 export function useAstroI18n() {
-  const state = useContext(I18nContext)
-  if (!state) {
+  const context = useContext(I18nContext)
+  if (!context) {
     throw new Error('useAstroI18n must be used within an I18nProvider')
   }
-
-  const t = useMemo(
-    () =>
-      (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation => {
-        return translate(state, key as string, params, defaultValue, routeName)
-      },
-    [state],
-  )
-
-  const ts = useMemo(
-    () =>
-      (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string => {
-        const value = t(key, params, defaultValue, routeName)
-        return value?.toString() ?? defaultValue ?? (key as string)
-      },
-    [t],
-  )
-
-  const tc = useMemo(
-    () =>
-      (key: TranslationKey, count: number | Params, defaultValue?: string): string =>
-        translatePlural(state, key, count, defaultValue),
-    [state],
-  )
-
-  const tn = useMemo(
-    () =>
-      (value: number, options?: Intl.NumberFormatOptions): string => {
-        return formatter.formatNumber(value, state.locale, options)
-      },
-    [state.locale],
-  )
-
-  const td = useMemo(
-    () =>
-      (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => {
-        return formatter.formatDate(value, state.locale, options)
-      },
-    [state.locale],
-  )
-
-  const tdr = useMemo(
-    () =>
-      (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
-        return formatter.formatRelativeTime(value, state.locale, options)
-      },
-    [state.locale],
-  )
-
-  const has = useMemo(
-    () =>
-      (key: TranslationKey, routeName?: string): boolean => {
-        return hasTranslation(state, key as string, routeName)
-      },
-    [state],
-  )
+  const { state, setState } = context
+  const api = useMemo(() => createIslandApi(() => state), [state])
 
   return {
-    // Translation methods
-    t,
-    ts,
-    tc,
-    tn,
-    td,
-    tdr,
-    has,
+    ...api,
 
     // Locale state
     locale: state.locale,
     fallbackLocale: state.fallbackLocale,
     currentRoute: state.currentRoute,
 
-    // Route management (read-only в клиентских островах)
-    getRoute: (): string => {
-      return state.currentRoute
-    },
+    setLocale: (locale: string) => setState((current) => ({ ...current, locale })),
+    setRoute: (currentRoute: string) => setState((current) => ({ ...current, currentRoute })),
   }
 }

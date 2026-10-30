@@ -6,7 +6,7 @@ outline: [2, 3]
 
 # Runtime overrides
 
-Runtime overrides let one build artifact run with different locale settings per environment or tenant, without rebuilding. You can change the default locale, the fallback locale and which locales are disabled. Routing, redirects, rendering, server helpers and the browser all use the overridden values.
+Runtime overrides let one build artifact run with different locale settings per environment or tenant, without rebuilding. You can change the default locale, the fallback locale and which locales are disabled. Routing, redirects, rendering and server helpers use the overridden values, and so does the browser on a server-rendered page.
 
 ## Set overrides with environment variables
 
@@ -23,7 +23,7 @@ node .output/server/index.mjs
 | `NUXT_I18N_FALLBACK_LOCALE` | `NUXT_PUBLIC_I18N_RUNTIME_FALLBACK_LOCALE` |
 | `NUXT_I18N_DISABLED_LOCALES` (comma-separated) | `NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES` |
 
-The server reads them once at start; restart to apply a change. The browser gets the resolved values from the server, so they work on the client too.
+The server reads them once at start; restart to apply a change. On a server-rendered page the browser gets the resolved values from the server. With `ssr: false` there is no server render and the browser has no environment: only `runtimeConfig.public.i18nRuntime` applies there, and the browser logs the warnings below.
 
 ## Set overrides in runtimeConfig
 

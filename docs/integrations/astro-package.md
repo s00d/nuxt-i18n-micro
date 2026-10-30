@@ -72,6 +72,7 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   autoDetect: config.autoDetect,
+  redirectToDefault: config.redirectToDefault,
   localeCookie: config.localeCookie,
   routingStrategy: createAstroRouterAdapter(config.locales, config.defaultLocale),
 })
@@ -79,17 +80,20 @@ export const onRequest = createI18nMiddleware({
 
 ### Integration options
 
-| Option | Default | Effect |
+The integration takes these eight options and publishes each one in `config`. Nothing happens until your middleware reads the value.
+
+| Option | Default | Published as |
 | --- | --- | --- |
 | `locale` | required | `config.defaultLocale` |
 | `fallbackLocale` | `locale` | `config.fallbackLocale` |
 | `locales` | `[]` | `config.locales`, `config.localeCodes` |
 | `translationDir` | `null` | `config.translationDir`; nothing is loaded unless your middleware loads it |
 | `autoDetect` | `true` | `config.autoDetect` |
+| `redirectToDefault` | `false` | `config.redirectToDefault` |
 | `localeCookie` | `'i18n-locale'` | `config.localeCookie`; `null` disables the cookie |
 | `missingWarn` | `false` | `config.missingWarn` |
 
-Options such as `messages`, `plural`, `missingHandler` or `redirectToDefault` are accepted by the type but do nothing: set `plural` and `missingHandler` on `createI18n` in the middleware instead.
+Messages, plural rules, a missing-key handler and a router adapter cannot cross from the config process to the server bundle: pass them to `createI18n` and `createI18nMiddleware` in `src/middleware.ts`.
 
 ### Middleware options
 
@@ -100,8 +104,9 @@ Options such as `messages`, `plural`, `missingHandler` or `redirectToDefault` ar
 | `locales` | required | Locale codes. |
 | `localeObjects` | `locales` as `{ code }` | Full `Locale` objects (`iso`, `dir`, `displayName`) for components and SEO. |
 | `autoDetect` | `true` | Home-page redirect, see [Locale detection](#locale-detection). |
+| `redirectToDefault` | `false` | `/` also redirects when nothing prefers another locale, to the default locale's home. |
 | `localeCookie` | `'i18n-locale'` | `null` disables the cookie. |
-| `routingStrategy` | — | Router adapter; pass it here (setting it on the integration does not reach the server bundle reliably). |
+| `routingStrategy` | — | Router adapter. |
 
 On the edge (Cloudflare, Vercel Edge) there is no file system: load dictionaries with `import.meta.glob` and `addTranslations` instead of `loadTranslationsIntoI18n`.
 
@@ -178,7 +183,7 @@ The URL decides the page's locale:
 2. Otherwise what the router adapter's `getLocaleFromPath` returns, if it is not the default.
 3. Otherwise the default locale. `/about` is always the default locale's page, whatever the cookie says.
 
-`autoDetect` is a redirect hint on the home page only. A request for `/` whose cookie or `Accept-Language` (q-weights honoured; `de-DE` matches a `de` locale, `de` matches a `de-DE` one) prefers another locale gets a `302` to that locale's home (`/de`). The `/` response carries `Vary: Cookie, Accept-Language` (`Accept-Language` only when `localeCookie` is `null`). Prerendered pages never redirect. `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?)` returns the same preferred locale for your own logic.
+`autoDetect` is a redirect hint on the home page only. A request for `/` whose cookie or `Accept-Language` (q-weights honoured; `de-DE` matches a `de` locale, `de` matches a `de-DE` one) prefers another locale gets a `302` to that locale's home (`/de`). With `redirectToDefault`, `/` always redirects: to the preferred locale's home, else the default locale's. The `/` response carries `Vary: Cookie, Accept-Language` (`Accept-Language` only when `localeCookie` is `null`). Prerendered pages never redirect. `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?)` returns the same preferred locale for your own logic.
 
 The cookie is read, never written: set it yourself when the visitor picks a language if you want the home page to remember it.
 

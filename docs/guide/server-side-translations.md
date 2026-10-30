@@ -46,7 +46,7 @@ export default defineEventHandler((event) => {
 ```ts
 interface LocaleInfo {
   current: string // detected locale code
-  default: string // defaultLocale (runtime overrides included)
+  default: string // defaultLocale, runtime overrides included (fixed at build under prefix_except_default / prefix_and_default)
   fallback: string // fallbackLocale, else the default
   available: string[] // enabled locale codes
   locale: Locale | null // the config entry of `current`
@@ -61,7 +61,7 @@ Both helpers use the same order on every server route, `/api` or not:
 
 1. `?locale=` query (first value when repeated);
 2. a `[locale]` route param, or a locale prefix in the path (`/de/...`);
-3. the locale cookie, when [`localeCookie`](/api/module-options#localecookie) is set;
+3. the locale cookie, when [`localeCookie`](/api/module-options#localecookie) is set (`hash-locale` under `hashMode`);
 4. `Accept-Language`, when `autoDetectLanguage` is on (q-values respected);
 5. `defaultLocale`.
 

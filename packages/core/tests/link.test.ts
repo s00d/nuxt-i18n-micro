@@ -11,6 +11,11 @@ describe('routeQuery', () => {
     ['?flag=', { flag: '' }],
     ['?a&a=1&&b', { a: [null, '1'], b: null }],
     ['?q=a+b%20c', { q: 'a b c' }],
+    ['?q=%2B', { q: '+' }],
+    // as vue-router: a value that does not decode stays as written, with no U+FFFD
+    ['?a=%E0%A4%A&b=%E0%A4%A5', { a: '%E0%A4%A', b: 'थ' }],
+    ['?%E0%A4%A=1', { '%E0%A4%A': '1' }],
+    ['?a=%zz', { a: '%zz' }],
   ])('%s', (search, query) => {
     expect(routeQuery(search)).toEqual(query)
   })

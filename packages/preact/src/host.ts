@@ -39,10 +39,12 @@ export function useStore<T>(subscribe: (listener: () => void) => () => void, rea
 /** Preact's own rule for a number without a unit. */
 const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i
 
-const declaration = ([name, value]: [string, unknown]): string =>
-  `${name[0] === '-' ? name : name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}:${
-    typeof value === 'number' && !IS_NON_DIMENSIONAL.test(name) ? `${value}px` : value
-  }`
+/** What Preact's `setStyle` does for one entry: `cssText` is raw CSS, `--name` is a custom property and takes no unit. */
+const declaration = ([name, value]: [string, unknown]): string => {
+  if (name === 'cssText') return String(value)
+  if (name[0] === '-') return `${name}:${value}`
+  return `${name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}:${typeof value === 'number' && !IS_NON_DIMENSIONAL.test(name) ? `${value}px` : value}`
+}
 
 const cssText = (style: CSSProperties | string): string =>
   typeof style === 'string'

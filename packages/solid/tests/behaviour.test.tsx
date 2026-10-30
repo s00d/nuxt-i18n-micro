@@ -556,6 +556,16 @@ describe('string styles', () => {
     expect(i18n.locale).toBe('de')
   })
 
+  test('I18nSwitcher with a custom localeRoute and no router links to this page in that locale', () => {
+    const here = window.location.href
+    window.history.replaceState(null, '', '/about?x=1#h')
+    const container = withI18n(instance(), () => <I18nSwitcher locales={locales} localeRoute={(to, code) => `/${code}${to as string}`} />)
+    container.querySelector('button')!.click()
+    const href = container.querySelector('.switcher-locale-de')!.getAttribute('href')
+    window.history.replaceState(null, '', here)
+    expect(href).toBe('/de/about?x=1#h')
+  })
+
   test('I18nSwitcher keeps a string style over its own', () => {
     const container = withI18n(instance(), () => <I18nSwitcher style="margin-top: 3px; display: block" customWrapperStyle={{ color: 'red' }} />)
     const wrapper = container.querySelector<HTMLElement>('.i18n-switcher-wrapper')!

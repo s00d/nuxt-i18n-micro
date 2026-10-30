@@ -19,20 +19,30 @@ export function externalLinkHref(to: unknown): string | undefined {
 export const localeIsoMap = (locales: readonly { code: string; iso?: string }[]): Record<string, string> =>
   Object.fromEntries(locales.flatMap(({ code, iso }) => (iso ? [[code, iso]] : [])))
 
+/** A query part that does not decode stays as written: `URLSearchParams` would put U+FFFD in it. */
+const decodeQueryPart = (part: string): string => {
+  try {
+    return decodeURIComponent(part)
+  } catch {
+    return part
+  }
+}
+
 /**
  * The `query` of a route from a search string, as vue-router parses it: `?tag=a&tag=b` gives
- * `{ tag: ['a', 'b'] }`, `?flag` gives `{ flag: null }`.
+ * `{ tag: ['a', 'b'] }`, `?flag` gives `{ flag: null }`. An empty pair (`?a&&b`) counts for nothing.
  */
 export function routeQuery(search: string | undefined): Record<string, string | null | (string | null)[]> {
-  // URLSearchParams answers one entry per non-empty pair, in order; only the raw pair says `?a` from `?a=`
-  const pairs = (search ?? '').replace(/^\?/, '').split('&').filter(Boolean)
   const values = new Map<string, (string | null)[]>()
-  ;[...new URLSearchParams(search)].forEach(([key, value], index) => {
-    const parsed = pairs[index]!.includes('=') ? value : null
+  for (const pair of (search ?? '').replace(/^\?/, '').split('&').filter(Boolean)) {
+    const text = pair.replace(/\+/g, ' ')
+    const equals = text.indexOf('=')
+    const key = decodeQueryPart(equals < 0 ? text : text.slice(0, equals))
+    const parsed = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))
     const known = values.get(key)
     if (known) known.push(parsed)
     else values.set(key, [parsed])
-  })
+  }
   return Object.fromEntries([...values].map(([key, list]) => [key, list.length > 1 ? list : list[0]!]))
 }
 

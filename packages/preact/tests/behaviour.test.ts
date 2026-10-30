@@ -5,6 +5,7 @@ import { renderToString } from 'preact-render-to-string'
 import { describe, expect, test, vi } from 'vitest'
 import { behaviourSuite } from '../../react/tests/shared/behaviour'
 import * as lib from '../src'
+import { type HostStyle, mergeStyles } from '../src/host'
 
 behaviourSuite({
   h,
@@ -49,6 +50,11 @@ describe('a string style', () => {
     )
     const link = container.querySelector('a')!
     expect([link.style.marginTop, link.style.fontWeight, link.style.marginBottom]).toEqual(['3px', '700', '2px'])
+  })
+
+  test('an object merged into it reads as Preact would apply it', () => {
+    const merged = mergeStyles('margin-top: 3px', { '--columns': 3, cssText: 'color: red', marginBottom: 2, opacity: 0 } as HostStyle)
+    expect(merged).toBe('margin-top: 3px;--columns:3;color: red;margin-bottom:2px;opacity:0')
   })
 
   test('renders on the server too', () => {

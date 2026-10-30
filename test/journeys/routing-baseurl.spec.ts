@@ -4,7 +4,7 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 describe('journey: routing variants — app.baseURL + prefix', () => {
   test.override({ harness: 'strategy-baseurl' })
 
-  test('/examples redirects once to the default locale, no loop', async ({ page, goto, request }) => {
+  test('/examples redirects once to the default locale, no loop', async ({ page, goto, request, baseURL }) => {
     // step 1: GET /examples → one 3xx to /examples/en, and the target serves 200 (no second hop)
     // was: baseurl-prefix-redirect › GET /examples redirects once to /examples/ja without loop
     const root = await request.get('/examples', { maxRedirects: 0 })
@@ -25,5 +25,11 @@ describe('journey: routing variants — app.baseURL + prefix', () => {
     await goto('/examples/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/examples/de')
     await expect(page.locator('#content')).toHaveText('de')
+
+    // step 5: head on /examples/de → canonical and alternates carry app.baseURL
+    const origin = new URL(baseURL).origin
+    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${origin}/examples/de`)
+    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${origin}/examples/de`)
+    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${origin}/examples/en`)
   })
 })

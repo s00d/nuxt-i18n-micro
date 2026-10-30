@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { nameOfPath, routeKey } from '@i18n-micro/route-strategy'
 import type { DefineI18nRouteConfig, GlobalLocaleRoutes } from '@i18n-micro/types'
 import { createUnplugin } from 'unplugin'
-import { extractDefineI18nRouteData, pageFilePathToRoutePath } from './utils'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath, resolveRootDir } from './utils'
 
 export interface DefineI18nRouteMeta {
   routePath: string
@@ -44,11 +44,6 @@ export function mergeDefineI18nRouteMeta(
   const configuredKeys = new Set(Object.keys(configured).map(routeKey))
   for (const key of Object.keys(fromPages)) if (configuredKeys.has(routeKey(key)) || configuredKeys.has(nameOfPath(key))) delete fromPages[key]
   return { routeLocales, globalLocaleRoutes: { ...fromPages, ...configured }, routeDisableMeta }
-}
-
-function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {
-  const sorted = [...rootDirs].sort((a, b) => b.length - a.length)
-  return sorted.find((root) => filePath.startsWith(root))
 }
 
 export function createDefineI18nRoutePlugin(options: DefineI18nRoutePluginOptions) {

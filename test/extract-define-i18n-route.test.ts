@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
+import { mergeDefineI18nRouteMeta } from '../src/unplugin-define-i18n-route'
 import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
@@ -131,5 +132,19 @@ describe('pageFilePathToRoutePath', () => {
     expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
     expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
     expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')
+  })
+})
+
+describe('mergeDefineI18nRouteMeta', () => {
+  const page = [{ routePath: 'about/team', config: { localeRoutes: { de: '/page' } } }]
+
+  it.each(['about/team', '/about/team', 'about-team'])('the config wins over the page under the key %s', (key) => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
+  })
+
+  it('keeps the page entry when the config names another page', () => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })
   })
 })

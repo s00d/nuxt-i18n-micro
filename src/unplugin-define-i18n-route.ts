@@ -38,9 +38,9 @@ export function mergeDefineI18nRouteMeta(
     if (page.localeRoutes) fromPages[routePath] = page.localeRoutes
     if (page.disableMeta !== undefined) routeDisableMeta[routePath] = page.disableMeta
   }
-  // `about` (a page) and `/about` (the config, with the slash) are one page: the keys alone would not collide
+  // `about/team` (a page), `/about/team` and `about-team` (the config: path or route name) are one page
   const configured = config.globalLocaleRoutes ?? {}
-  for (const key of Object.keys(fromPages)) if (`/${key}` in configured) delete fromPages[key]
+  for (const key of Object.keys(fromPages)) if (`/${key}` in configured || key.replaceAll('/', '-') in configured) delete fromPages[key]
   return { routeLocales, globalLocaleRoutes: { ...fromPages, ...configured }, routeDisableMeta }
 }
 

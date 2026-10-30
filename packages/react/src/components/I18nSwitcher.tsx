@@ -182,7 +182,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     cursor: 'pointer',
     width: '100%',
     textAlign: 'left',
-    ...buttonReset(customLinkStyle, customActiveLinkStyle),
   }
 
   const activeLinkStyle: React.CSSProperties = {
@@ -240,6 +239,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     const isActive = localeItem.code === currentLocale
     const mergedLinkStyle = {
       ...linkStyle,
+      // per item: an active-only `border` must not cost the inactive links their reset
+      ...buttonReset(customLinkStyle, isActive ? customActiveLinkStyle : undefined),
       ...(isActive ? activeLinkStyle : {}),
       ...customLinkStyle,
       ...(isActive ? customActiveLinkStyle : {}),

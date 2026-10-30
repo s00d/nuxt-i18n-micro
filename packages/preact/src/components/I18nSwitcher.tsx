@@ -184,7 +184,6 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     cursor: 'pointer',
     width: '100%',
     textAlign: 'left',
-    ...buttonReset(customLinkStyle, customActiveLinkStyle),
   }
 
   const activeLinkStyle: Record<string, string | number> = {
@@ -242,6 +241,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
     const isActive = localeItem.code === currentLocale
     const mergedLinkStyle = {
       ...linkStyle,
+      // per item: an active-only `border` must not cost the inactive links their reset
+      ...buttonReset(customLinkStyle, isActive ? customActiveLinkStyle : undefined),
       ...(isActive ? activeLinkStyle : {}),
       ...customLinkStyle,
       ...(isActive ? customActiveLinkStyle : {}),

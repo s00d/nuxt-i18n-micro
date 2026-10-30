@@ -91,7 +91,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       fullPath = `/${fullPath}`
     }
 
-    const pathSegments = fullPath.split('/').filter(Boolean)
+    const pathSegments = (fullPath.split(/[?#]/)[0] ?? '').split('/').filter(Boolean)
     const matchedLocale = allLocales.find((localeItem: Locale) => pathSegments[0] === localeItem.code)
 
     let localizedPath = fullPath
@@ -101,7 +101,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
 
     if (matchedLocale) {
-      localizedPath = fullPath.slice(matchedLocale.code.length + 1) || '/'
+      const rest = fullPath.slice(matchedLocale.code.length + 1)
+      localizedPath = rest.startsWith('/') ? rest : `/${rest}`
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist)
       const localePrefix = `/${locale}`
       ogUrl = `${baseUrlValue}${localePrefix}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`

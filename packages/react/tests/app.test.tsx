@@ -731,5 +731,11 @@ describe('React app over @i18n-micro/react', () => {
     fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
     expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
     expect(view.container.querySelector('.switcher-locale-de').style.backgroundColor).toBe('transparent')
+    // the active link's own border does not cost the inactive links their reset
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    view.rerender(shorthand({}, { border: '1px solid red' }))
+    fireEvent.click(view.container.querySelector('.i18n-switcher-button'))
+    expect(view.container.querySelector('.switcher-locale-de').style.border).toBe('medium')
+    expect(view.container.querySelector('.switcher-locale-en').style.border).toBe('1px solid red')
   })
 })

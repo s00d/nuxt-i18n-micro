@@ -88,4 +88,3 @@ export function firstQueryValue(value: unknown): string | null {
   const first = Array.isArray(value) ? value[0] : value
   return typeof first === 'string' && first ? first : null
 }
-

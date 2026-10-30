@@ -109,7 +109,9 @@ function report(): string {
             cookie: cookieLocale,
             acceptLanguage: 'ru',
           }
-          run(`preferred(state=${stateLocale}, cookie=${cookieLocale}, ignoreState=${ignoreStateLocale}, auto=${autoDetectLanguage})`, () => resolveLocale(input))
+          run(`preferred(state=${stateLocale}, cookie=${cookieLocale}, ignoreState=${ignoreStateLocale}, auto=${autoDetectLanguage})`, () =>
+            resolveLocale(input),
+          )
         }
       }
     }

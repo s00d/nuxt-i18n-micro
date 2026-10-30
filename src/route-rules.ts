@@ -29,7 +29,11 @@ export interface TranslationPayloadRouteRule {
  *   Nitro's route rules land in `runtimeConfig`, which is cloned per request: `cors` adds its 5 expanded
  *   keys to that walk on every page render.
  */
-export function buildTranslationPayloadRouteRule(input: { dev: boolean; cacheControl: string | null; crossOrigin: boolean }): TranslationPayloadRouteRule {
+export function buildTranslationPayloadRouteRule(input: {
+  dev: boolean
+  cacheControl: string | null
+  crossOrigin: boolean
+}): TranslationPayloadRouteRule {
   const cors = input.crossOrigin ? ({ cors: true } as const) : {}
   if (input.dev || !input.cacheControl) return cors
   return { ...cors, headers: { 'Cache-Control': input.cacheControl } }

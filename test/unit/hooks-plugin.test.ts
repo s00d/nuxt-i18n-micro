@@ -4,7 +4,11 @@ import plugin from '../../src/runtime/plugins/05.hooks'
 
 type Guard = (to: unknown, from: unknown) => unknown
 
-const router = vi.hoisted(() => ({ currentRoute: { value: { path: '/' } }, guards: [] as Guard[], beforeEach: (guard: Guard) => router.guards.push(guard) }))
+const router = vi.hoisted(() => ({
+  currentRoute: { value: { path: '/' } },
+  guards: [] as Guard[],
+  beforeEach: (guard: Guard) => router.guards.push(guard),
+}))
 
 // every Nuxt path is one stub in unit tests, so one mock answers them all
 vi.mock('#imports', () => ({ defineNuxtPlugin: (definition: unknown) => definition, useRouter: () => router }))

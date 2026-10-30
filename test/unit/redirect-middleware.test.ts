@@ -21,7 +21,13 @@ function run(path: string, autoDetectPath: string) {
   app.current = {
     payload: { serverRendered: true },
     $i18nStrategy: strategy,
-    $getI18nConfig: () => ({ locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }], defaultLocale: 'en', strategy: 'prefix', autoDetectPath, localeCookie: null }),
+    $getI18nConfig: () => ({
+      locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }],
+      defaultLocale: 'en',
+      strategy: 'prefix',
+      autoDetectPath,
+      localeCookie: null,
+    }),
   }
   ;(middleware as unknown as (to: unknown, from: unknown) => void)({ path, query: {}, hash: '' }, { path: '/from' })
   return strategy

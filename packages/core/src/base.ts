@@ -201,7 +201,8 @@ export abstract class BaseI18n {
     const value = this.resolveLookup(key, routeContext)
     if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
-      return (defaultValue && params ? interpolate(defaultValue, params) : defaultValue || key) as CleanTranslation
+      // not always a string: modules call `$t(key, params, true)`
+      return (typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key) as CleanTranslation
     }
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }

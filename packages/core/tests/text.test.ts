@@ -431,6 +431,7 @@ describe('defaults', () => {
   it('a default of a missing key is interpolated', () => {
     expect(new TestI18n('en', {}).t('nope', { n: 1 }, 'D {n}')).toBe('D 1')
     expect(new TestI18n('en', {}).t('nope', undefined, 'D {n}')).toBe('D {n}')
+    expect(new TestI18n('en', {}).t('nope', { n: 1 }, true as never)).toBe(true)
   })
 
   it('tc answers an empty value as t does', () => {
@@ -460,5 +461,13 @@ describe('FormatService clock', () => {
   it('relative dates read the clock it was given', () => {
     const fixed = new FormatService({ now: () => 7_200_000 })
     expect(fixed.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+  })
+
+  it('without one, the clock is read at the call, so fake timers reach a formatter built earlier', () => {
+    const service = new FormatService()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(7_200_000)
+    expect(service.formatRelativeTime(3_600_000, 'en')).toBe('1 hour ago')
+    vi.useRealTimers()
   })
 })

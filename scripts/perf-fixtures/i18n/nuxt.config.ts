@@ -1,5 +1,5 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import { locales } from './perf-locales.mjs'
+import { PERF_LOCALES } from '../perf-shared/config.mjs'
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/i18n'],
@@ -16,6 +16,6 @@ export default defineNuxtConfig({
     detectBrowserLanguage: false,
     langDir: 'locales',
     baseUrl: 'http://localhost:3000/',
-    locales,
+    locales: PERF_LOCALES.map(({ code, language }) => ({ code, language, file: `${code}.json` })),
   },
 })

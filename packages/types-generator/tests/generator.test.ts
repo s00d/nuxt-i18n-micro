@@ -118,6 +118,21 @@ describe('generateTypes', () => {
     warnSpy.mockRestore()
   })
 
+  test('a broken locale file warns and is skipped: the other files still produce types', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    writeFileSync(join(localesDir, 'en.json'), 'invalid json')
+    writeFileSync(join(localesDir, 'de.json'), JSON.stringify({ real: 'key' }))
+    const outputFile = join(testDir, 'i18n-types.d.ts')
+
+    await generateTypes({ srcDir: testDir, translationDir: 'locales', outputFile })
+
+    const content = readFileSync(outputFile, 'utf-8')
+    expect(content).toContain('"real": string;')
+    assertValidDts(content)
+    expect(warnSpy.mock.calls.some((c) => String(c[0]).includes('Failed to parse') && String(c[0]).includes('en.json'))).toBe(true)
+    warnSpy.mockRestore()
+  })
+
   test('parses JSON files that start with a UTF-8 BOM', async () => {
     writeFileSync(join(localesDir, 'en.json'), `\uFEFF${JSON.stringify({ bomKey: 'ok' })}`)
     const content = await getTypesString({ srcDir: testDir, translationDir: 'locales' })

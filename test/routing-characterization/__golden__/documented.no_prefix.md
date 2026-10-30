@@ -6,25 +6,25 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| activity | /activity |  |  |
-| · activity-hiking | hiking |  |  |
-| · activity-skiing | skiing |  |  |
-| page | /page |  |  |
-| product-slug | /product/:slug(.*)* |  |  |
-| unlocalized | /unlocalized |  |  |
-| same | /same |  |  |
-| localized-activity-en | /change-activity |  |  |
-| · localized-activity-hiking-en | hiking |  |  |
-| · localized-activity-skiing-en | book-activity/skiing |  |  |
-| localized-activity-de | /change-buchen |  |  |
-| · localized-activity-hiking-de | hiking |  |  |
-| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  |
-| localized-page-en | /page/:id |  |  |
-| localized-page-de | /page/:id |  |  |
-| localized-product-slug-de | /produkte/:slug(.*)* |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| activity | /activity |  |  | activity: fr |
+| · activity-hiking | hiking |  |  | activity-hiking: fr |
+| · activity-skiing | skiing |  |  | activity-skiing: fr |
+| page | /page |  |  | page: fr |
+| product-slug | /product/:slug(.*)* |  |  | product-slug: en, fr |
+| unlocalized | /unlocalized |  |  |  |
+| same | /same |  |  | same: en, de, fr |
+| localized-activity-en | /change-activity |  |  | activity: en |
+| · localized-activity-hiking-en | hiking |  |  | activity-hiking: en |
+| · localized-activity-skiing-en | book-activity/skiing |  |  | activity-skiing: en |
+| localized-activity-de | /change-buchen |  |  | activity: de |
+| · localized-activity-hiking-de | hiking |  |  | activity-hiking: de |
+| · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  | activity-skiing: de |
+| localized-page-en | /page/:id |  |  | page: en |
+| localized-page-de | /page/:id |  |  | page: de |
+| localized-product-slug-de | /produkte/:slug(.*)* |  |  | product-slug: de |
 
 ## Reading a URL
 

@@ -6,34 +6,34 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| — | /account |  |  |
-| · account |  |  |  |
-| · account-settings | settings |  |  |
-| · account-orders | orders |  |  |
-| · · account-orders-id | :id() |  |  |
-| shop | /store | /shop |  |
-| · shop-category | :category() |  |  |
-| · · shop-category-item | :item() |  |  |
-| localized-index | /:locale(de\|fr) |  |  |
-| — | /:locale(de)/konto |  |  |
-| · localized-account-de |  |  |  |
-| · localized-account-settings-de | einstellungen |  |  |
-| · localized-account-orders-de | bestellungen |  |  |
-| · · localized-account-orders-id-de | :id() |  |  |
-| — | /:locale(fr)/compte |  |  |
-| · localized-account-fr |  |  |  |
-| · localized-account-settings-fr | parametres |  |  |
-| · localized-account-orders-fr | orders |  |  |
-| · · localized-account-orders-id-fr | :id() |  |  |
-| localized-shop | /:locale(fr)/shop |  |  |
-| · localized-shop-category | :category() |  |  |
-| · · localized-shop-category-item | :item() |  |  |
-| localized-shop-de | /:locale(de)/laden |  |  |
-| · localized-shop-category-de | :category() |  |  |
-| · · localized-shop-category-item-de | artikel/:item |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| — | /account |  |  |  |
+| · account |  |  |  | account: en |
+| · account-settings | settings |  |  | account-settings: en |
+| · account-orders | orders |  |  | account-orders: en |
+| · · account-orders-id | :id() |  |  | account-orders-id: en |
+| shop | /store | /shop |  | shop: en |
+| · shop-category | :category() |  |  | shop-category: en |
+| · · shop-category-item | :item() |  |  | shop-category-item: en |
+| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| — | /:locale(de)/konto |  |  |  |
+| · localized-account-de |  |  |  | account: de |
+| · localized-account-settings-de | einstellungen |  |  | account-settings: de |
+| · localized-account-orders-de | bestellungen |  |  | account-orders: de |
+| · · localized-account-orders-id-de | :id() |  |  | account-orders-id: de |
+| — | /:locale(fr)/compte |  |  |  |
+| · localized-account-fr |  |  |  | account: fr |
+| · localized-account-settings-fr | parametres |  |  | account-settings: fr |
+| · localized-account-orders-fr | orders |  |  | account-orders: fr |
+| · · localized-account-orders-id-fr | :id() |  |  | account-orders-id: fr |
+| localized-shop | /:locale(fr)/shop |  |  | shop: fr |
+| · localized-shop-category | :category() |  |  | shop-category: fr |
+| · · localized-shop-category-item | :item() |  |  | shop-category-item: fr |
+| localized-shop-de | /:locale(de)/laden |  |  | shop: de |
+| · localized-shop-category-de | :category() |  |  | shop-category: de |
+| · · localized-shop-category-item-de | artikel/:item |  |  | shop-category-item: de |
 
 ## Reading a URL
 

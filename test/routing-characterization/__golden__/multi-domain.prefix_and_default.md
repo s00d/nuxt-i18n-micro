@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| localized-about-de-default | /ueber-uns |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| localized-index | /:locale(en\|de\|fr) |  |  |
-| localized-about | /:locale(en)/about |  |  |
-| localized-about-de | /:locale(de)/ueber-uns |  |  |
-| localized-about-fr | /:locale(fr)/a-propos |  |  |
-| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de |
+| about | /about |  |  | about: en |
+| localized-about-de-default | /ueber-uns |  |  | about: de |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de |
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-about | /:locale(en)/about |  |  | about: en |
+| localized-about-de | /:locale(de)/ueber-uns |  |  | about: de |
+| localized-about-fr | /:locale(fr)/a-propos |  |  | about: fr |
+| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  | blog-slug: en, de, fr |
 
 ## Reading a URL
 

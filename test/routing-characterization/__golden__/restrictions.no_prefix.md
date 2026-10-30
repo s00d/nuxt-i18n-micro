@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| de-only | /de-only |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| admin | /admin |  |  |
-| · admin-users | users |  |  |
-| landing | /landing |  |  |
-| localized-landing-de | /start |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about: en, fr |
+| de-only | /de-only |  |  | de-only: de |
+| blog | /blog |  |  | blog: en, de, fr |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de, fr |
+| admin | /admin |  |  |  |
+| · admin-users | users |  |  |  |
+| landing | /landing |  |  | landing: en |
+| localized-landing-de | /start |  |  | landing: de |
 
 ## Reading a URL
 

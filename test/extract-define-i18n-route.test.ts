@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
+import { mergeDefineI18nRouteMeta } from '../src/unplugin-define-i18n-route'
 import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
@@ -69,6 +70,19 @@ describe('extractDefineI18nRouteData', () => {
     })
     // a `/` after a value is division, not a regex: the scan steps over it
     expect(extract(`const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`, 'division.vue')).toEqual({ locales: ['en'] })
+    // an identifier that only contains the call name is no call
+    expect(extract(`const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`, 'lookalike.vue')).toEqual({
+      locales: ['right'],
+    })
+  })
+
+  it('a file with nothing to read is null, without a word', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(extractDefineI18nRouteData('', 'empty.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<template><div>Hello</div></template>', 'no-script.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'no-call.vue')).toBeNull()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
   // A config that references script bindings runs the page script; destructuring the call
@@ -116,6 +130,21 @@ describe('pageFilePathToRoutePath', () => {
   it('maps page files to route paths', () => {
     expect(pageFilePathToRoutePath('/project/pages/index.vue', '/project')).toBe('/')
     expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
     expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')
+  })
+})
+
+describe('mergeDefineI18nRouteMeta', () => {
+  const page = [{ routePath: 'about/team', config: { localeRoutes: { de: '/page' } } }]
+
+  it.each(['about/team', '/about/team', 'about-team'])('the config wins over the page under the key %s', (key) => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
+  })
+
+  it('keeps the page entry when the config names another page', () => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })
   })
 })

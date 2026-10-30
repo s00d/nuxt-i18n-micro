@@ -21,6 +21,13 @@ describe('J5 detection: Accept-Language redirect (strategy-redirect)', () => {
     await expect(page).toHaveURL('/')
     await expect.poll(() => getLocaleCookie(page)).toBe('en')
 
+    // step 1c: no header at all, nothing to detect: autoDetectPath '*' still falls through to the default
+    // was: cookie › redirect to / and set default locale cookie when navigating to /de
+    const bare = await ssr(baseURL, '/de')
+    expect(bare.status).toBe(302)
+    expect(new URL(bare.location!, baseURL).pathname).toBe('/')
+    expect(bare.headers.get('set-cookie')).toContain('user-locale=en')
+
     // step 2 (F8): /de//evil.example moves to a path on this origin, never to //evil.example
     // (stateless requests: the redirect writes a cookie that would steer the next step)
     const evil = await ssr(baseURL, '/de//evil.example', { 'Accept-Language': 'en' })

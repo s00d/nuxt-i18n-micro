@@ -6,11 +6,11 @@ locales: en, de · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| blog-slug | /blog/:slug() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de |
+| about | /about |  |  | about: en, de |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en, de |
 
 ## Reading a URL
 

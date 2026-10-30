@@ -10,6 +10,8 @@ The `strategy` option decides whether a locale appears in the URL and for which 
 
 ## The four strategies
 
+![The /about page in en (default) and de under each strategy; the same URLs are listed in the text below](/diagrams/strategies.svg)
+
 <!-- generated:option:strategy — do not edit; run `pnpm run docs:generate` -->
 
 **Type** `Strategies` · **Default** `'prefix_except_default'`

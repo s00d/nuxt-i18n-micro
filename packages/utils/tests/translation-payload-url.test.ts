@@ -20,7 +20,44 @@ describe('buildTranslationPayloadPath', () => {
   })
 })
 
+describe('resolveTranslationPayloadBaseURL', () => {
+  const hosts = {
+    baseURL: 'https://app.example.com',
+    apiBaseClientHost: 'https://cdn.example.com',
+    apiBaseServerHost: 'https://internal.example.com',
+  }
+
+  it('picks the host of the side that fetches and falls back to baseURL on either side', () => {
+    expect(resolveTranslationPayloadBaseURL({ ...hosts, isServer: true })).toBe('https://internal.example.com')
+    expect(resolveTranslationPayloadBaseURL({ ...hosts, isServer: false })).toBe('https://cdn.example.com')
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, isServer: true })).toBe(hosts.baseURL)
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, isServer: false })).toBe(hosts.baseURL)
+    // the other side's host is no fallback: a browser cannot reach the internal one
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, apiBaseServerHost: hosts.apiBaseServerHost, isServer: false })).toBe(
+      hosts.baseURL,
+    )
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, apiBaseClientHost: hosts.apiBaseClientHost, isServer: true })).toBe(
+      hosts.baseURL,
+    )
+  })
+})
+
 describe('buildTranslationPayloadFetchRequest', () => {
+  it('sends the browser to the client host, with dateBuild as the cache buster', () => {
+    expect(
+      buildTranslationPayloadFetchRequest({
+        apiBaseUrl: '_locales',
+        routeName: 'index',
+        locale: 'en',
+        isServer: false,
+        baseURL: 'https://app.example.com',
+        apiBaseClientHost: 'https://cdn.example.com',
+        apiBaseServerHost: 'https://internal.example.com',
+        dateBuild: 123,
+      }),
+    ).toEqual({ path: '/_locales/index/en/data.json', baseURL: 'https://cdn.example.com', params: { v: 123 } })
+  })
+
   it('resolves routesLocaleLinks before building the path', () => {
     expect(
       buildTranslationPayloadFetchRequest({

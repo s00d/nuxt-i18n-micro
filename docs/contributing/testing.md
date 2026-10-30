@@ -82,6 +82,14 @@ Browser e2e runs through [untestutils](https://github.com/s00d/untestutils) and 
 - Specs import `test` from `test/helpers/guarded-test.ts`. It fails a test on any document response >= 500, uncaught page error, console error or hydration warning, even when the assertions pass. A test that expects one calls `guard.allow(/pattern/)`; `test.override({ guardAllow: [/pattern/] })` allows a pattern for a whole `describe` (the dev HMR journeys).
 - Retries cover infrastructure only (`retryInfra`, CI): a failing assertion fails.
 
+## Routing goldens
+
+`test/routing-characterization` runs every app in `scenarios.ts` under every strategy and records what each URL reads as and where each navigation lands. The harness calls the code the module calls (`mergeDefineI18nRouteMeta`, `extractDefineI18nRouteData`, `RouteGenerator`), so do not copy module logic into it: a copy cannot fail.
+
+- Pages are not only what the file scanner makes: `modulePages` are pushed as in `pages:extend`, with or without a name, and `noPages` runs Nuxt's stub router with no records (`pages: false`).
+- Input is frozen, so a package that writes to pages or routes throws in the golden. Every page is tagged with its file, and a record that loses `meta` is listed under the invariant breaks.
+- A golden diff is either an intended fix or a bug. Read all of it before you regenerate.
+
 ## Mutation testing
 
 `pnpm run test:mutation` runs [Stryker](https://stryker-mutator.io/) on one package. It changes the source (`<` to `<=`, a branch removed, a string emptied) and reruns the tests that cover the change; a surviving mutant is a behaviour no test pins.

@@ -68,7 +68,8 @@ const unprefixedIsDefault = (strategy: Strategies) => strategy === 'prefix_excep
 
 function splitUrl(url: string): { path: string; query?: Record<string, unknown>; hash?: string } {
   const hashAt = url.indexOf('#')
-  const hash = hashAt === -1 ? undefined : url.slice(hashAt)
+  // a bare `#` is no hash: it must not reach fullPath
+  const hash = hashAt === -1 || hashAt === url.length - 1 ? undefined : url.slice(hashAt)
   const rest = hashAt === -1 ? url : url.slice(0, hashAt)
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }

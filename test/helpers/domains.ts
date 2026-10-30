@@ -42,6 +42,6 @@ export async function routeDomains(page: Page, baseURL: string) {
     const url = new URL(route.request().url())
     const headers = { ...route.request().headers(), host: url.host }
     const response = await route.fetch({ url: new URL(url.pathname + url.search, baseURL).href, headers, maxRedirects: 0 })
-    await route.fulfill({ response })
+    await route.fulfill({ response }).catch(() => {})
   })
 }

@@ -12,6 +12,7 @@ import {
   detectLocale,
   getDefaultLocale,
   getGlobalRoutingStrategy,
+  runWithRoutingStrategy,
   getI18n,
   getI18nProps,
   getLocale,
@@ -404,6 +405,15 @@ test('a custom routing strategy decides locale, route name and every link the pa
   expect([res.locals.locale, res.locals.i18n.getRoute()]).toEqual(['en', 'x-y'])
   const prefixed = await request(bare, '/fr/x/y')
   expect([prefixed.locals.locale, prefixed.locals.i18n.getRoute()]).toEqual(['fr', 'x-y'])
+})
+
+test('a per-request strategy is seen inside the request only: the installed one stays', () => {
+  const strategy = (path: string): I18nRoutingStrategy => ({ getCurrentPath: () => path })
+  const installed = strategy('/')
+  const perRequest = strategy('/de')
+  setGlobalRoutingStrategy(installed)
+  expect(runWithRoutingStrategy(perRequest, () => getGlobalRoutingStrategy())).toBe(perRequest)
+  expect(getGlobalRoutingStrategy()).toBe(installed)
 })
 
 test('detectLocale: path, then cookie, then Accept-Language, else default', () => {

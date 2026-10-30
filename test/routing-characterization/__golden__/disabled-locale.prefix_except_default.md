@@ -6,14 +6,14 @@ locales: en, de · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| localized-index | /:locale(de) |  |  |
-| localized-about | /:locale(de)/about |  |  |
-| localized-blog-slug | /:locale(de)/blog/:slug() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| about | /about |  |  | about: en |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en |
+| localized-index | /:locale(de) |  |  | index: de |
+| localized-about | /:locale(de)/about |  |  | about: de |
+| localized-blog-slug | /:locale(de)/blog/:slug() |  |  | blog-slug: de |
 
 ## Reading a URL
 

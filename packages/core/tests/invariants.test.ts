@@ -34,6 +34,14 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
+test('tc picks the form before it interpolates: a pipe in a param is no form', () => {
+  const i18n = new TestI18n('en', { missingWarn: false })
+  i18n.loadTranslationsCore('en', { items: 'Hello {name}|Hi {name}|Hey {name} ({count})' }, false)
+  expect(i18n.tc('items', { count: 0, name: 'a|b' })).toBe('Hello a|b')
+  expect(i18n.tc('items', { count: 1, name: 'a|b' })).toBe('Hi a|b')
+  expect(i18n.tc('items', { count: 5, name: 'a|b' })).toBe('Hey a|b (5)')
+})
+
 describe('hostile input', () => {
   test('a lookup reads array items by index, never array or prototype members', () => {
     const tree = { list: ['a', 'b'] }

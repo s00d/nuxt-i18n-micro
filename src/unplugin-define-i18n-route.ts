@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import type { DefineI18nRouteConfig } from '@i18n-micro/types'
+import type { DefineI18nRouteConfig, GlobalLocaleRoutes } from '@i18n-micro/types'
 import { createUnplugin } from 'unplugin'
 import { extractDefineI18nRouteData, pageFilePathToRoutePath } from './utils'
 
@@ -13,6 +13,35 @@ export interface DefineI18nRoutePluginOptions {
   buildDir: string
   rootDirs: string[]
   onMetaUpdate?: (entries: DefineI18nRouteMeta[]) => void
+}
+
+export interface PageRouteConfig {
+  routeLocales: Record<string, string[]>
+  globalLocaleRoutes: NonNullable<GlobalLocaleRoutes>
+  routeDisableMeta: Record<string, boolean | string[]>
+}
+
+/**
+ * Adds the `$defineI18nRoute` calls of the pages to the config. A page's `locales` and `disableMeta`
+ * replace the config's; for custom paths the config entry of that page wins, as a whole.
+ */
+export function mergeDefineI18nRouteMeta(
+  entries: DefineI18nRouteMeta[],
+  config: Partial<Omit<PageRouteConfig, 'globalLocaleRoutes'>> & { globalLocaleRoutes?: GlobalLocaleRoutes },
+): PageRouteConfig {
+  const routeLocales = { ...config.routeLocales }
+  const routeDisableMeta = { ...config.routeDisableMeta }
+  const fromPages: PageRouteConfig['globalLocaleRoutes'] = {}
+  for (const { routePath, config: page } of entries) {
+    if (Array.isArray(page.locales)) routeLocales[routePath] = page.locales
+    else if (page.locales) routeLocales[routePath] = Object.keys(page.locales)
+    if (page.localeRoutes) fromPages[routePath] = page.localeRoutes
+    if (page.disableMeta !== undefined) routeDisableMeta[routePath] = page.disableMeta
+  }
+  // `about/team` (a page), `/about/team` and `about-team` (the config: path or route name) are one page
+  const configured = config.globalLocaleRoutes ?? {}
+  for (const key of Object.keys(fromPages)) if (`/${key}` in configured || key.replaceAll('/', '-') in configured) delete fromPages[key]
+  return { routeLocales, globalLocaleRoutes: { ...fromPages, ...configured }, routeDisableMeta }
 }
 
 function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {

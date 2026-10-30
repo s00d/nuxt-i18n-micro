@@ -69,6 +69,32 @@ const paramNames = (routePath: string): string =>
 /** What Nuxt adds for a `routeRules` redirect with no page. An unnamed page of a module is a page. */
 const isRouteRuleStub = (page: NuxtPage): boolean => !page.name && /(?:^|\/)component-stub(?:\.\w+)?$/.test(page.file ?? '')
 
+/** The name Nuxt's scanner would give the path: `/a/:id()` -> `a-id`. */
+function nameOfPath(fullPath: string): string {
+  const key = routeKey(fullPath)
+  return key === '/' ? 'index' : key.replace(/\/|:|\(.*?\)|[?*+]/g, (s) => (s === '/' ? '-' : ''))
+}
+
+/**
+ * Records are addressed by name, so a module's unnamed page gets one (or `switchLocaleRoute` and
+ * `pageLocales` cannot reach it). Not the route-rule stub, a redirect, or a parent whose index child
+ * owns the name. A name already taken stays with its page.
+ */
+function namePages(pages: NuxtPage[], taken: Set<string>, parentOriginal = '', top = true): NuxtPage[] {
+  return pages.map((page) => {
+    const original = top ? absolute(page.path ?? '') : joinChild(parentOriginal, page.path ?? '')
+    const children = page.children && namePages(page.children, taken, original, false)
+    const named = children ? { ...page, children } : page
+    if (page.name || !page.file || isRouteRuleStub(page) || page.children?.some((child) => !child.path)) return named
+    const name = nameOfPath(original)
+    if (taken.has(name)) return named
+    taken.add(name)
+    return { ...named, name }
+  })
+}
+
+const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
+
 /** Localized full paths (without prefix) by page key and locale, for nitro lookups. */
 export type LocalizedPaths = Map<string, Record<string, string>>
 
@@ -214,7 +240,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
 
   const unprefixed: NuxtPage[] = []
   const localized: NuxtPage[] = []
-  for (const page of pages) {
+  for (const page of namePages(pages, new Set(pageNames(pages)))) {
     const pagePath = page.path ?? ''
     if (
       (page.redirect && !page.file) ||

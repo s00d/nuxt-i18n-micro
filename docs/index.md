@@ -24,12 +24,24 @@ hero:
 
 features:
   - title: Per-page translations
+    icon:
+      src: /icons/translations.svg
+      width: 22
+      height: 22
     details: Each page loads one JSON dictionary (shared root keys plus its own), off the HTML payload. Missing files are created for you.
     link: /guide/translations
   - title: Build-time routing
+    icon:
+      src: /icons/routing.svg
+      width: 22
+      height: 22
     details: Four routing strategies, custom paths per locale, redirects and 404s decided by one route model the router actually serves.
     link: /guide/strategy
   - title: SEO included
+    icon:
+      src: /icons/seo.svg
+      width: 22
+      height: 22
     details: Canonical URLs, html lang/dir, hreflang alternates under the prefix strategies, and og:locale for locales with an iso or og value.
     link: /guide/seo
 ---

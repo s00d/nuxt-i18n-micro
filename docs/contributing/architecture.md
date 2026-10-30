@@ -10,19 +10,7 @@ This page follows a translation from the JSON file in `locales/` to `$t()` on sc
 
 ## Overview
 
-```mermaid
-flowchart LR
-  A["locales/**/*.json<br/>(every layer)"] -->|build| B["payload tree<br/>premerged or source"]
-  B -->|Node: copy to public/| C["payload-source.fs"]
-  B -->|Edge / function: serverAssets| D["payload-source.assets"]
-  C --> E["loadTranslationsFromServer<br/>(server cache)"]
-  D --> E
-  E -->|event.context.i18n.load| F["SSR render"]
-  E -->|"/_locales/:page/:locale/data.json"| G["browser fetch"]
-  F --> H["TranslationStorage<br/>+ NuxtI18n"]
-  G --> H
-  H --> I["$t()"]
-```
+![Locale JSON files are built into a payload tree, stored in public/ on Node or in server assets on Edge, read by a server loader, then used by $t on the server and fetched for $t in the browser](/diagrams/translation-pipeline.svg)
 
 ## Build
 

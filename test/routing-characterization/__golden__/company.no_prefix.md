@@ -6,29 +6,29 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| contact | /contact |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| products | /products |  |  |
-| products-id | /products/:id() |  |  |
-| legal-imprint | /legal/imprint |  |  |
-| careers | /careers |  |  |
-| slug | /:slug(.*)* |  |  |
-| — | /old |  |  |
-| localized-about-en | /about-us |  |  |
-| localized-about-de | /ueber-uns |  |  |
-| localized-about-fr | /a-propos |  |  |
-| localized-contact-de | /kontakt |  |  |
-| localized-contact-fr | /contact-fr |  |  |
-| localized-blog-slug-de | /artikel/:slug |  |  |
-| localized-blog-slug-fr | /article/:slug |  |  |
-| localized-products-id-en | /products/:id |  |  |
-| localized-products-id-de | /produkte/:id |  |  |
-| localized-products-id-fr | /produits/:id |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about:  |
+| contact | /contact |  |  | contact: en |
+| blog | /blog |  |  | blog: en, de, fr |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en |
+| products | /products |  |  | products: en, de, fr |
+| products-id | /products/:id() |  |  | products-id:  |
+| legal-imprint | /legal/imprint |  |  |  |
+| careers | /careers |  |  | careers: en, de |
+| slug | /:slug(.*)* |  |  | slug: en, de, fr |
+| — | /old |  |  |  |
+| localized-about-en | /about-us |  |  | about: en |
+| localized-about-de | /ueber-uns |  |  | about: de |
+| localized-about-fr | /a-propos |  |  | about: fr |
+| localized-contact-de | /kontakt |  |  | contact: de |
+| localized-contact-fr | /contact-fr |  |  | contact: fr |
+| localized-blog-slug-de | /artikel/:slug |  |  | blog-slug: de |
+| localized-blog-slug-fr | /article/:slug |  |  | blog-slug: fr |
+| localized-products-id-en | /products/:id |  |  | products-id: en |
+| localized-products-id-de | /produkte/:id |  |  | products-id: de |
+| localized-products-id-fr | /produits/:id |  |  | products-id: fr |
 
 ## Reading a URL
 

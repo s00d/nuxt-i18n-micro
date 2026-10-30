@@ -89,10 +89,8 @@ catalog:
   # Docs & lint
   vitepress: ^2.0.0-alpha.20
   vitepress-plugin-llms: ^1.14.0
-  vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-folder-tree: ^1.2.1
   vitepress-plugin-chartjs: ^1.2.1
-  mermaid: ^11.16.1
   chart.js: ^4.5.1
   oxfmt: ^0.70.0
   oxlint: ^1.85.0

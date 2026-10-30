@@ -41,7 +41,10 @@ export async function routeDomains(page: Page, baseURL: string) {
   await page.route(/^https:\/\/example\.(?:com|de)\//, async (route) => {
     const url = new URL(route.request().url())
     const headers = { ...route.request().headers(), host: url.host }
-    const response = await route.fetch({ url: new URL(url.pathname + url.search, baseURL).href, headers, maxRedirects: 0 })
-    await route.fulfill({ response }).catch(() => {})
+    // a test ending closes the page with requests in flight: fetch and fulfill then reject
+    await route
+      .fetch({ url: new URL(url.pathname + url.search, baseURL).href, headers, maxRedirects: 0 })
+      .then((response) => route.fulfill({ response }))
+      .catch(() => {})
   })
 }

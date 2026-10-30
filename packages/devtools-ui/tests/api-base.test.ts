@@ -38,3 +38,29 @@ test('the bridge saves to the configured base', async () => {
 
   expect(fetchMock.mock.calls.map((call) => (call as unknown[])[0])).toEqual(['/dev/i18n/save', '/__i18n_api/save'])
 })
+
+test('an older save that fails does not roll a newer edit back', async () => {
+  vi.spyOn(console, 'log').mockImplementation(() => {})
+  const cache: Record<string, unknown> = { 'en:index': { hello: 'orig' } }
+  const adapter = {
+    getRouteCache: () => cache,
+    addTranslations: (locale: string, content: unknown) => void (cache[`${locale}:index`] = content),
+    addRouteTranslations: () => {},
+    subscribe: () => () => {},
+  }
+  let failFirst!: () => void
+  const responses = [
+    new Promise((resolve) => {
+      failFirst = () => resolve({ ok: false, status: 500, statusText: 'Server Error', json: async () => ({ error: 'disk full' }) })
+    }),
+    Promise.resolve({ ok: true, json: async () => ({}) }),
+  ]
+  vi.stubGlobal('fetch', () => responses.shift())
+  const bridge = createBridge({ adapter, translationDir: 'locales' })
+
+  const first = bridge.saveTranslation('en.json', { hello: 'edit1' })
+  await bridge.saveTranslation('en.json', { hello: 'edit2' })
+  failFirst()
+  await expect(first).rejects.toThrow('disk full')
+  expect(cache['en:index']).toEqual({ hello: 'edit2' })
+})

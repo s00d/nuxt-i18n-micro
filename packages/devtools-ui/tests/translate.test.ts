@@ -89,6 +89,12 @@ test('editor round trip: a nested file flattens to dotted keys for the table and
   expect(JSON.stringify(restored)).toBe(JSON.stringify(parsed))
   expect(Object.getPrototypeOf(restored)).toBe(Object.prototype)
 
+  // A text that looks like an empty-container marker stays text; the table shows it escaped.
+  const literal = { list: '[]', map: '{}', escaped: '\\[]', backslashes: '\\\\{}', real: [] }
+  const literalFlat = flattenTranslations(literal)
+  expect(literalFlat).toEqual({ list: '\\[]', map: '\\{}', escaped: '\\\\[]', backslashes: '\\\\\\{}', real: '[]' })
+  expect(unflattenTranslations(literalFlat)).toEqual(literal)
+
   // Malformed keys from hand edits: empty segments and bad indexes are skipped, an index past the
   // end leaves a hole, a `__proto__` path stays own data and never reaches the prototype.
   const malformed = unflattenTranslations<Record<string, unknown>>({

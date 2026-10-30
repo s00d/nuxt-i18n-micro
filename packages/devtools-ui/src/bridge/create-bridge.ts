@@ -80,7 +80,7 @@ async function saveToDisk(base: string, realFilePath: string, content: Translati
     return
   }
   const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-  const error = new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
+  const error = new Error(errorData?.error || `Network response was not ok: ${response.statusText}`)
   if (NO_ENDPOINT.has(response.status)) return saveLocally(filePath, content, error)
   throw error
 }
@@ -91,6 +91,8 @@ async function saveToDisk(base: string, realFilePath: string, content: Translati
  */
 export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
   const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales', base = '/__i18n_api' } = options
+  /** The newest save per chunk: an older save that fails must not roll a newer edit back. */
+  const latestSaves = new Map<string, number>()
 
   // Helper function to build locale data from cache
   const buildLocaleData = (): LocaleData => {
@@ -155,6 +157,8 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
 
         // 1. Hot update in memory, keeping what was there so a failed disk save can put it back
         const previous = adapter.getRouteCache()[write.cacheKey]
+        const save = (latestSaves.get(write.cacheKey) ?? 0) + 1
+        latestSaves.set(write.cacheKey, save)
         write.apply(content)
 
         // 2. Save to disk; the app must not keep an edit that is neither on disk nor in localStorage
@@ -162,7 +166,8 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
         try {
           await saveToDisk(base, realFilePath, content, filePath)
         } catch (error) {
-          write.apply(previous ?? {})
+          // ponytail: when an older save failed too, the newest rolls back to that edit; a queue per chunk would fix it
+          if (latestSaves.get(write.cacheKey) === save) write.apply(previous ?? {})
           throw error
         }
       } catch (error) {

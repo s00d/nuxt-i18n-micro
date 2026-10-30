@@ -49,5 +49,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const preferred = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference)
 
   const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
-  if (target) return navigateTo({ path: applyTrailingSlash(target, i18nConfig.trailingSlash), query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })
+  if (target)
+    return navigateTo(
+      { path: applyTrailingSlash(target, i18nConfig.trailingSlash), query: to.query, hash: to.hash },
+      { replace: true, redirectCode: 302 },
+    )
 })

@@ -88,7 +88,8 @@ export function storeLoadedTranslationFile<T extends Record<string, unknown>>(
 }
 
 /** A page or locale named `constructor` must not read the inherited `Object`. */
-const own = <V>(bucket: Record<string, V>, key: string): V | undefined => (Object.hasOwn(bucket, key) ? bucket[key] : undefined)
+const own = <V>(bucket: Record<string, V>, key: string): V | undefined =>
+  Object.prototype.hasOwnProperty.call(bucket, key) ? bucket[key] : undefined
 
 const mergeInto = <T extends Record<string, unknown>>(existing: T | undefined, incoming: T): T =>
   existing ? (deepMergeTranslations(existing, incoming) as T) : incoming

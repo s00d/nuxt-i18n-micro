@@ -641,7 +641,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     switchLocaleRoute: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
       const fromLocale = getCurrentLocale(route)
-      return withSlashRule(i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })) as RouteLocationRaw
+      return withSlashRule(
+        i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) }),
+      ) as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

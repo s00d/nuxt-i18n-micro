@@ -226,9 +226,9 @@ export default defineNuxtPlugin({
     // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
     // once hydrated: earlier, the client would render another locale than the server's HTML.
     if (import.meta.client && i18nConfig.hashMode) {
-      nuxtApp.hooks.hookOnce('app:suspense:resolve', () => {
+      nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
         const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-        if (hashLocale && hashLocale !== localeState.value) return provideApi.switchLocale(hashLocale)
+        if (hashLocale && hashLocale !== localeState.value) await provideApi.switchLocale(hashLocale)
       })
     }
 

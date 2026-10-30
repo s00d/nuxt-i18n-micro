@@ -42,7 +42,14 @@ describe('storeLoadedTranslationFile', () => {
   it('keeps pages and locales named after Object.prototype members', () => {
     const buckets: TranslationFileBuckets<{ title?: string }> = { root: {}, routes: {} }
 
-    for (const path of ['constructor.json', 'pages/constructor/en.json', 'pages/toString/valueOf.json', '__proto__.json', 'pages/__proto__/en.json', 'pages/about/__proto__.json']) {
+    for (const path of [
+      'constructor.json',
+      'pages/constructor/en.json',
+      'pages/toString/valueOf.json',
+      '__proto__.json',
+      'pages/__proto__/en.json',
+      'pages/about/__proto__.json',
+    ]) {
       storeLoadedTranslationFile(buckets, path, { title: path })
     }
 

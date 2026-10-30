@@ -301,7 +301,7 @@ export class I18nPathStrategy {
   private prefixed(locale: string, path: string): string {
     const loc = this.getLocaleFromPath(path)
     const rest = loc ? path.slice(loc.length + 1) || '/' : path || '/'
-    if (!this.hasPrefix(locale)) return rest
+    if (!this.hasPrefix(locale)) return sameOrigin(rest)
     return rest === '/' ? `/${locale}` : `/${locale}${rest.startsWith('/') ? rest : `/${rest}`}`
   }
 

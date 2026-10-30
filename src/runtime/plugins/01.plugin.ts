@@ -365,7 +365,10 @@ export interface PluginsInjections {
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
   /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
-  /** Resolve a path in the given locale, or the active one. */
+  /**
+   * Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`
+   * or `tel:` scheme comes back as is: do not pass user input as a link target unchecked.
+   */
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   /**
    * Set per-locale params for the current route, so a dynamic segment can differ per language.

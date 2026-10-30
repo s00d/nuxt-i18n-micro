@@ -45,6 +45,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   })
   vi.spyOn(loader, 'switchContext').mockResolvedValue(switchApplies)
   const setLocale = vi.fn()
+  const navigateTo = vi.fn()
 
   const i18nStrategy = {
     switchLocaleRoute: (_from: string, _to: string, route: { hash?: string; path: string; fullPath: string }) =>
@@ -62,7 +63,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
       defaultLocale: 'en',
       locales: [
         { code: 'en', iso: 'en' },
-        { code: 'es', iso: 'es' },
+        { code: 'es', iso: 'es', baseUrl: 'https://es.example' },
       ],
     } as ModuleOptionsExtend,
     router,
@@ -73,12 +74,12 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     i18nRouteParams: { value: {} },
     setLocale,
     isValidLocale: () => true,
-    navigateTo: vi.fn(),
+    navigateTo,
     setMissingHandler: vi.fn(),
     isHydrating: options.isHydrating ?? (() => false),
   })
 
-  return { provide, push, replace, setLocale }
+  return { provide, push, replace, setLocale, navigateTo }
 }
 
 describe('switchLocale history (#238)', () => {
@@ -119,13 +120,29 @@ describe('switchLocale history (#238)', () => {
 describe('links from the plugin', () => {
   test('$localePath and $localeRoute leave an external URL alone', () => {
     const { provide } = makeApi('prefix')
-    // step 1: a URL with a protocol, protocol-relative, a bare domain, mailto
+    // step 1: only an explicit scheme is a URL
     expect(provide.localePath('https://x.com/a', 'de')).toBe('https://x.com/a')
-    expect(provide.localePath('//x.com/a', 'de')).toBe('//x.com/a')
-    expect(provide.localePath('x.com', 'de')).toBe('https://x.com')
     expect(provide.localePath('mailto:a@x.com', 'de')).toBe('mailto:a@x.com')
+    expect(provide.localePath('tel:+1', 'de')).toBe('tel:+1')
+    // a request-shaped string or a dotted name is a path
+    expect(provide.localePath('//x.com/a', 'de')).toBe('/de//x.com/a')
+    expect(provide.localePath('about.html', 'de')).toBe('/deabout.html')
     // step 2: the route object carries the same URL
     expect(provide.localeRoute('https://x.com/a', 'de').fullPath).toBe('https://x.com/a')
+  })
+
+  test('$switchRoute never leaves the app for a string it was handed', async () => {
+    for (const to of ['https://evil.example', '//evil.example', 'evil.example']) {
+      const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://evil.example/x' as unknown as Record<string, unknown> })
+      await provide.switchRoute(to)
+      expect(navigateTo, to).not.toHaveBeenCalled()
+    }
+  })
+
+  test("a switch to a locale's own domain is external", async () => {
+    const { provide, navigateTo } = makeApi('prefix', true, { switched: 'https://es.example/x' as unknown as Record<string, unknown> })
+    await provide.switchLocale('es')
+    expect(navigateTo).toHaveBeenCalledWith('https://es.example/x', expect.objectContaining({ external: true }))
   })
 
   test('$switchLocaleRoute is a route object under a slash rule too', () => {

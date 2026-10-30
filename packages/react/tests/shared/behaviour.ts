@@ -471,6 +471,39 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     })
   })
 
+  describe('locales on a mounted provider', () => {
+    const ua = { ua: { apples: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } }
+    const list = (iso?: string) => [{ code: 'ua', displayName: 'UA', iso }]
+
+    test('a new iso reaches a plural already on screen', async () => {
+      const i18n = createI18n({ locale: 'ua', messages: ua, missingWarn: false })
+      // one element: only the store can wake it, not the parent's render
+      const child = h(I18nT, { keypath: 'apples', plural: 21 })
+      const app = (iso?: string) => h(I18nProvider, { i18n, locales: list(iso) }, child)
+      const { container, rerender } = render(app())
+      expect(container.textContent).toBe('21 яблук')
+      await act(async () => rerender(app('uk-UA')))
+      expect(container.textContent).toBe('21 яблуко')
+    })
+
+    test('a provider mounting over a live instance wakes nobody during render', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const i18n = createI18n({ locale: 'ua', messages: ua, missingWarn: false })
+      const app = (inner: boolean) =>
+        h(
+          I18nProvider,
+          { i18n },
+          h(I18nT, { keypath: 'apples', plural: 21 }),
+          inner ? h(I18nProvider, { locales: list('uk-UA') }, h(I18nT, { keypath: 'apples', plural: 21 })) : null,
+        )
+      const { container, rerender } = render(app(false))
+      await act(async () => rerender(app(true)))
+      expect(consoleError).not.toHaveBeenCalled()
+      consoleError.mockRestore()
+      expect(container.textContent).toContain('21 яблуко')
+    })
+  })
+
   describe('I18nLink', () => {
     const link = (extra: object = {}, provider: object = {}) => {
       const onClick = vi.fn()
@@ -576,6 +609,13 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
 
   describe('I18nSwitcher', () => {
     const app = (...children: unknown[]) => render(h(I18nProvider, { i18n: instance(), locales, defaultLocale: 'en' }, ...children))
+
+    test('customLabels answers its own keys: a locale named like a prototype member keeps its name', () => {
+      const { container } = render(
+        h(I18nProvider, { i18n: instance({ locale: 'constructor' }), locales: [{ code: 'constructor' }] }, h(I18nSwitcher, { customLabels: {} })),
+      )
+      expect(container.querySelector('button')!.textContent).toContain('constructor')
+    })
 
     test('Escape closes it', () => {
       const { container } = app(h(I18nSwitcher))

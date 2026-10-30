@@ -62,14 +62,15 @@ An instance holds one locale and one route. Switching `i18n.locale` on a shared 
 const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', translationDir: './locales' })
 await i18n.loadTranslations()
 
-app.use((req, res, next) => i18n.run(pickLocale(req), next))
+// `() => next()`: `run` hands its callback the fork, and Express reads an argument of `next` as an error
+app.use((req, res, next) => i18n.run(pickLocale(req), () => next()))
 
 app.get('/', (req, res) => {
   res.send(i18n.t('greeting')) // the request's locale, in everything it awaits
 })
 ```
 
-Inside `run` the shared instance reads and sets the request's locale and route (`AsyncLocalStorage`). The callback also gets the request's fork: dictionaries written to it stay in the request, dictionaries written to the shared instance reach everyone.
+Inside `run` the shared instance reads and sets the request's locale and route (`AsyncLocalStorage`); the fork starts on the current route, and `i18n.setRoute(...)` inside the callback changes that request's route. The callback also gets the request's fork: dictionaries written to it stay in the request, dictionaries written to the shared instance reach everyone.
 
 Without `AsyncLocalStorage`, `i18n.fork(locale)` returns the same kind of instance to pass around.
 

@@ -1,4 +1,4 @@
-import { isPlainClick } from '@i18n-micro/core'
+import { isPlainClick, ownValue } from '@i18n-micro/core'
 import { SWITCHER_STYLES as STYLES } from '@i18n-micro/core/render'
 import type { Locale } from '@i18n-micro/types'
 import { h, type HostAttrs, type HostElement, type HostMouseEvent, type HostStyle, useEffect, useRef, useState } from '#host'
@@ -78,7 +78,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): HostElement => {
     }
   }, [open])
 
-  const label = (locale: Locale): string => customLabels?.[locale.code] || locale.displayName || locale.code
+  const label = (locale: Locale): string => (customLabels && (ownValue(customLabels, locale.code) as string)) || locale.displayName || locale.code
   const href = (code: string): string => {
     const path = router?.getCurrentPath() ?? '/'
     if (localeRoute) return routePath(localeRoute(path, code))

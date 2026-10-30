@@ -1,7 +1,7 @@
 import { localeIsoMap } from '@i18n-micro/core'
 import { createI18n, type I18n, type I18nOptions } from '@i18n-micro/runtime'
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
-import { h, type HostElement, type HostNode, useContext, useMemo, useRef, useState, useStore } from '#host'
+import { h, type HostElement, type HostNode, useContext, useEffect, useMemo, useRef, useState, useStore } from '#host'
 import { type I18nConfig, I18nConfigContext, I18nContext, type I18nRoutingStrategy, type RouteTarget, useI18nContext } from './injection'
 
 export interface I18nProviderProps extends Partial<I18nOptions> {
@@ -25,17 +25,26 @@ export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, ch
   // A new `locale` prop comes with its own messages. Keyed by it alone: an inline `messages` object must not reset the instance.
   const instance = useMemo(() => inherited ?? buildInstance(options), [inherited, options.locale])
   const methods = useRef<TranslationMethods | null>(null)
-  const config = useMemo<I18nConfig>(() => {
+  // The first render writes the tags: a server has no commit, and hydration must render the same
+  // plurals. Later changes wait for the commit, so a render React discards leaves nothing behind.
+  // ponytail: the first write is silent, so a provider mounted late over a live instance does not wake what is already on screen; that text follows on the next store change.
+  const committed = useRef<I18n | null>(null)
+  if (locales && committed.current !== instance) instance.addLocaleIso(localeIsoMap(locales), false)
+  useEffect(() => {
+    committed.current = instance
     if (locales) instance.addLocaleIso(localeIsoMap(locales))
-    return {
+  }, [instance, locales])
+  const config = useMemo<I18nConfig>(
+    () => ({
       // an omitted prop leaves the outer provider's value in place
       locales: locales ?? outer?.locales ?? null,
       defaultLocale: defaultLocale ?? outer?.defaultLocale ?? null,
       router: routingStrategy ?? outer?.router ?? null,
       api: null,
       methods,
-    }
-  }, [instance, locales, defaultLocale, routingStrategy, outer])
+    }),
+    [locales, defaultLocale, routingStrategy, outer],
+  )
   return h(I18nContext.Provider, { value: instance }, h(I18nConfigContext.Provider, { value: config }, children))
 }
 

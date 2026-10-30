@@ -238,3 +238,9 @@ describe('isolation', () => {
     expect(vi.isMockFunction(useI18n)).toBe(true)
   })
 })
+
+test('a route-like object with a malformed path falls back to its name', () => {
+  const ctx = createI18nTestContext()
+  const { $localePath } = ctx.createFake()
+  expect(ctx.createFake().$localeRoute({ path: 42, name: 'about' }).path).toBe('/en/about')
+})

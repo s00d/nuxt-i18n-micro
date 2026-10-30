@@ -17,7 +17,7 @@ member CreateI18nOptions.plural?: PluralFunc | undefined
 member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member CreateI18nOptions.syncWithVitePress?: boolean | undefined
 member CreateI18nOptions.timeZone?: string | undefined
-type CreateI18nResult: I18nPlugin & PathMethods & { /** Same as `.global` (VueI18n + path methods). */ i18n: I18nPlugin['global'] & PathMethods enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> | VitePressSiteDataLike }) => void }
+type CreateI18nResult: I18nPlugin & PathMethods & { i18n: I18nPlugin['global'] & PathMethods; enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> | VitePressSiteDataLike; }) => void; }
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
@@ -72,7 +72,7 @@ member Locale.[string]: unknown
 type LocaleCode: string
 function messagesFromGlob: (modules: Record<string, { default: Translations; } | Translations>) => Record<string, Translations>
 type Params: Record<string, string | number | boolean>
-type PathMethods: Pick< VitePressRouterAdapter, 'localizePath' | 'switchLocalePath' | 'getLocaleFromPath' | 'removeLocaleFromPath' | 'routeNameFromPath' >
+type PathMethods: Pick<VitePressRouterAdapter, 'localizePath' | 'switchLocalePath' | 'getLocaleFromPath' | 'removeLocaleFromPath' | 'routeNameFromPath'>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 function routeNameFromPath: (path: string, localeCodes: string[], defaultLocale?: string, localeKeyToCode?: Record<string, string>, base?: string) => string
 function stripSiteBase: (path: string, base?: string) => string
@@ -175,7 +175,7 @@ member VirtualI18nConfig.numberFormats?: import("@i18n-micro/core").NumberFormat
 member VirtualI18nConfig.syncWithVitePress: boolean
 member VirtualI18nConfig.timeZone?: string | undefined
 member VirtualI18nConfig.translationDir: string
-type VitePressHeadTuple: [string, Record<string, string>]
+type VitePressHeadTuple: [ string, Record<string, string> ]
 interface VitePressLocaleEntry
 member VitePressLocaleEntry.label: string
 member VitePressLocaleEntry.lang: string

@@ -1,5 +1,5 @@
 // The plugin in a real Vite dev server: what a browser on another site can do, and what the page hears.
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createServer, type ViteDevServer } from 'vite'
@@ -105,4 +105,39 @@ test('the Astro integration adds a toolbar app in dev, and nothing to a build', 
   setup({ command: 'dev', updateConfig, addDevToolbarApp })
   expect(addDevToolbarApp.mock.calls[0]![0]).toMatchObject({ id: 'i18n-micro', entrypoint: '/@vite-plugin-i18n-devtools/toolbar.js' })
   expect(updateConfig.mock.calls[0]![0].vite.plugins[0].name).toBe('i18n-micro-devtools-plugin')
+})
+
+describe('the app the page loads', () => {
+  const load = async (path: string) => (await fetch(`http://localhost:${PORT}${path}`)).text()
+
+  test('an API error is an error, not a dictionary', async () => {
+    const code = await load('/@vite-plugin-i18n-devtools/app.js')
+    expect(code.slice(code.indexOf('getJson ='), code.indexOf('bridge ='))).toContain('response.ok')
+  })
+
+  test('the toolbar frame keeps its size: the last width wins', async () => {
+    const code = await load('/@vite-plugin-i18n-devtools/toolbar.js')
+    expect([...code.matchAll(/width: ([^;]+);/g)].at(-1)?.[1]).toBe('90vw')
+  })
+})
+
+test('a link out of the folder is no locale in /config either', async () => {
+  const outside = join(root, 'elsewhere.json')
+  writeFileSync(outside, '{}')
+  symlinkSync(outside, join(root, 'src/locales/zz.json'))
+  try {
+    const config = (await (await fetch(`${url}/config`)).json()) as { locales: { code: string }[] }
+    expect(config.locales.map((locale) => locale.code)).toEqual(['en'])
+  } finally {
+    rmSync(join(root, 'src/locales/zz.json'))
+  }
+})
+
+test('a sibling folder of the locales sends no update', async () => {
+  const send = vi.spyOn(server.ws, 'send')
+  mkdirSync(join(root, 'src/locales-old'), { recursive: true })
+  server.watcher.emit('change', join(root, 'src/locales-old/en.json'))
+  await new Promise((done) => setTimeout(done, 150))
+  expect(send).not.toHaveBeenCalledWith(expect.objectContaining({ event: 'i18n-micro:locales-updated' }))
+  send.mockRestore()
 })

@@ -44,7 +44,7 @@ Each package has a playground under `packages/<name>/playground` in the reposito
 | `datetimeFormats` | `Record<locale, Record<name, Intl.DateTimeFormatOptions>>` | — | Named formats: `td(date, 'short')`. |
 | `timeZone` | `string` | runtime's zone | IANA zone for dates. Set it so server and browser render one date. |
 | `now` | `() => number` | `Date.now` | The clock of `tdr`. Hand hydration the server's time so both render one text. |
-| `localeIso` | `Record<code, string>` | — | BCP 47 tag of a locale code that is none (`ua` → `uk-UA`), for plurals. React, Preact and Solid take it from `iso` in the provider's `locales`. |
+| `localeIso` | `Record<code, string>` | — | BCP 47 tag used for plural rules (`ua` → `uk-UA`). React, Preact and Solid take it from `iso` in the provider's `locales`. |
 
 The dictionaries live in `i18n.storage.translations`, a `Map` keyed `locale:route` (`en:index`, `en:about`).
 

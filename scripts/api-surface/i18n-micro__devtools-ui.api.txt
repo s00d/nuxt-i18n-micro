@@ -34,7 +34,7 @@ member JsonRpcResponse.error?: { code: number; message: string; data?: unknown; 
 member JsonRpcResponse.id: string
 member JsonRpcResponse.jsonrpc: "2.0"
 member JsonRpcResponse.result?: unknown
-type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue; }
 type LocaleData: Record<string, TranslationContent>
 function register: () => void
 function setupRpcHost: (iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void
@@ -53,7 +53,7 @@ member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
 member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
 member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
 member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
-type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue; }
 type LocaleData: Record<string, TranslationContent>
 interface TranslationContent
 member TranslationContent.[string]: JSONValue

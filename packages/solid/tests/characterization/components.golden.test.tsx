@@ -7,7 +7,7 @@ import { messages, NOW, type SlotSpec, T_CASES, type TCase } from '../../../core
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT } from '../../src'
 import { createSolidRouterAdapter } from '../../src/router'
 
-const instance = (locale = 'en') => createI18n({ locale, fallbackLocale: 'en', messages, missingWarn: false })
+const instance = (locale = 'en') => createI18n({ locale, fallbackLocale: 'en', messages, missingWarn: false, timeZone: 'UTC' })
 const location = { pathname: '/de/about', search: '?q=1', hash: '#h', query: { q: '1' } } as never
 const adapter = () => createSolidRouterAdapter(LOCALES, 'en', (() => {}) as never, location)
 

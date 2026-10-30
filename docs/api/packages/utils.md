@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-104 exports across 22 entry points.
+106 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -152,9 +152,11 @@ import { /* … */ } from '@i18n-micro/utils/load-dir'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `listTranslationFiles` | function | `(dir: string) => TranslationFile[]` |
+| `isInsideDir` | function | `(file: string, dir: string) => boolean` |
+| `listTranslationFiles` | function | `(directory: string) => TranslationFile[]` |
 | `loadTranslationDir` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
 | `loadTranslationDirAsync` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>` |
+| `loadTranslationFiles` | function | `<T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
 | `parseTranslationFile` | function | `(text: string, path: string) => Dictionary \| null` |
 | `TranslationFile` | interface | 2 members |
 
@@ -337,7 +339,7 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | --- | --- | --- |
 | `classifyTranslationRelativePath` | function | `(relativePath: string, disablePageLocales?: boolean) => ParsedTranslationRelativePath` |
 | `pagePathSegmentsToRouteName` | function | `(segments: string[]) => string \| null` |
-| `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string } \| { type: 'root'; locale: string } \| { type: 'ignore' }` |
+| `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string; } \| { type: 'root'; locale: string; } \| { type: 'ignore'; }` |
 | `parseTranslationRelativePath` | function | `(relativePath: string) => ParsedTranslationRelativePath` |
 | `storeLoadedTranslationFile` | function | `<T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void` |
 | `TranslationFileBuckets` | interface | `<T = Record<string, unknown>>` |
@@ -360,7 +362,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-fetch'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `fetchTranslationPayloadFromHost` | function | `(config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations>` |
-| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number> }) => Promise<T>` |
+| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; }) => Promise<T>` |
 | `TranslationPayloadHostConfig` | interface | 3 members |
 
 <details>

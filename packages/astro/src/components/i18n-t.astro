@@ -10,4 +10,4 @@ const { keypath, plural, params, defaultValue, tag: Tag = 'span', html = false, 
 const text = resolveI18nT(Astro, { keypath, plural, params, defaultValue, html, hideIfEmpty, number, date, relativeDate })
 ---
 
-{text !== null && (html ? <Tag {...attrs} set:html={text} /> : <Tag {...attrs}>{text}</Tag>)}
+{text === null ? defaultValue : html ? <Tag {...attrs} set:html={text} /> : <Tag {...attrs}>{text}</Tag>}

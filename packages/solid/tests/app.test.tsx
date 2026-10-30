@@ -85,6 +85,9 @@ test('translations load after mount and every reader re-renders: t in JSX, I18nT
   expect(i18n.currentRoute).toBe('index')
   expect(i18n.fallbackLocale).toBe('en')
   expect(i18n.getFallbackLocale()).toBe('en')
+  // the mount itself counted: the provider's `iso` moved the plural tag
+  expect(changes).toHaveBeenCalledTimes(1)
+  changes.mockClear()
   i18n.addTranslations('en', en)
   // merge is the default: a second, partial load keeps the rest
   i18n.addTranslations('en', { greeting: en.greeting })
@@ -147,7 +150,7 @@ test('translations load after mount and every reader re-renders: t in JSX, I18nT
 })
 
 test('I18nT renders numbers, dates, plurals, HTML and empty values, and follows the locale in both modes', () => {
-  const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, de }, missingWarn: false })
+  const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, de }, missingWarn: false, timeZone: 'UTC' })
   const now = Date.now()
   const $ = mountApp(i18n, () => (
     <div>

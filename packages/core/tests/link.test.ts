@@ -1,5 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath } from '../src/link'
+import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, routeQuery } from '../src/link'
+
+describe('routeQuery', () => {
+  it.each([
+    ['', {}],
+    ['?a=1', { a: '1' }],
+    ['?tag=a&tag=b&tag=c&x=1', { tag: ['a', 'b', 'c'], x: '1' }],
+    ['?a=&a=', { a: ['', ''] }],
+  ])('%s', (search, query) => {
+    expect(routeQuery(search)).toEqual(query)
+  })
+
+  it('a key named like a prototype member stays a plain own key', () => {
+    const query = routeQuery('?__proto__=x&constructor=y')
+    expect(Object.getPrototypeOf(query)).toBe(Object.prototype)
+    expect(Object.keys(query)).toEqual(['__proto__', 'constructor'])
+  })
+})
 
 describe('externalLinkHref', () => {
   it.each([

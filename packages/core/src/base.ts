@@ -76,6 +76,8 @@ export abstract class BaseI18n {
   public getCustomMissingHandler?: () => MissingHandler | null
 
   protected localeIso: Record<string, string>
+  /** A lent formatter is shared with other instances: its cache is not this one's to clear. */
+  private readonly ownsFormatter: boolean
   private activeKey = new ChunkKey()
   private activeRootKey = new ChunkKey()
   private fallbackKey = new ChunkKey()
@@ -84,6 +86,7 @@ export abstract class BaseI18n {
   constructor(options: BaseI18nOptions = {}) {
     this.helper = options.helper ?? new TranslationHelper(options.storage)
     this.formatter = options.formatter ?? new FormatService(options)
+    this.ownsFormatter = options.formatter === undefined
     this.localeIso = options.localeIso ?? {}
     const plural = options.plural
     // A custom rule returning null/undefined falls back to the default one (#241).
@@ -105,12 +108,12 @@ export abstract class BaseI18n {
     return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
   }
 
-  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
   /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
   public addLocaleIso(localeIso: Record<string, string>): void {
     this.localeIso = { ...this.localeIso, ...localeIso }
   }
 
+  /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
   public pluralLocale(): string {
     return this.pluralTag(this.getLocale())
   }
@@ -281,7 +284,7 @@ export abstract class BaseI18n {
   /** Clear translation and formatter caches. */
   public clearCache(): void {
     this.helper.clearCache()
-    this.formatter.clearCache()
+    if (this.ownsFormatter) this.formatter.clearCache()
     clearTemplateCache()
     this.onTranslationsChanged()
   }

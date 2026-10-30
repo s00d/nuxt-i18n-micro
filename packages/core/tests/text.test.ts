@@ -399,6 +399,13 @@ describe('resolveText', () => {
       expect(seen).toEqual(['=0 нет | яблоко | яблока | яблок', '=0 нет | яблоко | яблока | яблок'])
     })
 
+    it('an empty default means none, as in t: a miss answers the key', () => {
+      const none: PluralFunc = () => null
+      expect(text(new TestI18n('en', messages, none), { keypath: 'nope', plural: 2, defaultValue: '' })).toBe('nope')
+      expect(text(new TestI18n('en', messages), { keypath: 'nope', plural: 2, defaultValue: '' })).toBe('nope')
+      expect(text(new TestI18n('en', messages, none), { keypath: 'nope', plural: 2, defaultValue: 'Fallback' })).toBe('Fallback')
+    })
+
     it('null falls back to the default rule, the marker included', () => {
       const custom = new TestI18n('ru', messages, rule)
       expect(custom.tc('ruApples', 21)).toBe('яблоко')
@@ -422,6 +429,15 @@ describe('the plural locale of an instance', () => {
     expect(new IsoI18n().tc('x', 21)).toBe('21 яблуко')
     expect(new IsoI18n().tc('x', 22)).toBe('22 яблука')
     expect(text(new IsoI18n(), { keypath: 'x', plural: 21 })).toBe('21 яблуко')
+  })
+
+  it('addLocaleIso merges over the option and plurals follow it', () => {
+    const i18n = new IsoI18n()
+    i18n.addLocaleIso({ de: 'de-AT' })
+    expect(i18n.pluralLocale()).toBe('uk-UA')
+    i18n.addLocaleIso({ ua: 'en-US' })
+    expect(i18n.pluralLocale()).toBe('en-US')
+    expect(i18n.tc('x', 21)).toBe('21 яблука')
   })
 
   it('a custom rule keeps getting the code, and its null falls back by iso', () => {

@@ -144,3 +144,22 @@ test('a fork keeps the locale tags: plurals of a code that is no language tag', 
   expect(root.fork().tc('items', 21)).toBe(root.tc('items', 21))
   expect(root.fork().tc('items', 21)).toBe('21 предмет')
 })
+
+describe('forks of forks', () => {
+  test('a child reads what its parent wrote after the child was made', () => {
+    const parent = site().fork()
+    const child = parent.fork()
+    parent.addTranslations('en', { later: 'Later' })
+    expect(child.t('later')).toBe('Later')
+  })
+
+  test('a child that wrote keeps its own copy', () => {
+    const parent = site().fork()
+    const child = parent.fork()
+    child.addTranslations('en', { mine: 'Mine' })
+    parent.addTranslations('en', { later: 'Later' })
+    expect(child.t('mine')).toBe('Mine')
+    expect(parent.t('mine')).toBe('mine')
+    expect(child.t('later')).toBe('later')
+  })
+})

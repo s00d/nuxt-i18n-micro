@@ -44,5 +44,6 @@
     },
     "apples": "no apples | one apple | {count} apples",
     "number": "Number: {number}"
-  }
+  },
+  "blank": ""
 }

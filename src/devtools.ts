@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
+import { isInsideDir } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
 
@@ -222,9 +223,12 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
 
     // The open tab follows edits made on disk, and its own saves
     const directories = [options.translationDir || 'locales', ...(options.additionalTranslationDirs ?? [])]
+    const roots = dirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
     let timer: ReturnType<typeof setTimeout> | undefined
-    nuxt.hook('builder:watch', (_event, file) => {
-      if (!file.endsWith('.json') || !directories.some((dir) => file.replace(/\\/g, '/').includes(`${dir}/`))) return
+    nuxt.hook('builder:watch', (_event, watched) => {
+      // Nuxt reports a path relative to `srcDir`, the folders are relative to the root
+      const file = resolve(nuxt.options.srcDir, watched)
+      if (!file.endsWith('.json') || !roots.some((root) => isInsideDir(file, root))) return
       clearTimeout(timer)
       timer = setTimeout(() => {
         functions

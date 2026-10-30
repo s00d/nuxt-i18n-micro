@@ -93,7 +93,7 @@ member I18nPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member I18nPathStrategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
 member I18nPathStrategy.unknownLocale: private RegExp | null
 member I18nPathStrategy.new: (ctx: PathStrategyContext): I18nPathStrategy
-type PathStrategy: { [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }
+type PathStrategy: { [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }
 interface PathStrategyContext
 member PathStrategyContext.customRegexMatcher?: string | undefined
 member PathStrategyContext.defaultLocale: string

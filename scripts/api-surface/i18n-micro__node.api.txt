@@ -27,18 +27,18 @@ type Getter: (key: TranslationKey, params?: Record<string, string | number | boo
 class I18n
 member I18n.activeKey: private any
 member I18n.activeRootKey: private any
-member I18n.addLocaleIso: (localeIso: Record<string, string>) => void
+member I18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member I18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member I18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member I18n.clear: () => void
 member I18n.clearCache: () => void
 member I18n.currentRoute: string
 member I18n.disablePageLocales: private boolean
-member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../node/src").I18n & M>) => import("../../node/src").I18n & M
+member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M
 member I18n.fallbackKey: private any
 member I18n.fallbackLocale: string
 member I18n.fallbackRootKey: private any
-member I18n.fork: (locale?: string) => import("../../node/src").I18n
+member I18n.fork: (locale?: string) => I18n
 member I18n.forked: private boolean
 member I18n.formatArgs: private any
 member I18n.formatter: FormatService
@@ -51,6 +51,7 @@ member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: TranslationHelper
+member I18n.isReadable: private any
 member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -63,6 +64,7 @@ member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected (locale?: string) => void
+member I18n.ownsFormatter: private any
 member I18n.ownStore: protected ReactiveI18nStore
 member I18n.pluralFunc: PluralFunc
 member I18n.pluralLocale: () => string

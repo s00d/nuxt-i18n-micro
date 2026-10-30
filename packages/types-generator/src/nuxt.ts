@@ -1,4 +1,6 @@
-import { isAbsolute, join } from 'node:path'
+import { existsSync } from 'node:fs'
+import { isAbsolute, join, resolve } from 'node:path'
+import { isInsideDir } from '@i18n-micro/utils/load-dir'
 import { addTypeTemplate, defineNuxtModule } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import { getTypesString } from './core/generator'
@@ -19,12 +21,16 @@ function i18nOptions(nuxt: Nuxt): I18nDirOptions {
   return { ...(inline as [unknown, I18nDirOptions] | undefined)?.[1], ...(nuxt.options as { i18n?: I18nDirOptions }).i18n }
 }
 
-/** Where the module reads translations: the folder in every layer, and the additional dirs. */
-function translationDirs(nuxt: Nuxt, own?: string): string[] {
-  if (own) return [own]
+/** Where the module reads translations: the folder and the additional dirs, each in every layer. */
+function translationDirs(nuxt: Nuxt, own?: string): { dirs: string[]; additionalDirs: string[] } {
+  if (own) return { dirs: [resolve(nuxt.options.rootDir, own)], additionalDirs: [] }
   const { translationDir = 'locales', additionalTranslationDirs = [] } = i18nOptions(nuxt)
-  const inLayers = nuxt.options._layers.map((layer) => join(layer.config.rootDir, translationDir))
-  return [...inLayers, ...additionalTranslationDirs.map((dir) => (isAbsolute(dir) ? dir : join(nuxt.options.rootDir, dir)))]
+  const roots = nuxt.options._layers.map((layer) => layer.config.rootDir)
+  return {
+    dirs: roots.map((root) => join(root, translationDir)),
+    // most layers have no such folder, and that is no warning
+    additionalDirs: additionalTranslationDirs.flatMap((dir) => roots.map((root) => resolve(root, dir))).filter((dir) => existsSync(dir)),
+  }
 }
 
 export default defineNuxtModule<I18nTypesGeneratorOptions>({
@@ -33,7 +39,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     configKey: 'i18nTypes',
   },
   setup(options, nuxt) {
-    const dirs = translationDirs(nuxt, options.translationDir).map((dir) => (isAbsolute(dir) ? dir : join(nuxt.options.rootDir, dir)))
+    const { dirs, additionalDirs } = translationDirs(nuxt, options.translationDir)
 
     // Legacy key from older docs — not part of the public Nuxt options type.
     const legacyOutputFile = (options as Record<string, unknown>).outputFile
@@ -51,7 +57,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
       filename: 'types/i18n-micro.d.ts',
       getContents: () => {
         try {
-          return getTypesString({ srcDir: nuxt.options.rootDir, translationDir: dirs })
+          return getTypesString({ srcDir: nuxt.options.rootDir, translationDir: dirs, additionalDirs })
         } catch (error) {
           console.warn('[i18n-types] Failed to generate types:', error)
           return `// Failed to generate types: ${error instanceof Error ? error.message : String(error)}`
@@ -62,7 +68,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     // `builder:generateApp` runs `getContents` again
     nuxt.hook('builder:watch', async (_event, path) => {
       const file = isAbsolute(path) ? path : join(nuxt.options.srcDir, path)
-      if (file.endsWith('.json') && dirs.some((dir) => file.startsWith(dir))) await nuxt.callHook('builder:generateApp')
+      if (file.endsWith('.json') && [...dirs, ...additionalDirs].some((dir) => isInsideDir(file, dir))) await nuxt.callHook('builder:generateApp')
     })
   },
 })

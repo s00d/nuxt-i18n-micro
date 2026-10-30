@@ -663,8 +663,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
       // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
-      const { name, ...route } = switched
-      return Object.defineProperty({ ...route, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
+      const { name, ...rest } = switched
+      return Object.defineProperty({ ...rest, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

@@ -53,7 +53,7 @@ const { t, localePath } = useI18n()
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
 | [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<boolean>` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
-| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
+| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating, or a URL string for a locale on its own `baseUrl`. |
 | [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
 | [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
 | [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
@@ -353,9 +353,9 @@ The path of the current page in another locale, without navigating.
 (locale: string) => RouteLocationRaw
 ```
 
-The route object for the current page in another locale, without navigating. Under
-`trailingSlash` its `path` and `fullPath` follow the rule, while a push by `name` does not:
-link with `$switchLocalePath` there.
+The route object for the current page in another locale, without navigating, or a URL string
+for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
+follow the rule, and `router.push` or a link keep them.
 
 <!-- /generated:method:$switchLocaleRoute -->
 

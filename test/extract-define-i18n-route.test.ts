@@ -149,7 +149,9 @@ describe('mergeDefineI18nRouteMeta', () => {
     ['/', 'index'],
     ['docs/[...rest]', 'docs-rest'],
   ])('%s: the config wins under the name or path %s', (routePath, key) => {
-    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], {
+      globalLocaleRoutes: { [key]: { de: '/config' } },
+    })
     expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
   })
 

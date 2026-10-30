@@ -108,7 +108,14 @@ describe('resolveLocalizedRulePaths', () => {
 
 describe('resolveLocalizedRulePaths with child pages', () => {
   const generator = (globalLocaleRoutes: GlobalLocaleRoutes, parentPaths?: string[]) =>
-    new RouteGenerator({ locales: [{ code: 'en' }, { code: 'de' }], defaultLocaleCode: 'en', strategy: 'prefix', globalLocaleRoutes, noPrefixRedirect: false, parentPaths })
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes,
+      noPrefixRedirect: false,
+      parentPaths,
+    })
 
   test('a relative child value hangs off its parent, as the page does', () => {
     // step 1: under a parent page
@@ -117,7 +124,11 @@ describe('resolveLocalizedRulePaths with child pages', () => {
 
     // step 2: under a parent with its own custom path; the parent's children move with it
     const moved = { blog: { de: '/beitraege' }, ...child }
-    expect(generator(moved, ['blog']).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/beitraege/**', '/de/beitraege/artikel/:slug'])
+    expect(generator(moved, ['blog']).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual([
+      '/de/blog/**',
+      '/de/beitraege/**',
+      '/de/beitraege/artikel/:slug',
+    ])
 
     // step 3: no parent page: the value is the whole path
     expect(generator(child).resolveLocalizedRulePaths('/blog/**', 'de')).toEqual(['/de/blog/**', '/de/artikel/:slug'])

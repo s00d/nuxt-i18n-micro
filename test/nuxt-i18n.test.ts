@@ -287,16 +287,32 @@ describe('formatterFor: one FormatService per resolved config on the server', ()
 })
 
 describe('$i18n', () => {
-  test('both spellings read the same function, per object, without a second set of properties', () => {
-    const first = withDollarAliases({ t: () => 'first', getLocale: () => 'en' })
-    const second = withDollarAliases({ t: () => 'second', getLocale: () => 'de' })
+  const aliased = (t: () => string) => withDollarAliases({ t, getLocale: () => 'en' }) as { t: () => string; $t: () => string; getLocale: () => string }
 
-    const { $t, t } = first as typeof first & { $t: typeof first.t }
-    expect($t).toBe(t)
-    expect(($t as () => string)()).toBe('first')
-    // two requests: the shared accessors hold nothing of either
-    expect((second as typeof second & { $t: typeof second.t }).$t()).toBe('second')
-    expect(Object.keys(first)).toEqual(['t', 'getLocale'])
+  test('both spellings are the same function, per object', () => {
+    const first = aliased(() => 'first')
+    const second = aliased(() => 'second')
+
+    expect(first.$t).toBe(first.t)
+    expect(first.$t()).toBe('first')
+    expect(second.$t()).toBe('second')
+  })
+
+  test('the $ spellings are own properties: a wrapper spreads them, an app patches them, a test spies on them', () => {
+    const i18n = aliased(() => 'real')
+
+    expect(Object.keys(i18n)).toEqual(['t', 'getLocale', '$t', '$getLocale'])
+    expect({ ...i18n }.$t()).toBe('real')
+    expect(Object.assign({}, i18n).$t()).toBe('real')
+    expect(Object.hasOwn(i18n, '$t')).toBe(true)
+
+    expect(vi.spyOn(i18n, '$t').mockReturnValue('spied')).toBeDefined()
+    expect(i18n.$t()).toBe('spied')
+    i18n.$t = () => 'patched'
+    expect(i18n.$t()).toBe('patched')
+    expect(i18n.t()).toBe('real')
+    Object.assign(i18n, { $t: () => 'assigned' })
+    expect(i18n.$t()).toBe('assigned')
   })
 })
 

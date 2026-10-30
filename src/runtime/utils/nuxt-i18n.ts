@@ -552,28 +552,12 @@ export class NuxtTranslationLoader {
   }
 }
 
-let dollarAliases: object | undefined
-
 /**
- * `$t` next to `t` on `$i18n`, so `const { $t } = useI18n()` works: accessors on one shared
- * prototype instead of a second set of properties per request. They hold nothing: `this` is the
- * request's object.
+ * `$t` next to `t` on `$i18n`, both own properties: a spread, `Object.keys`, a write and
+ * `vi.spyOn` on `useI18n()` all see them.
  */
 export function withDollarAliases<T extends object>(api: T): T {
-  dollarAliases ??= Object.defineProperties(
-    {},
-    Object.fromEntries(
-      Object.keys(api).map((key) => [
-        `$${key}`,
-        {
-          get(this: Record<string, unknown>) {
-            return this[key]
-          },
-        },
-      ]),
-    ),
-  )
-  return Object.setPrototypeOf(api, dollarAliases)
+  return { ...api, ...Object.fromEntries(Object.entries(api).map(([key, value]) => [`$${key}`, value])) }
 }
 
 export interface NuxtI18nPluginApiDeps {

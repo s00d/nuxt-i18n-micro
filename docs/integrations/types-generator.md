@@ -6,7 +6,7 @@ outline: 'deep'
 
 # Types generator
 
-`@i18n-micro/types-generator` reads every JSON file in your translation folder and writes a declaration that lists all keys. Add it when you want your editor to suggest keys in `t()`, `$t()` and `<I18nT keypath>`. It works as a Nuxt module and as a Vite (unplugin) plugin, and regenerates when a file changes.
+`@i18n-micro/types-generator` reads every JSON file in your translation folder and writes a declaration that lists all keys. Add it when you want your editor to suggest keys in `t()`, `$t()` and `<I18nT keypath>`. It works as a Nuxt module and as a Vite or Rollup plugin, and regenerates when a file changes.
 
 ## Install
 
@@ -45,11 +45,11 @@ export default defineNuxtConfig({
 })
 ```
 
-The module writes `.nuxt/types/i18n-micro.d.ts` and Nuxt adds it to the type context; nothing to include by hand. It reads `i18nTypes.translationDir`, else `i18n.translationDir`, else `'locales'`, relative to the project root. Editing a JSON file under that folder regenerates the types in `nuxi dev`. `i18nTypes.outputFile` is ignored in Nuxt (a warning says so).
+The module writes `.nuxt/types/i18n-micro.d.ts` and Nuxt adds it to the type context; nothing to include by hand. It reads `i18nTypes.translationDir`, else where `nuxt-i18n-micro` reads translations: `translationDir` (from `i18n` or inline module options, default `'locales'`) in every layer, and `additionalTranslationDirs`. Editing a JSON file under that folder regenerates the types in `nuxi dev`. `i18nTypes.outputFile` is ignored in Nuxt (a warning says so).
 
 ## Vite
 
-`I18nTypesPlugin` is an unplugin: call `.vite()` (or `.rollup()`, `.webpack()`, `.esbuild()`):
+`I18nTypesPlugin` is a Vite plugin, which Rollup also takes. For another bundler, call `generateTypes` in a script.
 
 ```ts
 // vite.config.ts
@@ -60,7 +60,7 @@ import { I18nTypesPlugin } from '@i18n-micro/types-generator'
 export default defineConfig({
   plugins: [
     vue(),
-    I18nTypesPlugin.vite({
+    I18nTypesPlugin({
       srcDir: process.cwd(),
       translationDir: 'src/locales',
       outputFile: 'src/i18n-micro.d.ts',
@@ -72,10 +72,10 @@ export default defineConfig({
 | Option | Required | Notes |
 | --- | --- | --- |
 | `srcDir` | yes | Base directory; `translationDir` is resolved against it. |
-| `translationDir` | yes | Folder with the JSON files (subfolders such as `pages/` included). |
+| `translationDir` | yes | Folder with the JSON files (subfolders such as `pages/` included), or an array of folders. |
 | `outputFile` | no | Where to write the declaration; default `<srcDir>/i18n-micro.d.ts`. |
 
-The plugin generates once at build start and, unless `NODE_ENV` is `production`, watches the folder and regenerates 300 ms after a change. Make sure your `tsconfig.json` `include` covers the output file.
+The plugin generates once at build start and, on the dev server, regenerates 300 ms after a change in the folder. Make sure your `tsconfig.json` `include` covers the output file.
 
 ## Use the keys
 
@@ -84,13 +84,14 @@ The generated file augments `DefineLocaleMessage` in `@i18n-micro/types`, which 
 ```ts
 declare module '@i18n-micro/types' {
   export interface DefineLocaleMessage {
+    nav: object
     'nav.home': string
     'profile.title': string
   }
 }
 ```
 
-Keys from every locale and every page file are merged into one list. `TranslationKey` is the union of those keys plus any string, so you get autocomplete, not errors: a misspelled or dynamic key still compiles. Params and return values are not typed.
+The keys are the ones `t()` answers, objects too, from every locale and every page file, with the type of their JSON value. `TranslationKey` is the union of those keys plus any string, so you get autocomplete, not errors: a misspelled or dynamic key still compiles. Params and return values are not typed.
 
 For dynamic keys under a known prefix, `ScopedKey<'prefix'>` narrows to the matching keys:
 
@@ -106,10 +107,10 @@ const statusText = (status: string) => t(`status.${status}` as ScopedKey<'status
 
 | Export | Entry | Notes |
 | --- | --- | --- |
-| `I18nTypesPlugin` | `@i18n-micro/types-generator` | unplugin: `.vite()`, `.rollup()`, `.webpack()`, `.esbuild()` |
+| `I18nTypesPlugin(options)` | `@i18n-micro/types-generator` | Vite and Rollup plugin |
 | `generateTypes(options)` | `@i18n-micro/types-generator` | writes the file, returns its path |
 | `getTypesString(options)` | `@i18n-micro/types-generator` | returns the declaration without writing |
-| `flattenKeys(obj)`, `formatKeyProperty(key)`, `isPlainTranslationObject(value)` | `@i18n-micro/types-generator` | helpers |
+| `formatKeyProperty(key)` | `@i18n-micro/types-generator` | helper |
 | Nuxt module (`configKey: 'i18nTypes'`) | `@i18n-micro/types-generator/nuxt` | option `translationDir` |
 
 Full signatures: [package reference](/api/packages/types-generator).

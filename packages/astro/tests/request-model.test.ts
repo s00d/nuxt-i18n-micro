@@ -335,7 +335,7 @@ test('islands plural by the locale tag: a code that is no language tag', async (
   const i18n = createI18n({
     locale: 'ua',
     localeIso: { ua: 'uk-UA' },
-    messages: { ua: { items: '{count} предмет | {count} предмети | {count} предметів' } },
+    messages: { ua: { items: '=0 нема | {count} предмет | {count} предмети | {count} предметів' } },
     missingWarn: false,
   })
   const handler = createI18nMiddleware({ i18n, defaultLocale: 'ua', locales: ['ua'] })

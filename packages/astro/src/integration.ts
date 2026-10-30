@@ -1,6 +1,7 @@
 import type { Locale } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import type { AstroConfig, AstroIntegration, HookParameters } from 'astro'
+import type { FSWatcher } from 'vite'
 import { AstroI18n, type AstroI18nOptions } from './composer'
 
 export interface I18nIntegrationOptions {
@@ -54,16 +55,18 @@ function publishedConfig(options: I18nIntegrationOptions, base: string) {
 /**
  * The two virtual modules. The dictionaries become code at build time, so the server reads no disk
  * and an edge runtime works. Their files are watched: in dev an edit reloads the module.
- * ponytail: a new locale file is picked up by the next edit of a known one, or a restart.
  */
 function i18nVitePlugin(options: I18nIntegrationOptions, config: AstroConfig) {
   const code = `export const config = ${JSON.stringify(publishedConfig(options, config.base))}`
+
+  let watched: string[] = []
 
   const loadMessages = async (watch: (file: string) => void) => {
     const { translationDir, disablePageLocales } = options
     if (!translationDir) return 'export const messages = {"root":{},"routes":{}}'
     const { readTranslationDir } = (await import(/* @vite-ignore */ NODE_ENTRY)) as typeof import('./node')
     const { messages, files } = readTranslationDir({ translationDir, rootDir: config.root, disablePageLocales })
+    watched = files
     for (const file of files) watch(file)
     return `export const messages = ${JSON.stringify(messages)}`
   }
@@ -76,6 +79,16 @@ function i18nVitePlugin(options: I18nIntegrationOptions, config: AstroConfig) {
     load(this: { addWatchFile(file: string): void }, id: string) {
       if (id === hidden(CONFIG_MODULE)) return code
       return id === hidden(MESSAGES_MODULE) ? loadMessages((file) => this.addWatchFile(file)) : undefined
+    },
+    configureServer(server: { watcher: FSWatcher }) {
+      const dir = options.translationDir && `/${options.translationDir.replace(/^\.?\/+|\/+$/g, '')}/`
+      if (!dir) return
+      // A file Vite knows reloads by itself; a new one has no module yet: a change of a known file does it.
+      const reload = (file: string) => {
+        const isLocaleFile = file.endsWith('.json') && file.replace(/\\/g, '/').includes(dir)
+        if (isLocaleFile && watched[0]) server.watcher.emit('change', watched[0])
+      }
+      server.watcher.on('add', reload)
     },
   }
 }

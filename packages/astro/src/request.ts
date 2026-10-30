@@ -110,7 +110,7 @@ export function resolveRequest(context: RequestContext, routing: I18nRouting): I
 /** The locale of the same-origin page the visitor comes from, when it is not the one of this request: they just switched. */
 export function switchedFrom(context: RequestContext, request: I18nRequest, routing: I18nRouting): string | null {
   const from = refererUrl(context)
-  if (!from || isPartOfPage(context.routePattern)) return null
+  if (!from) return null
   const locale = localeOfPath(withoutAppBaseURL(from.pathname, routing.base), routing) ?? routing.defaultLocale
   return locale === request.locale ? null : locale
 }

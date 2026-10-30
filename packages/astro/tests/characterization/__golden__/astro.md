@@ -125,10 +125,10 @@
 
 ## props on /de/about?x=1
 
-- `getI18nProps()` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
-- `getI18nProps([])` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
-- `getI18nProps(keys)` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"Über","a":{"b":"DE AB"},"only":"en only","island":{"cta":"Buy"}}}}
-- `getI18nProps(a, a.b)` → {"locale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"DE AB"}}}}
+- `getI18nProps()` → {"locale":"de","pluralLocale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps([])` → {"locale":"de","pluralLocale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hallo","title":"Über","apples":"no apples | one apple | {count} apples","a":{"b":"DE AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps(keys)` → {"locale":"de","pluralLocale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"Über","a":{"b":"DE AB"},"only":"en only","island":{"cta":"Buy"}}}}
+- `getI18nProps(a, a.b)` → {"locale":"de","pluralLocale":"de","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"DE AB"}}}}
 - `GET /about {}` → {"status":200,"location":null,"vary":null,"locale":"en","route":"about","cookie":{}}
 
 ## helpers on /about
@@ -181,10 +181,10 @@
 
 ## props on /about
 
-- `getI18nProps()` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
-- `getI18nProps([])` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
-- `getI18nProps(keys)` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"About","a":{"b":"AB"},"only":"en only","island":{"cta":"Buy"}}}}
-- `getI18nProps(a, a.b)` → {"locale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"AB"}}}}
+- `getI18nProps()` → {"locale":"en","pluralLocale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps([])` → {"locale":"en","pluralLocale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"hello":"Hello","title":"About","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}","island":{"cta":"Buy"}}}}
+- `getI18nProps(keys)` → {"locale":"en","pluralLocale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"title":"About","a":{"b":"AB"},"only":"en only","island":{"cta":"Buy"}}}}
+- `getI18nProps(a, a.b)` → {"locale":"en","pluralLocale":"en","fallbackLocale":"en","currentRoute":"about","translations":{"about":{"a":{"b":"AB"}}}}
 - `GET /ar/x {}` → {"status":200,"location":null,"vary":null,"locale":"ar","route":"x","cookie":{}}
 
 ## helpers on /ar/x
@@ -237,10 +237,10 @@
 
 ## props on /ar/x
 
-- `getI18nProps()` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
-- `getI18nProps([])` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
-- `getI18nProps(keys)` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"title":"Root title","a":{"b":"AB"},"only":"en only"}}}
-- `getI18nProps(a, a.b)` → {"locale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"a":{"b":"AB"}}}}
+- `getI18nProps()` → {"locale":"ar","pluralLocale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
+- `getI18nProps([])` → {"locale":"ar","pluralLocale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"hello":"Hello","title":"Root title","apples":"no apples | one apple | {count} apples","a":{"b":"AB"},"only":"en only","hi":"Hi {name}"}}}
+- `getI18nProps(keys)` → {"locale":"ar","pluralLocale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"title":"Root title","a":{"b":"AB"},"only":"en only"}}}
+- `getI18nProps(a, a.b)` → {"locale":"ar","pluralLocale":"ar","fallbackLocale":"en","currentRoute":"x","translations":{"x":{"a":{"b":"AB"}}}}
 
 ## rewrite
 

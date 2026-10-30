@@ -70,10 +70,13 @@ describe('fork', () => {
     viaStorage.storage.translations.set('en:index', { hi: 'Direct' })
     expect([viaStorage.t('hi'), root.t('hi')]).toEqual(['Direct', 'Hello'])
 
-    const viaHelper = root.fork()
-    viaHelper.helper.loadTranslations('en', { hi: 'Helper' })
-    viaHelper.helper.setTranslations('en', { x: 'y' }, 'route')
-    expect([viaHelper.t('hi'), root.t('hi'), root.helper.hasCache('en', 'route')]).toEqual(['Helper', 'Hello', false])
+    const viaMerge = root.fork()
+    viaMerge.helper.loadTranslations('en', { hi: 'Helper' })
+    expect([viaMerge.t('hi'), root.t('hi')]).toEqual(['Helper', 'Hello'])
+
+    const viaSet = root.fork()
+    viaSet.helper.setTranslations('en', { x: 'y' }, 'route')
+    expect(root.helper.hasCache('en', 'route')).toBe(false)
   })
 
   test('stored trees are shared, not copied: forking does not depend on the number of chunks', () => {
@@ -135,7 +138,7 @@ test('a fork keeps the locale tags: plurals of a code that is no language tag', 
   const root = createI18n({
     locale: 'ua',
     localeIso: { ua: 'uk-UA' },
-    messages: { ua: { items: '{count} предмет | {count} предмети | {count} предметів' } },
+    messages: { ua: { items: '=0 нема | {count} предмет | {count} предмети | {count} предметів' } },
     missingWarn: false,
   })
   expect(root.fork().tc('items', 21)).toBe(root.tc('items', 21))

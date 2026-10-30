@@ -65,11 +65,12 @@ describe('Vite plugin', () => {
     await server.pluginContainer.buildStart({})
     expect(keysOf(readFileSync(join(root, 'a.d.ts'), 'utf8'))).toEqual(['one'])
 
-    write('locales/en.json', { two: 'x' })
+    // written until seen: a write before the watcher's first scan is no change to it
     await vi.waitFor(() => {
+      write('locales/en.json', { two: 'x' })
       expect(keysOf(readFileSync(join(root, 'a.d.ts'), 'utf8'))).toEqual(['two'])
       expect(keysOf(readFileSync(join(root, 'b.d.ts'), 'utf8'))).toEqual(['two'])
-    }, { timeout: 8000 })
+    }, { timeout: 8000, interval: 500 })
     await server.close()
   }, 15_000)
 

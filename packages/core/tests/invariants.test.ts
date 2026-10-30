@@ -194,3 +194,11 @@ describe('formats', () => {
     expect(i18n.tdr(new Date('2026-01-09T12:00:00Z'), { numeric: 'auto' })).toBe('yesterday')
   })
 })
+
+test('formatter caches are bounded: a loop over generated options cannot grow them for ever', () => {
+  const service = new FormatService()
+  const sizes = () => (service as unknown as { numberCache: Map<string, unknown> }).numberCache.size
+  for (let digits = 0; digits < 1200; digits++) service.formatNumber(1, 'en', { minimumIntegerDigits: (digits % 21) + 1, maximumFractionDigits: digits % 20, currencyDisplay: String(digits) as never })
+  expect(sizes()).toBeLessThanOrEqual(500)
+  expect(service.formatNumber(1.5, 'en')).toBe('1.5')
+})

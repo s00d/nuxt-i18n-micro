@@ -3,7 +3,7 @@ import react from '@astrojs/react'
 import svelte from '@astrojs/svelte'
 import vue from '@astrojs/vue'
 import { i18nIntegration } from '@i18n-micro/astro'
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { i18nDevToolsIntegration } from '@i18n-micro/devtools-ui/vite'
 import { defineConfig } from 'astro/config'
 
 // `tests/publish/ssr.publish.test.ts` builds this site twice: as it is, and under a `base`
@@ -19,18 +19,12 @@ export default defineConfig({
     optimizeDeps: {
       include: ['react', 'react-dom'],
     },
-    plugins: [
-      i18nDevToolsPlugin({
-        base: '/__i18n_api',
-        translationDir: 'src/locales',
-        injectButton: true,
-      }),
-    ],
   },
   integrations: [
     vue(),
     react(),
     svelte(),
+    i18nDevToolsIntegration({ translationDir: 'src/locales' }),
     i18nIntegration({
       locale: 'en',
       fallbackLocale: 'en',

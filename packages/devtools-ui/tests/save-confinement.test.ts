@@ -18,7 +18,7 @@ function project() {
   writeFileSync(join(root, 'locales/en.json'), '{}')
   symlinkSync(join(root, 'outside'), join(root, 'locales/escape'))
   const routes = new Map<string, Handler>()
-  const server = { config: { root }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
+  const server = { config: { root }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
   const plugin = i18nDevToolsPlugin({ translationDir: 'locales' }) as { configureServer: (server: ViteDevServer) => void }
   plugin.configureServer(server as unknown as ViteDevServer)
   return { root, routes }
@@ -28,7 +28,7 @@ async function call(handler: Handler, method: string, url: string, body?: unknow
   const req = {
     method,
     url,
-    headers: { host: 'localhost' },
+    headers: { host: 'localhost', 'content-type': 'application/json' },
     async *[Symbol.asyncIterator]() {
       if (body !== undefined) yield Buffer.from(JSON.stringify(body))
     },
@@ -74,7 +74,6 @@ test('the real target must be a regular .json file inside the project', async ()
 
   expect(await Promise.all(['alias.json', 'dir.json'].map(save))).toEqual([403, 403])
   expect(readFileSync(join(root, 'locales/app.ts'), 'utf-8')).toBe('export {}')
-  expect(await call(routes.get('/__i18n_api/file')!, 'GET', '/?path=dir.json')).toBe(404)
 })
 
 test('a translationDir out of the project reaches nothing, by `../` or by a symlink', () => {
@@ -95,22 +94,26 @@ test('a translationDir out of the project reaches nothing, by `../` or by a syml
 test('config reports the locales found in translationDir and the configured default', async () => {
   const { root, routes } = project()
   writeFileSync(join(root, 'locales/de.json'), '{}')
-  const server = { config: { root }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
+  const server = { config: { root }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: Handler) => routes.set(route, handler) } }
   const plugin = i18nDevToolsPlugin({ translationDir: 'locales', defaultLocale: 'en' }) as { configureServer: (server: ViteDevServer) => void }
   plugin.configureServer(server as unknown as ViteDevServer)
 
   const config = await new Promise((done) => {
-    void routes.get('/__i18n_api/config')!({ method: 'GET' }, { setHeader: () => {}, end: (body: string) => done(JSON.parse(body)) }, () => {})
+    void routes.get('/__i18n_api/config')!({ method: 'GET', headers: { host: 'localhost' } }, { setHeader: () => {}, end: (body: string) => done(JSON.parse(body)) }, () => {})
   })
 
   expect(config).toEqual({ defaultLocale: 'en', fallbackLocale: 'en', locales: [{ code: 'de' }, { code: 'en' }], translationDir: 'locales' })
 })
 
-test('file reads stay inside translationDir, encoded traversal included', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
-  const { routes } = project()
-  const read = (path: string) => call(routes.get('/__i18n_api/file')!, 'GET', `/?path=${path}`)
-
-  expect(await Promise.all(['..%2Fpackage.json', '%2Fetc%2Fx.json', 'escape%2Fsecret.json'].map(read))).toEqual([404, 404, 404])
-  expect(await read('en.json')).toBe(200)
+test('translations stay inside translationDir: a symlink out of it is not served', async () => {
+  const { root, routes } = project()
+  writeFileSync(join(root, 'locales/en.json'), '{"hi":"x"}')
+  const body = await new Promise((done) => {
+    void routes.get('/__i18n_api/translations')!(
+      { method: 'GET', headers: { host: 'localhost' } },
+      { setHeader: () => {}, end: (text: string) => done(JSON.parse(text)) },
+      () => {},
+    )
+  })
+  expect(body).toEqual({ 'en.json': { hi: 'x' } })
 })

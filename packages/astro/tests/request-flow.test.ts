@@ -255,6 +255,7 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   // islands get only the keys they ask for, nested back into objects
   expect(getI18nProps(fr.astro, ['island.cta', 'title', 'island.more', 'nope'])).toEqual({
     locale: 'fr',
+    pluralLocale: 'fr',
     fallbackLocale: 'en',
     currentRoute: 'about',
     translations: { about: { island: { cta: 'Acheter', more: 'Plus' }, title: 'À propos' } },

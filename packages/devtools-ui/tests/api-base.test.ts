@@ -11,32 +11,28 @@ afterEach(() => {
 
 test('the devtools page calls the endpoints under the configured base', () => {
   const routes = new Map<string, (req: unknown, res: { end: (body: string) => void; setHeader: () => void }) => void>()
-  const server = { config: { root: '/app' }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
-  const plugin = i18nDevToolsPlugin({ base: '/dev/i18n' }) as { configureServer: (server: ViteDevServer) => void }
+  const server = { config: { root: '/app' }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
+  const plugin = i18nDevToolsPlugin({ base: '/dev/i18n' }) as { configureServer: (server: ViteDevServer) => void; load: (id: string) => string }
   plugin.configureServer(server as unknown as ViteDevServer)
 
   expect([...routes.keys()].filter((route) => route.startsWith('/dev/i18n/'))).toEqual([
     '/dev/i18n/config',
-    '/dev/i18n/files',
-    '/dev/i18n/file',
+    '/dev/i18n/translations',
     '/dev/i18n/save',
   ])
-  let html = ''
-  routes.get('/__i18n_devtools.html')!({}, { setHeader: () => {}, end: (body) => (html = body) })
-  expect(html).toContain('const API = "/dev/i18n";')
-  expect(html).not.toContain('/__i18n_api')
+  const app = plugin.load('/@vite-plugin-i18n-devtools/app.js')
+  expect(app).toContain('const API = "/dev/i18n"')
+  expect(app).not.toContain('/__i18n_api')
 })
 
 test("base '/' puts the endpoints at the root, never at a protocol-relative `//files`", async () => {
   const routes = new Map<string, (req: unknown, res: { end: (body: string) => void; setHeader: () => void }) => void>()
-  const server = { config: { root: '/app' }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
-  const plugin = i18nDevToolsPlugin({ base: '/' }) as { configureServer: (server: ViteDevServer) => void }
+  const server = { config: { root: '/app' }, watcher: { add: () => {}, on() { return this } }, ws: { send: () => {} }, middlewares: { use: (route: string, handler: never) => routes.set(route, handler) } }
+  const plugin = i18nDevToolsPlugin({ base: '/' }) as { configureServer: (server: ViteDevServer) => void; load: (id: string) => string }
   plugin.configureServer(server as unknown as ViteDevServer)
 
-  expect([...routes.keys()].filter((route) => route !== '/__i18n_devtools.html')).toEqual(['/config', '/files', '/file', '/save'])
-  let html = ''
-  routes.get('/__i18n_devtools.html')!({}, { setHeader: () => {}, end: (body) => (html = body) })
-  expect(html).toContain('const API = "";')
+  expect([...routes.keys()].filter((route) => route !== '/__i18n_devtools.html')).toEqual(['/config', '/translations', '/save'])
+  expect(plugin.load('/@vite-plugin-i18n-devtools/app.js')).toContain('const API = ""')
 
   vi.spyOn(console, 'log').mockImplementation(() => {})
   const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({}) }))

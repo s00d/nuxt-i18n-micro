@@ -331,6 +331,7 @@ member I18nProviderProps.missingHandler?: ((locale: string, key: string, routeNa
 member I18nProviderProps.missingWarn?: boolean | undefined
 member I18nProviderProps.now?: (() => number) | undefined
 member I18nProviderProps.numberFormats?: NumberFormatsConfig | undefined
+member I18nProviderProps.parent?: I18n | undefined
 member I18nProviderProps.plural?: PluralFunc | undefined
 member I18nProviderProps.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nProviderProps.routingStrategy?: I18nRoutingStrategy | undefined
@@ -1009,6 +1010,7 @@ member ReactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisTy
 member ReactI18n.fallbackKey: private any
 member ReactI18n.fallbackLocale: string
 member ReactI18n.fallbackRootKey: private any
+member ReactI18n.fork: (locale?: string) => I18n
 member ReactI18n.formatArgs: private any
 member ReactI18n.formatter: FormatService
 member ReactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -1027,11 +1029,13 @@ member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMe
 member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
-member ReactI18n.localeIso: private any
+member ReactI18n.localeIso: protected Record<string, string>
 member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
+member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
 member ReactI18n.pluralTag: private any
@@ -1043,7 +1047,7 @@ member ReactI18n.resolveTranslationTree: protected (lower: Record<string, unknow
 member ReactI18n.setRoute: (routeName: string) => void
 member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
-member ReactI18n.store: private any
+member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -1067,6 +1071,7 @@ member ReactI18nOptions.missingHandler?: ((locale: string, key: string, routeNam
 member ReactI18nOptions.missingWarn?: boolean | undefined
 member ReactI18nOptions.now?: (() => number) | undefined
 member ReactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member ReactI18nOptions.parent?: I18n | undefined
 member ReactI18nOptions.plural?: PluralFunc | undefined
 member ReactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member ReactI18nOptions.timeZone?: string | undefined
@@ -1441,6 +1446,7 @@ member I18nProviderProps.missingHandler?: ((locale: string, key: string, routeNa
 member I18nProviderProps.missingWarn?: boolean | undefined
 member I18nProviderProps.now?: (() => number) | undefined
 member I18nProviderProps.numberFormats?: NumberFormatsConfig | undefined
+member I18nProviderProps.parent?: I18n | undefined
 member I18nProviderProps.plural?: PluralFunc | undefined
 member I18nProviderProps.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nProviderProps.routingStrategy?: I18nRoutingStrategy | undefined
@@ -2119,6 +2125,7 @@ member ReactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisTy
 member ReactI18n.fallbackKey: private any
 member ReactI18n.fallbackLocale: string
 member ReactI18n.fallbackRootKey: private any
+member ReactI18n.fork: (locale?: string) => I18n
 member ReactI18n.formatArgs: private any
 member ReactI18n.formatter: FormatService
 member ReactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -2137,11 +2144,13 @@ member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMe
 member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
-member ReactI18n.localeIso: private any
+member ReactI18n.localeIso: protected Record<string, string>
 member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
+member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
 member ReactI18n.pluralTag: private any
@@ -2153,7 +2162,7 @@ member ReactI18n.resolveTranslationTree: protected (lower: Record<string, unknow
 member ReactI18n.setRoute: (routeName: string) => void
 member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
-member ReactI18n.store: private any
+member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -2177,6 +2186,7 @@ member ReactI18nOptions.missingHandler?: ((locale: string, key: string, routeNam
 member ReactI18nOptions.missingWarn?: boolean | undefined
 member ReactI18nOptions.now?: (() => number) | undefined
 member ReactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member ReactI18nOptions.parent?: I18n | undefined
 member ReactI18nOptions.plural?: PluralFunc | undefined
 member ReactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member ReactI18nOptions.timeZone?: string | undefined
@@ -2253,7 +2263,7 @@ member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => voi
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
 member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
-const I18nT: ({ i18n, ...props }: ServerI18nTProps) => import("./host").HostElement
+const I18nT: ({ i18n, ...props }: ServerI18nTProps) => HostElement
 type I18nTComponent: HostNode | (() => HostNode)
 function interpolate: (template: string, params: Params) => string
 class ReactI18n
@@ -2269,6 +2279,7 @@ member ReactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisTy
 member ReactI18n.fallbackKey: private any
 member ReactI18n.fallbackLocale: string
 member ReactI18n.fallbackRootKey: private any
+member ReactI18n.fork: (locale?: string) => I18n
 member ReactI18n.formatArgs: private any
 member ReactI18n.formatter: FormatService
 member ReactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -2287,11 +2298,13 @@ member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMe
 member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
-member ReactI18n.localeIso: private any
+member ReactI18n.localeIso: protected Record<string, string>
 member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownsFormatter: private any
+member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
 member ReactI18n.pluralTag: private any
@@ -2303,7 +2316,7 @@ member ReactI18n.resolveTranslationTree: protected (lower: Record<string, unknow
 member ReactI18n.setRoute: (routeName: string) => void
 member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
-member ReactI18n.store: private any
+member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -2327,6 +2340,7 @@ member ReactI18nOptions.missingHandler?: ((locale: string, key: string, routeNam
 member ReactI18nOptions.missingWarn?: boolean | undefined
 member ReactI18nOptions.now?: (() => number) | undefined
 member ReactI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member ReactI18nOptions.parent?: I18n | undefined
 member ReactI18nOptions.plural?: PluralFunc | undefined
 member ReactI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member ReactI18nOptions.timeZone?: string | undefined

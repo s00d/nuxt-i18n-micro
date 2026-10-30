@@ -18,8 +18,8 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 44 members |
-| `BaseI18nOptions` | interface | 10 members |
+| `BaseI18n` | class | 45 members |
+| `BaseI18nOptions` | interface | 12 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -65,7 +65,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 44 members</summary>
+<summary><code>BaseI18n</code> — 45 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -87,12 +87,13 @@ import { /* … */ } from '@i18n-micro/core'
 | `helper` | `TranslationHelper` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `localeIso` | `private Record<string, string>` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `onTranslationsChanged` | `protected (_locale?: string) => void` |
+| `ownsFormatter` | `private boolean` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private (locale: string) => string` |
@@ -117,12 +118,14 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>BaseI18nOptions</code> — 10 members</summary>
+<summary><code>BaseI18nOptions</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `formatter?` | `FormatService \| undefined` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
+| `helper?` | `TranslationHelper \| undefined` |
 | `localeIso?` | `Record<string, string> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |

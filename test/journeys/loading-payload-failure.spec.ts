@@ -1,4 +1,4 @@
-import type { Route } from '@playwright/test'
+import type { Page, Route } from '@playwright/test'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 const json = (body: string) => (route: Route) => route.fulfill({ status: 200, contentType: 'application/json', body })
@@ -16,13 +16,26 @@ const FAILURES: [string, (route: Route) => Promise<void>][] = [
 /** The console line of a blocked payload request, with the URL the guard adds; a failed asset still fails the test. */
 const FAILED_PAYLOAD = /Failed to load resource.*\/_locales\//
 
+/**
+ * `pattern` fails until the returned function is called. Not `unroute`: it turns interception off, and a
+ * request caught at that moment (a link's prefetch, right after hydration) never ends, so the navigation
+ * waiting on that module never does either.
+ */
+async function failUntilFixed(page: Page, pattern: string, fail: (route: Route) => Promise<void>) {
+  let failing = true
+  await page.route(pattern, (route) => (failing ? fail(route) : route.fallback()))
+  return () => {
+    failing = false
+  }
+}
+
 describe('J8 translation loading: a chunk fails on the client', () => {
   test.override({ harness: 'strategy-prefix' })
 
   test.for(FAILURES)('%s keeps the old dictionary, the next navigation loads it', async ([, fail], { page, goto, guard }) => {
     guard.allow(FAILED_PAYLOAD)
-    await page.route('**/_locales/contact/en/**', fail)
-    await page.route('**/_locales/index/de/**', fail)
+    const fixContact = await failUntilFixed(page, '**/_locales/contact/en/**', fail)
+    const fixDe = await failUntilFixed(page, '**/_locales/index/de/**', fail)
 
     // step 1: open /en → layout string from the en chunk
     await goto('/en', { waitUntil: 'hydration' })
@@ -45,8 +58,8 @@ describe('J8 translation loading: a chunk fails on the client', () => {
     await expect(page.locator('.layout-title')).toHaveText('My App')
 
     // step 5: the failure is not cached: once the chunk answers, a navigation loads de
-    await page.unroute('**/_locales/contact/en/**')
-    await page.unroute('**/_locales/index/de/**')
+    fixContact()
+    fixDe()
     await page.click('#contact')
     await expect(page).toHaveURL('/de/kontakt')
     await expect(page.locator('.layout-title')).toHaveText('Meine App')
@@ -58,13 +71,13 @@ describe('J8 translation loading: a chunk fails on the client', () => {
   test('a failed first chunk is loaded again on the way back', async ({ page, goto, guard }) => {
     // the server rendered the texts, the browser has none to hydrate them with
     guard.allow(FAILED_PAYLOAD, /Hydration completed but contains mismatches/)
-    await page.route('**/_locales/index/en/**', (route) => route.abort())
+    const fix = await failUntilFixed(page, '**/_locales/index/en/**', (route) => route.abort())
 
     // step 1: open /en with its chunk failing → the browser has no dictionary for it
     await goto('/en', { waitUntil: 'hydration' })
 
     // step 2: the chunk answers again, leave and come back → translated
-    await page.unroute('**/_locales/index/en/**')
+    fix()
     await page.click('#contact')
     await expect(page).toHaveURL('/en/contact')
     await page.goBack()
@@ -74,7 +87,7 @@ describe('J8 translation loading: a chunk fails on the client', () => {
 
   test('the switcher tries a failed locale again', async ({ page, goto, guard }) => {
     guard.allow(FAILED_PAYLOAD)
-    await page.route('**/_locales/index/de/**', (route) => route.abort())
+    const fix = await failUntilFixed(page, '**/_locales/index/de/**', (route) => route.abort())
 
     // step 1: switching to de fails → the URL moved, the texts stayed
     await goto('/en', { waitUntil: 'hydration' })
@@ -84,7 +97,7 @@ describe('J8 translation loading: a chunk fails on the client', () => {
     await expect(page.locator('.layout-title')).toHaveText('My App')
 
     // step 2: the chunk answers again, the same link → de
-    await page.unroute('**/_locales/index/de/**')
+    fix()
     await page.click('.language-switcher')
     await page.click('a.switcher-locale-de')
     await expect(page.locator('.layout-title')).toHaveText('Meine App')

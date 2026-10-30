@@ -98,6 +98,8 @@ The fake exposes the same methods as the real `useI18n()` (`$t`, `$tc`, `$tn`, `
 | `createI18nTestContext(options)` | The context behind both, when you need several fakes. |
 | `t`, `tc`, `ts`, `tn`, `td`, `tdr`, `has` | Direct calls on the shared context, for testing plain functions. |
 
+The mock is a `BaseI18n`: `t`, `tc`, `tn`, `td`, `tdr` and `has` are the real ones, on real dictionaries, so a test sees what the app shows.
+
 The factory helpers above accept `locale`, `defaultLocale`, `locales`, `routeName`, `strategy`, `translations` and `messages` (dictionaries per locale). A complete example project lives in [`packages/test-utils/example`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils/example).
 
 ## End-to-end tests

@@ -31,7 +31,7 @@ No peer dependencies.
 ## Setup
 
 ```ts
-// vite.config.ts (or the `vite` key of astro.config.mjs)
+// vite.config.ts
 import { defineConfig } from 'vite'
 import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 
@@ -44,7 +44,7 @@ export default defineConfig({
 | --- | --- | --- |
 | `translationDir` | `'src/locales'` | Folder with the JSON files, relative to the Vite root. |
 | `base` | `'/__i18n_api'` | Base path of the API endpoints. |
-| `injectButton` | `true` | Add a floating button to pages served through Vite's `index.html` transform. |
+| `injectButton` | `true` | Add a floating button to pages served through Vite's `index.html` transform. Astro has no such pages: see below. |
 | `defaultLocale` | first locale file in `translationDir` | Reported by `/config`. |
 | `fallbackLocale` | `defaultLocale` | Reported by `/config`. |
 
@@ -52,10 +52,23 @@ The plugin runs on the dev server only (`apply: 'serve'`); a production build co
 
 | Endpoint | Does |
 | --- | --- |
-| `GET <base>/files` | `{ files, structure }`: every `.json` under `translationDir` |
-| `GET <base>/file?path=en.json` | `{ success, content, path }`; 404 for anything but an existing `.json` inside `translationDir` |
+| `GET <base>/translations` | every dictionary under `translationDir`, by relative path |
 | `POST <base>/save` | body `{ file, content }`; overwrites an existing `.json` inside `translationDir`, 403 for anything else. It never creates a file |
 | `GET <base>/config` | `{ defaultLocale, fallbackLocale, locales, translationDir }`; `locales` come from the root files in `translationDir` |
+
+The endpoints answer the devtools page only: a request from another origin or host is a `403`, and `/save` takes `application/json` only (`415`). The page hears about file changes over Vite's HMR socket.
+
+In Astro, add the integration instead of the plugin. It adds an app to the dev toolbar:
+
+```ts
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import { i18nDevToolsIntegration } from '@i18n-micro/devtools-ui/vite'
+
+export default defineConfig({
+  integrations: [i18nDevToolsIntegration({ translationDir: 'src/locales' })],
+})
+```
 
 Saving only writes the file. An app that imports the JSON through Vite gets it through HMR; for edits applied to the running instance directly, use a bridge.
 
@@ -95,7 +108,7 @@ document.body.append(el)
 
 | Export | Entry |
 | --- | --- |
-| `i18nDevToolsPlugin(options)` | `@i18n-micro/devtools-ui/vite` |
+| `i18nDevToolsPlugin(options)`, `i18nDevToolsIntegration(options)` | `@i18n-micro/devtools-ui/vite` |
 | `register()`, `I18nDevToolsElement` | `@i18n-micro/devtools-ui` |
 | `createBridge(options)`, types `BridgeAdapter`, `CreateBridgeOptions` | `@i18n-micro/devtools-ui` (also `/bridge/create`) |
 | type `I18nDevToolsBridge` | `@i18n-micro/devtools-ui` (also `/bridge`) |

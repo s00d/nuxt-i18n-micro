@@ -1,22 +1,16 @@
 // @vitest-environment jsdom
 import { createElement as h, render as renderPreact } from 'preact'
-import { createElement } from 'react'
+import { act, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 import { get } from 'svelte/store'
-import { createApp, defineComponent, h as vh } from 'vue'
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import {
-  createI18nStore,
-  hasTranslation,
-  I18nProvider,
-  I18nProviderPreact,
-  provideI18n,
-  translate,
-  useAstroI18nPreact,
-  useAstroI18nReact,
-  useAstroI18nSvelte,
-  useAstroI18nVue,
-} from '../src/client'
+import { createApp, defineComponent, h as vh, nextTick, shallowRef } from 'vue'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { hasTranslation, translate } from '../src/client'
+import { I18nProvider as I18nProviderPreact, useAstroI18n as useAstroI18nPreact } from '../src/client/preact'
+import { I18nProvider, useAstroI18n as useAstroI18nReact } from '../src/client/react'
+import { createI18nStore, useAstroI18n as useAstroI18nSvelte } from '../src/client/svelte'
+import { provideI18n, useAstroI18n as useAstroI18nVue } from '../src/client/vue'
 import type { I18nClientProps } from '../src/utils'
 
 // what getI18nProps hands an island on /de/about
@@ -67,7 +61,7 @@ function expectIslandApi(api: Api, read: { locale: () => string; fallbackLocale:
   expect(api.tdr(Date.now() + day * 3 + 60_000)).toBe('in 3 Tagen')
   expect([api.has('title'), api.has('nested'), api.has('missing'), api.has('home', 'index'), api.has('title', 'nope')]).toEqual([
     true,
-    false,
+    true,
     false,
     true,
     false,
@@ -77,7 +71,7 @@ function expectIslandApi(api: Api, read: { locale: () => string; fallbackLocale:
 test('the pure island core: translate / hasTranslation over the props', () => {
   const state = props()
   expect(translate(state, '')).toBe('')
-  expect(translate(state, '', undefined, 'D')).toBe('D')
+  expect(translate(state, '', undefined, 'D')).toBe('')
   expect(translate(state, 'title', { x: 1 })).toBe('Über')
   expect(translate(state, 'nested', { x: 1 })).toEqual({ deep: 'Tief' })
   expect(translate({ ...state, translations: {} }, 'title')).toBe('title')
@@ -157,4 +151,73 @@ test('Svelte island: a store from the props, setters write through it', () => {
   api.setRoute('index')
   expect(get(store)).toMatchObject({ locale: 'en', currentRoute: 'index', fallbackLocale: 'en' })
   expect([api.locale, api.getRoute(), api.t('home'), api.tn(1234.5)]).toEqual(['en', 'index', 'Start', '1,234.5'])
+})
+
+describe('a persisted island gets new props', () => {
+  const next = (): I18nClientProps => ({ ...props(), locale: 'en', translations: { about: { title: 'About' } } })
+
+  test('React: the new value replaces the state, setLocale works until then', async () => {
+    ;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+    let api!: Api
+    const Island = () => {
+      api = useAstroI18nReact()
+      return createElement('b', null, `${api.locale}:${api.t('title')}`)
+    }
+    const el = document.createElement('div')
+    const root = createRoot(el)
+    const first = props()
+    await act(async () => root.render(createElement(I18nProvider, { value: first }, createElement(Island))))
+    expect(el.innerHTML).toBe('<b>de:Über</b>')
+    await act(async () => api.setLocale('fr'))
+    expect(el.innerHTML).toBe('<b>fr:Über</b>')
+    await act(async () => root.render(createElement(I18nProvider, { value: first }, createElement(Island))))
+    expect(el.innerHTML).toBe('<b>fr:Über</b>')
+    await act(async () => root.render(createElement(I18nProvider, { value: next() }, createElement(Island))))
+    expect(el.innerHTML).toBe('<b>en:About</b>')
+    root.unmount()
+  })
+
+  test('Preact: the same', async () => {
+    let api!: Api
+    const Island = () => {
+      api = useAstroI18nPreact() as Api
+      return h('b', null, `${api.locale}:${String(api.t('title'))}`)
+    }
+    const el = document.createElement('div')
+    renderPreact(h(I18nProviderPreact, { value: props() }, h(Island, null)), el)
+    expect(el.innerHTML).toBe('<b>de:Über</b>')
+    api.setLocale('fr')
+    await new Promise((resolve) => setTimeout(resolve))
+    expect(el.innerHTML).toBe('<b>fr:Über</b>')
+    renderPreact(h(I18nProviderPreact, { value: next() }, h(Island, null)), el)
+    expect(el.innerHTML).toBe('<b>en:About</b>')
+  })
+
+  test('Vue: a getter follows the props', async () => {
+    const source = shallowRef(props())
+    const Child = defineComponent({
+      setup() {
+        const { t, locale } = useAstroI18nVue()
+        return () => vh('b', `${locale.value}:${t('title')}`)
+      },
+    })
+    const el = document.createElement('div')
+    createApp({
+      setup() {
+        provideI18n(() => source.value)
+        return () => vh(Child)
+      },
+    }).mount(el)
+    expect(el.innerHTML).toBe('<b>de:Über</b>')
+    source.value = next()
+    await nextTick()
+    expect(el.innerHTML).toBe('<b>en:About</b>')
+  })
+
+  test('Svelte: store.set takes them', () => {
+    const store = createI18nStore(props())
+    const api = useAstroI18nSvelte(store)
+    store.set(next())
+    expect([api.locale, api.t('title')]).toEqual(['en', 'About'])
+  })
 })

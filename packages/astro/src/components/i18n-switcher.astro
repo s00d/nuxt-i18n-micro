@@ -1,7 +1,6 @@
 ---
 import type { Locale } from '@i18n-micro/types'
-import type { I18nRoutingStrategy } from '../router/types'
-import { useI18n } from '../utils'
+import { localeLabel, useI18n } from '../utils'
 
 interface Props {
   class?: string
@@ -12,90 +11,31 @@ interface Props {
 
 const { class: className, activeClass = 'active', customLabels = {}, ...attrs } = Astro.props
 
-const { locale: currentLocale, locales, defaultLocale, getBasePath } = useI18n(Astro)
-const localeCodes = locales.map((l: Locale) => l.code)
+const { locale: currentLocale, locales, switchLocalePath } = useI18n(Astro)
+const { search } = Astro.locals.currentUrl ?? Astro.url
 
-// Get routing strategy from locals
-// @ts-expect-error
-const routingStrategy: I18nRoutingStrategy | null = Astro.locals.routingStrategy || null
-
-// Filter out disabled locales
-const availableLocales = locales.filter((loc: Locale) => !loc.disabled)
-
-// Find current locale object
-const currentLocaleObj = availableLocales.find((loc: Locale) => loc.code === currentLocale)
-const currentLocaleLabel = currentLocaleObj
-  ? customLabels[currentLocaleObj.code] || currentLocaleObj.displayName || currentLocaleObj.code
-  : currentLocale
-
-// Generate locale links
-const localeLinks = availableLocales.map((loc: Locale) => {
-  const isActive = loc.code === currentLocale
-  // Get base path without locale
-  const basePath = getBasePath()
-  // Generate path with locale
-  let switchPath = basePath
-  if (routingStrategy?.switchLocalePath) {
-    switchPath = routingStrategy.switchLocalePath(basePath, loc.code, localeCodes, defaultLocale)
-  } else {
-    // Fallback: basic locale switching
-    const segments = basePath.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    if (firstSegment && localeCodes.includes(firstSegment)) {
-      segments.shift()
-    }
-    if (loc.code !== defaultLocale) {
-      segments.unshift(loc.code)
-    }
-    switchPath = `/${segments.join('/')}`
-  }
-
-  const label = customLabels[loc.code] || loc.displayName || loc.code
-
-  return {
-    code: loc.code,
-    displayName: label,
-    path: switchPath,
-    isActive,
-  }
-})
-
-// Generate unique ID for this component instance
-const componentId = `i18n-switcher-${Math.random().toString(36).substring(2, 9)}`
+const links = locales
+  .filter((locale: Locale) => !locale.disabled)
+  .map((locale: Locale) => ({
+    code: locale.code,
+    label: localeLabel(locale, customLabels),
+    href: switchLocalePath(locale.code) + search,
+    isActive: locale.code === currentLocale,
+  }))
 ---
 
-{localeLinks.length > 0 && (
-  <div
-    class={`i18n-switcher-wrapper ${className || ''}`}
-    data-switcher-id={componentId}
-    {...attrs}
-  >
-    <button
-      type="button"
-      class="i18n-switcher-button"
-      aria-haspopup="true"
-      aria-expanded="false"
-      data-switcher-button={componentId}
-    >
-      <span>{currentLocaleLabel}</span>
+{links.length > 0 && (
+  <div class={`i18n-switcher-wrapper ${className || ''}`} data-i18n-switcher {...attrs}>
+    <button type="button" class="i18n-switcher-button" aria-haspopup="true" aria-expanded="false">
+      <span>{links.find((link) => link.isActive)?.label ?? currentLocale}</span>
       <span class="i18n-switcher-icon">▼</span>
     </button>
 
-    <ul
-      class="i18n-switcher-dropdown"
-      data-switcher-dropdown={componentId}
-      style="display: none;"
-    >
-      {localeLinks.map((link) => (
+    <ul class="i18n-switcher-dropdown" hidden>
+      {links.map((link) => (
         <li>
-          <a
-            href={link.path}
-            class={link.isActive ? activeClass : ''}
-            aria-current={link.isActive ? 'page' : undefined}
-            data-locale={link.code}
-            data-switcher-link={componentId}
-          >
-            {link.displayName}
+          <a href={link.href} class={link.isActive ? activeClass : ''} aria-current={link.isActive ? 'page' : undefined} data-locale={link.code}>
+            {link.label}
           </a>
         </li>
       ))}
@@ -103,73 +43,27 @@ const componentId = `i18n-switcher-${Math.random().toString(36).substring(2, 9)}
   </div>
 )}
 
-<script define:vars={{ componentId, localeLinks }}>
-  (function() {
-    const wrapper = document.querySelector(`[data-switcher-id="${componentId}"]`)
-    if (!wrapper) return
+<script>
+  // One module for every switcher on every page: it runs once, also under <ClientRouter>, and the
+  // listeners on `document` reach the switchers a navigation swaps in.
+  const setOpen = (wrapper: Element, open: boolean) => {
+    wrapper.querySelector('button')?.setAttribute('aria-expanded', String(open))
+    wrapper.querySelector('ul')?.toggleAttribute('hidden', !open)
+  }
+  const closeAll = (except?: Element | null) => {
+    for (const wrapper of document.querySelectorAll('[data-i18n-switcher]')) if (wrapper !== except) setOpen(wrapper, false)
+  }
 
-    const button = wrapper.querySelector(`[data-switcher-button="${componentId}"]`)
-    const dropdown = wrapper.querySelector(`[data-switcher-dropdown="${componentId}"]`)
-    const icon = wrapper.querySelector('.i18n-switcher-icon')
-
-    if (!button || !dropdown) return
-
-    let isOpen = false
-
-    const toggleDropdown = (event) => {
-      if (event) {
-        event.stopPropagation()
-        event.preventDefault()
-      }
-      isOpen = !isOpen
-      dropdown.style.display = isOpen ? 'block' : 'none'
-      button.setAttribute('aria-expanded', String(isOpen))
-      if (icon) {
-        icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-      }
-    }
-
-    const closeDropdown = () => {
-      if (isOpen) {
-        isOpen = false
-        dropdown.style.display = 'none'
-        button.setAttribute('aria-expanded', 'false')
-        if (icon) {
-          icon.style.transform = 'rotate(0deg)'
-        }
-      }
-    }
-
-    button.addEventListener('click', toggleDropdown)
-
-    // Close on outside click
-    const handleClickOutside = (event) => {
-      const target = event.target
-      if (!target || !wrapper.contains(target)) {
-        closeDropdown()
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-
-    // Close on Escape key
-    const handleEscape = (event) => {
-      if (event.key === 'Escape' && isOpen) {
-        closeDropdown()
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape)
-
-    // Handle locale link clicks
-    const links = wrapper.querySelectorAll(`[data-switcher-link="${componentId}"]`)
-    links.forEach((link) => {
-      link.addEventListener('click', () => {
-        // Let the link navigate naturally, but close dropdown
-        closeDropdown()
-      })
-    })
-  })()
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element
+    const wrapper = target.closest('[data-i18n-switcher]')
+    closeAll(wrapper)
+    if (wrapper && target.closest('button')) setOpen(wrapper, wrapper.querySelector('button')?.getAttribute('aria-expanded') !== 'true')
+    else if (wrapper && target.closest('a')) setOpen(wrapper, false)
+  })
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeAll()
+  })
 </script>
 
 <style>
@@ -203,6 +97,10 @@ const componentId = `i18n-switcher-${Math.random().toString(36).substring(2, 9)}
     font-size: 12px;
   }
 
+  .i18n-switcher-button[aria-expanded='true'] .i18n-switcher-icon {
+    transform: rotate(180deg);
+  }
+
   .i18n-switcher-dropdown {
     position: absolute;
     top: 100%;
@@ -214,7 +112,7 @@ const componentId = `i18n-switcher-${Math.random().toString(36).substring(2, 9)}
     padding: 0;
     margin: 4px 0 0 0;
     min-width: 150px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   .i18n-switcher-dropdown li {
@@ -241,4 +139,3 @@ const componentId = `i18n-switcher-${Math.random().toString(36).substring(2, 9)}
     background-color: #f0f0f0;
   }
 </style>
-

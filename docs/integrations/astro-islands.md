@@ -26,13 +26,13 @@ const i18n = getI18nProps(Astro, ['counter.title', 'counter.apples'])
 <Counter client:load i18n={i18n} />
 ```
 
-`getI18nProps(Astro, keys?)` returns `{ locale, fallbackLocale, currentRoute, translations }` (type `I18nClientProps`). With `keys`, each key is resolved on the server like `t()` (route, root and fallback dictionaries) and only found keys are sent. Without `keys`, only the current route's own page dictionary is sent, not the root one: pass keys whenever the island uses root keys.
+`getI18nProps(Astro, keys?)` returns `{ locale, fallbackLocale, currentRoute, translations }` (type `I18nClientProps`). Pass the keys the island uses: each is resolved on the server like `t()` (route, root and fallback dictionaries) and only found keys go into the HTML. Without `keys`, everything `t()` can answer on this page is sent, in every island, so 2000 root keys are about 100 KB per island; in dev a warning says so above 20 KB.
 
 Islands translate from that object only. `t` returns the key for anything not passed, and linked messages are not resolved.
 
 ## Vue
 
-Call `provideI18n(props.i18n)` in the island's root component and `useAstroI18n()` in its children. Vue's `inject` does not see a value provided by the same component, so the hook must run in a child, not in the root:
+Call `provideI18n(() => props.i18n)` in the island's root component and `useAstroI18n()` in its children. Vue's `inject` does not see a value provided by the same component, so the hook must run in a child, not in the root:
 
 ```vue
 <!-- src/components/Counter.vue -->
@@ -42,7 +42,7 @@ import type { I18nClientProps } from '@i18n-micro/astro'
 import CounterBody from './CounterBody.vue'
 
 const props = defineProps<{ i18n: I18nClientProps }>()
-provideI18n(props.i18n)
+provideI18n(() => props.i18n)
 </script>
 
 <template><CounterBody /></template>
@@ -107,18 +107,22 @@ For Preact import `I18nProvider` and `useAstroI18n` from `@i18n-micro/astro/clie
 
 `useAstroI18n(store)` also returns the `store` for `$store` reads in the template.
 
+## Persisted islands
+
+An island with `transition:persist` gets new props after a navigation. React, Preact and Vue (given a getter) follow them. In Svelte, keep the store and pass them on: `const store = createI18nStore(i18n)`, `const { t } = useAstroI18n(store)`, then `$: store.set(i18n)` (with runes, `$effect(() => store.set(i18n))`).
+
 ## API
 
 | Entry | Exports |
 | --- | --- |
 | `@i18n-micro/astro` | `getI18nProps`, type `I18nClientProps` |
-| `@i18n-micro/astro/client/vue` | `provideI18n(props)`, `useAstroI18n()` |
+| `@i18n-micro/astro/client/vue` | `provideI18n(props \| () => props)`, `useAstroI18n()` |
 | `@i18n-micro/astro/client/react` | `I18nProvider` (`value` prop), `useAstroI18n()` |
 | `@i18n-micro/astro/client/preact` | `I18nProvider` (`value` prop), `useAstroI18n()` |
 | `@i18n-micro/astro/client/svelte` | `createI18nStore(props)`, `useAstroI18n(store)` |
-| `@i18n-micro/astro/client` | all of the above (renamed: `useAstroI18nVue`, `useAstroI18nReact`, `I18nProviderPreact`, …) and the pure `translate`, `hasTranslation` |
+| `@i18n-micro/astro/client` | the pure `translate`, `hasTranslation`, with no framework |
 
-Every `useAstroI18n` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has` and the `locale`. Import from the per-framework entry so an island bundle does not pull the other frameworks.
+Every `useAstroI18n` returns `t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`, `setLocale`, `setRoute` and the `locale`. An island has one merged dictionary, so its `has` is true for a key `t` can answer, also from the fallback locale; on the server `has` looks at the active locale only.
 
 ## Related
 

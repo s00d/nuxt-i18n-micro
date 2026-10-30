@@ -277,8 +277,8 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
 | `BuildVitePressLocalesOptions` | interface | 1 members |
 | `createI18n` | function | `(options: CreateI18nOptions) => NodeI18n` |
-| `CreateI18nOptions` | interface | 18 members |
-| `I18nOptions` | interface | 14 members |
+| `CreateI18nOptions` | interface | 19 members |
+| `I18nOptions` | interface | 15 members |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
@@ -288,7 +288,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 <code>BuildVitePressLocalesOptions</code> — 1 members, identical to `BuildVitePressLocalesOptions` above.
 
 <details>
-<summary><code>CreateI18nOptions</code> — 18 members</summary>
+<summary><code>CreateI18nOptions</code> — 19 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -306,6 +306,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `missingWarn?` | `boolean \| undefined` |
 | `now?` | `(() => number) \| undefined` |
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `parent?` | `I18n \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `timeZone?` | `string \| undefined` |
@@ -313,7 +314,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 
 </details>
 
-<code>I18nOptions</code> — 14 members, identical to [`I18nOptions`](/api/packages/node).
+<code>I18nOptions</code> — 15 members, identical to [`I18nOptions`](/api/packages/node).
 
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
 

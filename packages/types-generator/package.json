@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types-generator",
-  "version": "1.1.11",
+  "version": "2.0.0",
   "description": "Type generator for i18n-micro translation keys",
   "keywords": [
     "i18n",
@@ -69,11 +69,12 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "chokidar": "catalog:",
-    "globby": "catalog:",
-    "unplugin": "catalog:"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
+    "@nuxt/kit": "catalog:",
+    "@nuxt/schema": "catalog:",
     "@types/node": "catalog:",
     "publint": "catalog:",
     "typescript": "catalog:",
@@ -82,7 +83,20 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@nuxt/kit": "catalog:"
+    "@nuxt/kit": "catalog:",
+    "@nuxt/schema": "catalog:",
+    "vite": ">=5.4.0"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/schema": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "@nuxt/kit": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"

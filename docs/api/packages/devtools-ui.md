@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/devtools-ui`
 
-25 exports across 4 entry points.
+26 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -169,6 +169,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui/vite'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `DevToolsPluginOptions` | interface | 5 members |
+| `i18nDevToolsIntegration` | function | `(options?: Omit<DevToolsPluginOptions, "injectButton">) => { name: string; hooks: { 'astro:config:setup': ({ command, updateConfig, addDevToolbarApp }: ToolbarSetup) => void; }; }` |
 | `i18nDevToolsPlugin` | function | `(options?: DevToolsPluginOptions) => PluginOption` |
 
 <details>

@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/astro`
 
-58 exports across 6 entry points.
+50 exports across 8 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,8 +18,8 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 57 members |
-| `AstroI18nOptions` | interface | 9 members |
+| `AstroI18n` | class | 69 members |
+| `AstroI18nOptions` | type | `I18nOptions` |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
 | `createI18n` | function | `(options: AstroI18nOptions) => AstroI18n` |
@@ -27,77 +27,81 @@ import { /* … */ } from '@i18n-micro/astro'
 | `defaultPlural` | const | `PluralFunc` |
 | `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
 | `FormatService` | class | 21 members |
-| `getDefaultLocale` | function | `(astro: AstroGlobal) => string` |
-| `getGlobalRoutingStrategy` | function | `() => I18nRoutingStrategy \| null` |
-| `getI18n` | function | `(astro: AstroGlobal) => AstroI18n` |
-| `getI18nProps` | function | `(astro: AstroGlobal, keys?: string[]) => I18nClientProps` |
-| `getLocale` | function | `(astro: AstroGlobal) => string` |
+| `getDefaultLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
+| `getI18n` | function | `(astro: Pick<AstroGlobal, "locals">) => AstroI18n` |
+| `getI18nProps` | function | `(astro: Pick<AstroGlobal, "locals">, keys?: string[]) => I18nClientProps` |
+| `getLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
 | `getLocaleRewritePath` | function | `(astro: AstroGlobal) => string` |
-| `getLocales` | function | `(astro: AstroGlobal) => Locale[]` |
+| `getLocales` | function | `(astro: Pick<AstroGlobal, "locals">) => Locale[]` |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nClientProps` | interface | 4 members |
+| `I18nClientProps` | interface | 6 members |
 | `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
-| `I18nIntegrationOptions` | interface | 8 members |
-| `I18nMiddlewareOptions` | interface | 8 members |
+| `I18nIntegrationOptions` | interface | 10 members |
+| `I18nMiddlewareOptions` | interface | 9 members |
 | `I18nRoutingStrategy` | interface | 10 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `LoadedTranslations` | interface | 2 members |
-| `loadTranslationsFromDir` | function | `(options: LoadTranslationsOptions) => LoadedTranslations` |
-| `loadTranslationsIntoI18n` | function | `(i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; }, options: LoadTranslationsOptions) => void` |
-| `LoadTranslationsOptions` | interface | 3 members |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `LocaleHeadOptions` | interface | 4 members |
-| `LocaleHeadResult` | interface | 3 members |
+| `LocaleHeadResult` | type | `LocaleHead` |
+| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `prepareLocaleRewrite` | function | `(astro: AstroGlobal) => Response \| string` |
-| `runWithRoutingStrategy` | function | `<T>(strategy: I18nRoutingStrategy \| null, fn: () => T) => T` |
-| `setGlobalRoutingStrategy` | function | `(strategy: I18nRoutingStrategy \| null) => void` |
 | `Translations` | interface | 1 members |
-| `useI18n` | function | `(astro: AstroGlobal) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Record<string, unknown>, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => void; clearCache: () => void; }` |
-| `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
+| `useI18n` | function | `(astro: Astro) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Record<string, unknown>, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => void; clearCache: () => void; }` |
+| `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 57 members</summary>
+<summary><code>AstroI18n</code> — 69 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `_currentRoute` | `private string` |
-| `_fallbackLocale` | `private string` |
-| `_locale` | `private string` |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
-| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
+| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `clear` | `() => void` |
 | `clearCache` | `() => void` |
-| `clone` | `(newLocale?: string) => AstroI18n` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../astro/src").AstroI18n & M>) => import("../../astro/src").AstroI18n & M` |
+| `currentRoute` | `string` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<AstroI18n & M>) => AstroI18n & M` |
 | `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
 | `fallbackRootKey` | `private any` |
+| `fork` | `(locale?: string) => AstroI18n` |
 | `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
 | `getLocale` | `() => string` |
+| `getLocaleIso` | `() => Record<string, string>` |
 | `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
 | `getRouteTranslations` | `(locale: string, routeName: string) => Translations \| null` |
+| `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
+| `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
 | `initialMessages` | `private Record<string, Translations>` |
+| `initialRouteMessages` | `private Record<string, Record<string, Translations>>` |
+| `isReadable` | `private any` |
+| `keepMessages` | `(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void` |
+| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
+| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
+| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
-| `localeIso` | `private any` |
+| `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private any` |
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
-| `new` | `(options: AstroI18nOptions): AstroI18n` |
-| `onTranslationsChanged` | `protected (_locale?: string) => void` |
+| `new` | `(options: I18nOptions): AstroI18n` |
+| `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownsFormatter` | `private any` |
+| `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
 | `pluralTag` | `private any` |
@@ -109,6 +113,8 @@ import { /* … */ } from '@i18n-micro/astro'
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
+| `store` | `protected ReactiveI18nStore` |
+| `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
@@ -120,23 +126,6 @@ import { /* … */ } from '@i18n-micro/astro'
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 | `write` | `private any` |
-
-</details>
-
-<details>
-<summary><code>AstroI18nOptions</code> — 9 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `_storage?` | `TranslationStorage \| undefined` |
-| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `locale` | `string` |
-| `messages?` | `Record<string, Translations> \| undefined` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `numberFormats?` | `NumberFormatsConfig \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
 
 </details>
 
@@ -170,27 +159,31 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>I18nClientProps</code> — 4 members</summary>
+<summary><code>I18nClientProps</code> — 6 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `currentRoute` | `string` |
 | `fallbackLocale` | `string` |
 | `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
+| `pluralLocale?` | `string \| undefined` |
 | `translations` | `Record<string, Translations>` |
 
 </details>
 
 <details>
-<summary><code>I18nIntegrationOptions</code> — 8 members</summary>
+<summary><code>I18nIntegrationOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `autoDetect?` | `boolean \| undefined` |
+| `disablePageLocales?` | `boolean \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
+| `middleware?` | `boolean \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `redirectToDefault?` | `boolean \| undefined` |
 | `translationDir?` | `string \| undefined` |
@@ -198,11 +191,12 @@ import { /* … */ } from '@i18n-micro/astro'
 </details>
 
 <details>
-<summary><code>I18nMiddlewareOptions</code> — 8 members</summary>
+<summary><code>I18nMiddlewareOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `autoDetect?` | `boolean \| undefined` |
+| `base?` | `string \| undefined` |
 | `defaultLocale` | `string` |
 | `i18n` | `AstroI18n` |
 | `localeCookie?` | `string \| null \| undefined` |
@@ -221,7 +215,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getCurrentPath` | `() => string` |
 | `getLocaleFromPath?` | `((path: string, defaultLocale: string, locales: string[]) => string) \| undefined` |
 | `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
-| `getRouteName?` | `((path: string, locales: string[]) => string) \| undefined` |
+| `getRouteName?` | `((path: string, locales: string[], routePattern?: string) => string) \| undefined` |
 | `localizePath?` | `((path: string, locale: string, locales: string[], defaultLocale?: string) => string) \| undefined` |
 | `push?` | `((target: { path: string; }) => void) \| undefined` |
 | `removeLocaleFromPath?` | `((path: string, locales: string[]) => string) \| undefined` |
@@ -230,6 +224,107 @@ import { /* … */ } from '@i18n-micro/astro'
 | `switchLocalePath?` | `((path: string, newLocale: string, locales: string[], defaultLocale?: string) => string) \| undefined` |
 
 </details>
+
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
+<details>
+<summary><code>LocaleHeadOptions</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `addDirAttribute?` | `boolean \| undefined` |
+| `addSeoAttributes?` | `boolean \| undefined` |
+| `baseUrl?` | `string \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
+
+</details>
+
+<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+## `@i18n-micro/astro/client`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/client'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `hasTranslation` | function | `(state: I18nState, key: string, routeName?: string) => boolean` |
+| `I18nState` | interface | 6 members |
+| `translate` | function | `(state: I18nState, key: string, params?: Params, defaultValue?: string \| null, routeName?: string) => string \| number \| boolean \| Translations \| null` |
+
+<code>I18nState</code> — 6 members, identical to `I18nClientProps` above.
+## `@i18n-micro/astro/client/preact`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/client/preact'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `I18nProvider` | const | `({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact").VNode<{ value: I18nContextValue \| null; children?: ComponentChildren; }>` |
+| `useAstroI18n` | function | `() => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+
+
+## `@i18n-micro/astro/client/react`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/client/react'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `I18nProvider` | function | `({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement` |
+| `useAstroI18n` | function | `() => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+
+
+## `@i18n-micro/astro/client/svelte`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/client/svelte'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createI18nStore` | function | `(props: I18nClientProps) => Writable<I18nState>` |
+| `useAstroI18n` | function | `(store: Writable<I18nState>) => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; store: Writable<I18nState>; }` |
+
+
+## `@i18n-micro/astro/client/vue`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/client/vue'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `provideI18n` | function | `(props: MaybeRefOrGetter<I18nClientProps>) => Ref<I18nState>` |
+| `useAstroI18n` | function | `() => { locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+
+
+## `@i18n-micro/astro/middleware`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/middleware'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `onRequest` | const | `import("astro").MiddlewareHandler` |
+
+
+## `@i18n-micro/astro/node`
+
+```ts
+import { /* … */ } from '@i18n-micro/astro/node'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `LoadedTranslations` | interface | 2 members |
+| `loadTranslationsFromDir` | function | `(options: LoadTranslationsOptions) => LoadedTranslations` |
+| `loadTranslationsIntoI18n` | function | `(i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; keepMessages?: (messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void; }, options: LoadTranslationsOptions) => void` |
+| `LoadTranslationsOptions` | interface | 3 members |
+| `readTranslationDir` | function | `(options: { translationDir: string; rootDir: URL; disablePageLocales?: boolean; }) => { messages: TranslationFileBuckets<Translations>; files: string[]; }` |
 
 <details>
 <summary><code>LoadedTranslations</code> — 2 members</summary>
@@ -251,101 +346,5 @@ import { /* … */ } from '@i18n-micro/astro'
 | `translationDir` | `string` |
 
 </details>
-
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
-
-<details>
-<summary><code>LocaleHeadOptions</code> — 4 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `addDirAttribute?` | `boolean \| undefined` |
-| `addSeoAttributes?` | `boolean \| undefined` |
-| `baseUrl?` | `string \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-
-</details>
-
-<details>
-<summary><code>LocaleHeadResult</code> — 3 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `htmlAttrs` | `{ lang?: string; dir?: "ltr" \| "rtl" \| "auto"; }` |
-| `link` | `{ rel: string; href: string; hreflang?: string; }[]` |
-| `meta` | `{ property: string; content: string; }[]` |
-
-</details>
-
-<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
-## `@i18n-micro/astro/client`
-
-```ts
-import { /* … */ } from '@i18n-micro/astro/client'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `createI18nStore` | function | `(props: I18nClientProps) => Writable<I18nState>` |
-| `hasTranslation` | function | `(state: I18nState, key: string, routeName?: string) => boolean` |
-| `I18nProvider` | function | `({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement` |
-| `I18nProviderPreact` | const | `({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact").VNode<{ value: I18nState \| null; children?: ComponentChildren; }>` |
-| `I18nState` | interface | 4 members |
-| `provideI18n` | function | `(props: I18nClientProps) => Ref<I18nState>` |
-| `translate` | function | `(state: I18nState, key: string, params?: Params, defaultValue?: string \| null, routeName?: string) => string \| number \| boolean \| Translations \| null` |
-| `useAstroI18nPreact` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }` |
-| `useAstroI18nReact` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }` |
-| `useAstroI18nSvelte` | function | `(store: Writable<I18nState>) => { store: Writable<I18nState>; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; readonly locale: string; readonly fallbackLocale: string; readonly currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }` |
-| `useAstroI18nVue` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }` |
-
-<code>I18nState</code> — 4 members, identical to `I18nClientProps` above.
-## `@i18n-micro/astro/client/preact`
-
-```ts
-import { /* … */ } from '@i18n-micro/astro/client/preact'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `I18nProvider` | const | `({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact").VNode<{ value: I18nState \| null; children?: ComponentChildren; }>` |
-| `useAstroI18n` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }` |
-
-
-## `@i18n-micro/astro/client/react`
-
-```ts
-import { /* … */ } from '@i18n-micro/astro/client/react'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `I18nProvider` | function | `({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement` |
-| `useAstroI18n` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }` |
-
-
-## `@i18n-micro/astro/client/svelte`
-
-```ts
-import { /* … */ } from '@i18n-micro/astro/client/svelte'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `createI18nStore` | function | `(props: I18nClientProps) => Writable<I18nState>` |
-| `useAstroI18n` | function | `(store: Writable<I18nState>) => { store: Writable<I18nState>; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; readonly locale: string; readonly fallbackLocale: string; readonly currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }` |
-
-
-## `@i18n-micro/astro/client/vue`
-
-```ts
-import { /* … */ } from '@i18n-micro/astro/client/vue'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `provideI18n` | function | `(props: I18nClientProps) => Ref<I18nState>` |
-| `useAstroI18n` | function | `() => { t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }` |
-
-
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

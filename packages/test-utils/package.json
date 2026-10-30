@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/test-utils",
-  "version": "1.2.20",
+  "version": "2.0.0",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
   "keywords": [
     "i18n",
@@ -26,7 +26,6 @@
   },
   "files": [
     "dist",
-    "src/publish-smoke.ts",
     "README.md",
     "LICENSE"
   ],
@@ -45,13 +44,6 @@
         "default": "./dist/index.cjs"
       },
       "default": "./dist/index.mjs"
-    },
-    "./publish-smoke": {
-      "import": {
-        "types": "./src/publish-smoke.ts",
-        "default": "./src/publish-smoke.ts"
-      },
-      "default": "./src/publish-smoke.ts"
     },
     "./package.json": "./package.json"
   },

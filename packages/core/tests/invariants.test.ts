@@ -194,3 +194,26 @@ describe('formats', () => {
     expect(i18n.tdr(new Date('2026-01-09T12:00:00Z'), { numeric: 'auto' })).toBe('yesterday')
   })
 })
+
+test('formatter caches are bounded: a loop over generated options cannot grow them for ever', () => {
+  const service = new FormatService()
+  const sizes = () => (service as unknown as { numberCache: Map<string, unknown> }).numberCache.size
+  // an option Intl ignores: every key is another formatter
+  for (let i = 0; i < 1200; i++) service.formatNumber(1, 'en', { [`generated${i}`]: 1 } as Intl.NumberFormatOptions)
+  expect(sizes()).toBeLessThanOrEqual(500)
+  expect(service.formatNumber(1.5, 'en')).toBe('1.5')
+})
+
+describe('a shared formatter', () => {
+  test('survives clearCache of an instance it was only lent to', () => {
+    const formatter = new FormatService()
+    const clear = vi.spyOn(formatter, 'clearCache')
+    class Lent extends BaseI18n {
+      getLocale = () => 'en'
+      getFallbackLocale = () => 'en'
+      getRoute = () => 'index'
+    }
+    new Lent({ formatter }).clearCache()
+    expect(clear).not.toHaveBeenCalled()
+  })
+})

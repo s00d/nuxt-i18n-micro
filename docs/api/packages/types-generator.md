@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/types-generator`
 
-9 exports across 2 entry points.
+7 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,22 +18,21 @@ import { /* … */ } from '@i18n-micro/types-generator'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `flattenKeys` | function | `(obj: Record<string, unknown>, prefix?: string) => string[]` |
 | `formatKeyProperty` | function | `(key: string) => string` |
-| `generateTypes` | function | `(options: GeneratorOptions) => Promise<string>` |
-| `GeneratorOptions` | interface | 3 members |
-| `getTypesString` | function | `(options: GeneratorOptions) => Promise<string>` |
-| `I18nTypesPlugin` | const | `import("unplugin").UnpluginInstance<GeneratorOptions, boolean>` |
-| `isPlainTranslationObject` | function | `(value: unknown) => value is Record<string, unknown>` |
+| `generateTypes` | function | `(options: GeneratorOptions) => string` |
+| `GeneratorOptions` | interface | 4 members |
+| `getTypesString` | function | `(options: GeneratorOptions) => string` |
+| `I18nTypesPlugin` | function | `(options: GeneratorOptions) => Plugin` |
 
 <details>
-<summary><code>GeneratorOptions</code> — 3 members</summary>
+<summary><code>GeneratorOptions</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalDirs?` | `string[] \| undefined` |
 | `outputFile?` | `string \| undefined` |
 | `srcDir` | `string` |
-| `translationDir` | `string` |
+| `translationDir` | `string \| string[]` |
 
 </details>
 ## `@i18n-micro/types-generator/nuxt`

@@ -238,6 +238,7 @@ member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeNa
 member CreateI18nOptions.missingWarn?: boolean | undefined
 member CreateI18nOptions.now?: (() => number) | undefined
 member CreateI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member CreateI18nOptions.parent?: I18n | undefined
 member CreateI18nOptions.plural?: PluralFunc | undefined
 member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member CreateI18nOptions.timeZone?: string | undefined
@@ -253,6 +254,7 @@ member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: st
 member I18nOptions.missingWarn?: boolean | undefined
 member I18nOptions.now?: (() => number) | undefined
 member I18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member I18nOptions.parent?: I18n | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nOptions.timeZone?: string | undefined

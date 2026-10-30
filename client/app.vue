@@ -34,18 +34,15 @@ const mountDevTools = async () => {
 
   // Create Nuxt bridge
   const bridge = createNuxtBridge(devToolsClient)
-  console.log('[i18n-devtools] Bridge created:', bridge)
 
   // Create and mount the custom element
   const element = document.createElement('i18n-devtools-ui') as I18nDevToolsElement
   // Set bridge as property (not attribute, as it's an object)
   element.bridge = bridge
-  console.log('[i18n-devtools] Custom element created and bridge set:', { element, bridge: element.bridge })
 
   // Clear container and append element
   container.innerHTML = ''
   container.appendChild(element)
-  console.log('[i18n-devtools] Custom element mounted')
 }
 
 onDevtoolsClientConnected(async (client) => {

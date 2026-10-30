@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/astro",
-  "version": "1.3.27",
+  "version": "2.0.0",
   "description": "Astro integration for i18n-micro — translations, routing, and islands.",
   "keywords": [
     "astro",
@@ -39,6 +39,14 @@
         "default": "./dist/index.cjs"
       },
       "default": "./dist/index.mjs"
+    },
+    "./middleware": {
+      "types": "./dist/auto-middleware.d.ts",
+      "import": "./dist/middleware.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js"
     },
     "./env": {
       "types": "./dist/env.d.ts"
@@ -90,7 +98,7 @@
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
-    "@i18n-micro/node": "workspace:^",
+    "@i18n-micro/runtime": "workspace:^",
     "@i18n-micro/types": "workspace:^",
     "@i18n-micro/utils": "workspace:^"
   },

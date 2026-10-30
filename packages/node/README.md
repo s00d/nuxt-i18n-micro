@@ -16,7 +16,7 @@ i18n.t('greeting', { name: 'Ada' })
 i18n.t('title', undefined, undefined, 'blog-post') // locales/pages/blog/post/en.json
 ```
 
-Do not switch `locale` on a shared instance per request; the docs show a per-locale setup.
+Per request, `i18n.run(locale, () => next())` gives everything the request awaits its own locale and route; `i18n.fork(locale)` returns such an instance to pass around.
 
 Docs: [https://s00d.github.io/nuxt-i18n-micro/integrations/nodejs-package](https://s00d.github.io/nuxt-i18n-micro/integrations/nodejs-package) · Repository: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 

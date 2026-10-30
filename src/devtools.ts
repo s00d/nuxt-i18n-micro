@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
+import { isInsideDir } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
 
@@ -58,6 +59,7 @@ export interface ServerFunctions {
 
 export interface ClientFunctions {
   showNotification: (message: string) => void
+  localesUpdated: (locales: Record<string, string>) => void
 }
 
 /**
@@ -144,7 +146,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
   onDevToolsInitialized(() => {
     const dirs = rootDirs.length > 0 ? rootDirs : [nuxt.options.rootDir]
 
-    extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, {
+    const functions: ServerFunctions = {
       // Writes only an existing `.json` inside a translation directory: `file` comes from the
       // client, so `../` and absolute paths must not reach the filesystem. The project layer (listed
       // last, shown in the tab) wins over extended layers.
@@ -215,6 +217,25 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
 
         return filesList
       },
+    }
+    // `extendServerRpc` hands back `{ broadcast }` only, whatever its types say
+    const rpc = extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, functions)
+
+    // The open tab follows edits made on disk, and its own saves
+    const directories = [options.translationDir || 'locales', ...(options.additionalTranslationDirs ?? [])]
+    const roots = dirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
+    let timer: ReturnType<typeof setTimeout> | undefined
+    nuxt.hook('builder:watch', (_event, watched) => {
+      // Nuxt reports a path relative to `srcDir`, the folders are relative to the root
+      const file = resolve(nuxt.options.srcDir, watched)
+      if (!file.endsWith('.json') || !roots.some((root) => isInsideDir(file, root))) return
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        functions
+          .getLocalesAndTranslations()
+          .then((locales) => rpc.broadcast.localesUpdated.asEvent(locales))
+          .catch((error) => console.error('[i18n-devtools] Failed to push locales:', error))
+      }, 100)
     })
   })
 }

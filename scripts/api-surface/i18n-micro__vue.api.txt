@@ -95,7 +95,7 @@ member VueI18n.addRouteTranslations: (locale: string, routeName: string, transla
 member VueI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member VueI18n.clearCache: () => void
 member VueI18n.currentRoute: Ref<string, string>
-member VueI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../vue/src").VueI18n & M>) => import("../../vue/src").VueI18n & M
+member VueI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<VueI18n & M>) => VueI18n & M
 member VueI18n.fallbackKey: private any
 member VueI18n.fallbackLocale: Ref<string, string>
 member VueI18n.fallbackRootKey: private any
@@ -114,13 +114,14 @@ member VueI18n.listeners: private Set<() => void>
 member VueI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member VueI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member VueI18n.locale: Ref<string, string>
-member VueI18n.localeIso: private any
+member VueI18n.localeIso: protected Record<string, string>
 member VueI18n.lookupLocale: private any
 member VueI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
 member VueI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18n.missingWarn: boolean
 member VueI18n.notifyListeners: private () => void
 member VueI18n.onTranslationsChanged: protected () => void
+member VueI18n.ownsFormatter: private any
 member VueI18n.pluralFunc: PluralFunc
 member VueI18n.pluralLocale: () => string
 member VueI18n.pluralTag: private any

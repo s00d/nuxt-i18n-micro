@@ -204,8 +204,8 @@ describe('isolation', () => {
   })
 
   test('two isolated contexts stay independent', () => {
-    const a = createI18nTestContext({ isolated: true, translations: { k: 'A' } })
-    const b = createI18nTestContext({ isolated: true, translations: { k: 'B' } })
+    const a = createI18nTestContext({ translations: { k: 'A' } })
+    const b = createI18nTestContext({ translations: { k: 'B' } })
 
     expect(a.t('k')).toBe('A')
     expect(b.t('k')).toBe('B')
@@ -237,4 +237,10 @@ describe('isolation', () => {
     expect(i18n.$t('welcome')).toBe('Welcome')
     expect(vi.isMockFunction(useI18n)).toBe(true)
   })
+})
+
+test('a route-like object with a malformed path falls back to its name', () => {
+  const ctx = createI18nTestContext()
+  const { $localePath } = ctx.createFake()
+  expect(ctx.createFake().$localeRoute({ path: 42, name: 'about' }).path).toBe('/en/about')
 })

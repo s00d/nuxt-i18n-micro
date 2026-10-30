@@ -56,6 +56,8 @@ const flat = (text: string): string =>
   text
     .replace(/import\("[^"]*\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?([^"]*)"\)/g, 'import("$1")')
     .replace(/import\("[^"]*\/(packages\/[^"]*)"\)/g, 'import("$1")')
+    // a type of the package's own, which a reader knows by its name: the path is one of this repo
+    .replace(/import\("\.[^"]*"\)\./g, '')
     .replace(/\s+/g, ' ')
     .trim()
 

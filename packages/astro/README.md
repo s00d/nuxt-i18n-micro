@@ -8,25 +8,15 @@ pnpm add @i18n-micro/astro
 
 Peer: `astro` `^5.0.0 || ^6.0.0 || ^7.0.0` (island frameworks optional).
 
-The integration only writes `virtual:i18n-micro/config`; `src/middleware.ts` does the work and is required:
+The integration bundles the dictionaries and installs the middleware:
 
 ```ts
-// src/middleware.ts
-import { config } from 'virtual:i18n-micro/config'
-import { createAstroRouterAdapter, createI18n, createI18nMiddleware, loadTranslationsIntoI18n } from '@i18n-micro/astro'
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import { i18nIntegration } from '@i18n-micro/astro'
 
-const i18n = createI18n({ locale: config.defaultLocale, fallbackLocale: config.fallbackLocale })
-if (config.translationDir) loadTranslationsIntoI18n(i18n, { translationDir: config.translationDir })
-
-export const onRequest = createI18nMiddleware({
-  i18n,
-  defaultLocale: config.defaultLocale,
-  locales: config.localeCodes,
-  localeObjects: config.locales,
-  autoDetect: config.autoDetect,
-  redirectToDefault: config.redirectToDefault,
-  localeCookie: config.localeCookie,
-  routingStrategy: createAstroRouterAdapter(config.locales, config.defaultLocale),
+export default defineConfig({
+  integrations: [i18nIntegration({ locale: 'en', locales: [{ code: 'en' }, { code: 'de' }], translationDir: 'src/locales' })],
 })
 ```
 

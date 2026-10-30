@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/hmr`
 
-12 exports across 3 entry points.
+13 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -30,17 +30,10 @@ import { /* … */ } from '@i18n-micro/hmr/generate-plugin'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `generateHmrPlugin` | function | `(files: string[], options?: GenerateHmrPluginOptions) => string` |
-| `GenerateHmrPluginOptions` | interface | 1 members |
+| `generateHmrPlugin` | function | `() => string` |
+| `TRANSLATIONS_HMR_EVENT` | const | `"i18n-micro:update"` |
 
-<details>
-<summary><code>GenerateHmrPluginOptions</code> — 1 members</summary>
 
-| Member | Type |
-| --- | --- |
-| `additionalRootFiles?` | `string[] \| undefined` |
-
-</details>
 ## `@i18n-micro/hmr/watcher`
 
 ```ts
@@ -52,11 +45,12 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | `createTranslationDirReader` | function | `(translationsRoot: string \| string[], additionalRoots?: string[]) => (relativeFilePath: string) => Record<string, unknown>` |
 | `DevTranslationMergeInput` | interface | 6 members |
 | `handleTranslationWatchChange` | function | `(input: HandleTranslationWatchChangeInput) => Promise<"page" \| "root" \| "ignored">` |
-| `HandleTranslationWatchChangeInput` | interface | 7 members |
+| `HandleTranslationWatchChangeInput` | interface | 4 members |
 | `mergeDevTranslations` | function | `(input: DevTranslationMergeInput) => Promise<Record<string, unknown>>` |
 | `readTranslationFile` | function | `(filePath: string) => Record<string, unknown>` |
 | `resolveLiveTranslationDirs` | function | `(input: { rootDirs: string[]; translationDir: string; additionalTranslationDirs?: string[]; }) => { translationRoots: string[]; additionalRoots: string[]; }` |
 | `TranslationContentTracker` | class | 3 members |
+| `translationRelativePath` | function | `(filePath: string, dirs: { translationRoots: string[]; additionalRoots: string[]; }) => string \| null` |
 
 <details>
 <summary><code>DevTranslationMergeInput</code> — 6 members</summary>
@@ -73,15 +67,12 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 </details>
 
 <details>
-<summary><code>HandleTranslationWatchChangeInput</code> — 7 members</summary>
+<summary><code>HandleTranslationWatchChangeInput</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `configuredLocales` | `Set<string>` |
-| `listPageNames` | `() => string[]` |
-| `mergeInput` | `Omit<DevTranslationMergeInput, "locale" \| "pageName">` |
 | `relativePath` | `string` |
-| `routesLocaleLinks?` | `Record<string, string> \| undefined` |
 | `serverCache` | `TranslationWatchCache` |
 | `storageCache?` | `TranslationWatchCache \| null \| undefined` |
 

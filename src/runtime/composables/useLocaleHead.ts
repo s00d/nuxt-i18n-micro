@@ -50,7 +50,9 @@ interface UseLocaleHeadOptions {
  * Only needed when `meta` is disabled or the defaults need adjusting — with `meta: true`
  * the module registers the same tags itself.
  *
- * @returns a ref holding the head object, ready to pass to `useHead`
+ * @returns `metaObject`, a ref holding the head object ready to pass to `useHead`; `updateMeta`
+ * refreshes it; `build` computes the head object from the current route (reactive when read in
+ * a getter, e.g. `useHead(() => build())`)
  * @example
  * ```ts
  * const head = useLocaleHead({ addSeoAttributes: true })
@@ -98,16 +100,11 @@ export const useLocaleHead = ({
     return filteredPath
   }
 
-  function clearMeta() {
-    metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
-  }
+  const empty = (): MetaObject => ({ htmlAttrs: {}, link: [], meta: [] })
 
-  function updateMeta() {
+  function build(): MetaObject {
     // 404 routes must not emit SEO tags.
-    if (route.matched.length === 0) {
-      clearMeta()
-      return
-    }
+    if (route.matched.length === 0) return empty()
 
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
     const { canonicalQueryWhitelist } = i18nConfig
@@ -118,10 +115,7 @@ export const useLocaleHead = ({
     const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
-    if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) {
-      clearMeta()
-      return
-    }
+    if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return empty()
     const switchLocalePath = $switchLocalePath
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
@@ -160,10 +154,7 @@ export const useLocaleHead = ({
       ...(addDirAttribute ? { dir: currentDir } : {}),
     }
 
-    if (!addSeoAttributes) {
-      metaObject.value = { htmlAttrs, link: [], meta: [] }
-      return
-    }
+    if (!addSeoAttributes) return { htmlAttrs, link: [], meta: [] }
 
     // Locales included in hreflang / og:locale:alternate (omit `seo: false`)
     const localesForSeo = locales.filter((loc: Locale) => loc.seo !== false)
@@ -254,11 +245,15 @@ export const useLocaleHead = ({
       }
     }
 
-    metaObject.value = {
+    return {
       htmlAttrs,
       meta: [...(ogLocaleMeta ? [ogLocaleMeta] : []), ogUrlMeta, ...alternateOgLocalesMeta],
       link: [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])],
     }
+  }
+
+  function updateMeta() {
+    metaObject.value = build()
   }
 
   if (autoUpdate) {
@@ -273,5 +268,5 @@ export const useLocaleHead = ({
     )
   }
 
-  return { metaObject, updateMeta }
+  return { metaObject, updateMeta, build }
 }

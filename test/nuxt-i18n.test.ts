@@ -320,6 +320,33 @@ describe('NuxtTranslationLoader cache hits', () => {
     expect(loader.loadFromCacheSync('en', 'missing')).toBeNull()
   })
 
+  it('reload keeps the current dictionary on screen until the fresh one lands, then drops removed keys', async () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.setChunk('en', 'about', { title: 'Old', gone: 'Gone' })
+    i18n.applySwitchContext('en', 'about', i18n.getChunk('en', 'about'))
+    i18n.setChunk('de', 'about', { title: 'DE' })
+
+    let resolveFresh!: (value: Record<string, unknown>) => void
+    const fresh = new Promise<Record<string, unknown>>((resolve) => {
+      resolveFresh = resolve
+    })
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation(async () => ({ data: await fresh, cacheKey: 'en:about' }))
+    try {
+      const reloading = loader.reload()
+      expect(i18n.t('title')).toBe('Old')
+      resolveFresh({ title: 'New' })
+      await reloading
+      expect(i18n.t('title')).toBe('New')
+      expect(i18n.has('gone')).toBe(false)
+      // every other cached chunk is dropped too: it is reloaded on its next use
+      expect(i18n.hasChunk('de', 'about')).toBe(false)
+    } finally {
+      loadSpy.mockRestore()
+    }
+  })
+
   it('does not apply a stale switchContext after a newer navigation wins', async () => {
     translationStorage.clear()
     const i18n = new NuxtI18n({ missingWarn: false })

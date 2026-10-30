@@ -398,6 +398,11 @@ export class NuxtI18n extends BaseI18n {
     }
   }
 
+  /** Drop every stored chunk but keep the dictionary on screen until a reload replaces it. */
+  dropChunks(): void {
+    super.clearCache()
+  }
+
   public override clearCache(): void {
     super.clearCache()
     this.cachedTranslations = {}
@@ -472,6 +477,32 @@ export class NuxtTranslationLoader {
 
     this.pendingLoads.set(cacheKey, promise)
     return promise
+  }
+
+  /**
+   * Reload the current context's dictionary (after a cache clear, an HMR edit). Unlike
+   * {@link switchContext} it does not supersede an in-flight navigation: the fresh chunk is
+   * applied only if the context is still the one it was loaded for.
+   */
+  async refresh(): Promise<void> {
+    const { i18n } = this.options
+    const locale = i18n.getCurrentLocale()
+    const routeName = i18n.getCurrentRouteName() || undefined
+    const data = await this.loadAsync(locale, routeName)
+    if (i18n.getCurrentLocale() !== locale || (i18n.getCurrentRouteName() || undefined) !== routeName) return
+    i18n.applySwitchContext(locale, routeName, data)
+    // same page, no navigation: nothing else would drop the layer applySwitchContext kept
+    i18n.finishTransition()
+  }
+
+  /**
+   * Drop every cached chunk (storage and instance) and reload the current page's dictionary.
+   * The page keeps its current dictionary until the fresh one is applied: no raw keys between.
+   */
+  async reload(): Promise<void> {
+    translationStorage.clear()
+    this.options.i18n.dropChunks()
+    await this.refresh()
   }
 
   /**
@@ -590,10 +621,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) }) as RouteLocationRaw
     },
     clearCache: () => {
-      translationStorage.clear()
-      i18n.clearCache()
-      // reload the page's dictionary: an emptied one renders raw keys until the next navigation
-      void loader.switchContext(i18n.getCurrentLocale(), i18n.getCurrentRouteName() || undefined)
+      void loader.reload()
     },
     switchLocalePath: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike

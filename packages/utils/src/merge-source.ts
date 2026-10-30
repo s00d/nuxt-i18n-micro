@@ -15,13 +15,16 @@ export interface MergeSourceTranslationsInput {
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
 }
 
+/**
+ * Locales whose files make up `locale`, weakest first: the global fallback, then each
+ * `fallbackLocale` link followed to its end (fr → de → en is `[en, de, fr]`), then the locale.
+ */
 export function buildFallbackLocaleChain(locale: string, locales: SourceLocaleInfo[], globalFallbackLocale?: string): string[] {
-  const knownCodes = new Set(locales.map((entry) => entry.code))
-  const localeConfig = locales.find((entry) => entry.code === locale)
-
-  return [globalFallbackLocale, localeConfig?.fallbackLocale, locale]
-    .filter((code): code is string => !!code && knownCodes.has(code))
-    .filter((code, index, chain) => chain.indexOf(code) === index)
+  const fallbackOf = new Map(locales.map((entry) => [entry.code, entry.fallbackLocale]))
+  const chain: string[] = []
+  for (let code: string | undefined = locale; code && fallbackOf.has(code) && !chain.includes(code); code = fallbackOf.get(code)) chain.unshift(code)
+  if (globalFallbackLocale && fallbackOf.has(globalFallbackLocale) && !chain.includes(globalFallbackLocale)) chain.unshift(globalFallbackLocale)
+  return chain
 }
 
 export function mergeTranslationsFromFallbackChain(
@@ -87,6 +90,8 @@ export async function mergeSourceTranslations(input: MergeSourceTranslationsInpu
   const chain = buildFallbackLocaleChain(input.locale, input.locales, input.globalFallbackLocale)
 
   const root = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, buildSourceRootPath)
+  // disablePageLocales: root translations only, no `pages/` file at all (not even `pages/index`)
+  if (input.disablePageLocales) return root
   const page = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, (localeCode) => buildSourcePagePath(pageName, localeCode))
 
   return deepMergeTranslations(root, page)

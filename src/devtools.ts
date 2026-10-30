@@ -81,6 +81,23 @@ export interface ClientFunctions {
  * in both branches *and* did it through Vite, so the tab was broken for everyone —
  * installed users pointed at a dev server that was never running.
  */
+/**
+ * The real path of an existing `.json` file `relative` to `base`, or null when it is missing or
+ * leaves `base` — by `../`, an absolute path or a symlink (both sides are resolved to real paths).
+ */
+export function resolveTranslationFile(base: string, relative: string): string | null {
+  const candidate = path.resolve(base, relative)
+  if (!candidate.endsWith('.json') || !fs.existsSync(base) || !fs.existsSync(candidate)) return null
+  const real = fs.realpathSync(candidate)
+  return isInside(fs.realpathSync(base), real) ? real : null
+}
+
+/** Whether `target` lies inside `base` (not `base` itself, not above it). */
+export function isInside(base: string, target: string): boolean {
+  const relative = path.relative(base, target)
+  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
 export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
   const nuxt = useNuxt()
   const hasPrebuiltClient = fs.existsSync(path.join(clientDir, 'index.html'))
@@ -127,41 +144,22 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
     const dirs = rootDirs.length > 0 ? rootDirs : [nuxt.options.rootDir]
 
     extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, {
+      // Writes only an existing `.json` inside a translation directory: `file` comes from the
+      // client, so `../` and absolute paths must not reach the filesystem. The project layer (listed
+      // last, shown in the tab) wins over extended layers.
       async saveTranslationContent(file, content) {
-        let filePath: string | null = null
-
-        const additionalMatch = /^additional:([^/]+)\/(.+)$/.exec(file)
-        if (additionalMatch?.[1] && additionalMatch[2]) {
-          const extraDir = additionalMatch[1]
-          const relFile = additionalMatch[2]
-          for (const rootDir of dirs) {
-            const candidatePath = path.join(rootDir, extraDir, relFile)
-            if (fs.existsSync(candidatePath)) {
-              filePath = candidatePath
-              break
-            }
-          }
-        } else {
-          for (const rootDir of dirs) {
-            const localesDir = path.join(rootDir, options.translationDir || 'locales')
-            const candidatePath = path.join(localesDir, file)
-            if (fs.existsSync(candidatePath)) {
-              filePath = candidatePath
-              break
-            }
-          }
-        }
-
-        // If file not found in any rootDir, try resolving as absolute path (fallback)
-        if (!filePath) {
-          filePath = path.resolve(file)
-        }
-
-        if (fs.existsSync(filePath)) {
-          fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
-        } else {
-          throw new Error(`File not found: ${filePath}`)
-        }
+        // `additional:<configured dir, maybe nested>/<file>`, or a path inside translationDir
+        const extraDir = file.startsWith('additional:')
+          ? (options.additionalTranslationDirs ?? []).find((dir) => file.startsWith(`additional:${dir}/`))
+          : undefined
+        if (file.startsWith('additional:') && !extraDir) throw new Error(`Not a configured additional translation directory: ${file}`)
+        const relativeFile = extraDir ? file.slice(`additional:${extraDir}/`.length) : file
+        const target = [...dirs]
+          .reverse()
+          .map((rootDir) => resolveTranslationFile(path.join(rootDir, extraDir ?? (options.translationDir || 'locales')), relativeFile))
+          .find((candidate) => candidate !== null)
+        if (!target) throw new Error(`File not found in the translation directories: ${file}`)
+        fs.writeFileSync(target, JSON.stringify(content, null, 2), 'utf-8')
       },
       async getConfigs() {
         return Promise.resolve(options)

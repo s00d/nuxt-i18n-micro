@@ -1,3 +1,4 @@
+import { joinURL, withQuery } from 'ufo'
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
@@ -11,6 +12,8 @@ export interface LoadOptions {
   apiBaseServerHost?: string
   dateBuild?: string | number
   routesLocaleLinks?: Record<string, string>
+  /** Server only: the Nitro loader of this request (`event.context.i18n.load`), called directly. */
+  serverLoad?: (locale: string, routeName: string) => Promise<Record<string, unknown>>
 }
 
 export interface LoadResult {
@@ -68,23 +71,37 @@ class TranslationStorage {
   // ==========================================================================
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
-    const request = buildTranslationPayloadFetchRequest({
-      apiBaseUrl: options.apiBaseUrl,
-      routeName,
-      locale,
-      isServer: import.meta.server,
-      baseURL: options.baseURL,
-      apiBaseClientHost: options.apiBaseClientHost,
-      apiBaseServerHost: options.apiBaseServerHost ?? (import.meta.server ? process.env.NUXT_I18N_APP_BASE_SERVER_HOST : undefined),
-      dateBuild: options.dateBuild,
-      routesLocaleLinks: options.routesLocaleLinks,
-    })
+    const serverHost = options.apiBaseServerHost ?? (import.meta.server ? process.env.NUXT_I18N_APP_BASE_SERVER_HOST : undefined)
+    // SSR: ask the server loader directly (its cached, shared chunk) instead of a local HTTP
+    // round trip that re-parses the JSON into a new copy on every request
+    if (import.meta.server && options.serverLoad && !serverHost) return await options.serverLoad(locale, routeName ?? '')
+    const request = this.request(locale, routeName, options, import.meta.server, serverHost)
 
     // Call-site cast keeps Nuxt `$fetch` (Nitro localFetch when relative); avoids MatchedRoutes TS2321.
     return await ($fetch as TranslationPayloadFetcher)(request.path, {
       baseURL: request.baseURL,
       params: request.params,
     })
+  }
+
+  private request(locale: string, routeName: string | undefined, options: LoadOptions, isServer: boolean, apiBaseServerHost?: string) {
+    return buildTranslationPayloadFetchRequest({
+      apiBaseUrl: options.apiBaseUrl,
+      routeName,
+      locale,
+      isServer,
+      baseURL: options.baseURL,
+      apiBaseClientHost: options.apiBaseClientHost,
+      apiBaseServerHost,
+      dateBuild: options.dateBuild,
+      routesLocaleLinks: options.routesLocaleLinks,
+    })
+  }
+
+  /** The URL the browser fetches a chunk from: what SSR preloads for the first page. */
+  clientUrl(locale: string, routeName: string | undefined, options: LoadOptions): string {
+    const request = this.request(locale, routeName, options, false)
+    return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
   }
 
   /** Seed cache without fetching (e.g. `serverTranslationPreload` for index). */

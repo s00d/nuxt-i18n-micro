@@ -9,7 +9,7 @@ import {
   readTranslationFile,
   resolveLiveTranslationDirs,
 } from '../src/watcher'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('resolveLiveTranslationDirs', () => {
   it('orders additional roots by configured dir first (matches build)', () => {
@@ -23,56 +23,43 @@ describe('resolveLiveTranslationDirs', () => {
 })
 
 describe('handleTranslationWatchChange', () => {
-  it('updates cache for page file changes', async () => {
-    const cache = new Map<string, { data: Record<string, unknown>; json: string }>()
-    const serverCache = {
-      set: (key: string, value: { data: Record<string, unknown>; json: string }) => cache.set(key, value),
-      delete: (key: string) => cache.delete(key),
-    }
+  const caches = () => {
+    const server = new Map([
+      ['en:contact', 1],
+      ['de:index', 2],
+    ])
+    const storage = new Map([['en:about', 3]])
+    return { server, storage }
+  }
 
+  it('drops every cached dictionary on a page file change', async () => {
+    const { server, storage } = caches()
     const result = await handleTranslationWatchChange({
       relativePath: 'pages/contact/en.json',
       configuredLocales: new Set(['en']),
-      listPageNames: () => ['contact'],
-      serverCache,
-      mergeInput: {
-        readLocaleFile: (path) => {
-          if (path === 'en.json') return { shared: 'Root' }
-          if (path === 'pages/contact/en.json') return { title: 'Contact' }
-          return {}
-        },
-      },
+      serverCache: server,
+      storageCache: storage,
     })
-
     expect(result).toBe('page')
-    expect(cache.get('en:contact')?.data).toEqual({ shared: 'Root', title: 'Contact' })
+    expect(server.size + storage.size).toBe(0)
   })
 
-  it('re-merges all pages when root locale file changes', async () => {
-    const cache = new Map<string, { data: Record<string, unknown>; json: string }>()
-    const serverCache = {
-      set: (key: string, value: { data: Record<string, unknown>; json: string }) => cache.set(key, value),
-      delete: (key: string) => cache.delete(key),
-    }
-
+  it('drops every cached dictionary on a root file change (other locales fall back to it)', async () => {
+    const { server, storage } = caches()
     const result = await handleTranslationWatchChange({
       relativePath: 'en.json',
-      configuredLocales: new Set(['en']),
-      listPageNames: () => ['contact'],
-      serverCache,
-      mergeInput: {
-        readLocaleFile: (path) => {
-          if (path === 'en.json') return { shared: 'Root' }
-          if (path === 'pages/contact/en.json') return { title: 'Contact' }
-          if (path === 'pages/index/en.json') return { page: 'Index' }
-          return {}
-        },
-      },
+      configuredLocales: new Set(['en', 'de']),
+      serverCache: server,
+      storageCache: storage,
     })
-
     expect(result).toBe('root')
-    expect(cache.has('en:contact')).toBe(true)
-    expect(cache.has('en:index')).toBe(true)
+    expect(server.size + storage.size).toBe(0)
+  })
+
+  it('ignores files of locales that are not configured', async () => {
+    const { server } = caches()
+    expect(await handleTranslationWatchChange({ relativePath: 'xx.json', configuredLocales: new Set(['en']), serverCache: server })).toBe('ignored')
+    expect(server.size).toBe(2)
   })
 })
 
@@ -95,12 +82,14 @@ describe('readTranslationFile', () => {
     expect(readTranslationFile(join(dir, 'nope.json'))).toEqual({})
   })
 
-  it('throws on a file that exists but does not parse', () => {
-    // The half-written file a `change` event can arrive for. Returning `{}` here merged a
-    // chunk with every key of this file missing and cached it as current.
+  it('warns once and reads {} for a file that does not parse (nothing is cached in dev, the next read is fresh)', () => {
     const file = join(dir, 'partial.json')
     writeFileSync(file, '{ "hello": "Hel')
-    expect(() => readTranslationFile(file)).toThrow()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(readTranslationFile(file)).toEqual({})
+    expect(readTranslationFile(file)).toEqual({})
+    expect(warn).toHaveBeenCalledTimes(1)
+    warn.mockRestore()
   })
 })
 

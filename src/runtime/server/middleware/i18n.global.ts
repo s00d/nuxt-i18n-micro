@@ -69,5 +69,7 @@ export default defineEventHandler(async (event) => {
   event.context.i18n = {
     locale,
     translations,
+    // the page render loads its chunks through this, not through a local fetch of /_locales
+    load: async (chunkLocale: string, routeName: string) => (await loadTranslationsFromServer(chunkLocale, routeName)).data,
   }
 })

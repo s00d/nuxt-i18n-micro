@@ -1,33 +1,34 @@
-import { generateHmrPlugin } from '../src/generate-plugin'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
+import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '../src/generate-plugin'
+import { translationRelativePath } from '../src/watcher'
 
 describe('generateHmrPlugin', () => {
-  it('uses $loadPageTranslations for root and page json files', () => {
-    const code = generateHmrPlugin(['/project/locales/en.json', '/project/locales/pages/contact/de.json'])
+  test('listens for the custom event and reloads through the plugin nuxtApp', () => {
+    const code = generateHmrPlugin()
+    expect(code).toContain(`import.meta.hot.on(${JSON.stringify(TRANSLATIONS_HMR_EVENT)}`)
+    expect(code).toContain('nuxtApp.$clearCache()')
+    // accept() on JSON nothing imports makes Vite full-reload: the plugin must not register it
+    expect(code).not.toContain('accept(')
+    expect(code).not.toContain('useNuxtApp')
+  })
+})
 
-    expect(code).toContain("$loadPageTranslations('en', 'index', data)")
-    expect(code).toContain("$loadPageTranslations('de', 'contact', data)")
-    expect(code).not.toContain('$loadTranslations')
-    expect(code).toContain('deepMergeTranslationsRecursive')
+describe('translationRelativePath', () => {
+  const dirs = { translationRoots: ['/app/locales', '/layer/locales'], additionalRoots: ['/app/extra'] }
+
+  test('any .json under a translationDir root, any depth, any layer', () => {
+    expect(translationRelativePath('/app/locales/en.json', dirs)).toBe('en.json')
+    expect(translationRelativePath('/layer/locales/pages/contact/de.json', dirs)).toBe('pages/contact/de.json')
   })
 
-  it('merges additional root files with primary before $loadPageTranslations', () => {
-    const code = generateHmrPlugin(['/project/frontend/en.json'], {
-      additionalRootFiles: ['/project/common/en.json', '/project/shared/en.json'],
-    })
-
-    expect(code).toContain("import.meta.hot.accept(['/project/common/en.json', '/project/shared/en.json', '/project/frontend/en.json']")
-    expect(code).toContain('await import(/* @vite-ignore */ path)')
-    expect(code).toContain("$loadPageTranslations('en', 'index', data)")
-    expect(code).toContain('deepMergeTranslationsRecursive')
+  test('only top-level {locale}.json in an additional root', () => {
+    expect(translationRelativePath('/app/extra/fr.json', dirs)).toBe('fr.json')
+    expect(translationRelativePath('/app/extra/nested/fr.json', dirs)).toBeNull()
   })
 
-  it('watches additional-only locale roots without a primary file', () => {
-    const code = generateHmrPlugin([], {
-      additionalRootFiles: ['/project/common/en.json'],
-    })
-
-    expect(code).toContain("import.meta.hot.accept(['/project/common/en.json']")
-    expect(code).toContain("$loadPageTranslations('en', 'index', data)")
+  test('anything else is not a translation file', () => {
+    expect(translationRelativePath('/app/pages/index.vue', dirs)).toBeNull()
+    expect(translationRelativePath('/app/locales/readme.md', dirs)).toBeNull()
+    expect(translationRelativePath('/app/locales-old/en.json', dirs)).toBeNull()
   })
 })

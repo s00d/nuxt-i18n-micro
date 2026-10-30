@@ -20,6 +20,12 @@ describe('resolveTranslationPayloadPage', () => {
       }),
     ).toBe('contact')
   })
+
+  it('reads only own links: a page name from the URL never reaches the prototype', () => {
+    for (const name of ['constructor', '__proto__', 'toString', 'hasOwnProperty']) {
+      expect(resolveTranslationPayloadPage(name, { contact: 'x' })).toBe(name)
+    }
+  })
 })
 
 describe('buildTranslationPayloadPath', () => {

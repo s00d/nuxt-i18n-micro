@@ -1,21 +1,13 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
-import { existsSync, readdirSync } from 'node:fs'
-import path from 'node:path'
+import { existsSync } from 'node:fs'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
-import {
-  createTranslationDirReader,
-  handleTranslationWatchChange,
-  resolveLiveTranslationDirs,
-  TranslationContentTracker,
-} from '@i18n-micro/hmr/watcher'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { handleTranslationWatchChange, resolveLiveTranslationDirs, TranslationContentTracker, translationRelativePath } from '@i18n-micro/hmr/watcher'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import { getI18nConfig } from '#i18n-internal/strategy'
 import { getOrCreateServerTranslationCache } from '../utils/server-translation-cache'
 
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
@@ -60,7 +52,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     (Array.isArray(rawLocales) ? rawLocales : []).map((l) => l.code).filter((code): code is string => typeof code === 'string' && code.length > 0),
   )
 
-  const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
   const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({
     rootDirs: i18nConfig.rootDirs?.length ? i18nConfig.rootDirs : [i18nConfig.rootDir],
     translationDir: i18nConfig.translationDir,
@@ -70,27 +61,9 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
   // A write event says nothing about the content having changed.
   const contentTracker = new TranslationContentTracker()
-  const readMergedLocaleFile = createTranslationDirReader(translationRoots, additionalRoots)
-
-  const toWatchRelativePath = (filePath: string): string | null => {
-    for (const translationsRoot of translationRoots) {
-      const fromPrimary = path.relative(translationsRoot, filePath)
-      if (!fromPrimary.startsWith('..') && !path.isAbsolute(fromPrimary)) {
-        return fromPrimary.replace(/\\/g, '/')
-      }
-    }
-    // Additional dir: only top-level `{locale}.json` participates in the global merge.
-    for (const extraRoot of additionalRoots) {
-      const fromExtra = path.relative(extraRoot, filePath)
-      if (fromExtra.startsWith('..') || path.isAbsolute(fromExtra)) continue
-      const normalized = fromExtra.replace(/\\/g, '/')
-      if (!normalized.includes('/') && normalized.endsWith('.json')) return normalized
-    }
-    return null
-  }
 
   const invalidateAndRefresh = async (filePath: string, event: 'add' | 'change' | 'unlink') => {
-    const relativePath = toWatchRelativePath(filePath)
+    const relativePath = translationRelativePath(filePath, { translationRoots, additionalRoots })
     if (!relativePath) return
 
     if (event === 'unlink') {
@@ -99,41 +72,21 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       return
     }
 
-    const runtimeConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
-
     try {
       const result = await handleTranslationWatchChange({
         relativePath,
         configuredLocales,
-        listPageNames: () => {
-          const names = new Set<string>()
-          for (const translationsRoot of translationRoots) {
-            const pagesDir = path.join(translationsRoot, 'pages')
-            if (!existsSync(pagesDir)) continue
-            for (const entry of readdirSync(pagesDir, { withFileTypes: true })) {
-              if (entry.isDirectory()) names.add(entry.name)
-            }
-          }
-          return [...names]
-        },
         serverCache: getOrCreateServerTranslationCache(),
         storageCache: getStorageCache(),
-        routesLocaleLinks,
-        mergeInput: {
-          locales: runtimeConfig.locales,
-          fallbackLocale: runtimeConfig.fallbackLocale,
-          disablePageLocales: runtimeConfig.disablePageLocales,
-          readLocaleFile: readMergedLocaleFile,
-        },
       })
 
       if (result === 'root') {
         const parsed = parseTranslationRelativePath(relativePath)
         if (parsed.type === 'root') {
-          log(`Re-merged ALL pages for locale '${parsed.locale}'`)
+          log(`Dropped cached translations after a change to '${parsed.locale}'`)
         }
       } else if (result === 'page') {
-        log(`Re-merged page cache for '${relativePath}'`)
+        log(`Dropped cached translations after a change to '${relativePath}'`)
       } else if (result === 'ignored') {
         const parsed = parseTranslationRelativePath(relativePath)
         if (parsed.type === 'root' && !configuredLocales.has(parsed.locale)) {

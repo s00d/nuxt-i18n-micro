@@ -2,7 +2,8 @@ import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
-import { generateHmrPlugin } from '@i18n-micro/hmr/generate-plugin'
+import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '@i18n-micro/hmr/generate-plugin'
+import { resolveLiveTranslationDirs, translationRelativePath } from '@i18n-micro/hmr/watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
 import type {
   Getter,
@@ -274,6 +275,8 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-i18n-micro',
     configKey: 'i18n',
+    // Vite environment hotUpdate (HMR) and NuxtPage's ~transitionPromise
+    compatibility: { nuxt: '>=3.18.0' },
   },
   defaults: {
     locales: [],
@@ -604,36 +607,29 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     if (nuxt.options.dev && (options.hmr ?? true)) {
-      // Primary translationDir across every Nuxt layer (same roots as build / live load).
-      const files = (
-        await Promise.all(
-          rootDirs.map(async (layerRoot) => {
-            const translationsDir = join(layerRoot, options.translationDir || 'locales')
-            if (!existsSync(translationsDir)) return [] as string[]
-            return globby(['**/*.json'], { cwd: translationsDir, absolute: true })
-          }),
-        )
-      ).flat()
-      const additionalRootFiles: string[] = (
-        await Promise.all(
-          (options.additionalTranslationDirs ?? []).flatMap((extra) =>
-            rootDirs.map(async (layerRoot) => {
-              const extraDir = join(layerRoot, extra)
-              if (!existsSync(extraDir)) return [] as string[]
-              const extras = await globby(['*.json'], { cwd: extraDir, absolute: true, onlyFiles: true, deep: 0 })
-              return extras.map((f) => f.replace(/\\/g, '/'))
-            }),
-          ),
-        )
-      ).flat()
+      // A translation file is imported by nothing, so Vite would full-reload on every edit: swallow
+      // the update and tell the client plugin to reload its dictionaries (the dev server reads the
+      // live files). Same roots as the Nitro watcher: every layer's translationDir + additional dirs.
+      const translationDirs = resolveLiveTranslationDirs({
+        rootDirs,
+        translationDir: options.translationDir || 'locales',
+        additionalTranslationDirs: options.additionalTranslationDirs,
+      })
+      addVitePlugin(
+        {
+          name: 'i18n-micro:translations-hmr',
+          hotUpdate({ file }) {
+            if (this.environment.name !== 'client' || !translationRelativePath(file, translationDirs)) return
+            this.environment.hot.send({ type: 'custom', event: TRANSLATIONS_HMR_EVENT })
+            return []
+          },
+        },
+        { server: false },
+      )
       const tpl = addTemplate({
         filename: 'i18n.hmr.mjs',
         write: true,
-        getContents: () =>
-          generateHmrPlugin(
-            files.map((f) => f.replace(/\\/g, '/')),
-            { additionalRootFiles },
-          ),
+        getContents: () => generateHmrPlugin(),
       })
       addPlugin({
         src: tpl.dst,
@@ -657,6 +653,8 @@ declare module 'h3' {
     i18n?: {
       locale: string
       translations: Translations
+      /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
+      load?: (locale: string, routeName: string) => Promise<Translations>
     }
   }
 }
@@ -769,7 +767,6 @@ declare module '#i18n-internal/payload-source' {
 
       nitroConfig.routeRules = nitroConfig.routeRules || {}
       const httpCacheDuration = Math.floor(options.httpCacheDuration ?? 0)
-      const hasCacheBuster = Boolean(resolveDateBuild(options, translationsHash))
       // `null` already means "do not set a header", so the helper's own answer is the
       // condition — repeating it here is how the two drift apart.
       // `false`, deliberately: a route rule matches by path, so it also answers requests
@@ -777,7 +774,7 @@ declare module '#i18n-internal/payload-source' {
       const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, false)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
-        ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, hasCacheBuster, cacheControl }),
+        ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl }),
       }
 
       const routeRules = nuxt.options.routeRules || {}

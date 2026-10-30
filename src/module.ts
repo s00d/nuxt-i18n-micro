@@ -55,7 +55,7 @@ import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
 import { createLocalizedPathResolver, staticPagePaths } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
+import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
 
 export type { TranslationPayloadMode } from './build/payload-config'
 export {
@@ -438,38 +438,14 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
-    const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = { ...(options.routeDisableMeta ?? {}) }
-
     const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
     const pageFiles = await globby(pageGlobs, { absolute: true })
 
-    for (const { routePath, config } of collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs)) {
-      try {
-        const { locales: extractedLocales, localeRoutes, disableMeta } = config
-
-        if (extractedLocales) {
-          if (Array.isArray(extractedLocales)) {
-            routeLocales[routePath] = extractedLocales
-          } else if (typeof extractedLocales === 'object') {
-            routeLocales[routePath] = Object.keys(extractedLocales)
-          }
-        }
-
-        if (localeRoutes) {
-          globalLocaleRoutes[routePath] = localeRoutes
-        }
-
-        if (disableMeta !== undefined) {
-          routeDisableMeta[routePath] = disableMeta
-        }
-      } catch (error) {
-        logger.debug(`Failed to parse defineI18nRoute config for ${routePath}:`, error)
-      }
-    }
-
-    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes }
+    const {
+      routeLocales,
+      routeDisableMeta,
+      globalLocaleRoutes: mergedGlobalLocaleRoutes,
+    } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
     if (options.debug) {
       logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
       logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])

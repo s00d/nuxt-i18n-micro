@@ -6,18 +6,18 @@ locales: en-us, pt-br, de · default: en-us
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| go | /go |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| api-docs | /api-docs |  |  |
-| i18n-index | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2}) |  |  |
-| i18n-about-pt-br | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/sobre |  |  |
-| i18n-about-de | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/ueber-uns |  |  |
-| i18n-go | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/go |  |  |
-| i18n-blog-slug | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/blog/:slug() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en-us |
+| about | /about |  |  | about: en-us |
+| go | /go |  |  | go: en-us |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en-us |
+| api-docs | /api-docs |  |  |  |
+| i18n-index | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2}) |  |  | index: pt-br, de |
+| i18n-about-pt-br | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/sobre |  |  | about: pt-br |
+| i18n-about-de | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/ueber-uns |  |  | about: de |
+| i18n-go | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/go |  |  | go: pt-br, de |
+| i18n-blog-slug | /:locale([a-z]{2}-[a-z]{2}\|[a-z]{2})/blog/:slug() |  |  | blog-slug: pt-br, de |
 
 ## Reading a URL
 

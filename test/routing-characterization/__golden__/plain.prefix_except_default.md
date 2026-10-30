@@ -6,19 +6,19 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| contact | /contact |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| — | /old |  |  |
-| localized-index | /:locale(de\|fr) |  |  |
-| localized-about | /:locale(de\|fr)/about |  |  |
-| localized-contact | /:locale(de\|fr)/contact |  |  |
-| localized-blog | /:locale(de\|fr)/blog |  |  |
-| localized-blog-slug | /:locale(de\|fr)/blog/:slug() |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| about | /about |  |  | about: en |
+| contact | /contact |  |  | contact: en |
+| blog | /blog |  |  | blog: en |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en |
+| — | /old |  |  |  |
+| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| localized-about | /:locale(de\|fr)/about |  |  | about: de, fr |
+| localized-contact | /:locale(de\|fr)/contact |  |  | contact: de, fr |
+| localized-blog | /:locale(de\|fr)/blog |  |  | blog: de, fr |
+| localized-blog-slug | /:locale(de\|fr)/blog/:slug() |  |  | blog-slug: de, fr |
 
 ## Reading a URL
 

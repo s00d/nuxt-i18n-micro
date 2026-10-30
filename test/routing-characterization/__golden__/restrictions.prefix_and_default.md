@@ -6,22 +6,22 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| admin | /admin |  |  |
-| · admin-users | users |  |  |
-| landing | /landing |  |  |
-| localized-index | /:locale(en\|de\|fr) |  |  |
-| localized-about | /:locale(en\|fr)/about |  |  |
-| localized-de-only | /:locale(de)/de-only |  |  |
-| localized-blog | /:locale(en\|de\|fr)/blog |  |  |
-| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  |
-| localized-landing | /:locale(en)/landing |  |  |
-| localized-landing-de | /:locale(de)/start |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| about | /about |  |  | about: en |
+| blog | /blog |  |  | blog: en |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en |
+| admin | /admin |  |  |  |
+| · admin-users | users |  |  |  |
+| landing | /landing |  |  | landing: en |
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-about | /:locale(en\|fr)/about |  |  | about: en, fr |
+| localized-de-only | /:locale(de)/de-only |  |  | de-only: de |
+| localized-blog | /:locale(en\|de\|fr)/blog |  |  | blog: en, de, fr |
+| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() |  |  | blog-slug: en, de, fr |
+| localized-landing | /:locale(en)/landing |  |  | landing: en |
+| localized-landing-de | /:locale(de)/start |  |  | landing: de |
 
 ## Reading a URL
 

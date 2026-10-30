@@ -6,32 +6,32 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about-us | /about |  |
-| contact | /contact |  |  |
-| blog | /blog |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| products | /products |  |  |
-| products-id | /products/:id | /products/:id() |  |
-| legal-imprint | /legal/imprint |  |  |
-| careers | /careers |  |  |
-| slug | /:slug(.*)* |  |  |
-| — | /old |  |  |
-| localized-index | /:locale(de\|fr) |  |  |
-| localized-about-de | /:locale(de)/ueber-uns |  |  |
-| localized-about-fr | /:locale(fr)/a-propos |  |  |
-| localized-contact-de | /:locale(de)/kontakt |  |  |
-| localized-contact-fr | /:locale(fr)/contact-fr |  |  |
-| localized-blog | /:locale(de\|fr)/blog |  |  |
-| localized-blog-slug-de | /:locale(de)/artikel/:slug |  |  |
-| localized-blog-slug-fr | /:locale(fr)/article/:slug |  |  |
-| localized-products | /:locale(de\|fr)/products |  |  |
-| localized-products-id-de | /:locale(de)/produkte/:id |  |  |
-| localized-products-id-fr | /:locale(fr)/produits/:id |  |  |
-| localized-careers | /:locale(de)/careers |  |  |
-| localized-slug | /:locale(de\|fr)/:slug(.*)* |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en |
+| about | /about-us | /about |  | about: en |
+| contact | /contact |  |  | contact: en |
+| blog | /blog |  |  | blog: en |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en |
+| products | /products |  |  | products: en |
+| products-id | /products/:id | /products/:id() |  | products-id: en |
+| legal-imprint | /legal/imprint |  |  |  |
+| careers | /careers |  |  | careers: en |
+| slug | /:slug(.*)* |  |  | slug: en |
+| — | /old |  |  |  |
+| localized-index | /:locale(de\|fr) |  |  | index: de, fr |
+| localized-about-de | /:locale(de)/ueber-uns |  |  | about: de |
+| localized-about-fr | /:locale(fr)/a-propos |  |  | about: fr |
+| localized-contact-de | /:locale(de)/kontakt |  |  | contact: de |
+| localized-contact-fr | /:locale(fr)/contact-fr |  |  | contact: fr |
+| localized-blog | /:locale(de\|fr)/blog |  |  | blog: de, fr |
+| localized-blog-slug-de | /:locale(de)/artikel/:slug |  |  | blog-slug: de |
+| localized-blog-slug-fr | /:locale(fr)/article/:slug |  |  | blog-slug: fr |
+| localized-products | /:locale(de\|fr)/products |  |  | products: de, fr |
+| localized-products-id-de | /:locale(de)/produkte/:id |  |  | products-id: de |
+| localized-products-id-fr | /:locale(fr)/produits/:id |  |  | products-id: fr |
+| localized-careers | /:locale(de)/careers |  |  | careers: de |
+| localized-slug | /:locale(de\|fr)/:slug(.*)* |  |  | slug: de, fr |
 
 ## Reading a URL
 

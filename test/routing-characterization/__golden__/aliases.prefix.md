@@ -6,17 +6,17 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| localized-index | /:locale(en\|de\|fr) |  |  |
-| localized-about | /:locale(en\|fr)/about | /:locale(en\|fr)/company, /:locale(en\|fr)/über, /:locale(en\|fr)/%C3%BCber |  |
-| localized-about-de | /:locale(de)/ueber-uns | /:locale(de)/company, /:locale(de)/über, /:locale(de)/%C3%BCber |  |
-| localized-help | /:locale(en\|de\|fr)/help | /:locale(en\|de\|fr)/support |  |
-| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() | /:locale(en\|de\|fr)/news/:slug() |  |
-| localized-docs | /:locale(en\|fr)/docs | /:locale(en\|fr)/documentation |  |
-| · localized-docs-intro | intro |  |  |
-| localized-docs-de | /:locale(de)/docs | /:locale(de)/documentation |  |
-| · localized-docs-intro-de | einfuehrung |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| localized-index | /:locale(en\|de\|fr) |  |  | index: en, de, fr |
+| localized-about | /:locale(en\|fr)/about | /:locale(en\|fr)/company, /:locale(en\|fr)/über, /:locale(en\|fr)/%C3%BCber |  | about: en, fr |
+| localized-about-de | /:locale(de)/ueber-uns | /:locale(de)/company, /:locale(de)/über, /:locale(de)/%C3%BCber |  | about: de |
+| localized-help | /:locale(en\|de\|fr)/help | /:locale(en\|de\|fr)/support |  | help: en, de, fr |
+| localized-blog-slug | /:locale(en\|de\|fr)/blog/:slug() | /:locale(en\|de\|fr)/news/:slug() |  | blog-slug: en, de, fr |
+| localized-docs | /:locale(en\|fr)/docs | /:locale(en\|fr)/documentation |  | docs: en, fr |
+| · localized-docs-intro | intro |  |  | docs-intro: en, fr |
+| localized-docs-de | /:locale(de)/docs | /:locale(de)/documentation |  | docs: de |
+| · localized-docs-intro-de | einfuehrung |  |  | docs-intro: de |
 
 ## Reading a URL
 

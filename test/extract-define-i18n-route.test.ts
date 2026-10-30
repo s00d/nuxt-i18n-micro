@@ -69,6 +69,19 @@ describe('extractDefineI18nRouteData', () => {
     })
     // a `/` after a value is division, not a regex: the scan steps over it
     expect(extract(`const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`, 'division.vue')).toEqual({ locales: ['en'] })
+    // an identifier that only contains the call name is no call
+    expect(extract(`const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`, 'lookalike.vue')).toEqual({
+      locales: ['right'],
+    })
+  })
+
+  it('a file with nothing to read is null, without a word', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(extractDefineI18nRouteData('', 'empty.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<template><div>Hello</div></template>', 'no-script.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'no-call.vue')).toBeNull()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
   // A config that references script bindings runs the page script; destructuring the call
@@ -116,6 +129,7 @@ describe('pageFilePathToRoutePath', () => {
   it('maps page files to route paths', () => {
     expect(pageFilePathToRoutePath('/project/pages/index.vue', '/project')).toBe('/')
     expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
     expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')
   })
 })

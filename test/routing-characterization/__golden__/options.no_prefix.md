@@ -6,15 +6,15 @@ locales: en-us, pt-br, de · default: en-us
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| go | /go |  |  |
-| blog-slug | /blog/:slug() |  |  |
-| api-docs | /api-docs |  |  |
-| i18n-about-pt-br | /sobre |  |  |
-| i18n-about-de | /ueber-uns |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en-us, pt-br, de |
+| about | /about |  |  | about: en-us |
+| go | /go |  |  | go: en-us, pt-br, de |
+| blog-slug | /blog/:slug() |  |  | blog-slug: en-us, pt-br, de |
+| api-docs | /api-docs |  |  |  |
+| i18n-about-pt-br | /sobre |  |  | about: pt-br |
+| i18n-about-de | /ueber-uns |  |  | about: de |
 
 ## Reading a URL
 

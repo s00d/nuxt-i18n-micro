@@ -5,6 +5,7 @@
  * config's globalLocaleRoutes). Every app runs under every strategy.
  */
 import type { Locale, Strategies } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
 
 export interface PageI18n {
   /** `$defineI18nRoute({ localeRoutes })` */
@@ -31,6 +32,10 @@ export interface App {
   hashMode?: boolean
   /** A `routeRules` redirect with no page: Nuxt adds an unnamed stub record for `/old`. */
   hasStub?: boolean
+  /** Pages a module pushes in `pages:extend`: these can have no name, unlike the file scanner's. */
+  modulePages?: NuxtPage[]
+  /** `pages: false`: no pages, no RouteGenerator run, and Nuxt's stub router with no records. */
+  noPages?: boolean
   noPrefixRedirect?: boolean
   excludePatterns?: string[]
   /** params used to build concrete URLs of dynamic routes */
@@ -229,6 +234,43 @@ export const APPS: App[] = [
     globalLocaleRoutes: { about: { de: '/ueber-uns', fr: '/a-propos' } },
   },
 ]
+
+APPS.push(
+  {
+    name: 'precedence',
+    description: "$defineI18nRoute against the config on one page: the config's entry wins whole, whichever key form it uses",
+    files: ['index.vue', 'about.vue', 'contact.vue', 'team.vue', 'careers.vue'],
+    pageI18n: {
+      about: { localeRoutes: { de: '/von-seite', fr: '/de-la-page' } },
+      contact: { localeRoutes: { de: '/kontakt-seite' } },
+      team: { localeRoutes: { de: '/team-seite' } },
+      careers: { localeRoutes: { de: '/jobs-seite' }, locales: ['en', 'de'] },
+    },
+    globalLocaleRoutes: {
+      about: { de: '/von-config' },
+      '/team': { de: '/team-config' },
+    },
+  },
+  {
+    name: 'module-pages',
+    description: 'pages a module pushes in pages:extend, without a name: top-level, dynamic, nested, and one named for comparison',
+    files: ['index.vue', 'about.vue'],
+    hasStub: true,
+    modulePages: [
+      { path: '/from-module', file: '/mod/page.vue' },
+      { path: '/from-module-dyn/:id()', file: '/mod/dyn.vue' },
+      { path: '/module-parent', file: '/mod/parent.vue', children: [{ path: 'child', file: '/mod/child.vue' }] },
+      { path: '/module-named', name: 'module-named', file: '/mod/named.vue' },
+    ],
+    globalLocaleRoutes: { '/from-module': { de: '/vom-modul' } },
+  },
+  {
+    name: 'no-pages',
+    description: "pages: false: Nuxt's stub router, no records at all, every URL is read from its prefix",
+    files: [],
+    noPages: true,
+  },
+)
 
 export const STRATEGIES: Strategies[] = ['prefix_except_default', 'prefix', 'prefix_and_default', 'no_prefix']
 

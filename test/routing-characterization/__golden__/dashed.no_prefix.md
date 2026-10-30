@@ -6,23 +6,23 @@ locales: en, de, fr · default: en
 
 ## Generated routes
 
-| name | path | alias | redirect |
-|---|---|---|---|
-| index | / |  |  |
-| about | /about |  |  |
-| about-team | /about-team |  |  |
-| team | /team |  |  |
-| · team-members | members |  |  |
-| docs | /docs |  |  |
-| docs-getting-started | /docs/getting-started |  |  |
-| foo-bar-baz | /foo-bar/baz |  |  |
-| localized-about-de | /ueber-uns |  |  |
-| localized-about-team-de | /team-seite |  |  |
-| localized-about-team-fr | /equipe |  |  |
-| localized-team-de | /mannschaft |  |  |
-| · localized-team-members-de | mitglieder |  |  |
-| localized-docs-getting-started-en | /docs/start |  |  |
-| localized-docs-getting-started-de | /dokumente/einstieg |  |  |
+| name | path | alias | redirect | meta.i18n |
+|---|---|---|---|---|
+| index | / |  |  | index: en, de, fr |
+| about | /about |  |  | about: en, fr |
+| about-team | /about-team |  |  | about-team: en |
+| team | /team |  |  | team: en, fr |
+| · team-members | members |  |  | team-members: en, fr |
+| docs | /docs |  |  | docs: en, de, fr |
+| docs-getting-started | /docs/getting-started |  |  | docs-getting-started: fr |
+| foo-bar-baz | /foo-bar/baz |  |  | foo-bar-baz: en, de, fr |
+| localized-about-de | /ueber-uns |  |  | about: de |
+| localized-about-team-de | /team-seite |  |  | about-team: de |
+| localized-about-team-fr | /equipe |  |  | about-team: fr |
+| localized-team-de | /mannschaft |  |  | team: de |
+| · localized-team-members-de | mitglieder |  |  | team-members: de |
+| localized-docs-getting-started-en | /docs/start |  |  | docs-getting-started: en |
+| localized-docs-getting-started-de | /dokumente/einstieg |  |  | docs-getting-started: de |
 
 ## Reading a URL
 

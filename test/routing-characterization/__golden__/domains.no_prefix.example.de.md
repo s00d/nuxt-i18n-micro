@@ -133,7 +133,6 @@ params: the PARAMS keys the route's records use.
 | de-only | /de-only [de-only] | / [index] | / [index] |
 | index | / [index] | / [index] | / [index] |
 
-## Invariant breaks (2)
+## Invariant breaks (0)
 
-- /de-only → nl → de: round trip ends on /, not /de-only?q=1#top
-- /de-only → fr → de: round trip ends on /, not /de-only?q=1#top
+none

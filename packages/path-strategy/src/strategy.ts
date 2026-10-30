@@ -482,7 +482,10 @@ export class I18nPathStrategy {
       // a page `locale` does not serve: under `prefix` nothing is served unprefixed, so the page in a
       // locale that has it (the default first); elsewhere the URL already shows it
       if (this.ctx.strategy !== 'prefix') return null
-      locale = served.has(this.ctx.defaultLocale) ? this.ctx.defaultLocale : served.keys().next().value!
+      // only a locale this host serves: a disabled one, or another domain's, is a 404 there
+      const fallback = served.has(this.ctx.defaultLocale) ? this.ctx.defaultLocale : [...served.keys()].find((code) => this.codes.has(code))
+      if (!fallback) return null
+      locale = fallback
     }
     // a URL no record serves still moves to the preferred locale's form: `prefix` serves nothing
     // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`
@@ -645,7 +648,8 @@ export class DomainPathStrategy extends I18nPathStrategy {
   }
 
   override getClientRedirect(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions): string | null {
-    return this.foreign.has(splitUrl(currentPath).path.split('/')[1] ?? '') ? null : super.getClientRedirect(currentPath, preferredLocale, options)
+    const foreign = this.foreign.has(preferredLocale) || this.foreign.has(splitUrl(currentPath).path.split('/')[1] ?? '')
+    return foreign ? null : super.getClientRedirect(currentPath, preferredLocale, options)
   }
 }
 

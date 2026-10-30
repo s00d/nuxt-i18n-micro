@@ -5,6 +5,7 @@ import {
   resolveCachedTranslation,
   setTranslationAtKey,
   translationCacheKey,
+  externalLinkHref,
   type BaseI18nOptions,
   type TranslationStorage,
 } from '@i18n-micro/core'
@@ -20,7 +21,6 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * would have to walk the whole incoming chunk to be correct — ~3.8 ms on the playground's
  * 103k-key dictionary, on every navigation.
  */
-import { externalLinkHref } from '@i18n-micro/core'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {

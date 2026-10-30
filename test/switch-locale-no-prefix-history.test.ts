@@ -129,7 +129,10 @@ describe('links from the plugin', () => {
   })
 
   test('$switchLocaleRoute is a route object under a slash rule too', () => {
-    const { provide } = makeApi('prefix', true, { trailingSlash: 'append', switched: { name: 'about', path: '/de/about', fullPath: '/de/about?q=1' } })
+    const { provide } = makeApi('prefix', true, {
+      trailingSlash: 'append',
+      switched: { name: 'about', path: '/de/about', fullPath: '/de/about?q=1' },
+    })
     expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ name: 'about', path: '/de/about/', fullPath: '/de/about/?q=1' }))
     expect(provide.switchLocalePath('es')).toBe('/de/about/?q=1')
   })

@@ -16,6 +16,7 @@ function normalizePath: (routePath: string) => string
 function normalizeRouteKey: (key: string) => string
 class RouteGenerator
 member RouteGenerator.defaultLocale: Locale
+member RouteGenerator.disabledLocales: Locale[]
 member RouteGenerator.ensureTranslationFilesExist: (pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void
 member RouteGenerator.extendPages: (pages: NuxtPage[]) => void
 member RouteGenerator.generateDataRoutes: (pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]
@@ -23,6 +24,7 @@ member RouteGenerator.locales: Locale[]
 member RouteGenerator.localizedPaths: private LocalizedPaths
 member RouteGenerator.options: private RouteGeneratorOptions
 member RouteGenerator.resolveLocalizedPath: (originalPath: string, localeCode: string) => string
+member RouteGenerator.resolveLocalizedRulePaths: (originalPath: string, localeCode: string) => string[]
 member RouteGenerator.routeLocales: Record<string, string[]>
 member RouteGenerator.rules: private Rules
 member RouteGenerator.strategy: Strategies
@@ -47,6 +49,7 @@ class Rules
 member Rules.allowedLocales: (fullPath: string, name: string | undefined) => string[] | undefined
 member Rules.byName: private Map<string, Rule>
 member Rules.customPath: (fullPath: string, locale: string) => string | undefined
+member Rules.customPathsUnder: (base: string, locale: string) => string[]
 member Rules.disableMeta: (fullPath: string, name: string | undefined) => NoMeta | undefined
 member Rules.get: (fullPath: string, name: string | undefined) => Rule | undefined
 member Rules.noMeta: private Map<string, NoMeta>

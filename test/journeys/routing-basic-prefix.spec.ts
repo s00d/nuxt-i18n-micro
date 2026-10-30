@@ -46,7 +46,9 @@ describe('journey: routing variants — basic under prefix', () => {
 
     // step 3: a client navigation keeps its URL: no /en/old-product
     await goto('/en', { waitUntil: 'hydration' })
-    await page.evaluate(() => (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } } }).useNuxtApp().$router.push('/old-product'))
+    await page.evaluate(() =>
+      (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } } }).useNuxtApp().$router.push('/old-product'),
+    )
     await expect(page).toHaveURL('/old-product')
   })
 

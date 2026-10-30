@@ -57,7 +57,14 @@ describe('resolveLocalizedRulePaths', () => {
 describe('a child path outside its parent', () => {
   test('warns once, naming the key; the routes stay as they were', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const pages: NuxtPage[] = [{ path: '/parent', name: 'parent', file: 'pages/parent.vue', children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }] }]
+    const pages: NuxtPage[] = [
+      {
+        path: '/parent',
+        name: 'parent',
+        file: 'pages/parent.vue',
+        children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }],
+      },
+    ]
     const generator = new RouteGenerator({
       locales: [{ code: 'en' }, { code: 'de' }],
       defaultLocaleCode: 'en',
@@ -81,7 +88,14 @@ describe('a child path outside its parent', () => {
       strategy: 'prefix_except_default',
       globalLocaleRoutes: { 'parent/child': { de: '/parent/kind' } },
       noPrefixRedirect: false,
-    }).extendPages([{ path: '/parent', name: 'parent', file: 'pages/parent.vue', children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }] }])
+    }).extendPages([
+      {
+        path: '/parent',
+        name: 'parent',
+        file: 'pages/parent.vue',
+        children: [{ path: 'child', name: 'parent-child', file: 'pages/parent/child.vue' }],
+      },
+    ])
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
   })

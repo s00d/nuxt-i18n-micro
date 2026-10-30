@@ -51,7 +51,7 @@ const { t, localePath } = useI18n()
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<void>` | Navigate to the current page in another locale. |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<boolean>` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
 | [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
 | [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
@@ -313,13 +313,15 @@ $tdr(Date.now() - 5 * 60_000) // '5 minutes ago' in en
 <!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(locale: string) => Promise<void>
+(locale: string) => Promise<boolean>
 ```
 
 Navigate to the current page in another locale. Under `no_prefix` and hash mode it loads the
 locale's translations before navigating; under `no_prefix` the route is replaced in place (no
 new history entry). An unknown locale is ignored.
-The call is async: `await` it to run code after the navigation.
+The call is async: `await` it to run code after the navigation. It resolves `true` when the
+locale's dictionary is active, `false` when it is not: the chunk failed to load (the current
+dictionary stays; call it again to retry) or a newer switch won.
 
 <!-- /generated:method:$switchLocale -->
 
@@ -351,7 +353,9 @@ The path of the current page in another locale, without navigating.
 (locale: string) => RouteLocationRaw
 ```
 
-The route object for the current page in another locale, without navigating.
+The route object for the current page in another locale, without navigating. Under
+`trailingSlash` its `path` and `fullPath` follow the rule, while a push by `name` does not:
+link with `$switchLocalePath` there.
 
 <!-- /generated:method:$switchLocaleRoute -->
 

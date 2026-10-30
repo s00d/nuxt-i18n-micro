@@ -24,10 +24,10 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
-| `RouteGenerator` | class | 12 members |
+| `RouteGenerator` | class | 14 members |
 | `RouteGeneratorOptions` | interface | 11 members |
 | `RouteI18nMeta` | interface | 3 members |
-| `Rules` | class | 11 members |
+| `Rules` | class | 12 members |
 
 <details>
 <summary><code>GenerateOptions</code> — 9 members</summary>
@@ -47,11 +47,12 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGenerator</code> — 12 members</summary>
+<summary><code>RouteGenerator</code> — 14 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `defaultLocale` | `Locale` |
+| `disabledLocales` | `Locale[]` |
 | `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
 | `extendPages` | `(pages: NuxtPage[]) => void` |
 | `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
@@ -60,6 +61,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
 | `options` | `private RouteGeneratorOptions` |
 | `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |
+| `resolveLocalizedRulePaths` | `(originalPath: string, localeCode: string) => string[]` |
 | `routeLocales` | `Record<string, string[]>` |
 | `rules` | `private Rules` |
 | `strategy` | `Strategies` |
@@ -88,13 +90,14 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 <code>RouteI18nMeta</code> — 3 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
 
 <details>
-<summary><code>Rules</code> — 11 members</summary>
+<summary><code>Rules</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `allowedLocales` | `(fullPath: string, name: string \| undefined) => string[] \| undefined` |
 | `byName` | `private Map<string, Rule>` |
 | `customPath` | `(fullPath: string, locale: string) => string \| undefined` |
+| `customPathsUnder` | `(base: string, locale: string) => string[]` |
 | `disableMeta` | `(fullPath: string, name: string \| undefined) => NoMeta \| undefined` |
 | `get` | `(fullPath: string, name: string \| undefined) => Rule \| undefined` |
 | `new` | `(globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[], routeDisableMeta?: Record<string, NoMeta>): Rules` |

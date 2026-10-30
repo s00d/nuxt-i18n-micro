@@ -160,7 +160,8 @@ export const APPS: App[] = [
   },
   {
     name: 'options',
-    description: 'hyphenated locale codes, custom route-name prefix, custom locale regex with a page shaped like a locale, noPrefixRedirect, excluded paths',
+    description:
+      'hyphenated locale codes, custom route-name prefix, custom locale regex with a page shaped like a locale, noPrefixRedirect, excluded paths',
     files: ['index.vue', 'about.vue', 'go.vue', 'blog/[slug].vue', 'api-docs.vue'],
     locales: [
       { code: 'en-us', iso: 'en-US' },

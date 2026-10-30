@@ -524,7 +524,14 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
-    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig, routeGenerator.disabledLocales)
+    const templates = registerI18nTemplates(
+      options,
+      resolvedStrategyPath,
+      resolvedHelpersPath,
+      fullConfig,
+      privateConfig,
+      routeGenerator.disabledLocales,
+    )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)

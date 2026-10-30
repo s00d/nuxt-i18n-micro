@@ -39,9 +39,11 @@ function elementAttrs(props: I18nTRenderProps, attrs: Record<string, unknown>): 
  * moves the slot's DOM instead of rebuilding it.
  */
 function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Record<string, unknown>, slots: RenderSlots): unknown {
+  if (template.indexOf('{') === -1) return template
   const parts = tokenize(template)
-  const children: unknown[] = []
-  const seen = new Map<string, number>()
+  // only a template with a slot in it pays for these
+  let children: unknown[] | undefined
+  let seen: Map<string, number> | undefined
   let text = parts[0]!
   for (let i = 1; i < parts.length; i += 2) {
     const name = parts[i]!
@@ -51,6 +53,8 @@ function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Reco
       text += (value === undefined ? `{${name}}` : String(value)) + parts[i + 1]
       continue
     }
+    children ??= []
+    seen ??= new Map()
     const occurrence = (seen.get(name) ?? 0) + 1
     seen.set(name, occurrence)
     if (text) children.push(text)
@@ -58,7 +62,7 @@ function foldTemplate({ h, Fragment }: RenderApi, template: string, params: Reco
     children.push(h(Fragment, { key: `${name}:${occurrence}` }, slot({}) as never))
     text = parts[i + 1]!
   }
-  if (children.length === 0) return text
+  if (!children) return text
   if (text) children.push(text)
   return children
 }
@@ -261,5 +265,4 @@ export function createLocaleSwitcher(vue: SwitcherVue, adapter: SwitcherAdapter,
   }
 }
 
-export { isPlainClick } from './link'
 export type { ResolveTextOptions, TextHost } from './text'

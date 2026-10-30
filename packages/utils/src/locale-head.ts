@@ -54,7 +54,7 @@ export function filterQuery(url: string, whitelist: readonly string[]): string {
   if (cut === -1) return url
   const pathname = url.slice(0, cut) || '/'
   const hash = url.indexOf('#', cut)
-  const params = new URLSearchParams(url.slice(cut, hash === -1 ? undefined : hash).replace(/^#.*/, ''))
+  const params = new URLSearchParams(url.slice(cut, hash === -1 ? undefined : hash))
   const kept = new URLSearchParams()
   for (const key of whitelist) {
     if (params.has(key)) kept.set(key, params.get(key)!)

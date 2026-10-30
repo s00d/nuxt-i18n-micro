@@ -49,9 +49,9 @@ export const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, (ch
 function escapeParams(params: Params): Params {
   const safe: Params = {}
   for (const name of Object.keys(params)) {
-    if (name === '__proto__') continue
     const value = params[name]
-    safe[name] = typeof value === 'number' || typeof value === 'boolean' ? value : escapeHtml(String(value))
+    // undefined stays out: the placeholder keeps showing, as without html
+    if (value !== undefined) safe[name] = typeof value === 'number' || typeof value === 'boolean' ? value : escapeHtml(String(value))
   }
   return safe
 }
@@ -60,6 +60,8 @@ interface LocalePlural {
   rules: Intl.PluralRules
   /** Categories whole numbers reach, in template order (`one, few, many`). */
   categories: string[]
+  /** The category of every count under `CATEGORY_PROBE`: `select` costs more than the rest of `tc`. */
+  small: string[]
 }
 
 const pluralLocales = new Map<string, LocalePlural | null>()
@@ -67,11 +69,11 @@ const pluralLocales = new Map<string, LocalePlural | null>()
 function createLocalePlural(locale: string): LocalePlural | null {
   try {
     const rules = new Intl.PluralRules(locale)
-    const reached = new Set<string>()
-    for (let n = 0; n < CATEGORY_PROBE; n++) reached.add(rules.select(n))
+    const small = Array.from({ length: CATEGORY_PROBE }, (_, n) => rules.select(n))
+    const reached = new Set<string>(small)
     // Two categories fit the index rule, and templates count on it: `none | one | {count} many`.
     if (reached.size < 3) return null
-    return { rules, categories: CATEGORY_ORDER.filter((category) => reached.has(category)) }
+    return { rules, small, categories: CATEGORY_ORDER.filter((category) => reached.has(category)) }
   } catch {
     return null // not a BCP 47 tag (`en_US`): a locale code is free-form
   }
@@ -91,11 +93,11 @@ function localePlural(locale: string): LocalePlural | null {
 const startsWithZeroForm = (forms: string[]): boolean => !forms[0]!.includes('{count}') && forms.some((form) => form.includes('{count}'))
 
 /** The form of `count` when the template has one per category (or one more, for zero), else -1. */
-function categoryIndex(forms: string[], count: number, { rules, categories }: LocalePlural): number {
+function categoryIndex(forms: string[], count: number, { rules, categories, small }: LocalePlural): number {
   const hasZeroCategory = categories[0] === 'zero'
-  if (forms.length === categories.length + 1 && !hasZeroCategory) return count === 0 ? 0 : categories.indexOf(rules.select(count)) + 1
-  if (forms.length !== categories.length || (!hasZeroCategory && startsWithZeroForm(forms))) return -1
-  return categories.indexOf(rules.select(count))
+  const index = categories.indexOf(small[count] ?? rules.select(count))
+  if (forms.length === categories.length + 1 && !hasZeroCategory) return count === 0 ? 0 : index + 1
+  return forms.length !== categories.length || (!hasZeroCategory && startsWithZeroForm(forms)) ? -1 : index
 }
 
 /**

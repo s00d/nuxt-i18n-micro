@@ -197,6 +197,10 @@ describe('resolveText', () => {
     expect(text(i18n(), { keypath: 'rich', html: true, params: { name: 5 } })).toBe('<b>5</b>')
   })
 
+  it('a param set to undefined stays a placeholder, as without html', () => {
+    expect(text(i18n(), { keypath: 'rich', html: true, params: { name: undefined as never } })).toBe('<b>{name}</b>')
+  })
+
   it('escaping does not mutate params or follow __proto__', () => {
     const params = { name: '<i>' }
     resolveText(i18n(), { keypath: 'rich', html: true, params })

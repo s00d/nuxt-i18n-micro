@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { defineCommand } from 'citty'
-import { parse as parseComponent } from 'vue-docgen-api'
+import { parseSource } from 'vue-docgen-api'
 import { indexSnapshot } from '../utils/api-surface'
 import { BLOCK_START, MissingBlockError, cell, code, replaceBlock, summarise, table } from '../utils/markdown'
 import { type ModuleOption, readModuleOptions } from '../utils/module-options'
@@ -185,8 +185,22 @@ function typeText(type: unknown): string {
   return node.name ?? 'unknown'
 }
 
+/** Slots of a `defineSlots` block: vue-docgen-api reads them from templates only, and a render function has none. */
+function declaredSlots(file: string): { name: string; bindings: { name: string }[]; description: string }[] {
+  const block = readFileSync(file, 'utf8').match(/defineSlots<\{([\s\S]*?)\n\}>/)?.[1] ?? ''
+  return [...block.matchAll(/\/\*\* (.+?) \*\/\n\s+'?([\w-]+)'?\?: \((?:scope: \{ (\w+):[^)]*)?\)/g)].map(([, description, name, binding]) => ({
+    name: name!,
+    bindings: binding ? [{ name: binding }] : [],
+    description: description!,
+  }))
+}
+
 async function componentBlock(file: string): Promise<string> {
-  const parsed = await parseComponent(file)
+  // a functional component is `Object.assign(render, options)`, which vue-docgen-api does not recognise
+  const parsed = await parseSource(
+    readFileSync(file, 'utf8').replace('export default Object.assign(render, {', 'export default defineComponent({'),
+    file,
+  )
   const parts: string[] = []
 
   const props = (parsed.props ?? []).map((prop) => [
@@ -200,7 +214,7 @@ async function componentBlock(file: string): Promise<string> {
     if ((parsed.props ?? []).some((prop) => prop.required)) parts.push('', '**\\*** required.')
   }
 
-  const slots = (parsed.slots ?? []).map((slot) => [
+  const slots = (parsed.slots?.length ? parsed.slots : declaredSlots(file)).map((slot) => [
     code(slot.name),
     (slot.bindings ?? []).map((binding) => `\`${binding.name}\``).join(', ') || '—',
     cell(slot.description ?? ''),

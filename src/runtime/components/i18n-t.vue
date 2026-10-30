@@ -1,12 +1,20 @@
 <script lang="ts">
-import { renderI18nT, type RenderSlots, type TextHost } from '@i18n-micro/core/render'
+import { type I18nTRenderProps, renderI18nT, type RenderSlots, type TextHost } from '@i18n-micro/core/render'
 import type { PluralFunc } from '@i18n-micro/types'
-import type { PropType } from 'vue'
-import { defineComponent, Fragment, h } from 'vue'
+import type { FunctionalComponent, PropType, VNode } from 'vue'
+import { Fragment, h } from 'vue'
 import { useNuxtApp } from '#imports'
 import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 
 const renderApi = { h, Fragment }
+
+/** Stateless, so functional: no instance per translation on a page of them. */
+const render: FunctionalComponent<I18nTRenderProps> = (props, { slots, attrs }) => {
+  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc } = useNuxtApp() as unknown as PluginsInjections
+  // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
+  const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, getLocale: $getLocale, pluralFunc: $pluralFunc } as unknown as TextHost
+  return renderI18nT(renderApi, host, props, slots as RenderSlots, attrs) as VNode
+}
 
 /**
  * Renders one translation into an element, with pluralization, interpolation and
@@ -18,8 +26,8 @@ const renderApi = { h, Fragment }
  * @slot default — receives `{ translation }`, for wrapping the resolved string in markup
  * @slot {name} — any other named slot replaces every `{name}` placeholder inside the translation
  */
-export default defineComponent({
-  name: 'I18nT',
+export default Object.assign(render, {
+  displayName: 'I18nT',
   inheritAttrs: false,
   props: {
     /** Translation key to render. */
@@ -72,12 +80,6 @@ export default defineComponent({
     relativeDate: {
       type: [Date, String, Number] as PropType<Date | string | number | null>,
     },
-  },
-  setup(props, { slots, attrs }) {
-    const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc } = useNuxtApp() as unknown as PluginsInjections
-    // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
-    const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, getLocale: $getLocale, pluralFunc: $pluralFunc } as unknown as TextHost
-    return () => renderI18nT(renderApi, host, props, slots as RenderSlots, attrs)
   },
 })
 </script>

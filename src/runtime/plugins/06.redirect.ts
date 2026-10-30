@@ -12,7 +12,7 @@ import { getLocaleCookieName, getLocaleCookieOptions, getPreferenceCookieName } 
 import { preferenceCounts, redirectLocale } from '@i18n-micro/utils/resolve-locale'
 import { appendResponseHeader, getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { applyTrailingSlash } from '../utils/trailing-slash'
-import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRuntimeConfig, useState } from '#imports'
+import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRouter, useRuntimeConfig, useState } from '#imports'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 
@@ -60,8 +60,10 @@ export default defineNuxtPlugin({
       if (vary.length) appendResponseHeader(event, 'Vary', vary.join(', '))
     }
 
+    // only a page speaks for the locale: not a 404, and under no_prefix `/de` is no prefix
+    const served = i18nConfig.strategy !== 'no_prefix' && useRouter().currentRoute.value.matched.length > 0
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
-    if (urlLocale && !(redirects && anyPath)) writeCookie(urlLocale)
+    if (urlLocale && served && !(redirects && anyPath)) writeCookie(urlLocale)
     // Under hashMode the locale lives in the hash and the hash cookie: `/` keeps its document URL.
     if (!redirects || i18nConfig.hashMode) return
 

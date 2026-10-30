@@ -52,7 +52,10 @@ describe('configForHost', () => {
 
   test('a host with nothing left to serve serves nothing, not other domains; a broken baseUrl is no host', () => {
     const none = {
-      locales: [{ code: 'de', baseUrl: 'https://example.de', disabled: true }, { code: 'en', baseUrl: 'https://example.com' }],
+      locales: [
+        { code: 'de', baseUrl: 'https://example.de', disabled: true },
+        { code: 'en', baseUrl: 'https://example.com' },
+      ],
       defaultLocale: 'de',
     } as ModuleOptionsExtend
     const hosted = configForHost(none, 'example.de')

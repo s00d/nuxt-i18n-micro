@@ -395,9 +395,10 @@ describe('journey: basic app', () => {
     await goto('/news/2?search=vue&page=1#top', { waitUntil: 'hydration' })
     await expect(page).toHaveURL(/\/news\/2\?search=vue&page=1#top/)
     for (const [cls, re] of [
-      ['.locale-de', /\/de\/news\/2\?search=vue&page=1#top/],
-      ['.locale-ru', /\/ru\/news\/2\?search=vue&page=1#top/],
-      ['.locale-en', /\/news\/2\?search=vue&page=1#top/],
+      // the page's `$setI18nRouteParams` from the server survives hydration, so the switcher uses the translated slug
+      ['.locale-de', /\/de\/news\/2-zwei\?search=vue&page=1#top/],
+      ['.locale-ru', /\/ru\/news\/2-dva\?search=vue&page=1#top/],
+      ['.locale-en', /\/news\/2-two\?search=vue&page=1#top/],
     ] as const) {
       await page.click(cls)
       await expect(page).toHaveURL(re)

@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
 import { mergeDefineI18nRouteMeta } from '../src/unplugin-define-i18n-route'
-import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath, parentPagePaths, resolveRootDir } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
 
@@ -163,5 +163,25 @@ describe('mergeDefineI18nRouteMeta', () => {
   it('keeps the page entry when the config names another page', () => {
     const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
     expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })
+  })
+})
+
+describe('page paths across layers and groups', () => {
+  it('drops route group folders, which are not in the URL', () => {
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/cart.vue', '/project')).toBe('cart')
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/index.vue', '/project')).toBe('/')
+    expect(pageFilePathToRoutePath('/project/pages/(a)/blog/(b)/post.vue', '/project')).toBe('blog/post')
+  })
+
+  it('picks the root the file is beneath, not one that shares its prefix', () => {
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer', '/app/layer-2'])).toBe('/app/layer-2')
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer'])).toBeUndefined()
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app', '/app/layer'])).toBe('/app/layer')
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app/layer/'])).toBe('/app/layer/')
+  })
+
+  it('parent paths follow both rules and leave index pages out', () => {
+    const files = ['/app/layer-2/pages/(shop)/blog.vue', '/app/layer-2/pages/blog/index.vue']
+    expect(parentPagePaths(files, ['/app/layer', '/app/layer-2'])).toEqual(['blog'])
   })
 })

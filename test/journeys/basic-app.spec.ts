@@ -428,16 +428,16 @@ describe('journey: basic app', () => {
     }
     expect((await request.get('/de/unlocalized')).status()).toBe(404)
 
-    // step 7: routeRules redirects → /old-product → /page, /de/old-product stays, /ru/old-product → /ru/page
+    // step 7: routeRules redirects without a page → /old-product → /page, /ru/old-product → /ru/page; the rule has no /de copy, so a 404
     // was: basic › redirect from /old-product to /products
     for (const [from, to] of [
       ['/old-product', '/page'],
-      ['/de/old-product', '/de/old-product'],
       ['/ru/old-product', '/ru/page'],
     ]) {
       await goto(from!, { waitUntil: 'hydration' })
       await expect(page).toHaveURL(to!)
     }
+    expect((await request.get('/de/old-product')).status()).toBe(404)
 
     // step 8: /fr/inventory → fr text; #link-en → /inventory en text, no flicker to the raw key, no missing-key warning
     // was: basic › repro #210: component-local $defineI18nRoute flickers to key

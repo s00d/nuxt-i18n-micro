@@ -209,8 +209,8 @@ export class I18nPathStrategy {
     for (const form of forms) {
       const route = this.probe(form)
       const name = named(route?.name) ?? ''
-      if (!name) continue
-      if (form === path && unlocalized.has(name)) return UNLOCALIZED
+      // an unnamed record (the stub of a `routeRules` redirect) is no localized page
+      if (form === path && (name ? unlocalized.has(name) : route?.matched?.length)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
       const { locale: urlLocale, ...params } = route!.params ?? {}

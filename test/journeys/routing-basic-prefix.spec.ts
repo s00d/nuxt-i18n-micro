@@ -33,6 +33,23 @@ describe('journey: routing variants — basic under prefix', () => {
     }
   })
 
+  test('a routeRules redirect without a page is not localized', async ({ page, goto, request }) => {
+    // step 1: GET /old-product → the rule answers, no /en/old-product in between
+    const res = await request.get('/old-product', { maxRedirects: 0 })
+    expect(res.status()).toBeGreaterThanOrEqual(300)
+    expect(res.status()).toBeLessThan(400)
+    expect(res.headers().location).toBe('/page')
+
+    // step 2: its stub has no prefixed copies
+    expect((await request.get('/en/old-product')).status()).toBe(404)
+    expect((await request.get('/de/old-product')).status()).toBe(404)
+
+    // step 3: a client navigation to it follows the rule too
+    await goto('/en', { waitUntil: 'hydration' })
+    await page.evaluate(() => (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } } }).useNuxtApp().$router.push('/old-product'))
+    await expect(page).toHaveURL('/en/page')
+  })
+
   test('activity slug tree under /en', async ({ page, goto }) => {
     // step 1: walk the en slug tree under /en → hrefs and child pages
     // was: locale-slug-undefault › Test Locale Path (the de half is the same as basic's de walk, see basic-app)

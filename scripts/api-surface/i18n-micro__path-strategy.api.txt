@@ -6,6 +6,7 @@ class I18nPathStrategy
 member I18nPathStrategy.baseOf: private (name: string) => string | null
 member I18nPathStrategy.codes: private Set<string>
 member I18nPathStrategy.ctx: private PathStrategyContext
+member I18nPathStrategy.disabledCodes: private Set<string>
 member I18nPathStrategy.external: private (locale: string, route: Target) => string | null
 member I18nPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member I18nPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
@@ -86,6 +87,7 @@ class Strategy
 member Strategy.baseOf: private (name: string) => string | null
 member Strategy.codes: private Set<string>
 member Strategy.ctx: private PathStrategyContext
+member Strategy.disabledCodes: private Set<string>
 member Strategy.external: private (locale: string, route: Target) => string | null
 member Strategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member Strategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null

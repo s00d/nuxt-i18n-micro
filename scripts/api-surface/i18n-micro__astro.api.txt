@@ -68,7 +68,7 @@ function createAstroRouterAdapter: (locales: Locale[], defaultLocale: string, ge
 function createI18n: (options: AstroI18nOptions) => AstroI18n
 function createI18nMiddleware: (options: I18nMiddlewareOptions) => MiddlewareHandler
 const defaultPlural: PluralFunc
-function detectLocale: (pathname: string, cookies: { get: (name: string) => { value: string; } | undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string | null, routingStrategy?: I18nRoutingStrategy | null) => string
+function detectLocale: (pathname: string, cookies: { get: (name: string) => { value: string; } | undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string | null, routingStrategy?: I18nRoutingStrategy | null, autoDetect?: boolean) => string
 class FormatService
 member FormatService.clearCache: () => void
 member FormatService.dateCache: private any
@@ -163,6 +163,7 @@ interface I18nMiddlewareOptions
 member I18nMiddlewareOptions.autoDetect?: boolean | undefined
 member I18nMiddlewareOptions.defaultLocale: string
 member I18nMiddlewareOptions.i18n: AstroI18n
+member I18nMiddlewareOptions.localeCookie?: string | null | undefined
 member I18nMiddlewareOptions.localeObjects?: Locale[] | undefined
 member I18nMiddlewareOptions.locales: string[]
 member I18nMiddlewareOptions.redirectToDefault?: boolean | undefined

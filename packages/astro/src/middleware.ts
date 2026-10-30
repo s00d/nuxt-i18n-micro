@@ -62,7 +62,7 @@ function urlLocale(pathname: string, defaultLocale: string, locales: string[], s
  */
 export function detectLocale(
   pathname: string,
-  cookies: CookieReader,
+  cookies: { get: (name: string) => { value: string } | undefined },
   headers: Headers,
   defaultLocale: string,
   locales: string[],

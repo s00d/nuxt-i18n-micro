@@ -1,5 +1,8 @@
 import MyModule from '../../../src/module'
 
+// TRANSLATION_PAYLOADS=source: the `translation-watcher-source-tmp` dev recipe (payloads merged by the API route)
+const sourcePayloads = process.env.TRANSLATION_PAYLOADS === 'source'
+
 export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
@@ -19,6 +22,7 @@ export default defineNuxtConfig({
     disableWatcher: true,
     hmr: true,
     meta: false,
+    ...(sourcePayloads ? { translationPayloads: { mode: 'source' as const } } : {}),
     routesLocaleLinks: {
       'about-alias': 'about',
     },

@@ -15,11 +15,14 @@
     <div id="locale-switcher">
       <i18n-switcher />
     </div>
+
+    <p id="locale">{{ $getLocale() }}</p>
+    <button id="switch-de" @click="$switchLocale('de')">Switch to German</button>
   </div>
 </template>
 
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $t } = useNuxtApp()
+const { $t, $getLocale, $switchLocale } = useNuxtApp()
 </script>

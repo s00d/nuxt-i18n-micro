@@ -8,13 +8,18 @@ const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
 /** Workspace-root module src (fixtures import ../../../src/module). Belt for older untestutils without root-src hash. */
 const moduleSrc = fileURLToPath(new URL('../src', import.meta.url))
 
-function app(id: string, dir = id, env?: Record<string, string>) {
+/**
+ * One production build of `test/fixtures/<dir>`. `env` reaches nuxt.config at build time and the server at start;
+ * `nuxtConfig` is a defu override (arrays concatenate, so never pass `locales` here).
+ */
+function app(id: string, dir = id, env?: Record<string, string>, nuxtConfig?: Record<string, unknown>) {
   const root = resolve(fixtures, dir)
   return nuxt({
     id,
     root,
     run: 'server',
     env,
+    nuxtConfig,
     hashInputs: [root, moduleSrc],
   })
 }
@@ -25,28 +30,27 @@ function app(id: string, dir = id, env?: Record<string, string>) {
  */
 export const translationWatcherTmpRoots = {
   watcher: tmpFixture('translation-watcher'),
-  source: tmpFixture('translation-watcher-source'),
+  source: tmpFixture('translation-watcher', 'source'),
 }
 
 export const recipes = defineRecipes(
   {
     basic: app('basic'),
+    // basic under prefix: the default locale gets a prefix too
+    'basic-prefix': app('basic-prefix', 'basic', undefined, { i18n: { strategy: 'prefix' } }),
     named: app('named'),
-    undefault: app('undefault'),
     'async-components': app('async-components'),
-    'baseurl-prefix': app('baseurl-prefix'),
     content: app('content'),
     'custom-regex': app('custom-regex'),
     'define-i18n-route': app('define-i18n-route'),
     'fallback-locale': app('fallback-locale'),
-    hashmode: app('hashmode'),
     hook: app('hook'),
     layer: app('layer'),
     'layout-switch': app('layout-switch'),
     n3: app('n3'),
     'nuxt-seo': app('nuxt-seo'),
     'pages-false': app('pages-false'),
-    'pages-false-no-prefix': app('pages-false-no-prefix'),
+    'pages-false-no-prefix': app('pages-false-no-prefix', 'pages-false', { STRATEGY: 'no_prefix' }),
     redirect: app('redirect'),
     'seo-og-locale-format': app('seo-og-locale-format'),
     seo: app('seo'),
@@ -87,6 +91,9 @@ export const recipes = defineRecipes(
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',
     }),
+    // global URL shapes: each would break every other journey's URLs, so each is its own build
+    'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
+    'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
 
     'cookie-default': app('cookie-default', 'cookie'),
 
@@ -110,6 +117,7 @@ export const recipes = defineRecipes(
       id: 'translation-watcher-source-tmp',
       root: translationWatcherTmpRoots.source,
       run: 'dev',
+      env: { TRANSLATION_PAYLOADS: 'source' },
       hashInputs: [translationWatcherTmpRoots.source, moduleSrc],
     }),
   },

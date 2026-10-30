@@ -16,16 +16,18 @@ export function tmpFixtureEnvKey(name: string): string {
  * Copy `test/fixtures/<name>` to a fresh temp dir so a spec can edit files without
  * touching the repo tree. The first call in a process tree creates the copy and
  * stores its path in env; later calls (vitest forks re-import test/recipes.ts) reuse it.
- * The creating process removes the copy on exit.
+ * The creating process removes the copy on exit. `variant` gives one fixture several
+ * independent copies (two dev servers that patch the same files).
  */
-export function tmpFixture(name: string): string {
-  const key = tmpFixtureEnvKey(name)
+export function tmpFixture(name: string, variant?: string): string {
+  const id = variant ? `${name}-${variant}` : name
+  const key = tmpFixtureEnvKey(id)
   const existing = process.env[key]
   if (existing && existsSync(existing)) return existing
 
   const source = resolve(fixturesDir, name)
-  const root = mkdtempSync(join(tmpdir(), `i18n-fixture-${name}-`))
-  // dereference: translation-watcher-source/pages is a relative symlink that would dangle in the copy
+  const root = mkdtempSync(join(tmpdir(), `i18n-fixture-${id}-`))
+  // dereference: a relative symlink in a fixture would dangle in the copy
   cpSync(source, root, { recursive: true, dereference: true, filter: (path) => !SKIP.has(basename(path)) })
   absolutizeConfigImports(source, root)
   linkNodeModules(source, root)

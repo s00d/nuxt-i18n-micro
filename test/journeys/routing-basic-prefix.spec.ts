@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'untestutils/vitest'
 import { enActivity, walkActivity } from '../helpers/journeys-a.ts'
 
-// J4 undefault: prefix strategy, the default locale has a prefix too.
-describe('journey: routing variants — undefault (prefix)', () => {
-  test.override({ harness: 'undefault' })
+// J4 basic-prefix: the basic fixture under the prefix strategy, the default locale has a prefix too.
+describe('journey: routing variants — basic under prefix', () => {
+  test.override({ harness: 'basic-prefix' })
 
   test('global locale routes, unlocalized page, routesLocaleLinks', async ({ page, goto }) => {
-    // step 1: open /page2 → redirected to /en/custom-page2-en; #unlocalized → /unlocalized; #link-en → back
+    // step 1: open /page2 → redirected to /en/custom-page2-en; #unlocalized → /unlocalized; #link-page2-en → back
     // was: undefault › test redirection and link clicks in English
     await goto('/page2', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/en/custom-page2-en')
     await page.click('#unlocalized')
     await expect(page).toHaveURL('/unlocalized')
-    await page.click('#link-en')
+    await page.click('#link-page2-en')
     await expect(page).toHaveURL('/en/custom-page2-en')
 
     // step 2: the same for de
@@ -21,7 +21,7 @@ describe('journey: routing variants — undefault (prefix)', () => {
     await expect(page).toHaveURL('/de/custom-page2-de')
     await page.click('#unlocalized')
     await expect(page).toHaveURL('/unlocalized')
-    await page.click('#link-de')
+    await page.click('#link-page2-de')
     await expect(page).toHaveURL('/de/custom-page2-de')
 
     // step 3: post section page per locale → routesLocaleLinks reads post-id translations

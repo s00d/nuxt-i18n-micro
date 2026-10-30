@@ -1304,12 +1304,6 @@ importers:
         specifier: 'catalog:'
         version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
 
-  test/fixtures/hashmode:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
-
   test/fixtures/hook:
     dependencies:
       nuxt:
@@ -1390,8 +1384,6 @@ importers:
 
   test/fixtures/pages-false: {}
 
-  test/fixtures/pages-false-no-prefix: {}
-
   test/fixtures/plain-nuxt:
     dependencies:
       nuxt:
@@ -1419,14 +1411,6 @@ importers:
         version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
 
   test/fixtures/translation-watcher: {}
-
-  test/fixtures/translation-watcher-source: {}
-
-  test/fixtures/undefault:
-    dependencies:
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.2(5fiqbebkm3hpmt3u5aaq6qx52q)
 
   test/fixtures/use-i18n-head:
     dependencies:

@@ -97,11 +97,11 @@ catalogs:
       specifier: ^7.7.1
       version: 7.8.0
     '@untestutils/nuxt':
-      specifier: ^0.8.0
-      version: 0.8.0
+      specifier: ^0.8.1
+      version: 0.8.1
     '@untestutils/perf':
-      specifier: ^0.8.0
-      version: 0.8.0
+      specifier: ^0.8.1
+      version: 0.8.1
     '@vitejs/plugin-react':
       specifier: ^6.1.1
       version: 6.1.1
@@ -211,8 +211,8 @@ catalogs:
       specifier: ^1.16.1 || ^2.0.0 || ^3.4.0
       version: 3.4.0
     untestutils:
-      specifier: ^0.8.0
-      version: 0.8.0
+      specifier: ^0.8.1
+      version: 0.8.1
     use-sync-external-store:
       specifier: ^1.7.0
       version: 1.7.0
@@ -366,10 +366,10 @@ importers:
         version: 22.20.4
       '@untestutils/nuxt':
         specifier: 'catalog:'
-        version: 0.8.0(vmnr4aadlm7ghrq5pgigbtgmxu)
+        version: 0.8.1(vmnr4aadlm7ghrq5pgigbtgmxu)
       '@untestutils/perf':
         specifier: 'catalog:'
-        version: 0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
+        version: 0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
       '@vue/devtools-api':
         specifier: 'catalog:'
         version: 8.2.1
@@ -387,7 +387,7 @@ importers:
         version: 6.0.3
       untestutils:
         specifier: 'catalog:'
-        version: 0.8.0(@playwright/test@1.63.0)(@untestutils/ai@0.8.0(playwright-core@1.63.0))(@untestutils/nuxt@0.8.0(vmnr4aadlm7ghrq5pgigbtgmxu))(@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+        version: 0.8.1(@playwright/test@1.63.0)(@untestutils/ai@0.8.1(playwright-core@1.63.0))(@untestutils/nuxt@0.8.1(vmnr4aadlm7ghrq5pgigbtgmxu))(@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       vitest:
         specifier: 'catalog:'
         version: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -1223,7 +1223,7 @@ importers:
         version: 7.8.0
       '@untestutils/perf':
         specifier: 'catalog:'
-        version: 0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
+        version: 0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
       citty:
         specifier: 'catalog:'
         version: 0.2.2
@@ -1244,7 +1244,7 @@ importers:
         version: 6.0.3
       untestutils:
         specifier: 'catalog:'
-        version: 0.8.0(@playwright/test@1.63.0)(@untestutils/ai@0.8.0(playwright-core@1.63.0))(@untestutils/nuxt@0.8.0(mjxdwnm74thosnkwtfgw7kgkqi))(@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+        version: 0.8.1(@playwright/test@1.63.0)(@untestutils/ai@0.8.1(playwright-core@1.63.0))(@untestutils/nuxt@0.8.1(mjxdwnm74thosnkwtfgw7kgkqi))(@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       vitest:
         specifier: 'catalog:'
         version: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -6465,8 +6465,8 @@ packages:
     peerDependencies:
       webpack: ^5
 
-  '@untestutils/ai@0.8.0':
-    resolution: {integrity: sha512-lyLibRq/MmsjmO89RXTp4Yq8lzexzUkk6xYYIfVsAHTQVeKiT1LrLb13rbBqOHYmf+i/t2+0DUlvtrdw3e/ZaQ==}
+  '@untestutils/ai@0.8.1':
+    resolution: {integrity: sha512-UToBZO/fuyUDg+383xkRi0NFpWCdz6oq97rqPw9i/rIrDVjZItYYrdxg+N+cFXigyJCpFMJs3rzIpPMRpatd8A==}
     engines: {node: '>=20'}
     peerDependencies:
       '@ai-sdk/anthropic': ^4.0.57
@@ -6489,17 +6489,17 @@ packages:
       playwright-core:
         optional: true
 
-  '@untestutils/cli@0.8.0':
-    resolution: {integrity: sha512-e0zzEpWKBaR5e/TKnyLpuGGhfAUHX12sE6OegRalo/QI/GfhkGlC8IxC9vAufP24JDnR2dmzUjkgmYh8w01DMw==}
+  '@untestutils/cli@0.8.1':
+    resolution: {integrity: sha512-kecr3HViHXmgM6w/67h7fuuWVYqreyRC8wv8A2UkVTrl1qSVl+9JjdrSbF3WV6omFYhmRW+Em4WSufR+gqzdSQ==}
     engines: {node: '>=20'}
     hasBin: true
 
-  '@untestutils/core@0.8.0':
-    resolution: {integrity: sha512-TZTqdsRk3i28f2E+Bhz1XqDExC9Ri+K9L6TDkAA/whyg2E9LUaQvwZ9kNXaYiGd01NxjQ6Sokpkt1g0RASVtDw==}
+  '@untestutils/core@0.8.1':
+    resolution: {integrity: sha512-cgJ9n5n7KHfCmXZSX8UPdkQinPle0Q0SzRlTl/pM9OeCwvXlPlUKZkaD6Jhem5pTPtJ6KA3ngyDVF3PSdyTXqg==}
     engines: {node: '>=20'}
 
-  '@untestutils/nuxt@0.8.0':
-    resolution: {integrity: sha512-CjHrFg2Gi9jEoEMuLzS8/QhYClBM3FJ3IqlbVmRY41dFLAYTiFg8o4Zfv8dITQFnmCwWeKl+ldBaOMBXquh1sw==}
+  '@untestutils/nuxt@0.8.1':
+    resolution: {integrity: sha512-AydkUnPHk4ofYOZbs+dAKJEX0um64coEc6ZnKt+pOQiYiIGXrJwoNn7INhVSOVPQH2tOxz09N21rKDnlX2N2xw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@nuxt/kit': 4.5.2
@@ -6527,8 +6527,8 @@ packages:
       vitest:
         optional: true
 
-  '@untestutils/perf@0.8.0':
-    resolution: {integrity: sha512-xGtxUOSOi6a5wgZZIBYlJ9IZzwQ+dsmJ+BHGDtNBz38qg85/yBbUWu1iWgOP04dQyDXnmBY+rFM96pNN5OwJaQ==}
+  '@untestutils/perf@0.8.1':
+    resolution: {integrity: sha512-hUcIjvD72hwICNHK4ti7n4PCpdGfeQaZQlygkhqbMwI+QcCPbxbEc+jjph0wc8j0BrX0kCcCCSwGfHsvZ8KrLQ==}
     engines: {node: '>=20'}
     peerDependencies:
       artillery: 2.0.34
@@ -6539,14 +6539,14 @@ packages:
       autocannon:
         optional: true
 
-  '@untestutils/playwright@0.8.0':
-    resolution: {integrity: sha512-hdPSe9tflNGEIpH+a6NpDeAxkkG8Njq58ubpOHnupO5zjGpyUhCa2DbU8aboWLOPYGZJCQm1rsSxaW8TNkX8qQ==}
+  '@untestutils/playwright@0.8.1':
+    resolution: {integrity: sha512-aXTVBnIRldU8uZBSH3FAuYqRC2I4g2ausuP9KHdJ2zWW/ZLDz5TIMVzI6OE2W69Y30NV9iWcUW6zH11uTlqlFA==}
     engines: {node: '>=20'}
     peerDependencies:
       '@playwright/test': ^1.63.0
 
-  '@untestutils/utils@0.8.0':
-    resolution: {integrity: sha512-4WdSuStw8dmz5faDsEELXOcupwKZZDGp8IUUMVxZuITntNgHHlefLndDbX5WvoE62/A/DyRVas4O0Z322KTNJg==}
+  '@untestutils/utils@0.8.1':
+    resolution: {integrity: sha512-uCypBZhYsnGqwLsbTxQ3paFCRqidYzKTjHdFEU7+Sb4GJ/B31HQfaHe5eve7vuJP/5fanSKf+SarHJ6NjLwtsw==}
     engines: {node: '>=20'}
     peerDependencies:
       playwright-core: ^1.63.0
@@ -6554,8 +6554,8 @@ packages:
       playwright-core:
         optional: true
 
-  '@untestutils/vitest@0.8.0':
-    resolution: {integrity: sha512-bWN1vkK9Rl32uEf6q7yN2vic/iHpc00N4BnhPkPI5dt0x4ig3SfV+UQBmGdIQILq2M7gf4Dayx3rwhJF8ohAbg==}
+  '@untestutils/vitest@0.8.1':
+    resolution: {integrity: sha512-Xbpoc6MND0CJU1D21YHjIPiYv1CyI92/iDPY/hFBRvqwcuhIJQf+K3wSn/fYuJ9ij2pif7iYuJbTXVU+Dze/2A==}
     engines: {node: '>=20'}
     peerDependencies:
       '@playwright/test': ^1.63.0
@@ -13023,24 +13023,24 @@ packages:
       uploadthing:
         optional: true
 
-  untestutils@0.8.0:
-    resolution: {integrity: sha512-c8DUI0SuelCC5o4JWKJ7FlonwrbSt++N5uo6FOt4KxeGK4zv6L4kFfePo19QGtqOdBswEQMP8OReOQgFM3Li6A==}
+  untestutils@0.8.1:
+    resolution: {integrity: sha512-B+xgqHb3UVmyv+9i1+IBX9BzpPAQ4/N7cpJPhJjbqpOiEhKQguK27QrlqXh55GwfPAxiesXj1xrbChwERqfPSA==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
       '@playwright/test': ^1.63.0
-      '@untestutils/ai': 0.8.0
-      '@untestutils/astro': 0.8.0
-      '@untestutils/next': 0.8.0
-      '@untestutils/nuxt': 0.8.0
-      '@untestutils/perf': 0.8.0
-      '@untestutils/remix': 0.8.0
-      '@untestutils/solidstart': 0.8.0
-      '@untestutils/sveltekit': 0.8.0
-      '@untestutils/vite': 0.8.0
+      '@untestutils/ai': 0.8.1
+      '@untestutils/astro': 0.8.1
+      '@untestutils/next': 0.8.1
+      '@untestutils/nuxt': 0.8.1
+      '@untestutils/perf': 0.8.1
+      '@untestutils/remix': 0.8.1
+      '@untestutils/solidstart': 0.8.1
+      '@untestutils/sveltekit': 0.8.1
+      '@untestutils/vite': 0.8.1
       playwright-core: ^1.63.0
       vitest: ^4.0.0 || ^5.0.0
-      vitest-environment-untestutils: 0.8.0
+      vitest-environment-untestutils: 0.8.1
     peerDependenciesMeta:
       '@playwright/test':
         optional: true
@@ -21871,19 +21871,19 @@ snapshots:
       - unloader
       - vite
 
-  '@untestutils/ai@0.8.0(playwright-core@1.63.0)':
+  '@untestutils/ai@0.8.1(playwright-core@1.63.0)':
     dependencies:
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       pathe: 2.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
       playwright-core: 1.63.0
 
-  '@untestutils/cli@0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)':
+  '@untestutils/cli@0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)':
     dependencies:
-      '@untestutils/ai': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/core': 0.8.0
-      '@untestutils/perf': 0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
+      '@untestutils/ai': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/core': 0.8.1
+      '@untestutils/perf': 0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
       citty: 0.2.2
       consola: 3.4.2
       nypm: 0.6.10
@@ -21900,11 +21900,11 @@ snapshots:
       - autocannon
       - playwright-core
 
-  '@untestutils/cli@0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)':
+  '@untestutils/cli@0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)':
     dependencies:
-      '@untestutils/ai': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/core': 0.8.0
-      '@untestutils/perf': 0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
+      '@untestutils/ai': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/core': 0.8.1
+      '@untestutils/perf': 0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
       citty: 0.2.2
       consola: 3.4.2
       nypm: 0.6.10
@@ -21921,17 +21921,17 @@ snapshots:
       - autocannon
       - playwright-core
 
-  '@untestutils/core@0.8.0':
+  '@untestutils/core@0.8.1':
     dependencies:
       consola: 3.4.2
       ofetch: 1.5.1
       pathe: 2.0.3
 
-  '@untestutils/nuxt@0.8.0(mjxdwnm74thosnkwtfgw7kgkqi)':
+  '@untestutils/nuxt@0.8.1(mjxdwnm74thosnkwtfgw7kgkqi)':
     dependencies:
       '@nuxt/schema': 4.5.2
-      '@untestutils/core': 0.8.0
-      '@untestutils/vitest': 0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+      '@untestutils/core': 0.8.1
+      '@untestutils/vitest': 0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       '@vue/test-utils': 2.5.1(@vue/compiler-dom@3.5.43)(@vue/server-renderer@3.5.43)(vue@3.5.43(typescript@6.0.3))
       c12: 3.3.4(magicast@0.5.4)
       defu: 6.1.7
@@ -21974,11 +21974,11 @@ snapshots:
       - webpack
     optional: true
 
-  '@untestutils/nuxt@0.8.0(vmnr4aadlm7ghrq5pgigbtgmxu)':
+  '@untestutils/nuxt@0.8.1(vmnr4aadlm7ghrq5pgigbtgmxu)':
     dependencies:
       '@nuxt/schema': 4.5.2
-      '@untestutils/core': 0.8.0
-      '@untestutils/vitest': 0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+      '@untestutils/core': 0.8.1
+      '@untestutils/vitest': 0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       '@vue/test-utils': 2.5.1(@vue/compiler-dom@3.5.43)(@vue/server-renderer@3.5.43)(vue@3.5.43(typescript@6.0.3))
       c12: 3.3.4(magicast@0.5.4)
       defu: 6.1.7
@@ -22020,35 +22020,35 @@ snapshots:
       - vite
       - webpack
 
-  '@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)':
+  '@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)':
     dependencies:
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       pathe: 2.0.3
     optionalDependencies:
       artillery: 2.0.34(@types/node@22.20.4)(encoding@0.1.13)
       autocannon: 8.0.0
 
-  '@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)':
+  '@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)':
     dependencies:
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       pathe: 2.0.3
     optionalDependencies:
       artillery: 2.0.34(@types/node@26.6.3)(encoding@0.1.13)
       autocannon: 8.0.0
 
-  '@untestutils/playwright@0.8.0(@playwright/test@1.63.0)':
+  '@untestutils/playwright@0.8.1(@playwright/test@1.63.0)':
     dependencies:
       '@playwright/test': 1.63.0
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       pathe: 2.0.3
 
-  '@untestutils/utils@0.8.0(playwright-core@1.63.0)':
+  '@untestutils/utils@0.8.1(playwright-core@1.63.0)':
     optionalDependencies:
       playwright-core: 1.63.0
 
-  '@untestutils/vitest@0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))':
+  '@untestutils/vitest@0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))':
     dependencies:
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       defu: 6.1.7
       fake-indexeddb: 6.2.5
       local-pkg: 1.2.1
@@ -22059,9 +22059,9 @@ snapshots:
       playwright-core: 1.63.0
       vitest: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
-  '@untestutils/vitest@0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))':
+  '@untestutils/vitest@0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))':
     dependencies:
-      '@untestutils/core': 0.8.0
+      '@untestutils/core': 0.8.1
       defu: 6.1.7
       fake-indexeddb: 6.2.5
       local-pkg: 1.2.1
@@ -32124,18 +32124,18 @@ snapshots:
       db0: 0.4.1
       ioredis: 5.11.1
 
-  untestutils@0.8.0(@playwright/test@1.63.0)(@untestutils/ai@0.8.0(playwright-core@1.63.0))(@untestutils/nuxt@0.8.0(mjxdwnm74thosnkwtfgw7kgkqi))(@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
+  untestutils@0.8.1(@playwright/test@1.63.0)(@untestutils/ai@0.8.1(playwright-core@1.63.0))(@untestutils/nuxt@0.8.1(mjxdwnm74thosnkwtfgw7kgkqi))(@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
     dependencies:
-      '@untestutils/cli': 0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)
-      '@untestutils/core': 0.8.0
-      '@untestutils/playwright': 0.8.0(@playwright/test@1.63.0)
-      '@untestutils/utils': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/vitest': 0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+      '@untestutils/cli': 0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)
+      '@untestutils/core': 0.8.1
+      '@untestutils/playwright': 0.8.1(@playwright/test@1.63.0)
+      '@untestutils/utils': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/vitest': 0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
     optionalDependencies:
       '@playwright/test': 1.63.0
-      '@untestutils/ai': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/nuxt': 0.8.0(mjxdwnm74thosnkwtfgw7kgkqi)
-      '@untestutils/perf': 0.8.0(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
+      '@untestutils/ai': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/nuxt': 0.8.1(mjxdwnm74thosnkwtfgw7kgkqi)
+      '@untestutils/perf': 0.8.1(artillery@2.0.34(@types/node@26.6.3)(encoding@0.1.13))(autocannon@8.0.0)
       playwright-core: 1.63.0
       vitest: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@26.6.3)(jsdom@30.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
     transitivePeerDependencies:
@@ -32149,18 +32149,18 @@ snapshots:
       - happy-dom
       - jsdom
 
-  untestutils@0.8.0(@playwright/test@1.63.0)(@untestutils/ai@0.8.0(playwright-core@1.63.0))(@untestutils/nuxt@0.8.0(vmnr4aadlm7ghrq5pgigbtgmxu))(@untestutils/perf@0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
+  untestutils@0.8.1(@playwright/test@1.63.0)(@untestutils/ai@0.8.1(playwright-core@1.63.0))(@untestutils/nuxt@0.8.1(vmnr4aadlm7ghrq5pgigbtgmxu))(@untestutils/perf@0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0))(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
     dependencies:
-      '@untestutils/cli': 0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)
-      '@untestutils/core': 0.8.0
-      '@untestutils/playwright': 0.8.0(@playwright/test@1.63.0)
-      '@untestutils/utils': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/vitest': 0.8.0(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+      '@untestutils/cli': 0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)(playwright-core@1.63.0)
+      '@untestutils/core': 0.8.1
+      '@untestutils/playwright': 0.8.1(@playwright/test@1.63.0)
+      '@untestutils/utils': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/vitest': 0.8.1(@playwright/test@1.63.0)(jsdom@30.1.1)(playwright-core@1.63.0)(vitest@5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
     optionalDependencies:
       '@playwright/test': 1.63.0
-      '@untestutils/ai': 0.8.0(playwright-core@1.63.0)
-      '@untestutils/nuxt': 0.8.0(vmnr4aadlm7ghrq5pgigbtgmxu)
-      '@untestutils/perf': 0.8.0(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
+      '@untestutils/ai': 0.8.1(playwright-core@1.63.0)
+      '@untestutils/nuxt': 0.8.1(vmnr4aadlm7ghrq5pgigbtgmxu)
+      '@untestutils/perf': 0.8.1(artillery@2.0.34(@types/node@22.20.4)(encoding@0.1.13))(autocannon@8.0.0)
       playwright-core: 1.63.0
       vitest: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@22.20.4)(jsdom@30.1.1)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
     transitivePeerDependencies:

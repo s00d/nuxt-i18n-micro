@@ -151,7 +151,11 @@ describe('journey: basic app', () => {
     await expect(page.locator('#translation')).toHaveText('Page example in en')
     await expect(page.locator('#computed-ts')).toHaveText('Page example in en')
     await expect(page.locator('#computed-t')).toHaveText('example en')
-    for (const [link, url] of [['#link-de', '/de/page'], ['#link-en', '/page'], ['#link-de', '/de/page']]) {
+    for (const [link, url] of [
+      ['#link-de', '/de/page'],
+      ['#link-en', '/page'],
+      ['#link-de', '/de/page'],
+    ]) {
       await page.click(link!)
       await expect(page).toHaveURL(url!)
     }
@@ -307,7 +311,11 @@ describe('journey: basic app', () => {
       await expect(page.locator('#current-locale')).toHaveText('en')
       await expect(page.locator('#current-flag')).toHaveText('🇬🇧')
       await expect(page.locator('#current-currency')).toHaveText('GBP')
-      for (const [code, flag, currency] of [['en', '🇬🇧', 'GBP'], ['de', '🇩🇪', 'EUR'], ['ru', '🇷🇺', 'RUB']]) {
+      for (const [code, flag, currency] of [
+        ['en', '🇬🇧', 'GBP'],
+        ['de', '🇩🇪', 'EUR'],
+        ['ru', '🇷🇺', 'RUB'],
+      ]) {
         const li = page.locator(`#locale-list li[data-code="${code}"]`)
         await expect(li).toHaveAttribute('data-flag', flag!)
         await expect(li).toHaveAttribute('data-currency', currency!)
@@ -332,7 +340,11 @@ describe('journey: basic app', () => {
     await goto('/news/1', { waitUntil: 'hydration' })
     await page.click('.link-news-4')
     await expect(page).toHaveURL('/news/4')
-    for (const [cls, url] of [['.locale-en', '/news/4'], ['.locale-ru', '/ru/news/4'], ['.locale-de', '/de/news/4']]) {
+    for (const [cls, url] of [
+      ['.locale-en', '/news/4'],
+      ['.locale-ru', '/ru/news/4'],
+      ['.locale-de', '/de/news/4'],
+    ]) {
       await page.click(cls!)
       await expect(page).toHaveURL(url!)
     }
@@ -345,7 +357,11 @@ describe('journey: basic app', () => {
     await page.click('.link-news-1')
     await expect(page).toHaveURL('/news/1')
     await goto('/articles/1', { waitUntil: 'hydration' })
-    for (const [cls, url] of [['.locale-en', '/articles/1'], ['.locale-ru', '/ru/articles/1'], ['.locale-de', '/de/articles/1']]) {
+    for (const [cls, url] of [
+      ['.locale-en', '/articles/1'],
+      ['.locale-ru', '/ru/articles/1'],
+      ['.locale-de', '/de/articles/1'],
+    ]) {
       await page.click(cls!)
       await expect(page).toHaveURL(url!)
     }
@@ -361,7 +377,11 @@ describe('journey: basic app', () => {
     await expect(page).toHaveURL('/news/3?sort=date')
     await goto('/news/2?search=vue&page=1#top', { waitUntil: 'hydration' })
     await expect(page).toHaveURL(/\/news\/2\?search=vue&page=1#top/)
-    for (const [cls, re] of [['.locale-de', /\/de\/news\/2\?search=vue&page=1#top/], ['.locale-ru', /\/ru\/news\/2\?search=vue&page=1#top/], ['.locale-en', /\/news\/2\?search=vue&page=1#top/]] as const) {
+    for (const [cls, re] of [
+      ['.locale-de', /\/de\/news\/2\?search=vue&page=1#top/],
+      ['.locale-ru', /\/ru\/news\/2\?search=vue&page=1#top/],
+      ['.locale-en', /\/news\/2\?search=vue&page=1#top/],
+    ] as const) {
       await page.click(cls)
       await expect(page).toHaveURL(re)
     }
@@ -394,7 +414,11 @@ describe('journey: basic app', () => {
 
     // step 7: routeRules redirects → /old-product → /page, /de/old-product stays, /ru/old-product → /ru/page
     // was: basic › redirect from /old-product to /products
-    for (const [from, to] of [['/old-product', '/page'], ['/de/old-product', '/de/old-product'], ['/ru/old-product', '/ru/page']]) {
+    for (const [from, to] of [
+      ['/old-product', '/page'],
+      ['/de/old-product', '/de/old-product'],
+      ['/ru/old-product', '/ru/page'],
+    ]) {
       await goto(from!, { waitUntil: 'hydration' })
       await expect(page).toHaveURL(to!)
     }
@@ -434,7 +458,15 @@ describe('journey: basic app', () => {
 
   test('per-page meta toggles', async ({ page, goto, baseURL }) => {
     const base = baseURL.replace(/\/$/, '')
-    const i18nTags = ['meta#i18n-og', 'meta#i18n-og-url', 'link#i18n-can', 'link#i18n-alternate-en_EN', 'link#i18n-alternate-de_DE', 'link#i18n-alternate-ru_RU', 'link#i18n-xd']
+    const i18nTags = [
+      'meta#i18n-og',
+      'meta#i18n-og-url',
+      'link#i18n-can',
+      'link#i18n-alternate-en_EN',
+      'link#i18n-alternate-de_DE',
+      'link#i18n-alternate-ru_RU',
+      'link#i18n-xd',
+    ]
 
     // step 1: /disable-meta-all in en, de, fr → no i18n tags
     // was: basic › disable meta tags completely

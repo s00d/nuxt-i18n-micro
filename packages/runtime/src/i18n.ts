@@ -72,7 +72,8 @@ export class I18n extends BaseI18n {
   constructor(options: I18nOptions) {
     const { parent } = options
     super({
-      helper: parent ? new ForkHelper(parent.helper) : undefined,
+      // `storage`: a parent that is a fork detaches first, so its later writes land in the Map this fork reads
+      helper: parent ? new ForkHelper(parent.storage) : undefined,
       formatter: parent?.formatter,
       plural: options.plural,
       missingWarn: options.missingWarn,
@@ -116,6 +117,7 @@ export class I18n extends BaseI18n {
   /**
    * A cheap instance for one request or task: own locale, fallback and route, the same dictionaries,
    * formatters and rules. It sees writes to the parent until its first own write; its writes stay in it.
+   * Forking a fork counts as that fork's first write.
    */
   public fork(locale: string = this.getLocale()): this {
     const Instance = this.constructor as new (options: I18nOptions) => this
@@ -206,8 +208,10 @@ export class I18n extends BaseI18n {
   }
 
   // Only the active and the fallback locale can be read: preloading another one renders nothing.
+  // `ownStore`: the write landed in this instance, so its subscribers hear it, also inside a request of `run`.
   protected override onTranslationsChanged(locale?: string): void {
-    if (locale === undefined || locale === this.store.getLocale() || locale === this.store.getFallbackLocale()) this.store.notify()
+    const { ownStore } = this
+    if (locale === undefined || locale === ownStore.getLocale() || locale === ownStore.getFallbackLocale()) ownStore.notify()
   }
 }
 

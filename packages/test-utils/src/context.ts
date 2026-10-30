@@ -56,8 +56,8 @@ function normalizePathInput(to: unknown): string {
     return bare.startsWith('/') ? bare : `/${bare}`
   }
   if (!to || typeof to !== 'object') return '/'
-  const { path, name } = to as { path?: string; name?: string | symbol | null }
-  const target = path || (name === null || name === undefined ? '' : String(name))
+  const { path, name } = to as { path?: unknown; name?: string | symbol | null }
+  const target = (typeof path === 'string' && path) || (name === null || name === undefined ? '' : String(name))
   if (!target) return '/'
   return target.startsWith('/') ? target : `/${target}`
 }

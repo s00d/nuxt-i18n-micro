@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { listTranslationFiles, loadTranslationDir, loadTranslationDirAsync } from '../src/load-dir'
+import { isInsideDir, listTranslationFiles, loadTranslationDir, loadTranslationDirAsync } from '../src/load-dir'
 
 let dir: string
 const write = (file: string, data: string) => {
@@ -101,5 +101,41 @@ describe('listTranslationFiles', () => {
     symlinkSync(join(dir, 'loop.json'), join(dir, 'loop.json'))
     expect(listTranslationFiles(dir).map((file) => file.relativePath)).toEqual(['a.json', 'z.json'])
     expect(error.mock.calls[0]![0]).toContain('loop.json')
+  })
+})
+
+describe('a directory that cannot be read', () => {
+  test('costs its own files only, and the rest of the walk goes on', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    write('a/en.json', '{}')
+    write('b/en.json', '{}')
+    write('c/en.json', '{}')
+    chmodSync(join(dir, 'b'), 0o000)
+    try {
+      expect(listTranslationFiles(dir).map((file) => file.relativePath)).toEqual(['a/en.json', 'c/en.json'])
+      expect(error).toHaveBeenCalled()
+    } finally {
+      chmodSync(join(dir, 'b'), 0o755)
+    }
+  })
+})
+
+test('absolutePath is absolute for a relative directory too', () => {
+  write('en.json', '{}')
+  const [file] = listTranslationFiles(relative(process.cwd(), dir))
+  expect(file!.absolutePath).toBe(join(dir, 'en.json'))
+  expect(file!.relativePath).toBe('en.json')
+})
+
+describe('isInsideDir', () => {
+  test.each([
+    ['/app/locales/en.json', '/app/locales', true],
+    ['/app/locales/pages/a/en.json', '/app/locales/', true],
+    ['/app/locales-old/en.json', '/app/locales', false],
+    ['/app/locales', '/app/locales', false],
+    ['C:/app/locales/en.json', 'C:\\app\\locales', true],
+    ['C:\\app\\locales-old\\en.json', 'C:/app/locales', false],
+  ])('%s in %s: %s', (file, folder, inside) => {
+    expect(isInsideDir(file, folder)).toBe(inside)
   })
 })

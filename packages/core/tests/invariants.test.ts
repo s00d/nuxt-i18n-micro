@@ -203,3 +203,17 @@ test('formatter caches are bounded: a loop over generated options cannot grow th
   expect(sizes()).toBeLessThanOrEqual(500)
   expect(service.formatNumber(1.5, 'en')).toBe('1.5')
 })
+
+describe('a shared formatter', () => {
+  test('survives clearCache of an instance it was only lent to', () => {
+    const formatter = new FormatService()
+    const clear = vi.spyOn(formatter, 'clearCache')
+    class Lent extends BaseI18n {
+      getLocale = () => 'en'
+      getFallbackLocale = () => 'en'
+      getRoute = () => 'index'
+    }
+    new Lent({ formatter }).clearCache()
+    expect(clear).not.toHaveBeenCalled()
+  })
+})

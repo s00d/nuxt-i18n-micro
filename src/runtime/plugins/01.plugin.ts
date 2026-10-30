@@ -29,7 +29,7 @@ import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRunti
 import { usePageHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, withDollarAliases, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, withDollarAliases, type I18nAppInternals, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
@@ -75,6 +75,7 @@ export default defineNuxtPlugin({
       missingWarn: i18nConfig.missingWarn ?? true,
       cacheMaxSize: i18nConfig.cacheMaxSize ?? 0,
       getCustomMissingHandler: () => customMissingHandler.value,
+      formatter: import.meta.server ? formatterFor(i18nConfig) : undefined,
       numberFormats: i18nConfig.numberFormats,
       datetimeFormats: i18nConfig.datetimeFormats,
       timeZone: i18nConfig.timeZone,

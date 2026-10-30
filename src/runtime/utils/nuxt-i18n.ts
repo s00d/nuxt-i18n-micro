@@ -1,5 +1,6 @@
 import {
   BaseI18n,
+  FormatService,
   isNoPrefixStrategy,
   mergeTranslationChunk,
   resolveCachedTranslation,
@@ -90,6 +91,19 @@ export interface NuxtI18nOptions extends BaseI18nOptions {
    * @default 0
    */
   cacheMaxSize?: number
+}
+
+const formatters = new WeakMap<ModuleOptionsExtend, FormatService>()
+
+/**
+ * The server's formatters. `Intl` objects are costly and depend only on what the service is built
+ * from, so requests share them: its input is this read-only config, and no request reaches it
+ * (`$tn` and `$td` pass the locale per call). One per resolved config: runtime overrides and hosts.
+ */
+export function formatterFor(config: ModuleOptionsExtend): FormatService {
+  let formatter = formatters.get(config)
+  if (!formatter) formatters.set(config, (formatter = new FormatService(config)))
+  return formatter
 }
 
 export class NuxtI18n extends BaseI18n {

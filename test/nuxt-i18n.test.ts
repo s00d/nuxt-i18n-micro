@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
-import { NuxtI18n, NuxtTranslationLoader, withDollarAliases } from '../src/runtime/utils/nuxt-i18n'
+import { formatterFor, NuxtI18n, NuxtTranslationLoader, withDollarAliases } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
@@ -258,6 +258,36 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(walked).toBeLessThan(10)
     expect(i18n.t('n0.n0.added')).toBe('v')
     expect(i18n.t('n1.n1.n1.n1')).toBe('v1')
+  })
+})
+
+describe('formatterFor: one FormatService per resolved config on the server', () => {
+  const config = { numberFormats: { en: { money: { style: 'currency', currency: 'USD' } } }, timeZone: 'UTC' } as never
+  const other = { numberFormats: { en: { money: { style: 'currency', currency: 'EUR' } } }, timeZone: 'Asia/Tokyo' } as never
+
+  test('two requests share Intl objects, and each still renders its own locale', () => {
+    const number = vi.spyOn(Intl, 'NumberFormat')
+    const request = (locale: string) => {
+      const i18n = new NuxtI18n({ formatter: formatterFor(config), missingWarn: false })
+      i18n.applySwitchContext(locale, 'index', {})
+      return i18n
+    }
+    const en = request('en')
+    const de = request('de')
+    expect(en.tn(1234.5)).toBe('1,234.5')
+    expect(de.tn(1234.5)).toBe('1.234,5')
+    expect(en.tn(1234.5)).toBe('1,234.5')
+    expect(request('en').tn(1)).toBe('1')
+    expect(number).toHaveBeenCalledTimes(2)
+    number.mockRestore()
+  })
+
+  test('a different config, a runtime override or another host, gets its own formats and zone', () => {
+    expect(formatterFor(config)).toBe(formatterFor(config))
+    expect(formatterFor(other)).not.toBe(formatterFor(config))
+    expect(formatterFor(other).formatNumber(1, 'en', formatterFor(other).resolveNumberFormat('en', 'money'))).toBe('€1.00')
+    expect(formatterFor(config).formatDate(0, 'en', { hour: 'numeric', hourCycle: 'h23' })).toBe('00')
+    expect(formatterFor(other).formatDate(0, 'en', { hour: 'numeric', hourCycle: 'h23' })).toBe('09')
   })
 })
 

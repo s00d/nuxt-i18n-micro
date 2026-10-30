@@ -205,7 +205,7 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 | `@i18n-micro/devtools-ui` | `createBridge` takes a `base` option; a failed save to a reachable endpoint throws and rolls back | pass `base` if you changed the plugin's `base` |
 | `@i18n-micro/devtools-ui` | `/save` accepts only an existing `.json` inside `translationDir` and no longer creates files | create new locale files yourself |
 | `@i18n-micro/core` (2.0.0) | `TranslationHelper` drops `setCache`, `getGeneration`, `lookupIn` (use `lookup(chunkKey, key)`); `BaseI18n` drops `ensurePinnedChunk`, `invalidatePin`; route chunks hold only their own keys and lookups fall through to the root chunk | only for custom adapters |
-| `@i18n-micro/utils` | subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | they were module internals |
+| `@i18n-micro/utils` (2.0.0) | subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | they were module internals |
 
 ## From v2 to v3
 

@@ -236,12 +236,10 @@ export default defineNuxtPlugin({
     }
 
     router.beforeEach(async (to, from) => {
-      // the first navigation opens the page the server rendered, unless it redirects: what that page set
-      // came in the payload, and a component that does not run here (server-only, `hydrate-never`) will not set it again
-      // No `matched` is the router's start location: a second navigation can begin while the app still hydrates
-      const opensRenderedPage = nuxtApp.isHydrating && !from.matched.length && !to.redirectedFrom
-      // `/news/1` to `/news/4` is one route name and another page: what the first one set does not carry over
-      if ((to.name !== from.name || to.path !== from.path) && !opensRenderedPage) {
+      // The path decides, not the name: `/news/1` to `/news/4` is one route name and another page, and Nuxt clears
+      // `name` on the current route before its hydrating replace. That replace keeps the path, so what the server page
+      // set stays: it came in the payload, and a component that does not run here (`hydrate-never`) will not set it again
+      if (to.path !== from.path) {
         i18nRouteParams.value = {}
         pageHead.value = null
       }

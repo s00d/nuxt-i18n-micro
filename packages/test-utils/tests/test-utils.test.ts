@@ -39,6 +39,14 @@ describe('i18nUtils', () => {
     expect(i18nUtils.tc('plural', {}, 'fallback')).toBe('fallback')
   })
 
+  test('mergeTranslations adds keys, resolveTranslations returns the active tree', () => {
+    expect(i18nUtils.resolveTranslations()).toEqual(mockTranslations)
+    i18nUtils.mergeTranslations({ newKey: 'New value' })
+    expect(i18nUtils.t('newKey')).toBe('New value')
+    expect(i18nUtils.t('greeting', { name: 'Ann' })).toBe('Hello, Ann!')
+    expect(i18nUtils.resolveTranslations()).toEqual({ ...mockTranslations, newKey: 'New value' })
+  })
+
   test('setTranslation replaces a value by key', () => {
     i18nUtils.setTranslation('aaa', { fff: 'ggg' })
     i18nUtils.setTranslation('nested', 'flat')
@@ -72,6 +80,11 @@ describe('i18nUtils', () => {
 
   test('getLocaleName returns the current locale name', () => {
     expect(i18nUtils.getLocaleName()).toBe('English')
+  })
+
+  test('has checks if a key exists', () => {
+    expect(i18nUtils.has('greeting')).toBe(true)
+    expect(i18nUtils.has('missing.key')).toBe(false)
   })
 
   test('has is scoped to the active route', async () => {
@@ -188,6 +201,19 @@ describe('isolation', () => {
     await setTranslationsFromJson('en', { other: 'x' })
     expect(i18n.$t('other')).toBe('x')
     expect(i18nUtils.has('other')).toBe(false)
+  })
+
+  test('two isolated contexts stay independent', () => {
+    const a = createI18nTestContext({ isolated: true, translations: { k: 'A' } })
+    const b = createI18nTestContext({ isolated: true, translations: { k: 'B' } })
+
+    expect(a.t('k')).toBe('A')
+    expect(b.t('k')).toBe('B')
+    a.mergeTranslations({ k: 'A2' })
+    a.setLocale('fr')
+    expect(a.t('k')).toBe('A2')
+    expect(b.t('k')).toBe('B')
+    expect(b.getLocale()).toBe('en')
   })
 
   test('setupNuxtI18nMock reseeds on beforeEach', () => {

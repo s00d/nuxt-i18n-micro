@@ -158,6 +158,45 @@ describe('React app over @i18n-micro/react', () => {
     expect([api.locale, text('name')]).toEqual(['es', 'null'])
   })
 
+  test('a change re-renders the page, a same value does not', () => {
+    const i18n = createI18n({ locale: 'en', fallbackLocale: 'en', messages: { en, fr } })
+    let renders = 0
+    const Page = () => {
+      renders++
+      return <p data-testid="title">{useI18n().t('welcome')}</p>
+    }
+    render(
+      <I18nProvider i18n={i18n}>
+        <Page />
+      </I18nProvider>,
+    )
+    const start = renders
+
+    // step 1: same values
+    act(() => {
+      i18n.locale = 'en'
+      i18n.fallbackLocale = 'en'
+    })
+    expect(renders).toBe(start)
+
+    // step 2: a new locale renders once more, with its text
+    act(() => {
+      i18n.locale = 'fr'
+    })
+    expect(renders).toBe(start + 1)
+    expect(screen.getByTestId('title').textContent).toBe('Bienvenue')
+
+    // step 3: the fallback locale and clearCache reach the page too
+    act(() => {
+      i18n.fallbackLocale = 'fr'
+    })
+    expect(renders).toBe(start + 2)
+    act(() => {
+      i18n.clearCache()
+    })
+    expect(renders).toBe(start + 3)
+  })
+
   test('useI18n options override the provider; nested providers keep outer contexts; a swapped instance is followed', () => {
     const i18n = createI18n({ locale: 'de', messages: { de } })
     let fromOptions

@@ -109,7 +109,9 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     context.locals.defaultLocale = defaultLocale
     context.locals.locales = localeObjects || locales.map((code) => ({ code }))
     context.locals.currentUrl = url
-    if (!strategy) return next()
+    // without a URL locale the page depends on the cookie and the header: shared caches must key on them
+    const varies = detect && urlLocale(pathname, defaultLocale, locales, strategy) === null
+    if (!strategy) return withVary(await next(), varies, localeCookie)
 
     const contextStrategy: I18nRoutingStrategy = {
       ...strategy,
@@ -117,6 +119,16 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       getRoute: () => ({ fullPath: url.pathname + url.search, query: Object.fromEntries(url.searchParams) }),
     }
     context.locals.routingStrategy = contextStrategy
-    return runWithRoutingStrategy(contextStrategy, () => next())
+    return withVary(await runWithRoutingStrategy(contextStrategy, () => next()), varies, localeCookie)
   }
+}
+
+function withVary(response: Response, varies: boolean, localeCookie: string | null): Response {
+  if (!varies) return response
+  try {
+    response.headers.append('Vary', localeCookie === null ? 'Accept-Language' : 'Cookie, Accept-Language')
+  } catch {
+    // immutable headers (a fetched Response): left as they are
+  }
+  return response
 }

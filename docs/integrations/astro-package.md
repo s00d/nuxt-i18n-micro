@@ -1680,7 +1680,7 @@ The middleware detects the locale with the same precedence as the Nuxt module (`
 3. **Accept-Language Header** - the browser's preference, `q` weights honoured (`en` matches a configured `en-US`)
 4. **Default Locale** - the configured default locale
 
-Cookie and header count only with `autoDetect: true` (the default) and are not read for prerendered pages. With or without a `routingStrategy`, the locale prefix is stripped from the route name (`/fr/blog/post` → locale `fr`, route `blog-post`); a strategy's `getLocaleFromPath` / `getRouteName` are used when it has them.
+Cookie and header count only with `autoDetect: true` (the default) and are not read for prerendered pages. A response whose locale they may pick (no locale prefix) carries `Vary: Cookie, Accept-Language`, so shared caches keep one copy per visitor language. With or without a `routingStrategy`, the locale prefix is stripped from the route name (`/fr/blog/post` → locale `fr`, route `blog-post`); a strategy's `getLocaleFromPath` / `getRouteName` are used when it has them.
 
 ### `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?, autoDetect?): string`
 

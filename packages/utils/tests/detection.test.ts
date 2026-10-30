@@ -134,6 +134,11 @@ describe('runtime overrides (F12)', () => {
     expect(applyI18nRuntimeOverrides({ ...base, strategy: 'no_prefix' }, { defaultLocale: 'de' }).defaultLocale).toBe('de')
   })
 
+  it('a default disabled at build is replaced without overrides too', () => {
+    const disabledDefault = { ...base, locales: [{ code: 'en', disabled: true }, { code: 'de' }] } as ModuleOptionsExtend
+    expect(applyI18nRuntimeOverrides(disabledDefault, {}, vi.fn()).defaultLocale).toBe('de')
+  })
+
   it('no overrides: the build config itself, inputs untouched', () => {
     expect(applyI18nRuntimeOverrides(base, {})).toBe(base)
     const before = JSON.stringify(base)

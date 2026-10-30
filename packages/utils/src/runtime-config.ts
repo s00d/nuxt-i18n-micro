@@ -74,23 +74,19 @@ export function i18nOverridesKey(overrides: RuntimeI18nOverrides): string {
   return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}`
 }
 
-const NO_OVERRIDES = i18nOverridesKey({})
-
 const defaultWarn = (message: string) => console.warn(message)
 
 /**
  * The build config with runtime overrides applied. Runtime `disabledLocales` add to the
  * build-time disabled ones (a locale disabled at build has no payloads to re-enable);
  * `defaultLocale` and `fallbackLocale` must be enabled. No env reads: see `readI18nEnvOverrides`.
- * Without overrides the build config itself is returned.
+ * When nothing changes, the build config itself is returned (a disabled build default is still replaced).
  */
 export function applyI18nRuntimeOverrides(
   baseConfig: ModuleOptionsExtend,
   requested: RuntimeI18nOverrides,
   warn: (message: string) => void = defaultWarn,
 ): ModuleOptionsExtend {
-  if (i18nOverridesKey(requested) === NO_OVERRIDES) return baseConfig
-
   if (requested.strategy && requested.strategy !== baseConfig.strategy) {
     warn(
       `[nuxt-i18n-micro] runtime i18n strategy override is ignored: ` +
@@ -110,6 +106,8 @@ export function applyI18nRuntimeOverrides(
   const enabledCodes = new Set(locales.filter((locale) => !locale.disabled).map((locale) => locale.code))
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
+  const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale
+  if (same && locales.every((locale, i) => locale === baseConfig.locales?.[i])) return baseConfig
   return { ...baseConfig, locales, defaultLocale, fallbackLocale }
 }
 

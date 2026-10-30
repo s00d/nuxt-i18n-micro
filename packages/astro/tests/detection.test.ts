@@ -16,11 +16,14 @@ function request(path: string, { cookies = {} as Record<string, string>, headers
   }
 }
 
+const vary: { last: string | null } = { last: null }
+
 async function run(path: string, init: Parameters<typeof request>[1] = {}, options: Record<string, unknown> = {}) {
   const i18n = createI18n({ locale: 'en', messages: { en: {} } })
   const middleware = createI18nMiddleware({ i18n, defaultLocale: 'en', locales, ...options })
   const context = request(path, init)
-  await middleware(context as never, async () => new Response(''))
+  const response = (await middleware(context as never, async () => new Response(''))) as Response
+  vary.last = response.headers.get('vary')
   const requestI18n = context.locals.i18n as ReturnType<typeof createI18n>
   return { locale: context.locals.locale, route: requestI18n.getRoute() }
 }
@@ -47,6 +50,17 @@ describe('createI18nMiddleware (F10, D5)', () => {
     expect((await run('/about', init, { routingStrategy, localeCookie: 'user-locale' })).locale).toBe('de')
     expect((await run('/about', init, { routingStrategy, localeCookie: null })).locale).toBe('en')
     expect((await run('/about', { ...init, headers: { 'accept-language': 'de' } }, { routingStrategy, autoDetect: false })).locale).toBe('en')
+  })
+
+  test('a page picked by cookie or header varies on them; a prefixed or prerendered one does not', async () => {
+    await run('/about', {}, { routingStrategy })
+    expect(vary.last).toBe('Cookie, Accept-Language')
+    await run('/about', {}, { routingStrategy, localeCookie: null })
+    expect(vary.last).toBe('Accept-Language')
+    await run('/de/about', {}, { routingStrategy })
+    expect(vary.last).toBeNull()
+    await run('/about', { isPrerendered: true }, { routingStrategy })
+    expect(vary.last).toBeNull()
   })
 
   test('a prerendered page reads no cookie or header', async () => {

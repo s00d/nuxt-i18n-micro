@@ -945,12 +945,18 @@ declare module '#i18n-internal/payload-source' {
   },
 })
 
-export interface ModuleHooks {
+/**
+ * App (runtime) hooks: `nuxtApp.hook('i18n:register', …)` in a Nuxt plugin. nuxt-module-build
+ * merges `ModuleRuntimeHooks` into `RuntimeNuxtHooks` (a `ModuleHooks` export would land in the
+ * build-time `NuxtHooks`).
+ */
+export interface ModuleRuntimeHooks {
   'i18n:register': (registerModule: (translations: unknown, locale?: string) => void, locale: string) => HookResult
 }
 
-declare module '@nuxt/schema' {
-  interface NuxtHooks extends ModuleHooks {}
+// for apps that load the module from source (playground, fixtures): no generated types.d.mts there
+declare module '#app' {
+  interface RuntimeNuxtHooks extends ModuleRuntimeHooks {}
 }
 
 export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }

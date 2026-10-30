@@ -7,7 +7,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   //
   // console.log(translatedMessage, locale)
 
-  // @ts-expect-error
   nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
     register(
       {

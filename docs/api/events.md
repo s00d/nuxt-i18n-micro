@@ -42,14 +42,17 @@ Set `hooks: false` in `nuxt.config` to disable automatic `i18n:register` calls (
 The following example demonstrates how to use the `i18n:register` event to dynamically add translations:
 
 ```typescript
-nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-  register(
-    {
-      greeting: 'Hello',
-      farewell: 'Goodbye',
-    },
-    locale,
-  )
+// plugins/i18n-extra.ts — a runtime (app) hook, typed through RuntimeNuxtHooks
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.hook('i18n:register', async (register, locale) => {
+    register(
+      {
+        greeting: 'Hello',
+        farewell: 'Goodbye',
+      },
+      locale,
+    )
+  })
 })
 ```
 

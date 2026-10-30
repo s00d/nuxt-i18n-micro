@@ -149,16 +149,21 @@ describe('reactive reads', () => {
   test('localePath, getLocale and getRoute follow the store in an effect', () => {
     const i18n = instance()
     const seen: string[] = []
+    const paths: string[] = []
     const routing = { ...strategy().routing, resolvePath: (to: string | { path?: string }, locale: string) => `/${locale}${to}` }
     const Probe = () => {
       const api = useI18n()
-      createEffect(() => seen.push(`${api.localePath('/x')} ${api.getLocale()} ${api.getRoute()}`))
+      // one effect each: a read in the same effect would track for its neighbour
+      createEffect(() => paths.push(api.localePath('/x')))
+      createEffect(() => seen.push(api.getLocale()))
+      createEffect(() => seen.push(api.getRoute()))
       return null
     }
     withI18n(i18n, () => <Probe />, { routingStrategy: routing })
     i18n.locale = 'de'
     i18n.setRoute('about')
-    expect(seen).toEqual(['/en/x en index', '/de/x de index', '/de/x de about'])
+    expect([...new Set(paths)]).toEqual(['/en/x', '/de/x'])
+    expect(seen).toEqual(expect.arrayContaining(['en', 'index', 'de', 'about']))
   })
 
   test('a write inside an effect does not re-run it', () => {

@@ -111,7 +111,7 @@ export abstract class BaseI18n {
 
   /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
   public addLocaleIso(localeIso: Record<string, string>): void {
-    // in place: a fork reads this same map (`rules` it shares with its parent)
+    // in place: a fork reads this same map until it writes (`rules` it shares with its parent)
     Object.assign(this.localeIso, localeIso)
   }
 

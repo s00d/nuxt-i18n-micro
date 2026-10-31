@@ -68,6 +68,8 @@ class ForkHelper extends TranslationHelper {
 
 export class I18n extends BaseI18n {
   protected readonly ownStore: ReactiveI18nStore
+  /** A fork reads its parent's map until its first own rule, as it reads its dictionaries. Only the owner writes to a map. */
+  private borrowsLocaleIso = false
 
   constructor(options: I18nOptions) {
     const { parent } = options
@@ -86,7 +88,10 @@ export class I18n extends BaseI18n {
     })
 
     // the map itself: `addLocaleIso` on the parent reaches its forks
-    if (parent) this.localeIso = parent.localeIso
+    if (parent) {
+      this.localeIso = parent.localeIso
+      this.borrowsLocaleIso = true
+    }
 
     this.ownStore = createReactiveI18nStore({
       locale: options.locale,
@@ -182,6 +187,8 @@ export class I18n extends BaseI18n {
   /** Text on screen follows a new plural tag. A render passes `notify: false`: it must not wake other components. */
   public override addLocaleIso(localeIso: Record<string, string>, notify = true): void {
     const before = this.pluralLocale()
+    if (this.borrowsLocaleIso) this.localeIso = { ...this.localeIso }
+    this.borrowsLocaleIso = false
     super.addLocaleIso(localeIso)
     if (notify && this.pluralLocale() !== before) this.store.notify()
   }

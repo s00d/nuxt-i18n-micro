@@ -174,4 +174,31 @@ describe('fork and localeIso', () => {
     expect(child.tc('k', 21)).toBe('о')
     expect(localeIso).toEqual({})
   })
+
+  test("a fork's rules stay in it: not in the parent, not in a sibling", () => {
+    const parent = createI18n({ locale: 'en' })
+    const [a, b] = [parent.fork(), parent.fork()]
+    a.addLocaleIso({ en: 'en-GB' })
+    expect(a.pluralLocale()).toBe('en-GB')
+    expect(parent.pluralLocale()).toBe('en')
+    expect(b.pluralLocale()).toBe('en')
+    expect(b.td(new Date(0), { timeZone: 'UTC' })).toBe(parent.td(new Date(0), { timeZone: 'UTC' }))
+  })
+
+  test('a later parent rule reaches a fork that has not written, not one that has', () => {
+    const parent = createI18n({ locale: 'en' })
+    const [written, untouched] = [parent.fork(), parent.fork()]
+    written.addLocaleIso({ de: 'de-AT' })
+    parent.addLocaleIso({ en: 'en-GB' })
+    expect(untouched.pluralLocale()).toBe('en-GB')
+    expect(written.pluralLocale()).toBe('en')
+  })
+
+  test('a fork is the parent of its own forks once it wrote', () => {
+    const fork = createI18n({ locale: 'en' }).fork()
+    fork.addLocaleIso({ de: 'de-AT' })
+    const child = fork.fork()
+    fork.addLocaleIso({ en: 'en-GB' })
+    expect(child.pluralLocale()).toBe('en-GB')
+  })
 })

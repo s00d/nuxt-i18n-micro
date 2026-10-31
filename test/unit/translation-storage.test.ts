@@ -1,12 +1,21 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { STORAGE_CC_KEY } from '../../src/runtime/utils/cache-keys'
-import { translationStorage } from '../../src/runtime/utils/storage'
+import { readsThroughServerLoader, translationStorage } from '../../src/runtime/utils/storage'
 
 const options = { apiBaseUrl: '_locales', baseURL: '/' }
 
 afterEach(() => {
   vi.unstubAllGlobals()
   translationStorage.clear()
+})
+
+test('a render with a runtime host fetches it itself, unless the loader covers the host', () => {
+  const serverLoad = async () => ({})
+  expect(readsThroughServerLoader({ serverLoad }, undefined)).toBe(true)
+  expect(readsThroughServerLoader({ serverLoad }, 'https://runtime.test')).toBe(false)
+  expect(readsThroughServerLoader({ serverLoad, serverLoadsRemote: true }, 'https://runtime.test')).toBe(true)
+  expect(readsThroughServerLoader({}, undefined)).toBe(false)
+  expect(readsThroughServerLoader({ serverLoadsRemote: true }, 'https://runtime.test')).toBe(false)
 })
 
 // the HMR watcher reaches the cache through its global key, not through translationStorage

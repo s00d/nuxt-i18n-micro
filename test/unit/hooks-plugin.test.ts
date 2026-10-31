@@ -41,7 +41,7 @@ describe('05.hooks', () => {
     const { hooks, merge, guard } = await setup()
     hooks.hook('i18n:register', ((register: (translations: unknown) => void, locale: string) => register({ from: locale })) as never)
     await guard({ path: '/a' }, { path: '/' })
-    expect(merge).toHaveBeenCalledWith('en', 'index', { from: 'en' }, true)
+    expect(merge).toHaveBeenCalledWith('en', 'index', { from: 'en' })
 
     // an unchanged path registers nothing
     merge.mockClear()
@@ -62,6 +62,6 @@ describe('05.hooks', () => {
       $i18nStrategy: { getPluginRouteName: () => 'index' },
       $helper: { mergeTranslation: merge },
     })
-    expect(merge).toHaveBeenCalledWith('en', 'index', { a: 1 }, true)
+    expect(merge).toHaveBeenCalledWith('en', 'index', { a: 1 })
   })
 })

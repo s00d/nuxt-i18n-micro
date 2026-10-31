@@ -22,7 +22,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }
 
-  const { json } = await loadTranslationsFromServer(locale, page)
+  const { json } = await loadTranslationsFromServer(locale, page).catch((cause) => {
+    // a failed read leaves no copy anywhere, a browser's included: the next request reads again
+    console.warn('[i18n] Translation load failed:', locale, page)
+    setResponseHeader(event, 'Cache-Control', 'no-store')
+    throw createError({ statusCode: 503, statusMessage: 'Translations unavailable', cause })
+  })
 
   // Send pre-serialized JSON directly (no repeated serialization)
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
@@ -36,7 +41,8 @@ export default defineEventHandler(async (event) => {
   // when the request is actually versioned.
   if (!import.meta.dev) {
     const requested = getQuery(event).v
-    const versioned = Boolean(config.dateBuild) && String(requested ?? '') === String(config.dateBuild)
+    // nothing to pin in `{}`: the page may exist on the host tomorrow, and a browser would keep this for a year
+    const versioned = Boolean(config.dateBuild) && String(requested ?? '') === String(config.dateBuild) && json !== '{}'
 
     const cacheControl = buildTranslationPayloadCacheControl(config.httpCacheDuration, versioned)
     if (cacheControl) {

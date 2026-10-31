@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 import { join, relative } from 'node:path'
-import type { TranslationPayloadStats } from './payload-config'
+import type { TranslationPayloadMode, TranslationPayloadStats } from './payload-config'
 
 /**
  * Every `.json` under `dir`, recursively.
@@ -30,6 +30,42 @@ export function scanTranslationPayloadDirectory(dir: string): TranslationPayload
     stats.totalBytes += statSync(file).size
   }
   return stats
+}
+
+const MiB = 1024 * 1024
+
+/** Bundle limits of Edge platforms, lowest plan first. Function platforms allow hundreds of MB: no entry. */
+const EMBED_LIMITS: { preset: RegExp; bytes: number; compressed: boolean; text: string }[] = [
+  { preset: /^vercel-edge$/, bytes: 1_000_000, compressed: true, text: 'Vercel Edge allows 1 MB gzip on Hobby, 2 MB on Pro and 4 MB on Enterprise' },
+  { preset: /^netlify-edge$/, bytes: 20_000_000, compressed: true, text: 'Netlify Edge allows 20 MB compressed' },
+  { preset: /^cloudflare-/, bytes: 64 * MiB, compressed: false, text: 'Cloudflare Workers allow 64 MiB uncompressed' },
+]
+
+/**
+ * The size of the dictionaries an Edge bundle embeds, against that platform's limit. Dictionaries
+ * only: the app comes on top. ponytail: gzip per file, close to one archive of the bundle since
+ * the window is 32 KB; a build of a bigger app can pass this check and still fail at deploy.
+ */
+export function getEmbeddedPayloadSizeWarning(preset: string, dir: string, mode: TranslationPayloadMode): string | null {
+  const limit = EMBED_LIMITS.find((entry) => entry.preset.test(preset))
+  if (!limit) return null
+  const { totalBytes } = scanTranslationPayloadDirectory(dir)
+  // gzip only shrinks: most builds never pay for it
+  if (totalBytes <= limit.bytes) return null
+  if (limit.compressed) {
+    const files: string[] = []
+    collectJsonFiles(dir, files)
+    const gzipBytes = files.reduce((sum, file) => sum + gzipSync(readFileSync(file)).length, 0)
+    if (gzipBytes <= limit.bytes) return null
+    // decimal, as these limits are: 20.5 MB must not print as 19.5 next to a limit of 20
+    return embeddedSizeMessage(preset, `${(gzipBytes / 1_000_000).toFixed(1)} MB gzip`, limit.text, mode)
+  }
+  return embeddedSizeMessage(preset, `${(totalBytes / MiB).toFixed(1)} MiB`, limit.text, mode)
+}
+
+function embeddedSizeMessage(preset: string, size: string, limitText: string, mode: TranslationPayloadMode): string {
+  const advice = mode === 'premerged' ? "Use translationPayloads.mode: 'source'" : 'Load dictionaries from apiBaseServerHost'
+  return `Preset "${preset}" embeds ${size} of dictionaries in the server bundle, and ${limitText}. ${advice}, or the deploy may be refused.`
 }
 
 /**

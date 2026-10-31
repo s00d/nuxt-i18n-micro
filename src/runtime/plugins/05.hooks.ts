@@ -12,7 +12,7 @@ export default defineNuxtPlugin({
     const router = useRouter()
     const { $getLocale, $i18nStrategy: i18nStrategy } = nuxtApp
     const i18nHelper = nuxtApp.$helper as {
-      mergeTranslation: (locale: string, routeName: string, translations: Translations, force?: boolean) => Promise<void>
+      mergeTranslation: (locale: string, routeName: string, translations: Translations) => Promise<void>
     }
 
     /** Asked on every call: a plugin may subscribe later. `_hooks` is hookable's own, so without it the hook just runs. */
@@ -30,7 +30,7 @@ export default defineNuxtPlugin({
       await nuxtApp.callHook(
         'i18n:register',
         (translations: unknown, selectedLocale?: string) => {
-          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations, true))
+          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations))
         },
         locale,
       )

@@ -26,7 +26,7 @@ const links = locales
 
 {links.length > 0 && (
   <div class={`i18n-switcher-wrapper ${className || ''}`} data-i18n-switcher {...attrs}>
-    <button type="button" class="i18n-switcher-button" aria-haspopup="true" aria-expanded="false">
+    <button type="button" class="i18n-switcher-button" aria-expanded="false">
       <span>{links.find((link) => link.isActive)?.label ?? currentLocale}</span>
       <span class="i18n-switcher-icon">▼</span>
     </button>

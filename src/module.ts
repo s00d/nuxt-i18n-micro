@@ -6,7 +6,7 @@ import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
 import { configForHost } from '@i18n-micro/utils/domains'
-import { buildFullConfigSource } from './config-template'
+import { buildFullConfigSource, buildPrivateConfigSource } from './config-template'
 import type {
   Getter,
   GlobalLocaleRoutes,
@@ -21,6 +21,7 @@ import type {
 import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from './build/build'
 import {
   domainPayloadFilter,
+  getStaticPayloadWarning,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
@@ -32,7 +33,12 @@ import {
   shouldRegisterNitroServerAssets,
   type TranslationPayloadMode,
 } from './build/payload-config'
-import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from './build/payload-stats'
+import {
+  compressTranslationPayloads,
+  getEmbeddedPayloadSizeWarning,
+  hashTranslationSources,
+  scanTranslationPayloadDirectory,
+} from './build/payload-stats'
 import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
 import { buildI18nPluralTemplate } from './plural-template'
 import {
@@ -42,7 +48,7 @@ import {
   addPrerenderRoutes,
   addRouteMiddleware,
   addServerHandler,
-  addServerImportsDir,
+  addServerImports,
   addTemplate,
   addTypeTemplate,
   addVitePlugin,
@@ -61,38 +67,18 @@ import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, merge
 import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
-export {
-  resolveTranslationPayloadMode,
-  resolveTranslationPayloadOptions,
-  resolveTranslationPayloadPublicDir,
-  resolveTranslationPayloadPublicRel,
-  shouldCopyTranslationPayloadsToPublic,
-  shouldRegisterNitroServerAssets,
-} from './build/payload-config'
 
-/** Absolute path of the path-strategy entry the generated `i18n.strategy.mjs` imports. */
-async function resolveStrategyPath(): Promise<string> {
-  const specifier = '@i18n-micro/path-strategy'
-  let absoluteStrategyPath: string
+/** Absolute path of an entry a generated template imports. */
+async function resolveEntry(specifier: string): Promise<string> {
+  let absolutePath: string
   try {
     // Resolve relative to this module first, so pnpm layouts that nest
-    // @i18n-micro/path-strategy under nuxt-i18n-micro still resolve it.
-    absoluteStrategyPath = fileURLToPath(import.meta.resolve(specifier))
+    // the package under nuxt-i18n-micro still resolve it.
+    absolutePath = fileURLToPath(import.meta.resolve(specifier))
   } catch {
-    absoluteStrategyPath = await resolvePath(specifier)
+    absolutePath = await resolvePath(specifier)
   }
-  return process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
-}
-
-async function resolveHelpersPath(): Promise<string> {
-  const specifier = '@i18n-micro/core/helpers'
-  let absoluteHelpersPath: string
-  try {
-    absoluteHelpersPath = fileURLToPath(import.meta.resolve(specifier))
-  } catch {
-    absoluteHelpersPath = await resolvePath(specifier)
-  }
-  return process.platform === 'win32' ? pathToFileURL(absoluteHelpersPath).href : absoluteHelpersPath.replace(/\\/g, '/')
+  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : absolutePath.replace(/\\/g, '/')
 }
 
 function generateI18nTypes(): string {
@@ -203,6 +189,8 @@ function buildPrivateConfig(
     apiBaseClientHost: apiConfig.apiBaseClientHost,
     apiBaseServerHost: apiConfig.apiBaseServerHost,
     serverTranslationPreload: options.serverTranslationPreload ?? false,
+    cacheStorage: options.cacheStorage,
+    cacheStorageBuild: nuxt.options.buildId,
     payloadFsDir,
     payloadPublicRel,
   }
@@ -215,9 +203,8 @@ function registerI18nTemplates(
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
   disabledLocales: Locale[],
+  dev: boolean,
 ) {
-  let runtimeFullConfig = fullConfig
-
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
     write: true,
@@ -228,10 +215,10 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      const domains = runtimeFullConfig.locales.some((locale) => locale.baseUrl)
+      const domains = fullConfig.locales.some((locale) => locale.baseUrl)
       return `import { ${domains ? 'DomainPathStrategy as Strategy' : 'Strategy'} } from '${resolvedStrategyPath}'
 
-const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
+const __fullConfig = ${buildFullConfigSource(fullConfig)}
 // disabled at build: no routes and not in the config, but routing must answer for their prefix
 const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
@@ -241,7 +228,7 @@ export function getI18nConfig() { return __fullConfig }
 export const domains = ${domains}
 
 // a constant, so a build that keeps the locale in no cookie drops useCookie (no runtime override reaches these two)
-export const cookies = ${runtimeFullConfig.localeCookie !== null || runtimeFullConfig.hashMode}
+export const cookies = ${fullConfig.localeCookie !== null || fullConfig.hashMode}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -264,18 +251,13 @@ export function createI18nStrategy(router, config = __fullConfig) {
   const configTemplate = addTemplate({
     filename: 'i18n.config.mjs',
     write: true,
-    getContents: () => `const __privateConfig = ${JSON.stringify(privateConfig)}
-export function getI18nPrivateConfig() { return __privateConfig }
-`,
+    getContents: () => buildPrivateConfigSource(privateConfig, dev),
   })
 
   return {
     pluralTemplate,
     strategyTemplate,
     configTemplate,
-    setFullConfig(next: ReturnType<typeof buildFullConfig>) {
-      runtimeFullConfig = next
-    },
   }
 }
 
@@ -335,7 +317,8 @@ export default defineNuxtModule<ModuleOptions>({
   },
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
-    const isSSG = Boolean(nuxt.options.nitro?.static)
+    /** Static output, set in `nitro:init`: `nuxt build --preset static` is only known once the preset is resolved. */
+    let isSSG = false
     const logger = useLogger('nuxt-i18n-micro')
 
     // pnpm (shamefully-hoist=false) nests `@i18n-micro/types` under this package, so
@@ -457,8 +440,8 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    const resolvedStrategyPath = await resolveStrategyPath()
-    const resolvedHelpersPath = await resolveHelpersPath()
+    const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
+    const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
     if (apiBaseClientHost?.endsWith('/')) {
@@ -508,11 +491,6 @@ export default defineNuxtModule<ModuleOptions>({
     const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
     if (generateDomain && !buildConfig.domain)
       logger.warn(`NUXT_I18N_DOMAIN "${generateDomain}" is no host of locales[].baseUrl: the build config applies.`)
-    if (isSSG && !generateDomain && routeGenerator.locales.some((locale) => locale.baseUrl)) {
-      logger.warn(
-        'locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.',
-      )
-    }
 
     const siteUrl = (nuxt.options as { site?: { url?: string } }).site?.url || process.env.NUXT_PUBLIC_SITE_URL || process.env.NUXT_SITE_URL
     const originWarning = buildConfig.domain ? null : unfixedOriginWarning(routeGenerator.locales, defaultLocale, options.metaBaseUrl, siteUrl)
@@ -526,6 +504,7 @@ export default defineNuxtModule<ModuleOptions>({
       fullConfig,
       privateConfig,
       routeGenerator.disabledLocales,
+      nuxt.options.dev,
     )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -603,7 +582,13 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    addServerImportsDir(resolver.resolve('./runtime/server/utils'))
+    // By name, not the directory: every export there would be a user's auto-import, and an API.
+    addServerImports([
+      { name: 'useLocaleServerMiddleware', from: resolver.resolve('./runtime/server/utils/locale-server-middleware') },
+      { name: 'useTranslationServerMiddleware', from: resolver.resolve('./runtime/server/utils/translation-server-middleware') },
+      { name: 'loadTranslationsFromServer', from: resolver.resolve('./runtime/server/utils/server-loader') },
+      { name: 'detectCurrentLocale', from: resolver.resolve('./runtime/server/utils/locale-detector') },
+    ])
 
     if (translationPayloads.serverHandler) {
       addServerHandler({
@@ -669,6 +654,8 @@ declare module 'h3' {
       translations: Translations
       /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
       load?: (locale: string, routeName: string) => Promise<Translations>
+      /** \`load\` reaches the remote host too, through \`cacheStorage\`: the render must not fetch around it. */
+      loadsRemote?: boolean
       /** The module config with runtime overrides, resolved once for this request. */
       config?: ModuleOptionsExtend
     }
@@ -717,6 +704,7 @@ declare module '#i18n-internal/plural' {
 }
 
 declare module '#i18n-internal/payload-source' {
+  export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }
 `
@@ -803,10 +791,11 @@ declare module '#i18n-internal/payload-source' {
       }
 
       const routeRules = nuxt.options.routeRules || {}
+      const localeCodes = [...routeGenerator.locales, ...routeGenerator.disabledLocales].map((locale) => locale.code)
 
       for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
         const { redirect: _redirect, ...restRuleValue } = ruleValue
-        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath)) continue
+        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath, localeCodes)) continue
 
         for (const { code } of routeGenerator.locales) {
           if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, code)) continue
@@ -836,11 +825,24 @@ declare module '#i18n-internal/payload-source' {
         })
       }
 
+      isSSG = Boolean(nitro.options.static)
       // Static output has no server bundle; its prerenderer keeps the fs reader.
-      if (nitro.options.static) return
+      if (isSSG) {
+        if (!generateDomain && routeGenerator.locales.some((locale) => locale.baseUrl)) {
+          logger.warn(
+            'locales[].baseUrl in a static build without NUXT_I18N_DOMAIN: the build config applies, and locales with a baseUrl are links. Generate once per domain.',
+          )
+        }
+        const staticWarning = getStaticPayloadWarning({ translationPayloads, apiBaseClientHost })
+        if (staticWarning) logger.warn(staticWarning)
+        return
+      }
       const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
       if (!readsPublicDir) {
         nitro.options.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.assets')
+        if (options.cacheStorage && !apiBaseServerHost) {
+          logger.info('cacheStorage: dictionaries are embedded on this preset, so the shared cache only applies with apiBaseServerHost.')
+        }
       }
 
       if (shouldRegisterNitroServerAssets(translationPayloads, readsPublicDir)) {
@@ -849,12 +851,6 @@ declare module '#i18n-internal/payload-source' {
           // Same layout as public (`mode`): premerged matrix or compact source.
           dir: publicAssetsDir,
         })
-        if (translationPayloads.mode === 'premerged') {
-          logger.warn(
-            `Preset "${nitro.options.preset}" does not ship public/ with the server, so translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). ` +
-              "Prefer mode:'source' for large catalogs.",
-          )
-        }
       }
 
       if (readsPublicDir && translationPayloads.serverAssets && !translationPayloads.publicAssets) {
@@ -868,6 +864,12 @@ declare module '#i18n-internal/payload-source' {
       // Function / Edge / serveStatic:"inline" embed only — do not force a public tree.
       const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
       const copyPublicPayloads = shouldCopyTranslationPayloadsToPublic(translationPayloads, readsPublicDir)
+
+      // here, not in `nitro:init`: `build:before` has written the tree by now
+      if (isProd && !isSSG && shouldRegisterNitroServerAssets(translationPayloads, readsPublicDir)) {
+        const sizeWarning = getEmbeddedPayloadSizeWarning(nitro.options.preset, publicAssetsDir, translationPayloads.mode)
+        if (sizeWarning) logger.warn(sizeWarning)
+      }
 
       if (isProd && copyPublicPayloads) {
         const publicDir = resolveTranslationPayloadPublicDir(nitro.options.output.publicDir, options, apiBaseUrl)

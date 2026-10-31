@@ -525,6 +525,15 @@ export interface ModuleOptions {
   cacheTtl?: number
 
   /**
+   * Name of a Nitro storage mount (`nitro.storage`, e.g. `'redis'`) that several server instances
+   * share as a dictionary cache, read after the in-process cache and before the source. Pays off
+   * mostly with `apiBaseServerHost`: one fetch from the backend instead of one per instance.
+   * Entries are keyed by build and expire after `cacheTtl`, or after one day when it is `0`.
+   * Off in dev and prerender. A failing storage falls back to the source. Unset: no shared cache.
+   */
+  cacheStorage?: string
+
+  /**
    * Named number formats per locale (Vue I18n-compatible).
    * Enables `$tn(1000, 'currency')` style calls.
    *
@@ -691,6 +700,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
   /** Absolute path to the Nuxt project root directory. */
   rootDir: string
+  /** Nuxt's `buildId`: `cacheStorage` keys of two builds never meet. */
+  cacheStorageBuild?: string
   /**
    * Absolute Nuxt layer roots in merge order (extends first, project last).
    * Used by live/HMR translation reads so layers match build-time merge.

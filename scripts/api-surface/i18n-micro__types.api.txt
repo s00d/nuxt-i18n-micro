@@ -46,6 +46,7 @@ member ModuleOptions.apiBaseUrl?: string | undefined
 member ModuleOptions.autoDetectLanguage?: boolean | undefined
 member ModuleOptions.autoDetectPath?: string | undefined
 member ModuleOptions.cacheMaxSize?: number | undefined
+member ModuleOptions.cacheStorage?: string | undefined
 member ModuleOptions.cacheTtl?: number | undefined
 member ModuleOptions.canonicalQueryWhitelist?: string[] | undefined
 member ModuleOptions.components?: boolean | undefined
@@ -98,6 +99,7 @@ member ModuleOptionsExtend.apiBaseUrl: string
 member ModuleOptionsExtend.autoDetectLanguage?: boolean | undefined
 member ModuleOptionsExtend.autoDetectPath?: string | undefined
 member ModuleOptionsExtend.cacheMaxSize?: number | undefined
+member ModuleOptionsExtend.cacheStorage?: string | undefined
 member ModuleOptionsExtend.cacheTtl?: number | undefined
 member ModuleOptionsExtend.canonicalQueryWhitelist?: string[] | undefined
 member ModuleOptionsExtend.components?: boolean | undefined
@@ -155,6 +157,8 @@ member ModulePrivateOptionsExtend.apiBaseUrl: string
 member ModulePrivateOptionsExtend.autoDetectLanguage?: boolean | undefined
 member ModulePrivateOptionsExtend.autoDetectPath?: string | undefined
 member ModulePrivateOptionsExtend.cacheMaxSize?: number | undefined
+member ModulePrivateOptionsExtend.cacheStorage?: string | undefined
+member ModulePrivateOptionsExtend.cacheStorageBuild?: string | undefined
 member ModulePrivateOptionsExtend.cacheTtl?: number | undefined
 member ModulePrivateOptionsExtend.canonicalQueryWhitelist?: string[] | undefined
 member ModulePrivateOptionsExtend.components?: boolean | undefined

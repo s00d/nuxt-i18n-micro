@@ -1,4 +1,4 @@
-import { basename, dirname, join } from 'node:path'
+import { basename, dirname, join, relative } from 'node:path'
 import type { ModuleOptions, TranslationPayloadOptions } from '@i18n-micro/types'
 import { buildFallbackLocaleChain, type SourceLocaleInfo } from '@i18n-micro/utils/merge-source'
 
@@ -122,9 +122,17 @@ export function shouldCopyTranslationPayloadsToPublic(translationPayloads: Resol
  * Only presets whose server serves `public/` from disk ship it there (`node-server`, `node-cluster`, dev, prerender).
  * Function platforms (`vercel`, `netlify`, `aws-lambda`) deploy `public/` to a CDN, Edge has no fs, and
  * `serveStatic: "inline"` (e.g. winterjs) bundles it into the server.
+ * The fs reader looks at `../public` from the server, so any other layout (`aws-amplify`, a custom
+ * `nitro.output.publicDir`, `serveStatic: true` on `vercel`/`netlify`) embeds. That layout cannot prove the folder
+ * ships: `aws-lambda` with `serveStatic: true` passes and may still have no `public/`, which the reader reports.
  */
-export function shouldReadPayloadsFromPublicDir(nitroOptions: { node: boolean; serveStatic: NitroServeStatic }): boolean {
-  return nitroOptions.node && !!nitroOptions.serveStatic && nitroOptions.serveStatic !== 'inline'
+export function shouldReadPayloadsFromPublicDir(nitroOptions: {
+  node: boolean
+  serveStatic: NitroServeStatic
+  output: { serverDir: string; publicDir: string }
+}): boolean {
+  const { node, serveStatic, output } = nitroOptions
+  return node && !!serveStatic && serveStatic !== 'inline' && relative(output.serverDir, output.publicDir) === join('..', 'public')
 }
 
 /**
@@ -174,6 +182,15 @@ export function getTranslationPayloadMisconfigurationWarnings(input: Translation
   }
 
   return warnings
+}
+
+/** Static output has no server route: the browser needs premerged files, prerendered routes or another host. */
+export function getStaticPayloadWarning(
+  input: Pick<TranslationPayloadMisconfigurationInput, 'translationPayloads' | 'apiBaseClientHost'>,
+): string | null {
+  const { mode, publicAssets, prerenderRoutes } = input.translationPayloads
+  if (input.apiBaseClientHost || prerenderRoutes || (mode === 'premerged' && publicAssets)) return null
+  return `Static output has no server route, and this build writes no /_locales/<page>/<locale>/data.json (mode: '${mode}', publicAssets: ${publicAssets}): the browser gets a 404 and raw keys, unless something else serves that path. Use the default premerged mode with public assets, translationPayloads.prerenderRoutes, or apiBaseClientHost.`
 }
 
 export function formatBytes(bytes: number): string {

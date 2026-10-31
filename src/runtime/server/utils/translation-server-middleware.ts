@@ -16,7 +16,14 @@ async function dictionaryOf(event: H3Event, locale: string): Promise<Translation
   const page = event.context.i18n
   // the page render's preloaded index chunk, when it is in this locale
   const preloaded = page?.locale === locale && page.translations && Object.keys(page.translations).length > 0 ? page.translations : null
-  return (loaded[locale] = preloaded ?? (await loadTranslationsFromServer(locale, 'index')).data)
+  if (preloaded) return (loaded[locale] = preloaded)
+  // an outage costs a server route its strings (`t` answers the key or the default), not the response. The next request retries.
+  const chunk = await loadTranslationsFromServer(locale, 'index').catch(() => null)
+  if (!chunk) {
+    console.warn('[i18n] Translation load failed:', locale, 'index')
+    return {}
+  }
+  return (loaded[locale] = chunk.data)
 }
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {

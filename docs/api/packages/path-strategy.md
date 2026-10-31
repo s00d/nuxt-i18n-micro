@@ -20,8 +20,8 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `DomainPathStrategy` | class | 50 members |
-| `I18nPathStrategy` | class | 47 members |
+| `DomainPathStrategy` | class | 51 members |
+| `I18nPathStrategy` | class | 48 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
 | `PathStrategyContext` | interface | 10 members |
 | `ResolvedRouteLike` | interface | 8 members |
@@ -29,8 +29,8 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `Strategy` | class | 47 members |
-| `SwitchLocaleOptions` | interface | 1 members |
+| `Strategy` | class | 48 members |
+| `SwitchLocaleOptions` | interface | 2 members |
 
 <details>
 <summary><code>ClientRedirectOptions</code> — 1 members</summary>
@@ -42,7 +42,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>DomainPathStrategy</code> — 50 members</summary>
+<summary><code>DomainPathStrategy</code> — 51 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -94,13 +94,14 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `shared_` | `private Shared \| undefined` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
 | `switched` | `private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
+| `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
 | `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
 | `unknownLocale` | `private RegExp \| null` |
 
 </details>
 
 <details>
-<summary><code>I18nPathStrategy</code> — 47 members</summary>
+<summary><code>I18nPathStrategy</code> — 48 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -149,6 +150,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `shared_` | `private Shared \| undefined` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
 | `switched` | `private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
+| `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
 | `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
 | `unknownLocale` | `private RegExp \| null` |
 
@@ -239,14 +241,15 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 
-<code>Strategy</code> — 47 members, identical to `I18nPathStrategy` above.
+<code>Strategy</code> — 48 members, identical to `I18nPathStrategy` above.
 
 <details>
-<summary><code>SwitchLocaleOptions</code> — 1 members</summary>
+<summary><code>SwitchLocaleOptions</code> — 2 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `i18nRouteParams?` | `I18nRouteParams \| undefined` |
+| `named?` | `boolean \| undefined` |
 
 </details>
 ## `@i18n-micro/path-strategy/types`
@@ -264,7 +267,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `SwitchLocaleOptions` | interface | 1 members |
+| `SwitchLocaleOptions` | interface | 2 members |
 
 <code>ClientRedirectOptions</code> — 1 members, identical to `ClientRedirectOptions` above.
 
@@ -280,6 +283,6 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 
 <code>RouteRecordLike</code> — 5 members, identical to `RouteRecordLike` above.
 
-<code>SwitchLocaleOptions</code> — 1 members, identical to `SwitchLocaleOptions` above.
+<code>SwitchLocaleOptions</code> — 2 members, identical to `SwitchLocaleOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

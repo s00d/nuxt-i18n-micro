@@ -264,8 +264,7 @@ function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params)
 
 /**
  * The one way from component props to text: which value, which form, which params, html escaping.
- * `null` when `hideIfEmpty` hides it. The Vue and Nuxt `<i18n-t>` fold the result; the React, Preact,
- * Solid and Astro ones do not use it yet, so their `html` params are not escaped.
+ * `null` when `hideIfEmpty` hides it. Every `<i18n-t>` goes through it, directly or through `renderI18nT`.
  */
 export function resolveText(i18n: TextHost, options: ResolveTextOptions): ResolvedText | null {
   const params = options.html && options.params ? escapeParams(options.params) : (options.params ?? {})

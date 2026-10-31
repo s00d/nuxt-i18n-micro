@@ -153,9 +153,9 @@ export async function handleTranslationWatchChange(input: HandleTranslationWatch
 /**
  * Tracks translation file contents so a write that changes nothing is not acted on.
  *
- * Editors save on focus loss and formatters rewrite files byte-for-byte; a root locale
- * change re-merges every page for that locale, which is far too much to spend on a
- * file identical to the one already merged.
+ * Editors save on focus loss and formatters rewrite files byte-for-byte; a change drops
+ * the caches and reloads the page, which is far too much to spend on a file identical to
+ * the one already merged.
  */
 export class TranslationContentTracker {
   private readonly hashes = new Map<string, string>()

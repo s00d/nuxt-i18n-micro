@@ -1,4 +1,5 @@
-export function shouldLocalizeRouteRulePath(originalPath: string): boolean {
+/** `localeCodes`: a rule already written under a locale prefix stays as written, a copy would double the prefix. */
+export function shouldLocalizeRouteRulePath(originalPath: string, localeCodes: string[] = []): boolean {
   const routeRulePath = originalPath.trim()
   if (!routeRulePath) return true
 
@@ -6,7 +7,7 @@ export function shouldLocalizeRouteRulePath(originalPath: string): boolean {
   if (path === '/api' || path.startsWith('/api/')) return false
 
   const firstSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
-  return !firstSegment.startsWith('_')
+  return !firstSegment.startsWith('_') && !localeCodes.includes(firstSegment)
 }
 
 /** The Nitro route rule for the translation payload prefix. */

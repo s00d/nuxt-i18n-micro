@@ -167,7 +167,7 @@ async function readBody(req: IncomingMessage): Promise<string> {
 }
 
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
-  // no trailing slash: `/` + `/files` would be `//files`, a protocol-relative URL
+  // no trailing slash: `/` + `/config` would be `//config`, a protocol-relative URL
   const apiBase = (options.base || '/__i18n_api').replace(/\/+$/, '')
   const translationDir = options.translationDir || 'src/locales'
   const injectButton = options.injectButton !== false // Default is true

@@ -230,16 +230,12 @@ export class I18nTestContext extends BaseI18n {
   }
 
   getRouteName = (_route?: unknown, _locale?: string) => this.routeName
-  /** @deprecated Typo kept for compatibility — prefer `setRouteName`. */
-  settRouteName = (val: string) => {
-    this.routeName = val
-  }
   setRouteName = (val: string) => {
     this.routeName = val
   }
 
   mergeTranslations = (newTranslations: Translations): void => {
-    this.helper.mergeTranslation(this.locale, this.routeName, newTranslations, true)
+    this.helper.mergeTranslation(this.locale, this.routeName, newTranslations)
   }
 
   setMissingHandler = (handler: MissingHandler | null): void => {
@@ -308,7 +304,6 @@ export class I18nTestContext extends BaseI18n {
       $defaultLocale: spy(this.defaultLocale),
       $setDefaultLocale: spy(this.setDefaultLocale),
       $getRouteName: spy(this.getRouteName),
-      $settRouteName: spy(this.settRouteName),
       $setRouteName: spy(this.setRouteName),
       $t: bound('t'),
       $_t: spy(this._t.bind(this)),

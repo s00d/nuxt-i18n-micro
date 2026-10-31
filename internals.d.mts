@@ -17,6 +17,8 @@ interface I18nPrivateConfig {
   customRegexMatcher?: string
   routesLocaleLinks?: Record<string, string>
   serverTranslationPreload?: boolean
+  cacheStorage?: string
+  cacheStorageBuild?: string
   /** Absolute buildDir payload dir for Node fs reads in dev/prerender. */
   payloadFsDir: string
   /** Relative dir under Nitro `public/` for prod payload files. */
@@ -105,5 +107,6 @@ declare module '#i18n-internal/strategy' {
 }
 
 declare module '#i18n-internal/payload-source' {
+  export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }

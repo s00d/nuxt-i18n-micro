@@ -9,16 +9,25 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { domains } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 import { detectRequestLocale, getI18nServerConfig } from '../utils/locale-detector'
-import { loadTranslationsFromServer } from '../utils/server-loader'
+import { loadTranslationsFromServer, resolveServerHost } from '../utils/server-loader'
+
+/** The page render loads its chunks through this, not through a local fetch of /_locales. */
+const load = async (locale: string, routeName: string) => (await loadTranslationsFromServer(locale, routeName)).data
+
+/** `load` reaches the remote host too only with `cacheStorage`: otherwise the render fetches it itself. */
+const loadsRemote = (cacheStorage?: string) => Boolean(cacheStorage && resolveServerHost())
 
 export default defineEventHandler(async (event) => {
   const config = getI18nServerConfig(event)
   const path = withoutAppBaseURL(getRequestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
+  const { cacheStorage, serverTranslationPreload } = getI18nPrivateConfig()
 
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
   if (isInternalPath(path, undefined, config.apiBaseUrl)) {
-    // an error page renders through an internal path and still belongs to its host
-    if (domains) event.context.i18n = { config } as typeof event.context.i18n
+    // an error page renders through an internal path: it belongs to its host, and its chunks enter the process-wide
+    // cache, so it reads them the way every page does (a local fetch would answer them from the public copy)
+    const context = { load, loadsRemote: loadsRemote(cacheStorage) }
+    event.context.i18n = (domains ? { ...context, config } : context) as typeof event.context.i18n
     return
   }
 
@@ -28,7 +37,7 @@ export default defineEventHandler(async (event) => {
   const locale = detectRequestLocale(event, config, 'page', path)
 
   let translations = {}
-  if (getI18nPrivateConfig().serverTranslationPreload) {
+  if (serverTranslationPreload) {
     try {
       const loaded = await loadTranslationsFromServer(locale, 'index')
       translations = loaded.data
@@ -40,8 +49,8 @@ export default defineEventHandler(async (event) => {
   event.context.i18n = {
     locale,
     translations,
-    // the page render loads its chunks through this, not through a local fetch of /_locales
-    load: async (chunkLocale: string, routeName: string) => (await loadTranslationsFromServer(chunkLocale, routeName)).data,
+    load,
+    loadsRemote: loadsRemote(cacheStorage),
     // the render reuses this request's resolved config (runtime overrides applied once)
     config,
   }

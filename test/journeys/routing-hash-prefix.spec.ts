@@ -7,6 +7,23 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 describe('journey: routing variants — hash mode + prefix', () => {
   test.override({ harness: 'strategy-hash-prefix' })
 
+  test('a client navigation to a 404 stores nothing', async ({ page, goto, baseURL, guard }) => {
+    guard.allow(/404/, /No match found/)
+    await goto('/#/en/about', { waitUntil: 'hydration' })
+    await setLocaleCookie(page, baseURL, 'en', { name: 'hash-locale' })
+    await page.evaluate(() =>
+      (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => unknown } } }).useNuxtApp().$router.push('/de/nope'),
+    )
+    await expect(page).toHaveURL(/#\/de\/nope$/)
+    await page.waitForTimeout(200)
+    expect(
+      await page
+        .context()
+        .cookies()
+        .then((all) => all.find((entry) => entry.name === 'hash-locale')?.value),
+    ).toBe('en')
+  })
+
   test('the document is / and the hash routes', async ({ page, goto, baseURL }) => {
     // step 1: GET / → 200 shell, GET /about and /en → 302 into the hash
     expect((await ssr(baseURL, '/')).status).toBe(200)

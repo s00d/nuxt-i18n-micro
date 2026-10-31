@@ -92,3 +92,19 @@ describe('journey: no_prefix custom paths render their own locale', () => {
     await expect(page.locator('.locale-value')).toHaveText('de')
   })
 })
+
+describe('journey: no_prefix, two pages on one custom path', () => {
+  test.override({ harness: 'strategy-no-prefix-shared-path' })
+
+  test.for(['x', 'a b', 'a/b'])('$switchLocale stays on its page: %s', async (id, { page, goto }) => {
+    await goto(`/co-two/${encodeURIComponent(id)}`, { waitUntil: 'hydration' })
+    await expect(page.locator('#shared-page')).toHaveText(`two ${id}`)
+    const switched = await page.evaluate(() =>
+      (window as unknown as { useNuxtApp: () => { $switchLocale: (locale: string) => Promise<boolean> } }).useNuxtApp().$switchLocale('de'),
+    )
+    expect(switched).toBe(true)
+    await expect(page.locator('.locale-value')).toHaveText('de')
+    await expect(page.locator('#shared-page')).toHaveText(`two ${id}`)
+    expect(await page.evaluate(() => location.pathname)).toBe(`/co/${encodeURIComponent(id)}`)
+  })
+})

@@ -117,11 +117,9 @@ describe('i18nUtils', () => {
     expect(i18nUtils.t('greeting')).toBe('greeting')
   })
 
-  test('setRouteName aliases settRouteName', () => {
+  test('setRouteName sets the route name', () => {
     i18nUtils.setRouteName('contact')
     expect(i18nUtils.getRouteName()).toBe('contact')
-    i18nUtils.settRouteName('about')
-    expect(i18nUtils.getRouteName()).toBe('about')
   })
 
   test('localePath and switchLocalePath use locale prefixes without mutating locale', () => {

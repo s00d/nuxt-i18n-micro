@@ -3,9 +3,13 @@ name: release smoke
 # Builds a real Nuxt app against the module and checks it actually works, either
 # from this checkout (pre-release) or from npm (post-release).
 #
-# Manual only — run after a publish lands on npm (give the registry a few minutes).
+# Manual: run after a publish lands on npm (give the registry a few minutes).
+# Nightly: only the `presets` job, on this checkout, because a Nitro or wrangler
+# release can break a preset with no commit here.
 
 on:
+  schedule:
+    - cron: '30 3 * * *'
   workflow_dispatch:
     inputs:
       source:
@@ -32,6 +36,7 @@ env:
 jobs:
   smoke:
     name: ${{ matrix.source }}
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -115,6 +120,58 @@ jobs:
       - name: Stop the server
         if: always()
         run: kill "$(cat /tmp/server.pid)" 2>/dev/null || true
+
+  # One job, one target at a time: the targets share the app's output folders. About 40 s per target after
+  # prepack. Runs on this checkout only, with no deploy and no secrets.
+  presets:
+    name: presets
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the module
+        run: pnpm run prepack
+
+      - name: Run every preset target
+        run: pnpm -C scripts cli preset-smoke --preset all
+
+  presets-build:
+    name: presets (build only)
+    needs: presets
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the module
+        run: pnpm run prepack
+
+      - name: Build every Nitro preset
+        run: pnpm -C scripts cli preset-smoke --build-only
 
   deploy:
     name: deploy (${{ matrix.target }})

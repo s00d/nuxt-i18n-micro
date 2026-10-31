@@ -241,7 +241,11 @@ export default defineNuxtPlugin({
           const path = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
           return `href="${(hasProtocol(path) ? path : router.resolve(path).href).replaceAll('&', '&amp;')}"`
         }
-        for (const { code } of provideApi.getLocales()) renderResult.html = renderResult.html.replaceAll(href(code, {}), href(code, params))
+        for (const { code } of provideApi.getLocales()) {
+          // the URL of the current locale is also what any link to this page has: of those only the switcher's own changes
+          const anchor = code === from ? `class="switcher-locale-${code}" ` : ''
+          renderResult.html = renderResult.html.replaceAll(anchor + href(code, {}), anchor + href(code, params))
+        }
       })
     }
 

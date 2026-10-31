@@ -8,6 +8,7 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 declare const useNuxtApp: () => {
   $router: { push: (to: string) => Promise<unknown>; beforeResolve: (guard: (to: { path: string }) => boolean | void) => void }
   $switchLocalePath: (locale: string) => string
+  $t: (key: string) => unknown
   $switchRoute: (to: string, locale: string) => Promise<void>
 }
 
@@ -68,7 +69,7 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     await release()
     await page.waitForTimeout(300)
     await expect(page.locator('#page-a-title')).toHaveText('Page A Title EN')
-    await expect(page.locator('#page-a-common')).toHaveText('From A')
+    expect(await page.evaluate(() => useNuxtApp().$t('pageB.title'))).toBe('pageB.title')
   })
 
   test('a navigation blocked after the guard changes nothing', async ({ page, goto }) => {
@@ -128,6 +129,9 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     expect(landing.html).toContain('href="/de/slug/1-eins"')
     expect(landing.html).toContain('href="/ru/slug/1-odin"')
     expect(landing.html).not.toContain('href="/de/slug/1"')
+    // a plain link to this page keeps its URL, the switcher's own link gets the slug
+    expect(landing.html).toMatch(/href="\/en\/slug\/1"[^>]*>first</)
+    expect(landing.html).toContain('href="/en/slug/1-one"')
 
     // step 2: another locale's slug does not leak into the links
     const german = await ssr(baseURL, '/de/slug/2-zwei')
@@ -176,9 +180,9 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
 
   test('keepalive: a page returned to has its params and head', async ({ page, goto }) => {
     await goto('/en/slug/1', { waitUntil: 'hydration' })
-    await push(page, '/en/page-b')
-    await expect(page.locator('#page-b-title')).toBeVisible()
-    await expect.poll(() => ogTitles(page)).toEqual([])
+    await push(page, '/en/slug/2')
+    await expect(page.locator('#slug-page')).toHaveText('slug-2')
+    await expect.poll(() => ogTitles(page)).toEqual(['SLUG-2'])
     await page.goBack()
     await expect(page.locator('#slug-page')).toHaveText('slug-1')
     await expect.poll(() => switchPath(page)).toBe('/de/slug/1-eins')

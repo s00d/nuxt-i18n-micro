@@ -1,5 +1,8 @@
 <template>
-  <p id="slug-page">slug-{{ id }}</p>
+  <div>
+    <p id="slug-page">slug-{{ id }}</p>
+    <i18n-link id="slug-first" to="/slug/1">first</i18n-link>
+  </div>
 </template>
 
 <script setup>

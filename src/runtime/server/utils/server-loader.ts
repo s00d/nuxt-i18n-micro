@@ -39,9 +39,17 @@ const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
  */
 const requestBoundIo = typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers'
 
+function runtimeHost(): string | undefined {
+  try {
+    return process.env.NUXT_I18N_APP_BASE_SERVER_HOST
+  } catch {
+    return undefined
+  }
+}
+
 /** The host dictionaries come from: read per load, as `$fetch` in the page render does, so one artifact can run against several. */
 export function resolveServerHost(): string | undefined {
-  return process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? getI18nPrivateConfig().apiBaseServerHost
+  return runtimeHost() ?? getI18nPrivateConfig().apiBaseServerHost
 }
 
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<ServerTranslationCacheEntry> {

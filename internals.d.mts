@@ -107,5 +107,6 @@ declare module '#i18n-internal/strategy' {
 }
 
 declare module '#i18n-internal/payload-source' {
+  export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }

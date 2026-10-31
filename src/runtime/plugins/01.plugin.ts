@@ -98,7 +98,13 @@ export default defineNuxtPlugin({
       localeIso: localeIsoMap(i18nConfig.linkLocales ?? i18nConfig.locales ?? []),
     })
 
+    // An island is rendered from its own URL, with no page behind it: Nuxt passes it props and nothing else, so its
+    // `locale` prop is the page's. Without one it falls back to the cookie and the default (docs: server components).
+    const islandLocale = nuxtApp.ssrContext?.islandContext?.props?.locale as string | undefined
+    const renderLocale = isValidLocale(islandLocale) ? islandLocale : undefined
+
     const getCurrentLocale = (route?: ResolvedRouteLike): string => {
+      if (!route && renderLocale) return renderLocale
       const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
       // a stored preference only when it is an enabled locale (a stale or malformed cookie is none)
       return i18nStrategy.getCurrentLocale(r, getPreferredLocale())
@@ -180,10 +186,7 @@ export default defineNuxtPlugin({
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
     // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
     // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
-    // An island is rendered from its own URL, with no page behind it: Nuxt passes it props and nothing else, so its
-    // `locale` prop is the page's. Without one it falls back to the cookie and the default (docs: server components).
-    const islandLocale = nuxtApp.ssrContext?.islandContext?.props?.locale as string | undefined
-    const serverRequestLocale = () => (isValidLocale(islandLocale) ? islandLocale : nuxtApp.ssrContext?.event?.context?.i18n?.locale)
+    const serverRequestLocale = () => renderLocale ?? nuxtApp.ssrContext?.event?.context?.i18n?.locale
     const requestLocale = import.meta.server ? serverRequestLocale() : shellLocale()
     const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike

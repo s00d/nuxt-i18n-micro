@@ -281,6 +281,10 @@ for (const { harness, path, ...links } of SWITCHERS) {
 describe('journey: server components take the locale as a prop (prefix)', () => {
   test.override({ harness: 'strategy-islands' })
 
+  test('the server already renders $getLocale() in the prop, not on hydration', async ({ request }) => {
+    expect(await (await request.get('/de/island/server')).text()).toMatch(/\|de</)
+  })
+
   for (const kind of ['server', 'nuxt-island']) {
     test(`${kind}: the URL's locale, and a switch`, async ({ page, goto }) => {
       await goto(`/de/island/${kind}`, { waitUntil: 'hydration' })

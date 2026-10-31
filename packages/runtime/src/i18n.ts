@@ -129,7 +129,13 @@ export class I18n extends BaseI18n {
    */
   public fork(locale: string = this.getLocale()): this {
     const Instance = this.constructor as new (options: I18nOptions) => this
+    this.ownLocaleIso()
     return new Instance({ locale, fallbackLocale: this.getFallbackLocale(), parent: this })
+  }
+
+  private ownLocaleIso(): void {
+    if (this.borrowsLocaleIso) this.localeIso = { ...this.localeIso }
+    this.borrowsLocaleIso = false
   }
 
   subscribe = (listener: () => void) => this.store.subscribe(listener)
@@ -187,8 +193,7 @@ export class I18n extends BaseI18n {
   /** Text on screen follows a new plural tag. A render passes `notify: false`: it must not wake other components. */
   public override addLocaleIso(localeIso: Record<string, string>, notify = true): void {
     const before = this.pluralLocale()
-    if (this.borrowsLocaleIso) this.localeIso = { ...this.localeIso }
-    this.borrowsLocaleIso = false
+    this.ownLocaleIso()
     super.addLocaleIso(localeIso)
     if (notify && this.pluralLocale() !== before) this.store.notify()
   }

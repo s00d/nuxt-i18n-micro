@@ -65,7 +65,7 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
 /** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
 const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
 
-/** `NavigationFailureType.duplicated`: importing the enum would tie this file, and `pages: false`, to vue-router's code. */
+/** `NavigationFailureType.duplicated`. */
 const DUPLICATED = 16
 
 /** Never a page, and no request can send a visitor elsewhere with one. */

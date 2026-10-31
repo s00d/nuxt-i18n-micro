@@ -205,6 +205,11 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     await push(page, '/de/layout-page/2')
     await expect(page.locator('#layout-page')).toHaveText('layout-2')
     await expect(head).toHaveAttribute('content', 'Meine App')
+
+    // step 3: a page of another layout: that layout's head goes with it
+    await push(page, '/de/page-a')
+    await expect(page).toHaveURL('/de/page-a')
+    await expect(head).toHaveCount(0)
   })
 
   test('a redirected link adds its history entry', async ({ page, goto }) => {

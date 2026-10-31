@@ -201,4 +201,14 @@ describe('fork and localeIso', () => {
     fork.addLocaleIso({ en: 'en-GB' })
     expect(child.pluralLocale()).toBe('en-GB')
   })
+
+  test('forking a fork counts as its first write, for rules too', () => {
+    const parent = createI18n({ locale: 'en' })
+    const fork = parent.fork()
+    const child = fork.fork()
+    fork.addLocaleIso({ en: 'en-GB' })
+    expect(child.pluralLocale()).toBe('en-GB')
+    parent.addLocaleIso({ en: 'en-AU' })
+    expect(fork.pluralLocale()).toBe('en-GB')
+  })
 })

@@ -1,4 +1,4 @@
 import { localeCodes } from '../../../../benchmark/integrations/catalogue'
 
-/** The prefixed locales of a static build: every code but the default one, `/en` included for the prefix-all strategy. */
-export const localePaths = localeCodes.map((locale) => ({ params: { locale } }))
+/** The prefixed locales of a static build, `/en` too for the prefix-all strategy. A new list per route: Astro keeps its index on the list. */
+export const localePaths = () => localeCodes.map((locale) => ({ params: { locale } }))

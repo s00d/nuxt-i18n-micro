@@ -19,7 +19,7 @@ const pagePaths = ['', '/components', '/dictionaries', '/routing', '/big']
 const spaPaths = pagePaths.map((path) => `/{locale}${path}`)
 const bench = { BENCH: '1' }
 const v = (name, pkg, mode, env = {}, paths = spaPaths, walk = {}) => [name, { pkg, mode, env: { ...bench, ...env }, paths, ...walk }]
-const astroPaths = ['', '/components', '/routing', '/islands', '/big'].map((path) => `/{locale}${path}`)
+const astroPaths = ['', '/components', '/routing', '/rewrite', '/islands', '/big'].map((path) => `/{locale}${path}`)
 const astro = (name, mode, env = {}) => v(`astro-${name}`, 'astro', mode, { BENCH_OUT: `./dist/astro-${name}`, ...env }, astroPaths)
 const vitepressPaths = ['/{locale}', '/{locale}/guide/demo', '/{locale}/guide/no-seo', '/{locale}/guide/bench']
 const vitepressWalk = { locales: ['en', 'de', 'fr'], ready: '.VPContent', home: ['/guide/bench'] }

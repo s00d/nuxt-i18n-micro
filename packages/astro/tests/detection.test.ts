@@ -157,3 +157,20 @@ describe('island core', () => {
     expect(tc('apples', 2)).toBe('2 apples')
   })
 })
+
+describe('a prerendered page', () => {
+  test('reads no request header: Astro warns once per page when it does', async () => {
+    const i18n = createI18n({ locale: 'en', messages: { en: {} } })
+    const middleware = createI18nMiddleware({ i18n, defaultLocale: 'en', locales })
+    const context = request('/about', { isPrerendered: true } as never)
+    let reads = 0
+    Object.defineProperty(context.request, 'headers', {
+      get() {
+        reads++
+        return new Headers()
+      },
+    })
+    await middleware(context as never, async () => new Response(''))
+    expect(reads).toBe(0)
+  })
+})

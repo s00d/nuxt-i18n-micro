@@ -1,0 +1,11 @@
+---
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
+import { localePaths } from '../../paths'
+
+// the documented stub: a static build has no rewrite to serve, so it builds none
+export const getStaticPaths = () => (process.env.BENCH_OUTPUT === 'static' ? [] : localePaths())
+
+const target = prepareLocaleRewrite(Astro)
+if (target instanceof Response) return target
+return Astro.rewrite(target)
+---

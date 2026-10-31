@@ -160,8 +160,10 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     // Only a page view: a redirect in answer to a server island would put a whole page in its slot.
     const home = page && path === '/'
     const hinted = autoDetect && home && !switched
-    const preference = { cookies: context.cookies, headers: context.request.headers, localeCookie, autoDetect: true }
-    const preferred = hinted ? preferredLocale(path, routing, preference) : locale
+    // only here: reading the headers of a prerendered page makes Astro warn
+    const preferred = hinted
+      ? preferredLocale(path, routing, { cookies: context.cookies, headers: context.request.headers, localeCookie, autoDetect: true })
+      : locale
     // the home page is a redirect or not depending on the cookie and the header, a part of a page and a switch on the Referer: shared caches key on them
     const vary = [partOfPage || switched ? 'Referer' : '', autoDetect && home ? varyOn : ''].filter(Boolean).join(', ') || null
     const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, routing) : path

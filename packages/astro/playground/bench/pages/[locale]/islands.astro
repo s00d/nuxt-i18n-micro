@@ -1,10 +1,9 @@
 ---
-import { prepareLocaleRewrite } from '@i18n-micro/astro'
+import Islands from '../../components/Islands.astro'
+import Bench from '../../layouts/Bench.astro'
 import { localePaths } from '../../paths'
 
-export const getStaticPaths = () => localePaths
-
-const target = prepareLocaleRewrite(Astro)
-if (target instanceof Response) return target
-return Astro.rewrite(target)
+export const getStaticPaths = localePaths
 ---
+
+<Bench><Islands /></Bench>

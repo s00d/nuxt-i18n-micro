@@ -163,7 +163,7 @@ export function resolveI18nT(astro: Astro, props: I18nTProps): string | null {
 /**
  * Strip locale prefix from the current URL for `Astro.rewrite()` on `/[locale]/*` routes.
  */
-export function getLocaleRewritePath(astro: AstroGlobal): string {
+export function getLocaleRewritePath(astro: Astro): string {
   return useI18n(astro).getBasePath(astro.locals.currentUrl ?? astro.url)
 }
 
@@ -171,7 +171,7 @@ export function getLocaleRewritePath(astro: AstroGlobal): string {
  * Validate `:locale`, sync i18n/locals, and return the base path for `Astro.rewrite()`.
  * Returns a `Response` when the locale param is invalid.
  */
-export function prepareLocaleRewrite(astro: AstroGlobal): Response | string {
+export function prepareLocaleRewrite(astro: Astro & Pick<AstroGlobal, 'params'>): Response | string {
   const { locale } = astro.params
 
   if (!locale || !getEnabledLocaleCodes(getLocales(astro)).includes(locale)) {

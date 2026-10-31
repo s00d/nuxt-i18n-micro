@@ -43,10 +43,27 @@ describe('translationPayloads build options', () => {
 
     // step 3: node-server / dev / prerender serve public/ from disk; function platforms, Edge and
     // inlined public/ do not
-    for (const serveStatic of [true, 'node', 'deno'] as const) expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic })).toBe(true)
-    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: false })).toBe(false)
-    expect(shouldReadPayloadsFromPublicDir({ node: false, serveStatic: false })).toBe(false)
-    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'inline' })).toBe(false)
+    const output = { serverDir: '/app/.output/server', publicDir: '/app/.output/public' }
+    for (const serveStatic of [true, 'node', 'deno'] as const) expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic, output })).toBe(true)
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: false, output })).toBe(false)
+    expect(shouldReadPayloadsFromPublicDir({ node: false, serveStatic: false, output })).toBe(false)
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'inline', output })).toBe(false)
+
+    // the fs reader looks at `../public` from the server: any other layout embeds, whatever serveStatic says
+    for (const layout of [
+      { serverDir: '/app/.amplify-hosting/compute/default', publicDir: '/app/.amplify-hosting/static' }, // aws-amplify
+      { serverDir: '/app/.amplify-hosting/compute/default', publicDir: '/app/.amplify-hosting/static/shop/' }, // and with app.baseURL
+      { serverDir: '/app/.output/server', publicDir: '/app/.output/custom-public' }, // nitro.output.publicDir
+      { serverDir: '/app/.output/server', publicDir: '/sites/example.de' },
+      { serverDir: '/app/.vercel/output/functions/__fallback.func', publicDir: '/app/.vercel/output/static' },
+      { serverDir: '/app/.netlify/functions-internal/server', publicDir: '/app/dist' },
+      { serverDir: '/app/.output/server/functions', publicDir: '/app/.output/public' }, // azure-swa
+    ]) {
+      expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: true, output: layout })).toBe(false)
+    }
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: true, output: { serverDir: '/x/server/', publicDir: '/x/public/' } })).toBe(
+      true,
+    )
 
     // step 4: so a server-only setup copies to public/ where SSR reads it, embeds server assets elsewhere
     expect(shouldRegisterNitroServerAssets(resolveTranslationPayloadOptions({}), false)).toBe(true)

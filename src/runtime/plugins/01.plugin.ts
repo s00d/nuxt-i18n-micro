@@ -21,11 +21,11 @@ import type {
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
 } from 'vue-router'
-import { shallowRef } from 'vue'
+import { getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
-import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
+import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRoute, useRouter, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
@@ -306,8 +306,26 @@ export default defineNuxtPlugin({
       })
     }
 
+    // Read in a page's setup, and often called later from a handler that has no instance left: the function itself has
+    // to know its page, so an abandoned page's late answer stays off the shown one, and a kept-alive page can give it again
+    const { setI18nRouteParams, ...provided } = provideApi
+    const pageRouteParams: PropertyDescriptor = {
+      enumerable: true,
+      get: (): typeof setI18nRouteParams => {
+        if (!getCurrentInstance()) return setI18nRouteParams
+        const route = useRoute()
+        let own: I18nRouteParams | undefined
+        onActivated(() => own && setI18nRouteParams(own))
+        return (value) => {
+          if (route.path !== router.currentRoute.value.path) return i18nRouteParams.value
+          own = value
+          return setI18nRouteParams(value)
+        }
+      },
+    }
+
     const provideData = {
-      ...provideApi,
+      ...provided,
       helper,
       getI18nConfig: () => i18nConfig,
       i18n: undefined as unknown,
@@ -316,7 +334,12 @@ export default defineNuxtPlugin({
 
     const $provideData = Object.fromEntries(Object.entries(provideData).map(([key, value]) => [`$${key}`, value]))
 
-    ;(provideData as { i18n: typeof provideData & Record<string, unknown> }).i18n = { ...provideData, ...$provideData }
+    ;(provideData as { i18n: typeof provideData & Record<string, unknown> }).i18n = Object.defineProperties(
+      { ...provideData, ...$provideData },
+      { setI18nRouteParams: pageRouteParams, $setI18nRouteParams: pageRouteParams },
+    )
+    Object.defineProperty(nuxtApp, '$setI18nRouteParams', pageRouteParams)
+    nuxtApp.vueApp.config.globalProperties.$setI18nRouteParams = setI18nRouteParams
 
     return { provide: provideData }
   },

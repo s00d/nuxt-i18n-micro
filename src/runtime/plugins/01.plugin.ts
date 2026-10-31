@@ -30,7 +30,15 @@ import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRout
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, formatterFor, keepAbsoluteRoutes, NuxtI18n, NuxtTranslationLoader, switchedPath, type TranslationFn } from '../utils/nuxt-i18n'
+import {
+  createNuxtI18nPluginApi,
+  formatterFor,
+  keepAbsoluteRoutes,
+  NuxtI18n,
+  NuxtTranslationLoader,
+  switchedPath,
+  type TranslationFn,
+} from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'

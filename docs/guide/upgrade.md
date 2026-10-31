@@ -59,6 +59,13 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **Hash mode works under `prefix`.** The document is `/`, and `/en` or `/about` redirect into the hash.
 - **Under `prefix_and_default` an unprefixed URL is the default locale.** `/contact` with `Accept-Language: de` used to render German and then hydrate English. It now renders the default locale; visitors reach German through `/de/...`.
 - **`$setI18nRouteParams` and `useI18nHead` from the server survive hydration.** After landing on `/news/2` the switcher links to the translated slug (`/de/news/2-zwei`), not `/de/news/2`, in the server HTML too, wherever the switcher sits, when the page sets the params during SSR. They are dropped when a navigation to another path commits, including `/news/1` to `/news/4`: set them again on the new page.
+- **A navigation applies when it commits.** The dictionary, the locale, params and head change in `router.afterEach`, so a cancelled or blocked navigation changes nothing, and the old page's links stay valid while the next chunk loads. A `beforeResolve`, a `beforeRouteEnter` or a later global guard now sees the old dictionary and locale. Route middleware is unaffected.
+- **`$switchLocale` puts the stored locale back** when its navigation does not commit, under the URL strategies.
+- **A client redirect keeps the mode of its navigation.** A plain `<NuxtLink to="/about">` under `prefix` adds a history entry instead of overwriting the current one; `router.replace` still replaces.
+- **`$setI18nRouteParams` read in setup is bound to that page.** A late call from a page already left does nothing. `useNuxtApp().$setI18nRouteParams` is an accessor now, and two reads give two functions.
+- **The server rewrites switch links when the render ends**, on pages with params, because a switcher in the layout renders before the page's async setup. Under Nuxt's SSR streaming the first HTML keeps the URL's params.
+- **A prop named `locale` on a server component sets its render locale**, so `<Greeting :locale="$getLocale()" />` follows the URL and a switch. See [server-side translations](/guide/server-side-translations). Without the prop it still uses the cookie or the default.
+- **`keepalive` pages get their params and head back** on return.
 
 ### Locale detection
 

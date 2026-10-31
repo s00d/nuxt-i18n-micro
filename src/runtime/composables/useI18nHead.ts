@@ -1,6 +1,7 @@
 import type { I18nHeadInput } from '@i18n-micro/types'
 import type { MaybeRefOrGetter } from 'vue'
-import { toValue, watch } from 'vue'
+import { getCurrentInstance, onActivated, toValue, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 import { useState } from '#app/composables/state'
 import { usePageHead } from '../utils/page-head'
 
@@ -20,17 +21,25 @@ export function useI18nHead(input?: MaybeRefOrGetter<I18nHeadInput | null>) {
   }
 
   if (input !== undefined) {
+    // `useRoute()` stays on this page while the next one loads. The page is still mounted then, and its watcher
+    // still runs (a dictionary or locale change), but the head it writes is no longer the shown page's.
+    const route = useRoute()
+    const router = useRouter()
+    const write = (value: I18nHeadInput | null | undefined) => {
+      if (route.path === router.currentRoute.value.path) pageHead.value = value ?? null
+    }
+
     watch(
       () => {
         // Track locale so getters that call `t()` re-run after locale-only switches.
         localeState.value
         return toValue(input)
       },
-      (value) => {
-        pageHead.value = value ?? null
-      },
+      write,
       { immediate: true, deep: true },
     )
+    // keepalive: setup does not run again on the way back
+    if (getCurrentInstance()) onActivated(() => write(toValue(input)))
   }
 
   return { pageHead, resetPageHead }

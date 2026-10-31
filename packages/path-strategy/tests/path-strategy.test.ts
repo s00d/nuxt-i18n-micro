@@ -68,11 +68,13 @@ function setup(
     routeLocales = {},
     routeDisableMeta,
     rules = {},
+    redirects,
   }: {
     pages?: NuxtPage[]
     routeLocales?: Record<string, string[]>
     routeDisableMeta?: Record<string, boolean | string[]>
     rules?: GlobalLocaleRoutes
+    redirects?: boolean
   } = {},
 ): Setup {
   const pages = structuredClone(source)
@@ -85,6 +87,7 @@ function setup(
     routeDisableMeta,
     customRegexMatcher: ctx.customRegexMatcher,
     noPrefixRedirect: false,
+    redirects,
   }).extendPages(pages)
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
   const resolve = (to: unknown): ResolvedRouteLike => {
@@ -420,6 +423,28 @@ describe('redirects', () => {
     expect(i18n.shouldReturn404('/de/ueber-uns')).toBeNull()
     expect(i18n.shouldReturn404('/about-long')).toBeNull()
   })
+
+  describe.each([undefined, false])('prefix, redirects: %s, a custom path in every locale', (redirects) => {
+    const pages = PAGES.filter((page) => page.name !== 'slug')
+
+    test('a link by the original path finds the page', () => {
+      const { i18n } = setup('prefix', {}, LOCALES, { pages, redirects })
+      expect(i18n.localeRoute('de', '/page2').fullPath).toBe('/de/custom-page2-de')
+      expect(i18n.localeRoute('en', '/page2/').fullPath).toBe('/en/custom-page2-en')
+      expect(i18n.getRouteBaseName({ path: '/page2' })).toBe('page2')
+    })
+
+    test('a catch-all does not take it', () => {
+      const { i18n } = setup('prefix', {}, LOCALES, { redirects })
+      expect(i18n.localeRoute('fr', '/page2').fullPath).toBe('/fr/custom-page2-fr')
+    })
+  })
+
+  test('redirects: false adds no record for the original URL', () => {
+    const { router } = setup('prefix', {}, LOCALES, { redirects: false })
+    expect(router.getRoutes().some((record) => record.path === '/page2')).toBe(false)
+    expect(setup('prefix').router.getRoutes().some((record) => record.path === '/page2')).toBe(true)
+  })
 })
 
 describe('an unnamed page from a module', () => {
@@ -587,6 +612,18 @@ describe('a case variant of the prefix', () => {
     expect(setup('prefix_except_default', {}, LOCALES, { pages }).i18n.shouldReturn404('/FR/about')).toBeNull()
   })
 
+  test('a [slug] page does not save a bare prefix: the router shows the locale home there', () => {
+    const pages = [
+      { path: '/', name: 'index', file: 'pages/index.vue' },
+      { path: '/:slug()', name: 'slug', file: 'pages/[slug].vue' },
+    ]
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages })
+    expect(i18n.shouldReturn404('/DE')).toBe('Unknown locale')
+    expect(i18n.getClientRedirect('/DE', 'en')).toBeNull()
+    expect(i18n.shouldReturn404('/de')).toBeNull()
+    expect(i18n.shouldReturn404('/other')).toBeNull()
+  })
+
   test('a segment that only looks like one is left alone', () => {
     const { i18n } = setup('prefix_except_default')
     expect(i18n.shouldReturn404('/About')).toBeNull()
@@ -638,6 +675,25 @@ describe('a domain build, on an unknown host', () => {
     expect(i18n.localeRoute('fr', { name: 'page2' }).fullPath).toBe('https://a.test/fr/custom-page2-fr')
     expect(i18n.localeRoute('fr', '/?x=1').fullPath).toBe('https://a.test/fr?x=1')
     expect(i18n.localeRoute('en', { name: 'page2' }).fullPath).toBe('https://a.test/custom-page2-en')
+  })
+
+  test.each(['https://a.test', 'https://a.test/'])('a host is the same with a trailing slash: %s', (baseUrl) => {
+    const shared: Locale[] = [{ code: 'en', baseUrl }, { code: 'de', baseUrl: 'https://a.test', baseDefault: true }, { code: 'fr' }]
+    const { i18n } = setup('prefix_except_default', {}, shared)
+    expect(i18n.localeRoute('en', { name: 'page2' }).fullPath).toBe('https://a.test/en/custom-page2-en')
+  })
+
+  test('a link made absolute stays that link, whatever the locale', () => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const link = i18n.localeRoute('de', { name: 'page2' })
+    expect(link.fullPath).toBe('https://b.test/de/custom-page2-de'.replace('/de/', '/'))
+    expect(i18n.localeRoute('fr', link)).toEqual({ path: link.fullPath, fullPath: link.fullPath })
+  })
+
+  test.each(['https://evil.example/x', 'https://b.test.evil.example/x', 'https://b.test@evil.example/x'])('any other absolute object is no link: %s', (url) => {
+    const { i18n } = setup('prefix_except_default', {}, locales)
+    const { fullPath } = i18n.localeRoute('de', { path: url, fullPath: url })
+    expect(new URL(fullPath!, 'https://b.test').host).toBe('b.test')
   })
 
   test('no_prefix has no prefix to add', () => {

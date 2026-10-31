@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { buildVitePressLocales, withI18n } from '@i18n-micro/vitepress/config'
+import { datetimeFormats, numberFormats } from '../../../../benchmark/integrations/catalogue'
 
 const locales = [
   { code: 'en', iso: 'en-US', displayName: 'English', og: 'en_US' },
@@ -31,6 +32,8 @@ export default defineConfig(
       title: 'i18n-micro VitePress Playground',
       description: 'Runtime dictionaries, routing helpers, SEO head',
       cleanUrls: true,
+      cacheDir: process.env.BENCH_CACHE,
+      vite: { publicDir: false, server: { fs: { allow: ['../../..'] } } },
       locales: {
         root: {
           ...vpLocales.root,
@@ -82,6 +85,9 @@ export default defineConfig(
       translationDir: 'locales',
       missingWarn: true,
       metaBaseUrl: 'https://example.com',
+      numberFormats,
+      datetimeFormats,
+      timeZone: 'UTC',
       hreflangBaseLanguage: false,
     },
   ),

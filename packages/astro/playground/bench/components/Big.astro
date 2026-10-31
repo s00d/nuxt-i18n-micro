@@ -1,0 +1,13 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import { bigKey, bigMessages, bigRows, BIG_KEYS } from '../../../../../benchmark/integrations/catalogue'
+
+const { t, locale, addRouteTranslations } = useI18n(Astro)
+addRouteTranslations(locale, 'big', bigMessages(BIG_KEYS, locale) as never)
+---
+
+<ul data-testid="page-big">
+  <li data-testid="big-sample">{String(t(bigKey(1234), { x: 'y' }, undefined, 'big'))}</li>
+  <li data-testid="big-count">{bigRows.length}</li>
+  {bigRows.map((n) => <li>{String(t(bigKey(n), { x: n }, undefined, 'big'))}</li>)}
+</ul>

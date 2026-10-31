@@ -31,7 +31,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getI18n` | function | `(astro: Pick<AstroGlobal, "locals">) => AstroI18n` |
 | `getI18nProps` | function | `(astro: Pick<AstroGlobal, "locals">, keys?: string[]) => I18nClientProps` |
 | `getLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
-| `getLocaleRewritePath` | function | `(astro: AstroGlobal) => string` |
+| `getLocaleRewritePath` | function | `(astro: Astro) => string` |
 | `getLocales` | function | `(astro: Pick<AstroGlobal, "locals">) => Locale[]` |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nClientProps` | interface | 6 members |
@@ -47,7 +47,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `prepareLocaleRewrite` | function | `(astro: AstroGlobal) => Response \| string` |
+| `prepareLocaleRewrite` | function | `(astro: Astro & Pick<AstroGlobal, "params">) => Response \| string` |
 | `Translations` | interface | 1 members |
 | `useI18n` | function | `(astro: Astro) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Record<string, unknown>, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => void; clearCache: () => void; }` |
 | `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |

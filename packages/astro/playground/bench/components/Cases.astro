@@ -1,0 +1,13 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import { caseRows, type I18nLike } from '../../../../../benchmark/integrations/catalogue'
+
+const i18n = useI18n(Astro)
+const rows = caseRows(i18n as unknown as I18nLike)
+---
+
+<ul data-testid="page-cases">
+  {rows.map(({ id, value }) => <li data-testid={id}>{value}</li>)}
+  <li data-testid="route-only-title">{String(i18n.t('title'))}</li>
+  <li data-testid="page-only">{String(i18n.has('page.only'))}</li>
+</ul>

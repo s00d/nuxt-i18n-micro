@@ -1,0 +1,10 @@
+---
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
+import { localePaths } from '../../paths'
+
+export const getStaticPaths = () => localePaths
+
+const target = prepareLocaleRewrite(Astro)
+if (target instanceof Response) return target
+return Astro.rewrite(target)
+---

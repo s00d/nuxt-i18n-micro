@@ -1,0 +1,17 @@
+{
+  "greeting": "مرحبا, {name}!",
+  "welcome": "أهلا",
+  "apples": "لا تفاح | تفاحة | تفاحتان | {count} تفاحات | {count} تفاحة | {count} تفاحة",
+  "two": "{a} / {b} / {a}",
+  "html": "<b>{name}</b>",
+  "section": {
+    "title": "قسم",
+    "deep": {
+      "er": {
+        "value": "عميق"
+      }
+    }
+  },
+  "stats": "n={number} d={date} r={relativeDate}",
+  "list": ["واحد", "اثنان", "ثلاثة"]
+}

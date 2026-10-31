@@ -107,6 +107,39 @@ describe('$switchLocale when the navigation does not commit', () => {
   })
 })
 
+describe('$switchLocale decides after the navigation', () => {
+  const failure = (type: number) => Object.assign(new Error('navigation failure'), { type })
+
+  test('a blocked switch to a locale with a `baseUrl` on this host stores nothing', async () => {
+    const { provide, push, setLocale } = makeApi('prefix', true, { switched: { path: '/es', fullPath: '/es' } })
+    push.mockResolvedValueOnce(failure(4) as never)
+    await provide.switchLocale('es')
+    expect(setLocale).not.toHaveBeenCalled()
+  })
+
+  test('a switch that leaves for another host stores it first: no commit will', async () => {
+    const { provide, setLocale, navigateTo } = makeApi('prefix', true, { switched: { path: 'https://es.example/', fullPath: 'https://es.example/' } })
+    await provide.switchLocale('es')
+    expect(navigateTo).toHaveBeenCalledOnce()
+    expect(setLocale.mock.calls).toEqual([['es']])
+  })
+
+  test('a thrown navigation puts the state back and stores nothing', async () => {
+    const { provide, push, setLocale, setLocaleState } = makeApi('prefix')
+    push.mockRejectedValueOnce(new Error('guard threw'))
+    await expect(provide.switchLocale('de')).rejects.toThrow('guard threw')
+    expect(setLocale).not.toHaveBeenCalled()
+    expect(setLocaleState.mock.calls).toEqual([['de'], ['']])
+  })
+
+  test('no_prefix goes by name with no path: the router encodes, and two pages can share a path', async () => {
+    const switched = { name: 'two-de', params: { id: 'a b' }, query: {}, hash: '', path: '/co/a%20b', fullPath: '/co/a%20b' }
+    const { provide, replace } = makeApi('no_prefix', true, { switched })
+    await provide.switchLocale('es')
+    expect(replace.mock.calls[0]?.[0]).toEqual({ name: 'two-de', params: { id: 'a b' }, query: {}, hash: '', force: true })
+  })
+})
+
 describe('what <i18n-t> reads from the plugin', () => {
   test('$pluralFunc is the rule of the instance, $pluralLocale its tag', () => {
     const { provide } = makeApi('prefix')
@@ -122,7 +155,7 @@ describe('switchLocale history (#238)', () => {
     await noPrefix.provide.switchLocale('es')
     expect(noPrefix.replace).toHaveBeenCalledTimes(1)
     expect(noPrefix.push).not.toHaveBeenCalled()
-    expect(noPrefix.replace.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ force: true, path: '/' }))
+    expect(noPrefix.replace.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ force: true, name: 'index' }))
     expect(noPrefix.setLocale).toHaveBeenCalled()
 
     // step 2: prefix → the URL changes, so a push

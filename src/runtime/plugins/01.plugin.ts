@@ -348,18 +348,20 @@ export default defineNuxtPlugin({
       // the stored chunk: `i18n:register` merged into it after this guard's load. Not after a failed load: what
       // a subscriber wrote is a fragment, and the strings on screen stay
       const applied = !changed || loader.applyContext(locale, routeName, data && (loader.loadFromCacheSync(locale, routeName) ?? data))
-      // a parent stays around its new child, and its keys with it, until the next navigation replaces them
+      // A parent stays around its new child, and its keys with it, until the next navigation replaces them. The page that
+      // owns this dictionary is its leaf and, for an index child, the parent on the same URL: any of them still here keeps it.
       const left = from.matched.at(-1)
-      if (changed && applied && !(left && to.matched.includes(left))) finishWhenGone(left?.instances.default)
+      const stays = from.matched.some((record) => record.path === left?.path && to.matched.includes(record))
+      if (changed && applied && !stays) finishWhenGone(left?.instances.default)
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
       const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
       if (!applied || bound || !locale || !isValidLocale(locale)) return
-      const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
       // a 404 renders in its URL's locale and stores nothing, as on the server: no page, no choice
-      if (urlNamed && !to.matched.length) {
+      if (!to.matched.length) {
         localeState.value = locale
         return
       }
+      const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
       // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
       // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
       // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.

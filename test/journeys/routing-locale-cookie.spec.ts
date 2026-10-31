@@ -3,7 +3,7 @@ import { ssr } from '../helpers/journeys-b'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 declare const useNuxtApp: () => {
-  $router: { push: (to: string) => Promise<unknown>; beforeResolve: (guard: () => boolean) => void }
+  $router: { push: (to: string) => Promise<unknown>; beforeResolve: (guard: () => boolean) => void; beforeEach: (guard: () => void) => () => void }
   $switchLocale: (locale: string) => Promise<boolean>
 }
 
@@ -38,6 +38,32 @@ describe('journey: only a served page writes the locale cookie', () => {
     const missing = await ssr(baseURL, '/de/nope', malformed)
     expect(missing.status).toBe(404)
     expect(missing.headers.get('set-cookie') ?? '').not.toContain('user-locale')
+  })
+
+  test('a throwing guard leaves state and preference, and the next navigation stores neither', async ({ page, goto, baseURL, guard }) => {
+    guard.allow(/guard said no/)
+    await page.context().addCookies([{ name: 'user-locale', value: 'en', url: baseURL }])
+    await goto('/en/page-b', { waitUntil: 'hydration' })
+    const message = await page.evaluate(async () => {
+      const stop = useNuxtApp().$router.beforeEach(() => {
+        throw new Error('guard said no')
+      })
+      const rejected = await useNuxtApp()
+        .$switchLocale('ru')
+        .then(
+          () => null,
+          (error: Error) => error.message,
+        )
+      stop()
+      return rejected
+    })
+    expect(message).toBe('guard said no')
+    await expect(page.locator('.locale-value')).toHaveText('en')
+    expect(await cookie(page)).toBe('en')
+    // under prefix the client redirect of `/` goes by the state: one left on `ru` lands on `/ru`, and stores it
+    await push(page, '/')
+    await expect(page).toHaveURL('/en')
+    expect(await cookie(page)).toBe('en')
   })
 
   test('a client navigation from a 404 stores the page it reaches', async ({ page, goto, guard }) => {
@@ -96,6 +122,15 @@ describe('journey: a client navigation stores the locale of its page', () => {
     await expect(page).toHaveURL('/contact')
     await expect(page.locator('.locale-value')).toHaveText('en')
     expect(await cookie(page)).toBe('de')
+  })
+
+  test('$switchLocale on a 404 is a choice: it stores it', async ({ page, goto, baseURL, guard }) => {
+    guard.allow(/404/, /No match found/)
+    await page.context().addCookies([{ name: 'user-locale', value: 'en', url: baseURL }])
+    await goto('/ru/nope', { waitUntil: 'hydration' })
+    await page.evaluate(() => useNuxtApp().$switchLocale('de'))
+    await expect(page).toHaveURL('/de/nope')
+    await expect.poll(() => cookie(page)).toBe('de')
   })
 
   test('$switchLocale stores the locale, and `/` then goes by it', async ({ page, goto, baseURL }) => {

@@ -40,6 +40,13 @@ const regionI18n = {
   },
 }
 
+const sharedPathI18n = {
+  globalLocaleRoutes: {
+    'shared-one-id': { en: '/co/:id', de: '/co-one/:id', ru: '/co-one-ru/:id' },
+    'shared-two-id': { en: '/co-two/:id', de: '/co/:id', ru: '/co-two-ru/:id' },
+  },
+}
+
 export default defineNuxtConfig({
   // `strategy-islands`: its own build, since server components change what Nuxt bundles
   extends: process.env.ISLANDS ? ['./island-layer'] : [],
@@ -77,5 +84,7 @@ export default defineNuxtConfig({
     ...(process.env.AUTO_DETECT_PATH ? { autoDetectPath: process.env.AUTO_DETECT_PATH } : {}),
     ...(process.env.EXCLUDE_PATTERNS ? { excludePatterns: process.env.EXCLUDE_PATTERNS.split(',') } : {}),
     ...(regionCodes ? regionI18n : {}),
+    // `strategy-no-prefix-shared-path`
+    ...(process.env.SHARED_PATH ? sharedPathI18n : {}),
   },
 })

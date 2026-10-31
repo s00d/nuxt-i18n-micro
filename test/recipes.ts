@@ -60,6 +60,12 @@ export const recipes = defineRecipes(
       AUTO_DETECT_LANGUAGE: '1',
       EXCLUDE_PATTERNS: '/administrator',
     }),
+    // two pages on one custom path, each in its locale
+    'strategy-no-prefix-shared-path': app('strategy-no-prefix-shared-path', 'strategy', {
+      STRATEGY: 'no_prefix',
+      LOCALE_COOKIE: 'user-locale',
+      SHARED_PATH: '1',
+    }),
     'strategy-prefix': app('strategy-prefix', 'strategy', {
       STRATEGY: 'prefix',
       LOCALE_COOKIE: 'user-locale',

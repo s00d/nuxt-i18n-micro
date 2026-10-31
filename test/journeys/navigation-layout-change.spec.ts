@@ -103,6 +103,17 @@ describe('journey: a layout change keeps the leaving page readable (prefix)', ()
     await expect(page.locator('#nest-parent')).toHaveText('Parent EN')
   })
 
+  test('a parent with an index child stays with its keys too', async ({ page, goto }) => {
+    await goto('/en/nest-index', { waitUntil: 'hydration' })
+    await expect(page.locator('#nest-index-home')).toHaveText('Home EN')
+    await recordFrames(page)
+    await push(page, '/en/nest-index/child')
+    await expect(page.locator('#nest-index-child')).toHaveText('child')
+    await page.waitForTimeout(100)
+    await expect(page.locator('#nest-index-parent')).toHaveText('Parent EN')
+    expect(await page.evaluate(() => window.__frames.filter((text) => text.includes('nestIndex.parent')).length)).toBe(0)
+  })
+
   test('a child goes back to its parent: both read, and the child keys stop', async ({ page, goto }) => {
     await goto('/en/nest', { waitUntil: 'hydration' })
     await push(page, '/en/nest/child')

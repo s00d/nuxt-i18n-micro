@@ -23,6 +23,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * 103k-key dictionary, on every navigation.
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { hasProtocol } from 'ufo'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -628,7 +629,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     // a path is read as the page it shows (any locale's form of it), then switched like a route,
     // so per-locale params (`i18nRouteParams`) apply to it too
     const from = typeof to === 'string' ? i18nStrategy.localeRoute(fromLocale, to) : (to ?? currentRoute)
-    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
+    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, {
+      i18nRouteParams: i18nParams,
+      named: isNoPrefix,
+    })
 
     // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
@@ -637,11 +641,24 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
+      // By name with no path: pages can share a path here, and the router encodes params it is handed that way.
       // A copy: the strategy may hand back the current route object itself.
-      return router.replace({ ...(switchedRoute as RouteLocationRaw & object), force: true } as RouteLocationRaw)
+      const { path, fullPath, ...named } = switchedRoute as RouteLike
+      return router.replace({ ...(named.name ? named : { path, fullPath, ...named }), force: true } as RouteLocationRaw)
     }
 
     return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
+  }
+
+  /**
+   * Did `$switchLocale` take effect? A duplicate commits nothing, on a page with one URL for every locale
+   * (`excludePatterns`): the choice stands for the next one. Any other failure left the page as it was, and the state
+   * follows the page. An arrival in the locale is an explicit choice, on a 404 too, where a plain navigation stores nothing.
+   */
+  const settleSwitch = (toLocale: string, failure: unknown) => {
+    const type = failure instanceof Error ? (failure as Error & { type?: number }).type : undefined
+    if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getCurrentLocale())
+    else if (type === DUPLICATED || i18n.getCurrentLocale() === toLocale) setLocale(toLocale)
   }
 
   const helper = {
@@ -706,17 +723,18 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
       if (loaded === false) return false
 
-      // Under no_prefix and hash mode the dictionary has already moved, and another domain never comes back: the switch
-      // stands. Elsewhere the commit stores it (`afterEach`), and only the state goes ahead, as the client redirect reads it.
-      const leaves = urlless || i18nConfig.locales?.some((locale) => locale.code === toLocale && locale.baseUrl)
-      if (leaves) setLocale(toLocale)
+      // Under no_prefix and hash mode the dictionary has already moved: the switch stands, whatever the navigation does.
+      // A move to another host cannot be stopped, and no commit follows here. Otherwise only the state goes ahead, as
+      // the client redirect reads it, and `settleSwitch` decides once the navigation has answered.
+      if (urlless || hasProtocol(provide.switchLocalePath(toLocale))) setLocale(toLocale)
       else setLocaleState(toLocale)
-      const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
-      if (urlless || !(failure instanceof Error)) return loaded ?? i18n.getCurrentLocale() === toLocale
-      // A duplicate is a page with one URL for every locale (`excludePatterns`), no commit runs: the choice stands for the
-      // next one. Any other failure left the page as it was, and the state follows the page.
-      if ((failure as Error & { type?: number }).type === DUPLICATED) setLocale(toLocale)
-      else setLocaleState(i18n.getCurrentLocale())
+      try {
+        const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
+        if (!urlless) settleSwitch(toLocale, failure)
+      } catch (error) {
+        if (!urlless) setLocaleState(i18n.getCurrentLocale())
+        throw error
+      }
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

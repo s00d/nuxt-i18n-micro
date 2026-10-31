@@ -551,3 +551,33 @@ describe('disableMeta', () => {
     expect(pages.map((p) => [p.name, p.meta?.i18n, p.meta?.i18nNoMeta])).toEqual([['landing', undefined, true]])
   })
 })
+
+describe('no_prefix: a path shared by locales', () => {
+  const generate = (rules: Record<string, Record<string, string>>, defaultLocale = 'en') => {
+    const pages: NuxtPage[] = [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+    new RouteGenerator({
+      locales: [{ code: 'at' }, { code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: defaultLocale,
+      strategy: 'no_prefix',
+      globalLocaleRoutes: rules,
+      noPrefixRedirect: true,
+    }).extendPages(pages)
+    return pages
+  }
+
+  test('is one record serving each of them', () => {
+    const records = generate({ about: { de: '/ueber-uns', at: '/ueber-uns' } })
+    expect(records.filter((page) => page.path === '/ueber-uns')).toHaveLength(1)
+    expect(records.find((page) => page.path === '/ueber-uns')).toMatchObject({ name: 'localized-about-at', meta: { i18n: { name: 'about', locales: ['at', 'de'] } } })
+  })
+
+  test('different paths stay separate records', () => {
+    const records = generate({ about: { de: '/ueber-uns', at: '/oesterreich' } })
+    expect(records.map((page) => page.name)).toEqual(['about', 'localized-about-at', 'localized-about-de'])
+  })
+
+  test('noPrefixRedirect finds the default locale behind another code of the group', () => {
+    const records = generate({ about: { en: '/shared', at: '/shared' } })
+    expect(records.find((page) => page.name === 'about')?.redirect).toBe('/shared')
+  })
+})

@@ -60,4 +60,35 @@ describe('journey: no_prefix custom paths render their own locale', () => {
     await expect(page.locator('.locale-value')).toHaveText('en')
     expect(await getLocaleCookie(page, 'user-locale')).toBe('en')
   })
+
+  test('a path shared by locales renders the preference, on the server and after a switch', async ({ page, goto, baseURL, request }) => {
+    const localeOf = async (headers: Record<string, string>, query = '') => {
+      const response = await request.get(`/page/1${query}`, { headers })
+      expect(response.status()).toBe(200)
+      return /class="locale-value"[^>]*>([^<]*)</.exec(await response.text())?.[1]
+    }
+    // step 1: `en` and `de` both have /page/:id, so every way of naming a preference holds
+    expect(await localeOf({ cookie: 'user-locale=de' })).toBe('de')
+    expect(await localeOf({ 'accept-language': 'de' })).toBe('de')
+    expect(await localeOf({}, '?locale=de')).toBe('de')
+    expect(await localeOf({ cookie: 'user-locale=en', 'accept-language': 'de' })).toBe('en')
+    // step 2: `ru` has no such path: the page keeps to the locales it has
+    expect(await localeOf({ cookie: 'user-locale=ru' })).toBe('en')
+
+    // step 3: the server and the browser agree, and `$switchLocale` works in place
+    await page.context().clearCookies()
+    await page.context().addCookies([{ name: 'user-locale', value: 'de', url: baseURL }])
+    await goto('/page/1', { waitUntil: 'hydration' })
+    await expect(page.locator('.locale-value')).toHaveText('de')
+    await expect(page.locator('.layout-title')).toHaveText('Meine App')
+    await page.locator('button[data-locale="en"]').click()
+    await expect(page.locator('.locale-value')).toHaveText('en')
+    await expect(page.locator('.layout-title')).toHaveText('My App')
+    await expect(page).toHaveURL(/\/page\/1$/)
+    await expect.poll(() => getLocaleCookie(page, 'user-locale')).toBe('en')
+    await page.locator('button[data-locale="de"]').click()
+    await expect(page.locator('.layout-title')).toHaveText('Meine App')
+    await page.reload()
+    await expect(page.locator('.locale-value')).toHaveText('de')
+  })
 })

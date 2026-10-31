@@ -503,6 +503,49 @@ describe('no link leaves the origin', () => {
   })
 })
 
+describe('no_prefix: a custom path shared by locales', () => {
+  const AT: Locale[] = [...LOCALES, { code: 'at', displayName: 'Österreich' }]
+  const rules: GlobalLocaleRoutes = { about: { de: '/ueber-uns', at: '/ueber-uns' } }
+
+  test('renders the preferred locale when it serves the path, its first locale otherwise', () => {
+    const { i18n, at } = setup('no_prefix', {}, AT, { rules })
+    expect(i18n.getCurrentLocale(at('/ueber-uns'), 'at')).toBe('at')
+    expect(i18n.getCurrentLocale(at('/ueber-uns'), 'de')).toBe('de')
+    expect(i18n.getCurrentLocale(at('/ueber-uns'), 'fr')).toBe('de')
+  })
+
+  test('one locale on a custom path keeps it, and the base page keeps the preference', () => {
+    const { i18n, at } = setup('no_prefix', {}, AT, { rules: { about: { de: '/ueber-uns', at: '/oesterreich' } } })
+    expect(i18n.getCurrentLocale(at('/ueber-uns'), 'at')).toBe('de')
+    expect(i18n.getCurrentLocale(at('/oesterreich'), 'de')).toBe('at')
+    expect(i18n.getCurrentLocale(at('/about'), 'de')).toBe('de')
+  })
+
+  test('links of both locales reach the one URL, and the switch stays on it', () => {
+    const { i18n, at, url } = setup('no_prefix', {}, AT, { rules })
+    expect(url(i18n.localeRoute('at', { name: 'about' }))).toBe('/ueber-uns')
+    expect(url(i18n.localeRoute('de', { name: 'about' }))).toBe('/ueber-uns')
+    expect(url(i18n.switchLocaleRoute('de', 'at', at('/ueber-uns')))).toBe('/ueber-uns')
+    expect(i18n.pageLocales(at('/ueber-uns'))).toEqual(expect.arrayContaining(['de', 'at']))
+  })
+
+  test('with domains, a host serves the path of its own locale', () => {
+    const domains: Locale[] = [
+      { code: 'en', baseUrl: 'https://a.test' },
+      { code: 'de', baseUrl: 'https://b.test' },
+      { code: 'fr', baseUrl: 'https://c.test' },
+    ]
+    const on = (host: Locale) => setup('no_prefix', { domain: host.baseUrl, locales: [host], linkLocales: domains }, domains, { rules: { about: { de: '/x', fr: '/x' } } })
+    const onFr = on(domains[2]!)
+    expect(onFr.i18n.shouldReturn404('/x')).toBeNull()
+    expect(onFr.i18n.getCurrentLocale(onFr.at('/x'), 'de')).toBe('fr')
+    const onDe = on(domains[1]!)
+    expect(onDe.i18n.shouldReturn404('/x')).toBeNull()
+    expect(onDe.i18n.getCurrentLocale(onDe.at('/x'), 'fr')).toBe('de')
+    expect(on(domains[0]!).i18n.shouldReturn404('/x')).toBe('Locale on another domain')
+  })
+})
+
 describe('a page on the segment of a disabled locale', () => {
   const locales = [...LOCALES, { code: 'es', disabled: true }]
   const pages: NuxtPage[] = [...PAGES.slice(0, 2), { path: '/es', name: 'es-page', file: 'pages/es.vue' }]

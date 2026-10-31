@@ -5,7 +5,8 @@
  *    and disallowed pages dropped). A tree with no locale is the page as written.
  * 2. emit: vue-router records. Locales whose tree equals the page as written share one record
  *    `/:locale(de|fr)/...` named `localized-<name>`; every other locale gets its own records
- *    named `localized-<name>-<locale>`. The default locale of prefix_except_default /
+ *    named `localized-<name>-<locale>` (under no_prefix, locales on one path share that record, named
+ *    after the first). The default locale of prefix_except_default /
  *    prefix_and_default, and the base page of no_prefix, keep the page's own names unprefixed.
  *
  * Every localized record carries `meta.i18n = { name, locales }`: the page's base route name and
@@ -210,18 +211,22 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const plainSignature = signature(localize(page, null, '', '', true, false)!)
     const plain: string[] = []
     let plainVariant: Variant | undefined
-    const own: NuxtPage[] = []
+    // unprefixed, locales on one path are one URL, so one record: of two, the router would only ever match the first
+    const groups = new Map<string, string[]>()
     for (const code of codes) {
       const variant = variants.get(code)
       if (!variant) continue
-      if (signature(variant) === plainSignature) {
+      const tree = signature(variant)
+      if (tree === plainSignature) {
         plain.push(code)
         plainVariant ??= variant
       } else {
-        // unprefixed (no_prefix) copies leave the declared aliases to the base page, which serves them
-        own.push(emit(variant, [code], `-${code}`, true, prefixed, true, prefixed))
+        const group = prefixed ? code : tree
+        groups.set(group, [...(groups.get(group) ?? []), code])
       }
     }
+    // unprefixed (no_prefix) copies leave the declared aliases to the base page, which serves them
+    const own = [...groups.values()].map((group) => emit(variants.get(group[0]!)!, group, `-${group[0]}`, true, prefixed, true, prefixed))
     const records = plainVariant && prefixed ? [emit(plainVariant, plain, '', true, true, true), ...own] : own
     return { plain, records }
   }
@@ -262,7 +267,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     if (strategy === 'no_prefix') {
       const { plain, records } = localeRecords(page, allowed, false, variants)
       const base = emit(localize(page, null, '', '', true, true)!, plain, '', false, false, true)
-      const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales[0] === defaultLocale)
+      const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales.includes(defaultLocale))
       // a string redirect cannot carry params: dynamic pages are left to the router
       if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path && !defaultRecord.path.includes(':'))
         base.redirect = defaultRecord.path

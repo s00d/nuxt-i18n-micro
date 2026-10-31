@@ -403,16 +403,15 @@ export class I18nPathStrategy {
   }
 
   /**
-   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locale,
-   * and a page restricted to some locales never renders in another one.
+   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locales,
+   * and a page restricted to some locales never renders in another one. The preference wins among them.
    */
   protected servedLocale(route: ResolvedRouteLike, preferred: string): string {
     const name = named(route.name)
     const entry = name ? this.index.records.get(name) : undefined
     if (!entry) return preferred
-    const own = name !== entry.base && entry.locales.length === 1
-    if (!own && this.index.pages.get(entry.base)?.has(preferred)) return preferred
-    return entry.locales[0] ?? preferred
+    const serves = name === entry.base ? this.index.pages.get(entry.base)?.has(preferred) : entry.locales.includes(preferred)
+    return serves ? preferred : (entry.locales[0] ?? preferred)
   }
 
   getCurrentLocaleName(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null {

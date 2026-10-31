@@ -236,6 +236,17 @@ describe('journey: one build, two domains — no_prefix', () => {
     expect((await onHost(baseURL, '/kontakt', COM)).status).toBe(404)
   })
 
+  test('a path of locales on two domains is a page on each, in its own locale', async ({ baseURL }) => {
+    const localeOn = async (host: string, headers?: Record<string, string>) => {
+      const { status, html } = await onHost(baseURL, '/page/1', host, headers)
+      expect(status).toBe(200)
+      return /class="locale-value"[^>]*>([^<]*)</.exec(html)?.[1]
+    }
+    expect(await localeOn(DE)).toBe('de')
+    expect(await localeOn(COM)).toBe('en')
+    expect(await localeOn(DE, { cookie: 'user-locale=en' })).toBe('de')
+  })
+
   test('browser: hydrates, and the switcher leaves for the other domain', async ({ page, baseURL }) => {
     await routeDomains(page, baseURL)
     await page.goto('https://example.de/')

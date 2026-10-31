@@ -13,7 +13,7 @@ Generation has two steps:
 1. **Localize.** For each page and locale, build the page tree as that locale serves it. Custom paths are applied, and unlocalized or disallowed pages are dropped.
 2. **Emit.** Turn the trees into vue-router records.
    - Locales whose tree equals the page as written share one record, `/:locale(de|fr)/...`, named `localized-<name>`.
-   - Every other locale gets its own tree, named `localized-<name>-<locale>`.
+   - Every other locale gets its own tree, named `localized-<name>-<locale>`. Under `no_prefix`, locales on one path share that record, named after the first.
    - The default locale of `prefix_except_default` / `prefix_and_default`, and the base page of `no_prefix`, keep the page's own names, unprefixed.
 
 Every localized record carries `meta.i18n = { name, locales }`: the page's base name and the locales it serves. `@i18n-micro/path-strategy` reads that at runtime instead of re-deriving the rules, so the build is the single source of truth.

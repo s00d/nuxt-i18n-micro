@@ -22,8 +22,7 @@ locales: en, de, fr · default: en
 | localized-activity-de | /change-buchen |  |  | activity: de |
 | · localized-activity-hiking-de | hiking |  |  | activity-hiking: de |
 | · localized-activity-skiing-de | aktivitaet-buchen/ski-fahren |  |  | activity-skiing: de |
-| localized-page-en | /page/:id |  |  | page: en |
-| localized-page-de | /page/:id |  |  | page: de |
+| localized-page-en | /page/:id |  |  | page: en, de |
 | localized-product-slug-de | /produkte/:slug(.*)* |  |  | product-slug: de |
 
 ## Reading a URL
@@ -105,7 +104,7 @@ Every URL is resolved with `?q=1#top`.
 | /change-buchen/aktivitaet-buchen/ski-fahren | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] |  | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | /change-buchen/aktivitaet-buchen/ski-fahren?q=1#top [localized-activity-skiing-de] | null | null | en,de,fr |
 | /change-buchen/hiking | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] |  | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | /change-buchen/hiking?q=1#top [localized-activity-hiking-de] | null | null | fr,en,de |
 | /page | / [index] |  | / [index] | / [index] | null | null | en,de,fr |
-| /page/42 | /page/42?q=1#top [localized-page-de] | /page/42-de?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | /page/42?q=1#top [localized-page-de] | null | null | en,de,fr |
+| /page/42 | /page/42?q=1#top [localized-page-en] | /page/42-de?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | /page/42?q=1#top [localized-page-en] | null | null | en,de,fr |
 | /product/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | null | null | en,fr,de |
 | /produkte/hello-world | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | /produkte/hello-world?q=1#top [localized-product-slug-de] | null | null | en,fr,de |
 | /same | /same?q=1#top [same] |  | /same?q=1#top [same] | /same?q=1#top [same] | null | null | en,de,fr |
@@ -162,7 +161,7 @@ params: the PARAMS keys the route's records use.
 | activity-hiking | /change-activity/hiking [localized-activity-hiking-en] | /change-buchen/hiking [localized-activity-hiking-de] | /activity/hiking [activity-hiking] |
 | activity-skiing | /change-activity/book-activity/skiing [localized-activity-skiing-en] | /change-buchen/aktivitaet-buchen/ski-fahren [localized-activity-skiing-de] | /activity/skiing [activity-skiing] |
 | index | / [index] | / [index] | / [index] |
-| page | /page/42 [localized-page-en] | /page/42 [localized-page-de] | /page [page] |
+| page | /page/42 [localized-page-en] | /page/42 [localized-page-en] | /page [page] |
 | product-slug | /product/hello-world [product-slug] | /produkte/hello-world [localized-product-slug-de] | /product/hello-world [product-slug] |
 | same | /same [same] | /same [same] | /same [same] |
 | unlocalized | /unlocalized [unlocalized] | /unlocalized [unlocalized] | /unlocalized [unlocalized] |

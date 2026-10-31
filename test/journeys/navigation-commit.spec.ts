@@ -129,8 +129,6 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     expect(landing.html).toContain('href="/de/slug/1-eins"')
     expect(landing.html).toContain('href="/ru/slug/1-odin"')
     expect(landing.html).not.toContain('href="/de/slug/1"')
-    // a plain link to this page keeps its URL, the switcher's own link gets the slug
-    expect(landing.html).toMatch(/href="\/en\/slug\/1"[^>]*>first</)
     expect(landing.html).toContain('href="/en/slug/1-one"')
 
     // step 2: another locale's slug does not leak into the links
@@ -141,6 +139,9 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     // step 3: hydration agrees with it (the guard fails the test on a mismatch), and the DOM keeps the right href
     await goto('/en/slug/1', { waitUntil: 'hydration' })
     await expect(page.locator('.switcher-locale-de').first()).toHaveAttribute('href', '/de/slug/1-eins')
+    // a plain link to this page keeps its URL: only the switcher's own link gets the slug
+    await expect(page.locator('#slug-first')).toHaveAttribute('href', '/en/slug/1')
+    await expect(page.locator('.switcher-locale-en').first()).toHaveAttribute('href', '/en/slug/1-one')
 
     // step 4: a client navigation gets the next page's slugs
     await push(page, '/en/slug/2')

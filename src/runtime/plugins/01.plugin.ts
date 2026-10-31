@@ -21,6 +21,7 @@ import type {
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
 } from 'vue-router'
+import { hasProtocol } from 'ufo'
 import { getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
@@ -29,11 +30,12 @@ import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRout
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, switchedPath, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { translationStorage } from '../utils/storage'
+import { applyTrailingSlash } from '../utils/trailing-slash'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -220,6 +222,24 @@ export default defineNuxtPlugin({
       // a ref: a link rendered without the hash gets it back when hydration ends
       isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
     })
+
+    // A layout's switcher renders before the page's async setup reaches `$setI18nRouteParams`, and Vue cannot wait for
+    // it. By now every answer is known: links built without one get it, the same links the client's first render
+    // builds from the params in the payload. The string is the render's own and this runs only on pages with params.
+    if (import.meta.server) {
+      nuxtApp.hooks.hook('app:rendered', ({ renderResult }) => {
+        const params = i18nRouteParams.value
+        if (!renderResult?.html || !params || !Object.keys(params).length) return
+        const route = router.currentRoute.value as unknown as ResolvedRouteLike
+        const from = getCurrentLocale(route)
+        const href = (code: string, routeParams: I18nRouteParams) => {
+          const switched = i18nStrategy.switchLocaleRoute(from, code, route, { i18nRouteParams: routeParams })
+          const path = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
+          return `href="${(hasProtocol(path) ? path : router.resolve(path).href).replaceAll('&', '&amp;')}"`
+        }
+        for (const { code } of provideApi.getLocales()) renderResult.html = renderResult.html.replaceAll(href(code, {}), href(code, params))
+      })
+    }
 
     if (domains) {
       const { switchLocale } = provideApi

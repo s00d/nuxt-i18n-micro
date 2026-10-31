@@ -104,6 +104,14 @@ if (product.value) {
 
 `$switchLocalePath('de')` and `<i18n-switcher>` then link to `/de/unsere-produkte/roter-schuh`. Keys are locale codes, values are params by name (as in the page file).
 
+A switcher in the layout renders before the page's async setup gets here, so when the render ends the module rewrites the links built without the params, in `app.vue` and in the page alike. The server HTML, a visitor without JavaScript and the first client render then agree. Set the params during SSR for this: with `lazy` or `server: false` the links change only after hydration. Nuxt's SSR streaming sends the HTML before the params are known, so under it the links in the first HTML keep the URL's own params.
+
+The params belong to the page that set them:
+
+- They are dropped when a navigation to another path commits, so each page sets its own. A cancelled navigation leaves them in place.
+- Take `$setI18nRouteParams` from `useNuxtApp()` or `useI18n()` in `setup`, also when you call it later in a `useAsyncData` handler. Taken there, the function knows its page: if the visitor has left, a late call does nothing.
+- With `keepalive`, a page gets the params it set back when the visitor returns. `useI18nHead` does the same.
+
 ## Routes added in pages:extend
 
 Routes you push in the `pages:extend` hook have no page file to read `$defineI18nRoute` from, and several of them often share one wrapper component. A route pushed without a `name` gets the name Nuxt would give its path (`/a/:id()` becomes `a-id`), so language links reach it, unless another route already has that name; then give it an explicit `name`. Keep one list and split it into pages and `globalLocaleRoutes` keyed by route name with `splitLocaleRoutes` from `@i18n-micro/utils/split-locale-routes` (add the package to your dependencies):

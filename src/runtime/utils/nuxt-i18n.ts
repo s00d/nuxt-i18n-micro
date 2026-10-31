@@ -67,7 +67,7 @@ const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
 const APP_SCHEME = /^(?:mailto:|tel:)/i
 
 /** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
-function switchedPath(switched: RouteLike | string): string {
+export function switchedPath(switched: RouteLike | string): string {
   return typeof switched === 'string' ? switched : (switched.fullPath ?? switched.path ?? '')
 }
 

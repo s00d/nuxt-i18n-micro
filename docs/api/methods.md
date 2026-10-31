@@ -383,8 +383,8 @@ The path of the current page in another locale, without navigating.
 ```
 
 The route object for the current page in another locale, without navigating, or a URL string
-for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
-follow the rule, and `router.push` or a link keep them.
+for a locale on its own `baseUrl`. Under `trailingSlash` it is `path`, `fullPath`, `query` and
+`hash`, following the rule, and `router.push` or a link keep them.
 
 <!-- /generated:method:$switchLocaleRoute -->
 
@@ -434,8 +434,10 @@ $localePath({ name: 'about' }, 'fr') // '/fr/about'
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
 ```
 
-Resolve a route in the given locale, or the active one. For a locale on another domain `path` and
-`fullPath` are absolute, which the router cannot take: such a link goes through `<i18n-link>`, or `$localePath`.
+Resolve a route in the given locale, or the active one. A plain object, safe to keep in state. When a param needs
+escaping it has `path`, `fullPath`, `query` and `hash` but no `name` or `params`: the path is what gives the router
+the encoded URL. For a locale on another domain `path` and `fullPath` are absolute, which the router cannot take:
+such a link goes through `<i18n-link>`, or `$localePath`.
 
 <!-- /generated:method:$localeRoute -->
 

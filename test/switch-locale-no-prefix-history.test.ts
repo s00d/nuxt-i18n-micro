@@ -46,6 +46,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   })
   vi.spyOn(loader, 'switchContext').mockResolvedValue(switchApplies)
   const setLocale = vi.fn()
+  const setLocaleState = vi.fn()
   const navigateTo = vi.fn()
 
   const i18nStrategy = {
@@ -74,13 +75,14 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     getRouteName: () => 'index',
     i18nRouteParams: { value: {} },
     setLocale,
+    setLocaleState,
     isValidLocale: () => true,
     navigateTo,
     setMissingHandler: vi.fn(),
     isHydrating: options.isHydrating ?? (() => false),
   })
 
-  return { provide, push, replace, setLocale, navigateTo }
+  return { provide, push, replace, setLocale, setLocaleState, navigateTo }
 }
 
 describe('$switchLocale when the navigation does not commit', () => {
@@ -96,11 +98,45 @@ describe('$switchLocale when the navigation does not commit', () => {
   test.each([
     ['cancelled', 8],
     ['aborted', 4],
-  ])('a %s one puts the preference back', async (_name, type) => {
-    const { provide, push, setLocale } = makeApi('prefix')
+  ])('a %s one stores nothing and puts the state back', async (_name, type) => {
+    const { provide, push, setLocale, setLocaleState } = makeApi('prefix')
     push.mockResolvedValueOnce(failure(type) as never)
     await provide.switchLocale('de')
-    expect(setLocale.mock.calls).toEqual([['de'], ['']])
+    expect(setLocale).not.toHaveBeenCalled()
+    expect(setLocaleState.mock.calls).toEqual([['de'], ['']])
+  })
+})
+
+describe('$switchLocale decides after the navigation', () => {
+  const failure = (type: number) => Object.assign(new Error('navigation failure'), { type })
+
+  test('a blocked switch to a locale with a `baseUrl` on this host stores nothing', async () => {
+    const { provide, push, setLocale } = makeApi('prefix', true, { switched: { path: '/es', fullPath: '/es' } })
+    push.mockResolvedValueOnce(failure(4) as never)
+    await provide.switchLocale('es')
+    expect(setLocale).not.toHaveBeenCalled()
+  })
+
+  test('a switch that leaves for another host stores it first: no commit will', async () => {
+    const { provide, setLocale, navigateTo } = makeApi('prefix', true, { switched: { path: 'https://es.example/', fullPath: 'https://es.example/' } })
+    await provide.switchLocale('es')
+    expect(navigateTo).toHaveBeenCalledOnce()
+    expect(setLocale.mock.calls).toEqual([['es']])
+  })
+
+  test('a thrown navigation puts the state back and stores nothing', async () => {
+    const { provide, push, setLocale, setLocaleState } = makeApi('prefix')
+    push.mockRejectedValueOnce(new Error('guard threw'))
+    await expect(provide.switchLocale('de')).rejects.toThrow('guard threw')
+    expect(setLocale).not.toHaveBeenCalled()
+    expect(setLocaleState.mock.calls).toEqual([['de'], ['']])
+  })
+
+  test('no_prefix goes by name with no path: the router encodes, and two pages can share a path', async () => {
+    const switched = { name: 'two-de', params: { id: 'a b' }, query: {}, hash: '', path: '/co/a%20b', fullPath: '/co/a%20b' }
+    const { provide, replace } = makeApi('no_prefix', true, { switched })
+    await provide.switchLocale('es')
+    expect(replace.mock.calls[0]?.[0]).toEqual({ name: 'two-de', params: { id: 'a b' }, query: {}, hash: '', force: true })
   })
 })
 
@@ -119,7 +155,7 @@ describe('switchLocale history (#238)', () => {
     await noPrefix.provide.switchLocale('es')
     expect(noPrefix.replace).toHaveBeenCalledTimes(1)
     expect(noPrefix.push).not.toHaveBeenCalled()
-    expect(noPrefix.replace.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ force: true, path: '/' }))
+    expect(noPrefix.replace.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ force: true, name: 'index' }))
     expect(noPrefix.setLocale).toHaveBeenCalled()
 
     // step 2: prefix → the URL changes, so a push
@@ -189,8 +225,16 @@ describe('links from the plugin', () => {
       trailingSlash: 'append',
       switched: { name: 'about', path: '/de/about', fullPath: '/de/about?q=1' },
     })
-    expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ name: 'about', path: '/de/about/', fullPath: '/de/about/?q=1' }))
+    expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ path: '/de/about/', fullPath: '/de/about/?q=1' }))
     expect(provide.switchLocalePath('es')).toBe('/de/about/?q=1')
+  })
+
+  test('that route object is plain: its path, nothing hidden, the same after a copy', () => {
+    const switched = { name: 'blog', params: { slug: 'a b' }, query: { q: '1' }, hash: '', path: '/de/a%20b', fullPath: '/de/a%20b?q=1' }
+    const { provide } = makeApi('prefix', true, { trailingSlash: 'append', switched })
+    const route = provide.switchLocaleRoute('es') as Record<string, unknown>
+    expect(Object.getOwnPropertyNames(route).sort()).toEqual(['fullPath', 'hash', 'path', 'query'])
+    expect(JSON.parse(JSON.stringify(route))).toEqual({ path: '/de/a%20b/', fullPath: '/de/a%20b/?q=1', query: { q: '1' }, hash: '' })
   })
 
   test('a push of that route object keeps the slash', async () => {

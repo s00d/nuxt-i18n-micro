@@ -20,7 +20,6 @@ import type {
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
-  RouteRecordNormalized,
 } from 'vue-router'
 import { START_LOCATION } from 'vue-router'
 import { hasProtocol } from 'ufo'
@@ -118,20 +117,38 @@ export default defineNuxtPlugin({
       }
     })
 
-    // The leaving page's keys stay resolvable until it is gone. `page:finish` can come first: a page transition keeps it
-    // on screen, and so does a new layout, until its own async parts are ready and through its transition. Nuxt has no
-    // one signal for these (`~transitionPromise` starts too late for a layout), its element leaving the document is one.
-    // ponytail: one read per frame while it waits; a `<NuxtPage page-key>` reusing an instance across records waits for the next navigation
-    let leavingPage: ComponentPublicInstance | null | undefined
-    let leavingRecord: RouteRecordNormalized | undefined
-    const finishWhenGone = (outgoing: Record<string, unknown> | null) => {
+    // The leaving page's keys stay resolvable until it is gone. Hooks cannot say when: a page transition keeps it on
+    // screen past `page:finish`, so does a new layout until its own async parts are ready and through its transition, and
+    // a child leaving for its parent has no `page:finish` at all. Its element leaving the document covers all of them.
+    // A DOM change is what removes it, so an observer sees it with no polling, in a hidden tab too.
+    // ponytail: a `<NuxtPage page-key>` keeping one instance across records keeps the observer and those keys until the next navigation
+    let stopWaiting: (() => void) | undefined
+    let noElement: Record<string, unknown> | null = null
+    const finishWhenGone = (page: ComponentPublicInstance | null | undefined) => {
+      stopWaiting?.()
+      noElement = null
+      const outgoing = i18n.outgoing
+      const element: Node | undefined = page?.$el
+      if (!element?.isConnected) {
+        noElement = outgoing
+        return
+      }
       if (!outgoing) return
-      // a new route of one record can keep its instance (a page key). Across records the router only moves it, for the old view's last render
-      const reused = leavingRecord === router.currentRoute.value.matched.at(-1) && leavingRecord?.instances.default === leavingPage
-      if (reused || !leavingPage?.$el?.isConnected || i18n.outgoing !== outgoing) i18n.finishTransition(outgoing)
-      else requestAnimationFrame(() => finishWhenGone(outgoing))
+      const observer = new MutationObserver(() => {
+        if (element.isConnected) return
+        stopWaiting?.()
+        i18n.finishTransition(outgoing)
+      })
+      observer.observe(document, { childList: true, subtree: true })
+      stopWaiting = () => {
+        observer.disconnect()
+        stopWaiting = undefined
+      }
     }
-    nuxtApp.hook('page:finish', () => finishWhenGone(i18n.outgoing))
+    nuxtApp.hook('page:finish', () => {
+      i18n.finishTransition(noElement)
+      noElement = null
+    })
 
     const loadOptions: LoadOptions = {
       apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
@@ -231,6 +248,9 @@ export default defineNuxtPlugin({
       getRouteName,
       i18nRouteParams,
       setLocale,
+      setLocaleState: (locale) => {
+        localeState.value = locale
+      },
       isValidLocale,
       navigateTo,
       setMissingHandler: (handler) => {
@@ -313,8 +333,6 @@ export default defineNuxtPlugin({
 
     router.afterEach((to, from, failure) => {
       if (failure) return
-      leavingRecord = from.matched.at(-1)
-      leavingPage = leavingRecord?.instances.default
 
       // The path decides, not the name: `/news/1` to `/news/4` is one route name and another page, and Nuxt clears
       // `name` on the current route before its hydrating replace. That replace keeps the path, so what the server page
@@ -331,14 +349,24 @@ export default defineNuxtPlugin({
       // the stored chunk: `i18n:register` merged into it after this guard's load. Not after a failed load: what
       // a subscriber wrote is a fragment, and the strings on screen stay
       const applied = !changed || loader.applyContext(locale, routeName, data && (loader.loadFromCacheSync(locale, routeName) ?? data))
+      // A parent stays around its new child, and its keys with it, until the next navigation replaces them. The page that
+      // owns this dictionary is its leaf and, for an index child, the parent on the same URL: any of them still here keeps it.
+      const left = from.matched.at(-1)
+      const stays = from.matched.some((record) => record.path === left?.path && to.matched.includes(record))
+      if (changed && applied && !stays) finishWhenGone(left?.instances.default)
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
       const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
-      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
-      // server stores a prefixed page only, not a 404's or an unprefixed page's locale. A first load stays out of it, as it
-      // would replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
+      if (!applied || bound || !locale || !isValidLocale(locale)) return
+      // a 404 renders in its URL's locale and stores nothing, as on the server: no page, no choice
+      if (!to.matched.length) {
+        localeState.value = locale
+        return
+      }
       const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
-      const reached = urlNamed && from !== START_LOCATION && to.matched.length > 0
-      if (applied && !bound && locale && isValidLocale(locale) && (reached || localeState.value !== locale)) setLocale(locale)
+      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
+      // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
+      // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
+      if ((urlNamed && from !== START_LOCATION) || localeState.value !== locale) setLocale(locale)
     })
 
     // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
@@ -470,8 +498,8 @@ export interface PluginsInjections {
   $mergeTranslations: (newTranslations: Translations) => void
   /**
    * The route object for the current page in another locale, without navigating, or a URL string
-   * for a locale on its own `baseUrl`. Under `trailingSlash` the object's `path` and `fullPath`
-   * follow the rule, and `router.push` or a link keep them.
+   * for a locale on its own `baseUrl`. Under `trailingSlash` it is `path`, `fullPath`, `query` and
+   * `hash`, following the rule, and `router.push` or a link keep them.
    */
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   /** The path of the current page in another locale, without navigating. */
@@ -491,8 +519,10 @@ export interface PluginsInjections {
    */
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
   /**
-   * Resolve a route in the given locale, or the active one. For a locale on another domain `path` and
-   * `fullPath` are absolute, which the router cannot take: such a link goes through `<i18n-link>`, or `$localePath`.
+   * Resolve a route in the given locale, or the active one. A plain object, safe to keep in state. When a param needs
+   * escaping it has `path`, `fullPath`, `query` and `hash` but no `name` or `params`: the path is what gives the router
+   * the encoded URL. For a locale on another domain `path` and `fullPath` are absolute, which the router cannot take:
+   * such a link goes through `<i18n-link>`, or `$localePath`.
    */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
   /**

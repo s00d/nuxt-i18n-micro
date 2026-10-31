@@ -77,4 +77,6 @@ export interface ClientRedirectOptions {
 
 export interface SwitchLocaleOptions {
   i18nRouteParams?: I18nRouteParams
+  /** Keep `name` and `params` on a route with an escape: for a caller that drops `path`, so the router encodes them. */
+  named?: boolean
 }

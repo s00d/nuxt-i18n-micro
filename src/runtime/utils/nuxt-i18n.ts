@@ -23,6 +23,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * 103k-key dictionary, on every navigation.
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { hasProtocol } from 'ufo'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -48,16 +49,16 @@ interface LocaleRouteResult {
 }
 
 /**
- * The strategy's result as a resolved location. `name` and `params` are kept as they came: NuxtLink and
- * router.push resolve a named location with a Map lookup instead of matching the path, and the
- * strategy hides them from the router when only the path gives the right URL.
+ * The strategy's result as a resolved location. `name` and `params` are kept: NuxtLink and
+ * router.push resolve a named location with a Map lookup instead of matching the path.
+ * A route the strategy left without them goes by its path.
  */
 function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
   const fullPath = result.fullPath ?? result.path ?? ''
   const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
   const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
-  if (result.name) Object.defineProperty(out, 'name', Object.getOwnPropertyDescriptor(result, 'name')!)
-  if (result.params && Object.keys(result.params).length) Object.defineProperty(out, 'params', Object.getOwnPropertyDescriptor(result, 'params')!)
+  if (result.name) out.name = result.name
+  if (result.params && Object.keys(result.params).length) out.params = result.params
   if (result.query && Object.keys(result.query).length) out.query = result.query
   if (result.hash) out.hash = result.hash
   return out as unknown as RouteLocationResolved
@@ -577,6 +578,8 @@ export interface NuxtI18nPluginApiDeps {
   getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   i18nRouteParams: { value: I18nRouteParams }
   setLocale: (locale: string) => void
+  /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
+  setLocaleState: (locale: string) => void
   isValidLocale: (locale: string) => boolean
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
@@ -596,6 +599,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     getRouteName,
     i18nRouteParams,
     setLocale,
+    setLocaleState,
     isValidLocale,
     navigateTo,
     setMissingHandler,
@@ -625,7 +629,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     // a path is read as the page it shows (any locale's form of it), then switched like a route,
     // so per-locale params (`i18nRouteParams`) apply to it too
     const from = typeof to === 'string' ? i18nStrategy.localeRoute(fromLocale, to) : (to ?? currentRoute)
-    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
+    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, from as unknown as ResolvedRouteLike, {
+      i18nRouteParams: i18nParams,
+      named: isNoPrefix,
+    })
 
     // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
@@ -634,11 +641,24 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
+      // By name with no path: pages can share a path here, and the router encodes params it is handed that way.
       // A copy: the strategy may hand back the current route object itself.
-      return router.replace({ ...(switchedRoute as RouteLocationRaw & object), force: true } as RouteLocationRaw)
+      const { path, fullPath, ...named } = switchedRoute as RouteLike
+      return router.replace({ ...(named.name ? named : { path, fullPath, ...named }), force: true } as RouteLocationRaw)
     }
 
     return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
+  }
+
+  /**
+   * Did `$switchLocale` take effect? A duplicate commits nothing, on a page with one URL for every locale
+   * (`excludePatterns`): the choice stands for the next one. Any other failure left the page as it was, and the state
+   * follows the page. An arrival in the locale is an explicit choice, on a 404 too, where a plain navigation stores nothing.
+   */
+  const settleSwitch = (toLocale: string, failure: unknown) => {
+    const type = failure instanceof Error ? (failure as Error & { type?: number }).type : undefined
+    if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getCurrentLocale())
+    else if (type === DUPLICATED || i18n.getCurrentLocale() === toLocale) setLocale(toLocale)
   }
 
   const helper = {
@@ -676,10 +696,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const route = linkRoute()
       const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: i18nRouteParams.value })
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
+      // the path alone: by name the router rebuilds the URL without the slash
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-      // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
-      const { name, ...rest } = switched
-      return Object.defineProperty({ ...rest, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
+      return { path: fullPath.split(/[?#]/)[0], fullPath, query: switched.query, hash: switched.hash } as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()
@@ -704,13 +723,18 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
       if (loaded === false) return false
 
-      setLocale(toLocale)
-      const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
-      // a navigation that was cancelled or blocked left the page as it was, and the preference follows the page. A
-      // duplicate is a page with one URL for every locale (`excludePatterns`): the choice stands for the next one.
-      // Under no_prefix and hash mode the dictionary has already moved: there the switch stands too.
-      const stopped = failure instanceof Error && (failure as Error & { type?: number }).type !== DUPLICATED
-      if (!urlless && stopped) setLocale(i18n.getCurrentLocale())
+      // Under no_prefix and hash mode the dictionary has already moved: the switch stands, whatever the navigation does.
+      // A move to another host cannot be stopped, and no commit follows here. Otherwise only the state goes ahead, as
+      // the client redirect reads it, and `settleSwitch` decides once the navigation has answered.
+      if (urlless || hasProtocol(provide.switchLocalePath(toLocale))) setLocale(toLocale)
+      else setLocaleState(toLocale)
+      try {
+        const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
+        if (!urlless) settleSwitch(toLocale, failure)
+      } catch (error) {
+        if (!urlless) setLocaleState(i18n.getCurrentLocale())
+        throw error
+      }
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

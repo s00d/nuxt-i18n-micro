@@ -473,11 +473,11 @@ describe('no link leaves the origin', () => {
     test.each(['catch-all', 'no catch-all'])('localeRoute and switchLocaleRoute, %s', (kind) => {
       const { i18n, router } = setup(strategy, {}, LOCALES, { pages: kind === 'catch-all' ? PAGES : NO_CATCH_ALL })
       for (const url of HOSTILE) {
-        expect(hosts(i18n.localeRoute('en', url)), url).toEqual(['app.test', 'app.test'])
-        expect(hosts(i18n.localeRoute('en', { path: url })), url).toEqual(['app.test', 'app.test'])
+        expect(hosts(i18n.localeRoute('en', url))).toEqual(['app.test', 'app.test'])
+        expect(hosts(i18n.localeRoute('en', { path: url }))).toEqual(['app.test', 'app.test'])
         const { name, path, fullPath, params, query, hash, matched } = router.resolve(url)
         const route = { name: name as string | null, path, fullPath, params, query, hash, matched }
-        expect(hosts(i18n.switchLocaleRoute('de', 'en', route)), url).toEqual(['app.test', 'app.test'])
+        expect(hosts(i18n.switchLocaleRoute('de', 'en', route))).toEqual(['app.test', 'app.test'])
       }
     })
   })
@@ -535,7 +535,8 @@ describe('no_prefix: a custom path shared by locales', () => {
       { code: 'de', baseUrl: 'https://b.test' },
       { code: 'fr', baseUrl: 'https://c.test' },
     ]
-    const on = (host: Locale) => setup('no_prefix', { domain: host.baseUrl, locales: [host], linkLocales: domains }, domains, { rules: { about: { de: '/x', fr: '/x' } } })
+    const on = (host: Locale) =>
+      setup('no_prefix', { domain: host.baseUrl, locales: [host], linkLocales: domains }, domains, { rules: { about: { de: '/x', fr: '/x' } } })
     const onFr = on(domains[2]!)
     expect(onFr.i18n.shouldReturn404('/x')).toBeNull()
     expect(onFr.i18n.getCurrentLocale(onFr.at('/x'), 'de')).toBe('fr')
@@ -571,6 +572,13 @@ describe('a case variant of the prefix', () => {
       expect(i18n.getCurrentLocale(at('/FR/about'))).toBe('fr')
       expect(i18n.shouldReturn404('/fr/about')).toBeNull()
     })
+  })
+
+  test('a percent-encoded prefix with no page behind it is one too', () => {
+    const pages = PAGES.filter((page) => page.name !== 'slug')
+    const { i18n } = setup('prefix', {}, LOCALES, { pages })
+    expect(i18n.shouldReturn404('/%64e/nope')).toBe('Unknown locale')
+    expect(i18n.getClientRedirect('/%64e/nope', 'en')).toBeNull()
   })
 
   test('a catch-all does not save it, a page of that name does', () => {
@@ -640,7 +648,9 @@ describe('a domain build, on an unknown host', () => {
   test('the home of a host is its bare origin, and reads back', () => {
     const { i18n, at } = setup('prefix_except_default', {}, locales)
     expect(i18n.localeRoute('de', '/').fullPath).toBe('https://b.test')
-    expect(i18n.switchLocaleRoute('de', 'fr', { ...at('/'), name: undefined, fullPath: 'https://b.test', path: 'https://b.test' })).toBe('https://a.test/fr')
+    expect(i18n.switchLocaleRoute('de', 'fr', { ...at('/'), name: undefined, fullPath: 'https://b.test', path: 'https://b.test' })).toBe(
+      'https://a.test/fr',
+    )
   })
 
   test('a link reads back by the longest base of its host', () => {
@@ -648,7 +658,9 @@ describe('a domain build, on an unknown host', () => {
     const { i18n, at } = setup('prefix_except_default', {}, shop)
     const link = i18n.localeRoute('de', { name: 'page2' }).fullPath!
     expect(link).toBe('https://a.test/shop/de/custom-page2-de')
-    expect(i18n.switchLocaleRoute('de', 'fr', { ...at('/'), name: undefined, path: link, fullPath: link })).toMatchObject({ fullPath: '/fr/custom-page2-fr' })
+    expect(i18n.switchLocaleRoute('de', 'fr', { ...at('/'), name: undefined, path: link, fullPath: link })).toMatchObject({
+      fullPath: '/fr/custom-page2-fr',
+    })
   })
 })
 

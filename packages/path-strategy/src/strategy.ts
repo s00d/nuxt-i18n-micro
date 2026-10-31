@@ -105,8 +105,15 @@ const sameOrigin = (path: string) => path.replace(OFF_ORIGIN, '/')
 function onOrigin<T extends RouteLike | string>(route: T): T {
   if (typeof route === 'string') return route
   const { path, fullPath, query, hash } = route
-  if (!OFF_ORIGIN.test(fullPath || path || '')) return route
+  const url = fullPath || path || ''
+  if (isPlainPath(url) || !OFF_ORIGIN.test(url)) return route
   return { path: path && sameOrigin(path), fullPath: fullPath && sameOrigin(fullPath), query, hash } as T
+}
+
+/** `/about`: a slash, then a character past those that matter (below `0`, and `\`). Spares every ordinary link the RegExp. */
+function isPlainPath(url: string): boolean {
+  const second = url.charCodeAt(1)
+  return url.charCodeAt(0) === 47 && second >= 48 && second !== 92
 }
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
@@ -409,7 +416,7 @@ export class I18nPathStrategy {
     const param = route.params?.locale
     const fromParams = Array.isArray(param) ? String(param[0] ?? '') : param ? String(param) : ''
     if (this.codes.has(fromParams)) return fromParams
-    const folded = this.foldedCodes.get(fromParams.toLowerCase())
+    const folded = fromParams && this.foldedCodes.get(fromParams.toLowerCase())
     if (folded && this.codes.has(folded)) return folded
     const fromPath = this.getLocaleFromPath(path)
     if (fromPath) return fromPath
@@ -458,7 +465,8 @@ export class I18nPathStrategy {
   private isUnknownLocale(path: string, segment: string): boolean {
     if (this.codes.has(segment)) return false
     const custom = this.unknownLocale?.test(segment) && this.probe(path)?.params?.locale === segment
-    const code = this.foldedCodes.get(segment.toLowerCase())
+    // `%64e` is a spelling as well: the router decodes before it matches
+    const code = this.foldedCodes.get(safeDecode(segment).toLowerCase())
     const variant = code !== undefined && code !== segment && this.ctx.strategy !== 'no_prefix'
     return (custom || variant) && !this.isOwnPage(path)
   }
@@ -664,11 +672,13 @@ export class DomainPathStrategy extends I18nPathStrategy {
   private pathOnHost(locale: string, config: Locale, route: Target): string {
     const { fullPath, path } = route
     // under `prefix` an unprefixed URL is only a redirect
-    if (config.baseDefault && this.ctx.strategy !== 'prefix') return this.hasPrefix(locale) && fullPath.split(/[/?#]/, 2)[1] === locale ? fullPath.slice(locale.length + 1) || '/' : fullPath
+    if (config.baseDefault && this.ctx.strategy !== 'prefix')
+      return this.hasPrefix(locale) && fullPath.split(/[/?#]/, 2)[1] === locale ? fullPath.slice(locale.length + 1) || '/' : fullPath
     const { strategy, defaultLocale, locales } = this.ctx
     const hostDefault = locales.some((other) => other.baseDefault && other.baseUrl === config.baseUrl)
     // the build default is unprefixed only where it is the default: another locale may hold those URLs on its host
-    if (strategy === 'prefix_except_default' && locale === defaultLocale && hostDefault) return `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}`
+    if (strategy === 'prefix_except_default' && locale === defaultLocale && hostDefault)
+      return `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}`
     return fullPath
   }
 

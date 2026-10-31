@@ -47,7 +47,9 @@ describe('journey: one build, two domains — prefix_except_default', () => {
 
   test('$localeRoute to another domain is that URL in <NuxtLink>, and a click goes there', async ({ page, baseURL }) => {
     const { html } = await onHost(baseURL, '/named', COM)
-    expect(/id="route-link-de"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="route-link-de"/.exec(html)?.slice(1).find(Boolean)).toBe('https://example.de/kontakt')
+    expect(/id="route-link-de"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="route-link-de"/.exec(html)?.slice(1).find(Boolean)).toBe(
+      'https://example.de/kontakt',
+    )
 
     await routeDomains(page, baseURL)
     await page.goto('https://example.com/named')

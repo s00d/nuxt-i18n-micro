@@ -224,7 +224,13 @@ const MISSING = '\0'
 const keyText = (key: TranslationKey, html: boolean | undefined): string => (html ? escapeHtml(String(key)) : String(key))
 
 /** `i18n.t`, with a miss answered by `fallback`, else by {@link keyText}. */
-function lookup(i18n: TextHost, key: TranslationKey, params: Params | undefined, fallback: string | null | undefined, html?: boolean): CleanTranslation {
+function lookup(
+  i18n: TextHost,
+  key: TranslationKey,
+  params: Params | undefined,
+  fallback: string | null | undefined,
+  html?: boolean,
+): CleanTranslation {
   const value = i18n.t(key, params, fallback || MISSING)
   return value === MISSING ? (keyText(key, html) as CleanTranslation) : value
 }
@@ -267,6 +273,9 @@ export function resolveText(i18n: TextHost, options: ResolveTextOptions): Resolv
   const usesPlural = formatted === null && options.plural !== undefined && options.plural !== null
   const resolved = usesPlural
     ? pluralText(i18n, options, params)
-    : { template: String(lookup(i18n, options.keypath, undefined, options.defaultValue, options.html) ?? ''), params: formatted ? { ...params, ...formatted } : params }
+    : {
+        template: String(lookup(i18n, options.keypath, undefined, options.defaultValue, options.html) ?? ''),
+        params: formatted ? { ...params, ...formatted } : params,
+      }
   return options.hideIfEmpty && !interpolate(resolved.template, resolved.params).trim() ? null : resolved
 }

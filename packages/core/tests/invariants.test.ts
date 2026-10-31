@@ -5,7 +5,15 @@
  */
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
-import { collectTranslationPaths, getByPath, mergeTranslationChunk, mergeTranslationLayers, resolveText, resolveTranslation, setTranslationAtKey } from '../src/helpers'
+import {
+  collectTranslationPaths,
+  getByPath,
+  mergeTranslationChunk,
+  mergeTranslationLayers,
+  resolveText,
+  resolveTranslation,
+  setTranslationAtKey,
+} from '../src/helpers'
 import { FormatService } from '../src/format-service'
 import { createReactiveI18nStore, useTranslationHelper } from '../src'
 import { Recorder } from './characterization/record'
@@ -304,7 +312,14 @@ describe('layers answer what t() answers', () => {
   })
 
   test('from an instance, fallback under the locale', () => {
-    const i = new TestI18n('de', { storage: { translations: new Map([['de:index', { list: 'eins' }], ['en:index', { list: ['one', 'two'] }]]) } })
+    const i = new TestI18n('de', {
+      storage: {
+        translations: new Map([
+          ['de:index', { list: 'eins' }],
+          ['en:index', { list: ['one', 'two'] }],
+        ]),
+      },
+    })
     i.getFallbackLocale = () => 'en'
     expect(i.t('list.0')).toBe('one')
     expect(resolveTranslation(i.resolveTranslations(), 'list.0')).toBe('one')
@@ -397,7 +412,8 @@ describe('relative time under a second', () => {
 describe('a key that found no translation under html', () => {
   const key = '<img src=x onerror=alert(1)>'
   const escaped = '&lt;img src=x onerror=alert(1)&gt;'
-  const host = () => new TestI18n('en', { storage: { translations: new Map([['en:index', { hi: '<b>Hi</b>', [key]: '<i>own</i>', tree: { a: 1 } }]]) } })
+  const host = () =>
+    new TestI18n('en', { storage: { translations: new Map([['en:index', { hi: '<b>Hi</b>', [key]: '<i>own</i>', tree: { a: 1 } }]]) } })
   const empty = () => new TestI18n('en', { missingWarn: false })
 
   test('is text', () => {
@@ -425,7 +441,8 @@ describe('a key that found no translation under html', () => {
 })
 
 describe('<i18n-t plural> answers what tc answers', () => {
-  const i = () => new TestI18n('en', { missingWarn: false, storage: { translations: new Map([['en:index', { yes: true, tree: { a: 1 }, ok: 'a | b' }]]) } })
+  const i = () =>
+    new TestI18n('en', { missingWarn: false, storage: { translations: new Map([['en:index', { yes: true, tree: { a: 1 }, ok: 'a | b' }]]) } })
   const text = (options: Parameters<typeof resolveText>[1]) => {
     const resolved = resolveText(i(), options)!
     return resolved.template.replace('{count}', String(options.plural))

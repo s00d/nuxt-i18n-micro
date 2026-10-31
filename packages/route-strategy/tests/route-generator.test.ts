@@ -568,7 +568,10 @@ describe('no_prefix: a path shared by locales', () => {
   test('is one record serving each of them', () => {
     const records = generate({ about: { de: '/ueber-uns', at: '/ueber-uns' } })
     expect(records.filter((page) => page.path === '/ueber-uns')).toHaveLength(1)
-    expect(records.find((page) => page.path === '/ueber-uns')).toMatchObject({ name: 'localized-about-at', meta: { i18n: { name: 'about', locales: ['at', 'de'] } } })
+    expect(records.find((page) => page.path === '/ueber-uns')).toMatchObject({
+      name: 'localized-about-at',
+      meta: { i18n: { name: 'about', locales: ['at', 'de'] } },
+    })
   })
 
   test('different paths stay separate records', () => {
@@ -590,7 +593,10 @@ describe('names repeated by generation', () => {
       { path: '/about', name: 'about', file: 'pages/about.vue' },
       { path: '/about/de', name: 'about-de', file: 'pages/about/de.vue' },
     ]
-    generator('prefix_except_default', { globalLocaleRoutes: { about: { de: '/ueber-uns' } }, locales: [{ code: 'en' }, { code: 'de' }] }).extendPages(pages)
+    generator('prefix_except_default', {
+      globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+      locales: [{ code: 'en' }, { code: 'de' }],
+    }).extendPages(pages)
     const names = pages.map((page) => page.name)
     expect(new Set(names).size).toBe(names.length)
     expect(paths(pages)).toEqual(

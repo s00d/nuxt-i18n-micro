@@ -443,7 +443,11 @@ describe('redirects', () => {
   test('redirects: false adds no record for the original URL', () => {
     const { router } = setup('prefix', {}, LOCALES, { redirects: false })
     expect(router.getRoutes().some((record) => record.path === '/page2')).toBe(false)
-    expect(setup('prefix').router.getRoutes().some((record) => record.path === '/page2')).toBe(true)
+    expect(
+      setup('prefix')
+        .router.getRoutes()
+        .some((record) => record.path === '/page2'),
+    ).toBe(true)
   })
 })
 
@@ -690,11 +694,14 @@ describe('a domain build, on an unknown host', () => {
     expect(i18n.localeRoute('fr', link)).toEqual({ path: link.fullPath, fullPath: link.fullPath })
   })
 
-  test.each(['https://evil.example/x', 'https://b.test.evil.example/x', 'https://b.test@evil.example/x'])('any other absolute object is no link: %s', (url) => {
-    const { i18n } = setup('prefix_except_default', {}, locales)
-    const { fullPath } = i18n.localeRoute('de', { path: url, fullPath: url })
-    expect(new URL(fullPath!, 'https://b.test').host).toBe('b.test')
-  })
+  test.each(['https://evil.example/x', 'https://b.test.evil.example/x', 'https://b.test@evil.example/x'])(
+    'any other absolute object is no link: %s',
+    (url) => {
+      const { i18n } = setup('prefix_except_default', {}, locales)
+      const { fullPath } = i18n.localeRoute('de', { path: url, fullPath: url })
+      expect(new URL(fullPath!, 'https://b.test').host).toBe('b.test')
+    },
+  )
 
   test('no_prefix has no prefix to add', () => {
     const { i18n } = setup('no_prefix', { defaultLocale: 'fr' }, locales)

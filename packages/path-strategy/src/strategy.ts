@@ -670,7 +670,7 @@ export class DomainPathStrategy extends I18nPathStrategy {
     if (!config?.baseUrl || (this.ctx.domain && !this.foreign.has(locale))) return null
     const rest = this.pathOnHost(locale, config, route)
     const path = rest.startsWith('/') ? rest : `/${rest}`
-    const base = baseOf(config)
+    const base = baseOf(config)!
     if (this.ctx.hashMode) return `${base}/#${path}`
     // the home is the bare origin, as a host writes its own URL: one page, one form across hosts
     return path === '/' ? base : `${base}${path}`

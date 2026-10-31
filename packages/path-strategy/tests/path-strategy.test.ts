@@ -555,6 +555,20 @@ describe('server redirects and 404', () => {
     expect(setup('no_prefix').i18n.getClientRedirect('/about', 'de')).toBeNull()
   })
 
+  test('a link to a code no config knows goes where one to a disabled locale goes: the default locale', () => {
+    const disabled = LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l))
+    for (const strategy of ['prefix', 'prefix_except_default', 'prefix_and_default', 'no_prefix'] as const) {
+      const { i18n } = setup(strategy, { locales: disabled })
+      const defaultPath = i18n.localeRoute('en', '/about').path
+      expect(i18n.localeRoute('xx', '/about').path).toBe(defaultPath)
+      expect(i18n.localeRoute('fr', '/about').path).toBe(defaultPath)
+    }
+    const domains = LOCALES.map((l) => ({ ...l, baseUrl: `https://${l.code}.test` }))
+    const onEn = setup('prefix_except_default', { locales: domains.slice(0, 1), linkLocales: domains, domain: 'en.test' }, domains).i18n
+    // a locale of another domain is known: it stays that domain's link
+    expect(onEn.localeRoute('de', '/about').path).toMatch(/^https:\/\/de\.test/)
+  })
+
   test('a runtime-disabled locale prefix is a 404 (F1: disabledLocales reach routing)', () => {
     // routes generated for every locale, the strategy built from the overridden config
     const disabled = setup('prefix_except_default', { locales: LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l)) }).i18n

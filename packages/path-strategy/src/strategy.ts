@@ -136,6 +136,8 @@ export class I18nPathStrategy {
   protected readonly ctx: PathStrategyContext
   protected readonly codes: Set<string>
   private readonly disabledCodes: Set<string>
+  /** What a link can go to: `codes` plus the locales of other domains. */
+  private readonly linkCodes: Set<string>
   private readonly prefix: string
   private readonly unknownLocale: RegExp | null
   /** Lowercased code -> code: the router matches `/:locale(de)` case-insensitively, so `/DE/about` reaches a `de` record. */
@@ -147,6 +149,7 @@ export class I18nPathStrategy {
     this.codes = new Set(ctx.locales.filter((l) => !l.disabled).map((l) => l.code))
     // build records still carry a locale disabled at runtime (runtimeConfig disabledLocales)
     this.disabledCodes = new Set(ctx.locales.filter((l) => l.disabled).map((l) => l.code))
+    this.linkCodes = new Set(this.codes)
     this.prefix = ctx.localizedRouteNamePrefix ?? 'localized-'
     // `/re/` and `re` alike, as route-strategy reads it
     this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${ctx.customRegexMatcher.replace(/^\/(.*)\/$/, '$1')})$`) : null
@@ -391,7 +394,7 @@ export class I18nPathStrategy {
   }
 
   private localized(locale: string, routeOrPath: RouteLike | string): RouteLike {
-    const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
+    const targetLocale = this.linkCodes.has(locale) ? locale : this.ctx.defaultLocale
     // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
     const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : ownName(routeOrPath)

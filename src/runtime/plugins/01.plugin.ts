@@ -22,6 +22,7 @@ import type {
   RouteLocationResolvedGeneric,
   RouteRecordNormalized,
 } from 'vue-router'
+import { START_LOCATION } from 'vue-router'
 import { hasProtocol } from 'ufo'
 import { type ComponentPublicInstance, getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
@@ -331,7 +332,12 @@ export default defineNuxtPlugin({
       const applied = !changed || loader.applyContext(locale, routeName, data && (loader.loadFromCacheSync(locale, routeName) ?? data))
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
       const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
-      if (applied && !bound && locale && isValidLocale(locale) && localeState.value !== locale) setLocale(locale)
+      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
+      // server stores a prefixed page only, not a 404's or an unprefixed page's locale. A first load stays out of it, as it
+      // would replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
+      const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
+      const reached = urlNamed && from !== START_LOCATION && to.matched.length > 0
+      if (applied && !bound && locale && isValidLocale(locale) && (reached || localeState.value !== locale)) setLocale(locale)
     })
 
     // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies

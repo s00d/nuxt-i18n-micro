@@ -1995,6 +1995,7 @@ member SolidI18n.getSnapshot: () => string
 member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.hasTranslation: (key: TranslationKey) => boolean
 member SolidI18n.helper: TranslationHelper
+member SolidI18n.isoTag: private any
 member SolidI18n.isReadable: private any
 member SolidI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member SolidI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2013,7 +2014,6 @@ member SolidI18n.ownsFormatter: private any
 member SolidI18n.ownStore: protected ReactiveI18nStore
 member SolidI18n.pluralFunc: PluralFunc
 member SolidI18n.pluralLocale: () => string
-member SolidI18n.pluralTag: private any
 member SolidI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member SolidI18n.resolveRouteName: protected (routeContext?: unknown) => string

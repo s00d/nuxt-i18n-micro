@@ -125,6 +125,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `i18nRouteParams` | `private unknown` |
 | `i18nStrategy` | `{ getStrategy: () => TestStrategy; getDefaultLocale: () => string; getLocales: () => Locale[]; getLocalizedRouteNamePrefix: () => string; getRouteBaseName: () => null; pageLocales: () => null; isMetaDisabled: () => boolean; setRouter: () => void; shouldReturn404: () => null; getClientRedirect: () => null; resolveLocaleFromPath(path: string): string \| null; getLocaleFromPath(path: string): string \| null; getCurrentLocale: () => string; getPluginRouteName: () => string; getCurrentLocaleName: () => string \| null; localeRoute(targetLocale: string, routeOrPath: unknown): { path: string; fullPath: string; }; switchLocaleRoute(_fromLocale: string, toLocale: string, route?: unknown): { path: string; fullPath: string; }; }` |
 | `initial` | `private Required<Pick<ResetI18nOptions, "strategy" \| "locale" \| "locales" \| "routeName" \| "localeName">> & Pick<ResetI18nOptions, "defaultLocale" \| "translations" \| "messages">` |
+| `isoTag` | `private any` |
 | `loadPageTranslations` | `(locale: string, page: string, translations: Translations) => Promise<void>` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -144,7 +145,6 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `pagePath` | `string` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `reset` | `(options?: ResetI18nOptions & { reseed?: boolean; }) => void` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |

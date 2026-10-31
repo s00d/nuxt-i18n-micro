@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-101 exports across 4 entry points.
+103 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -56,6 +56,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
+| `textOf` | function | `(value: unknown) => string \| undefined` |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `TranslationHelper` | class | 16 members |
@@ -85,6 +86,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isoTag` | `private (locale: string) => string` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `localeIso` | `protected Record<string, string>` |
@@ -96,7 +98,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `ownsFormatter` | `private boolean` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private (locale: string) => string` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
@@ -387,6 +388,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `TextHost` | interface | 8 members |
+| `textOf` | function | `(value: unknown) => string \| undefined` |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `Tree` | type | `Record<string, unknown>` |

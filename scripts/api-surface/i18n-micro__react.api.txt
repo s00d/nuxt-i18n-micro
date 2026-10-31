@@ -1022,6 +1022,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -1038,7 +1039,6 @@ member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -2137,6 +2137,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2153,7 +2154,6 @@ member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -2291,6 +2291,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2307,7 +2308,6 @@ member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string

@@ -72,7 +72,7 @@ The first matching case decides the output:
 </template>
 ```
 
-`html` sets `innerHTML`: use it only for translations you control. `params` are escaped, so user data is safe there.
+`html` sets `innerHTML`: use it only for translations you control. `params` are escaped, so user data is safe there, and so is a key that found no translation.
 
 ## Related
 

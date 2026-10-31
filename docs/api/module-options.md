@@ -155,7 +155,7 @@ Each entry is a `Locale` object:
 | Property | Type | Description |
 | --- | --- | --- |
 | `code` | `string` | **Required.** URL segment and file name (`en`, `de-at`). |
-| `iso` | `string` | BCP-47 tag for `<html lang>` and `hreflang` (`en-US`). |
+| `iso` | `string` | BCP-47 tag for `<html lang>`, `hreflang`, plurals and `$tn` / `$td` / `$tdr` (`en-US`). |
 | `displayName` | `string` | Label in `<i18n-switcher>` and `$getLocaleName()`. |
 | `dir` | `'ltr' \| 'rtl' \| 'auto'` | `<html dir>`. |
 | `disabled` | `boolean` | Excluded from routes, payloads and switching. Its prefix is a 404, and links to it stay on the page. |

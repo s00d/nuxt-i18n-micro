@@ -16,6 +16,7 @@ member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { local
 member BaseI18n.getRoute: () => string
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
+member BaseI18n.isoTag: private (locale: string) => string
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member BaseI18n.localeIso: protected Record<string, string>
@@ -26,7 +27,6 @@ member BaseI18n.onTranslationsChanged: protected (_locale?: string) => void
 member BaseI18n.ownsFormatter: private boolean
 member BaseI18n.pluralFunc: PluralFunc
 member BaseI18n.pluralLocale: () => string
-member BaseI18n.pluralTag: private (locale: string) => string
 member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -152,6 +152,7 @@ member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?:
 member TextHost.td: (value: Date | number | string) => string
 member TextHost.tdr: (value: Date | number | string) => string
 member TextHost.tn: (value: number) => string
+function textOf: (value: unknown) => string | undefined
 function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 class TranslationHelper
@@ -257,6 +258,7 @@ member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?:
 member TextHost.td: (value: Date | number | string) => string
 member TextHost.tdr: (value: Date | number | string) => string
 member TextHost.tn: (value: number) => string
+function textOf: (value: unknown) => string | undefined
 function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 type Tree: Record<string, unknown>

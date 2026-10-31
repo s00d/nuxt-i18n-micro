@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-102 exports across 22 entry points.
+103 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -47,6 +47,7 @@ import { /* … */ } from '@i18n-micro/utils/app-path'
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isStaticAssetPathname` | function | `(pathname: string) => boolean` |
 | `resolveContainedRelPath` | function | `(relPath: string) => string \| null` |
+| `trimTrailingSlashes` | function | `(path: string) => string` |
 | `withoutAppBaseURL` | function | `(pathname: string, baseURL?: string \| null) => string` |
 
 
@@ -73,7 +74,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 | `CacheControlOptions` | interface | 2 members |
 
 <details>
-<summary><code>CacheControl</code> — 13 members</summary>
+<summary><code>CacheControl</code> — 15 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -81,6 +82,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 | `clear` | `() => void` |
 | `configure` | `(options: CacheControlOptions) => void` |
 | `delete` | `(key: string) => boolean` |
+| `evictOverSize` | `private () => void` |
 | `expiry` | `private Map<string, number>` |
 | `get` | `(key: string) => T \| undefined` |
 | `has` | `(key: string) => boolean` |
@@ -89,6 +91,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 | `new` | `<T>(options?: CacheControlOptions \| undefined): CacheControl<T>` |
 | `set` | `(key: string, value: T) => void` |
 | `size` | `number` |
+| `stampUnexpiring` | `private () => void` |
 | `ttlMs` | `private number` |
 
 </details>
@@ -116,7 +119,7 @@ import { /* … */ } from '@i18n-micro/utils/cookie'
 | `DEFAULT_HASH_COOKIE_NAME` | const | `"hash-locale"` |
 | `getHashCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 | `getLocaleCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
-| `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string \| null; }` |
+| `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string; }` |
 | `getPreferenceCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 
 

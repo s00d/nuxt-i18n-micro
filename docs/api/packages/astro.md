@@ -85,6 +85,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `helper` | `TranslationHelper` |
 | `initialMessages` | `private Record<string, Translations>` |
 | `initialRouteMessages` | `private Record<string, Record<string, Translations>>` |
+| `isoTag` | `private any` |
 | `isReadable` | `private any` |
 | `keepMessages` | `(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
@@ -104,7 +105,6 @@ import { /* … */ } from '@i18n-micro/astro'
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

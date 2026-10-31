@@ -51,6 +51,7 @@ member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: TranslationHelper
+member I18n.isoTag: private any
 member I18n.isReadable: private any
 member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -68,7 +69,6 @@ member I18n.ownsFormatter: private any
 member I18n.ownStore: protected ReactiveI18nStore
 member I18n.pluralFunc: PluralFunc
 member I18n.pluralLocale: () => string
-member I18n.pluralTag: private any
 member I18n.reload: () => Promise<void>
 member I18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null

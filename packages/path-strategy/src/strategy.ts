@@ -466,7 +466,7 @@ export class I18nPathStrategy {
     if (this.codes.has(segment)) return false
     const custom = this.unknownLocale?.test(segment) && this.probe(path)?.params?.locale === segment
     // `%64e` is a spelling as well: the router decodes before it matches
-    const code = this.foldedCodes.get(safeDecode(segment).toLowerCase())
+    const code = this.foldedCodes.get((segment.includes('%') ? safeDecode(segment) : segment).toLowerCase())
     const variant = code !== undefined && code !== segment && this.ctx.strategy !== 'no_prefix'
     return (custom || variant) && !this.isOwnPage(path)
   }

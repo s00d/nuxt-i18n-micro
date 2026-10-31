@@ -686,7 +686,9 @@ export class DomainPathStrategy extends I18nPathStrategy {
     if (strategy !== 'prefix_except_default' || locale !== defaultLocale) return fullPath
     // the build default is unprefixed only where it is the default: another locale may hold those URLs on its host
     const base = baseOf(config)
-    return locales.some((other) => other.baseDefault && baseOf(other) === base) ? `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}` : fullPath
+    return locales.some((other) => other.baseDefault && baseOf(other) === base)
+      ? `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}`
+      : fullPath
   }
 
   protected override notFoundReason(path: string): string | null {

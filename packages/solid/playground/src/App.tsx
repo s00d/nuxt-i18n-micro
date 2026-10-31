@@ -1,94 +1,66 @@
-import { I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/solid'
-import type { Component, JSX } from 'solid-js'
+import { I18nLink, I18nSwitcher, useI18n } from '@i18n-micro/solid'
+import { createEffect, For, type JSX, Show } from 'solid-js'
+import { dirOf, pagePaths, persisted } from '../../../../benchmark/integrations/catalogue'
+import { Big } from './pages/Big'
+import { Cases } from './pages/Cases'
+import { Components } from './pages/Components'
+import { Dictionaries } from './pages/Dictionaries'
+import { Routing } from './pages/Routing'
 
-interface AppProps {
-  children?: JSX.Element
-}
+export const AllPages = () => (
+  <>
+    <Cases />
+    <Components />
+    <Dictionaries />
+    <Routing />
+    <Big />
+  </>
+)
 
-const App: Component<AppProps> = (props) => {
-  const { locale, localeRoute, switchLocale, getLocaleName, getLocales } = useI18n()
-  const locales = getLocales()
+/** The shell of every page: state, locale buttons, links, switcher. `document` follows the locale. */
+export function Shell(props: { routed: boolean; children: JSX.Element }) {
+  const { locale, getLocaleName, getLocales, getRoute, switchLocale, instance } = useI18n()
+
+  createEffect(() => {
+    document.documentElement.lang = locale()
+    document.documentElement.dir = dirOf(locale())
+  })
+
+  const change = (code: string) => {
+    persisted.write(code)
+    switchLocale(code)
+  }
 
   return (
-    <div
-      id="app"
-      style={{
-        'font-family': 'Avenir, Helvetica, Arial, sans-serif',
-        '-webkit-font-smoothing': 'antialiased',
-        '-moz-osx-font-smoothing': 'grayscale',
-        color: '#2c3e50',
-        margin: '20px',
-      }}
-    >
-      <nav style={{ 'margin-bottom': '20px', display: 'flex', gap: '15px', 'align-items': 'center' }}>
-        <I18nLink
-          to="/"
-          localeRoute={localeRoute}
-          activeStyle={{
-            'font-weight': 'bold',
-            'background-color': '#e8f5e9',
-          }}
-          style={{
-            'text-decoration': 'none',
-            color: '#42b983',
-            'font-weight': 500,
-            padding: '5px 10px',
-            'border-radius': '4px',
-            transition: 'background-color 0.3s',
-          }}
-        >
-          <I18nT keypath="nav.home" />
-        </I18nLink>
-        <I18nLink
-          to="/about"
-          localeRoute={localeRoute}
-          activeStyle={{
-            'font-weight': 'bold',
-            'background-color': '#e8f5e9',
-          }}
-          style={{
-            'text-decoration': 'none',
-            color: '#42b983',
-            'font-weight': 500,
-            padding: '5px 10px',
-            'border-radius': '4px',
-            transition: 'background-color 0.3s',
-          }}
-        >
-          <I18nT keypath="nav.about" />
-        </I18nLink>
-        <I18nLink
-          to="/components"
-          localeRoute={localeRoute}
-          activeStyle={{
-            'font-weight': 'bold',
-            'background-color': '#e8f5e9',
-          }}
-          style={{
-            'text-decoration': 'none',
-            color: '#42b983',
-            'font-weight': 500,
-            padding: '5px 10px',
-            'border-radius': '4px',
-            transition: 'background-color 0.3s',
-          }}
-        >
-          <I18nT keypath="nav.components" />
-        </I18nLink>
-        <div style={{ 'margin-left': 'auto' }}>
-          <I18nSwitcher
-            locales={locales}
-            currentLocale={locale}
-            getLocaleName={getLocaleName}
-            switchLocale={switchLocale}
-            localeRoute={localeRoute}
-          />
-        </div>
+    <>
+      <header data-testid="locale-state">
+        <span data-testid="current-locale">{locale()}</span>
+        <span data-testid="locale-name">{(locale(), getLocaleName())}</span>
+        <span data-testid="current-route">{(instance.routeAccessor?.(), getRoute())}</span>
+      </header>
+      <nav>
+        <For each={getLocales()}>
+          {({ code }) => (
+            <button type="button" data-testid={`switch-${code}`} onClick={() => change(code)}>
+              {code}
+            </button>
+          )}
+        </For>
+        <Show when={props.routed}>
+          <For each={pagePaths}>
+            {(path) => (
+              <I18nLink to={path} data-testid={`link-${path}`}>
+                {path}
+              </I18nLink>
+            )}
+          </For>
+          <I18nLink to="/nothing/here" data-testid="link-404">
+            404
+          </I18nLink>
+        </Show>
+        <I18nSwitcher />
       </nav>
-
-      <main style={{ padding: '20px', 'background-color': '#f9f9f9', 'border-radius': '8px' }}>{props.children}</main>
-    </div>
+      <main>{props.children}</main>
+    </>
   )
 }
-
-export default App

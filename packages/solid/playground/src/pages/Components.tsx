@@ -1,119 +1,147 @@
-import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/solid'
-import { type Component, createMemo } from 'solid-js'
+import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/solid'
+import type { JSX } from 'solid-js'
 
-const Components: Component = () => {
-  const { tn, td, tdr } = useI18n()
-  const oneHourAgo = createMemo(() => new Date(Date.now() - 3600000))
+const customRule = (_key: string, count: number) => `rule ${count}`
 
+const Row = (props: { id: string; children: JSX.Element }) => <li data-testid={props.id}>{props.children}</li>
+
+const Inner = () => {
+  const { t, locale } = useI18n()
   return (
-    <div>
-      <h1>
-        <I18nT keypath="components.title" />
-      </h1>
-      <p>
-        <I18nT keypath="components.description" />
-      </p>
-
-      <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
-        <h2 style={{ 'margin-top': 0, color: '#42b983' }}>I18nT Component</h2>
-        <p>
-          <I18nT keypath="welcome" />
-        </p>
-        <p>
-          <I18nT keypath="greeting" params={{ name: 'Solid' }} />
-        </p>
-        <p>
-          <I18nT keypath="apples" plural={0} />
-        </p>
-        <p>
-          <I18nT keypath="apples" plural={1} />
-        </p>
-        <p>
-          <I18nT keypath="apples" plural={5} />
-        </p>
-        <p>
-          <I18nT keypath="number" number={1234.56} />
-        </p>
-        <p>
-          <I18nT keypath="date" date={new Date()} />
-        </p>
-        <p>
-          <I18nT keypath="relativeDate" relativeDate={oneHourAgo()} />
-        </p>
-        <p>
-          <I18nT keypath="htmlExample" html tag="div" />
-        </p>
-        <p>
-          <I18nT keypath="hideIfEmpty" hideIfEmpty defaultValue="No translation" />
-        </p>
-      </section>
-
-      <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
-        <h2 style={{ 'margin-top': 0, color: '#42b983' }}>I18nLink Component</h2>
-        <div style={{ display: 'flex', gap: '15px', 'flex-wrap': 'wrap' }}>
-          <I18nLink to="/" activeStyle={{ 'font-weight': 'bold', color: '#42b983' }}>
-            <I18nT keypath="nav.home" />
-          </I18nLink>
-          <I18nLink to="/about" activeStyle={{ 'font-weight': 'bold', color: '#42b983' }}>
-            <I18nT keypath="nav.about" />
-          </I18nLink>
-          <I18nLink to="/components" activeStyle={{ 'font-weight': 'bold', color: '#42b983' }}>
-            <I18nT keypath="nav.components" />
-          </I18nLink>
-          <I18nLink to="https://example.com" target="_blank">
-            External Link
-          </I18nLink>
-        </div>
-      </section>
-
-      <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
-        <h2 style={{ 'margin-top': 0, color: '#42b983' }}>I18nSwitcher Component</h2>
-        <I18nSwitcher />
-        <div style={{ 'margin-top': '20px' }}>
-          <p>Custom styled switcher:</p>
-          <I18nSwitcher
-            customButtonStyle={{
-              'background-color': '#42b983',
-              color: 'white',
-              border: 'none',
-              'border-radius': '4px',
-            }}
-            customDropdownStyle={{
-              'border-radius': '4px',
-              'box-shadow': '0 4px 12px rgba(0,0,0,0.2)',
-            }}
-            customActiveLinkStyle={{
-              'background-color': '#e8f5e9',
-            }}
-          />
-        </div>
-      </section>
-
-      <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
-        <h2 style={{ 'margin-top': 0, color: '#42b983' }}>I18nGroup Component</h2>
-        <I18nGroup prefix="group">
-          <div>
-            <p>
-              <I18nT keypath="group.title" />
-            </p>
-            <p>
-              <I18nT keypath="group.description" />
-            </p>
-            <p>
-              <I18nT keypath="group.item" params={{ count: 5 }} />
-            </p>
-          </div>
-        </I18nGroup>
-      </section>
-
-      <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
-        <h2 style={{ 'margin-top': 0, color: '#42b983' }}>Formatting Examples</h2>
-        <p>Number: {tn(1234.56)}</p>
-        <p>Date: {td(new Date())}</p>
-        <p>Relative Time: {tdr(oneHourAgo())}</p>
-      </section>
-    </div>
+    <>
+      {locale()}: {String(t('welcome'))}
+    </>
   )
 }
 
-export default Components
+/** A provider inside a provider, with an instance of its own: only its subtree changes. */
+const Nested = () => (
+  <I18nProvider i18n={createI18n({ locale: 'de', messages: { de: { welcome: 'Innen' } } })}>
+    <Inner />
+  </I18nProvider>
+)
+
+export function Components() {
+  const hourAgo = Date.now() - 3_600_000
+  return (
+    <ul data-testid="page-components">
+      <Row id="it-basic">
+        <I18nT keypath="welcome" />
+      </Row>
+      <Row id="it-params">
+        <I18nT keypath="greeting" params={{ name: 'Ada' }} />
+      </Row>
+      <Row id="it-tag">
+        <I18nT keypath="welcome" tag="h3" />
+      </Row>
+      <Row id="it-plural-0">
+        <I18nT keypath="apples" plural={0} />
+      </Row>
+      <Row id="it-plural-2">
+        <I18nT keypath="apples" plural={2} />
+      </Row>
+      <Row id="it-plural-string">
+        <I18nT keypath="apples" plural="3" />
+      </Row>
+      <Row id="it-plural-null">
+        <I18nT keypath="welcome" plural={null} />
+      </Row>
+      <Row id="it-plural-fraction">
+        <I18nT keypath="apples" plural={1.5} />
+      </Row>
+      <Row id="it-plural-custom">
+        <I18nT keypath="apples" plural={2} customPluralRule={customRule} />
+      </Row>
+      <Row id="it-number">
+        <I18nT keypath="stats" number={1234.5} params={{ date: 'd', relativeDate: 'r' }} />
+      </Row>
+      <Row id="it-date">
+        <I18nT keypath="stats" date={0} params={{ number: 'n', relativeDate: 'r' }} />
+      </Row>
+      <Row id="it-relative">
+        <I18nT keypath="stats" relativeDate={hourAgo} params={{ number: 'n', date: 'd' }} />
+      </Row>
+      <Row id="it-html">
+        <I18nT keypath="html" params={{ name: '<i>x</i>' }} html />
+      </Row>
+      <Row id="it-no-html">
+        <I18nT keypath="html" params={{ name: '<i>x</i>' }} />
+      </Row>
+      <Row id="it-missing">
+        <I18nT keypath="no.such.key" />
+      </Row>
+      <Row id="it-missing-html">
+        <I18nT keypath="no.<b>key" html />
+      </Row>
+      <Row id="it-default">
+        <I18nT keypath="no.such.key" defaultValue="Default" />
+      </Row>
+      <Row id="it-hide-empty">
+        <I18nT keypath="empty" hideIfEmpty />
+      </Row>
+      <Row id="it-hide-missing">
+        <I18nT keypath="no.such.key" hideIfEmpty />
+      </Row>
+      <Row id="it-show-empty">
+        <I18nT keypath="empty" />
+      </Row>
+      <Row id="it-slot-name">
+        <I18nT keypath="greeting" components={{ name: () => <b>Slot</b> }} />
+      </Row>
+      <Row id="it-slot-default">
+        <I18nT keypath="welcome">{({ translation }: { translation: string }) => `[${translation}]`}</I18nT>
+      </Row>
+      <Row id="it-slot-two">
+        <I18nT keypath="two" components={{ a: () => <i>A</i>, b: () => <u>B</u> }} />
+      </Row>
+      <Row id="it-slot-plural">
+        <I18nT keypath="apples" plural={5} components={{ count: () => <b>five</b> }} />
+      </Row>
+      <Row id="it-attrs">
+        <I18nT keypath="welcome" class="c" title="t" />
+      </Row>
+      <Row id="group-basic">
+        <I18nGroup prefix="section" groupClass="g">
+          {({ t, prefix }) => `${prefix}: ${t('title')}`}
+        </I18nGroup>
+      </Row>
+      <Row id="group-deep">
+        <I18nGroup prefix="section.deep.er">{({ t }) => t('value')}</I18nGroup>
+      </Row>
+      <Row id="group-missing">
+        <I18nGroup prefix="section">{({ t }) => t('nope')}</I18nGroup>
+      </Row>
+      <Row id="link-string">
+        <I18nLink to="/routing">string</I18nLink>
+      </Row>
+      <Row id="link-object">
+        <I18nLink to={{ path: '/routing' }}>object</I18nLink>
+      </Row>
+      <Row id="link-query">
+        <I18nLink to="/routing?a=1#b">query</I18nLink>
+      </Row>
+      <Row id="link-hash-only">
+        <I18nLink to="#top">hash</I18nLink>
+      </Row>
+      <Row id="link-external">
+        <I18nLink to="https://example.test/x">external</I18nLink>
+      </Row>
+      <Row id="link-active">
+        <I18nLink to="/components" activeStyle={{ 'font-weight': 'bold' }}>
+          active
+        </I18nLink>
+      </Row>
+      <Row id="link-custom">
+        <I18nLink to="/x" localeRoute={(to) => `/custom${to as string}`}>
+          custom
+        </I18nLink>
+      </Row>
+      <Row id="switcher-labels">
+        <I18nSwitcher customLabels={{ de: 'DE!' }} />
+      </Row>
+      <Row id="provider-nested">
+        <Nested />
+      </Row>
+    </ul>
+  )
+}

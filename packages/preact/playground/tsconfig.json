@@ -12,7 +12,10 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "react": ["./node_modules/preact/compat"],
+      "react/jsx-runtime": ["./node_modules/preact/jsx-runtime"],
+      "@i18n-micro/react": ["./node_modules/@i18n-micro/preact"]
     },
     "types": ["vite/client", "preact"],
     "ignoreDeprecations": "6.0"

@@ -6,7 +6,7 @@ const { data: rendered } = await useAsyncData('bench-rendered', () => Promise.re
 <template>
   <BenchPage name="rr-kind">
     <R id="rr-kind" :v="route.params.kind" />
-    <R id="rr-rendered" :v="rendered" loose />
+    <R id="rr-rendered" :v="rendered" />
     <R id="rr-title" :v="$t('title')" />
   </BenchPage>
 </template>

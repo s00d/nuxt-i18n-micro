@@ -54,8 +54,6 @@ export const setLocales = (...args: Parameters<I18nTestContext['setLocales']>) =
 export const defaultLocale = (...args: Parameters<I18nTestContext['defaultLocale']>) => shared.defaultLocale(...args)
 export const setDefaultLocale = (...args: Parameters<I18nTestContext['setDefaultLocale']>) => shared.setDefaultLocale(...args)
 export const getRouteName = (...args: Parameters<I18nTestContext['getRouteName']>) => shared.getRouteName(...args)
-/** @deprecated Typo kept for compatibility — prefer `setRouteName`. */
-export const settRouteName = (...args: Parameters<I18nTestContext['settRouteName']>) => shared.settRouteName(...args)
 export const setRouteName = (...args: Parameters<I18nTestContext['setRouteName']>) => shared.setRouteName(...args)
 export const tn = shared.tn.bind(shared) as I18nTestContext['tn']
 export const td = shared.td.bind(shared) as I18nTestContext['td']
@@ -213,7 +211,6 @@ export const i18nUtils = {
   defaultLocale,
   setDefaultLocale,
   getRouteName,
-  settRouteName,
   setRouteName,
   _t,
   _ts,

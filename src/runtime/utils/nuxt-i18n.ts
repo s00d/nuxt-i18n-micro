@@ -23,7 +23,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * 103k-key dictionary, on every navigation.
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
-import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
+import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import type {
   RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
@@ -642,7 +642,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
   }
 
   const helper = {
-    async mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force = false): Promise<void> {
+    async mergeTranslation(locale: string, routeName: string, newTranslations: Translations): Promise<void> {
       await i18n.mergeTranslationAsync(locale, routeName, newTranslations, (l, r) => loader.loadAsync(l, r))
     },
   }
@@ -674,7 +674,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     switchLocaleRoute: (toLocale: string) => {
       const route = linkRoute()
-      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: i18nRouteParams.value })
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
       // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
@@ -686,7 +686,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     },
     switchLocalePath: (toLocale: string) => {
       const route = linkRoute()
-      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
+      const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: i18nRouteParams.value })
       return applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
     },
     switchLocale: async (toLocale: string) => {
@@ -705,7 +705,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       if (loaded === false) return false
 
       setLocale(toLocale)
-      const failure = await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
       // a navigation that was cancelled or blocked left the page as it was, and the preference follows the page. A
       // duplicate is a page with one URL for every locale (`excludePatterns`): the choice stands for the next one.
       // Under no_prefix and hash mode the dictionary has already moved: there the switch stands too.
@@ -714,7 +714,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
-      return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route)
+      return switchLocaleLogic(toLocale ?? getCurrentLocale(), i18nRouteParams.value, route)
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
       if (typeof to === 'string' && URL_SCHEME.test(to)) return toRouteLocationResolved({ path: to, fullPath: to })

@@ -42,7 +42,7 @@ import {
   addPrerenderRoutes,
   addRouteMiddleware,
   addServerHandler,
-  addServerImportsDir,
+  addServerImports,
   addTemplate,
   addTypeTemplate,
   addVitePlugin,
@@ -61,38 +61,18 @@ import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, merge
 import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
-export {
-  resolveTranslationPayloadMode,
-  resolveTranslationPayloadOptions,
-  resolveTranslationPayloadPublicDir,
-  resolveTranslationPayloadPublicRel,
-  shouldCopyTranslationPayloadsToPublic,
-  shouldRegisterNitroServerAssets,
-} from './build/payload-config'
 
-/** Absolute path of the path-strategy entry the generated `i18n.strategy.mjs` imports. */
-async function resolveStrategyPath(): Promise<string> {
-  const specifier = '@i18n-micro/path-strategy'
-  let absoluteStrategyPath: string
+/** Absolute path of an entry a generated template imports. */
+async function resolveEntry(specifier: string): Promise<string> {
+  let absolutePath: string
   try {
     // Resolve relative to this module first, so pnpm layouts that nest
-    // @i18n-micro/path-strategy under nuxt-i18n-micro still resolve it.
-    absoluteStrategyPath = fileURLToPath(import.meta.resolve(specifier))
+    // the package under nuxt-i18n-micro still resolve it.
+    absolutePath = fileURLToPath(import.meta.resolve(specifier))
   } catch {
-    absoluteStrategyPath = await resolvePath(specifier)
+    absolutePath = await resolvePath(specifier)
   }
-  return process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
-}
-
-async function resolveHelpersPath(): Promise<string> {
-  const specifier = '@i18n-micro/core/helpers'
-  let absoluteHelpersPath: string
-  try {
-    absoluteHelpersPath = fileURLToPath(import.meta.resolve(specifier))
-  } catch {
-    absoluteHelpersPath = await resolvePath(specifier)
-  }
-  return process.platform === 'win32' ? pathToFileURL(absoluteHelpersPath).href : absoluteHelpersPath.replace(/\\/g, '/')
+  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : absolutePath.replace(/\\/g, '/')
 }
 
 function generateI18nTypes(): string {
@@ -216,8 +196,6 @@ function registerI18nTemplates(
   privateConfig: ReturnType<typeof buildPrivateConfig>,
   disabledLocales: Locale[],
 ) {
-  let runtimeFullConfig = fullConfig
-
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
     write: true,
@@ -228,10 +206,10 @@ function registerI18nTemplates(
     filename: 'i18n.strategy.mjs',
     write: true,
     getContents: () => {
-      const domains = runtimeFullConfig.locales.some((locale) => locale.baseUrl)
+      const domains = fullConfig.locales.some((locale) => locale.baseUrl)
       return `import { ${domains ? 'DomainPathStrategy as Strategy' : 'Strategy'} } from '${resolvedStrategyPath}'
 
-const __fullConfig = ${buildFullConfigSource(runtimeFullConfig)}
+const __fullConfig = ${buildFullConfigSource(fullConfig)}
 // disabled at build: no routes and not in the config, but routing must answer for their prefix
 const __disabledLocales = ${JSON.stringify(disabledLocales)}
 
@@ -241,7 +219,7 @@ export function getI18nConfig() { return __fullConfig }
 export const domains = ${domains}
 
 // a constant, so a build that keeps the locale in no cookie drops useCookie (no runtime override reaches these two)
-export const cookies = ${runtimeFullConfig.localeCookie !== null || runtimeFullConfig.hashMode}
+export const cookies = ${fullConfig.localeCookie !== null || fullConfig.hashMode}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -273,9 +251,6 @@ export function getI18nPrivateConfig() { return __privateConfig }
     pluralTemplate,
     strategyTemplate,
     configTemplate,
-    setFullConfig(next: ReturnType<typeof buildFullConfig>) {
-      runtimeFullConfig = next
-    },
   }
 }
 
@@ -457,8 +432,8 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    const resolvedStrategyPath = await resolveStrategyPath()
-    const resolvedHelpersPath = await resolveHelpersPath()
+    const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
+    const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
     if (apiBaseClientHost?.endsWith('/')) {
@@ -603,7 +578,13 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    addServerImportsDir(resolver.resolve('./runtime/server/utils'))
+    // By name, not the directory: every export there would be a user's auto-import, and an API.
+    addServerImports([
+      { name: 'useLocaleServerMiddleware', from: resolver.resolve('./runtime/server/utils/locale-server-middleware') },
+      { name: 'useTranslationServerMiddleware', from: resolver.resolve('./runtime/server/utils/translation-server-middleware') },
+      { name: 'loadTranslationsFromServer', from: resolver.resolve('./runtime/server/utils/server-loader') },
+      { name: 'detectCurrentLocale', from: resolver.resolve('./runtime/server/utils/locale-detector') },
+    ])
 
     if (translationPayloads.serverHandler) {
       addServerHandler({

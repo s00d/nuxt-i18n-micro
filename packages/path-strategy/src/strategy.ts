@@ -683,11 +683,10 @@ export class DomainPathStrategy extends I18nPathStrategy {
     if (config.baseDefault && this.ctx.strategy !== 'prefix')
       return this.hasPrefix(locale) && fullPath.split(/[/?#]/, 2)[1] === locale ? fullPath.slice(locale.length + 1) || '/' : fullPath
     const { strategy, defaultLocale, locales } = this.ctx
-    const hostDefault = locales.some((other) => other.baseDefault && baseOf(other) === baseOf(config))
+    if (strategy !== 'prefix_except_default' || locale !== defaultLocale) return fullPath
     // the build default is unprefixed only where it is the default: another locale may hold those URLs on its host
-    if (strategy === 'prefix_except_default' && locale === defaultLocale && hostDefault)
-      return `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}`
-    return fullPath
+    const base = baseOf(config)
+    return locales.some((other) => other.baseDefault && baseOf(other) === base) ? `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}` : fullPath
   }
 
   protected override notFoundReason(path: string): string | null {

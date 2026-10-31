@@ -3,8 +3,31 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { ssr } from '../helpers/journeys-b'
 
 // J4 strategy-hashmode: the strategy fixture (pec) with router hashMode.
+declare const useNuxtApp: () => {
+  $router: { push: (to: unknown) => Promise<unknown> }
+  $localeRoute: (to: unknown, locale?: string) => unknown
+}
+
 describe('journey: routing variants — hash mode', () => {
   test.override({ harness: 'strategy-hashmode' })
+
+  test('a client navigation stores no locale: the hash and a switch do', async ({ page, goto }) => {
+    await goto('/', { waitUntil: 'hydration' })
+    await page.evaluate(() => useNuxtApp().$router.push('/page-b'))
+    await expect(page).toHaveURL(/\/#\/page-b$/)
+    await page.waitForTimeout(100)
+    expect(await getLocaleCookie(page, 'hash-locale')).toBeFalsy()
+    await page.click('button[data-locale="de"]')
+    await expect(page).toHaveURL(/\/#\/de/)
+    await expect.poll(() => getLocaleCookie(page, 'hash-locale')).toBe('de')
+  })
+
+  test('a route object with an escaped param goes through the hash', async ({ page, goto }) => {
+    await goto('/', { waitUntil: 'hydration' })
+    await page.evaluate(() => useNuxtApp().$router.push(useNuxtApp().$localeRoute({ name: 'echo-id', params: { id: 'a b/c' } })))
+    await expect(page.locator('#echo')).toHaveText('a b/c')
+    expect(await page.evaluate(() => location.hash)).toBe('#/echo/a%20b%2Fc')
+  })
 
   test('switching locale writes it into the hash', async ({ page, goto }) => {
     // step 1: open / → hydrated, en

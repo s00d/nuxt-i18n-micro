@@ -247,6 +247,9 @@ export default defineNuxtPlugin({
       getRouteName,
       i18nRouteParams,
       setLocale,
+      setLocaleState: (locale) => {
+        localeState.value = locale
+      },
       isValidLocale,
       navigateTo,
       setMissingHandler: (handler) => {
@@ -350,12 +353,17 @@ export default defineNuxtPlugin({
       if (changed && applied && !(left && to.matched.includes(left))) finishWhenGone(left?.instances.default)
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
       const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
-      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
-      // server stores a prefixed page only, not a 404's or an unprefixed page's locale. A first load stays out of it, as it
-      // would replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
+      if (!applied || bound || !locale || !isValidLocale(locale)) return
       const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
-      const reached = urlNamed && from !== START_LOCATION && to.matched.length > 0
-      if (applied && !bound && locale && isValidLocale(locale) && (reached || localeState.value !== locale)) setLocale(locale)
+      // a 404 renders in its URL's locale and stores nothing, as on the server: no page, no choice
+      if (urlNamed && !to.matched.length) {
+        localeState.value = locale
+        return
+      }
+      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
+      // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
+      // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
+      if ((urlNamed && from !== START_LOCATION) || localeState.value !== locale) setLocale(locale)
     })
 
     // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies

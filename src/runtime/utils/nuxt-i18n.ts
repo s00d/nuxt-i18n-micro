@@ -577,6 +577,8 @@ export interface NuxtI18nPluginApiDeps {
   getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   i18nRouteParams: { value: I18nRouteParams }
   setLocale: (locale: string) => void
+  /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
+  setLocaleState: (locale: string) => void
   isValidLocale: (locale: string) => boolean
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
@@ -596,6 +598,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     getRouteName,
     i18nRouteParams,
     setLocale,
+    setLocaleState,
     isValidLocale,
     navigateTo,
     setMissingHandler,
@@ -703,13 +706,17 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
       if (loaded === false) return false
 
-      setLocale(toLocale)
+      // Under no_prefix and hash mode the dictionary has already moved, and another domain never comes back: the switch
+      // stands. Elsewhere the commit stores it (`afterEach`), and only the state goes ahead, as the client redirect reads it.
+      const leaves = urlless || i18nConfig.locales?.some((locale) => locale.code === toLocale && locale.baseUrl)
+      if (leaves) setLocale(toLocale)
+      else setLocaleState(toLocale)
       const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
-      // a navigation that was cancelled or blocked left the page as it was, and the preference follows the page. A
-      // duplicate is a page with one URL for every locale (`excludePatterns`): the choice stands for the next one.
-      // Under no_prefix and hash mode the dictionary has already moved: there the switch stands too.
-      const stopped = failure instanceof Error && (failure as Error & { type?: number }).type !== DUPLICATED
-      if (!urlless && stopped) setLocale(i18n.getCurrentLocale())
+      if (urlless || !(failure instanceof Error)) return loaded ?? i18n.getCurrentLocale() === toLocale
+      // A duplicate is a page with one URL for every locale (`excludePatterns`), no commit runs: the choice stands for the
+      // next one. Any other failure left the page as it was, and the state follows the page.
+      if ((failure as Error & { type?: number }).type === DUPLICATED) setLocale(toLocale)
+      else setLocaleState(i18n.getCurrentLocale())
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

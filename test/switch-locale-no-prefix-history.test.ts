@@ -46,6 +46,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   })
   vi.spyOn(loader, 'switchContext').mockResolvedValue(switchApplies)
   const setLocale = vi.fn()
+  const setLocaleState = vi.fn()
   const navigateTo = vi.fn()
 
   const i18nStrategy = {
@@ -74,13 +75,14 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     getRouteName: () => 'index',
     i18nRouteParams: { value: {} },
     setLocale,
+    setLocaleState,
     isValidLocale: () => true,
     navigateTo,
     setMissingHandler: vi.fn(),
     isHydrating: options.isHydrating ?? (() => false),
   })
 
-  return { provide, push, replace, setLocale, navigateTo }
+  return { provide, push, replace, setLocale, setLocaleState, navigateTo }
 }
 
 describe('$switchLocale when the navigation does not commit', () => {
@@ -96,11 +98,12 @@ describe('$switchLocale when the navigation does not commit', () => {
   test.each([
     ['cancelled', 8],
     ['aborted', 4],
-  ])('a %s one puts the preference back', async (_name, type) => {
-    const { provide, push, setLocale } = makeApi('prefix')
+  ])('a %s one stores nothing and puts the state back', async (_name, type) => {
+    const { provide, push, setLocale, setLocaleState } = makeApi('prefix')
     push.mockResolvedValueOnce(failure(type) as never)
     await provide.switchLocale('de')
-    expect(setLocale.mock.calls).toEqual([['de'], ['']])
+    expect(setLocale).not.toHaveBeenCalled()
+    expect(setLocaleState.mock.calls).toEqual([['de'], ['']])
   })
 })
 

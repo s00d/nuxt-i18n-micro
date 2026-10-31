@@ -45,4 +45,21 @@ describe('CacheControl.configure on a filled cache', () => {
     vi.advanceTimersByTime(2000)
     expect(cache.get('k0')).toBeUndefined()
   })
+
+  it('the same options leave the entries alone', () => {
+    const cache = filled({ ttl: 10, maxSize: 100 })
+    const stamp = vi.spyOn(Date, 'now')
+    cache.configure({ ttl: 10, maxSize: 100 })
+    expect(stamp).not.toHaveBeenCalled()
+  })
+
+  it('a shorter TTL holds for what is stored from then on', () => {
+    vi.useFakeTimers()
+    const cache = filled({ ttl: 3600 })
+    cache.configure({ ttl: 1 })
+    cache.set('new', 1)
+    vi.advanceTimersByTime(2000)
+    expect(cache.get('new')).toBeUndefined()
+    expect(cache.get('k0')).toBe(0)
+  })
 })

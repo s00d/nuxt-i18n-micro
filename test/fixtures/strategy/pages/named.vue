@@ -33,5 +33,7 @@ function navigateBrokenDefaultNuxtPageNaming() {
     <button id="link4" @click="navigateBrokenDefaultNuxtPageNaming">Navigate</button>
 
     <NuxtLink id="link6" :to="$localeRoute('/page/id-123')"> Navigate </NuxtLink>
+
+    <NuxtLink id="route-link-de" :to="$localeRoute('/contact', 'de')"> Contact in German </NuxtLink>
   </div>
 </template>

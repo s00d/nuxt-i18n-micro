@@ -29,7 +29,7 @@ import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRunti
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, keepAbsoluteRoutes, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
@@ -43,6 +43,7 @@ export default defineNuxtPlugin({
   name: 'i18n-plugin-loader',
   async setup(nuxtApp) {
     const router = useRouter()
+    keepAbsoluteRoutes(router)
     const runtimeConfig = useRuntimeConfig()
     const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)

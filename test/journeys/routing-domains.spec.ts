@@ -45,6 +45,23 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(contentOn((await onHost(baseURL, '/ru/contact', COM)).html)).toBe('contact')
   })
 
+  test('$localeRoute to another domain is that URL in <NuxtLink>, and a click goes there', async ({ page, baseURL }) => {
+    const { html } = await onHost(baseURL, '/named', COM)
+    expect(/id="route-link-de"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="route-link-de"/.exec(html)?.slice(1).find(Boolean)).toBe('https://example.de/kontakt')
+
+    await routeDomains(page, baseURL)
+    await page.goto('https://example.com/named')
+    await expect(page.locator('#route-link-de')).toHaveAttribute('href', 'https://example.de/kontakt')
+    await clickUntil(page, '#route-link-de', 'https://example.de/kontakt')
+  })
+
+  test('a 404 the module answers on a matched record has no SEO tags', async ({ baseURL }) => {
+    const { status, html } = await onHost(baseURL, '/en/contact', DE)
+    expect(status).toBe(404)
+    expect(html).not.toContain('i18n-can')
+    expect(html).not.toContain('i18n-alternate')
+  })
+
   test('head: own URLs on the configured origin, other locales on their domains', async ({ baseURL }) => {
     const { html } = await onHost(baseURL, '/kontakt', DE)
     expect(canonicalOf(html)).toBe('https://example.de/kontakt')
@@ -71,7 +88,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     const unknown = await onHost(baseURL, '/', 'evil.test')
     expect(contentOn(unknown.html)).toBe('en')
     expect(unknown.html).not.toContain('evil.test')
-    expect(canonicalOf(unknown.html)).toBe('https://example.com/')
+    expect(canonicalOf(unknown.html)).toBe('https://example.com')
     expect((await onHost(baseURL, '/de/kontakt', 'evil.test')).status).toBe(200)
 
     // step 2: X-Forwarded-Host without trustForwardedHost changes nothing
@@ -91,7 +108,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(missing.html).toMatch(/<html[^>]*lang="de_DE"/)
     const foreign = await onHost(baseURL, '/en/contact', DE)
     expect(foreign.status).toBe(404)
-    expect(canonicalOf(foreign.html)).toBe('https://example.de/kontakt')
+    expect(canonicalOf(foreign.html)).toBeUndefined()
     expect(foreign.html).toMatch(/<html[^>]*lang="de_DE"/)
   })
 

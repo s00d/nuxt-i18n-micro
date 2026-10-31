@@ -63,6 +63,33 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
 
 /** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
 const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
+/**
+ * `$localeRoute` of a locale on another domain is a route object with an absolute `path`, and `<NuxtLink>` hands
+ * any object to the router, which reads that path as a relative one. Here the router gives such a link its URL, and a click leaves the app.
+ * ponytail: wraps three router methods, because NuxtLink has no other way in; strings skip it at the first check.
+ */
+export function keepAbsoluteRoutes(router: Router): void {
+  const { resolve, push, replace } = router
+  const urlOf = (to: unknown): string | null => {
+    const url = typeof to === 'object' ? (to as RouteLike | null)?.fullPath : null
+    return url && URL_SCHEME.test(url) ? url : null
+  }
+  const leave = async (url: string) => window.location.assign(url)
+  router.resolve = ((to: never, current: never) => {
+    const url = urlOf(to)
+    if (!url) return resolve(to, current)
+    return { ...resolve('/'), name: undefined, matched: [], params: {}, query: {}, hash: '', path: url, fullPath: url, href: url }
+  }) as Router['resolve']
+  router.push = (to) => {
+    const url = import.meta.client ? urlOf(to) : null
+    return url ? leave(url) : push(to)
+  }
+  router.replace = (to) => {
+    const url = import.meta.client ? urlOf(to) : null
+    return url ? leave(url) : replace(to)
+  }
+}
+
 /** Never a page, and no request can send a visitor elsewhere with one. */
 const APP_SCHEME = /^(?:mailto:|tel:)/i
 
@@ -616,7 +643,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
     const domain = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl?.replace(/\/+$/, '')
-    if (domain && url.startsWith(`${domain}/`)) return navigateTo(url, { redirectCode: 200, external: true })
+    if (domain && (url === domain || url.startsWith(`${domain}/`))) return navigateTo(url, { redirectCode: 200, external: true })
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).

@@ -15,6 +15,7 @@ vi.mock('#imports', () => ({
   useHead: (getter: typeof app.head) => {
     app.head = getter
   },
+  useError: () => ({ value: null }),
   useNuxtApp: () => app.current,
   useRequestURL: () => new URL('https://example.com/'),
   useRoute: () => ({ path: '/', name: 'index', fullPath: '/', matched: [{}] }),

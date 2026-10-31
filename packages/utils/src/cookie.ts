@@ -41,7 +41,8 @@ export function decodeCookieValue(value: string): string | null {
 
 /**
  * Returns standard options for locale/hash cookies. `decode` keeps a malformed cookie from
- * throwing in Nuxt's `useCookie`.
+ * throwing in Nuxt's `useCookie`, and hands it back as it came: a value that changed would be
+ * written at the end of the request, and that delete would replace the locale a page just stored.
  */
 export function getLocaleCookieOptions() {
   const date = new Date()
@@ -53,6 +54,6 @@ export function getLocaleCookieOptions() {
     path: '/',
     watch: true,
     sameSite: 'lax' as const,
-    decode: decodeCookieValue,
+    decode: (value: string) => decodeCookieValue(value) ?? value,
   }
 }

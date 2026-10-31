@@ -116,6 +116,7 @@ export const recipes = defineRecipes(
       { router: { options: { hashMode: true } }, i18n: { trailingSlash: 'append' } },
     ),
     'strategy-spa-prefix': app('strategy-spa-prefix', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' }, { ssr: false }),
+    'strategy-islands': app('strategy-islands', 'strategy', { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', ISLANDS: '1' }),
     'strategy-disabled-locale': app('strategy-disabled-locale', 'strategy', { STRATEGY: 'prefix', DISABLED_LOCALE: 'es' }),
 
     // one build, two domains (en on example.com, de on example.de, ru on both); journeys send a Host

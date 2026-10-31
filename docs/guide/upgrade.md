@@ -58,7 +58,7 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **The locale cookie is written only by a served page**: not by a 404, not under `no_prefix` from a URL that looks prefixed.
 - **Hash mode works under `prefix`.** The document is `/`, and `/en` or `/about` redirect into the hash.
 - **Under `prefix_and_default` an unprefixed URL is the default locale.** `/contact` with `Accept-Language: de` used to render German and then hydrate English. It now renders the default locale; visitors reach German through `/de/...`.
-- **`$setI18nRouteParams` and `useI18nHead` from the server survive hydration.** After landing on `/news/2` the switcher links to the translated slug (`/de/news/2-zwei`), not `/de/news/2`. They are dropped on any navigation to another path, including `/news/1` to `/news/4`: set them again on the new page.
+- **`$setI18nRouteParams` and `useI18nHead` from the server survive hydration.** After landing on `/news/2` the switcher links to the translated slug (`/de/news/2-zwei`), not `/de/news/2`, in the server HTML too, wherever the switcher sits, when the page sets the params during SSR. They are dropped when a navigation to another path commits, including `/news/1` to `/news/4`: set them again on the new page.
 
 ### Locale detection
 

@@ -19,6 +19,7 @@ vi.mock('#imports', () => ({
   useNuxtApp: () => app.current,
   useRequestURL: () => new URL('https://example.com/'),
   useRoute: () => ({ path: '/', name: 'index', fullPath: '/', matched: [{}] }),
+  useRouter: () => ({ currentRoute: { value: { path: '/' } } }),
   useRuntimeConfig: () => ({ app: { baseURL: '/' } }),
   useState: (key: string, init: () => unknown) => {
     if (!app.state.has(key)) app.state.set(key, ref(init()))

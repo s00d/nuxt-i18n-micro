@@ -86,9 +86,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | null | en,de,fr |
 | /de/about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | /missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | /de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## To de
 
@@ -118,9 +118,9 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
 | /about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | /de/über-uns | en,de,fr |
 | /de/about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | null | en,de,fr |
-| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | /de/missing | null |
+| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
 | /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
-| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /de/xx/about | /de/xx/about | null |
+| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | null | null | null |
 | /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | null | null | null |
 
 ## To fr
@@ -151,10 +151,10 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | /fr/à-propos | en,de,fr |
 | /de/about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | /fr/à-propos | en,de,fr |
-| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /fr/missing | /fr/missing | null |
-| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | /fr/missing | null |
-| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /fr/xx/about | /fr/xx/about | null |
-| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | /fr/de/about | null |
+| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 

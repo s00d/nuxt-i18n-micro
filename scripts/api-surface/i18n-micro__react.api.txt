@@ -1003,6 +1003,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
@@ -1022,6 +1023,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -1034,11 +1036,11 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownLocaleIso: private any
 member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -2118,6 +2120,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
@@ -2137,6 +2140,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2149,11 +2153,11 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownLocaleIso: private any
 member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string
@@ -2272,6 +2276,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
@@ -2291,6 +2296,7 @@ member ReactI18n.getSnapshot: () => string
 member ReactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.hasTranslation: (key: TranslationKey) => boolean
 member ReactI18n.helper: TranslationHelper
+member ReactI18n.isoTag: private any
 member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2303,11 +2309,11 @@ member ReactI18n.lookupLocale: private any
 member ReactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member ReactI18n.missingWarn: boolean
 member ReactI18n.onTranslationsChanged: protected (locale?: string) => void
+member ReactI18n.ownLocaleIso: private any
 member ReactI18n.ownsFormatter: private any
 member ReactI18n.ownStore: protected ReactiveI18nStore
 member ReactI18n.pluralFunc: PluralFunc
 member ReactI18n.pluralLocale: () => string
-member ReactI18n.pluralTag: private any
 member ReactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member ReactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member ReactI18n.resolveRouteName: protected (routeContext?: unknown) => string

@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 70 members |
+| `I18n` | class | 72 members |
 | `I18nOptions` | interface | 15 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -38,7 +38,7 @@ import { /* … */ } from '@i18n-micro/node'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 70 members</summary>
+<summary><code>I18n</code> — 72 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -47,6 +47,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `borrowsLocaleIso` | `private any` |
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
@@ -68,6 +69,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isoTag` | `private any` |
 | `isReadable` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
@@ -82,11 +84,11 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `reload` | `() => Promise<void>` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |

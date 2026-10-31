@@ -10,6 +10,7 @@ member DomainPathStrategy.ctx: protected PathStrategyContext
 member DomainPathStrategy.disabledCodes: private Set<string>
 member DomainPathStrategy.external: protected (locale: string, route: Target) => string | null
 member DomainPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member DomainPathStrategy.foldedCodes: private Map<string, string>
 member DomainPathStrategy.foreign: private Set<string>
 member DomainPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
 member DomainPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
@@ -28,12 +29,15 @@ member DomainPathStrategy.isDisabledPrefix: private (path: string, segment: stri
 member DomainPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
 member DomainPathStrategy.isOwnPage: protected (path: string) => boolean
 member DomainPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
-member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
+member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member DomainPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member DomainPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member DomainPathStrategy.moved: private (path: string, locale: string) => string | null
 member DomainPathStrategy.notFoundReason: protected (path: string) => string | null
+member DomainPathStrategy.originOf: private (url: string) => string | undefined
 member DomainPathStrategy.pageBase: private (route: RouteLike) => string | null
 member DomainPathStrategy.pageLocales: (route: RouteLike) => string[] | null
+member DomainPathStrategy.pathOnHost: private (locale: string, config: Locale, route: Target) => string
 member DomainPathStrategy.prefix: private string
 member DomainPathStrategy.prefixed: private (locale: string, path: string) => string
 member DomainPathStrategy.probe: protected (to: RouteLike | string) => ResolvedRouteLike | null
@@ -45,6 +49,7 @@ member DomainPathStrategy.setRouter: (router: RouterAdapter) => void
 member DomainPathStrategy.shared: private Shared
 member DomainPathStrategy.shared_: private Shared | undefined
 member DomainPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member DomainPathStrategy.switched: private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
 member DomainPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
 member DomainPathStrategy.unknownLocale: private RegExp | null
 member DomainPathStrategy.new: (ctx: PathStrategyContext): DomainPathStrategy
@@ -56,6 +61,7 @@ member I18nPathStrategy.ctx: protected PathStrategyContext
 member I18nPathStrategy.disabledCodes: private Set<string>
 member I18nPathStrategy.external: protected (_locale: string, _route: Target) => string | null
 member I18nPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member I18nPathStrategy.foldedCodes: private Map<string, string>
 member I18nPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
 member I18nPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
 member I18nPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
@@ -74,6 +80,7 @@ member I18nPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => bo
 member I18nPathStrategy.isOwnPage: protected (path: string) => boolean
 member I18nPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
 member I18nPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
+member I18nPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member I18nPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member I18nPathStrategy.moved: private (path: string, locale: string) => string | null
 member I18nPathStrategy.notFoundReason: protected (path: string) => string | null
@@ -90,7 +97,8 @@ member I18nPathStrategy.setRouter: (router: RouterAdapter) => void
 member I18nPathStrategy.shared: private Shared
 member I18nPathStrategy.shared_: private Shared | undefined
 member I18nPathStrategy.shouldReturn404: (currentPath: string) => string | null
-member I18nPathStrategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
+member I18nPathStrategy.switched: private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member I18nPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
 member I18nPathStrategy.unknownLocale: private RegExp | null
 member I18nPathStrategy.new: (ctx: PathStrategyContext): I18nPathStrategy
 type PathStrategy: { [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }
@@ -118,6 +126,7 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+member RouteI18nMeta.original?: string | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined
@@ -144,6 +153,7 @@ member Strategy.ctx: protected PathStrategyContext
 member Strategy.disabledCodes: private Set<string>
 member Strategy.external: protected (_locale: string, _route: Target) => string | null
 member Strategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member Strategy.foldedCodes: private Map<string, string>
 member Strategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
 member Strategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
 member Strategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
@@ -162,6 +172,7 @@ member Strategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
 member Strategy.isOwnPage: protected (path: string) => boolean
 member Strategy.isUnknownLocale: private (path: string, segment: string) => boolean
 member Strategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
+member Strategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member Strategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member Strategy.moved: private (path: string, locale: string) => string | null
 member Strategy.notFoundReason: protected (path: string) => string | null
@@ -178,7 +189,8 @@ member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shared: private Shared
 member Strategy.shared_: private Shared | undefined
 member Strategy.shouldReturn404: (currentPath: string) => string | null
-member Strategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
+member Strategy.switched: private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
 member Strategy.unknownLocale: private RegExp | null
 member Strategy.new: (ctx: PathStrategyContext): I18nPathStrategy
 interface SwitchLocaleOptions
@@ -211,6 +223,7 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+member RouteI18nMeta.original?: string | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined

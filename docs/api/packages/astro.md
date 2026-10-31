@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 69 members |
+| `AstroI18n` | class | 71 members |
 | `AstroI18nOptions` | type | `I18nOptions` |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 69 members</summary>
+<summary><code>AstroI18n</code> — 71 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -62,6 +62,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `borrowsLocaleIso` | `private any` |
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
@@ -85,6 +86,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `helper` | `TranslationHelper` |
 | `initialMessages` | `private Record<string, Translations>` |
 | `initialRouteMessages` | `private Record<string, Record<string, Translations>>` |
+| `isoTag` | `private any` |
 | `isReadable` | `private any` |
 | `keepMessages` | `(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
@@ -100,11 +102,11 @@ import { /* … */ } from '@i18n-micro/astro'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): AstroI18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

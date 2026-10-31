@@ -137,6 +137,11 @@ describe('isActiveLink', () => {
 })
 
 describe('localizedPath', () => {
+  it.each(['\\evil.example', '/\\evil.example', '/de/\\evil.example', '/\t/evil.example', '/de/\n/evil.example'])('%j stays on this origin', (to) => {
+    expect(localizedPath(to, 'en', ['en', 'de'], 'en')).toBe('/evil.example')
+    expect(localizedPath(to, 'de', ['en', 'de'], 'en')).toBe('/de/evil.example')
+  })
+
   const codes = ['en', 'de', 'fr']
   it.each([
     ['/', 'en', '/'],

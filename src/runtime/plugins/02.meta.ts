@@ -3,7 +3,7 @@ import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
-import { useI18nHead } from '../composables/useI18nHead'
+import { usePageHead } from '../utils/page-head'
 import { useLocaleHead } from '../composables/useLocaleHead'
 
 function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } }): string | undefined {
@@ -37,11 +37,11 @@ function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | un
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const { pageHead } = useI18nHead()
+  const pageHead = usePageHead()
   const i18nConfig = nuxtApp.$getI18nConfig()
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
-  // routeDisableMeta is evaluated in useLocaleHead.updateMeta so client navigations
+  // disableMeta is evaluated on every head render so client navigations
   // can enable/disable tags per page — a one-shot check here would freeze the first route.
 
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
@@ -62,13 +62,15 @@ export default defineNuxtPlugin((nuxtApp) => {
     const { $getLocales, $getLocale } = nuxtApp
     const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
     const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
-    // a route that disables meta drops the page-defined i18n head too
-    if (nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return { htmlAttrs: {}, link: [], meta: [] }
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
-    return mergeI18nHead(build(), pageHead.value, {
+    type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
+    const head = build()
+    // a route that disables meta drops the page-defined i18n head too: `build` already left it empty
+    if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
+    return mergeI18nHead(head, pageHead.value, {
       identifierAttribute: 'id',
       locales: allLocales as Locale[],
       currentLocale: locale,
-    }) as unknown as ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
+    }) as unknown as Head
   })
 })

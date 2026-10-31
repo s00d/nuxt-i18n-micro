@@ -132,15 +132,12 @@ function buildFullConfig(params: {
   options: ModuleOptions
   nuxt: Nuxt
   defaultLocale: string
-  isSSG: boolean
   apiConfig: NormalizedApiConfig
   translationPayloadMode: TranslationPayloadMode
-  routeLocales: Record<string, string[]>
-  routeDisableMeta: Record<string, boolean | string[]>
   locales: ModuleOptionsExtend['locales']
   translationsHash: string | null
 }) {
-  const { options, nuxt, defaultLocale, isSSG, apiConfig, translationPayloadMode, routeLocales, routeDisableMeta, locales, translationsHash } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash } = params
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -164,19 +161,13 @@ function buildFullConfig(params: {
       (nuxt.options.experimental as { defaults?: { nuxtLink?: { trailingSlash?: 'append' | 'remove' } } })?.defaults?.nuxtLink?.trailingSlash,
     apiBaseUrl: apiConfig.apiBaseUrl,
     apiBaseClientHost: apiConfig.apiBaseClientHost,
-    isSSG,
     disablePageLocales: options.disablePageLocales ?? false,
     canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? DEFAULT_CANONICAL_QUERY_WHITELIST,
     excludePatterns: options.excludePatterns ?? [],
-    routeLocales,
-    routeDisableMeta,
     missingWarn: options.missingWarn ?? true,
     redirects: options.redirects !== false,
-    hooks: options.hooks !== false,
-    hmr: options.hmr ?? true,
     localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
     routesLocaleLinks: options.routesLocaleLinks ?? {},
-    noPrefixRedirect: options.noPrefixRedirect ?? false,
     debug: options.debug ?? false,
     customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
     cacheMaxSize: options.cacheMaxSize ?? 0,
@@ -248,6 +239,9 @@ export function getI18nConfig() { return __fullConfig }
 
 // a constant, so a build without locale domains drops their code
 export const domains = ${domains}
+
+// a constant, so a build that keeps the locale in no cookie drops useCookie (no runtime override reaches these two)
+export const cookies = ${runtimeFullConfig.localeCookie !== null || runtimeFullConfig.hashMode}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -491,6 +485,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeLocales,
       routeDisableMeta,
       noPrefixRedirect: options.noPrefixRedirect!,
+      redirects: options.redirects,
       excludePatterns: options.excludePatterns,
       apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
@@ -502,11 +497,8 @@ export default defineNuxtModule<ModuleOptions>({
       options,
       nuxt,
       defaultLocale,
-      isSSG,
       apiConfig,
       translationPayloadMode: translationPayloads.mode,
-      routeLocales,
-      routeDisableMeta,
       locales: routeGenerator.locales ?? [],
       translationsHash,
     })
@@ -602,7 +594,8 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.redirects !== false && options.plugin !== false) {
+    // no_prefix: no URL names a locale, so there is nothing to redirect (`getClientRedirect`)
+    if (options.redirects !== false && options.plugin !== false && options.strategy !== 'no_prefix') {
       addRouteMiddleware({
         name: 'i18n-redirect',
         path: resolver.resolve('./runtime/middleware/i18n-redirect.global'),
@@ -703,6 +696,7 @@ declare module '#build/i18n.plural.mjs' {
 
 declare module '#build/i18n.strategy.mjs' {
   export const domains: boolean
+  export const cookies: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -713,6 +707,7 @@ declare module '#i18n-internal/config' {
 
 declare module '#i18n-internal/strategy' {
   export const domains: boolean
+  export const cookies: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -994,6 +989,8 @@ export interface ModuleRuntimeHooks {
 // for apps that load the module from source (playground, fixtures): no generated types.d.mts there
 declare module '#app' {
   interface RuntimeNuxtHooks extends ModuleRuntimeHooks {}
+  // an accessor on nuxtApp, not a provide: Nuxt's types of the plugins cannot see it
+  interface NuxtApp extends Pick<PluginsInjections, '$setI18nRouteParams'> {}
 }
 
 export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }

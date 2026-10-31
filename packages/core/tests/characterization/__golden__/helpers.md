@@ -345,7 +345,7 @@
 - `layers(de, en)` → {"greeting":"Hello, {name}!","nav":{"home":"Home","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"no apples | one apple | {count} apples","nothing":"de has it","shadow":"scalar in en","onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only","shadow.child":"object in de"}
 - `layers(en, enAbout)` → {"greeting":"Hi from about, {name}","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About (page)","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only","title":"About page"}
 - `layers({}, {})` → {}
-- `layers scalar hides deep object` → {"a":"scalar","a.b.c":1,"a.b.d":[1]}
+- `layers scalar hides deep object` → {"a":"scalar","a.b.c":1,"a.b.d":[1],"a.b.d.0":1}
 - `layers null/undefined above fall through` → {"a":"low","b":{"c":1}}
 - `layers __proto__` → {"__proto__":{"x":1},"a":1,"b":2}
 

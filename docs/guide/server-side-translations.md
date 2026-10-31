@@ -81,6 +81,27 @@ export default defineEventHandler(async (event) => {
 
 The second argument replaces `defaultLocale` for this call's detection, so it has no effect when a locale is forced. Dictionaries are cached per request and per locale, and across requests in the server's translation cache, so calling a helper several times is cheap.
 
+## Server components
+
+A server component (`.server.vue`, `<NuxtIsland>`) renders from its own URL, `/__nuxt_island/...`, so it does not see the page's URL, and Nuxt passes it only its props. Pass the locale as a `locale` prop. It then renders in that locale, and a switch fetches it again, since the props are part of the island's URL and cache key. The name is reserved: any enabled locale code in a prop called `locale` sets the render's locale, so give a prop that means something else, such as a number format, another name:
+
+```vue
+<!-- components/Greeting.server.vue -->
+<template><p>{{ $t('greeting') }}</p></template>
+<script setup lang="ts">
+defineProps<{ locale?: string }>()
+</script>
+```
+
+```vue
+<template>
+  <Greeting :locale="$getLocale()" />
+  <NuxtIsland name="Greeting" :props="{ locale: $getLocale() }" />
+</template>
+```
+
+Without the prop it renders in the locale of the cookie, else the default locale, whatever the URL says, and it does not follow a switch. Its `$t` sees the `index` chunk: the root files plus `locales/pages/index/`.
+
 ## Related
 
 - [Locale detection](/guide/locale-detection)

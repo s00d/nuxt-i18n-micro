@@ -30,3 +30,5 @@ export const NuxtLink = defineComponent({
     return () => h('a', { href: props.to as string }, slots.default?.())
   },
 })
+
+export const useError = () => ({ value: undefined })

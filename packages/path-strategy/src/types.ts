@@ -39,6 +39,8 @@ export interface RouteI18nMeta {
   locales: string[]
   /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
   noMeta?: boolean | string[]
+  /** Under `prefix` with `redirects: false`: the path of a page with a custom default path. No URL, a link can still name the page by it. */
+  original?: string
 }
 
 export interface RouterAdapter {

@@ -119,7 +119,7 @@ member ModuleOptionsExtend.hmr?: boolean | undefined
 member ModuleOptionsExtend.hooks?: boolean | undefined
 member ModuleOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptionsExtend.httpCacheDuration?: number | undefined
-member ModuleOptionsExtend.isSSG: boolean
+member ModuleOptionsExtend.isSSG?: boolean | undefined
 member ModuleOptionsExtend.linkLocales?: Locale[] | undefined
 member ModuleOptionsExtend.localeCookie?: string | null | undefined
 member ModuleOptionsExtend.locales?: Locale[] | undefined

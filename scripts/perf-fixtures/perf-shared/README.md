@@ -14,4 +14,4 @@ Override by running:
 pnpm -C scripts cli performance --locales 12 --keys 100000
 ```
 
-That writes `runtime.json` here and `perf-locales.mjs` next to each fixture `nuxt.config`. Fixture `generate:locales` / `prebuild` read the runtime profile so dictionaries stay aligned.
+That writes `runtime.json` here (gitignored), so the run leaves the tree clean. Fixture `nuxt.config`, `generate:locales` and `prebuild` read the profile through `config.mjs`, so locales and dictionaries stay aligned.

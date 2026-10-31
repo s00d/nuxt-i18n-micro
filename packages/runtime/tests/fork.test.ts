@@ -163,3 +163,52 @@ describe('forks of forks', () => {
     expect(child.t('later')).toBe('later')
   })
 })
+
+describe('fork and localeIso', () => {
+  test("rules added to the parent after the fork reach it, a caller's map stays as it was", () => {
+    const localeIso = {}
+    const parent = createI18n({ locale: 'ua', localeIso, messages: { ua: { k: '=0 н | о | н2 | м' } } })
+    const child = parent.fork()
+    parent.addLocaleIso({ ua: 'uk' })
+    expect(child.tc('k', 21)).toBe(parent.tc('k', 21))
+    expect(child.tc('k', 21)).toBe('о')
+    expect(localeIso).toEqual({})
+  })
+
+  test("a fork's rules stay in it: not in the parent, not in a sibling", () => {
+    const parent = createI18n({ locale: 'en' })
+    const [a, b] = [parent.fork(), parent.fork()]
+    a.addLocaleIso({ en: 'en-GB' })
+    expect(a.pluralLocale()).toBe('en-GB')
+    expect(parent.pluralLocale()).toBe('en')
+    expect(b.pluralLocale()).toBe('en')
+    expect(b.td(new Date(0), { timeZone: 'UTC' })).toBe(parent.td(new Date(0), { timeZone: 'UTC' }))
+  })
+
+  test('a later parent rule reaches a fork that has not written, not one that has', () => {
+    const parent = createI18n({ locale: 'en' })
+    const [written, untouched] = [parent.fork(), parent.fork()]
+    written.addLocaleIso({ de: 'de-AT' })
+    parent.addLocaleIso({ en: 'en-GB' })
+    expect(untouched.pluralLocale()).toBe('en-GB')
+    expect(written.pluralLocale()).toBe('en')
+  })
+
+  test('a fork is the parent of its own forks once it wrote', () => {
+    const fork = createI18n({ locale: 'en' }).fork()
+    fork.addLocaleIso({ de: 'de-AT' })
+    const child = fork.fork()
+    fork.addLocaleIso({ en: 'en-GB' })
+    expect(child.pluralLocale()).toBe('en-GB')
+  })
+
+  test('forking a fork counts as its first write, for rules too', () => {
+    const parent = createI18n({ locale: 'en' })
+    const fork = parent.fork()
+    const child = fork.fork()
+    fork.addLocaleIso({ en: 'en-GB' })
+    expect(child.pluralLocale()).toBe('en-GB')
+    parent.addLocaleIso({ en: 'en-AU' })
+    expect(fork.pluralLocale()).toBe('en-GB')
+  })
+})

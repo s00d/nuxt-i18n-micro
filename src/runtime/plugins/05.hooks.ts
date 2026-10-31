@@ -4,8 +4,6 @@ import type { Translations } from '@i18n-micro/types'
 import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { defineNuxtPlugin, useRouter } from '#imports'
 
-const isDev = process.env.NODE_ENV !== 'production'
-
 export default defineNuxtPlugin({
   name: 'i18n-plugin-hooks',
   dependsOn: ['i18n-plugin-loader'],
@@ -15,6 +13,12 @@ export default defineNuxtPlugin({
     const { $getLocale, $i18nStrategy: i18nStrategy } = nuxtApp
     const i18nHelper = nuxtApp.$helper as {
       mergeTranslation: (locale: string, routeName: string, translations: Translations, force?: boolean) => Promise<void>
+    }
+
+    /** Asked on every call: a plugin may subscribe later. `_hooks` is hookable's own, so without it the hook just runs. */
+    const subscribed = () => {
+      const { _hooks: hooks } = nuxtApp.hooks as unknown as { _hooks?: Record<string, unknown[] | undefined> }
+      return !hooks || Boolean(hooks['i18n:register']?.length)
     }
 
     const callRegister = async (route?: RouteLocationResolvedGeneric) => {
@@ -34,15 +38,11 @@ export default defineNuxtPlugin({
       await Promise.all(mergeTasks)
     }
 
-    if (i18nConfig.hooks !== false) {
-      await callRegister()
-    }
+    if (subscribed()) await callRegister()
 
-    router.beforeEach(async (to, from) => {
-      if (i18nConfig.hooks === false) return
-      if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
-        await callRegister(to as RouteLocationResolvedGeneric)
-      }
+    router.beforeEach((to, from) => {
+      if (!subscribed()) return
+      if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) return callRegister(to as RouteLocationResolvedGeneric)
     })
   },
 })

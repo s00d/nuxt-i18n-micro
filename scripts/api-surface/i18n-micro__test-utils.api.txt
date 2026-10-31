@@ -56,6 +56,7 @@ member I18nTestContext.helper: TranslationHelper
 member I18nTestContext.i18nRouteParams: private unknown
 member I18nTestContext.i18nStrategy: { getStrategy: () => TestStrategy; getDefaultLocale: () => string; getLocales: () => Locale[]; getLocalizedRouteNamePrefix: () => string; getRouteBaseName: () => null; pageLocales: () => null; isMetaDisabled: () => boolean; setRouter: () => void; shouldReturn404: () => null; getClientRedirect: () => null; resolveLocaleFromPath(path: string): string | null; getLocaleFromPath(path: string): string | null; getCurrentLocale: () => string; getPluginRouteName: () => string; getCurrentLocaleName: () => string | null; localeRoute(targetLocale: string, routeOrPath: unknown): { path: string; fullPath: string; }; switchLocaleRoute(_fromLocale: string, toLocale: string, route?: unknown): { path: string; fullPath: string; }; }
 member I18nTestContext.initial: private Required<Pick<ResetI18nOptions, "strategy" | "locale" | "locales" | "routeName" | "localeName">> & Pick<ResetI18nOptions, "defaultLocale" | "translations" | "messages">
+member I18nTestContext.isoTag: private any
 member I18nTestContext.loadPageTranslations: (locale: string, page: string, translations: Translations) => Promise<void>
 member I18nTestContext.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member I18nTestContext.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
@@ -74,7 +75,6 @@ member I18nTestContext.ownsFormatter: private any
 member I18nTestContext.pagePath: string
 member I18nTestContext.pluralFunc: PluralFunc
 member I18nTestContext.pluralLocale: () => string
-member I18nTestContext.pluralTag: private any
 member I18nTestContext.reset: (options?: ResetI18nOptions & { reseed?: boolean; }) => void
 member I18nTestContext.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member I18nTestContext.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null

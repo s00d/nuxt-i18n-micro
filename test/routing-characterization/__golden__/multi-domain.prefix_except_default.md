@@ -68,9 +68,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
 | /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,de,fr |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | /missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | /de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## To de
 
@@ -93,9 +93,9 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
 | /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/ueber-uns | /de/ueber-uns | en,de,fr |
 | /de/about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
-| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /de/missing | /de/missing | null |
+| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
 | /de/missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
-| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | /de/xx/about | /de/xx/about | null |
+| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | null | null | null |
 | /de/de/about | external https://example.de/de/about?q=1#top |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | null | null | null |
 
 ## To fr
@@ -119,10 +119,10 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | null | /fr | en,de,fr |
 | /about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /fr/a-propos | /fr/a-propos | en,de,fr |
 | /de/about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | /fr/a-propos | en,de,fr |
-| /missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | /fr/missing | /fr/missing | null |
-| /de/missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | /fr/missing | null |
-| /xx/about | external https://example.fr/fr/xx/about?q=1#top |  | https://example.fr/fr/xx/about?q=1#top [—] | https://example.fr/fr/xx/about?q=1#top [—] | /fr/xx/about | /fr/xx/about | null |
-| /de/de/about | external https://example.fr/fr/de/about?q=1#top |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | null | /fr/de/about | null |
+| /missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | null | null |
+| /de/missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | null | null |
+| /xx/about | external https://example.fr/fr/xx/about?q=1#top |  | https://example.fr/fr/xx/about?q=1#top [—] | https://example.fr/fr/xx/about?q=1#top [—] | null | null | null |
+| /de/de/about | external https://example.fr/fr/de/about?q=1#top |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 
@@ -132,7 +132,7 @@ params: the PARAMS keys the route's records use.
 |---|---|---|---|---|---|---|---|---|---|
 | about | /about [about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] | /about [about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] | /about [about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] |
 | blog-slug | /blog/hello-world [blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] | /blog/hello-world [blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] | /blog/hello-world [blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] |
-| index | / [index] | https://example.de/ [—] | https://example.fr/fr [—] | / [index] | https://example.de/ [—] | https://example.fr/fr [—] | / [index] | https://example.de/ [—] | https://example.fr/fr [—] |
+| index | / [index] | https://example.de [—] | https://example.fr/fr [—] | / [index] | https://example.de [—] | https://example.fr/fr [—] | / [index] | https://example.de [—] | https://example.fr/fr [—] |
 
 ## Invariant breaks (0)
 

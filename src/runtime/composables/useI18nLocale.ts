@@ -1,7 +1,10 @@
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
-import { useCookie, useNuxtApp, useState } from '#app'
+import { useCookie } from '#app/composables/cookie'
+import { useState } from '#app/composables/state'
+import { useNuxtApp } from '#app/nuxt'
+import { cookies } from '#build/i18n.strategy.mjs'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 
 type CookieRef = { value: string | null }
@@ -34,9 +37,10 @@ export function useI18nLocale() {
   const localeCookieName = getLocaleCookieName(i18nConfig)
   const hashCookieName = getHashCookieName(i18nConfig)
 
-  const localeCookie = localeCookieName ? useCookie<string | null>(localeCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
+  const cookieRef = (name: string | null): CookieRef => (cookies && name ? useCookie<string | null>(name, getLocaleCookieOptions()) : { value: null })
 
-  const hashCookie = hashCookieName ? useCookie<string | null>(hashCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
+  const localeCookie = cookieRef(localeCookieName)
+  const hashCookie = cookieRef(hashCookieName)
 
   const syncLocale = (locale: string | null) => {
     if (!locale) return

@@ -5,7 +5,8 @@
  *    and disallowed pages dropped). A tree with no locale is the page as written.
  * 2. emit: vue-router records. Locales whose tree equals the page as written share one record
  *    `/:locale(de|fr)/...` named `localized-<name>`; every other locale gets its own records
- *    named `localized-<name>-<locale>`. The default locale of prefix_except_default /
+ *    named `localized-<name>-<locale>` (under no_prefix, locales on one path share that record, named
+ *    after the first). The default locale of prefix_except_default /
  *    prefix_and_default, and the base page of no_prefix, keep the page's own names unprefixed.
  *
  * Every localized record carries `meta.i18n = { name, locales }`: the page's base route name and
@@ -24,6 +25,8 @@ export interface RouteI18nMeta {
   locales: string[]
   /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
   noMeta?: boolean | string[]
+  /** Under `prefix` with `redirects: false`, on the default locale's record: the path of a page with a custom default path. No URL, a link can still name the page by it. */
+  original?: string
 }
 
 export interface GenerateOptions {
@@ -36,6 +39,8 @@ export interface GenerateOptions {
   excludePatterns?: (string | RegExp)[]
   apiBaseUrl?: string
   noPrefixRedirect: boolean
+  /** `false`: no redirect records either, a page's original URL under `prefix` is a 404 like any unprefixed one. */
+  redirects?: boolean
   /**
    * Under prefix_except_default / prefix_and_default: locales that are the default of a domain in
    * the same build. They get unprefixed records too, and prefix_except_default keeps every prefix
@@ -91,6 +96,27 @@ function namePages(pages: NuxtPage[], taken: Set<string>, parentOriginal = '', t
     taken.add(name)
     return { ...named, name }
   })
+}
+
+/**
+ * vue-router keeps one record per name, so a generated name that repeats silently drops a page:
+ * `localized-about-de` is page `about` in `de` and the shared record of a page named `about-de`.
+ * A page's own name is never touched, and the runtime reads `meta.i18n`, so no name is load-bearing.
+ */
+function uniqueNames(records: NuxtPage[], taken: Set<string>): void {
+  for (const record of records) {
+    const { name } = record
+    const generated = name !== undefined && (record.meta?.i18n as RouteI18nMeta | undefined)?.name !== name && record.meta?.i18n !== undefined
+    if (generated && taken.has(name)) record.name = nextName(name, taken)
+    if (record.name) taken.add(record.name)
+    uniqueNames(record.children ?? [], taken)
+  }
+}
+
+function nextName(name: string, taken: Set<string>): string {
+  let count = 2
+  while (taken.has(`${name}-${count}`)) count++
+  return `${name}-${count}`
 }
 
 const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
@@ -210,18 +236,22 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const plainSignature = signature(localize(page, null, '', '', true, false)!)
     const plain: string[] = []
     let plainVariant: Variant | undefined
-    const own: NuxtPage[] = []
+    // unprefixed, locales on one path are one URL, so one record: of two, the router would only ever match the first
+    const groups = new Map<string, string[]>()
     for (const code of codes) {
       const variant = variants.get(code)
       if (!variant) continue
-      if (signature(variant) === plainSignature) {
+      const tree = signature(variant)
+      if (tree === plainSignature) {
         plain.push(code)
         plainVariant ??= variant
       } else {
-        // unprefixed (no_prefix) copies leave the declared aliases to the base page, which serves them
-        own.push(emit(variant, [code], `-${code}`, true, prefixed, true, prefixed))
+        const group = prefixed ? code : tree
+        groups.set(group, [...(groups.get(group) ?? []), code])
       }
     }
+    // unprefixed (no_prefix) copies leave the declared aliases to the base page, which serves them
+    const own = [...groups.values()].map((group) => emit(variants.get(group[0]!)!, group, `-${group[0]}`, true, prefixed, true, prefixed))
     const records = plainVariant && prefixed ? [emit(plainVariant, plain, '', true, true, true), ...own] : own
     return { plain, records }
   }
@@ -262,7 +292,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     if (strategy === 'no_prefix') {
       const { plain, records } = localeRecords(page, allowed, false, variants)
       const base = emit(localize(page, null, '', '', true, true)!, plain, '', false, false, true)
-      const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales[0] === defaultLocale)
+      const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales.includes(defaultLocale))
       // a string redirect cannot carry params: dynamic pages are left to the router
       if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path && !defaultRecord.path.includes(':'))
         base.redirect = defaultRecord.path
@@ -285,20 +315,30 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
         unprefixed.push(record)
       }
     const codes = strategy === 'prefix_except_default' && !hostDefaults.length ? allowed.filter((code) => code !== defaultLocale) : allowed
-    localized.push(...localeRecords(page, codes, true, variants).records)
+    const pageRecords = localeRecords(page, codes, true, variants).records
+    localized.push(...pageRecords)
 
     if (strategy === 'prefix' && defaultAllowed && page.name && !pagePath.includes(':')) {
-      // the unprefixed original URL of a page with a custom default path goes to that path; its
-      // meta lets the runtime find the page from that URL in any locale (no locale is served here)
       const target = absolute(variants.get(defaultLocale)!.path)
-      if (target !== absolute(pagePath) && !target.includes(':'))
-        unprefixed.push({
-          path: absolute(pagePath),
-          name: `redirect-${page.name}`,
-          redirect: `/${defaultLocale}${target === '/' ? '' : target}`,
-          meta: { i18n: { name: page.name, locales: [] } satisfies RouteI18nMeta },
-        })
+      if (target !== absolute(pagePath) && !target.includes(':')) {
+        // the unprefixed original URL goes to the custom path; its meta lets the runtime find the page
+        // from that URL in any locale (no locale is served here)
+        if (options.redirects !== false)
+          unprefixed.push({
+            path: absolute(pagePath),
+            name: `redirect-${page.name}`,
+            redirect: `/${defaultLocale}${target === '/' ? '' : target}`,
+            meta: { i18n: { name: page.name, locales: [] } satisfies RouteI18nMeta },
+          })
+        // without the record the URL is a 404, but `$localePath('/about')` still names the page
+        else {
+          const own = pageRecords.find((record) => (record.meta!.i18n as RouteI18nMeta).locales.includes(defaultLocale))!
+          own.meta = { ...own.meta, i18n: { ...(own.meta!.i18n as RouteI18nMeta), original: absolute(pagePath) } }
+        }
+      }
     }
   }
-  return [...unprefixed, ...localized]
+  const records = [...unprefixed, ...localized]
+  uniqueNames(records, new Set())
+  return records
 }

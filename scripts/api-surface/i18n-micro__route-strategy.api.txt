@@ -8,6 +8,7 @@ member GenerateOptions.hostDefaults?: string[] | undefined
 member GenerateOptions.locales: string[]
 member GenerateOptions.namePrefix: string
 member GenerateOptions.noPrefixRedirect: boolean
+member GenerateOptions.redirects?: boolean | undefined
 member GenerateOptions.rules: Rules
 member GenerateOptions.strategy: Strategies
 function generateRoutes: (pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]
@@ -45,6 +46,7 @@ member RouteGeneratorOptions.locales: Locale[]
 member RouteGeneratorOptions.localizedRouteNamePrefix?: string | undefined
 member RouteGeneratorOptions.noPrefixRedirect: boolean
 member RouteGeneratorOptions.parentPaths?: string[] | undefined
+member RouteGeneratorOptions.redirects?: boolean | undefined
 member RouteGeneratorOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member RouteGeneratorOptions.routeLocales?: Record<string, string[]> | undefined
 member RouteGeneratorOptions.strategy: Strategies
@@ -52,6 +54,7 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+member RouteI18nMeta.original?: string | undefined
 function routeKey: (routePathOrName: string) => string
 class Rules
 member Rules.allowedLocales: (fullPath: string, name: string | undefined) => string[] | undefined

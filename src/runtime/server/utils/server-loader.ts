@@ -10,7 +10,7 @@
  * with made-up page names cannot grow memory.
  */
 
-import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
@@ -22,11 +22,10 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { loadLiveDevTranslations } from './dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from './server-translation-cache'
+import { toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
-
-const toEntry = (data: Translations): ServerTranslationCacheEntry => ({ data, json: JSON.stringify(data).replace(/</g, '\\u003c') })
 
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<ServerTranslationCacheEntry> {
   const config = getI18nServerConfig()

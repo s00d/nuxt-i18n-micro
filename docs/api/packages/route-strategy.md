@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `GenerateOptions` | interface | 10 members |
+| `GenerateOptions` | interface | 11 members |
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[], apiBaseUrl?: string) => boolean` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
@@ -26,13 +26,13 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
 | `RouteGenerator` | class | 18 members |
-| `RouteGeneratorOptions` | interface | 12 members |
-| `RouteI18nMeta` | interface | 3 members |
+| `RouteGeneratorOptions` | interface | 13 members |
+| `RouteI18nMeta` | interface | 4 members |
 | `routeKey` | function | `(routePathOrName: string) => string` |
 | `Rules` | class | 12 members |
 
 <details>
-<summary><code>GenerateOptions</code> — 10 members</summary>
+<summary><code>GenerateOptions</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -44,6 +44,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `locales` | `string[]` |
 | `namePrefix` | `string` |
 | `noPrefixRedirect` | `boolean` |
+| `redirects?` | `boolean \| undefined` |
 | `rules` | `Rules` |
 | `strategy` | `Strategies` |
 
@@ -76,7 +77,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGeneratorOptions</code> — 12 members</summary>
+<summary><code>RouteGeneratorOptions</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -89,13 +90,14 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `noPrefixRedirect` | `boolean` |
 | `parentPaths?` | `string[] \| undefined` |
+| `redirects?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `strategy` | `Strategies` |
 
 </details>
 
-<code>RouteI18nMeta</code> — 3 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+<code>RouteI18nMeta</code> — 4 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
 
 <details>
 <summary><code>Rules</code> — 12 members</summary>

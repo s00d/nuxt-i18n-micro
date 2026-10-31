@@ -13,7 +13,7 @@ outline: [2, 3]
 <!-- generated:symbol:useI18nLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getLocaleWithServerFallback: (serverLocale?: string | null) => string | null; getPreferredLocale: () => string | null; hashCookie: any; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: any; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
+useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getLocaleWithServerFallback: (serverLocale?: string | null) => string | null; getPreferredLocale: () => string | null; hashCookie: CookieRef; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: CookieRef; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
 ```
 
 Centralized entry point for i18n locale management.

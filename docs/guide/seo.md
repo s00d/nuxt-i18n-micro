@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 
 ## Which tags you get
 
-- **hreflang**: one tag per locale that serves the page, value `iso` (or `code` when `iso` is missing). A page restricted with [Page config](/guide/per-component-translations) or `routeLocales` lists only its locales. [`hreflangBaseLanguage: true`](/api/module-options#hreflangbaselanguage) also adds the bare language (`es-ES` → `es`) for the first regional locale.
+- **hreflang**: one tag per locale that serves the page, value `iso` (or `code` when `iso` is missing), its URL with the same query as the canonical. A page restricted with [Page config](/guide/per-component-translations) or `routeLocales` lists only its locales. [`hreflangBaseLanguage: true`](/api/module-options#hreflangbaselanguage) also adds the bare language (`es-ES` → `es`) for the first regional locale.
 - **x-default**: the default locale's URL, only when the default locale serves the page.
 - **og:locale**: derived from `iso` (`en-US` → `en_US`). Set `og` on the locale when the mapping is not direct, for example `{ code: 'zh', iso: 'zh-Hans', og: 'zh_CN' }`; without either, no `og:locale` is written and dev mode warns.
 - **canonical / og:url**: the current URL without query parameters, except those in [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist) (default `page`, `sort`, `filter`, `search`, `q`, `query`, `tag`).

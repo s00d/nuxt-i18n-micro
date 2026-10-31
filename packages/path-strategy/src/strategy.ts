@@ -38,6 +38,8 @@ interface Index {
   noMeta: Map<string, boolean | string[]>
   /** Named records that are not localized (`false` rules, excluded pages). */
   unlocalized: Set<string>
+  /** Path of a page with no URL under it -> base: what the redirect record says when there is none (`redirects: false`). */
+  originals: Map<string, string>
 }
 
 /**
@@ -66,10 +68,19 @@ const UNLOCALIZED = 'unlocalized' as const
 /** Strategies that serve the default locale unprefixed: such a URL is its page, whatever is stored (the server agrees). */
 const unprefixedIsDefault = (strategy: Strategies) => strategy === 'prefix_except_default' || strategy === 'prefix_and_default'
 
+/** The router takes a hash decoded and encodes it itself, as it hands out `route.hash`. One that does not decode stays as written. */
+function decodedHash(hash: string): string {
+  try {
+    return decodeURIComponent(hash)
+  } catch {
+    return hash
+  }
+}
+
 function splitUrl(url: string): { path: string; query?: Record<string, unknown>; hash?: string } {
   const hashAt = url.indexOf('#')
   // a bare `#` is no hash: it must not reach fullPath
-  const hash = hashAt === -1 || hashAt === url.length - 1 ? undefined : url.slice(hashAt)
+  const hash = hashAt === -1 || hashAt === url.length - 1 ? undefined : decodedHash(url.slice(hashAt))
   const rest = hashAt === -1 ? url : url.slice(0, hashAt)
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }
@@ -83,8 +94,29 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   return { path: rest.slice(0, queryAt), query, hash }
 }
 
+/** What a browser reads as another host: two slashes or backslashes, with the blanks it drops around them. */
+const OFF_ORIGIN = /^[\0-\x20]*(?:[/\\][\t\n\r]*){2,}/
+
 /** A redirect target stays on this origin: `//evil.example` and `/\evil.example` become `/evil.example`. */
-const sameOrigin = (path: string) => path.replace(/^[/\\]{2,}/, '/')
+const sameOrigin = (path: string) => path.replace(OFF_ORIGIN, '/')
+
+/**
+ * The last word on a link: only stripping a prefix or filling a catch-all param can expose a second
+ * slash, so input checks are not enough. Such a link is a plain path: by name the router would build the same URL again.
+ */
+function onOrigin<T extends RouteLike | string>(route: T): T {
+  if (typeof route === 'string') return route
+  const { path, fullPath, query, hash } = route
+  const url = fullPath || path || ''
+  if (isPlainPath(url) || !OFF_ORIGIN.test(url)) return route
+  return { path: path && sameOrigin(path), fullPath: fullPath && sameOrigin(fullPath), query, hash } as T
+}
+
+/** `/about`: a slash, then a character past those that matter (below `0`, and `\`). Spares every ordinary link the RegExp. */
+function isPlainPath(url: string): boolean {
+  const second = url.charCodeAt(1)
+  return url.charCodeAt(0) === 47 && second >= 48 && second !== 92
+}
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
 
@@ -94,6 +126,8 @@ export class I18nPathStrategy {
   private readonly disabledCodes: Set<string>
   private readonly prefix: string
   private readonly unknownLocale: RegExp | null
+  /** Lowercased code -> code: the router matches `/:locale(de)` case-insensitively, so `/DE/about` reaches a `de` record. */
+  private readonly foldedCodes: Map<string, string>
   private shared_: Shared | undefined
 
   constructor(ctx: PathStrategyContext) {
@@ -104,6 +138,7 @@ export class I18nPathStrategy {
     this.prefix = ctx.localizedRouteNamePrefix ?? 'localized-'
     // `/re/` and `re` alike, as route-strategy reads it
     this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${ctx.customRegexMatcher.replace(/^\/(.*)\/$/, '$1')})$`) : null
+    this.foldedCodes = new Map(ctx.locales.map((l) => [l.code.toLowerCase(), l.code]))
   }
 
   setRouter(router: RouterAdapter): void {
@@ -224,7 +259,8 @@ export class I18nPathStrategy {
       if (!entry.catchAll) return page
       catchAll ??= page
     }
-    return catchAll
+    const original = this.index.originals.get(withoutTrailingSlash(path))
+    return original ? { base: original, params: {}, catchAll: false } : catchAll
   }
 
   private baseOf(name: string): string | null {
@@ -294,7 +330,11 @@ export class I18nPathStrategy {
     return rest === '/' ? `/${locale}` : `/${locale}${rest.startsWith('/') ? rest : `/${rest}`}`
   }
 
-  switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+    return onOrigin(this.switched(fromLocale, toLocale, route, options))
+  }
+
+  private switched(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     // a disabled locale is no target: the link stays on the page
     if (this.disabledCodes.has(toLocale)) return route
     const name = named(route.name)
@@ -321,6 +361,10 @@ export class I18nPathStrategy {
   }
 
   localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+    return onOrigin(this.localized(locale, routeOrPath))
+  }
+
+  private localized(locale: string, routeOrPath: RouteLike | string): RouteLike {
     const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
     // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
     const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
@@ -375,22 +419,23 @@ export class I18nPathStrategy {
     const param = route.params?.locale
     const fromParams = Array.isArray(param) ? String(param[0] ?? '') : param ? String(param) : ''
     if (this.codes.has(fromParams)) return fromParams
+    const folded = fromParams && this.foldedCodes.get(fromParams.toLowerCase())
+    if (folded && this.codes.has(folded)) return folded
     const fromPath = this.getLocaleFromPath(path)
     if (fromPath) return fromPath
     return unprefixedIsDefault(strategy) ? defaultLocale : defaultLocaleOverride || defaultLocale
   }
 
   /**
-   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locale,
-   * and a page restricted to some locales never renders in another one.
+   * Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locales,
+   * and a page restricted to some locales never renders in another one. The preference wins among them.
    */
   protected servedLocale(route: ResolvedRouteLike, preferred: string): string {
     const name = named(route.name)
     const entry = name ? this.index.records.get(name) : undefined
     if (!entry) return preferred
-    const own = name !== entry.base && entry.locales.length === 1
-    if (!own && this.index.pages.get(entry.base)?.has(preferred)) return preferred
-    return entry.locales[0] ?? preferred
+    const serves = name === entry.base ? this.index.pages.get(entry.base)?.has(preferred) : entry.locales.includes(preferred)
+    return serves ? preferred : (entry.locales[0] ?? preferred)
   }
 
   getCurrentLocaleName(route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null {
@@ -419,11 +464,16 @@ export class I18nPathStrategy {
     return reason
   }
 
-  /** A first segment the router took for a locale, not one of ours, on a URL that is no page in any form. */
+  /** A first segment the router took for a locale, or a code in another case, on a URL that is no page in any form. */
   private isUnknownLocale(path: string, segment: string): boolean {
-    if (!this.unknownLocale?.test(segment) || this.codes.has(segment)) return false
-    if (this.probe(path)?.params?.locale !== segment) return false
-    return !this.isOwnPage(path)
+    if (this.codes.has(segment)) return false
+    const custom = this.unknownLocale?.test(segment) && this.probe(path)?.params?.locale === segment
+    // `%64e` is a spelling as well: the router decodes before it matches
+    const code = this.foldedCodes.get((segment.includes('%') ? safeDecode(segment) : segment).toLowerCase())
+    const variant = code !== undefined && code !== segment && this.ctx.strategy !== 'no_prefix'
+    if (!custom && !variant) return false
+    // a `/:locale` record in another spelling shows the locale's page, whatever else that URL could be (`/DE` beside `[slug]`)
+    return !this.isOwnPage(path) || (variant && this.probe(path)?.params?.locale === segment)
   }
 
   /** The prefix of a disabled locale. A page on that segment is that page, a catch-all is not. */
@@ -465,8 +515,9 @@ export class I18nPathStrategy {
   getClientRedirect(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}): string | null {
     if (this.ctx.strategy === 'no_prefix' || this.disabledCodes.has(preferredLocale)) return null
     const path = splitUrl(currentPath).path || '/'
-    // a runtime-disabled prefix is a 404 (`shouldReturn404`), not an unprefixed URL
-    if (this.isDisabledPrefix(path, path.split('/')[1] ?? '')) return null
+    // a runtime-disabled or unknown prefix is a 404 (`shouldReturn404`), not an unprefixed URL
+    const segment = path.split('/')[1] ?? ''
+    if (this.isDisabledPrefix(path, segment) || this.isUnknownLocale(path, segment)) return null
     const locale = this.getLocaleFromPath(path)
     if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
     if (this.ctx.strategy === 'prefix_and_default') return null
@@ -488,7 +539,9 @@ export class I18nPathStrategy {
       locale = fallback
     }
     // a URL no record serves still moves to the preferred locale's form: `prefix` serves nothing
-    // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`
+    // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`. Elsewhere it
+    // stays the 404 it is: the prefixed form would be one too
+    if (!page && this.ctx.strategy !== 'prefix' && path !== '/' && this.index.records.size > 0) return null
     const target = sameOrigin(withoutTrailingSlash((page && this.routeTo(locale, page.base, page.params)?.path) || this.prefixed(locale, path)))
     return safeDecode(target) === safeDecode(withoutTrailingSlash(path)) ? null : target
   }
@@ -507,7 +560,7 @@ function copyValues(values: Record<string, unknown> | undefined): Record<string,
 }
 
 function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>, codes: string[]): Index {
-  const index: Index = { probeCodes: [], records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set() }
+  const index: Index = { probeCodes: [], records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set(), originals: new Map() }
   /** code -> names of the `/:locale(...)` records it is in; codes with the same list answer alike */
   const memberships = new Map<string, string[]>(codes.map((code) => [code, []]))
   const ownRecords = new Set<string>()
@@ -524,6 +577,7 @@ function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>, codes: stri
     if (keys.includes('locale')) for (const code of i18n.locales) memberships.get(code)?.push(name)
     for (const code of i18n.locales) if (record.path === `/${code}` || record.path.startsWith(`/${code}/`)) ownRecords.add(code)
     if (i18n.noMeta !== undefined) index.noMeta.set(i18n.name, i18n.noMeta)
+    if (i18n.original) index.originals.set(i18n.original, i18n.name)
     let byLocale = index.pages.get(i18n.name)
     if (!byLocale) index.pages.set(i18n.name, (byLocale = new Map()))
     // prefix_and_default serves the default locale twice: links use the prefixed record
@@ -578,6 +632,8 @@ function safeDecode(path: string): string {
   }
 }
 
+const baseOf = (locale: Locale) => locale.baseUrl?.replace(/\/+$/, '')
+
 /**
  * The strategy of a build with locale domains (`baseUrl`). On a known host (`ctx.domain`) the
  * locales of other domains are no URLs here, only link targets; on any other host the build config
@@ -612,11 +668,27 @@ export class DomainPathStrategy extends I18nPathStrategy {
   protected override external(locale: string, route: Target): string | null {
     const config = this.ctx.locales.find((l) => l.code === locale)
     if (!config?.baseUrl || (this.ctx.domain && !this.foreign.has(locale))) return null
-    // under `prefix` an unprefixed URL is only a redirect
-    const strip = config.baseDefault && this.ctx.strategy !== 'prefix' && this.hasPrefix(locale) && route.fullPath.split(/[/?#]/, 2)[1] === locale
-    const rest = strip ? route.fullPath.slice(locale.length + 1) || '/' : route.fullPath
+    const rest = this.pathOnHost(locale, config, route)
     const path = rest.startsWith('/') ? rest : `/${rest}`
-    return `${config.baseUrl.replace(/\/+$/, '')}${this.ctx.hashMode ? `/#${path}` : path}`
+    const base = baseOf(config)!
+    if (this.ctx.hashMode) return `${base}/#${path}`
+    // the home is the bare origin, as a host writes its own URL: one page, one form across hosts
+    return path === '/' ? base : `${base}${path}`
+  }
+
+  /** The URL `route` has on the host of `locale`, which has a default of its own: that one is unprefixed there, the others are not. */
+  private pathOnHost(locale: string, config: Locale, route: Target): string {
+    const { fullPath, path } = route
+    // under `prefix` an unprefixed URL is only a redirect
+    if (config.baseDefault && this.ctx.strategy !== 'prefix')
+      return this.hasPrefix(locale) && fullPath.split(/[/?#]/, 2)[1] === locale ? fullPath.slice(locale.length + 1) || '/' : fullPath
+    const { strategy, defaultLocale, locales } = this.ctx
+    if (strategy !== 'prefix_except_default' || locale !== defaultLocale) return fullPath
+    // the build default is unprefixed only where it is the default: another locale may hold those URLs on its host
+    const base = baseOf(config)
+    return locales.some((other) => other.baseDefault && baseOf(other) === base)
+      ? `/${locale}${path === '/' ? fullPath.slice(1) : fullPath}`
+      : fullPath
   }
 
   protected override notFoundReason(path: string): string | null {
@@ -639,9 +711,27 @@ export class DomainPathStrategy extends I18nPathStrategy {
   /** A link `localeRoute` made absolute reads as the page it shows, so it switches like any route. */
   override switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions): RouteLike | string {
     const url = route.fullPath ?? ''
-    const origin = this.ctx.locales.map((locale) => locale.baseUrl?.replace(/\/+$/, '')).find((base) => base && url.startsWith(`${base}/`))
-    const own = origin ? this.probe(url.slice(origin.length).replace(/^\/#/, '')) : null
+    const origin = this.originOf(url)
+    const own = origin ? this.probe(url.slice(origin.length).replace(/^\/#/, '') || '/') : null
     return super.switchLocaleRoute(fromLocale, toLocale, own ?? route, options)
+  }
+
+  /** The `baseUrl` a URL lies on, the longest: one host can carry a locale at its root and another under a path. */
+  private originOf(url: string): string | undefined {
+    return this.ctx.locales
+      .map(baseOf)
+      .filter((base) => base && (url === base || url.startsWith(`${base}/`)))
+      .sort((a, b) => b!.length - a!.length)[0]
+  }
+
+  /**
+   * An absolute link of a locale's own domain says where it goes (`<i18n-link :to="$localeRoute(x, 'de')">`).
+   * Any other absolute object stays a path: it can come from a request.
+   */
+  override localeRoute(locale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike {
+    const url = typeof routeOrPath === 'string' ? '' : routeOrPath.fullPath
+    if (url && url[0] !== '/' && this.originOf(url)) return { path: url, fullPath: url }
+    return super.localeRoute(locale, routeOrPath, currentRoute)
   }
 
   /** A page restricted to some locales renders in one this host serves. */

@@ -80,9 +80,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,nl,fr |
 | /fr/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,de,nl,fr |
 | /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
-| /fr/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | /en/missing | null |
+| /fr/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
 | /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | null | null | null |
-| /fr/fr/about | /en/fr/about?q=1#top [—] |  | /en/fr/about?q=1#top [null] | /en/fr/about?q=1#top [null] | null | /en/fr/about | null |
+| /fr/fr/about | /en/fr/about?q=1#top [—] |  | /en/fr/about?q=1#top [null] | /en/fr/about?q=1#top [null] | null | null | null |
 
 ## To fr
 

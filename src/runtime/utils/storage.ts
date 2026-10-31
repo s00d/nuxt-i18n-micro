@@ -54,7 +54,7 @@ class TranslationStorage {
   }
 
   /**
-   * Configure cache limits. Call once from plugin with config values.
+   * Configure cache limits: the plugin's config values, on every request on the server, where this copy is process-wide.
    */
   configure(options: CacheControlOptions): void {
     this.cc.configure(options)

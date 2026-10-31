@@ -1091,6 +1091,7 @@ member PreactI18n.activeRootKey: private any
 member PreactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member PreactI18n.borrowsLocaleIso: private any
 member PreactI18n.clear: () => void
 member PreactI18n.clearCache: () => void
 member PreactI18n.currentRoute: string
@@ -1110,6 +1111,7 @@ member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.hasTranslation: (key: TranslationKey) => boolean
 member PreactI18n.helper: TranslationHelper
+member PreactI18n.isoTag: private any
 member PreactI18n.isReadable: private any
 member PreactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member PreactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -1122,11 +1124,11 @@ member PreactI18n.lookupLocale: private any
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected (locale?: string) => void
+member PreactI18n.ownLocaleIso: private any
 member PreactI18n.ownsFormatter: private any
 member PreactI18n.ownStore: protected ReactiveI18nStore
 member PreactI18n.pluralFunc: PluralFunc
 member PreactI18n.pluralLocale: () => string
-member PreactI18n.pluralTag: private any
 member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string

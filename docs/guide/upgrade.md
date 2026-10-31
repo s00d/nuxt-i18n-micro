@@ -27,18 +27,26 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 
 - **Localized route names are consistent.** A child under a shared locale record keeps the page's name, `no_prefix` honours `localizedRouteNamePrefix`, and a parent with an index child stays unnamed. Only code that hard-codes `localized-…` names in `router.push({ name })` is affected: pass the page's own name to `$localeRoute` / `<i18n-link>` instead.
 - **`/en` and `/en/...` are a 404 under `prefix_except_default`** (`en` being the default), as documented.
+- **A locale prefix in another case or spelling is a 404.** `/DE/about` used to render the German route in the default locale, or redirect to `/en/DE/about`. A page of its own on that URL stays a page. A catch-all or a `[slug]` page is not one: `/DE/x` under `[...slug]` and `/DE` beside `[slug]` are a 404 too, so a CMS slug equal to a locale code in another case loses its page.
+- **An unknown URL stays a 404.** With `autoDetectPath: '*'` or `'no_prefix'`, `/nope` no longer redirects to `/de/nope` first. `prefix` keeps the redirect (nothing is served unprefixed there), as does `/` everywhere.
+- **Another locale's custom path, unprefixed, finds its page under `prefix_except_default`.** `/a-propos` was a 404 and is now a `302` to the default locale's URL (`/about`). Under `prefix` the same redirect now reaches a live page (`/en/about`, it was `/en/a-propos`, a 404). `prefix_and_default` stays a 404.
+- **`prefix` with `redirects: false` answers 404 on an unprefixed URL** (`/about` was a `302`), including the original URL of a page with a custom default path. `$localePath('/about')` still finds that page.
 - **A locale that does not serve a page links to its home.** `$localeRoute`, `$switchLocalePath` and the switcher no longer return another locale's page.
 - **`hreflang` lists only the locales that serve the page**; `x-default` is emitted only when the default locale serves it.
 - **`autoDetectPath: '*'` now applies the cookie and `Accept-Language` to unprefixed paths too** (`/about` → `/de/about`).
 - **Under `prefix` an unprefixed URL keeps the visitor's locale.** With cookie `de`, `/about` and a plain `<NuxtLink to="/about">` go to `/de/about`, on every path, whatever `autoDetectPath` says.
-- **Under `no_prefix` a custom path renders its own locale** (`/ueber-uns` is German with any preference), and a restricted page renders in a locale it serves.
+- **Under `no_prefix` a custom path renders its own locale** (`/ueber-uns` is German with any preference), and a restricted page renders in a locale it serves. A path several locales share renders the preference when it is one of them, and under `baseUrl` is a page on each of their domains. Those locales share one record, `localized-<page>-<first locale>`.
 - **A `routeRules` redirect without a page is not localized.** `/de/old` was an empty 200, now it is a 404: add a rule for the prefixed path if you need one.
 - **Route rules reach custom paths.** `/blog/**` also applies to `/de/artikel/:slug` when `blog/[slug]` has that path, and rules are copied under `no_prefix` too. A static sibling such as `/de/artikel/news` matches that pattern as well.
 - **A locale with `disabled: true` answers 404 on its prefix** at once, and links to it stay on the page.
 - **Canonical and `hreflang` include `app.baseURL`** when the origin comes from the request. `metaBaseUrl` and `site.url` stay as written.
 - **An unlocalized page has no `hreflang` or `og:locale:alternate`.**
-- **`$localePath` returns a string with an `http(s):`, `mailto:` or `tel:` scheme as is, and the `path` and `fullPath` of `$localeRoute` carry it unchanged**, so do not pass an unchecked value (a `?next=` parameter) to them as a link target. `//host` and bare names like `x.com` stay paths, on this origin in every locale.
+- **404 pages carry `<html lang dir>`**, in the locale of the URL. They have no canonical or `hreflang`, also when the module itself answers the 404 on a matched record (`/en/...`).
+- **Canonical, `og:url` and `hreflang` keep a whitelisted query** (`/about?page=2`), on the server too: it was dropped during SSR. `page`, `sort`, `filter`, `search`, `q`, `query` and `tag` are whitelisted by default; see [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist).
+- **`$localePath` returns a string with an `http(s):`, `mailto:` or `tel:` scheme as is, and the `path` and `fullPath` of `$localeRoute` carry it unchanged**, so do not pass an unchecked value (a `?next=` parameter) to them as a link target. `//host` and bare names like `x.com` stay paths, on this origin in every locale, and no link they turn into leaves it: `/de//x.com` to the default locale is `/x.com`. Backslashes count as slashes.
+- **A link to a locale with a `baseUrl` goes through `$localePath` or `<i18n-link>`.** `<NuxtLink :to="$localePath(x, 'fr')">` and `<i18n-link :to="$localeRoute(x, 'fr')">` are that absolute URL, and a click goes there. The router takes no absolute object: `<NuxtLink :to="$localeRoute(x, 'fr')">` and `router.push($localeRoute(x, 'fr'))` stay `/https://fr.example.com/...`, a path of this app. On `localhost` or a preview host every locale with a `baseUrl` is such a link, the current one too. In code use `navigateTo($localePath(x, 'fr'), { external: true })`.
 - **`$switchRoute` stays in the app.** A locale's own `baseUrl`, `mailto:` and `tel:` leave it; any other string is a path.
+- **The home of a domain is written without a trailing slash everywhere** (`https://example.de`), in links, canonical and `hreflang`.
 - **`locales[].baseUrl` now routes requests.** One build serves every domain: see [Layers and domains](/guide/layers#multiple-domains). With `baseUrl` set, a locale of another domain is a 404 on this host (`/en/about` on `example.de`), and links to a locale on the same host are relative. Requests on any other host, `localhost` included, behave as before, except that canonical and `hreflang` use `metaBaseUrl` if set, else the default locale's `baseUrl`, and not the request's origin.
 - **Under `prefix`, a link to another domain keeps the locale prefix, with or without `baseDefault`.** `https://example.de/de/about`, not `https://example.de/about`, which only redirects.
 - **Under `prefix_except_default` with `baseDefault` on a locale other than the build default, routes keep every prefix** so other domains can link to them. `/en` is still a 404. Only code reading `router.getRoutes()` sees the difference.
@@ -50,6 +58,14 @@ The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, compone
 - **The locale cookie is written only by a served page**: not by a 404, not under `no_prefix` from a URL that looks prefixed.
 - **Hash mode works under `prefix`.** The document is `/`, and `/en` or `/about` redirect into the hash.
 - **Under `prefix_and_default` an unprefixed URL is the default locale.** `/contact` with `Accept-Language: de` used to render German and then hydrate English. It now renders the default locale; visitors reach German through `/de/...`.
+- **`$setI18nRouteParams` and `useI18nHead` from the server survive hydration.** After landing on `/news/2` the switcher links to the translated slug (`/de/news/2-zwei`), not `/de/news/2`, in the server HTML too, wherever the switcher sits, when the page sets the params during SSR. They are dropped when a navigation to another path commits, including `/news/1` to `/news/4`: set them again on the new page.
+- **A navigation applies when it commits.** The dictionary, the locale, params and head change in `router.afterEach`, so a cancelled or blocked navigation changes nothing, and the old page's links stay valid while the next chunk loads. A `beforeResolve`, a `beforeRouteEnter` or a later global guard now sees the old dictionary and locale. Route middleware is unaffected.
+- **`$switchLocale` puts the stored locale back** when its navigation is cancelled or blocked, under the URL strategies. On a page with one URL for every locale (`excludePatterns`) the choice is not undone, and the next page's URL decides: under `prefix_except_default` an unprefixed link returns to the default locale.
+- **A client redirect keeps the mode of its navigation.** A plain `<NuxtLink to="/about">` under `prefix` adds a history entry instead of overwriting the current one; `router.replace` still replaces.
+- **`$setI18nRouteParams` read in setup is bound to that page.** A late call from a page already left does nothing. `useNuxtApp().$setI18nRouteParams` is an accessor now, and two reads give two functions. It has no setter: `useI18n().$setI18nRouteParams = fn`, as a test stub might do, throws in strict mode, so stub `useI18n` itself. In a layout or `app.vue` it is the plain function, as nothing there is left.
+- **The server rewrites the links of `<i18n-switcher>` when the render ends**, on pages with params, because a switcher in the layout renders before the page's async setup. A hand-written `$switchLocalePath` link is not rewritten: see [custom locale routes](/guide/custom-locale-routes). Under Nuxt's SSR streaming the first HTML keeps the URL's params.
+- **A prop named `locale` on a server component sets its render locale**, so `<Greeting :locale="$getLocale()" />` follows the URL and a switch. See [server-side translations](/guide/server-side-translations). Without the prop it still uses the cookie or the default.
+- **`keepalive` pages get their params and head back** on return.
 
 ### Locale detection
 
@@ -61,7 +77,8 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 - **A malformed locale cookie is ignored** instead of failing every SSR page with a 500.
 - **Runtime overrides reach routing.** `NUXT_I18N_DEFAULT_LOCALE` and runtime `disabledLocales` now change the generated strategy (a disabled locale stops routing). Under `prefix_except_default` and `prefix_and_default` a runtime `defaultLocale` is ignored with a warning, because that locale's unprefixed routes are generated at build. See [Runtime overrides](/guide/runtime-overrides).
 - **The URL's locale goes first.** A plugin's `setLocale('de')` on `/en/...` no longer loads the `de` dictionary, and an unknown code in the state is ignored.
-- **`excludePatterns`** match whole segments (`'/admin'` no longer matches `/administrator`), and globs are anchored (`/docs/*` no longer matches `/en/docs/x`). `RegExp` patterns now reach the runtime; they used to be lost there. Check your patterns against [Excluding paths](/guide/excluding-static-files).
+- **A malformed locale cookie stays as it is.** It no longer gets deleted on every request, which also stopped a prefixed page from storing its locale.
+- **`excludePatterns`** match whole segments (`'/admin'` no longer matches `/administrator`), and globs are anchored (`/docs/*` no longer matches `/en/docs/x`). `RegExp` patterns now reach the runtime; they used to be lost there. A page they match is unlocalized: no `hreflang`, and the default locale under `prefix_except_default`. Check your patterns against [Excluding paths](/guide/excluding-static-files).
 
 ### Translations
 
@@ -79,7 +96,8 @@ One precedence everywhere, described on [Locale detection](/guide/locale-detecti
 ### Plurals and formatting
 
 - `$tc` with a negative, fractional or huge count takes the last form with the real count; `{ count: null }` no longer throws; a missing plural key reaches the missing handler.
-- `$tdr` gives real future dates (`in 3 days`, or `tomorrow` with `numeric: 'auto'`) and `Invalid Date` for an invalid input.
+- `$tdr` gives real future dates (`in 3 days`, or `tomorrow` with `numeric: 'auto'`) and `Invalid Date` for an invalid input. Under a second in the past is `0 seconds ago`.
+- **`$tn`, `$td` and `$tdr` go by `iso`**, as plurals do: `{ code: 'en', iso: 'en-GB' }` now formats dates as `31/10/2026`. In a locale code `_` reads as `-`, so `en_US` no longer throws, and a code `Intl` does not know formats as `en` rather than following the machine's locale. Named formats are still looked up by `code`.
 - A `{param}` placeholder reads only the params you pass (`{constructor}` stays as written).
 - `<i18n-t>` with `number`, `date` or `relativeDate` keeps `params`; they are merged in.
 - **Plural templates keep their meaning, with one exception.** The table lists every shape. To get `Intl.PluralRules` categories, say so with the new [`=0 ` marker](/api/methods#tc): `=0 нет | яблоко | яблока | яблок`.
@@ -112,6 +130,8 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - **`null` means not set** for `plural`, `number`, `date` and `relativeDate`. `:plural="null"` used to fail the render, `:date="null"` rendered 1970.
 - `plural` counts like `$tc`, with `Number`: `1.5` stays `1.5` and takes the last form, it used to be cut to `1`; `"2 items"` is `NaN`, it used to be `2`; `""` is `0`. A `customPluralRule` sees `1.5` too. Its other contract is unchanged: same arguments, its answer is used as is, `null` renders empty.
 - `hideIfEmpty` applies to `plural`, `number`, `date` and `relativeDate`.
+- **A missing key under `html` is text.** The key is escaped, because only a translation is trusted and a key can come from a request. A `defaultValue` is yours and stays markup.
+- With `plural`, a `defaultValue` or the key stands whole on a miss, as in `$tc`: `a | b` is no longer split.
 - `defaultValue` stands in for a missing key in every branch, not the key itself, and a `customPluralRule` gets it through its getter on a miss. It used to do something only after `hideIfEmpty`.
 - `date` and `relativeDate` output carries `data-allow-mismatch="text"`: a clock or a time zone that differs between server and browser no longer warns during hydration. Next to a named slot, the text around the slot sits in a `<span>` of its own, because Vue checks the attribute only on an element's single text.
 - `.innerHTML` and `textContent` attributes are dropped along with `innerHTML`.
@@ -142,6 +162,10 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - `const { $defineI18nRoute } = useNuxtApp()` in a page now works with configs that use variables.
 - `$switchLocale` is typed `Promise<boolean>` and `$switchRoute` `Promise<void>`. `clearCache` is on the `useI18n()` type.
 - `routeDisableMeta` set in `nuxt.config` is honoured.
+
+- **`detectCurrentLocale` is deprecated.** It still works and is still a server auto-import; use [`useLocaleServerMiddleware(event).current`](/guide/server-side-translations), which applies the same rules.
+- **`$getI18nConfig()` no longer has `isSSG`, `hmr`, `hooks`, `noPrefixRedirect`, `routeLocales` or `routeDisableMeta`.** Only the build read them. The options themselves are unchanged. `ModuleOptionsExtend.isSSG` stays as an optional, deprecated property, but nothing sets it at runtime.
+- **`resolveServerLocale` and `resolvePreferredLocale` are gone** from `@i18n-micro/utils/resolve-locale`, with their input types. Both were deprecated: call `resolveLocale` with `url`, `query`, `state`, `cookie` and `acceptLanguage`.
 
 ### Framework packages
 
@@ -199,7 +223,7 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 | `@i18n-micro/devtools-ui` | `createBridge` takes a `base` option; a failed save to a reachable endpoint throws and rolls back | pass `base` if you changed the plugin's `base` |
 | `@i18n-micro/devtools-ui` | `/save` accepts only an existing `.json` inside `translationDir` and no longer creates files | create new locale files yourself |
 | `@i18n-micro/core` (2.0.0) | `TranslationHelper` drops `setCache`, `getGeneration`, `lookupIn` (use `lookup(chunkKey, key)`); `BaseI18n` drops `ensurePinnedChunk`, `invalidatePin`; route chunks hold only their own keys and lookups fall through to the root chunk | only for custom adapters |
-| `@i18n-micro/utils` | subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | they were module internals |
+| `@i18n-micro/utils` (2.0.0) | subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | they were module internals |
 
 ## From v2 to v3
 

@@ -12,6 +12,7 @@ function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) =
 function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isStaticAssetPathname: (pathname: string) => boolean
 function resolveContainedRelPath: (relPath: string) => string | null
+function trimTrailingSlashes: (path: string) => string
 function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
 
 # ./auto-detect-path (src/auto-detect-path.ts)
@@ -23,6 +24,7 @@ member CacheControl.cache: private Map<string, T>
 member CacheControl.clear: () => void
 member CacheControl.configure: (options: CacheControlOptions) => void
 member CacheControl.delete: (key: string) => boolean
+member CacheControl.evictOverSize: private () => void
 member CacheControl.expiry: private Map<string, number>
 member CacheControl.get: (key: string) => T | undefined
 member CacheControl.has: (key: string) => boolean
@@ -30,6 +32,7 @@ member CacheControl.keys: () => IterableIterator<string>
 member CacheControl.maxSize: private number
 member CacheControl.set: (key: string, value: T) => void
 member CacheControl.size: number
+member CacheControl.stampUnexpiring: private () => void
 member CacheControl.ttlMs: private number
 member CacheControl.new: <T>(options?: CacheControlOptions | undefined): CacheControl<T>
 interface CacheControlOptions
@@ -43,7 +46,7 @@ const DEFAULT_COOKIE_NAME: "user-locale"
 const DEFAULT_HASH_COOKIE_NAME: "hash-locale"
 function getHashCookieName: (config: ModuleOptionsExtend) => string | null
 function getLocaleCookieName: (config: ModuleOptionsExtend) => string | null
-function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string | null; }
+function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string; }
 function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 
 # ./deep-merge (src/deep-merge.ts)
@@ -209,25 +212,6 @@ member ResolveLocaleInput.queryFirst?: boolean | undefined
 member ResolveLocaleInput.state?: string | null | undefined
 member ResolveLocaleInput.url?: string | null | undefined
 member ResolveLocaleInput.validLocales: readonly string[]
-function resolvePreferredLocale: (input: ResolvePreferredLocaleInput) => string
-interface ResolvePreferredLocaleInput
-member ResolvePreferredLocaleInput.acceptLanguageHeader?: string | null | undefined
-member ResolvePreferredLocaleInput.autoDetectLanguage?: boolean | undefined
-member ResolvePreferredLocaleInput.cookieLocale?: string | null | undefined
-member ResolvePreferredLocaleInput.defaultLocale: string
-member ResolvePreferredLocaleInput.ignoreStateLocale?: boolean | undefined
-member ResolvePreferredLocaleInput.stateLocale?: string | null | undefined
-member ResolvePreferredLocaleInput.validLocales: string[]
-function resolveServerLocale: (input: ResolveServerLocaleInput) => string
-interface ResolveServerLocaleInput
-member ResolveServerLocaleInput.acceptLanguageHeader?: string | null | undefined
-member ResolveServerLocaleInput.autoDetectLanguage?: boolean | undefined
-member ResolveServerLocaleInput.cookieLocale?: string | null | undefined
-member ResolveServerLocaleInput.defaultLocale: string
-member ResolveServerLocaleInput.hasLocaleInUrl: boolean
-member ResolveServerLocaleInput.queryLocale?: string | null | undefined
-member ResolveServerLocaleInput.urlLocale?: string | null | undefined
-member ResolveServerLocaleInput.validLocales: string[]
 
 # ./resolve-og-locale (src/resolve-og-locale.ts)
 function resolveOgLocale: (locale: OgLocaleInput) => string | null

@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { trimTrailingSlashes } from './app-path'
 import { resolveHreflangAlternates } from './resolve-hreflang'
 import { resolveOgLocale, warnUnresolvedOgLocale } from './resolve-og-locale'
 
@@ -75,9 +76,12 @@ export function queryString(query?: object | null): string {
   return serialized && `?${serialized}`
 }
 
-/** `base` + `path` with one slash between them: `'/'` + `/de` or `//de` is `/de`, never the protocol-relative `//de`. */
+/**
+ * `base` + `path` with one slash between them: `'/'` + `/de` or `//de` is `/de`, never the protocol-relative
+ * `//de`. A browser reads `\` as `/` and drops a tab or a newline, so `/\host` is that form as well.
+ */
 export function joinBase(base: string, path: string): string {
-  return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
+  return `${trimTrailingSlashes(base)}/${path.replace(/^[/\\\t\n\r]+/, '')}`
 }
 
 /**

@@ -6,7 +6,7 @@ import { isTranslationFile } from '../../../test/helpers/is-translation-file'
 import { repoRoot } from '../utils/workspace'
 import { assertServerEntry, buildHashInputs, ensureConsumerModuleDist, NITRO_SERVER_ENTRY } from './artifact'
 import { resolveFixtureSelection, type PerfFixtureDef } from './fixtures'
-import { ensurePerfLocales, writePerfLocales, writeRuntimeProfile } from './generate'
+import { ensurePerfLocales, writeRuntimeProfile } from './generate'
 import { artilleryKnobsFromProfile, describeLoadProfile, loadPathsFromProfile } from './load'
 import { createDocsReporter } from './report'
 import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
@@ -74,7 +74,6 @@ export function createI18nPerfSuite(args: ResolvedPerfArgs): PerfSuite {
     async beforeAll() {
       ensureConsumerModuleDist()
       writeRuntimeProfile(args.profile)
-      writePerfLocales(args.profile, fixtures)
       ensurePerfLocales(args.profile, fixtures)
       console.log(
         `profile: ${args.profile.locales.length} locales, branch ${args.profile.branch}, pages ${args.profile.pages.map((p) => p.name).join('+')} · load=${args.load} (${describeLoadProfile(args.load)}) · cool=${args.cool} · artillery paths: ${loadPathsFromProfile(args.profile).join(', ')}`,

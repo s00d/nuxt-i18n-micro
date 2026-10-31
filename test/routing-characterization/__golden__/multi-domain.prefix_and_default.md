@@ -68,9 +68,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,de,fr |
 | /de/about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | /en/about | en,de,fr |
 | /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
-| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | /en/missing | null |
+| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
 | /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | null | null | null |
-| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | null | /en/de/about | null |
+| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | null | null | null |
 
 ## To de
 
@@ -120,9 +120,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | null | en,de,fr |
 | /de/about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | null | /fr/a-propos | en,de,fr |
 | /missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | null | null |
-| /de/missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | /fr/missing | null |
+| /de/missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | null | null | null |
 | /xx/about | external https://example.fr/fr/xx/about?q=1#top |  | https://example.fr/fr/xx/about?q=1#top [—] | https://example.fr/fr/xx/about?q=1#top [—] | null | null | null |
-| /de/de/about | external https://example.fr/fr/de/about?q=1#top |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | null | /fr/de/about | null |
+| /de/de/about | external https://example.fr/fr/de/about?q=1#top |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 
@@ -132,7 +132,7 @@ params: the PARAMS keys the route's records use.
 |---|---|---|---|---|---|---|---|---|---|
 | about | /en/about [localized-about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] | /en/about [localized-about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] | /en/about [localized-about] | https://example.de/ueber-uns [—] | https://example.fr/fr/a-propos [—] |
 | blog-slug | /en/blog/hello-world [localized-blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] | /en/blog/hello-world [localized-blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] | /en/blog/hello-world [localized-blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/fr/blog/hello-world [—] |
-| index | /en [localized-index] | https://example.de/ [—] | https://example.fr/fr [—] | /en [localized-index] | https://example.de/ [—] | https://example.fr/fr [—] | /en [localized-index] | https://example.de/ [—] | https://example.fr/fr [—] |
+| index | /en [localized-index] | https://example.de [—] | https://example.fr/fr [—] | /en [localized-index] | https://example.de [—] | https://example.fr/fr [—] | /en [localized-index] | https://example.de [—] | https://example.fr/fr [—] |
 
 ## Invariant breaks (0)
 

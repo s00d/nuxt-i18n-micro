@@ -81,7 +81,8 @@ export function localizedPath(to: string | { path?: string }, locale: string, lo
   if (end === 0) return path
   const pathname = end === -1 ? path : path.slice(0, end)
   const suffix = end === -1 ? '' : path.slice(end)
-  const segments = pathname.split('/').filter(Boolean)
+  // as a browser reads the URL: `\` is a slash and a tab or a newline is dropped, so `/\host` cannot pass for a path
+  const segments = pathname.split(/[/\\\t\n\r]/).filter(Boolean)
   if (localeCodes.includes(segments[0]!)) segments.shift()
   const clean = segments.join('/')
   if (locale === defaultLocale) return `/${clean}${suffix}`

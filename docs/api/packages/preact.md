@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 63 members |
+| `PreactI18n` | class | 65 members |
 | `PreactI18nOptions` | interface | 13 members |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
@@ -1108,7 +1108,7 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 63 members</summary>
+<summary><code>PreactI18n</code> — 65 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1117,6 +1117,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `borrowsLocaleIso` | `private any` |
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
@@ -1136,6 +1137,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isoTag` | `private any` |
 | `isReadable` | `private any` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
@@ -1149,11 +1151,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

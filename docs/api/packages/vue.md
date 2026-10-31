@@ -120,6 +120,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `getStorage` | `() => TranslationStorage` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
+| `isoTag` | `private any` |
 | `listeners` | `private Set<() => void>` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -135,7 +136,6 @@ import { /* … */ } from '@i18n-micro/vue'
 | `ownsFormatter` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale` | `() => string` |
-| `pluralTag` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |

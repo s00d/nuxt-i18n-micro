@@ -1,6 +1,23 @@
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { alternateOf, canonicalOf, contentOn, onHost, routeDomains } from '../helpers/domains.ts'
 
+import type { Page } from '@playwright/test'
+
+// A click before hydration does nothing, and a full load to the other domain hydrates again: retry until it took.
+async function openSwitcher(page: Page, option: string) {
+  await expect(async () => {
+    if (!(await page.locator(option).isVisible())) await page.locator('.language-switcher').click()
+    await expect(page.locator(option)).toBeVisible({ timeout: 500 })
+  }).toPass()
+}
+
+async function clickUntil(page: Page, selector: string, url: string) {
+  await expect(async () => {
+    if (page.url() !== url) await page.locator(selector).click({ timeout: 1000 })
+    await expect(page).toHaveURL(url, { timeout: 1000 })
+  }).toPass()
+}
+
 const DE = 'example.de'
 const COM = 'example.com'
 
@@ -26,6 +43,40 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     // step 3: ru has no domain: prefixed on both hosts
     expect(contentOn((await onHost(baseURL, '/ru', DE)).html)).toBe('ru')
     expect(contentOn((await onHost(baseURL, '/ru/contact', COM)).html)).toBe('contact')
+  })
+
+  test('a link to another domain: <i18n-link> with $localeRoute, <NuxtLink> with $localePath', async ({ page, baseURL }) => {
+    const { html } = await onHost(baseURL, '/named', COM)
+    const hrefOf = (id: string) => new RegExp(`id="${id}"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="${id}"`).exec(html)?.slice(1).find(Boolean)
+    expect(hrefOf('route-link-de')).toBe('https://example.de/kontakt')
+    expect(hrefOf('path-link-de')).toBe('https://example.de/kontakt')
+
+    await routeDomains(page, baseURL)
+    await page.goto('https://example.com/named')
+    await expect(page.locator('#route-link-de')).toHaveAttribute('href', 'https://example.de/kontakt')
+    await clickUntil(page, '#route-link-de', 'https://example.de/kontakt')
+    await page.goto('https://example.com/named')
+    await clickUntil(page, '#path-link-de', 'https://example.de/kontakt')
+  })
+
+  test('an unchecked absolute $localeRoute is no way off the origin, in a link or in the router', async ({ page, baseURL }) => {
+    const { html } = await onHost(baseURL, '/named?unchecked', COM)
+    expect(html).toContain('id="unchecked-link"')
+    expect(html).not.toMatch(/href="https:\/\/evil\.example/)
+
+    await routeDomains(page, baseURL)
+    await page.goto('https://example.com/named?unchecked')
+    await expect(page.locator('#unchecked-link')).not.toHaveAttribute('href', /^https:/)
+    await expect(page.locator('#unchecked-i18n-link')).not.toHaveAttribute('href', /^https:/)
+    await page.locator('#unchecked-link').click()
+    await expect.poll(() => new URL(page.url()).host).toBe('example.com')
+  })
+
+  test('a 404 the module answers on a matched record has no SEO tags', async ({ baseURL }) => {
+    const { status, html } = await onHost(baseURL, '/en/contact', DE)
+    expect(status).toBe(404)
+    expect(html).not.toContain('i18n-can')
+    expect(html).not.toContain('i18n-alternate')
   })
 
   test('head: own URLs on the configured origin, other locales on their domains', async ({ baseURL }) => {
@@ -54,7 +105,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     const unknown = await onHost(baseURL, '/', 'evil.test')
     expect(contentOn(unknown.html)).toBe('en')
     expect(unknown.html).not.toContain('evil.test')
-    expect(canonicalOf(unknown.html)).toBe('https://example.com/')
+    expect(canonicalOf(unknown.html)).toBe('https://example.com')
     expect((await onHost(baseURL, '/de/kontakt', 'evil.test')).status).toBe(200)
 
     // step 2: X-Forwarded-Host without trustForwardedHost changes nothing
@@ -74,7 +125,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(missing.html).toMatch(/<html[^>]*lang="de_DE"/)
     const foreign = await onHost(baseURL, '/en/contact', DE)
     expect(foreign.status).toBe(404)
-    expect(canonicalOf(foreign.html)).toBe('https://example.de/kontakt')
+    expect(canonicalOf(foreign.html)).toBeUndefined()
     expect(foreign.html).toMatch(/<html[^>]*lang="de_DE"/)
   })
 
@@ -90,7 +141,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher lists the other domain with an absolute link, and goes there
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
@@ -98,12 +149,11 @@ describe('journey: one build, two domains — prefix_except_default', () => {
 
     // step 3: $switchLocale to a locale of another domain navigates there
     await page.goto('https://example.com/')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/')
+    await clickUntil(page, '#switch-de', 'https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
 
     // step 4: a locale on every host stays in the app
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-ru')
     await page.locator('.switcher-locale-ru').click()
     await expect(page).toHaveURL('https://example.de/ru')
     await expect(page.locator('#content')).toHaveText('ru')
@@ -144,7 +194,7 @@ describe('journey: one build, two domains — prefix', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher goes to the other domain's prefixed URL
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/en/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/en/contact')
@@ -152,9 +202,8 @@ describe('journey: one build, two domains — prefix', () => {
 
     // step 3: $switchLocale crosses too; a locale on every host stays in the app
     await page.goto('https://example.com/en')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/de')
-    await page.locator('.language-switcher').click()
+    await clickUntil(page, '#switch-de', 'https://example.de/de')
+    await openSwitcher(page, '.switcher-locale-ru')
     await page.locator('.switcher-locale-ru').click()
     await expect(page).toHaveURL('https://example.de/ru')
     await expect(page.locator('#content')).toHaveText('ru')
@@ -192,7 +241,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
     await expect(page.locator('#content')).toHaveText('contact')
 
     // step 2: the switcher goes to the other domain, unprefixed
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/contact')
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
@@ -200,8 +249,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
 
     // step 3: $switchLocale crosses too
     await page.goto('https://example.com/')
-    await page.locator('#switch-de').click()
-    await expect(page).toHaveURL('https://example.de/')
+    await clickUntil(page, '#switch-de', 'https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
   })
 })
@@ -220,6 +268,17 @@ describe('journey: one build, two domains — no_prefix', () => {
     // a custom path of another domain's locale is no page here
     expect(contentOn((await onHost(baseURL, '/kontakt', DE)).html)).toBe('contact')
     expect((await onHost(baseURL, '/kontakt', COM)).status).toBe(404)
+  })
+
+  test('a path of locales on two domains is a page on each, in its own locale', async ({ baseURL }) => {
+    const localeOn = async (host: string, headers?: Record<string, string>) => {
+      const { status, html } = await onHost(baseURL, '/page/1', host, headers)
+      expect(status).toBe(200)
+      return /class="locale-value"[^>]*>([^<]*)</.exec(html)?.[1]
+    }
+    expect(await localeOn(DE)).toBe('de')
+    expect(await localeOn(COM)).toBe('en')
+    expect(await localeOn(DE, { cookie: 'user-locale=en' })).toBe('de')
   })
 
   test('browser: hydrates, and the switcher leaves for the other domain', async ({ page, baseURL }) => {
@@ -271,7 +330,7 @@ describe('journey: one build, two domains — hashMode', () => {
     await routeDomains(page, baseURL)
     await page.goto('https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
-    await page.locator('.language-switcher').click()
+    await openSwitcher(page, '.switcher-locale-en')
     await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.com/#/')
   })
 })

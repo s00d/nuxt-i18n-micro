@@ -4,7 +4,10 @@ import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { buildLocaleHead, filterQuery, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { joinURL } from 'ufo'
 import { ref, unref, watch } from 'vue'
-import { useNuxtApp, useRoute, useState } from '#app'
+import { useError } from '#app/composables/error'
+import { useRoute } from '#app/composables/router'
+import { useState } from '#app/composables/state'
+import { useNuxtApp } from '#app/nuxt'
 import { applyTrailingSlash } from '../utils/trailing-slash'
 
 interface UseLocaleHeadOptions {
@@ -45,6 +48,7 @@ export const useLocaleHead = ({
 }: UseLocaleHeadOptions = {}) => {
   const nuxtApp = useNuxtApp()
   const route = useRoute()
+  const error = useError()
   const metaObject = ref<LocaleHead>({
     htmlAttrs: {},
     link: [],
@@ -99,8 +103,8 @@ export const useLocaleHead = ({
       xDefault: hasXDefault ? hrefOf(defaultLocale) : undefined,
       alternates: !noPrefix,
       addDirAttribute,
-      // 404 routes keep the language, but must not emit SEO tags
-      addSeoAttributes: addSeoAttributes && route.matched.length > 0,
+      // 404 routes keep the language, but must not emit SEO tags: a 404 the module answers has a matched record
+      addSeoAttributes: addSeoAttributes && route.matched.length > 0 && !error.value,
       identifierAttribute,
       hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
       missingWarn: i18nConfig.missingWarn ?? true,
@@ -117,7 +121,7 @@ export const useLocaleHead = ({
     // Locale is included: no_prefix / hashMode / setLocale can change locale without a route change.
     const localeState = useState<string | null>('i18n-locale', () => null)
     watch(
-      () => [route.fullPath, route.name, route.matched.length, localeState.value] as const,
+      () => [route.fullPath, route.name, route.matched.length, localeState.value, error.value] as const,
       () => updateMeta(),
       { immediate: true },
     )

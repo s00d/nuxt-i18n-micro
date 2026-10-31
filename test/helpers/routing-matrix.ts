@@ -154,12 +154,15 @@ export function duplicateNames(pages: NuxtPage[]): string[] {
 
 /** Route name that serves page `base` in `locale` (first one the router has). */
 export function routeNameFor(strategy: Strategy, locale: string, router: Router, base = 'about-team'): string | undefined {
-  const candidates =
-    strategy === 'prefix_except_default' && locale === DEFAULT_LOCALE
-      ? [base]
-      : strategy === 'no_prefix'
-        ? [`localized-${base}-${locale}`, base]
-        : [`localized-${base}-${locale}`, `localized-${base}`]
+  if (strategy === 'no_prefix') {
+    // locales on one path share a record, named after the first of them
+    const own = router.getRoutes().find((record) => {
+      const i18n = record.meta.i18n as { name: string; locales: string[] } | undefined
+      return record.name !== base && i18n?.name === base && i18n.locales.includes(locale)
+    })
+    return (own?.name as string | undefined) ?? (router.hasRoute(base) ? base : undefined)
+  }
+  const candidates = strategy === 'prefix_except_default' && locale === DEFAULT_LOCALE ? [base] : [`localized-${base}-${locale}`, `localized-${base}`]
   return candidates.find((name) => router.hasRoute(name))
 }
 

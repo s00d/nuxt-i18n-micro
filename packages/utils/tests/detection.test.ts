@@ -122,7 +122,8 @@ describe('cookies (D2, D7)', () => {
   it('a malformed cookie is absent, not a throw', () => {
     expect(decodeCookieValue('%E0%A4%A')).toBeNull()
     expect(decodeCookieValue('de')).toBe('de')
-    expect(getLocaleCookieOptions().decode('%E0%A4%A')).toBeNull()
+    // as it came: `useCookie` writes back a value that changed, which would delete the cookie on every request
+    expect(getLocaleCookieOptions().decode('%E0%A4%A')).toBe('%E0%A4%A')
   })
 
   it('hashMode reads the hash cookie on every side', () => {

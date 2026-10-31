@@ -2,6 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { deepMergeTranslations, deepMergeTranslationsRecursive } from '../src/deep-merge'
 
 /** `deepMergeTranslations` is the recursive merge under its old name; both are pinned, it once stopped at two levels. */
+describe('nested __proto__', () => {
+  it.each([
+    ['onto an empty target', {}],
+    ['onto a target without the node', { other: 'x' }],
+    ['onto a scalar', { n: 'x' }],
+    ['onto the node', { n: { o: 1 } }],
+  ])('is dropped %s', (_name, target) => {
+    const merged = deepMergeTranslationsRecursive(target, JSON.parse('{"n":{"__proto__":{"evil":1},"k":"v"}}'))
+    expect(Object.keys(merged.n as object)).not.toContain('__proto__')
+  })
+})
+
 describe('deepMergeTranslations', () => {
   it('merges the first level of nesting', () => {
     expect(deepMergeTranslations({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })

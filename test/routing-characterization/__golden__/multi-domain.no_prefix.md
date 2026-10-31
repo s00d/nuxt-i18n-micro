@@ -104,7 +104,7 @@ params: the PARAMS keys the route's records use.
 |---|---|---|---|
 | about | /about [about] | https://example.de/ueber-uns [—] | https://example.fr/a-propos [—] |
 | blog-slug | /blog/hello-world [blog-slug] | https://example.de/blog/hello-world [—] | https://example.fr/blog/hello-world [—] |
-| index | / [index] | https://example.de/ [—] | https://example.fr/ [—] |
+| index | / [index] | https://example.de [—] | https://example.fr [—] |
 
 ## Invariant breaks (0)
 

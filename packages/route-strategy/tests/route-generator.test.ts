@@ -551,3 +551,107 @@ describe('disableMeta', () => {
     expect(pages.map((p) => [p.name, p.meta?.i18n, p.meta?.i18nNoMeta])).toEqual([['landing', undefined, true]])
   })
 })
+
+describe('no_prefix: a path shared by locales', () => {
+  const generate = (rules: Record<string, Record<string, string>>, defaultLocale = 'en') => {
+    const pages: NuxtPage[] = [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+    new RouteGenerator({
+      locales: [{ code: 'at' }, { code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: defaultLocale,
+      strategy: 'no_prefix',
+      globalLocaleRoutes: rules,
+      noPrefixRedirect: true,
+    }).extendPages(pages)
+    return pages
+  }
+
+  test('is one record serving each of them', () => {
+    const records = generate({ about: { de: '/ueber-uns', at: '/ueber-uns' } })
+    expect(records.filter((page) => page.path === '/ueber-uns')).toHaveLength(1)
+    expect(records.find((page) => page.path === '/ueber-uns')).toMatchObject({
+      name: 'localized-about-at',
+      meta: { i18n: { name: 'about', locales: ['at', 'de'] } },
+    })
+  })
+
+  test('different paths stay separate records', () => {
+    const records = generate({ about: { de: '/ueber-uns', at: '/oesterreich' } })
+    expect(records.map((page) => page.name)).toEqual(['about', 'localized-about-at', 'localized-about-de'])
+  })
+
+  test('noPrefixRedirect finds the default locale behind another code of the group', () => {
+    const records = generate({ about: { en: '/shared', at: '/shared' } })
+    expect(records.find((page) => page.name === 'about')?.redirect).toBe('/shared')
+  })
+})
+
+describe('names repeated by generation', () => {
+  const paths = (records: NuxtPage[]) => records.map((page) => [page.name, page.path])
+
+  test('a page named like another page + locale keeps its record', () => {
+    const pages: NuxtPage[] = [
+      { path: '/about', name: 'about', file: 'pages/about.vue' },
+      { path: '/about/de', name: 'about-de', file: 'pages/about/de.vue' },
+    ]
+    generator('prefix_except_default', {
+      globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+      locales: [{ code: 'en' }, { code: 'de' }],
+    }).extendPages(pages)
+    const names = pages.map((page) => page.name)
+    expect(new Set(names).size).toBe(names.length)
+    expect(paths(pages)).toEqual(
+      expect.arrayContaining([
+        ['localized-about-de', '/:locale(de)/ueber-uns'],
+        ['localized-about-de-2', '/:locale(de)/about/de'],
+      ]),
+    )
+    expect(pages.find((page) => page.name === 'localized-about-de-2')?.meta?.i18n).toMatchObject({ name: 'about-de' })
+  })
+
+  test('a third one counts on, and a page of the app keeps its name', () => {
+    const pages: NuxtPage[] = [
+      { path: '/about', name: 'about', file: 'pages/about.vue' },
+      { path: '/about/de', name: 'about-de', file: 'pages/about/de.vue' },
+      { path: '/mine', name: 'localized-about-de-2', file: 'pages/mine.vue' },
+    ]
+    generator('prefix', { globalLocaleRoutes: { about: { de: '/ueber-uns' }, mine: false } }).extendPages(pages)
+    const names = pages.map((page) => page.name)
+    expect(new Set(names).size).toBe(names.length)
+    expect(names).toContain('localized-about-de-3')
+  })
+})
+
+describe('characters a browser encodes in a custom path', () => {
+  test.each([
+    ['/x y', '/:locale(de)/x%20y'],
+    ['/a"b', '/:locale(de)/a%22b'],
+    ['/ü', '/:locale(de)/%C3%BC'],
+  ])('%s has its encoded alias', (custom, alias) => {
+    const pages: NuxtPage[] = [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+    generator('prefix', { globalLocaleRoutes: { about: { de: custom } } }).extendPages(pages)
+    expect(pages.find((page) => page.name === 'localized-about-de')?.alias).toEqual([alias])
+  })
+
+  test('nothing to encode, or only in a param: no alias', () => {
+    const pages: NuxtPage[] = [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+    generator('prefix', { globalLocaleRoutes: { about: { de: '/x/:id(a b)' } } }).extendPages(pages)
+    expect(pages.find((page) => page.name === 'localized-about-de')?.alias).toEqual([])
+  })
+})
+
+describe('redirects: false', () => {
+  const pages = (): NuxtPage[] => [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+  const rules = { about: { en: '/about-us' } }
+
+  test('under prefix the original URL has no redirect record', () => {
+    const list = pages()
+    generator('prefix', { globalLocaleRoutes: rules, redirects: false }).extendPages(list)
+    expect(list.some((page) => page.redirect)).toBe(false)
+  })
+
+  test('by default it has', () => {
+    const list = pages()
+    generator('prefix', { globalLocaleRoutes: rules }).extendPages(list)
+    expect(list.find((page) => page.name === 'redirect-about')?.redirect).toBe('/en/about-us')
+  })
+})

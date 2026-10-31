@@ -10,7 +10,6 @@ function createBaseConfig(): ModuleOptionsExtend {
     strategy: 'prefix',
     dateBuild: 'test',
     hashMode: false,
-    isSSG: false,
     apiBaseUrl: '_locales',
     disablePageLocales: false,
     redirects: true,

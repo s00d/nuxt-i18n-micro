@@ -109,7 +109,7 @@ Every URL is resolved with `?q=1#top`.
 | /a-propos | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /about | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /de-only | external https://example.de/ |  | https://example.de/ [—] | https://example.de/ [—] | null | null | de |
+| /de-only | external https://example.de |  | https://example.de [—] | https://example.de [—] | null | null | de |
 | /ueber-uns | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,nl,fr |

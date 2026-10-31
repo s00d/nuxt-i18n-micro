@@ -1,8 +1,27 @@
 import { describe, expect, test, vi } from 'vitest'
-import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { effect } from 'vue'
+import { formatterFor, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
+
+describe('formatterFor', () => {
+  const money = (currency: string) =>
+    ({ numberFormats: { en: { money: { style: 'currency', currency } } } }) as unknown as Parameters<typeof formatterFor>[0]
+
+  test('requests on one resolved config share one formatter', () => {
+    const config = money('USD')
+    expect(formatterFor(config)).toBe(formatterFor(config))
+  })
+
+  test('another config (runtime overrides, another host) gets its own, with its own formats', () => {
+    const usd = formatterFor(money('USD'))
+    const eur = formatterFor(money('EUR'))
+    expect(usd).not.toBe(eur)
+    expect(usd.resolveNumberFormat('en', 'money')?.currency).toBe('USD')
+    expect(eur.resolveNumberFormat('en', 'money')?.currency).toBe('EUR')
+  })
+})
 
 /** A load that resolves when the test says so: the order of navigations is what is under test. */
 function deferred() {
@@ -89,6 +108,63 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(events).toEqual(['load', 'refresh', 'load', 'refresh', 'load', 'refresh'])
   })
 
+  test('a transition re-renders once, unless the old page read a key that is now gone', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { layout: 'L', a: 'A' })
+    let renders = 0
+    let shown: unknown
+    effect(() => {
+      renders++
+      shown = i18n.t(i18n.getCurrentRouteName() === 'page-b' ? 'layout' : 'a')
+    })
+
+    // nothing came from the outgoing chunk: its removal changes no result, so no second render
+    renders = 0
+    i18n.applySwitchContext('en', 'page-b', { layout: 'L', b: 'B' })
+    expect(renders).toBe(1)
+    i18n.finishTransition()
+    expect(renders).toBe(1)
+    expect(i18n.outgoing).toBeNull()
+
+    // a key served from the leaving chunk must stop resolving: that render has to run again
+    const leaving = new NuxtI18n({ missingWarn: false })
+    leaving.applySwitchContext('en', 'page-a', { a: 'A' })
+    effect(() => {
+      shown = leaving.t('a')
+    })
+    leaving.applySwitchContext('en', 'page-b', { b: 'B' })
+    expect(shown).toBe('A')
+    leaving.finishTransition()
+    expect(shown).toBe('a')
+
+    // has() and the resolveTranslations dump read the leaving chunk too
+    for (const read of [(i: NuxtI18n) => i.has('a'), (i: NuxtI18n) => 'a' in i.resolveTranslations()]) {
+      const other = new NuxtI18n({ missingWarn: false })
+      other.applySwitchContext('en', 'page-a', { a: 'A' })
+      effect(() => {
+        shown = read(other)
+      })
+      other.applySwitchContext('en', 'page-b', { b: 'B' })
+      expect(shown).toBe(true)
+      other.finishTransition()
+      expect(shown).toBe(false)
+    }
+
+    // a hit on the previous transition's chunk says nothing about the next one
+    const next = new NuxtI18n({ missingWarn: false })
+    next.applySwitchContext('en', 'page-a', { a: 'A' })
+    next.applySwitchContext('en', 'page-b', { b: 'B' })
+    next.t('a')
+    next.applySwitchContext('en', 'page-c', { c: 'C' })
+    let runs = 0
+    effect(() => {
+      runs++
+      next.t('c')
+    })
+    next.finishTransition()
+    expect(runs).toBe(1)
+  })
+
   test('route-bound lookups and missing keys', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.setRouteContextResolver((route) => route as { locale: string; routeName: string })
@@ -110,7 +186,7 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(missing).toEqual([{ locale: 'en', key: 'missing-on-a', routeName: 'page-a' }])
   })
 
-  test('merging into loaded chunks: async loads, nested siblings, seeding', async () => {
+  test('merging into loaded chunks: async loads, nested siblings', async () => {
     // step 1: merge into a page not loaded yet → the loader runs first, then the merge
     const i18n = new NuxtI18n({ missingWarn: false })
     const loader = vi.fn(async (locale: string, routeName?: string) => ({ loaded: `${locale}:${routeName || 'index'}` }))
@@ -136,11 +212,6 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(nested.t('nav.extra')).toBe('Extra')
     await nested.loadPageTranslations('en', 'index', { nav: { contact: 'Contact' } })
     expect(nested.getChunk('en', 'index')).toEqual({ nav: { about: 'About', home: 'Home', extra: 'Extra', contact: 'Contact' }, title: 'T' })
-
-    // step 4: seeding from the SSR payload installs other contexts, never overwrites a loaded one
-    nested.seedChunks({ 'en:index': { title: 'from-payload' }, 'de:about': { b: 'B' } })
-    expect(nested.getChunk('de', 'about')).toEqual({ b: 'B' })
-    expect(nested.getChunk('en', 'index')).toMatchObject({ title: 'T' })
   })
 
   test('cacheMaxSize bounds the chunk map but never evicts the page on screen', () => {

@@ -47,28 +47,47 @@ function underPrefix(path: string, prefix: string): boolean {
   return path === base || path.startsWith(base === '/' ? '/' : `${base}/`)
 }
 
-const GLOBS = new Map<string, RegExp>()
-const MAX_GLOBS = 256
+/** `path` without the slashes it ends in. A loop: `/\/+$/` retries at every slash of a run that stops short of the end, quadratic on a request URL. */
+export function trimTrailingSlashes(path: string): string {
+  let end = path.length
+  while (path[end - 1] === '/') end--
+  return path.slice(0, end)
+}
 
-/** An anchored RegExp of a `*` / `?` glob, compiled once per pattern string. */
-function globOf(pattern: string): RegExp {
-  let regex = GLOBS.get(pattern)
-  if (regex) return regex
-  if (GLOBS.size >= MAX_GLOBS) GLOBS.clear()
-  const source = pattern
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*/g, '.*')
-    .replace(/\?/g, '.')
-  // a trailing slash is the same page, as for a plain prefix
-  regex = new RegExp(`^${source}/?$`)
-  GLOBS.set(pattern, regex)
-  return regex
+/**
+ * `*` (any run) and `?` (one character), the whole of `path`. Only the last `*` is ever retried, so
+ * a pattern of many stars stays linear in the path, where the same RegExp would backtrack through all of them.
+ */
+function globMatches(path: string, glob: string): boolean {
+  let at = 0
+  let next = 0
+  let star = -1
+  let resume = 0
+  while (at < path.length) {
+    if (glob[next] === '*') {
+      star = next++
+      resume = at
+    } else if (next < glob.length && (glob[next] === '?' || glob[next] === path[at])) {
+      at++
+      next++
+    } else if (star === -1) {
+      return false
+    } else {
+      next = star + 1
+      at = ++resume
+    }
+  }
+  while (glob[next] === '*') next++
+  return next === glob.length
 }
 
 const isGlob = (pattern: string) => pattern.includes('*') || pattern.includes('?')
 
+/** A trailing slash is the same page, as for a plain prefix. */
+const matchesGlob = (path: string, glob: string) => globMatches(path, glob) || (path.endsWith('/') && globMatches(path.slice(0, -1), glob))
+
 function matchesPattern(path: string, pattern: string | RegExp | object): boolean {
-  if (typeof pattern === 'string') return isGlob(pattern) ? globOf(pattern).test(path) : underPrefix(path, pattern)
+  if (typeof pattern === 'string') return isGlob(pattern) ? matchesGlob(path, pattern) : underPrefix(path, pattern)
   if (!(pattern instanceof RegExp)) return false
   pattern.lastIndex = 0
   const matches = pattern.test(path)
@@ -87,7 +106,7 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
   if (apiBaseUrl && underPrefix(path, `/${apiBaseUrl.replace(/^\/+|\/+$/g, '')}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
   if (/(?:^|\/)__/.test(path)) return true
-  const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
+  const pathForMatch = path.length > 1 ? trimTrailingSlashes(path) : path
   if (DEFAULT_STATIC_PATTERNS.some((pattern) => pattern.test(pathForMatch))) return true
   if (isStaticAssetPathname(path)) return true
   return excludePatterns?.some((pattern) => matchesPattern(path, pattern)) ?? false

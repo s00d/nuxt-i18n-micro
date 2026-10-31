@@ -84,6 +84,7 @@ export interface DetectCurrentLocaleConfig {
 
 /**
  * Detects the current locale of a server API request: `detectRequestLocale` with the `api` rules.
+ * @deprecated use `useLocaleServerMiddleware(event).current`, which applies the same rules.
  */
 export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleConfig, defaultLocale?: string): string => {
   return detectRequestLocale(event, { ...config, defaultLocale: defaultLocale || config.defaultLocale } as DetectionConfig, 'api')

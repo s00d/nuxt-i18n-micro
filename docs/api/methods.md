@@ -434,7 +434,8 @@ $localePath({ name: 'about' }, 'fr') // '/fr/about'
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
 ```
 
-Resolve a route in the given locale, or the active one.
+Resolve a route in the given locale, or the active one. For a locale on another domain `path` and
+`fullPath` are absolute, which the router cannot take: such a link goes through `<i18n-link>`, or `$localePath`.
 
 <!-- /generated:method:$localeRoute -->
 
@@ -495,7 +496,7 @@ Call it during SSR, before the head is rendered.
 
 <!-- /generated:method:$setI18nRouteParams -->
 
-The params are cleared when the route name changes. Details: [Localized paths](/guide/custom-locale-routes).
+The params are cleared when a navigation to another path commits, including `/news/1` to `/news/4`, which keeps the route name. Details: [Localized paths](/guide/custom-locale-routes).
 
 ```ts
 $setI18nRouteParams({

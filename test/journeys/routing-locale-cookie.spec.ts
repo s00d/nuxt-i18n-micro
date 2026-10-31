@@ -15,4 +15,16 @@ describe('journey: only a served page writes the locale cookie', () => {
     expect(served.status).toBe(200)
     expect(served.headers.get('set-cookie')).toContain('user-locale=de')
   })
+
+  test('a malformed cookie is ignored: it does not stop a page storing its locale, and a 404 stores nothing', async ({ baseURL }) => {
+    const malformed = { cookie: 'user-locale=%E0%A4%A' }
+    const served = await ssr(baseURL, '/de', malformed)
+    expect(served.status).toBe(200)
+    expect(served.headers.get('set-cookie')).toContain('user-locale=de')
+    expect(served.headers.get('set-cookie')).not.toContain('Max-Age=0')
+
+    const missing = await ssr(baseURL, '/de/nope', malformed)
+    expect(missing.status).toBe(404)
+    expect(missing.headers.get('set-cookie') ?? '').not.toContain('user-locale')
+  })
 })

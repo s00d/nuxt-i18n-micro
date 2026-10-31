@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
 import type { NuxtHooks } from '@nuxt/schema'
-import type { RuntimeNuxtHooks } from '#app'
+import type { NuxtApp, RuntimeNuxtHooks } from '#app'
 import type { ModuleRuntimeHooks } from '../src/module'
 import type { PluginsInjectionsWithAliases } from '../src/runtime/composables/useI18n'
 import type { NuxtAppOnlyInjections, PluginsInjections, TranslationFn } from '../src/runtime/plugins/01.plugin'
@@ -51,6 +51,11 @@ describe('PluginsInjections typing', () => {
     expectTypeOf<P['$resolveTranslations']>().toEqualTypeOf<() => Translations>()
     expectTypeOf<P['$setTranslation']>().parameters.toEqualTypeOf<[string, unknown]>()
     expectTypeOf<P['$setTranslation']>().returns.toEqualTypeOf<void>()
+  })
+
+  // an accessor on nuxtApp, not a provide: Nuxt's inference from the plugin cannot see it
+  it('useNuxtApp() types $setI18nRouteParams', () => {
+    expectTypeOf<NuxtApp['$setI18nRouteParams']>().toEqualTypeOf<P['$setI18nRouteParams']>()
   })
 
   /**

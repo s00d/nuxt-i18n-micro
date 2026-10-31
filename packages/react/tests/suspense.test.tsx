@@ -1,6 +1,7 @@
 // A reader that suspends on a missing dictionary, the way `use(promise)` or a data library does.
 import { act, render, screen } from '@testing-library/react'
 import { startTransition, Suspense } from 'react'
+import { renderToString } from 'react-dom/server'
 import { expect, test } from 'vitest'
 import { createI18n, I18nProvider, useI18n, useLocaleSwitch } from '../src'
 
@@ -24,6 +25,14 @@ test('a render React throws away leaves the instance as it was', async () => {
     startTransition(() => rerender(app('ru-RU', true)))
   })
   expect(i18n.pluralLocale()).toBe('uk-UA')
+})
+
+test('a provider on a fork writes its tags into that fork: the server renders one per request', () => {
+  const parent = createI18n({ locale: 'en', missingWarn: false })
+  const fork = parent.fork()
+  renderToString(<I18nProvider i18n={fork} locales={[{ code: 'en', iso: 'en-GB' }]} />)
+  expect(fork.pluralLocale()).toBe('en-GB')
+  expect(parent.pluralLocale()).toBe('en')
 })
 
 test('useLocaleSwitch: a suspending reader keeps the old text, its fallback never shows', async () => {

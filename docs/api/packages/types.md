@@ -210,7 +210,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hooks?` | `boolean \| undefined` |
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
-| `isSSG` | `boolean` |
+| `isSSG?` | `boolean \| undefined` |
 | `linkLocales?` | `Locale[] \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |

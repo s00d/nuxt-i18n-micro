@@ -172,6 +172,21 @@ describe('J7 useI18nHead page head', () => {
     await page.unrouteAll({ behavior: 'ignoreErrors' })
   })
 
+  test('U-T5: a useI18nHead that runs on the server only holds after hydration, until the page is left', async ({ page, goto }) => {
+    // step 1: open /server-head → the override survives hydration, though no client code sets it again
+    await goto('/server-head', { waitUntil: 'hydration' })
+    await expect(page.locator('meta[name="x-server-head"]')).toHaveAttribute('content', 'server')
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0)
+
+    // step 2: leave for another page → the override goes with it
+    await page.evaluate(() =>
+      (window as unknown as { useNuxtApp: () => { $router: { push: (path: string) => Promise<void> } } }).useNuxtApp().$router.push('/landing'),
+    )
+    await expect(page).toHaveURL(/\/landing$/)
+    await expect(page.locator('meta[name="x-server-head"]')).toHaveCount(0)
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
+  })
+
   test('U-T4: route rules are localized once on the server build (#218)', async ({ request }) => {
     // step 1: the prerender rule's fr copy serves the fr page; the double-localized path does not exist
     // was: generate-issue-218 › builds without /fr/fr prerender errors

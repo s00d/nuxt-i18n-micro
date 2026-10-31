@@ -1975,6 +1975,7 @@ member SolidI18n.activeRootKey: private any
 member SolidI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member SolidI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member SolidI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member SolidI18n.borrowsLocaleIso: private any
 member SolidI18n.clear: () => void
 member SolidI18n.clearCache: () => void
 member SolidI18n.currentRoute: string
@@ -1995,6 +1996,7 @@ member SolidI18n.getSnapshot: () => string
 member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.hasTranslation: (key: TranslationKey) => boolean
 member SolidI18n.helper: TranslationHelper
+member SolidI18n.isoTag: private any
 member SolidI18n.isReadable: private any
 member SolidI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member SolidI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
@@ -2009,11 +2011,11 @@ member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.onTranslationsChanged: protected (locale?: string) => void
+member SolidI18n.ownLocaleIso: private any
 member SolidI18n.ownsFormatter: private any
 member SolidI18n.ownStore: protected ReactiveI18nStore
 member SolidI18n.pluralFunc: PluralFunc
 member SolidI18n.pluralLocale: () => string
-member SolidI18n.pluralTag: private any
 member SolidI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member SolidI18n.resolveRouteName: protected (routeContext?: unknown) => string

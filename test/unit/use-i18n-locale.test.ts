@@ -3,7 +3,9 @@ import { useI18nLocale } from '../../src/runtime/composables/useI18nLocale'
 
 const refs = vi.hoisted(() => ({ state: { value: null as string | null }, cookie: { value: null as string | null } }))
 
-vi.mock('#app', () => ({
+// every Nuxt path is one stub in unit tests, so one mock answers them all
+vi.mock('#app/nuxt', () => ({
+  cookies: true,
   useCookie: () => refs.cookie,
   useNuxtApp: () => ({}),
   useState: () => refs.state,

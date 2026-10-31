@@ -171,7 +171,8 @@ export const presetSmokeCommand = defineCommand({
       for (const preset of BUILD_ONLY_PRESETS) {
         console.log(`\n==> build ${preset}\n`)
         try {
-          buildSmokeApp(appDir, preset, buildEnv)
+          // the app's own date is older than `cloudflare_durable`, and it resolves `cloudflare_module` to the legacy Worker
+          buildSmokeApp(appDir, preset, { ...buildEnv, SMOKE_COMPATIBILITY_DATE: '2025-09-01' })
         } catch {
           failed.push(preset)
         }

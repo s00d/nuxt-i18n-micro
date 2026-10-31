@@ -61,9 +61,9 @@ Every URL is resolved with `?q=1#top`.
 | /about | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,de,nl,fr |
 | /blog/hello-world | external https://example.com/blog/hello-world?q=1#top | external https://example.com/blog/hello-world-en?q=1#top | https://example.com/blog/hello-world?q=1#top [—] | https://example.com/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
 | /de | external https://example.com/?q=1#top |  | https://example.com/?q=1#top [—] | https://example.com/?q=1#top [—] | null | / | en,de,nl,fr |
-| /de-only | external https://example.com/ |  | https://example.com/ [—] | https://example.com/ [—] | null | null | de |
+| /de-only | external https://example.com |  | https://example.com [—] | https://example.com [—] | null | null | de |
 | /de/blog/hello-world | external https://example.com/blog/hello-world?q=1#top | external https://example.com/blog/hello-world-en?q=1#top | https://example.com/blog/hello-world?q=1#top [—] | https://example.com/blog/hello-world?q=1#top [—] | null | /blog/hello-world | en,de,nl,fr |
-| /de/de-only | external https://example.com/ |  | https://example.com/ [—] | https://example.com/ [—] | null | null | de |
+| /de/de-only | external https://example.com |  | https://example.com [—] | https://example.com [—] | null | null | de |
 | /de/ueber-uns | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | /about | en,de,nl,fr |
 | /en | external https://example.com/?q=1#top |  | https://example.com/?q=1#top [—] | https://example.com/?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/about | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,de,nl,fr |
@@ -80,9 +80,9 @@ Every URL is resolved with `?q=1#top`.
 | /about/ | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,de,nl,fr |
 | /de/about/ | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | /about | en,de,nl,fr |
 | /missing | external https://example.com/missing?q=1#top |  | https://example.com/missing?q=1#top [—] | https://example.com/missing?q=1#top [—] | null | null | null |
-| /de/missing | external https://example.com/missing?q=1#top |  | https://example.com/missing?q=1#top [—] | https://example.com/missing?q=1#top [—] | null | /missing | null |
+| /de/missing | external https://example.com/missing?q=1#top |  | https://example.com/missing?q=1#top [—] | https://example.com/missing?q=1#top [—] | null | null | null |
 | /xx/about | external https://example.com/xx/about?q=1#top |  | https://example.com/xx/about?q=1#top [—] | https://example.com/xx/about?q=1#top [—] | null | null | null |
-| /de/de/about | external https://example.com/de/about?q=1#top |  | https://example.com/de/about?q=1#top [—] | https://example.com/de/about?q=1#top [—] | null | /de/about | null |
+| /de/de/about | external https://example.com/de/about?q=1#top |  | https://example.com/de/about?q=1#top [—] | https://example.com/de/about?q=1#top [—] | null | null | null |
 
 ## To de
 
@@ -110,9 +110,9 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,nl,fr |
 | /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/ueber-uns | /de/ueber-uns | en,de,nl,fr |
 | /de/about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,nl,fr |
-| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /de/missing | /de/missing | null |
+| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
 | /de/missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
-| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | /de/xx/about | /de/xx/about | null |
+| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | null | null | null |
 | /de/de/about | external https://example.de/de/about?q=1#top |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | null | null | null |
 
 ## To nl
@@ -141,10 +141,10 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | /nl | en,de,nl,fr |
 | /about/ | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | /nl/about | /nl/about | en,de,nl,fr |
 | /de/about/ | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | null | /nl/about | en,de,nl,fr |
-| /missing | external https://example.de/nl/missing?q=1#top |  | https://example.de/nl/missing?q=1#top [—] | https://example.de/nl/missing?q=1#top [—] | /nl/missing | /nl/missing | null |
-| /de/missing | external https://example.de/nl/missing?q=1#top |  | https://example.de/nl/missing?q=1#top [—] | https://example.de/nl/missing?q=1#top [—] | null | /nl/missing | null |
-| /xx/about | external https://example.de/nl/xx/about?q=1#top |  | https://example.de/nl/xx/about?q=1#top [—] | https://example.de/nl/xx/about?q=1#top [—] | /nl/xx/about | /nl/xx/about | null |
-| /de/de/about | external https://example.de/nl/de/about?q=1#top |  | https://example.de/nl/de/about?q=1#top [—] | https://example.de/nl/de/about?q=1#top [—] | null | /nl/de/about | null |
+| /missing | external https://example.de/nl/missing?q=1#top |  | https://example.de/nl/missing?q=1#top [—] | https://example.de/nl/missing?q=1#top [—] | null | null | null |
+| /de/missing | external https://example.de/nl/missing?q=1#top |  | https://example.de/nl/missing?q=1#top [—] | https://example.de/nl/missing?q=1#top [—] | null | null | null |
+| /xx/about | external https://example.de/nl/xx/about?q=1#top |  | https://example.de/nl/xx/about?q=1#top [—] | https://example.de/nl/xx/about?q=1#top [—] | null | null | null |
+| /de/de/about | external https://example.de/nl/de/about?q=1#top |  | https://example.de/nl/de/about?q=1#top [—] | https://example.de/nl/de/about?q=1#top [—] | null | null | null |
 
 ## To fr
 
@@ -172,10 +172,10 @@ Every URL is resolved with `?q=1#top`.
 | /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,nl,fr |
 | /about/ | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos | /fr/a-propos | en,de,nl,fr |
 | /de/about/ | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | /fr/a-propos | en,de,nl,fr |
-| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /fr/missing | /fr/missing | null |
-| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | /fr/missing | null |
-| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /fr/xx/about | /fr/xx/about | null |
-| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | /fr/de/about | null |
+| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 
@@ -185,8 +185,8 @@ params: the PARAMS keys the route's records use.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | about | https://example.com/about [—] | https://example.de/ueber-uns [—] | https://example.de/nl/about [—] | /fr/a-propos [localized-about-fr] | https://example.com/about [—] | https://example.de/ueber-uns [—] | https://example.de/nl/about [—] | /fr/a-propos [localized-about-fr] | https://example.com/about [—] | https://example.de/ueber-uns [—] | https://example.de/nl/about [—] | /fr/a-propos [localized-about-fr] | https://example.com/about [—] | https://example.de/ueber-uns [—] | https://example.de/nl/about [—] | /fr/a-propos [localized-about-fr] |
 | blog-slug | https://example.com/blog/hello-world [—] | https://example.de/blog/hello-world [—] | https://example.de/nl/blog/hello-world [—] | /fr/blog/hello-world [localized-blog-slug] | https://example.com/blog/hello-world [—] | https://example.de/blog/hello-world [—] | https://example.de/nl/blog/hello-world [—] | /fr/blog/hello-world [localized-blog-slug] | https://example.com/blog/hello-world [—] | https://example.de/blog/hello-world [—] | https://example.de/nl/blog/hello-world [—] | /fr/blog/hello-world [localized-blog-slug] | https://example.com/blog/hello-world [—] | https://example.de/blog/hello-world [—] | https://example.de/nl/blog/hello-world [—] | /fr/blog/hello-world [localized-blog-slug] |
-| de-only | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] |
-| index | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com/ [—] | https://example.de/ [—] | https://example.de/nl [—] | /fr [localized-index] |
+| de-only | https://example.com [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de/de-only [—] | https://example.de/nl [—] | /fr [localized-index] |
+| index | https://example.com [—] | https://example.de [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de [—] | https://example.de/nl [—] | /fr [localized-index] | https://example.com [—] | https://example.de [—] | https://example.de/nl [—] | /fr [localized-index] |
 
 ## Invariant breaks (0)
 

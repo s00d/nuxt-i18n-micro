@@ -37,6 +37,8 @@ export interface GenerateOptions {
   excludePatterns?: (string | RegExp)[]
   apiBaseUrl?: string
   noPrefixRedirect: boolean
+  /** `false`: no redirect records either, a page's original URL under `prefix` is a 404 like any unprefixed one. */
+  redirects?: boolean
   /**
    * Under prefix_except_default / prefix_and_default: locales that are the default of a domain in
    * the same build. They get unprefixed records too, and prefix_except_default keeps every prefix
@@ -92,6 +94,27 @@ function namePages(pages: NuxtPage[], taken: Set<string>, parentOriginal = '', t
     taken.add(name)
     return { ...named, name }
   })
+}
+
+/**
+ * vue-router keeps one record per name, so a generated name that repeats silently drops a page:
+ * `localized-about-de` is page `about` in `de` and the shared record of a page named `about-de`.
+ * A page's own name is never touched, and the runtime reads `meta.i18n`, so no name is load-bearing.
+ */
+function uniqueNames(records: NuxtPage[], taken: Set<string>): void {
+  for (const record of records) {
+    const { name } = record
+    const generated = name !== undefined && (record.meta?.i18n as RouteI18nMeta | undefined)?.name !== name && record.meta?.i18n !== undefined
+    if (generated && taken.has(name)) record.name = nextName(name, taken)
+    if (record.name) taken.add(record.name)
+    uniqueNames(record.children ?? [], taken)
+  }
+}
+
+function nextName(name: string, taken: Set<string>): string {
+  let count = 2
+  while (taken.has(`${name}-${count}`)) count++
+  return `${name}-${count}`
 }
 
 const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
@@ -292,7 +315,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     const codes = strategy === 'prefix_except_default' && !hostDefaults.length ? allowed.filter((code) => code !== defaultLocale) : allowed
     localized.push(...localeRecords(page, codes, true, variants).records)
 
-    if (strategy === 'prefix' && defaultAllowed && page.name && !pagePath.includes(':')) {
+    if (options.redirects !== false && strategy === 'prefix' && defaultAllowed && page.name && !pagePath.includes(':')) {
       // the unprefixed original URL of a page with a custom default path goes to that path; its
       // meta lets the runtime find the page from that URL in any locale (no locale is served here)
       const target = absolute(variants.get(defaultLocale)!.path)
@@ -305,5 +328,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
         })
     }
   }
-  return [...unprefixed, ...localized]
+  const records = [...unprefixed, ...localized]
+  uniqueNames(records, new Set())
+  return records
 }

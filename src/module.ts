@@ -485,6 +485,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeLocales,
       routeDisableMeta,
       noPrefixRedirect: options.noPrefixRedirect!,
+      redirects: options.redirects,
       excludePatterns: options.excludePatterns,
       apiBaseUrl,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,

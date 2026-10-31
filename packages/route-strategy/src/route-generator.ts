@@ -17,6 +17,8 @@ export interface RouteGeneratorOptions {
   /** `$defineI18nRoute({ disableMeta })` by page path: baked into `meta.i18n.noMeta`. */
   routeDisableMeta?: Record<string, boolean | string[]>
   noPrefixRedirect: boolean
+  /** `redirects: false` of the module: no redirect records. */
+  redirects?: boolean
   excludePatterns?: (string | RegExp)[]
   /** The translations route (`_locales` by default): pages under it stay unlocalized. */
   apiBaseUrl?: string
@@ -86,6 +88,7 @@ export class RouteGenerator {
         excludePatterns: this.options.excludePatterns,
         apiBaseUrl: this.options.apiBaseUrl,
         noPrefixRedirect: this.options.noPrefixRedirect,
+        redirects: this.options.redirects,
         hostDefaults: this.hostDefaults,
       },
       this.localizedPaths,

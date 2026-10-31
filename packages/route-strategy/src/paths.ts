@@ -84,11 +84,15 @@ export function staysUnderParent(parentLocalizedPath: string, customValue: strin
   return parent === '/' || value === parent || value.startsWith(`${parent}/`)
 }
 
-/** Percent-encoded variant of a path with non-ASCII static segments (vue-router matches either). */
+/** What a browser percent-encodes in a path and a route path has no syntax for: non-ASCII, a space, quotes, angle brackets. */
+const ENCODED_IN_URL = /[\u0080-￿ "<>`]/
+
+/** Percent-encoded variant of a path with such static segments (vue-router matches either). */
 export function encodedVariant(routePath: string): string | undefined {
-  if (!/[\u0080-￿]/.test(routePath)) return undefined
-  return routePath
+  if (!ENCODED_IN_URL.test(routePath)) return undefined
+  const encoded = routePath
     .split('/')
-    .map((segment) => (segment.startsWith(':') || !/[\u0080-￿]/.test(segment) ? segment : encodeURI(segment)))
+    .map((segment) => (segment.startsWith(':') || !ENCODED_IN_URL.test(segment) ? segment : encodeURI(segment)))
     .join('/')
+  return encoded === routePath ? undefined : encoded
 }

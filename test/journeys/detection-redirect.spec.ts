@@ -6,6 +6,14 @@ import { ssr } from '../helpers/journeys-b.ts'
 describe('J5 detection: Accept-Language redirect (strategy-redirect)', () => {
   test.override({ harness: 'strategy-redirect' })
 
+  test('an unknown URL stays a 404, with a preference too', async ({ baseURL }) => {
+    for (const path of ['/nonexistent', '/about%2F', '/DE']) {
+      const res = await ssr(baseURL, path, { cookie: 'user-locale=de' })
+      expect(res.status, path).toBe(404)
+      expect(res.location, path).toBeNull()
+    }
+  })
+
   // was: redirect › language detection redirects based on Accept-Language
   test('R-T1 AL en-US moves /ru/contact to /contact', async ({ page, goto, baseURL }) => {
     // step 1: AL en-US, open /ru/contact → /contact, en locale
@@ -28,13 +36,11 @@ describe('J5 detection: Accept-Language redirect (strategy-redirect)', () => {
     expect(new URL(bare.location!, baseURL).pathname).toBe('/')
     expect(bare.headers.get('set-cookie')).toContain('user-locale=en')
 
-    // step 2 (F8): /de//evil.example moves to a path on this origin, never to //evil.example
+    // step 2 (F8): /de//evil.example is an unknown URL like any other, never a move to //evil.example
     // (stateless requests: the redirect writes a cookie that would steer the next step)
     const evil = await ssr(baseURL, '/de//evil.example', { 'Accept-Language': 'en' })
-    expect(evil.status).toBe(302)
-    const target = new URL(evil.location!, baseURL)
-    expect(target.host).toBe(new URL(baseURL).host)
-    expect(target.pathname).toBe('/evil.example')
+    expect(evil.status).toBe(404)
+    expect(evil.location).toBeNull()
 
     // step 3 (F14): excludePatterns '/admin' leaves /administrator localized: AL de moves /ru/administrator to /de/administrator
     const admin = await ssr(baseURL, '/ru/administrator', { 'Accept-Language': 'de' })

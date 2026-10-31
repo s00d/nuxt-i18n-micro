@@ -46,7 +46,7 @@ Every URL is resolved with `?q=1#top`.
 | /a-propos | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /about | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /blog/hello-world | external https://example.com/blog/hello-world?q=1#top | external https://example.com/blog/hello-world-en?q=1#top | https://example.com/blog/hello-world?q=1#top [—] | https://example.com/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /de-only | external https://example.com/ |  | https://example.com/ [—] | https://example.com/ [—] | null | null | de |
+| /de-only | external https://example.com |  | https://example.com [—] | https://example.com [—] | null | null | de |
 | /ueber-uns | external https://example.com/about?q=1#top |  | https://example.com/about?q=1#top [—] | https://example.com/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /en | external https://example.com/?q=1#top |  | https://example.com/?q=1#top [—] | https://example.com/?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/ | external https://example.com/?q=1#top |  | https://example.com/?q=1#top [—] | https://example.com/?q=1#top [—] | null | null | en,de,nl,fr |
@@ -88,7 +88,7 @@ Every URL is resolved with `?q=1#top`.
 | /a-propos | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /about | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-nl?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /de-only | external https://example.de/ |  | https://example.de/ [—] | https://example.de/ [—] | null | null | de |
+| /de-only | external https://example.de |  | https://example.de [—] | https://example.de [—] | null | null | de |
 | /ueber-uns | external https://example.de/about?q=1#top |  | https://example.de/about?q=1#top [—] | https://example.de/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,nl,fr |
@@ -130,8 +130,8 @@ params: the PARAMS keys the route's records use.
 |---|---|---|---|---|
 | about | https://example.com/about [—] | https://example.de/ueber-uns [—] | https://example.de/about [—] | /a-propos [localized-about-fr] |
 | blog-slug | https://example.com/blog/hello-world [—] | https://example.de/blog/hello-world [—] | https://example.de/blog/hello-world [—] | /blog/hello-world [blog-slug] |
-| de-only | https://example.com/ [—] | https://example.de/de-only [—] | https://example.de/ [—] | / [index] |
-| index | https://example.com/ [—] | https://example.de/ [—] | https://example.de/ [—] | / [index] |
+| de-only | https://example.com [—] | https://example.de/de-only [—] | https://example.de [—] | / [index] |
+| index | https://example.com [—] | https://example.de [—] | https://example.de [—] | / [index] |
 
 ## Invariant breaks (0)
 

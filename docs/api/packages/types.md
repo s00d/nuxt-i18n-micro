@@ -32,9 +32,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 51 members |
-| `ModuleOptionsExtend` | interface | 56 members |
-| `ModulePrivateOptionsExtend` | interface | 55 members |
+| `ModuleOptions` | interface | 52 members |
+| `ModuleOptionsExtend` | interface | 57 members |
+| `ModulePrivateOptionsExtend` | interface | 57 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -119,7 +119,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 51 members</summary>
+<summary><code>ModuleOptions</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -130,6 +130,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cacheMaxSize?` | `number \| undefined` |
+| `cacheStorage?` | `string \| undefined` |
 | `cacheTtl?` | `number \| undefined` |
 | `canonicalQueryWhitelist?` | `string[] \| undefined` |
 | `components?` | `boolean \| undefined` |
@@ -178,7 +179,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 56 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -189,6 +190,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cacheMaxSize?` | `number \| undefined` |
+| `cacheStorage?` | `string \| undefined` |
 | `cacheTtl?` | `number \| undefined` |
 | `canonicalQueryWhitelist?` | `string[] \| undefined` |
 | `components?` | `boolean \| undefined` |
@@ -242,7 +244,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 55 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -253,6 +255,8 @@ import { /* … */ } from '@i18n-micro/types'
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cacheMaxSize?` | `number \| undefined` |
+| `cacheStorage?` | `string \| undefined` |
+| `cacheStorageBuild?` | `string \| undefined` |
 | `cacheTtl?` | `number \| undefined` |
 | `canonicalQueryWhitelist?` | `string[] \| undefined` |
 | `components?` | `boolean \| undefined` |

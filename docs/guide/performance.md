@@ -46,6 +46,37 @@ export default defineNuxtConfig({
 
 Lower `cacheMaxSize` on a small instance with many pages × locales. Locally edited translations never need a TTL: dev reads files live, production payloads change only with a deploy.
 
+## Shared cache for several instances
+
+With several instances of one build, [`cacheStorage`](/api/module-options#cachestorage) gives them one dictionary cache in Redis or any other Nitro storage, on the connection your app already configures in `nitro.storage`, the same way `cache.base: 'redis'` does. The module adds no connector and no dependency (the `redis` driver needs `ioredis` in your project).
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
+  nitro: {
+    storage: {
+      redis: { driver: 'redis', url: process.env.REDIS_URL },
+    },
+  },
+  i18n: {
+    cacheStorage: 'redis', // the mount name
+    apiBaseServerHost: 'https://translations.internal',
+    cacheTtl: 300,
+  },
+})
+```
+
+A dictionary is looked up in the instance's own cache, then in the shared storage, then at its source. The instance's own cache stays, because `$t` is synchronous and needs the tree in memory: this separates who fetches from who serves, it does not save memory.
+
+- **What it gains.** With `apiBaseServerHost`, one fetch from the backend per dictionary instead of one per instance. With files on disk an instance reads a local file about as fast as Redis answers, so there is nothing to gain: leave the option unset unless the source is slow or remote.
+- **Keys** are `i18n-micro:<buildId>-<dateBuild>-<fallbackLocale>:<locale>:<page>`, so two builds in a rolling deploy never read each other. Each instance must come from one build (one artifact, or a pinned Nuxt [`buildId`](https://nuxt.com/docs/api/nuxt-config#buildid)); instances built separately simply do not share. Only enabled locales are looked up, and a page without its own dictionary, a made-up name included, adds no key: each instance reads it from the source once. Empty dictionaries are not stored, so one failed fetch cannot reach the other instances.
+- **Expiry.** An entry expires `cacheTtl` seconds after it was written, or after one day when `cacheTtl` is `0`, so keys of old builds cannot pile up. A value can stay in an instance's own cache for another `cacheTtl`: backend changes show within twice `cacheTtl`. Drivers without expiry (`fs`) keep old keys until you remove them.
+- **When the storage fails** the page does not. A storage that errors or takes more than 250 ms counts as a miss, the dictionary comes from its source, and the layer is skipped for 5 seconds. One warning per minute goes to the log. A corrupt value counts as a miss and is overwritten. An unknown mount name warns once on first use; the app then runs without the layer.
+- **Off in dev and in prerender**, which read their files and must not need your production Redis.
+- **Invalidation.** There is no purge call: a new build uses new keys. To refresh a running build at once, remove the `i18n-micro:` keys from the storage and restart the instances. `clearCache` and HMR only touch process state.
+- Runtime changes (`$mergeTranslations`, `$defineI18nRoute`) stay in the render or the browser that made them and are never written to the storage.
+
 ## Payload size
 
 The build warns when the payload output passes `translationPayloads.warnFileCount` (500 files) or `warnSizeBytes` (10 MB). When it does:

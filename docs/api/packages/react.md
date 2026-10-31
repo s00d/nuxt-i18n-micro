@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 51 members |
+| `ModuleOptions` | interface | 52 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `ReactI18n` | class | 65 members |
@@ -994,7 +994,7 @@ import { /* … */ } from '@i18n-micro/react'
 
 </details>
 
-<code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 52 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <code>ReactI18n</code> — 65 members, identical to [`PreactI18n`](/api/packages/preact).
 
@@ -1036,7 +1036,7 @@ import { /* … */ } from '@i18n-micro/react/client'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 51 members |
+| `ModuleOptions` | interface | 52 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `ReactI18n` | class | 65 members |
@@ -1070,7 +1070,7 @@ import { /* … */ } from '@i18n-micro/react/client'
 
 <code>Locale</code> — 11 members, identical to `Locale` above.
 
-<code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 52 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <code>ReactI18n</code> — 65 members, identical to [`PreactI18n`](/api/packages/preact).
 

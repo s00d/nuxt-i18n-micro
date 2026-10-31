@@ -90,7 +90,7 @@ These are set by the server route (and a `/_locales/**` route rule with CORS ena
 
 [`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`).
 
-The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSize` entries (1000 by default) that reloads an entry after `cacheTtl` when set; [Performance tuning](/guide/performance) covers both. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
+The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSize` entries (1000 by default) that reloads an entry after `cacheTtl` when set; [Performance tuning](/guide/performance) covers both, and [`cacheStorage`](/guide/performance#shared-cache-for-several-instances) adds a cache shared by instances. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
 
 ## App baseURL and payload hosts
 
@@ -124,6 +124,8 @@ App Hosting runs the Node build: use the default preset and Node 20+. Firebase H
 ### Several instances of one build
 
 One artifact can run with a different default or disabled locale per instance through environment variables: see [Runtime overrides](/guide/runtime-overrides). A locale disabled only at runtime still has its static files in `public/`; disable it at build time if those must not be reachable.
+
+Instances that load dictionaries from `apiBaseServerHost` can share them in Redis or another Nitro storage, so the backend gets one request instead of one per instance: see [Shared cache for several instances](/guide/performance#shared-cache-for-several-instances).
 
 ## Related
 

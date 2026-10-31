@@ -989,6 +989,8 @@ export interface ModuleRuntimeHooks {
 // for apps that load the module from source (playground, fixtures): no generated types.d.mts there
 declare module '#app' {
   interface RuntimeNuxtHooks extends ModuleRuntimeHooks {}
+  // an accessor on nuxtApp, not a provide: Nuxt's types of the plugins cannot see it
+  interface NuxtApp extends Pick<PluginsInjections, '$setI18nRouteParams'> {}
 }
 
 export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }

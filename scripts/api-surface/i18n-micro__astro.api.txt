@@ -5,6 +5,7 @@ member AstroI18n.activeRootKey: private any
 member AstroI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member AstroI18n.borrowsLocaleIso: private any
 member AstroI18n.clear: () => void
 member AstroI18n.clearCache: () => void
 member AstroI18n.currentRoute: string

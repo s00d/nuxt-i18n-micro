@@ -83,7 +83,7 @@ The second argument replaces `defaultLocale` for this call's detection, so it ha
 
 ## Server components
 
-A server component (`.server.vue`, `<NuxtIsland>`) renders from its own URL, `/__nuxt_island/...`, so it does not see the page's URL, and Nuxt passes it only its props. Pass the locale as a `locale` prop. It then renders in that locale, and a switch fetches it again, since the props are part of the island's URL and cache key:
+A server component (`.server.vue`, `<NuxtIsland>`) renders from its own URL, `/__nuxt_island/...`, so it does not see the page's URL, and Nuxt passes it only its props. Pass the locale as a `locale` prop. It then renders in that locale, and a switch fetches it again, since the props are part of the island's URL and cache key. The name is reserved: any enabled locale code in a prop called `locale` sets the render's locale, so give a prop that means something else, such as a number format, another name:
 
 ```vue
 <!-- components/Greeting.server.vue -->

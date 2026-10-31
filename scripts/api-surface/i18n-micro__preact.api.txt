@@ -1091,6 +1091,7 @@ member PreactI18n.activeRootKey: private any
 member PreactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member PreactI18n.borrowsLocaleIso: private any
 member PreactI18n.clear: () => void
 member PreactI18n.clearCache: () => void
 member PreactI18n.currentRoute: string

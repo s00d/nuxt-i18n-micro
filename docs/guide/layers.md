@@ -70,6 +70,7 @@ Point both domains at the same server. The request's host decides the rest:
 - **Default:** the host's `baseDefault` locale. Without one, the build default if the host serves it, else the host's first locale.
 - **Served locales:** the locales of that host, plus every locale with no `baseUrl`. On `example.de` that is `de`, `nl` and `fr`.
 - **Locales of other domains** are link targets. `$localePath`, `$localeRoute`, `$switchLocalePath`, `<i18n-switcher>` and `hreflang` give absolute URLs on their `baseUrl`, and `$switchLocale` navigates there. On this host their URLs are a 404, and a cookie or `Accept-Language` cannot pick them.
+- **A link to another domain** goes through `$localePath` or `<i18n-link>`: `<NuxtLink :to="$localePath('/contact', 'de')">`, `<i18n-link :to="$localeRoute('/contact', 'de')">`. The router takes no absolute object, so `<NuxtLink :to="$localeRoute(...)">` and `router.push($localeRoute(...))` stay on this origin. In code use `navigateTo($localePath('/contact', 'de'), { external: true })`, or `$switchRoute`.
 - **Any other host** gets the build config, with every `baseUrl` locale as a link target. Nothing from the request is echoed: canonical and `hreflang` use `metaBaseUrl`, else the build default's `baseUrl` (a default with no `baseUrl` needs `metaBaseUrl` or `site.url`, see [SEO](/guide/seo#set-the-public-origin)).
 - **Payload files** in `public/` are static: any host returns any locale's file. Per-domain [generate](/guide/deployment#static-site-nuxi-generate) publishes only that domain's.
 

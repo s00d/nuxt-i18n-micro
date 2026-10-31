@@ -434,7 +434,8 @@ $localePath({ name: 'about' }, 'fr') // '/fr/about'
 (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
 ```
 
-Resolve a route in the given locale, or the active one.
+Resolve a route in the given locale, or the active one. For a locale on another domain `path` and
+`fullPath` are absolute, which the router cannot take: such a link goes through `<i18n-link>`, or `$localePath`.
 
 <!-- /generated:method:$localeRoute -->
 

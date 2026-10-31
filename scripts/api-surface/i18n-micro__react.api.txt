@@ -1003,6 +1003,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
@@ -2118,6 +2119,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string
@@ -2272,6 +2274,7 @@ member ReactI18n.activeRootKey: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member ReactI18n.borrowsLocaleIso: private any
 member ReactI18n.clear: () => void
 member ReactI18n.clearCache: () => void
 member ReactI18n.currentRoute: string

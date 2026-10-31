@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/react'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `ReactI18n` | class | 63 members |
+| `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
@@ -996,7 +996,7 @@ import { /* … */ } from '@i18n-micro/react'
 
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
-<code>ReactI18n</code> — 63 members, identical to [`PreactI18n`](/api/packages/preact).
+<code>ReactI18n</code> — 64 members, identical to [`PreactI18n`](/api/packages/preact).
 
 <code>ReactI18nOptions</code> — 13 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 
@@ -1039,7 +1039,7 @@ import { /* … */ } from '@i18n-micro/react/client'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `ReactI18n` | class | 63 members |
+| `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
@@ -1072,7 +1072,7 @@ import { /* … */ } from '@i18n-micro/react/client'
 
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
-<code>ReactI18n</code> — 63 members, identical to [`PreactI18n`](/api/packages/preact).
+<code>ReactI18n</code> — 64 members, identical to [`PreactI18n`](/api/packages/preact).
 
 <code>ReactI18nOptions</code> — 13 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 
@@ -1107,13 +1107,13 @@ import { /* … */ } from '@i18n-micro/react/server'
 | `I18nT` | const | `({ i18n, ...props }: ServerI18nTProps) => HostElement` |
 | `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `ReactI18n` | class | 63 members |
+| `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
 | `ServerI18nTProps` | interface | 290 members |
 
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
-<code>ReactI18n</code> — 63 members, identical to [`PreactI18n`](/api/packages/preact).
+<code>ReactI18n</code> — 64 members, identical to [`PreactI18n`](/api/packages/preact).
 
 <code>ReactI18nOptions</code> — 13 members, identical to [`PreactI18nOptions`](/api/packages/preact).
 

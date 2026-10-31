@@ -29,11 +29,12 @@ member DomainPathStrategy.isDisabledPrefix: private (path: string, segment: stri
 member DomainPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
 member DomainPathStrategy.isOwnPage: protected (path: string) => boolean
 member DomainPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
-member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
+member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
 member DomainPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member DomainPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
 member DomainPathStrategy.moved: private (path: string, locale: string) => string | null
 member DomainPathStrategy.notFoundReason: protected (path: string) => string | null
+member DomainPathStrategy.originOf: private (url: string) => string | undefined
 member DomainPathStrategy.pageBase: private (route: RouteLike) => string | null
 member DomainPathStrategy.pageLocales: (route: RouteLike) => string[] | null
 member DomainPathStrategy.pathOnHost: private (locale: string, config: Locale, route: Target) => string
@@ -125,6 +126,7 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+member RouteI18nMeta.original?: string | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined
@@ -221,6 +223,7 @@ interface RouteI18nMeta
 member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
+member RouteI18nMeta.original?: string | undefined
 interface RouteLike
 member RouteLike.fullPath?: string | undefined
 member RouteLike.hash?: string | undefined

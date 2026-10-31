@@ -56,6 +56,29 @@ describe('isInternalPath', () => {
     expect(isInternalPath('/en/post/edit/', ['/en/*/edit'])).toBe(true)
   })
 
+  it('stays linear on a path built to backtrack', () => {
+    const elapsed = (run: () => unknown) => {
+      const start = performance.now()
+      run()
+      return performance.now() - start
+    }
+    const n = 1 << 17
+    expect(elapsed(() => isInternalPath(`/x${'/'.repeat(n)}y`))).toBeLessThan(200)
+    expect(elapsed(() => isInternalPath(`/d/${'a/'.repeat(n)}x`, ['/d/*/*/*/*/end']))).toBeLessThan(200)
+  })
+
+  it('reads a glob as `*`, `?` and literal text, the whole path', () => {
+    expect(isInternalPath('/a.b/x', ['/a.b/*'])).toBe(true)
+    expect(isInternalPath('/aXb/x', ['/a.b/*'])).toBe(false)
+    expect(isInternalPath('/ab', ['/a?'])).toBe(true)
+    expect(isInternalPath('/abc', ['/a?'])).toBe(false)
+    expect(isInternalPath('/a/b/c/end', ['/a/*/*/end'])).toBe(true)
+    expect(isInternalPath('/a/end/x', ['/a/*/end'])).toBe(false)
+    expect(isInternalPath('/aaab', ['/*a*ab'])).toBe(true)
+    expect(isInternalPath('/x', ['/x*'])).toBe(true)
+    expect(isInternalPath('/x/', ['/x'])).toBe(true)
+  })
+
   it('resets lastIndex on global excludePatterns regexes', () => {
     const pattern = /^\/admin(?:\/|$)/g
     expect(isInternalPath('/admin', [pattern])).toBe(true)

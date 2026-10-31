@@ -15,8 +15,18 @@ describe('joinBase', () => {
     ['/docs/', '/fr/guide', '/docs/fr/guide'],
     ['/', '//evil.example/x', '/evil.example/x'],
     ['https://x.com', '//evil.example', 'https://x.com/evil.example'],
+    ['/', '/\\evil.example', '/evil.example'],
+    ['/', '\\\\evil.example', '/evil.example'],
+    ['/', '/\t/evil.example', '/evil.example'],
+    ['/', '/\n\\evil.example', '/evil.example'],
   ])('%s + %s', (base, path, joined) => {
     expect(joinBase(base, path)).toBe(joined)
+  })
+
+  it('is linear on a base of slashes that stops short of the end', () => {
+    const start = performance.now()
+    joinBase(`/x${'/'.repeat(1 << 17)}y`, '/de')
+    expect(performance.now() - start).toBeLessThan(200)
   })
 })
 

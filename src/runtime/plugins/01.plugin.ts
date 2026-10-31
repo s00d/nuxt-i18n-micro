@@ -37,6 +37,14 @@ import { translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+interface NavigationTarget {
+  locale: string
+  routeName: string
+  changed: boolean
+  /** The loaded chunk, null when its load failed. */
+  data: Record<string, unknown> | null
+}
+
 // Object form: `name` is what `dependsOn: ['i18n-plugin-loader']` (05, 06, 04 and apps) waits for at
 // runtime — the function form has no runtime name, so every dependsOn on it was inert.
 export default defineNuxtPlugin({
@@ -191,11 +199,7 @@ export default defineNuxtPlugin({
       hydrated.value = true
     })
 
-    const {
-      helper,
-      switchContext,
-      provide: provideApi,
-    } = createNuxtI18nPluginApi({
+    const { helper, provide: provideApi } = createNuxtI18nPluginApi({
       i18n,
       loader,
       i18nStrategy,
@@ -235,7 +239,29 @@ export default defineNuxtPlugin({
       })
     }
 
+    // What each navigation will show, loaded by its guard and applied when it commits. A guard is too early: a later
+    // guard can abort, and the router cancels a pending navigation for a duplicate of the current page without running one.
+    const targets = new WeakMap<object, NavigationTarget>()
+
     router.beforeEach(async (to, from) => {
+      if (to.path === from.path && !isNoPrefixStrategy(i18nConfig.strategy!)) return
+
+      // a navigation is newer than any `$switchLocale` still loading
+      loader.invalidatePendingSwitches()
+      try {
+        const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
+        const locale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
+        const routeName = getPluginRouteName(to as unknown as ResolvedRouteLike, locale)
+        const changed = locale !== i18n.getCurrentLocale() || routeName !== i18n.getCurrentRouteName()
+        targets.set(to, { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null })
+      } catch (e) {
+        if (isDev) console.error('[i18n] Navigation error:', e)
+      }
+    })
+
+    router.afterEach((to, from, failure) => {
+      if (failure) return
+
       // The path decides, not the name: `/news/1` to `/news/4` is one route name and another page, and Nuxt clears
       // `name` on the current route before its hydrating replace. That replace keeps the path, so what the server page
       // set stays: it came in the payload, and a component that does not run here (`hydrate-never`) will not set it again
@@ -244,35 +270,15 @@ export default defineNuxtPlugin({
         pageHead.value = null
       }
 
-      const shouldSwitchContext = to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)
+      const target = targets.get(to)
+      if (!target) return
+      const { locale, routeName, changed, data } = target
 
-      if (!shouldSwitchContext) {
-        return
-      }
-
-      try {
-        const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
-        const targetLocale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
-        const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
-
-        let applied = true
-        if (targetLocale !== i18n.getCurrentLocale() || targetRouteName !== i18n.getCurrentRouteName()) {
-          applied = await switchContext(targetLocale, targetRouteName)
-        } else {
-          // Same applied context — still cancel any in-flight load from a prior navigation
-          // that had not yet called applySwitchContext (generation would otherwise stay valid).
-          loader.invalidatePendingSwitches()
-        }
-
-        // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
-        const bound = isNoPrefixStrategy(i18nConfig.strategy!) && targetLocale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
-        if (applied && !bound && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
-          setLocale(targetLocale)
-        }
-      } catch (e) {
-        if (isDev) console.error('[i18n] Navigation error:', e)
-      }
-      return
+      // the stored chunk: `i18n:register` merged into it after this guard's load
+      const applied = !changed || loader.applyContext(locale, routeName, loader.loadFromCacheSync(locale, routeName) ?? data)
+      // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
+      const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
+      if (applied && !bound && locale && isValidLocale(locale) && localeState.value !== locale) setLocale(locale)
     })
 
     // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies

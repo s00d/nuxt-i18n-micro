@@ -441,8 +441,8 @@ export interface NuxtTranslationLoaderOptions {
 export class NuxtTranslationLoader {
   private readonly pendingLoads = new Map<string, Promise<Record<string, unknown> | null>>()
   /**
-   * Monotonic token so a slower in-flight `switchContext` cannot overwrite a newer one.
-   * Vue Router aborts a superseded navigation but does not cancel the guard's await.
+   * Monotonic token so a slower in-flight `switchContext` (`$switchLocale` without a URL to move)
+   * cannot overwrite a newer one. Navigations do not need it: they apply when they commit.
    */
   private switchGeneration = 0
 
@@ -450,8 +450,7 @@ export class NuxtTranslationLoader {
 
   /**
    * Bump the switch generation so any in-flight `switchContext` becomes a no-op.
-   * Call on every navigation that may supersede a pending load — including when the
-   * target `(locale, routeName)` already matches the applied context (caller skips switch).
+   * Call on every navigation that may supersede a pending load.
    */
   invalidatePendingSwitches(): void {
     this.switchGeneration++
@@ -531,23 +530,32 @@ export class NuxtTranslationLoader {
     await this.refresh()
   }
 
+  /** The chunk of a context, cached or loaded, or null when its load failed. */
+  fetchContext(locale: string, routeName?: string): Record<string, unknown> | Promise<Record<string, unknown> | null> {
+    return this.loadFromCacheSync(locale, routeName) ?? this.loadChunk(locale, routeName)
+  }
+
+  /**
+   * Make a fetched chunk the active context. `false` when its load failed: that keeps what is on screen, as
+   * refresh() does, since an empty dictionary would turn the strings that still work (a layout's) into raw keys.
+   * Only a first render has nothing to keep.
+   */
+  applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): boolean {
+    const { i18n } = this.options
+    if (data === null && i18n.getCurrentLocale()) return false
+    i18n.applySwitchContext(locale, routeName, data)
+    return true
+  }
+
   /**
    * Load and apply translations for a locale/route. Returns `false` when the switch did not
    * apply — a newer navigation superseded it, or its chunk failed to load — and callers must
    * skip post-await side effects (e.g. `setLocale`). The next navigation loads it again.
    */
   async switchContext(locale: string, routeName?: string): Promise<boolean> {
-    const { i18n } = this.options
     const generation = ++this.switchGeneration
-    const data = this.loadFromCacheSync(locale, routeName) ?? (await this.loadChunk(locale, routeName))
-
-    if (generation !== this.switchGeneration) return false
-    // keeps what is on screen, as refresh() does: an empty dictionary would turn the strings that
-    // still work (a layout's) into raw keys. Only a first render has nothing to keep.
-    if (data === null && i18n.getCurrentLocale()) return false
-
-    i18n.applySwitchContext(locale, routeName, data)
-    return true
+    const data = await this.fetchContext(locale, routeName)
+    return generation === this.switchGeneration && this.applyContext(locale, routeName, data)
   }
 }
 
@@ -633,8 +641,6 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     },
   }
 
-  const switchContext = (locale: string, routeName?: string) => loader.switchContext(locale, routeName)
-
   const provide = {
     i18nStrategy,
     getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
@@ -693,7 +699,10 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       if (loaded === false) return false
 
       setLocale(toLocale)
-      await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      const failure = await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      // a navigation that did not commit left the page as it was, and the preference follows the page.
+      // Under no_prefix and hash mode the dictionary has already moved: there the switch stands.
+      if (!urlless && failure instanceof Error) setLocale(i18n.getCurrentLocale())
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
@@ -719,7 +728,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     setMissingHandler,
   }
 
-  return { helper, switchContext, provide }
+  return { helper, provide }
 }
 
 export type NuxtI18nPluginProvide = ReturnType<typeof createNuxtI18nPluginApi>['provide']

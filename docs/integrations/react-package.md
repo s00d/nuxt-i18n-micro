@@ -217,11 +217,11 @@ Full signatures: [React reference](/api/packages/react).
 | --- | --- | --- |
 | Peer dependency | `react` (+ optional `react-router-dom`) | `preact` `^10.27.2 \|\| ^11.0.0`, tested on 10.29 and 11.1 |
 | Instance class | `ReactI18n` | `PreactI18n` |
-| Router adapter | `createReactRouterAdapter` from `/router` | `createBrowserHistoryAdapter(locales, defaultLocale)` from `/router` |
+| Router adapter | `createReactRouterAdapter` from `/router` | `createBrowserHistoryAdapter(locales, defaultLocale, ssrUrl?)` from `/router` |
 | Re-render | `useSyncExternalStore` | a layout-effect subscription that re-checks the store |
 | Server Components | `/server`, `/client` | none |
 
-`createBrowserHistoryAdapter` works with any History API router (wouter, preact-router): `push` and `replace` call `history.pushState` / `replaceState` and dispatch `popstate`, and `<I18nLink>` renders a plain `<a>` that navigates through `push`.
+`createBrowserHistoryAdapter` works with any History API router (wouter, preact-router): `push` and `replace` call `history.pushState` / `replaceState` and dispatch `popstate`, and `<I18nLink>` renders a plain `<a>` that navigates through `push`. A server has no address bar: pass the request's URL as `ssrUrl`, or links and the switcher render as on `/`. In a browser the address bar wins.
 
 ```tsx
 // src/main.tsx

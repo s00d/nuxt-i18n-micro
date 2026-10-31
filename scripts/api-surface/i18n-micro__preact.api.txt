@@ -1205,7 +1205,7 @@ function useLocaleSwitch: (load: (locale: string) => unknown) => [(locale: strin
 function useT: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
 
 # ./router (src/router/index.ts)
-function createBrowserHistoryAdapter: (locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
+function createBrowserHistoryAdapter: (locales: Locale[], defaultLocale: string, ssrUrl?: string) => I18nRoutingStrategy
 interface I18nRoutingStrategy
 member I18nRoutingStrategy.getCurrentPath: () => string
 member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined

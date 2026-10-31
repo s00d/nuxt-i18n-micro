@@ -1,7 +1,7 @@
 // The router half of the app: kept out of the no-router build by a dynamic import.
 import { I18nProvider, type PreactI18n } from '@i18n-micro/preact'
 import { createBrowserHistoryAdapter } from '@i18n-micro/preact/router'
-import { useLayoutEffect } from 'preact/hooks'
+import { useLayoutEffect, useMemo } from 'preact/hooks'
 import { Route, Router, Switch, useLocation } from 'wouter-preact'
 import { localeCodes, localeOfPath, routeOfPath } from '../../../../benchmark/integrations/catalogue'
 import { Shell } from '../../../react/playground/src/App'
@@ -20,8 +20,6 @@ const pages = [
   ['/routing', Routing],
   ['/big', Big],
 ] as const
-
-const strategy = createBrowserHistoryAdapter(localesConfig, defaultLocale)
 
 function Synced({ i18n }: { i18n: PreactI18n }) {
   const [path] = useLocation()
@@ -45,6 +43,7 @@ function Synced({ i18n }: { i18n: PreactI18n }) {
 }
 
 export function RoutedApp({ i18n, ssrPath }: { i18n: PreactI18n; ssrPath?: string }) {
+  const strategy = useMemo(() => createBrowserHistoryAdapter(localesConfig, defaultLocale, ssrPath), [ssrPath])
   return (
     <Router ssrPath={ssrPath}>
       <I18nProvider i18n={i18n} locales={localesConfig} defaultLocale={defaultLocale} routingStrategy={strategy}>

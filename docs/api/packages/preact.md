@@ -1250,7 +1250,7 @@ import { /* … */ } from '@i18n-micro/preact/router'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `createBrowserHistoryAdapter` | function | `(locales: Locale[], defaultLocale: string, ssrUrl?: string) => I18nRoutingStrategy` |
 | `I18nRoutingStrategy` | interface | 6 members |
 
 <code>I18nRoutingStrategy</code> — 6 members, identical to `I18nRoutingStrategy` above.

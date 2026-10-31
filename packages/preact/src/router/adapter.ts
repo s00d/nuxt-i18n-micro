@@ -13,13 +13,14 @@ const here = (): Location | null => (typeof window === 'undefined' ? null : wind
 
 /**
  * Adapter over the History API, for any router built on it (wouter, preact-router...). Links render
- * as `<a>`; `I18nLink` takes over plain clicks.
+ * as `<a>`; `I18nLink` takes over plain clicks. A server has no address bar: pass the request's URL as
+ * `ssrUrl`, so links and the switcher render for that page. In a browser the address bar wins.
  */
-export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: string, ssrUrl = '/'): I18nRoutingStrategy {
   const codes = locales.map((locale) => locale.code)
   const fullPath = () => {
     const location = here()
-    return location ? `${location.pathname}${location.search}${location.hash}` : '/'
+    return location ? `${location.pathname}${location.search}${location.hash}` : ssrUrl
   }
 
   return {
@@ -27,6 +28,6 @@ export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: st
     push: (target) => go('pushState', target.path),
     replace: (target) => go('replaceState', target.path),
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(here()?.search) }),
+    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(here()?.search ?? ssrUrl.slice(ssrUrl.search(/\?|$/)).split('#')[0]) }),
   }
 }

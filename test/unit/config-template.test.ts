@@ -28,16 +28,25 @@ test('excludePatterns appears once: a minifier inlines the spread, and wrangler 
   expect(source.match(/excludePatterns/g)).toHaveLength(1)
 })
 
-test('the build paths of the private config sit behind the constants a production bundle drops', () => {
-  const source = buildPrivateConfigSource({
-    rootDir: '/build/app',
-    rootDirs: ['/build/app'],
-    payloadFsDir: '/build/app/.nuxt/i18n-merged',
-    debug: false,
-  } as never)
-  const [always, guarded] = source.split('if (import.meta.dev || import.meta.prerender)')
+const privateConfig = {
+  rootDir: '/build/app',
+  rootDirs: ['/build/app'],
+  payloadFsDir: '/build/app/.nuxt/i18n-merged',
+  debug: false,
+} as never
+
+test('the build paths of the private config sit behind the constant a production bundle drops', () => {
+  const source = buildPrivateConfigSource(privateConfig, false)
+  const [always, guarded] = source.split('if (import.meta.prerender)')
   expect(always).toContain('"debug":false')
   expect(always).not.toContain('/build/app')
   expect(guarded).toContain('"payloadFsDir":"/build/app/.nuxt/i18n-merged"')
   expect(guarded).toContain('"rootDirs":["/build/app"]')
+})
+
+test('a dev server has its paths whatever the bundler does with import.meta', () => {
+  const source = buildPrivateConfigSource(privateConfig, true)
+  expect(source).not.toContain('import.meta')
+  expect(source).toContain('"payloadFsDir":"/build/app/.nuxt/i18n-merged"')
+  expect(source).toContain('"rootDirs":["/build/app"]')
 })

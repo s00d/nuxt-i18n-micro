@@ -203,6 +203,7 @@ function registerI18nTemplates(
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
   disabledLocales: Locale[],
+  dev: boolean,
 ) {
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
@@ -250,7 +251,7 @@ export function createI18nStrategy(router, config = __fullConfig) {
   const configTemplate = addTemplate({
     filename: 'i18n.config.mjs',
     write: true,
-    getContents: () => buildPrivateConfigSource(privateConfig),
+    getContents: () => buildPrivateConfigSource(privateConfig, dev),
   })
 
   return {
@@ -503,6 +504,7 @@ export default defineNuxtModule<ModuleOptions>({
       fullConfig,
       privateConfig,
       routeGenerator.disabledLocales,
+      nuxt.options.dev,
     )
 
     if (typeof options.customRegexMatcher !== 'undefined') {

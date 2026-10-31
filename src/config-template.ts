@@ -10,13 +10,14 @@ export function buildFullConfigSource(config: { excludePatterns?: (string | RegE
 }
 
 /**
- * The private config template. `import.meta.dev` / `import.meta.prerender` are constants in the
- * server bundle, so the build machine's paths only reach the two builds that read them.
+ * The private config template. The build machine's paths reach only the two servers that read
+ * them: dev, known here, and the prerenderer, where `import.meta.prerender` is a constant.
  */
-export function buildPrivateConfigSource(config: { rootDir: string; rootDirs: string[]; payloadFsDir: string }): string {
+export function buildPrivateConfigSource(config: { rootDir: string; rootDirs: string[]; payloadFsDir: string }, dev: boolean): string {
   const { rootDir, rootDirs, payloadFsDir, ...rest } = config
+  const read = `export function getI18nPrivateConfig() { return __privateConfig }\n`
+  if (dev) return `const __privateConfig = ${JSON.stringify(config)}\n${read}`
   return `const __privateConfig = ${JSON.stringify(rest)}
-if (import.meta.dev || import.meta.prerender) Object.assign(__privateConfig, ${JSON.stringify({ rootDir, rootDirs, payloadFsDir })})
-export function getI18nPrivateConfig() { return __privateConfig }
-`
+if (import.meta.prerender) Object.assign(__privateConfig, ${JSON.stringify({ rootDir, rootDirs, payloadFsDir })})
+${read}`
 }

@@ -328,6 +328,21 @@ describe('NuxtTranslationLoader: reload', () => {
     }
   })
 
+  test('a prerender fails on a dictionary it could not load: the file would keep raw keys', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    translationStorage.clear()
+    vi.stubGlobal('$fetch', () => Promise.reject(new Error('connect ECONNREFUSED')))
+    const start = (prerender: boolean) =>
+      new NuxtTranslationLoader({ i18n: new NuxtI18n({ missingWarn: false }), loadOptions, prerender }).switchContext('en', 'about')
+    try {
+      await expect(start(false)).resolves.toBe(true)
+      await expect(start(true)).rejects.toThrow('Translation load failed: en about')
+    } finally {
+      vi.unstubAllGlobals()
+      warn.mockRestore()
+    }
+  })
+
   test('a failed reload keeps the dictionary on screen', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { i18n, loader } = setup({ title: 'Hi' })

@@ -162,10 +162,12 @@ export default defineNuxtPlugin({
 
     // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
     // Server loads into memory for SSR; client loads via /_locales in switchContext below.
+    const prerender = import.meta.server && import.meta.prerender
     const loader = new NuxtTranslationLoader({
       i18n,
       loadOptions,
       isDev,
+      prerender,
     })
 
     // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
@@ -214,6 +216,7 @@ export default defineNuxtPlugin({
       await loader.switchContext(initialLocale, initialRouteName)
     } catch (e) {
       if (isDev) console.error('[i18n] Initial load error:', e)
+      if (prerender) throw e
       throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
     }
 

@@ -443,6 +443,8 @@ export interface NuxtTranslationLoaderOptions {
   i18n: NuxtI18n
   loadOptions: LoadOptions
   isDev?: boolean
+  /** The render is a file: a first page with no dictionary fails, as raw keys would stay in it. */
+  prerender?: boolean
 }
 
 export class NuxtTranslationLoader {
@@ -545,11 +547,12 @@ export class NuxtTranslationLoader {
   /**
    * Make a fetched chunk the active context. `false` when its load failed: that keeps what is on screen, as
    * refresh() does, since an empty dictionary would turn the strings that still work (a layout's) into raw keys.
-   * Only a first render has nothing to keep.
+   * Only a first render has nothing to keep. A prerender throws there instead: no next request would load it again.
    */
   applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): boolean {
-    const { i18n } = this.options
+    const { i18n, prerender } = this.options
     if (data === null && i18n.getCurrentLocale()) return false
+    if (data === null && prerender) throw new Error(`[i18n] Translation load failed: ${locale} ${routeName}`)
     i18n.applySwitchContext(locale, routeName, data)
     return true
   }

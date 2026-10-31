@@ -148,7 +148,11 @@ export default defineNuxtPlugin({
     // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
     // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
     // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
-    const requestLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : shellLocale()
+    // An island is rendered from its own URL, with no page behind it: Nuxt passes it props and nothing else, so its
+    // `locale` prop is the page's. Without one it falls back to the cookie and the default (docs: server components).
+    const islandLocale = nuxtApp.ssrContext?.islandContext?.props?.locale as string | undefined
+    const serverRequestLocale = () => (isValidLocale(islandLocale) ? islandLocale : nuxtApp.ssrContext?.event?.context?.i18n?.locale)
+    const requestLocale = import.meta.server ? serverRequestLocale() : shellLocale()
     const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
     const urlLocale = i18nConfig.hashMode

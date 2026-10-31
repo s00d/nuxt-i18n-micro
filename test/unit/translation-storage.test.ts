@@ -43,13 +43,19 @@ const answering = (answer: (url: string) => unknown) =>
     return value
   })
 
-test('a page the host has no file for gets the root dictionary, stored under its own key', async () => {
+test('a page the host has no file for gets the root dictionary, and the next visit asks for its file again', async () => {
   const fetchMock = answering((url) => (url.includes('__root') ? { hello: 'root' } : notFound()))
   vi.stubGlobal('$fetch', fetchMock)
 
   expect((await translationStorage.load('de', 'added-at-runtime', options)).data).toEqual({ hello: 'root' })
   expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/_locales/added-at-runtime/de/data.json', '/_locales/__root/de/data.json'])
-  expect(translationStorage.getFromCache('de', 'added-at-runtime')?.data).toEqual({ hello: 'root' })
+  expect(translationStorage.getFromCache('de', 'added-at-runtime')).toBeNull()
+
+  vi.stubGlobal(
+    '$fetch',
+    answering(() => ({ hello: 'page' })),
+  )
+  expect((await translationStorage.load('de', 'added-at-runtime', options)).data).toEqual({ hello: 'page' })
 })
 
 test("a static host's SPA shell in place of the page's file counts as no file", async () => {

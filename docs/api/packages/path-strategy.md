@@ -20,8 +20,8 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `DomainPathStrategy` | class | 51 members |
-| `I18nPathStrategy` | class | 48 members |
+| `DomainPathStrategy` | class | 52 members |
+| `I18nPathStrategy` | class | 49 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
 | `PathStrategyContext` | interface | 10 members |
 | `ResolvedRouteLike` | interface | 8 members |
@@ -29,7 +29,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `Strategy` | class | 48 members |
+| `Strategy` | class | 49 members |
 | `SwitchLocaleOptions` | interface | 2 members |
 
 <details>
@@ -42,7 +42,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>DomainPathStrategy</code> — 51 members</summary>
+<summary><code>DomainPathStrategy</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -72,6 +72,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `isMetaDisabled` | `(route: RouteLike, locale: string) => boolean` |
 | `isOwnPage` | `protected (path: string) => boolean` |
 | `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
+| `linkCodes` | `private Set<string>` |
 | `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
@@ -101,7 +102,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>I18nPathStrategy</code> — 48 members</summary>
+<summary><code>I18nPathStrategy</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -130,6 +131,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `isMetaDisabled` | `(route: RouteLike, locale: string) => boolean` |
 | `isOwnPage` | `protected (path: string) => boolean` |
 | `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
+| `linkCodes` | `private Set<string>` |
 | `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string, _currentRoute?: ResolvedRouteLike) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
@@ -241,7 +243,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 
-<code>Strategy</code> — 48 members, identical to `I18nPathStrategy` above.
+<code>Strategy</code> — 49 members, identical to `I18nPathStrategy` above.
 
 <details>
 <summary><code>SwitchLocaleOptions</code> — 2 members</summary>

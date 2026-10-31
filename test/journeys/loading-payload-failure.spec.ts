@@ -4,12 +4,14 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 const json = (body: string) => (route: Route) => route.fulfill({ status: 200, contentType: 'application/json', body })
 const status = (code: number) => (route: Route) => route.fulfill({ status: code, body: 'failed' })
 
-const FAILURES: [string, (route: Route) => Promise<void>][] = [
-  ['abort', (route) => route.abort()],
-  ['500', status(500)],
-  ['404', status(404)],
-  ['bad JSON', json('{ not json')],
-  ['array body', json('["a"]')],
+// The last column is the layout string after a switch to de: a failed load keeps the old texts, while a chunk that is
+// not there (a 404, or a 200 with no dictionary) gives the page the root dictionary of de.
+const FAILURES: [string, (route: Route) => Promise<void>, string][] = [
+  ['abort', (route) => route.abort(), 'My App'],
+  ['500', status(500), 'My App'],
+  ['404', status(404), 'Meine App'],
+  ['bad JSON', json('{ not json'), 'Meine App'],
+  ['array body', json('["a"]'), 'Meine App'],
 ]
 
 // `strategy-prefix`: app.vue renders root keys around every page, so a layout string shows which dictionary is active.
@@ -32,7 +34,7 @@ async function failUntilFixed(page: Page, pattern: string, fail: (route: Route) 
 describe('J8 translation loading: a chunk fails on the client', () => {
   test.override({ harness: 'strategy-prefix' })
 
-  test.for(FAILURES)('%s keeps the old dictionary, the next navigation loads it', async ([, fail], { page, goto, guard }) => {
+  test.for(FAILURES)('%s keeps the page readable, the next navigation loads the chunk', async ([, fail, switched], { page, goto, guard }) => {
     guard.allow(FAILED_PAYLOAD)
     const fixContact = await failUntilFixed(page, '**/_locales/contact/en/**', fail)
     const fixDe = await failUntilFixed(page, '**/_locales/index/de/**', fail)
@@ -51,11 +53,11 @@ describe('J8 translation loading: a chunk fails on the client', () => {
     await expect(page).toHaveURL('/en')
     await expect(page.locator('#content')).toHaveText('en')
 
-    // step 4: switching to a locale whose chunk fails keeps the old texts on the new URL
+    // step 4: switching to a locale whose chunk fails moves the URL, the texts as the failure allows
     await page.click('.language-switcher')
     await page.click('a.switcher-locale-de')
     await expect(page).toHaveURL('/de')
-    await expect(page.locator('.layout-title')).toHaveText('My App')
+    await expect(page.locator('.layout-title')).toHaveText(switched)
 
     // step 5: the failure is not cached: once the chunk answers, a navigation loads de
     fixContact()

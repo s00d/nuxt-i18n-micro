@@ -104,19 +104,16 @@ class TranslationStorage {
   }
 
   /**
-   * A chunk, or what stands for it. A host with no file for the page (a 404, or a static host's SPA shell) will not have
-   * one on a retry: the page shows the root dictionary, as the server route answers it. No root file either (`source` mode
-   * on a file host, which the build warns about) is an empty one, as a missing file must not stop a switch.
+   * A chunk, or `null` when the host has no file for it: a 404, or a static host's SPA shell in a page's place.
    * Anything else is a failed load, and the next try can work.
    */
-  private async fetchChunk(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
+  private async fetchChunk(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown> | null> {
     const data = await this.fetchTranslations(locale, routeName, options).catch((error) => {
       if ((error as { status?: number }).status === 404) return null
       throw error
     })
-    if (data && typeof data === 'object' && !Array.isArray(data)) return data
-    if (routeName !== PREMERGED_ROOT_PAGE) return this.fetchChunk(locale, PREMERGED_ROOT_PAGE, options)
-    if (data === null) return {}
+    if (data === null || (typeof data === 'object' && !Array.isArray(data))) return data
+    if (routeName !== PREMERGED_ROOT_PAGE) return null
     // a 200 with another body on the root file too: a portal or a proxy, not this site's files
     throw new TypeError(`[i18n] Invalid translation payload: ${this.getCacheKey(locale, routeName)}`)
   }
@@ -179,6 +176,13 @@ class TranslationStorage {
     const clears = this.cc.clears
     const data = await this.fetchChunk(locale, routeName, options)
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
+    // No file: the page shows the root dictionary, as the server route answers it, and no root file either (`source` mode on
+    // a file host, which the build warns about) is an empty one, as a missing file must not stop a switch. Neither is kept
+    // under this key: during a deploy the file can appear, and the next visit gets it.
+    if (data === null) {
+      const stand = routeName === PREMERGED_ROOT_PAGE ? Object.freeze({}) : (await this.load(locale, PREMERGED_ROOT_PAGE, options)).data
+      return { data: stand, cacheKey }
+    }
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.

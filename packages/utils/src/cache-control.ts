@@ -30,13 +30,29 @@ export class CacheControl<T> {
     if (options) this.configure(options)
   }
 
-  /** Update limits at runtime. Last call wins. */
+  /** Update limits at runtime, stored entries included. Last call wins. */
   configure(options: CacheControlOptions): void {
     this.maxSize = options.maxSize ?? 0
     this.ttlMs = (options.ttl ?? 0) * 1000
     if (this.ttlMs === 0) {
       this.expiry.clear()
+    } else {
+      this.stampUnexpiring()
     }
+    this.evictOverSize()
+  }
+
+  /** An entry stored while no TTL was set counts from now. */
+  private stampUnexpiring(): void {
+    const expires = Date.now() + this.ttlMs
+    for (const key of this.cache.keys()) {
+      if (!this.expiry.has(key)) this.expiry.set(key, expires)
+    }
+  }
+
+  private evictOverSize(): void {
+    if (this.maxSize === 0) return
+    while (this.cache.size > this.maxSize) this.delete(this.cache.keys().next().value!)
   }
 
   get(key: string): T | undefined {

@@ -22,7 +22,8 @@ import { fileURLToPath } from 'node:url'
 const benchRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const nuxi = join(benchRoot, '../node_modules/.bin/nuxi')
 const DEFAULT_PORT = 4700
-const DOMAIN_PORT = 4790
+const DOMAIN_PORT = Number(process.env.BENCH_DOMAIN_PORT ?? 4790)
+const CDN_PORT = Number(process.env.BENCH_CDN_PORT ?? 4791)
 
 const S = { prefix: 'prefix', pec: 'prefix_except_default', pad: 'prefix_and_default', nop: 'no_prefix' }
 const i18n = (options) => ({ BENCH_I18N: JSON.stringify(options) })
@@ -114,12 +115,12 @@ export const variants = Object.fromEntries([
     {
       ...strategy('pec'),
       ...i18n({
-        apiBaseServerHost: 'http://127.0.0.1:4791',
-        apiBaseClientHost: 'http://127.0.0.1:4791',
+        apiBaseServerHost: `http://127.0.0.1:${CDN_PORT}`,
+        apiBaseClientHost: `http://127.0.0.1:${CDN_PORT}`,
         translationPayloads: { serverHandler: false, serverAssets: false, publicAssets: false },
       }),
     },
-    { cdn: { from: 'pec', port: 4791 } },
+    { cdn: { from: 'pec', port: CDN_PORT } },
   ),
   v('cache', 'build', { ...strategy('pec'), ...i18n({ cacheMaxSize: 2, cacheTtl: 1, httpCacheDuration: 60, dateBuild: 'bench' }) }),
   v('no-cache-bust', 'build', { ...strategy('pec'), ...i18n({ dateBuild: 0, httpCacheDuration: 0 }) }),

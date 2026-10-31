@@ -13,6 +13,7 @@
 // BENCH_LAYER=0    without layer-base
 // BENCH_HUGE=0     without the generated dictionaries
 // BENCH_DEVTOOLS=0 without Nuxt DevTools
+// BENCH_MISMATCH=1 hydration mismatch details in production builds
 // BENCH_TYPES_GEN=1 with @i18n-micro/types-generator
 // BENCH_I18N       JSON merged over the `i18n` block: any option
 // BENCH_NUXT       JSON merged over the whole config: anything else
@@ -125,7 +126,10 @@ const config = {
   compatibilityDate: '2024-08-14',
   // the other variants' builds: watching them runs dev out of file handles (EMFILE)
   ignore: ['.bench/**'],
-  vite: { server: { watch: { ignored: ['**/.bench/**'] } } },
+  vite: {
+    server: { watch: { ignored: ['**/.bench/**'] } },
+    define: flag('BENCH_MISMATCH') ? { __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true } : {},
+  },
   ssr: env.BENCH_SSR !== '0',
   app: baseURL ? { baseURL } : {},
   router: flag('BENCH_HASH') ? { options: { hashMode: true } } : {},

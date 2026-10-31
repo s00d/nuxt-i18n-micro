@@ -13,6 +13,10 @@ describe('routeRules', () => {
       expect(shouldLocalizeRouteRulePath(path)).toBe(false)
     }
 
+    // a rule already under a locale prefix: a copy per locale would be /fr/de/prerendered, a 404 in prerender
+    for (const path of ['/de', '/de/prerendered', '/de/**']) expect(shouldLocalizeRouteRulePath(path, ['en', 'de'])).toBe(false)
+    for (const path of ['/about', '/delivery/**']) expect(shouldLocalizeRouteRulePath(path, ['en', 'de'])).toBe(true)
+
     // step 3: the `_locales` rule: no header in dev (HMR must not be answered from a cache),
     // the configured Cache-Control in production, none when none is configured
     const revalidate = 'public, max-age=0, must-revalidate'

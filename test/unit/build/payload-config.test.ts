@@ -1,7 +1,9 @@
 import { join } from 'node:path'
+import type { ModuleOptions } from '@i18n-micro/types'
 import { describe, expect, test } from 'vitest'
 import {
   domainPayloadFilter,
+  getStaticPayloadWarning,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
@@ -64,6 +66,16 @@ describe('translationPayloads build options', () => {
     expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: true, output: { serverDir: '/x/server/', publicDir: '/x/public/' } })).toBe(
       true,
     )
+
+    // static output has no server route: the browser needs the premerged copy, or another way to its payloads
+    const staticWarning = (options: ModuleOptions, apiBaseClientHost?: string) =>
+      getStaticPayloadWarning({ translationPayloads: resolveTranslationPayloadOptions(options), apiBaseClientHost })
+    expect(staticWarning({})).toBeNull()
+    expect(staticWarning({ translationPayloads: { mode: 'source' } })).toContain('/_locales')
+    expect(staticWarning({ translationPayloads: { mode: 'source', publicAssets: true } })).toContain('/_locales')
+    expect(staticWarning({ translationPayloads: { publicAssets: false } })).toContain('/_locales')
+    expect(staticWarning({ translationPayloads: { mode: 'source' } }, 'https://cdn.example.com')).toBeNull()
+    expect(staticWarning({ translationPayloads: { mode: 'source', prerenderRoutes: true } })).toBeNull()
 
     // step 4: so a server-only setup copies to public/ where SSR reads it, embeds server assets elsewhere
     expect(shouldRegisterNitroServerAssets(resolveTranslationPayloadOptions({}), false)).toBe(true)

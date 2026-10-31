@@ -184,6 +184,15 @@ export function getTranslationPayloadMisconfigurationWarnings(input: Translation
   return warnings
 }
 
+/** Static output has no server route: the browser needs premerged files, prerendered routes or another host. */
+export function getStaticPayloadWarning(
+  input: Pick<TranslationPayloadMisconfigurationInput, 'translationPayloads' | 'apiBaseClientHost'>,
+): string | null {
+  const { mode, publicAssets, prerenderRoutes } = input.translationPayloads
+  if (input.apiBaseClientHost || prerenderRoutes || (mode === 'premerged' && publicAssets)) return null
+  return `Static output has no server route, and this build writes no /_locales/<page>/<locale>/data.json (mode: '${mode}', publicAssets: ${publicAssets}): the browser gets a 404 and raw keys, unless something else serves that path. Use the default premerged mode with public assets, translationPayloads.prerenderRoutes, or apiBaseClientHost.`
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes >= 1024 * 1024) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`

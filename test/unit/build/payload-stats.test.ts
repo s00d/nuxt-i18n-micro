@@ -1,9 +1,15 @@
+import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { brotliDecompressSync, gunzipSync } from 'node:zlib'
 import { afterAll, describe, expect, test } from 'vitest'
-import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '../../../src/build/payload-stats'
+import {
+  compressTranslationPayloads,
+  getEmbeddedPayloadSizeWarning,
+  hashTranslationSources,
+  scanTranslationPayloadDirectory,
+} from '../../../src/build/payload-stats'
 
 const root = mkdtempSync(join(tmpdir(), 'i18n-payload-stats-'))
 afterAll(() => rmSync(root, { recursive: true, force: true }))
@@ -93,5 +99,28 @@ describe('translation payload files after the build', () => {
       totalBytes: files.concat('public/tiny.json').reduce((n, f) => n + readFileSync(join(root, f)).length, 0),
     })
     expect(scanTranslationPayloadDirectory(join(root, 'missing'))).toEqual({ fileCount: 0, totalBytes: 0 })
+  })
+
+  test('what gets embedded is checked against the limit of the platform, silent below it', () => {
+    const noise = (bytes: number) => randomBytes(bytes).toString('base64')
+    write('embed-small/a.json', { a: noise(1000) })
+    // 3 MB of hex-free noise: passes Vercel's 1 MB in gzip too
+    write('embed-big/a.json', { a: noise(3_000_000) })
+    // compresses to almost nothing: over 1 MB raw, under it in gzip
+    write('embed-plain/a.json', { a: 'x'.repeat(2_000_000) })
+    const warn = (preset: string, dir: string, mode: 'premerged' | 'source' = 'premerged') =>
+      getEmbeddedPayloadSizeWarning(preset, join(root, dir), mode)
+
+    expect(warn('vercel-edge', 'embed-small')).toBeNull()
+    expect(warn('vercel-edge', 'embed-plain')).toBeNull()
+    expect(warn('vercel-edge', 'embed-big')).toMatch(/gzip.*1 MB.*Hobby.*2 MB.*Pro.*4 MB.*Enterprise/)
+    expect(warn('vercel-edge', 'embed-big')).toContain("mode: 'source'")
+    expect(warn('vercel-edge', 'embed-big', 'source')).toContain('apiBaseServerHost')
+
+    // Cloudflare counts the uncompressed size, Netlify 20 MB of compressed code
+    expect(warn('cloudflare-module', 'embed-big')).toBeNull()
+    expect(warn('netlify-edge', 'embed-big')).toBeNull()
+    // a function platform has no limit in this range
+    expect(warn('vercel', 'embed-big')).toBeNull()
   })
 })

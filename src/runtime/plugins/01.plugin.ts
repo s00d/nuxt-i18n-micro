@@ -20,9 +20,10 @@ import type {
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
+  RouteRecordNormalized,
 } from 'vue-router'
 import { hasProtocol } from 'ufo'
-import { getCurrentInstance, onActivated, shallowRef } from 'vue'
+import { type ComponentPublicInstance, getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
@@ -116,15 +117,20 @@ export default defineNuxtPlugin({
       }
     })
 
-    // The leaving page's keys stay resolvable until it is gone. NuxtPage sets this promise when a
-    // page transition (prop, page meta or app config) runs and resolves it when the old page has
-    // left — the same signal Nuxt's head waits on. No transition: the new page has rendered.
-    nuxtApp.hook('page:finish', () => {
-      const leaving = (nuxtApp as { '~transitionPromise'?: Promise<void> })['~transitionPromise']
-      const outgoing = i18n.outgoing
-      if (leaving) void leaving.finally(() => i18n.finishTransition(outgoing))
-      else i18n.finishTransition()
-    })
+    // The leaving page's keys stay resolvable until it is gone. `page:finish` can come first: a page transition keeps it
+    // on screen, and so does a new layout, until its own async parts are ready and through its transition. Nuxt has no
+    // one signal for these (`~transitionPromise` starts too late for a layout), its element leaving the document is one.
+    // ponytail: one read per frame while it waits; a `<NuxtPage page-key>` reusing an instance across records waits for the next navigation
+    let leavingPage: ComponentPublicInstance | null | undefined
+    let leavingRecord: RouteRecordNormalized | undefined
+    const finishWhenGone = (outgoing: Record<string, unknown> | null) => {
+      if (!outgoing) return
+      // a new route of one record can keep its instance (a page key). Across records the router only moves it, for the old view's last render
+      const reused = leavingRecord === router.currentRoute.value.matched.at(-1) && leavingRecord?.instances.default === leavingPage
+      if (reused || !leavingPage?.$el?.isConnected || i18n.outgoing !== outgoing) i18n.finishTransition(outgoing)
+      else requestAnimationFrame(() => finishWhenGone(outgoing))
+    }
+    nuxtApp.hook('page:finish', () => finishWhenGone(i18n.outgoing))
 
     const loadOptions = {
       apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
@@ -305,6 +311,8 @@ export default defineNuxtPlugin({
 
     router.afterEach((to, from, failure) => {
       if (failure) return
+      leavingRecord = from.matched.at(-1)
+      leavingPage = leavingRecord?.instances.default
 
       // The path decides, not the name: `/news/1` to `/news/4` is one route name and another page, and Nuxt clears
       // `name` on the current route before its hydrating replace. That replace keeps the path, so what the server page

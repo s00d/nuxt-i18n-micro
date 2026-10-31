@@ -82,7 +82,8 @@ export function foldTemplate(
 /** One `<i18n-t>`: `resolveText`, then markup, a default slot, or the folded template. */
 export function renderI18nT(api: RenderApi, i18n: TextHost, props: I18nTRenderProps, slots: RenderSlots, attrs: Record<string, unknown>): unknown {
   const resolved = resolveText(i18n, props)
-  if (resolved === null) return props.defaultValue ?? null
+  // not `??`: a component's prop defaults to '', and an empty text node has no twin in server HTML
+  if (resolved === null) return props.defaultValue || null
   const { template, params } = resolved
   const tag = props.tag ?? 'span'
   const element = elementAttrs(api, props, attrs)

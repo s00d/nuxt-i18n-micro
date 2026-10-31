@@ -83,8 +83,22 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   return { path: rest.slice(0, queryAt), query, hash }
 }
 
+/** What a browser reads as another host: two slashes or backslashes, with the blanks it drops around them. */
+const OFF_ORIGIN = /^[\0-\x20]*(?:[/\\][\t\n\r]*){2,}/
+
 /** A redirect target stays on this origin: `//evil.example` and `/\evil.example` become `/evil.example`. */
-const sameOrigin = (path: string) => path.replace(/^[/\\]{2,}/, '/')
+const sameOrigin = (path: string) => path.replace(OFF_ORIGIN, '/')
+
+/**
+ * The last word on a link: only stripping a prefix or filling a catch-all param can expose a second
+ * slash, so input checks are not enough. Such a link is a plain path: by name the router would build the same URL again.
+ */
+function onOrigin<T extends RouteLike | string>(route: T): T {
+  if (typeof route === 'string') return route
+  const { path, fullPath, query, hash } = route
+  if (!OFF_ORIGIN.test(fullPath || path || '')) return route
+  return { path: path && sameOrigin(path), fullPath: fullPath && sameOrigin(fullPath), query, hash } as T
+}
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
 
@@ -294,7 +308,11 @@ export class I18nPathStrategy {
     return rest === '/' ? `/${locale}` : `/${locale}${rest.startsWith('/') ? rest : `/${rest}`}`
   }
 
-  switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+    return onOrigin(this.switched(fromLocale, toLocale, route, options))
+  }
+
+  private switched(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     // a disabled locale is no target: the link stays on the page
     if (this.disabledCodes.has(toLocale)) return route
     const name = named(route.name)
@@ -321,6 +339,10 @@ export class I18nPathStrategy {
   }
 
   localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+    return onOrigin(this.localized(locale, routeOrPath))
+  }
+
+  private localized(locale: string, routeOrPath: RouteLike | string): RouteLike {
     const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
     // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
     const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
@@ -336,7 +358,7 @@ export class I18nPathStrategy {
       if (page && page !== UNLOCALIZED)
         target = this.routeTo(targetLocale, page.base, page.params, input.query, input.hash) ?? this.home(targetLocale)
       else {
-        const path = page === UNLOCALIZED ? input.path : this.prefixed(targetLocale, input.path)
+        const path = sameOrigin(page === UNLOCALIZED ? input.path : this.prefixed(targetLocale, input.path))
         target = this.probe({ path, query: input.query, hash: input.hash }) ?? { path, fullPath: path }
       }
     }

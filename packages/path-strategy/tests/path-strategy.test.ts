@@ -449,6 +449,60 @@ describe('a request-shaped path', () => {
   })
 })
 
+describe('no link leaves the origin', () => {
+  const NO_CATCH_ALL = PAGES.filter((page) => page.name !== 'slug')
+  const UNLOCALIZED_CATCH_ALL: NuxtPage[] = [...NO_CATCH_ALL, { path: '/:rest(.*)*', name: 'rest', file: 'pages/[...rest].vue' }]
+  const hosts = (result: RouteLike | string) => {
+    const route = typeof result === 'string' ? { path: result, fullPath: result } : result
+    return [route.path, route.fullPath].map((url) => new URL(url ?? '', 'https://app.test').host)
+  }
+  const HOSTILE = [
+    '/de//evil.example',
+    '/de//evil.example/path?x=1',
+    '/en//evil.example',
+    '/de/\\evil.example',
+    '/de/\\\\evil.example',
+    '\\evil.example',
+    '/\t/evil.example',
+    '/de/\t/evil.example',
+    '/de/\n\\evil.example',
+    ' //evil.example',
+  ]
+
+  describe.each(['prefix_except_default', 'prefix_and_default', 'no_prefix'] as const)('%s', (strategy) => {
+    test.each(['catch-all', 'no catch-all'])('localeRoute and switchLocaleRoute, %s', (kind) => {
+      const { i18n, router } = setup(strategy, {}, LOCALES, { pages: kind === 'catch-all' ? PAGES : NO_CATCH_ALL })
+      for (const url of HOSTILE) {
+        expect(hosts(i18n.localeRoute('en', url)), url).toEqual(['app.test', 'app.test'])
+        expect(hosts(i18n.localeRoute('en', { path: url })), url).toEqual(['app.test', 'app.test'])
+        const { name, path, fullPath, params, query, hash, matched } = router.resolve(url)
+        const route = { name: name as string | null, path, fullPath, params, query, hash, matched }
+        expect(hosts(i18n.switchLocaleRoute('de', 'en', route)), url).toEqual(['app.test', 'app.test'])
+      }
+    })
+  })
+
+  test('a catch-all param is no way out: the link is a path, so the router cannot rebuild the URL from it', () => {
+    const { i18n, at } = setup('prefix_except_default')
+    const route = i18n.switchLocaleRoute('de', 'en', at('/de//evil.example?x=1#y')) as RouteLike
+    expect(route).toEqual({ path: '/evil.example', fullPath: '/evil.example?x=1#y', query: { x: '1' }, hash: '#y' })
+    expect(i18n.localeRoute('en', '/de//evil.example').name).toBeUndefined()
+  })
+
+  test('an unlocalized catch-all stays on the page, not on the URL it was reached by', () => {
+    const { i18n, at } = setup('prefix_except_default', {}, LOCALES, { pages: UNLOCALIZED_CATCH_ALL, rules: { rest: false } })
+    expect(hosts(i18n.switchLocaleRoute('en', 'de', at('//evil.example')))).toEqual(['app.test', 'app.test'])
+  })
+
+  test('a link that is fine keeps its route', () => {
+    const { i18n, at } = setup('prefix')
+    expect(i18n.localeRoute('de', '/about')).toMatchObject({ name: 'localized-about-de', path: '/de/ueber-uns' })
+    expect(i18n.localeRoute('fr', '/de//evil.example').fullPath).toBe('/fr//evil.example')
+    const route = at('/de/ueber-uns')
+    expect(i18n.switchLocaleRoute('de', 'fr', route)).toMatchObject({ name: 'localized-about', params: { locale: 'fr' } })
+  })
+})
+
 describe('a page on the segment of a disabled locale', () => {
   const locales = [...LOCALES, { code: 'es', disabled: true }]
   const pages: NuxtPage[] = [...PAGES.slice(0, 2), { path: '/es', name: 'es-page', file: 'pages/es.vue' }]

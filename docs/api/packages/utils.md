@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-103 exports across 22 entry points.
+105 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -184,9 +184,11 @@ import { /* … */ } from '@i18n-micro/utils/locale-head'
 | `filterQuery` | function | `(url: string, whitelist: readonly string[]) => string` |
 | `joinBase` | function | `(base: string, path: string) => string` |
 | `LocaleHead` | interface | 3 members |
+| `LocaleHeadAlternateLink` | interface | 4 members |
 | `LocaleHeadAttrs` | interface | 3 members |
+| `LocaleHeadCanonicalLink` | interface | 3 members |
 | `LocaleHeadInput` | interface | 11 members |
-| `LocaleHeadLink` | interface | 4 members |
+| `LocaleHeadLink` | type | `LocaleHeadCanonicalLink \| LocaleHeadAlternateLink` |
 | `LocaleHeadMeta` | interface | 3 members |
 | `queryString` | function | `(query?: object \| null) => string` |
 
@@ -202,6 +204,18 @@ import { /* … */ } from '@i18n-micro/utils/locale-head'
 </details>
 
 <details>
+<summary><code>LocaleHeadAlternateLink</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string \| undefined` |
+| `href` | `string` |
+| `hreflang` | `string` |
+| `rel` | `"alternate"` |
+
+</details>
+
+<details>
 <summary><code>LocaleHeadAttrs</code> — 3 members</summary>
 
 | Member | Type |
@@ -209,6 +223,17 @@ import { /* … */ } from '@i18n-micro/utils/locale-head'
 | `[string]` | `string \| undefined` |
 | `dir?` | `"ltr" \| "rtl" \| "auto" \| undefined` |
 | `lang?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>LocaleHeadCanonicalLink</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `string \| undefined` |
+| `href` | `string` |
+| `rel` | `"canonical"` |
 
 </details>
 
@@ -230,8 +255,6 @@ import { /* … */ } from '@i18n-micro/utils/locale-head'
 | `xDefault?` | `string \| undefined` |
 
 </details>
-
-<code>LocaleHeadLink</code> — 4 members, identical to [`I18nHeadLink`](/api/packages/types).
 
 <details>
 <summary><code>LocaleHeadMeta</code> — 3 members</summary>

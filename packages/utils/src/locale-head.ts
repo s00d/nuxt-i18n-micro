@@ -3,12 +3,21 @@ import { trimTrailingSlashes } from './app-path'
 import { resolveHreflangAlternates } from './resolve-hreflang'
 import { resolveOgLocale, warnUnresolvedOgLocale } from './resolve-og-locale'
 
-export interface LocaleHeadLink {
+export interface LocaleHeadCanonicalLink {
   [key: string]: string | undefined
-  rel: string
+  rel: 'canonical'
   href: string
-  hreflang?: string
 }
+
+export interface LocaleHeadAlternateLink {
+  [key: string]: string | undefined
+  rel: 'alternate'
+  href: string
+  hreflang: string
+}
+
+/** One type per `rel`, as in unhead: its `useHead` takes no link with a plain `rel: string`. */
+export type LocaleHeadLink = LocaleHeadCanonicalLink | LocaleHeadAlternateLink
 
 export interface LocaleHeadMeta {
   [key: string]: string

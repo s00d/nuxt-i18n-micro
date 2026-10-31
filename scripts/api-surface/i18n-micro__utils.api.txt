@@ -76,10 +76,19 @@ interface LocaleHead
 member LocaleHead.htmlAttrs: LocaleHeadAttrs
 member LocaleHead.link: LocaleHeadLink[]
 member LocaleHead.meta: LocaleHeadMeta[]
+interface LocaleHeadAlternateLink
+member LocaleHeadAlternateLink.href: string
+member LocaleHeadAlternateLink.hreflang: string
+member LocaleHeadAlternateLink.rel: "alternate"
+member LocaleHeadAlternateLink.[string]: string | undefined
 interface LocaleHeadAttrs
 member LocaleHeadAttrs.dir?: "ltr" | "rtl" | "auto" | undefined
 member LocaleHeadAttrs.lang?: string | undefined
 member LocaleHeadAttrs.[string]: string | undefined
+interface LocaleHeadCanonicalLink
+member LocaleHeadCanonicalLink.href: string
+member LocaleHeadCanonicalLink.rel: "canonical"
+member LocaleHeadCanonicalLink.[string]: string | undefined
 interface LocaleHeadInput
 member LocaleHeadInput.addDirAttribute?: boolean | undefined
 member LocaleHeadInput.addSeoAttributes?: boolean | undefined
@@ -92,11 +101,7 @@ member LocaleHeadInput.locale: Locale
 member LocaleHeadInput.missingWarn?: boolean | undefined
 member LocaleHeadInput.seoLocales: Locale[]
 member LocaleHeadInput.xDefault?: string | undefined
-interface LocaleHeadLink
-member LocaleHeadLink.href: string
-member LocaleHeadLink.hreflang?: string | undefined
-member LocaleHeadLink.rel: string
-member LocaleHeadLink.[string]: string | undefined
+type LocaleHeadLink: LocaleHeadCanonicalLink | LocaleHeadAlternateLink
 interface LocaleHeadMeta
 member LocaleHeadMeta.content: string
 member LocaleHeadMeta.property: string

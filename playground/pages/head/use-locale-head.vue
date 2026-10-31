@@ -5,8 +5,7 @@ const { metaObject, updateMeta, build } = useLocaleHead({
   identifierAttribute: 'id',
   baseUrl: 'https://bench.example',
 })
-// the cast: the docs' plain `useHead(metaObject)` does not typecheck against unhead 3
-useHead(metaObject as Parameters<typeof useHead>[0])
+useHead(metaObject)
 const built = computed(() => build())
 </script>
 

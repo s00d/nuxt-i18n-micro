@@ -22,6 +22,7 @@ createServer((req, res) => {
   const file = hit ?? [join(dir, '200.html'), join(dir, '404.html')].find(isFile)
   if (!file) return res.writeHead(404).end('not found')
   const status = hit || file.endsWith('200.html') ? 200 : 404
-  res.writeHead(status, { 'content-type': types[extname(file)] ?? 'application/octet-stream' })
+  // a CDN that serves another origin has to allow it: `cdn` fetches from here
+  res.writeHead(status, { 'content-type': types[extname(file)] ?? 'application/octet-stream', 'access-control-allow-origin': '*' })
   createReadStream(file).pipe(res)
 }).listen(Number(port), '127.0.0.1', () => console.log(`static ${dir} on http://127.0.0.1:${port}${base}`))

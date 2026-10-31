@@ -60,11 +60,12 @@ describe('journey: one build, two domains — prefix_except_default', () => {
   })
 
   test('an unchecked absolute $localeRoute is no way off the origin, in a link or in the router', async ({ page, baseURL }) => {
-    const { html } = await onHost(baseURL, '/named', COM)
+    const { html } = await onHost(baseURL, '/named?unchecked', COM)
+    expect(html).toContain('id="unchecked-link"')
     expect(html).not.toMatch(/href="https:\/\/evil\.example/)
 
     await routeDomains(page, baseURL)
-    await page.goto('https://example.com/named')
+    await page.goto('https://example.com/named?unchecked')
     await expect(page.locator('#unchecked-link')).not.toHaveAttribute('href', /^https:/)
     await expect(page.locator('#unchecked-i18n-link')).not.toHaveAttribute('href', /^https:/)
     await page.locator('#unchecked-link').click()

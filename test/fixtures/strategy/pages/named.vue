@@ -37,7 +37,10 @@ function navigateBrokenDefaultNuxtPageNaming() {
     <!-- the two supported forms of a link to another domain, and an unchecked value in each -->
     <i18n-link id="route-link-de" :to="$localeRoute('/contact', 'de')"> Contact in German </i18n-link>
     <NuxtLink id="path-link-de" :to="$localePath('/contact', 'de')"> Contact in German </NuxtLink>
-    <i18n-link id="unchecked-i18n-link" :to="$localeRoute('https://evil.example/x')"> Unchecked </i18n-link>
-    <NuxtLink id="unchecked-link" :to="$localeRoute('https://evil.example/x')"> Unchecked </NuxtLink>
+    <!-- on demand: `nuxi generate` crawls this page and would fail on these 404 links -->
+    <template v-if="$route.query.unchecked !== undefined">
+      <i18n-link id="unchecked-i18n-link" :to="$localeRoute('https://evil.example/x')"> Unchecked </i18n-link>
+      <NuxtLink id="unchecked-link" :to="$localeRoute('https://evil.example/x')"> Unchecked </NuxtLink>
+    </template>
   </div>
 </template>

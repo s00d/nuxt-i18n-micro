@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 64 members |
+| `PreactI18n` | class | 65 members |
 | `PreactI18nOptions` | interface | 13 members |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
@@ -1108,7 +1108,7 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 64 members</summary>
+<summary><code>PreactI18n</code> — 65 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1151,6 +1151,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |

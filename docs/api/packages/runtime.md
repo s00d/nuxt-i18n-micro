@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 64 members |
+| `I18n` | class | 65 members |
 | `I18nOptions` | interface | 13 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
@@ -39,7 +39,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 64 members</summary>
+<summary><code>I18n</code> — 65 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -82,6 +82,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private () => void` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |

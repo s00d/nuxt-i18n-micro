@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `RouteTarget` | type | `string \| { path?: string; }` |
-| `SolidI18n` | class | 70 members |
+| `SolidI18n` | class | 71 members |
 | `SolidI18nOptions` | type | `I18nOptions` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -1532,7 +1532,7 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 51 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 70 members</summary>
+<summary><code>SolidI18n</code> — 71 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1578,6 +1578,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): SolidI18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |

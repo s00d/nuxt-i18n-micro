@@ -2011,6 +2011,7 @@ member SolidI18n.lookupLocale: private any
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.onTranslationsChanged: protected (locale?: string) => void
+member SolidI18n.ownLocaleIso: private any
 member SolidI18n.ownsFormatter: private any
 member SolidI18n.ownStore: protected ReactiveI18nStore
 member SolidI18n.pluralFunc: PluralFunc

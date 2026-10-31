@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 70 members |
+| `AstroI18n` | class | 71 members |
 | `AstroI18nOptions` | type | `I18nOptions` |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 70 members</summary>
+<summary><code>AstroI18n</code> — 71 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -102,6 +102,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): AstroI18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |

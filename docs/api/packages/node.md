@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 71 members |
+| `I18n` | class | 72 members |
 | `I18nOptions` | interface | 15 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -38,7 +38,7 @@ import { /* … */ } from '@i18n-micro/node'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 71 members</summary>
+<summary><code>I18n</code> — 72 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -84,6 +84,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected (locale?: string) => void` |
+| `ownLocaleIso` | `private any` |
 | `ownsFormatter` | `private any` |
 | `ownStore` | `protected ReactiveI18nStore` |
 | `pluralFunc` | `PluralFunc` |

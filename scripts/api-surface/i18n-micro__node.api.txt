@@ -66,6 +66,7 @@ member I18n.lookupLocale: private any
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.onTranslationsChanged: protected (locale?: string) => void
+member I18n.ownLocaleIso: private any
 member I18n.ownsFormatter: private any
 member I18n.ownStore: protected ReactiveI18nStore
 member I18n.pluralFunc: PluralFunc

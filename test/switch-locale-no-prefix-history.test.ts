@@ -189,8 +189,16 @@ describe('links from the plugin', () => {
       trailingSlash: 'append',
       switched: { name: 'about', path: '/de/about', fullPath: '/de/about?q=1' },
     })
-    expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ name: 'about', path: '/de/about/', fullPath: '/de/about/?q=1' }))
+    expect(provide.switchLocaleRoute('es')).toEqual(expect.objectContaining({ path: '/de/about/', fullPath: '/de/about/?q=1' }))
     expect(provide.switchLocalePath('es')).toBe('/de/about/?q=1')
+  })
+
+  test('that route object is plain: its path, nothing hidden, the same after a copy', () => {
+    const switched = { name: 'blog', params: { slug: 'a b' }, query: { q: '1' }, hash: '', path: '/de/a%20b', fullPath: '/de/a%20b?q=1' }
+    const { provide } = makeApi('prefix', true, { trailingSlash: 'append', switched })
+    const route = provide.switchLocaleRoute('es') as Record<string, unknown>
+    expect(Object.getOwnPropertyNames(route).sort()).toEqual(['fullPath', 'hash', 'path', 'query'])
+    expect(JSON.parse(JSON.stringify(route))).toEqual({ path: '/de/a%20b/', fullPath: '/de/a%20b/?q=1', query: { q: '1' }, hash: '' })
   })
 
   test('a push of that route object keeps the slash', async () => {

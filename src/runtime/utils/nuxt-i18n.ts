@@ -48,16 +48,16 @@ interface LocaleRouteResult {
 }
 
 /**
- * The strategy's result as a resolved location. `name` and `params` are kept as they came: NuxtLink and
- * router.push resolve a named location with a Map lookup instead of matching the path, and the
- * strategy hides them from the router when only the path gives the right URL.
+ * The strategy's result as a resolved location. `name` and `params` are kept: NuxtLink and
+ * router.push resolve a named location with a Map lookup instead of matching the path.
+ * A route the strategy left without them goes by its path.
  */
 function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
   const fullPath = result.fullPath ?? result.path ?? ''
   const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
   const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
-  if (result.name) Object.defineProperty(out, 'name', Object.getOwnPropertyDescriptor(result, 'name')!)
-  if (result.params && Object.keys(result.params).length) Object.defineProperty(out, 'params', Object.getOwnPropertyDescriptor(result, 'params')!)
+  if (result.name) out.name = result.name
+  if (result.params && Object.keys(result.params).length) out.params = result.params
   if (result.query && Object.keys(result.query).length) out.query = result.query
   if (result.hash) out.hash = result.hash
   return out as unknown as RouteLocationResolved
@@ -676,10 +676,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const route = linkRoute()
       const switched = i18nStrategy.switchLocaleRoute(getCurrentLocale(route), toLocale, route, { i18nRouteParams: i18nRouteParams.value })
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
+      // the path alone: by name the router rebuilds the URL without the slash
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-      // `name` is readable but not enumerable: `router.resolve` copies the rest and goes by `path`, the form that keeps the slash
-      const { name, ...rest } = switched
-      return Object.defineProperty({ ...rest, fullPath, path: fullPath.split(/[?#]/)[0] }, 'name', { value: name }) as RouteLocationRaw
+      return { path: fullPath.split(/[?#]/)[0], fullPath, query: switched.query, hash: switched.hash } as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

@@ -6,6 +6,7 @@ import { RouteGenerator } from '@i18n-micro/route-strategy'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
+import { reactive, readonly, ref, shallowRef } from 'vue'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
 import { createPathStrategy, DomainPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
 
@@ -156,9 +157,7 @@ describe('a route object in the router gives the URL of its path', () => {
     const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug } })
     const url = `/fr/blog/${ENCODED(slug)}`
     expect(route.fullPath).toBe(url)
-    expect(route.params).toMatchObject({ slug })
-    expect(route.name).toBe('localized-blog-slug')
-    expect(router.resolve(route as never)).toMatchObject({ fullPath: url, path: url, name: route.name, params: { locale: 'fr', slug } })
+    expect(router.resolve(route as never)).toMatchObject({ fullPath: url, path: url, name: 'localized-blog-slug', params: { locale: 'fr', slug } })
     await router.push(route as never)
     // what a reload reads from the address bar
     const reload = router.resolve(router.currentRoute.value.fullPath)
@@ -191,6 +190,95 @@ describe('a route object in the router gives the URL of its path', () => {
     expect(router.resolve(none as never).fullPath).toBe('/de/shop')
     const custom = i18n.localeRoute('de', { name: 'n-id', params: { id: '42' } })
     expect(router.resolve(custom as never).fullPath).toBe('/de/n/42')
+  })
+
+  // Whatever an app does with the object: same URL, no throw. Vue's proxies are why nothing on it may be read-only.
+  const COPIES: Record<string, <T extends object>(route: T) => T> = {
+    'as it is': (route) => route,
+    spread: (route) => ({ ...route }),
+    JSON: (route) => JSON.parse(JSON.stringify(route)),
+    structuredClone: (route) => structuredClone(route),
+    ref: (route) => ref(route).value as never,
+    shallowRef: (route) => shallowRef(route).value as never,
+    reactive: (route) => reactive(route) as never,
+    readonly: (route) => readonly(route) as never,
+  }
+
+  describe.each(Object.keys(COPIES))('%s', (kind) => {
+    const copy = COPIES[kind]!
+
+    test.each(['plain', 'a b', 'a/b', 'новости'])('%s', async (slug) => {
+      const { router, i18n } = setup('prefix_except_default')
+      const original = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug }, query: { q: 'x y' }, hash: '#top' })
+      const route = copy(original)
+      const url = `/fr/blog/${ENCODED(slug)}?q=x+y#top`
+      expect(router.resolve(route as never)).toMatchObject({ fullPath: url, params: { locale: 'fr', slug }, query: { q: 'x y' }, hash: '#top' })
+      await router.push(route as never)
+      expect(router.currentRoute.value.fullPath).toBe(url)
+      // back through the strategy, as `$localePath(to)` and `$switchRoute(to)` read it
+      expect(i18n.localeRoute('de', route).fullPath).toBe(`/de/artikel/${ENCODED(slug)}?q=x+y#top`)
+      expect((i18n.switchLocaleRoute('fr', 'de', route as never) as RouteLike).fullPath).toBe(`/de/artikel/${ENCODED(slug)}?q=x+y#top`)
+    })
+  })
+
+  test('a route is a plain object: every property is an ordinary one, so a copy equals it', () => {
+    const { i18n, at } = setup('prefix_except_default')
+    const routes = ['plain', 'a b/c'].flatMap((slug) => [
+      i18n.localeRoute('fr', { name: 'blog-slug', params: { slug } }),
+      i18n.switchLocaleRoute('en', 'fr', at(`/blog/${ENCODED(slug)}`)) as RouteLike,
+    ])
+    for (const route of routes) {
+      for (const descriptor of Object.values(Object.getOwnPropertyDescriptors(route))) {
+        expect(descriptor).toMatchObject({ enumerable: true, writable: true, configurable: true })
+      }
+      expect({ ...route }).toEqual(route)
+      expect(JSON.parse(JSON.stringify(route))).toEqual(JSON.parse(JSON.stringify({ ...route })))
+    }
+  })
+
+  test('a path-form route: no name or params beside the path, the same however it came', () => {
+    const { i18n, at } = setup('prefix_except_default')
+    const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'a b' }, query: { q: '1' }, hash: '#top' })
+    expect(route).toEqual({ path: '/fr/blog/a%20b', fullPath: '/fr/blog/a%20b?q=1#top', query: { q: '1' }, hash: '#top' })
+    expect(i18n.localeRoute('fr', '/blog/a%20b?q=1#top')).toEqual(route)
+    expect(i18n.switchLocaleRoute('en', 'fr', at('/blog/a%20b?q=1#top'))).toEqual(route)
+  })
+
+  test('a spread keeps what it changes: a new query or hash, through every reader', () => {
+    const { router, i18n } = setup('prefix_except_default')
+    for (const slug of ['plain', 'a b/c']) {
+      const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug } })
+      const changed = { ...route, query: { x: '1' }, hash: '#h' }
+      const fr = `/fr/blog/${ENCODED(slug)}?x=1#h`
+      const de = `/de/artikel/${ENCODED(slug)}?x=1#h`
+      expect(router.resolve(changed as never).fullPath).toBe(fr)
+      expect(i18n.localeRoute('de', changed).fullPath).toBe(de)
+      expect((i18n.switchLocaleRoute('fr', 'de', changed as never) as RouteLike).fullPath).toBe(de)
+    }
+  })
+
+  test('new params on a spread: a named route takes them, a path-form route keeps its path', () => {
+    const { router, i18n } = setup('prefix_except_default')
+    const named = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'plain' } })
+    expect(router.resolve({ ...named, params: { locale: 'fr', slug: 'other' } } as never).fullPath).toBe('/fr/blog/other')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    onTestFinished(() => warn.mockRestore())
+    const escaped = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'a b' } })
+    expect(router.resolve({ ...escaped, params: { locale: 'fr', slug: 'other' } } as never).fullPath).toBe('/fr/blog/a%20b')
+    expect(i18n.localeRoute('de', { ...escaped, params: { slug: 'other' } }).fullPath).toBe('/de/artikel/a%20b')
+  })
+
+  test('a route with a trailing slash goes back through the strategy, from any page', () => {
+    const { i18n } = setup('prefix_except_default')
+    const route = { path: '/fr/blog/a%20b%2Fc/', fullPath: '/fr/blog/a%20b%2Fc/' }
+    expect((i18n.switchLocaleRoute('fr', 'de', route as never) as RouteLike).fullPath).toBe('/de/artikel/a%20b%2Fc')
+  })
+
+  test('per-locale params reach a path-form route', () => {
+    const { i18n } = setup('prefix_except_default')
+    const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'a b' } })
+    const switched = i18n.switchLocaleRoute('fr', 'de', route as never, { i18nRouteParams: { de: { slug: 'c d' } } })
+    expect((switched as RouteLike).fullPath).toBe('/de/artikel/c%20d')
   })
 
   test('a plain URL keeps `name` for the router: a lookup, not a walk over the records', () => {

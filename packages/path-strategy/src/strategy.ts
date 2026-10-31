@@ -120,13 +120,14 @@ function isPlainPath(url: string): boolean {
 
 /**
  * The router encodes `params` only for a location without `path`, yet goes by `name` when it has one: a `name` beside the
- * decoded params of `/a%2Fb` would give `/a/b`. A `%` means a param needed escaping, so that route goes by its path, the
- * URL a reload reads, and `name` and `params` stay readable but out of the router's copy. Any other route keeps `name`.
+ * decoded params of `/a%2Fb` would give `/a/b`. A `%` means a param needed escaping, so that route is its path alone, the
+ * URL a reload reads. Any other route keeps `name`.
+ * ponytail: such a link matches the path, 25-50 us at 1000 records against 2.5 us by name; a Map of static prefixes if sites with non-ASCII slugs feel it
  */
 function byPath<T extends RouteLike | string>(route: T): T {
   if (typeof route === 'string' || !route.name || !route.path?.includes('%')) return route
-  const { name, params, ...location } = route as RouteLike
-  return Object.defineProperties(location, { name: { value: name }, params: { value: params } }) as T
+  const { path, fullPath, query, hash } = route as RouteLike
+  return { path, fullPath, query, hash } as T
 }
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
@@ -350,16 +351,28 @@ export class I18nPathStrategy {
     if (this.disabledCodes.has(toLocale)) return route
     const name = named(route.name)
     const base = name ? this.baseOf(name) : null
-    if (!base) {
-      // an unlocalized page stays; an unmatched URL (a 404 page) becomes that URL in `toLocale`'s form
-      // a URL no record matches: a route with a name, or matched records (an unnamed parent), stays
-      const url = route.fullPath || route.path
-      if (route.name || route.matched?.length || !url) return route
-      const target = this.localeRoute(toLocale, url)
-      return target.path && /^https?:\/\//.test(target.path) ? target.path : target
-    }
-    const params = { ...route.params, ...options.i18nRouteParams?.[toLocale] }
-    const target = this.routeTo(toLocale, base, params, route.query, route.hash)
+    if (base) return this.switchedPage(toLocale, base, route.params, route, options)
+    // an unlocalized page stays; a route with a name, or matched records (an unnamed parent), stays
+    const url = route.fullPath || route.path
+    if (route.name || route.matched?.length || !url) return route
+    // a URL: a path-form route or a 404 page. Its own query and hash are what a spread changed, `fullPath` still has the old ones
+    const { path, ...written } = splitUrl(url)
+    const query = route.query ?? written.query
+    const hash = route.hash ?? written.hash
+    const page = this.findPage(path)
+    if (page && page !== UNLOCALIZED) return this.switchedPage(toLocale, page.base, page.params, { query, hash }, options)
+    const target = this.localeRoute(toLocale, { path: sameOrigin(path), query, hash })
+    return target.path && /^https?:\/\//.test(target.path) ? target.path : target
+  }
+
+  private switchedPage(
+    toLocale: string,
+    base: string,
+    params: RouteLike['params'],
+    route: RouteLike,
+    options: SwitchLocaleOptions,
+  ): RouteLike | string {
+    const target = this.routeTo(toLocale, base, { ...params, ...options.i18nRouteParams?.[toLocale] }, route.query, route.hash)
     const resolved = target ?? this.home(toLocale)
     return this.external(toLocale, resolved) ?? resolved
   }

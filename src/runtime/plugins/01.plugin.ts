@@ -39,7 +39,7 @@ import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader,
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
-import { translationStorage } from '../utils/storage'
+import { type LoadOptions, translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -133,7 +133,7 @@ export default defineNuxtPlugin({
     }
     nuxtApp.hook('page:finish', () => finishWhenGone(i18n.outgoing))
 
-    const loadOptions = {
+    const loadOptions: LoadOptions = {
       apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
       baseURL: runtimeConfig.app.baseURL,
       apiBaseClientHost: i18nConfig.apiBaseClientHost,
@@ -141,6 +141,7 @@ export default defineNuxtPlugin({
       routesLocaleLinks: i18nConfig.routesLocaleLinks,
       serverLoad: import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.load : undefined,
     }
+    if (import.meta.server) loadOptions.serverLoadsRemote = nuxtApp.ssrContext?.event?.context?.i18n?.loadsRemote
 
     // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
     // Server loads into memory for SSR; client loads via /_locales in switchContext below.

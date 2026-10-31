@@ -183,6 +183,8 @@ function buildPrivateConfig(
     apiBaseClientHost: apiConfig.apiBaseClientHost,
     apiBaseServerHost: apiConfig.apiBaseServerHost,
     serverTranslationPreload: options.serverTranslationPreload ?? false,
+    cacheStorage: options.cacheStorage,
+    cacheStorageBuild: nuxt.options.buildId,
     payloadFsDir,
     payloadPublicRel,
   }
@@ -650,6 +652,8 @@ declare module 'h3' {
       translations: Translations
       /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
       load?: (locale: string, routeName: string) => Promise<Translations>
+      /** \`load\` reaches the remote host too, through \`cacheStorage\`: the render must not fetch around it. */
+      loadsRemote?: boolean
       /** The module config with runtime overrides, resolved once for this request. */
       config?: ModuleOptionsExtend
     }

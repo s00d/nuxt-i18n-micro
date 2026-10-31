@@ -30,6 +30,8 @@ const appOnly = (file: string) => ({
 
 const variants: Record<Variant, Record<string, unknown>> = {
   basic: {
+    // shared-cache.e2e.test.ts: a storage two server processes share
+    ...(process.env.CACHE_STORAGE_DIR ? { nitro: { storage: { shared: { driver: 'fs', base: process.env.CACHE_STORAGE_DIR } } } } : {}),
     i18n: {
       debug: true,
       // Deterministic cache-busting value for tests.
@@ -48,6 +50,7 @@ const variants: Record<Variant, Record<string, unknown>> = {
       routeDisableMeta: { 'disable-meta-config': true },
       // storage-cwd.e2e.test.ts: payloads served by the handler only, never prerendered
       ...(process.env.PRERENDER_PAYLOADS === '0' ? { translationPayloads: { prerenderRoutes: false } } : {}),
+      ...(process.env.CACHE_STORAGE_DIR ? { cacheStorage: 'shared' } : {}),
       routesLocaleLinks: {
         'dir1-slug': 'index',
         'post-id-status-section': 'post-id',

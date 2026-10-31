@@ -3,6 +3,7 @@
  * - Node: JSON from public locales dir (`#i18n-internal/payload-source` → fs)
  * - Edge: Nitro `serverAssets` (`assets:i18n`)
  * - Dev: live locale files on every read (no cache to go stale on edits)
+ * - `cacheStorage`: a storage mount shared by instances, between the LRU and the above
  * `premerged` reads one file; `source` merges root+page+fallback at runtime.
  *
  * Bounded: entries live in one LRU cache, concurrent loads of a chunk share one read, and in
@@ -22,6 +23,7 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { loadLiveDevTranslations } from './dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from './server-translation-cache'
+import { readSharedChunk, sharedChunkKey, writeSharedChunk } from './shared-cache'
 import { toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
@@ -33,7 +35,7 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const page = resolveTranslationPayloadPage(routeName, config.routesLocaleLinks || {})
   // dev reads live files, unless the payloads come from an external host
   if (import.meta.dev && !getI18nPrivateConfig().apiBaseServerHost) return toEntry(await loadLiveDevTranslations(locale, page, config))
-  return cached(`${locale}:${page}`, () => load(locale, page, config))
+  return cached(`${locale}:${page}`, () => readChunk(locale, page, config))
 }
 
 /** A loaded chunk, or one shared with another key (then not stored under this one). */
@@ -57,6 +59,32 @@ function cached(key: string, read: () => Promise<Loaded>): Promise<ServerTransla
     .finally(() => pending.delete(key))
   pending.set(key, promise)
   return promise
+}
+
+const rootChunk = (locale: string, config: ModuleOptionsExtend) =>
+  cached(`${locale}:${PREMERGED_ROOT_PAGE}`, () => readChunk(locale, PREMERGED_ROOT_PAGE, config))
+
+/** What the local level misses comes here: the source, behind the shared layer when one is on. */
+function readChunk(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
+  const key = sharedChunkKey(locale, page, config)
+  return key ? readThroughShared(key, locale, page, config) : load(locale, page, config)
+}
+
+async function readThroughShared(key: string, locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
+  const hit = await readSharedChunk(key)
+  if (hit) return { entry: hit }
+  const { entry, shared } = await load(locale, page, config)
+  // kept locally even when it is the root entry: a page with no folder must not pay a storage round trip per request
+  if (shared) return { entry }
+  const json = JSON.stringify(entry.data)
+  // `{}` is how a failed remote fetch looks: one bad answer must not reach every instance
+  if (json === '{}') return { entry }
+  const root = page === PREMERGED_ROOT_PAGE ? null : await rootChunk(locale, config)
+  // no page of its own, whatever the name: `source` and a remote host answer made-up pages with
+  // the root, and those names must not become keys
+  if (root && JSON.stringify(root.data) === json) return { entry: root }
+  await writeSharedChunk(key, json, config)
+  return { entry }
 }
 
 async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
@@ -88,8 +116,5 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
   // and it shares the root entry (made-up page names cannot add entries)
   const own = toTranslations(await readPayload(toPremergedStorageKey(page, locale)))
   if (Object.keys(own).length || page === PREMERGED_ROOT_PAGE) return { entry: toEntry(own) }
-  const root = await cached(`${locale}:${PREMERGED_ROOT_PAGE}`, async () => ({
-    entry: toEntry(toTranslations(await readPayload(toPremergedStorageKey(PREMERGED_ROOT_PAGE, locale)))),
-  }))
-  return { entry: root, shared: true }
+  return { entry: await rootChunk(locale, config), shared: true }
 }

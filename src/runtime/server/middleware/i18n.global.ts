@@ -26,9 +26,10 @@ export default defineEventHandler(async (event) => {
   if (config.hashMode && config.strategy === 'prefix' && path === '/') event.context.nuxt = { ...event.context.nuxt, noSSR: true }
 
   const locale = detectRequestLocale(event, config, 'page', path)
+  const { cacheStorage, apiBaseServerHost, serverTranslationPreload } = getI18nPrivateConfig()
 
   let translations = {}
-  if (getI18nPrivateConfig().serverTranslationPreload) {
+  if (serverTranslationPreload) {
     try {
       const loaded = await loadTranslationsFromServer(locale, 'index')
       translations = loaded.data
@@ -42,6 +43,7 @@ export default defineEventHandler(async (event) => {
     translations,
     // the page render loads its chunks through this, not through a local fetch of /_locales
     load: async (chunkLocale: string, routeName: string) => (await loadTranslationsFromServer(chunkLocale, routeName)).data,
+    loadsRemote: Boolean(cacheStorage && apiBaseServerHost),
     // the render reuses this request's resolved config (runtime overrides applied once)
     config,
   }

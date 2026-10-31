@@ -48,15 +48,16 @@ interface LocaleRouteResult {
 }
 
 /**
- * The strategy's result as a resolved location. `name` and `params` are kept: NuxtLink and
- * router.push resolve a named location with a Map lookup instead of matching the path.
+ * The strategy's result as a resolved location. `name` and `params` are kept as they came: NuxtLink and
+ * router.push resolve a named location with a Map lookup instead of matching the path, and the
+ * strategy hides them from the router when only the path gives the right URL.
  */
 function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
   const fullPath = result.fullPath ?? result.path ?? ''
   const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
   const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
-  if (result.name) out.name = result.name
-  if (result.params && Object.keys(result.params).length) out.params = result.params
+  if (result.name) Object.defineProperty(out, 'name', Object.getOwnPropertyDescriptor(result, 'name')!)
+  if (result.params && Object.keys(result.params).length) Object.defineProperty(out, 'params', Object.getOwnPropertyDescriptor(result, 'params')!)
   if (result.query && Object.keys(result.query).length) out.query = result.query
   if (result.hash) out.hash = result.hash
   return out as unknown as RouteLocationResolved

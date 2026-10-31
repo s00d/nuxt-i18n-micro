@@ -118,6 +118,17 @@ function isPlainPath(url: string): boolean {
   return url.charCodeAt(0) === 47 && second >= 48 && second !== 92
 }
 
+/**
+ * The router encodes `params` only for a location without `path`, yet goes by `name` when it has one: a `name` beside the
+ * decoded params of `/a%2Fb` would give `/a/b`. A `%` means a param needed escaping, so that route goes by its path, the
+ * URL a reload reads, and `name` and `params` stay readable but out of the router's copy. Any other route keeps `name`.
+ */
+function byPath<T extends RouteLike | string>(route: T): T {
+  if (typeof route === 'string' || !route.name || !route.path?.includes('%')) return route
+  const { name, params, ...location } = route as RouteLike
+  return Object.defineProperties(location, { name: { value: name }, params: { value: params } }) as T
+}
+
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
 
 export class I18nPathStrategy {
@@ -309,7 +320,7 @@ export class I18nPathStrategy {
     let target = complete ? cache.get(cacheKey) : undefined
     if (target === undefined) {
       const route = this.resolve({ name, params: own, query, hash })
-      // name + every param: router.push / NuxtLink resolve it by name (a Map lookup), not by matching the path
+      // name + every param: router.push / NuxtLink resolve it by name (a Map lookup), not by matching the path (see `byPath`)
       target = route ? { name, params: route.params, path: route.path, fullPath: route.fullPath, query: route.query, hash: route.hash } : null
       if (complete) remember(cache, cacheKey, target)
     }
@@ -331,7 +342,7 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
-    return onOrigin(this.switched(fromLocale, toLocale, route, options))
+    return byPath(onOrigin(this.switched(fromLocale, toLocale, route, options)))
   }
 
   private switched(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
@@ -361,7 +372,7 @@ export class I18nPathStrategy {
   }
 
   localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
-    return onOrigin(this.localized(locale, routeOrPath))
+    return byPath(onOrigin(this.localized(locale, routeOrPath)))
   }
 
   private localized(locale: string, routeOrPath: RouteLike | string): RouteLike {

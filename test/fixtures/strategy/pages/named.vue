@@ -33,6 +33,7 @@ function navigateBrokenDefaultNuxtPageNaming() {
     <button id="link4" @click="navigateBrokenDefaultNuxtPageNaming">Navigate</button>
 
     <NuxtLink id="link6" :to="$localeRoute('/page/id-123')"> Navigate </NuxtLink>
+    <NuxtLink id="link-encoded" :to="$localeRoute({ name: 'echo-id', params: { id: 'a b/c' } })"> Escaped param </NuxtLink>
 
     <!-- the two supported forms of a link to another domain, and an unchecked value in each -->
     <i18n-link id="route-link-de" :to="$localeRoute('/contact', 'de')"> Contact in German </i18n-link>

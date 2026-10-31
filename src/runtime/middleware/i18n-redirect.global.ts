@@ -54,9 +54,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const preferred = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference)
 
   const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
-  if (target)
-    return navigateTo(
-      { path: applyTrailingSlash(target, i18nConfig.trailingSlash), query: to.query, hash: to.hash },
-      { replace: true, redirectCode: 302 },
-    )
+  // no `replace`: a redirect keeps the one its navigation came with, so a link adds its history entry and the first load adds none
+  if (target) return navigateTo({ path: applyTrailingSlash(target, i18nConfig.trailingSlash), query: to.query, hash: to.hash }, { redirectCode: 302 })
 })

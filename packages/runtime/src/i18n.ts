@@ -82,8 +82,11 @@ export class I18n extends BaseI18n {
       datetimeFormats: options.datetimeFormats,
       timeZone: options.timeZone,
       now: options.now,
-      localeIso: parent?.localeIso ?? options.localeIso,
+      localeIso: options.localeIso,
     })
+
+    // the map itself: `addLocaleIso` on the parent reaches its forks
+    if (parent) this.localeIso = parent.localeIso
 
     this.ownStore = createReactiveI18nStore({
       locale: options.locale,

@@ -30,7 +30,7 @@
 - `formatNumber(1234567.891, ja, {"minimumFractionDigits":2,"maximumFractionDigits":2})` → "1,234,567.89"
 - `formatNumber(1234567.891, ja, {"maximumFractionDigits":2,"minimumFractionDigits":2})` → "1,234,567.89"
 - `formatNumber(1234567.891, ja, {"notation":"compact"})` → "123万"
-- `formatNumber(1, "xx-invalid-??")` → throws RangeError: Incorrect locale information provided
+- `formatNumber(1, "xx-invalid-??")` → "1"
 - `formatNumber(1, "en", {style:"currency"})` → throws TypeError: Currency code is required with currency style.
 
 ## formatter cache
@@ -91,7 +91,7 @@
 
 - `past 0s (en)` → "in 0 seconds"
 - `future 0s (en)` → "in 0 seconds"
-- `past 0.4s (en)` → "in 0 seconds"
+- `past 0.4s (en)` → "0 seconds ago"
 - `future 0.4s (en)` → "in 0 seconds"
 - `past 1s (en)` → "1 second ago"
 - `future 1s (en)` → "in 1 second"

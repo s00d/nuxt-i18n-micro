@@ -1,4 +1,4 @@
-import { defaultPlural, FormatService, interpolate, ownValue, resolveTranslation } from '@i18n-micro/core'
+import { defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
 import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 
 /**
@@ -76,6 +76,8 @@ export const withLocale = (state: I18nState, locale: string): I18nState => ({
 
 const formatter = /*#__PURE__*/ new FormatService()
 
+const isoTag = (state: I18nState): string => state.pluralLocale ?? state.locale
+
 /** What every island adapter returns, over the state it reads at each call. */
 export function createIslandApi(getState: () => I18nState) {
   const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation =>
@@ -84,12 +86,12 @@ export function createIslandApi(getState: () => I18nState) {
   return {
     t,
     ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
-      t(key, params, defaultValue, routeName)?.toString() ?? defaultValue ?? (key as string),
+      textOf(t(key, params, defaultValue, routeName)) ?? defaultValue ?? (key as string),
     tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(getState(), key, count, defaultValue),
-    tn: (value: number, options?: Intl.NumberFormatOptions): string => formatter.formatNumber(value, getState().locale, options),
-    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => formatter.formatDate(value, getState().locale, options),
+    tn: (value: number, options?: Intl.NumberFormatOptions): string => formatter.formatNumber(value, isoTag(getState()), options),
+    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => formatter.formatDate(value, isoTag(getState()), options),
     tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string =>
-      formatter.formatRelativeTime(value, getState().locale, options),
+      formatter.formatRelativeTime(value, isoTag(getState()), options),
     has: (key: TranslationKey, routeName?: string): boolean => hasTranslation(getState(), key as string, routeName),
     getRoute: (): string => getState().currentRoute,
   }

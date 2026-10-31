@@ -1,3 +1,5 @@
+import { ownValue } from './tree'
+
 export type NumberFormatsConfig = Record<string, Record<string, Intl.NumberFormatOptions>>
 export type DateTimeFormatsConfig = Record<string, Record<string, Intl.DateTimeFormatOptions>>
 
@@ -51,14 +53,28 @@ function cached<F, O extends object>(cache: Map<string, F>, locale: string, opti
   return formatter
 }
 
-const newNumber = (locale: string, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(locale, options)
-const newDate = (locale: string, options?: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale, options)
-const newRelative = (locale: string, options?: Intl.RelativeTimeFormatOptions) => new Intl.RelativeTimeFormat(locale, options)
+/** A code `Intl` knows nothing of: fixed, because the host's locale would differ between server and browser. */
+const UNKNOWN_LOCALE_TAG = 'en'
+
+/** A locale code is free-form, `Intl` is not: `en_US` throws, and `ua` silently gets the host's locale. Runs per new formatter only. */
+function intlTag(locale: string): string {
+  const tag = locale.replace(/_/g, '-')
+  try {
+    return Intl.NumberFormat.supportedLocalesOf(tag).length > 0 ? tag : UNKNOWN_LOCALE_TAG
+  } catch {
+    return UNKNOWN_LOCALE_TAG
+  }
+}
+
+const newNumber = (locale: string, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(intlTag(locale), options)
+const newDate = (locale: string, options?: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(intlTag(locale), options)
+const newRelative = (locale: string, options?: Intl.RelativeTimeFormatOptions) => new Intl.RelativeTimeFormat(intlTag(locale), options)
 
 /** Named format: the locale, then each shorter tag (`zh-Hant-TW` → `zh-Hant` → `zh`). */
 function named<T>(formats: Record<string, Record<string, T>>, locale: string, key: string): T | undefined {
   for (let tag = locale; tag; tag = tag.slice(0, Math.max(tag.lastIndexOf('-'), 0))) {
-    const format = formats[tag]?.[key]
+    const inLocale = ownValue(formats, tag) as Record<string, T> | undefined
+    const format = inLocale && (ownValue(inLocale, key) as T | undefined)
     if (format !== undefined) return format
   }
   return undefined
@@ -147,7 +163,8 @@ export class FormatService {
     if (Number.isNaN(seconds)) return 'Invalid Date'
     const formatter = this.getRelativeTimeFormatter(locale, options)
     const size = Math.abs(seconds)
-    const unit = UNITS.find(([, length]) => size >= length)
-    return unit ? formatter.format(Math.sign(seconds) * Math.floor(size / unit[1]), unit[0]) : formatter.format(0, 'second')
+    const [unit, length] = UNITS.find(([, span]) => size >= span) ?? UNITS[UNITS.length - 1]!
+    // `-0` when under a second in the past: `0 seconds ago`, as `Intl` reads the sign of zero
+    return formatter.format(Math.sign(seconds) * Math.floor(size / length), unit)
   }
 }

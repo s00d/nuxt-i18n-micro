@@ -163,3 +163,16 @@ describe('forks of forks', () => {
     expect(child.t('later')).toBe('later')
   })
 })
+
+describe('fork and localeIso', () => {
+  test('rules added to the parent after the fork reach it, a caller\'s map stays as it was', () => {
+    const localeIso = {}
+    const parent = createI18n({ locale: 'ua', localeIso, messages: { ua: { k: '=0 н | о | н2 | м' } } })
+    const child = parent.fork()
+    parent.addLocaleIso({ ua: 'uk' })
+    expect(child.tc('k', 21)).toBe(parent.tc('k', 21))
+    expect(child.tc('k', 21)).toBe('о')
+    expect(localeIso).toEqual({})
+  })
+})
+

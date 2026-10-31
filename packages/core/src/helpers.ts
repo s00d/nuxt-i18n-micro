@@ -13,6 +13,7 @@ export {
   interpolate,
   pluralForm,
   resolveText,
+  textOf,
   tokenize,
   type ResolvedText,
   type ResolveTextOptions,

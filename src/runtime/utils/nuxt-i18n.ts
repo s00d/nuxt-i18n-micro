@@ -5,6 +5,7 @@ import {
   mergeTranslationChunk,
   resolveCachedTranslation,
   setTranslationAtKey,
+  textOf,
   translationCacheKey,
   type BaseI18nOptions,
   type TranslationStorage,
@@ -673,7 +674,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     t: i18n.t.bind(i18n),
     ts: (key: TranslationKey, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
       const value = route ? i18n.t(key, params, defaultValue, route) : i18n.ts(key, params, defaultValue)
-      return value?.toString() ?? defaultValue ?? key
+      return textOf(value) ?? defaultValue ?? key
     },
     _t: (route: RouteLocationNormalizedLoaded) => i18n.tForRoute(route),
     _ts: (route: RouteLocationNormalizedLoaded) => i18n.tsForRoute(route),

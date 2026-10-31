@@ -29,7 +29,8 @@ export function ownValue(obj: object, key: string): unknown {
 export function getByPath(obj: Tree | null | undefined, path: string): unknown {
   if (!obj || typeof path !== 'string' || path === '') return undefined
   const flat = ownValue(obj, path)
-  if (flat !== undefined || path.indexOf('.') === -1) return flat
+  // `null` means nothing there, in a flat key too: the nesting may still hold it
+  if ((flat !== undefined && flat !== null) || path.indexOf('.') === -1) return flat
   let node: unknown = obj
   for (const part of path.split('.')) {
     if (node === null || typeof node !== 'object' || (part === 'length' && Array.isArray(node))) return undefined
@@ -50,7 +51,8 @@ export function hasTranslationValue(obj: Tree | null | undefined, key: string): 
 
 /**
  * A copy of `tree` with `key` set to `value` (replaced, not merged). Only the nodes along the
- * path are copied; a non-object on the way becomes `{}`. An existing flat key is updated as is.
+ * path are copied; an array keeps its items when the next segment is an index (`list.1`, as
+ * `getByPath` reads it), and any other non-object on the way becomes `{}`. An existing flat key is updated as is.
  */
 export function setTranslationAtKey(tree: Tree, key: string, value: unknown): Tree {
   if (typeof key !== 'string' || key === '' || key === '__proto__') return tree
@@ -58,15 +60,19 @@ export function setTranslationAtKey(tree: Tree, key: string, value: unknown): Tr
   const path = key.split('.')
   if (path.includes('__proto__')) return tree
   const root: Tree = { ...tree }
-  const last = path.pop()!
   let node = root
-  for (const segment of path) {
-    const next: Tree = isTree(node[segment]) ? { ...(node[segment] as Tree) } : {}
-    node[segment] = next
+  for (let i = 0; i < path.length - 1; i++) {
+    const next = copyNode(node[path[i]!], path[i + 1]!)
+    node[path[i]!] = next
     node = next
   }
-  node[last] = value
+  node[path[path.length - 1]!] = value
   return root
+}
+
+function copyNode(node: unknown, nextSegment: string): Tree {
+  if (Array.isArray(node) && /^\d+$/.test(nextSegment)) return [...node] as unknown as Tree
+  return isTree(node) ? { ...node } : {}
 }
 
 export interface MergeTranslationChunkOptions {
@@ -75,35 +81,44 @@ export interface MergeTranslationChunkOptions {
 }
 
 /**
- * Deep merge of two trees into a new one; neither input is changed. Nested objects merge,
- * everything else (arrays, scalars, null) replaces. Only nodes on the patch's paths are copied.
+ * Deep merge of two trees into a new one; neither input is changed, and the result shares
+ * nothing with `incoming`. Nested objects merge, everything else (arrays, scalars, null) replaces.
+ * Of `existing`, only nodes on the patch's paths are copied.
  */
 export function mergeTranslationChunk(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions): Tree {
   // a copy: the result is a stored tree from now on, and the caller still owns `incoming`
-  if (Object.keys(existing).length === 0) return copyWithoutProto(incoming)
+  if (Object.keys(existing).length === 0) return copyValue(incoming, new WeakMap()) as Tree
   const owned = new WeakSet<object>()
   const root = own(existing, owned)
-  mergeInto(root, incoming, owned, options?.preserveExisting === true)
+  mergeInto(root, incoming, owned, options?.preserveExisting === true, new WeakMap())
   return root
 }
 
 /**
- * What `mergeInto` does to the keys of an empty target, at every level: `JSON.parse` makes
- * `__proto__` an own key, a merge never keeps it. Aliased nodes stay aliased, a cycle stays a cycle.
- * ponytail: copies every node of a chunk once on load (O(keys)), never on `t()`.
+ * A stored copy of a caller's value, at every level, arrays too: the caller still owns it, and the
+ * leaf cache must not disagree with its tree. `JSON.parse` makes `__proto__` an own key, a merge
+ * never keeps it. Aliased nodes stay aliased, a cycle stays a cycle.
+ * ponytail: copies every incoming node once on load (O(keys of the patch)), never on `t()`.
  */
-function copyWithoutProto(tree: Tree, copies = new WeakMap<object, Tree>()): Tree {
-  const known = copies.get(tree)
+function copyValue(value: unknown, copies: Copies): unknown {
+  if (value === null || typeof value !== 'object') return value
+  const known = copies.get(value)
   if (known) return known
+  if (Array.isArray(value)) {
+    const items: unknown[] = []
+    copies.set(value, items)
+    for (const item of value) items.push(copyValue(item, copies))
+    return items
+  }
   const copy: Tree = {}
-  copies.set(tree, copy)
-  for (const key of Object.keys(tree)) {
-    if (key === '__proto__') continue
-    const value = tree[key]
-    copy[key] = isTree(value) ? copyWithoutProto(value, copies) : value
+  copies.set(value, copy)
+  for (const key of Object.keys(value)) {
+    if (key !== '__proto__') copy[key] = copyValue((value as Tree)[key], copies)
   }
   return copy
 }
+
+type Copies = WeakMap<object, object>
 
 /** `node` if this merge already copied it, otherwise its copy (now owned). */
 function own(node: Tree, owned: WeakSet<object>): Tree {
@@ -114,26 +129,26 @@ function own(node: Tree, owned: WeakSet<object>): Tree {
 }
 
 /** Merges `source` into the owned `target`; a nested node not yet owned is copied before it is written. */
-function mergeInto(target: Tree, source: Tree, owned: WeakSet<object>, keepExisting: boolean): void {
+function mergeInto(target: Tree, source: Tree, owned: WeakSet<object>, keepExisting: boolean, copies: Copies): void {
   for (const key of Object.keys(source)) {
-    if (key !== '__proto__') target[key] = mergeValue(target, key, source[key], owned, keepExisting)
+    if (key !== '__proto__') target[key] = mergeValue(target, key, source[key], owned, keepExisting, copies)
   }
 }
 
-function mergeValue(target: Tree, key: string, incoming: unknown, owned: WeakSet<object>, keepExisting: boolean): unknown {
+function mergeValue(target: Tree, key: string, incoming: unknown, owned: WeakSet<object>, keepExisting: boolean, copies: Copies): unknown {
   const existing = target[key]
   if (isTree(existing) && isTree(incoming)) {
     const node = own(existing, owned)
-    mergeInto(node, incoming, owned, keepExisting)
+    mergeInto(node, incoming, owned, keepExisting, copies)
     return node
   }
-  return keepExisting && hasOwn(target, key) ? existing : incoming
+  return keepExisting && hasOwn(target, key) ? existing : copyValue(incoming, copies)
 }
 
 /**
  * Two live layers (`upper` wins) as one tree that answers every key `t()` answers through them.
- * A `null`/`undefined` in `upper` falls through. Where `upper` holds a scalar over an object
- * of `lower`, that object's leaves come back as flat dotted keys (`getByPath` reads them first).
+ * A `null`/`undefined` in `upper` falls through. Where `upper` replaces an object or an array of
+ * `lower`, its leaves come back as flat dotted keys (`getByPath` reads them first), but for the ones `upper` answers itself.
  */
 export function mergeTranslationLayers(lower: Tree, upper: Tree): Tree {
   const shadowed: Tree = {}
@@ -141,6 +156,9 @@ export function mergeTranslationLayers(lower: Tree, upper: Tree): Tree {
   // a flat key wins in `getByPath`: a lower one must not hide what `upper` answers through its nesting
   for (const key of Object.keys(lower)) {
     if (key.includes('.') && !hasOwn(upper, key) && hasTranslationValue(upper, key)) delete merged[key]
+  }
+  for (const key of Object.keys(shadowed)) {
+    if (hasTranslationValue(upper, key)) delete shadowed[key]
   }
   return Object.keys(shadowed).length === 0 ? merged : { ...merged, ...shadowed }
 }
@@ -165,11 +183,13 @@ function layer(lower: Tree, upper: Tree, prefix: string, shadowed: Tree, ancesto
 }
 
 function layerValue(below: unknown, above: unknown, path: string, shadowed: Tree, ancestors: Set<object>): unknown {
-  if (!isTree(below)) return above
-  if (isTree(above)) return layer(below, above, path, shadowed, ancestors)
-  flatten(below, path, shadowed, ancestors)
+  if (isTree(below) && isTree(above)) return layer(below, above, path, shadowed, ancestors)
+  if (isNode(below)) flatten(below, path, shadowed, ancestors)
   return above
 }
+
+/** A tree or an array: what the dotted walk goes through. */
+const isNode = (value: unknown): value is Tree => value !== null && typeof value === 'object'
 
 function flatten(node: Tree, prefix: string, out: Tree, ancestors: Set<object>): void {
   if (ancestors.has(node)) return
@@ -178,8 +198,9 @@ function flatten(node: Tree, prefix: string, out: Tree, ancestors: Set<object>):
     const value = node[key]
     const path = `${prefix}.${key}`
     if (key === '__proto__') continue
-    if (isTree(value)) flatten(value, path, out, ancestors)
-    else out[path] = value
+    // an array is a value of its own and a node of the walk
+    if (!isTree(value)) out[path] = value
+    if (isNode(value)) flatten(value, path, out, ancestors)
   }
   ancestors.delete(node)
 }

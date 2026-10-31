@@ -47,6 +47,12 @@ export function interpolate(template: string, params: Params): string {
 
 export const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, (char) => HTML_ENTITY[char]!)
 
+/** `String` of any translation: a subtree may have a `toString` key, which is no method. Nothing there: `undefined`. */
+export function textOf(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined
+  return typeof value.toString === 'function' ? value.toString() : Object.prototype.toString.call(value)
+}
+
 /** A copy of `params` safe inside markup: only the translation itself is trusted. */
 function escapeParams(params: Params): Params {
   const safe: Params = {}
@@ -211,6 +217,18 @@ export interface ResolvedText {
   params: Params
 }
 
+/** What `t` and `tc` are asked to answer on a miss: tells a miss from a translation equal to the key. */
+const MISSING = '\0'
+
+/** The key standing in for a translation. Under `html` it is text, not markup: only a translation is trusted, and a key can come from a request. */
+const keyText = (key: TranslationKey, html: boolean | undefined): string => (html ? escapeHtml(String(key)) : String(key))
+
+/** `i18n.t`, with a miss answered by `fallback`, else by {@link keyText}. */
+function lookup(i18n: TextHost, key: TranslationKey, params: Params | undefined, fallback: string | null | undefined, html?: boolean): CleanTranslation {
+  const value = i18n.t(key, params, fallback || MISSING)
+  return value === MISSING ? (keyText(key, html) as CleanTranslation) : value
+}
+
 /** `{ number }`, `{ date }` or `{ relativeDate }` formatted; the first one set wins. */
 function formattedParams(i18n: TextHost, options: ResolveTextOptions): Params | null {
   if (options.number !== undefined && options.number !== null) return { number: i18n.tn(Number(options.number)) }
@@ -220,17 +238,22 @@ function formattedParams(i18n: TextHost, options: ResolveTextOptions): Params | 
 }
 
 function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params): ResolvedText {
-  const { keypath, customPluralRule, defaultValue } = options
+  const { keypath, customPluralRule, defaultValue, html } = options
   const count = Number(options.plural)
   if (customPluralRule) {
-    const getter: Getter = (key, values, fallback) => i18n.t(key, values, fallback ?? defaultValue)
+    const getter: Getter = (key, values, fallback) => lookup(i18n, key, values, fallback ?? defaultValue, html)
     return { template: String(customPluralRule(keypath, count, params, i18n.getLocale(), getter) ?? ''), params: {} }
   }
-  if (i18n.pluralFunc !== defaultPlural) return { template: i18n.tc(keypath, { ...params, count }, defaultValue || undefined), params: {} }
-  // as `defaultPlural`: a tree or a boolean has no forms, so `tc` answers the key
-  const value = i18n.t(keypath, undefined, defaultValue)
-  const translation = typeof value === 'string' || typeof value === 'number' ? String(value) : keypath
-  return { template: pluralForm(translation, count, i18n.pluralLocale?.() ?? i18n.getLocale()), params: { ...params, count } }
+  if (i18n.pluralFunc !== defaultPlural) {
+    const text = i18n.tc(keypath, { ...params, count }, defaultValue || MISSING)
+    return { template: text === MISSING ? keyText(keypath, html) : text, params: {} }
+  }
+  // as `tc`: a miss, a tree or a boolean has no forms, so the default or the key stands whole, pipes and all.
+  // An empty `defaultValue` is no default here: it is the prop's own default.
+  const value = i18n.t(keypath, undefined, MISSING)
+  const plural = value !== MISSING && (typeof value === 'string' || typeof value === 'number')
+  const template = plural ? pluralForm(String(value), count, i18n.pluralLocale?.() ?? i18n.getLocale()) : defaultValue || keyText(keypath, html)
+  return { template, params: { ...params, count } }
 }
 
 /**
@@ -244,6 +267,6 @@ export function resolveText(i18n: TextHost, options: ResolveTextOptions): Resolv
   const usesPlural = formatted === null && options.plural !== undefined && options.plural !== null
   const resolved = usesPlural
     ? pluralText(i18n, options, params)
-    : { template: String(i18n.t(options.keypath, undefined, options.defaultValue) ?? ''), params: formatted ? { ...params, ...formatted } : params }
+    : { template: String(lookup(i18n, options.keypath, undefined, options.defaultValue, options.html) ?? ''), params: formatted ? { ...params, ...formatted } : params }
   return options.hideIfEmpty && !interpolate(resolved.template, resolved.params).trim() ? null : resolved
 }

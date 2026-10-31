@@ -2,7 +2,7 @@ import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, Tran
 import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
-import { clearTemplateCache, defaultPlural, interpolate } from './text'
+import { clearTemplateCache, defaultPlural, interpolate, textOf } from './text'
 import { mergeTranslationLayers, ownValue, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
@@ -87,13 +87,13 @@ export abstract class BaseI18n {
     this.helper = options.helper ?? new TranslationHelper(options.storage)
     this.formatter = options.formatter ?? new FormatService(options)
     this.ownsFormatter = options.formatter === undefined
-    this.localeIso = options.localeIso ?? {}
+    this.localeIso = { ...options.localeIso }
     const plural = options.plural
     // A custom rule returning null/undefined falls back to the default one (#241).
     this.pluralFunc =
       plural && plural !== defaultPlural
         ? (key, count, params, locale, getter) =>
-            plural(key, count, params, locale, getter) ?? defaultPlural(key, count, params, this.pluralTag(locale), getter)
+            plural(key, count, params, locale, getter) ?? defaultPlural(key, count, params, this.isoTag(locale), getter)
         : defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
@@ -104,18 +104,20 @@ export abstract class BaseI18n {
   public abstract getFallbackLocale(): string
   public abstract getRoute(): string
 
-  private pluralTag(locale: string): string {
+  /** The BCP 47 tag of a locale: its `iso` when it has one, else the code. Plurals and formatters go by it. */
+  private isoTag(locale: string): string {
     return (ownValue(this.localeIso, locale) as string | undefined) ?? locale
   }
 
   /** Adds to {@link BaseI18nOptions.localeIso}: a provider knows the locale list, the instance may be built before it. */
   public addLocaleIso(localeIso: Record<string, string>): void {
-    this.localeIso = { ...this.localeIso, ...localeIso }
+    // in place: a fork reads this same map (`rules` it shares with its parent)
+    Object.assign(this.localeIso, localeIso)
   }
 
   /** The tag plurals of the active locale go by: its `iso` when it has one, else the code. */
   public pluralLocale(): string {
-    return this.pluralTag(this.getLocale())
+    return this.isoTag(this.getLocale())
   }
 
   /** Called before every read; adapters use it for reactivity tracking. */
@@ -217,7 +219,7 @@ export abstract class BaseI18n {
   }
 
   public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown): string {
-    return this.t(key, params, defaultValue, routeContext)?.toString() ?? defaultValue ?? key
+    return textOf(this.t(key, params, defaultValue, routeContext)) ?? defaultValue ?? key
   }
 
   public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
@@ -249,7 +251,7 @@ export abstract class BaseI18n {
   public tn(value: number, ...args: FormatArgs<Intl.NumberFormatOptions>): string {
     this.touch()
     const [locale, options] = this.formatArgs('number', args)
-    return this.formatter.formatNumber(value, locale, options)
+    return this.formatter.formatNumber(value, this.isoTag(locale), options)
   }
 
   /** Format a date; Vue I18n-style named formats: `td(date, 'short')`. */
@@ -259,12 +261,12 @@ export abstract class BaseI18n {
   public td(value: Date | number | string, ...args: FormatArgs<Intl.DateTimeFormatOptions>): string {
     this.touch()
     const [locale, options] = this.formatArgs('datetime', args)
-    return this.formatter.formatDate(value, locale, options)
+    return this.formatter.formatDate(value, this.isoTag(locale), options)
   }
 
   public tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
     this.touch()
-    return this.formatter.formatRelativeTime(value, this.getLocale(), options)
+    return this.formatter.formatRelativeTime(value, this.pluralLocale(), options)
   }
 
   public has(key: TranslationKey, routeContext?: unknown): boolean {

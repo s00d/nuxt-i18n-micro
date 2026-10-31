@@ -9,6 +9,8 @@ export function deepMergeTranslations(target: Record<string, unknown>, source: R
   return deepMergeTranslationsRecursive(target, source)
 }
 
+const isObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value)
+
 /** Recursive deep merge for build-time layer merging. */
 export function deepMergeTranslationsRecursive(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = { ...target }
@@ -16,11 +18,9 @@ export function deepMergeTranslationsRecursive(target: Record<string, unknown>, 
     if (key === '__proto__') continue
     const src = source[key]
     const dst = output[key]
-    if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {
-      output[key] = deepMergeTranslationsRecursive(dst as Record<string, unknown>, src as Record<string, unknown>)
-    } else {
-      output[key] = src
-    }
+    // into `{}` where nothing merges: `__proto__` is dropped at every level, whatever the target holds
+    if (isObject(src)) output[key] = deepMergeTranslationsRecursive(isObject(dst) ? dst : {}, src)
+    else output[key] = src
   }
   return output
 }

@@ -1,9 +1,5 @@
 <template>
-  <div>
-    <h1>{{ t('about.title') }}</h1>
-    <p>{{ t('about.description') }}</p>
-    <p>{{ t('welcome') }}</p>
-  </div>
+  <p data-testid="not-found">{{ t('no.such.page', undefined, 'not found') }}</p>
 </template>
 
 <script setup lang="ts">

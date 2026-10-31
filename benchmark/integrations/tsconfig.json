@@ -1,0 +1,12 @@
+{
+  // Bundlers read the nearest tsconfig of every file: without this one they would need the root's `.nuxt`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["*.ts"]
+}

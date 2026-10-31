@@ -38,6 +38,7 @@ const prose = (greeting: string, welcome: string, apples: string, deep: string, 
   two: '{a} / {b} / {a}',
   html: '<b>{name}</b>',
   section: { title: nested, deep: { er: { value: deep } } },
+  stats: 'n={number} d={date} r={relativeDate}',
   list,
 })
 
@@ -225,3 +226,76 @@ export function bigMessages(size: number, label: string): Dictionary {
 }
 
 export const bigKey = (n: number): string => `big.s${Math.floor(n / 50)}.k${n % 50}`
+
+/** Page paths of the SPA playgrounds, without the locale prefix. */
+export const pagePaths = ['/', '/components', '/dictionaries', '/routing', '/big']
+
+export const fetchDictionary = async (path: string): Promise<Dictionary> => {
+  const response = await fetch(path)
+  if (!response.ok) throw new Error(`${path}: ${response.status}`)
+  return response.json()
+}
+
+export const lazyUrl = (locale: string): string => `/lazy/${locale}.json`
+export const pageUrl = (locale: string): string => `/pages/dictionaries/${locale}.json`
+
+export const BIG_KEYS = 5000
+export const BIG_ROWS = 2000
+export const bigRows = Array.from({ length: BIG_ROWS }, (_, n) => n)
+
+/** What a page needs of `localStorage`, safe on a server and in a private window. */
+export const persisted = {
+  read(): string | null {
+    try {
+      return globalThis.localStorage?.getItem('bench-locale') ?? null
+    } catch {
+      return null
+    }
+  },
+  write(locale: string): void {
+    try {
+      globalThis.localStorage?.setItem('bench-locale', locale)
+    } catch {
+      // no storage: nothing to remember
+    }
+  },
+}
+
+/** `/de/about?x=1` → `de`; no locale prefix is the default locale. */
+export const localeOfPath = (path: string): string => {
+  const first = path.split(/[/?#]/)[1] ?? ''
+  return localeCodes.includes(first) ? first : 'en'
+}
+
+export const dirOf = (code: string): string => locales.find((locale) => locale.code === code)?.dir ?? 'ltr'
+
+/** The route name a path's dictionary goes by: `/de/routing` → `routing`, the root → `home`. */
+export const routeOfPath = (path: string): string => {
+  const parts = path.split(/[?#]/)[0]!.split('/').filter(Boolean)
+  if (localeCodes.includes(parts[0] ?? '')) parts.shift()
+  return parts[0] ?? 'home'
+}
+
+/** What the routing page prints: the same calls in every framework. */
+export interface RoutingApi {
+  localePath: (to: never, locale?: string) => string
+  localeRoute: (to: never, locale?: string) => unknown
+  getLocales: () => Array<{ code: string }>
+  defaultLocale: () => string
+}
+
+export const routingRows = ({ localePath, localeRoute, getLocales, defaultLocale }: RoutingApi): Row[] => {
+  const list: Array<[string, () => unknown]> = [
+    ['path-string', () => localePath('/x' as never)],
+    ['path-de', () => localePath('/x' as never, 'de')],
+    ['path-en', () => localePath('/x' as never, 'en')],
+    ['path-object', () => localePath({ path: '/x' } as never, 'de')],
+    ['path-query', () => localePath('/x?a=1#b' as never, 'de')],
+    ['path-root', () => localePath('/' as never, 'de')],
+    ['path-prefixed', () => localePath('/de/x' as never, 'fr')],
+    ['route-object', () => localeRoute('/x' as never, 'de')],
+    ['locales', () => getLocales().map((item) => item.code)],
+    ['default-locale', () => defaultLocale()],
+  ]
+  return list.map(([id, run]) => ({ id, value: row(run) }))
+}

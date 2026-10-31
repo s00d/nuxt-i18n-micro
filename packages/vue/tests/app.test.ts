@@ -229,7 +229,8 @@ test('I18nT renders numbers, dates, plurals, HTML, slots and empty values', asyn
   expect(html('slot')).toBe('<span id="slot">[Hello, S!]</span>')
   expect(html('blank-shown')).toBe('<span id="blank-shown">   </span>')
   expect(html('tpl-html')).toBe('<span id="tpl-html"><b>2</b> new</span>')
-  expect(html('tpl-hide')).toBe('<i id="tpl-hide"></i>')
+  // a comment, as server HTML holds: an empty text node would break hydration
+  expect(html('tpl-hide')).toBe('<i id="tpl-hide">\n  <!---->\n</i>')
   expect(html('lead')).toBe('<span id="lead"><b>1</b> and <i>t</i></span>')
   expect(html('attrs')).toBe('<span id="attrs" title="t">&lt;b&gt;1&lt;/b&gt; new</span>')
 

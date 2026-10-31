@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:ssr": "BENCH_SSR=1 node ../../../benchmark/integrations/ssr-server.mjs",
+    "build:ssr": "BENCH_SSR=1 vite build --outDir dist/client && BENCH_SSR=1 vite build --ssr src/entry-server --outDir dist/server",
+    "preview:ssr": "NODE_ENV=production node ../../../benchmark/integrations/ssr-server.mjs"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
@@ -15,6 +18,7 @@
     "@i18n-micro/preact": "workspace:^",
     "@i18n-micro/types": "workspace:^",
     "preact": "catalog:",
+    "preact-render-to-string": "catalog:",
     "wouter-preact": "catalog:"
   },
   "devDependencies": {

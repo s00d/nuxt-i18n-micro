@@ -4,26 +4,23 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import VueDevtools from 'vite-plugin-vue-devtools'
 
+// the walks measure the app, not the tools around it
+const bench = process.env.BENCH === '1'
+
 export default defineConfig({
-  plugins: [
-    vue(),
-    VueDevtools(),
-    // Connect i18n plugin for file saving support
-    i18nDevToolsPlugin({
-      base: '/__i18n_api',
-      translationDir: 'src/locales',
-      injectButton: true,
-    }),
-  ],
+  plugins: [vue(), ...(bench ? [] : [VueDevtools(), i18nDevToolsPlugin({ base: '/__i18n_api', translationDir: 'src/locales', injectButton: true })])],
+  cacheDir: process.env.BENCH_CACHE,
+  publicDir: resolve(import.meta.dirname, '../../../benchmark/integrations/public'),
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, './src'),
     },
   },
   optimizeDeps: {
-    include: ['@i18n-micro/devtools-ui'],
+    include: bench ? [] : ['@i18n-micro/devtools-ui'],
   },
   build: {
+    target: 'esnext',
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),

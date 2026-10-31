@@ -61,6 +61,7 @@ export async function preMergeLocales(
   globalFallbackLocale?: string,
   disablePageLocales?: boolean,
   additionalTranslationDirs?: string[],
+  routeNames: string[] = [],
 ): Promise<void> {
   if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
   mkdirSync(outputDir, { recursive: true })
@@ -86,7 +87,8 @@ export async function preMergeLocales(
     merged.set(file, mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs ?? [], file.slice(0, -'.json'.length), merged.get(file)))
 
   // the same read source mode and dev do (fallback chain, root under page): one model, three modes
-  const pages = new Set([...merged.keys()].filter((f) => f.startsWith('pages/')).map((f) => dirname(f).slice('pages/'.length)))
+  // a route with no folder has a file too: a static host has no server route to answer it with the root dictionary
+  const pages = new Set([...[...merged.keys()].filter((f) => f.startsWith('pages/')).map((f) => dirname(f).slice('pages/'.length)), ...routeNames])
   const targets = disablePageLocales || pages.size === 0 ? ['index'] : [...pages, ...(pages.has('index') ? [] : ['index'])]
   const outputs = [...targets, PREMERGED_ROOT_PAGE].flatMap((page) => locales.map((locale) => ({ page, locale: locale.code })))
   await Promise.all(

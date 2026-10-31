@@ -29,6 +29,24 @@ describe('additionalTranslationDirs', () => {
     expect(() => readFileSync(join(outputDir, 'index', 'fr', 'data.json'))).toThrow()
   })
 
+  it('preMergeLocales emits a route with no folder: a static host has no server route to answer it', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'i18n-premerge-routes-'))
+    dirs.push(root)
+    mkdirSync(join(root, 'locales', 'pages', 'parent'), { recursive: true })
+    writeFileSync(join(root, 'locales', 'en.json'), JSON.stringify({ hello: 'Hello' }))
+    writeFileSync(join(root, 'locales', 'pages', 'parent', 'en.json'), JSON.stringify({ page: 'Parent' }))
+
+    const outputDir = join(root, 'out')
+    await preMergeLocales([root], 'locales', outputDir, [{ code: 'en' }], undefined, false, [], ['parent', 'parent-id'])
+
+    expect(JSON.parse(readFileSync(join(outputDir, 'parent', 'en', 'data.json'), 'utf-8'))).toEqual({ hello: 'Hello', page: 'Parent' })
+    expect(JSON.parse(readFileSync(join(outputDir, 'parent-id', 'en', 'data.json'), 'utf-8'))).toEqual({ hello: 'Hello' })
+
+    const disabled = join(root, 'disabled')
+    await preMergeLocales([root], 'locales', disabled, [{ code: 'en' }], undefined, true, [], ['parent-id'])
+    expect(() => readFileSync(join(disabled, 'parent-id', 'en', 'data.json'))).toThrow()
+  })
+
   it('preMergeLocales supports locale that exists only in additional dir', async () => {
     const root = mkdtempSync(join(tmpdir(), 'i18n-premerge-add-only-'))
     dirs.push(root)

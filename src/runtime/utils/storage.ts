@@ -2,6 +2,7 @@ import { joinURL, withQuery } from 'ufo'
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from './cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
+import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
@@ -102,6 +103,24 @@ class TranslationStorage {
     })
   }
 
+  /**
+   * A chunk, or what stands for it. A host with no file for the page (a 404, or a static host's SPA shell) will not have
+   * one on a retry: the page shows the root dictionary, as the server route answers it. No root file either (`source` mode
+   * on a file host, which the build warns about) is an empty one, as a missing file must not stop a switch.
+   * Anything else is a failed load, and the next try can work.
+   */
+  private async fetchChunk(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
+    const data = await this.fetchTranslations(locale, routeName, options).catch((error) => {
+      if ((error as { status?: number }).status === 404) return null
+      throw error
+    })
+    if (data && typeof data === 'object' && !Array.isArray(data)) return data
+    if (routeName !== PREMERGED_ROOT_PAGE) return this.fetchChunk(locale, PREMERGED_ROOT_PAGE, options)
+    if (data === null) return {}
+    // a 200 with another body on the root file too: a portal or a proxy, not this site's files
+    throw new TypeError(`[i18n] Invalid translation payload: ${this.getCacheKey(locale, routeName)}`)
+  }
+
   private request(locale: string, routeName: string | undefined, options: LoadOptions, isServer: boolean, apiBaseServerHost?: string) {
     return buildTranslationPayloadFetchRequest({
       apiBaseUrl: options.apiBaseUrl,
@@ -158,10 +177,8 @@ class TranslationStorage {
 
     const cacheKey = this.getCacheKey(locale, routeName)
     const clears = this.cc.clears
-    const data = await this.fetchTranslations(locale, routeName, options)
+    const data = await this.fetchChunk(locale, routeName, options)
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
-    // a 200 with another body (an HTML fallback, an array) is a failed load: it must not become a dictionary
-    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new TypeError(`[i18n] Invalid translation payload: ${cacheKey}`)
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.

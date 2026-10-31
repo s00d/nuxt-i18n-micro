@@ -34,3 +34,51 @@ test('a response that predates a clear of the global cache is not stored', async
   expect((await load).data).toEqual({ hello: 'after the edit' })
   expect(translationStorage.getFromCache('en', 'stale-load')?.data).toEqual({ hello: 'after the edit' })
 })
+
+const notFound = () => Object.assign(new Error('404'), { status: 404 })
+const answering = (answer: (url: string) => unknown) =>
+  vi.fn(async (url: string) => {
+    const value = answer(url)
+    if (value instanceof Error) throw value
+    return value
+  })
+
+test('a page the host has no file for gets the root dictionary, stored under its own key', async () => {
+  const fetchMock = answering((url) => (url.includes('__root') ? { hello: 'root' } : notFound()))
+  vi.stubGlobal('$fetch', fetchMock)
+
+  expect((await translationStorage.load('de', 'added-at-runtime', options)).data).toEqual({ hello: 'root' })
+  expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/_locales/added-at-runtime/de/data.json', '/_locales/__root/de/data.json'])
+  expect(translationStorage.getFromCache('de', 'added-at-runtime')?.data).toEqual({ hello: 'root' })
+})
+
+test("a static host's SPA shell in place of the page's file counts as no file", async () => {
+  vi.stubGlobal(
+    '$fetch',
+    answering((url) => (url.includes('__root') ? { hello: 'root' } : '<!doctype html>')),
+  )
+  expect((await translationStorage.load('de', 'shell', options)).data).toEqual({ hello: 'root' })
+})
+
+test('no root file either (source mode on a file host) is an empty dictionary, not a failed load', async () => {
+  vi.stubGlobal(
+    '$fetch',
+    answering(() => notFound()),
+  )
+  expect((await translationStorage.load('de', 'nothing', options)).data).toEqual({})
+})
+
+test('a failed load stays one: a retry can work, so it neither falls back nor stays cached', async () => {
+  const unavailable = Object.assign(new Error('503'), { status: 503 })
+  vi.stubGlobal(
+    '$fetch',
+    answering(() => unavailable),
+  )
+  await expect(translationStorage.load('de', 'down', options)).rejects.toBe(unavailable)
+  vi.stubGlobal(
+    '$fetch',
+    answering(() => '<!doctype html>'),
+  )
+  await expect(translationStorage.load('de', 'portal', options)).rejects.toThrow('Invalid translation payload')
+  expect(translationStorage.getFromCache('de', 'down')).toBeNull()
+})

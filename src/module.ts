@@ -61,7 +61,7 @@ import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
-import { createLocalizedPathResolver, type LocalizedPathResolver, staticPagePaths, unfixedOriginWarning } from './localized-paths'
+import { createLocalizedPathResolver, type LocalizedPathResolver, namedPages, staticPagePaths, unfixedOriginWarning } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
 import { parentPagePaths } from './utils'
@@ -400,6 +400,9 @@ export default defineNuxtModule<ModuleOptions>({
       .filter((locale) => !locale.disabled)
       .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
 
+    /** Every named page, children too: each asks for a chunk under its own name. */
+    let routeNames: string[] = []
+
     nuxt.hook('build:before', async () => {
       // `publicAssetsDir` / Nitro `serverAssets` point at source OR merged — never both.
       // Building i18n-source in premerged mode was unused disk/CPU (Edge embeds publicAssetsDir).
@@ -415,6 +418,7 @@ export default defineNuxtModule<ModuleOptions>({
           options.fallbackLocale,
           options.disablePageLocales,
           options.additionalTranslationDirs,
+          routeNames,
         )
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
@@ -744,6 +748,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       addDataRoutes(pages)
+      routeNames = namedPages(pages).filter((name) => !options.routesLocaleLinks?.[name])
       staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages

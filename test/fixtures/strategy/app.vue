@@ -11,12 +11,14 @@
       </button>
       <span class="locale-value">{{ $getLocale() }}</span>
     </header>
+    <i18n-switcher v-if="route.meta.layoutSwitcher" />
     <NuxtPage />
   </div>
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp, useRoute } from '#imports'
 
+const route = useRoute()
 const { $t, $getLocale, $getLocales, $switchLocale } = useNuxtApp()
 </script>

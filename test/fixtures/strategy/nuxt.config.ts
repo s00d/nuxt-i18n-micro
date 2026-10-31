@@ -41,6 +41,8 @@ const regionI18n = {
 }
 
 export default defineNuxtConfig({
+  // `strategy-islands`: its own build, since server components change what Nuxt bundles
+  extends: process.env.ISLANDS ? ['./island-layer'] : [],
   modules: [MyModule],
   devtools: { enabled: false },
   experimental: {

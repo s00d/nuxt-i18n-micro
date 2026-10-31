@@ -79,6 +79,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
+    "bench": "node playground/bench/matrix.mjs",
     "release": "pnpm run release:check && pnpm run release:patch",
     "release:check": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run check:versions -- --npm && pnpm run release:source && pnpm run compare:published && pnpm run test",
     "release:auth": "pnpm -C scripts cli ensure-npm-auth",

@@ -161,7 +161,7 @@ export const payloadBudgetCommand = defineCommand({
       'a dictionary leaks back in: the page renders correctly and passes every test, it is',
       'just heavier. Hence a budget.',
       '',
-      'The playground is the default target because its dictionary is deliberately huge, so',
+      'The playground is the default target because its generated dictionaries are huge, so',
       'a change in what the payload carries is unmissable rather than marginal. The numbers',
       'are a fixed point to compare against, not what a real application should expect.',
       '',

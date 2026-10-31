@@ -1,19 +1,39 @@
 {
-  "fallback": {
-    "value": "fallback de text"
+  "title": "Prüfstand",
+  "welcome": "Willkommen, {name}!",
+  "error_title": "Etwas ging schief",
+  "empty": "",
+  "only_de": "nur auf Deutsch",
+  "list": ["eins", "zwei"],
+  "nav": {
+    "home": "Start"
   },
-  "navigation_component": {
-    "title": "Navigation DE",
-    "home": "Home DE",
-    "scroll_test": "Scroll-Test (scrollBehavior)"
-  },
-  "key1": {
-    "key1": {
-      "key1": {
-        "key1": {
-          "key1": "de de de"
-        }
-      }
+  "nested": {
+    "deep": {
+      "key": "Tiefer Wert"
     }
+  },
+  "group": {
+    "a": "Gruppe A",
+    "b": "Gruppe {x}"
+  },
+  "layout": {
+    "alt": "Anderes Layout"
+  },
+  "apples": "keine Äpfel | ein Apfel | {count} Äpfel",
+  "files": "=0 keine | eine | viele",
+  "marker_en": "=0 nichts | {count} Ding | {count} Dinge",
+  "two_forms": "eins | viele",
+  "count_of": "{count} von {total}",
+  "html": "Hallo <b>{name}</b>",
+  "slotted": "Lies {link} jetzt",
+  "total": "Summe: {number}",
+  "dated": "Datum: {date}",
+  "updated": "Aktualisiert {relativeDate}",
+  "extra": {
+    "override": "translationDir gewinnt"
+  },
+  "layer": {
+    "override": "App gewinnt de"
   }
 }

@@ -18,6 +18,8 @@
     "**/.git/**",
     "**/.astro/**",
     "**/.fixture-builds/**",
+    "**/.bench/**",
+    "playground/locales/pages/huge-*/**",
     "**/__golden__/**"
   ],
   "overrides": [

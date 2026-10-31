@@ -1,20 +1,20 @@
 {
   "app": "playground",
-  "note": "Dictionaries stay off the HTML (the client fetches them from the translations route), so __NUXT_DATA__ is a few hundred bytes of state even with the playground's ~16 MB of generated locale sources. Its limits are 3x observed, as 10% of 363 B is a rounding error; a leaked dictionary is kilobytes.",
+  "note": "Dictionaries stay off the HTML (the client fetches them from the translations route), so __NUXT_DATA__ is a few hundred bytes of state even with the bench's generated dictionaries of up to 100k keys per page (playground/bench/gen-data.mjs). Its limits are 3x observed, as 10% of a few hundred bytes is a rounding error; a leaked dictionary is kilobytes.",
   "routes": [
     "/",
     "/de"
   ],
   "limits": {
-    "maxNuxtData": 1089,
-    "totalNuxtData": 2160,
-    "clientAssets": 512571
+    "maxNuxtData": 1272,
+    "totalNuxtData": 2529,
+    "clientAssets": 703311
   },
   "observed": {
-    "maxNuxtData": 363,
-    "totalNuxtData": 720,
-    "clientAssets": 465973,
-    "payloadFiles": 39529057,
-    "sourceDictionary": 15960520
+    "maxNuxtData": 424,
+    "totalNuxtData": 843,
+    "clientAssets": 639373,
+    "payloadFiles": 25025685,
+    "sourceDictionary": 8203392
   }
 }

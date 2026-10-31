@@ -483,7 +483,7 @@ function budgetTable(): string {
     '',
     table(['Measurement', 'Size'], rows),
     '',
-    'The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real',
+    'The playground is a test bench with generated dictionaries of up to 100k keys, so these are not figures to expect from a real',
     'application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,',
     'which is how an accidental change to what the payload carries gets noticed.',
   ]

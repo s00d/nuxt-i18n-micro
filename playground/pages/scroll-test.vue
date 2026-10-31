@@ -1,7 +1,5 @@
 <template>
-  <div class="scroll-test">
-    <Navigation />
-
+  <div class="scroll-test" data-testid="page" data-page="scroll-test">
     <header class="scroll-test__header">
       <h1>{{ $t('title') }}</h1>
       <p>{{ $t('description') }}</p>
@@ -52,8 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import Navigation from '~/components/navigation.vue'
-
 definePageMeta({
   scrollToTop: false,
 })

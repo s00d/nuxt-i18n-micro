@@ -15,7 +15,7 @@ Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-
 - Routing: `packages/route-strategy` (build) + `packages/path-strategy` (runtime)
 - Framework bindings: `vue`, `react`, `preact`, `solid`, `astro`, `node`, `vitepress`
 - Tooling: `devtools-ui`, `types-generator`, `test-utils` (dev HMR lives in the root module)
-- Local apps: `playground/` (Nuxt), `client/` (devtools UI), `docs/` (VitePress)
+- Local apps: `playground/` (the Nuxt test bench: every feature, one page each), `client/` (devtools UI), `docs/` (VitePress)
 
 Priorities: small bundles, fast builds, low runtime cost. Prefer reusing `@i18n-micro/utils/*` and core over duplicating logic in framework packages.
 
@@ -51,8 +51,9 @@ pnpm run dev                 # http://localhost:3000
 
 Notes for `dev`:
 
-- `/` 302-redirects to the default locale (`/en`); locales are prefixed (`/en`, `/de`, `/fr`, `/es`).
-- Startup warnings about `localeCookie` and large translation payloads are expected in the playground — not errors.
+- `/` 302-redirects to the default locale (`/en`) and lists every bench page; locales are prefixed (`/en`, `/de`, `/fr`, `/ru`, `/ar`, `/pt`). `/es` is disabled on purpose.
+- `nuxt.config.ts` reads `BENCH_*` env, and the first run generates `locales/pages/huge-*` (gitignored). `pnpm run bench list` shows every build variant; `pnpm run bench build|start|smoke <variant>` runs one, into `playground/.bench/<variant>`. DevTools is on in plain `pnpm run dev` and starts a `client/` dev server on port 3030 when `client/` has no prebuilt UI.
+- A startup warning about large translation payloads is expected in the playground, as are `[i18n] Missing key` warnings on the pages that test them. Not errors.
 
 StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCommand` (simpler path without the playground package build; use the full order above when running tests).
 
@@ -80,6 +81,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Action | Command |
 | --- | --- |
 | Playground | `pnpm run dev` |
+| Bench variants | `pnpm run bench list` · `pnpm run bench smoke <variant>` |
 | Docs site | `pnpm run docs:dev` |
 | Lint / format | `pnpm run lint` (oxlint) · `pnpm run format` (oxfmt) |
 | Typecheck | `pnpm run typecheck` · `pnpm run test:types` |

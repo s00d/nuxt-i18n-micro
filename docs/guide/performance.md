@@ -65,12 +65,12 @@ Measured on `playground` across `/`, `/de`:
 
 | Measurement | Size |
 | --- | --- |
-| Translation sources on disk | 15.2 MB |
-| Served as separate payload files | 37.7 MB |
+| Translation sources on disk | 7.8 MB |
+| Served as separate payload files | 23.9 MB |
 | Largest inline `__NUXT_DATA__` | 0.4 KB |
-| Client assets | 455.1 KB |
+| Client assets | 624.4 KB |
 
-The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real
+The playground is a test bench with generated dictionaries of up to 100k keys, so these are not figures to expect from a real
 application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,
 which is how an accidental change to what the payload carries gets noticed.
 

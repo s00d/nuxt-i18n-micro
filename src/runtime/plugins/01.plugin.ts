@@ -25,7 +25,7 @@ import { shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
-import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
+import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
@@ -239,6 +239,22 @@ export default defineNuxtPlugin({
       })
     }
 
+    // Unhead adopts the server's tags in its first render, from what it resolves then. A page head dropped earlier
+    // would leave its tags in the DOM with no owner, so during hydration it goes right after that render.
+    let adopted = import.meta.server
+    let headToDrop: typeof pageHead.value = null
+    const dropPageHead = () => {
+      if (adopted) pageHead.value = null
+      else headToDrop = pageHead.value
+    }
+    if (import.meta.client) {
+      const stop = injectHead().hooks?.hook('dom:rendered', () => {
+        stop?.()
+        adopted = true
+        if (pageHead.value === headToDrop) pageHead.value = null
+      })
+    }
+
     // What each navigation will show, loaded by its guard and applied when it commits. A guard is too early: a later
     // guard can abort, and the router cancels a pending navigation for a duplicate of the current page without running one.
     const targets = new WeakMap<object, NavigationTarget>()
@@ -267,7 +283,7 @@ export default defineNuxtPlugin({
       // set stays: it came in the payload, and a component that does not run here (`hydrate-never`) will not set it again
       if (to.path !== from.path) {
         i18nRouteParams.value = {}
-        pageHead.value = null
+        dropPageHead()
       }
 
       const target = targets.get(to)

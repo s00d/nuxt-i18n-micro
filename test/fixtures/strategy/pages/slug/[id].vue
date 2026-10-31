@@ -2,6 +2,8 @@
   <div>
     <p id="slug-page">slug-{{ id }}</p>
     <i18n-link id="slug-first" to="/slug/1">first</i18n-link>
+    <a id="slug-literal" href="/de/slug/1">literal</a>
+    <NuxtLink id="slug-own-switch" :to="$switchLocalePath('de')">German</NuxtLink>
   </div>
 </template>
 

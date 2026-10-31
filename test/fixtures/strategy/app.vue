@@ -12,7 +12,7 @@
       <span class="locale-value">{{ $getLocale() }}</span>
     </header>
     <i18n-switcher v-if="route.meta.layoutSwitcher" />
-    <NuxtPage />
+    <NuxtLayout><NuxtPage /></NuxtLayout>
   </div>
 </template>
 

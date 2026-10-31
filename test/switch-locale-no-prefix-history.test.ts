@@ -83,6 +83,27 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   return { provide, push, replace, setLocale, navigateTo }
 }
 
+describe('$switchLocale when the navigation does not commit', () => {
+  const failure = (type: number) => Object.assign(new Error('navigation failure'), { type })
+
+  test('a duplicate keeps the URL and the preference: an excluded page has one URL', async () => {
+    const { provide, push, setLocale } = makeApi('prefix')
+    push.mockResolvedValueOnce(failure(16) as never)
+    await provide.switchLocale('de')
+    expect(setLocale.mock.calls).toEqual([['de']])
+  })
+
+  test.each([
+    ['cancelled', 8],
+    ['aborted', 4],
+  ])('a %s one puts the preference back', async (_name, type) => {
+    const { provide, push, setLocale } = makeApi('prefix')
+    push.mockResolvedValueOnce(failure(type) as never)
+    await provide.switchLocale('de')
+    expect(setLocale.mock.calls).toEqual([['de'], ['']])
+  })
+})
+
 describe('what <i18n-t> reads from the plugin', () => {
   test('$pluralFunc is the rule of the instance, $pluralLocale its tag', () => {
     const { provide } = makeApi('prefix')

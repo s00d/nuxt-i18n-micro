@@ -64,32 +64,9 @@ function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolv
 
 /** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
 const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
-/**
- * `$localeRoute` of a locale on another domain is a route object with an absolute `path`, and `<NuxtLink>` hands
- * any object to the router, which reads that path as a relative one. Here the router gives such a link its URL, and a click leaves the app.
- * ponytail: wraps three router methods, because NuxtLink has no other way in; strings skip it at the first check.
- */
-export function keepAbsoluteRoutes(router: Router): void {
-  const { resolve, push, replace } = router
-  const urlOf = (to: unknown): string | null => {
-    const url = typeof to === 'object' ? (to as RouteLike | null)?.fullPath : null
-    return url && URL_SCHEME.test(url) ? url : null
-  }
-  const leave = async (url: string) => window.location.assign(url)
-  router.resolve = ((to: never, current: never) => {
-    const url = urlOf(to)
-    if (!url) return resolve(to, current)
-    return { ...resolve('/'), name: undefined, matched: [], params: {}, query: {}, hash: '', path: url, fullPath: url, href: url }
-  }) as Router['resolve']
-  router.push = (to) => {
-    const url = import.meta.client ? urlOf(to) : null
-    return url ? leave(url) : push(to)
-  }
-  router.replace = (to) => {
-    const url = import.meta.client ? urlOf(to) : null
-    return url ? leave(url) : replace(to)
-  }
-}
+
+/** `NavigationFailureType.duplicated`: importing the enum would tie this file, and `pages: false`, to vue-router's code. */
+const DUPLICATED = 16
 
 /** Never a page, and no request can send a visitor elsewhere with one. */
 const APP_SCHEME = /^(?:mailto:|tel:)/i
@@ -728,9 +705,11 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 
       setLocale(toLocale)
       const failure = await switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
-      // a navigation that did not commit left the page as it was, and the preference follows the page.
-      // Under no_prefix and hash mode the dictionary has already moved: there the switch stands.
-      if (!urlless && failure instanceof Error) setLocale(i18n.getCurrentLocale())
+      // a navigation that was cancelled or blocked left the page as it was, and the preference follows the page. A
+      // duplicate is a page with one URL for every locale (`excludePatterns`): the choice stands for the next one.
+      // Under no_prefix and hash mode the dictionary has already moved: there the switch stands too.
+      const stopped = failure instanceof Error && (failure as Error & { type?: number }).type !== DUPLICATED
+      if (!urlless && stopped) setLocale(i18n.getCurrentLocale())
       return loaded ?? i18n.getCurrentLocale() === toLocale
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

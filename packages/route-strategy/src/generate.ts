@@ -332,7 +332,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
           })
         // without the record the URL is a 404, but `$localePath('/about')` still names the page
         else {
-          const own = pageRecords.find((record) => (record.meta?.i18n as RouteI18nMeta).locales.includes(defaultLocale))!
+          const own = pageRecords.find((record) => (record.meta!.i18n as RouteI18nMeta).locales.includes(defaultLocale))!
           own.meta = { ...own.meta, i18n: { ...(own.meta!.i18n as RouteI18nMeta), original: absolute(pagePath) } }
         }
       }

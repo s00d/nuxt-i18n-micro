@@ -45,16 +45,30 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(contentOn((await onHost(baseURL, '/ru/contact', COM)).html)).toBe('contact')
   })
 
-  test('$localeRoute to another domain is that URL in <NuxtLink>, and a click goes there', async ({ page, baseURL }) => {
+  test('a link to another domain: <i18n-link> with $localeRoute, <NuxtLink> with $localePath', async ({ page, baseURL }) => {
     const { html } = await onHost(baseURL, '/named', COM)
-    expect(/id="route-link-de"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="route-link-de"/.exec(html)?.slice(1).find(Boolean)).toBe(
-      'https://example.de/kontakt',
-    )
+    const hrefOf = (id: string) => new RegExp(`id="${id}"[^>]*href="([^"]*)"|href="([^"]*)"[^>]*id="${id}"`).exec(html)?.slice(1).find(Boolean)
+    expect(hrefOf('route-link-de')).toBe('https://example.de/kontakt')
+    expect(hrefOf('path-link-de')).toBe('https://example.de/kontakt')
 
     await routeDomains(page, baseURL)
     await page.goto('https://example.com/named')
     await expect(page.locator('#route-link-de')).toHaveAttribute('href', 'https://example.de/kontakt')
     await clickUntil(page, '#route-link-de', 'https://example.de/kontakt')
+    await page.goto('https://example.com/named')
+    await clickUntil(page, '#path-link-de', 'https://example.de/kontakt')
+  })
+
+  test('an unchecked absolute $localeRoute is no way off the origin, in a link or in the router', async ({ page, baseURL }) => {
+    const { html } = await onHost(baseURL, '/named', COM)
+    expect(html).not.toMatch(/href="https:\/\/evil\.example/)
+
+    await routeDomains(page, baseURL)
+    await page.goto('https://example.com/named')
+    await expect(page.locator('#unchecked-link')).not.toHaveAttribute('href', /^https:/)
+    await expect(page.locator('#unchecked-i18n-link')).not.toHaveAttribute('href', /^https:/)
+    await page.locator('#unchecked-link').click()
+    await expect.poll(() => new URL(page.url()).host).toBe('example.com')
   })
 
   test('a 404 the module answers on a matched record has no SEO tags', async ({ baseURL }) => {

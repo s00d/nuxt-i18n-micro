@@ -1,9 +1,9 @@
 import type { I18nHeadInput } from '@i18n-micro/types'
 import type { MaybeRefOrGetter } from 'vue'
 import { getCurrentInstance, onActivated, toValue, watch } from 'vue'
-import { useRoute, useRouter } from '#app/composables/router'
+import { useRouter } from '#app/composables/router'
 import { useState } from '#app/composables/state'
-import { usePageHead } from '../utils/page-head'
+import { usePageHead, usePageRoute } from '../utils/page-head'
 
 /**
  * Register page-level overrides for i18n SEO head tags.
@@ -21,18 +21,20 @@ export function useI18nHead(input?: MaybeRefOrGetter<I18nHeadInput | null>) {
   }
 
   if (input !== undefined) {
-    // `useRoute()` stays on this page while the next one loads. The page is still mounted then, and its watcher
-    // still runs (a dictionary or locale change), but the head it writes is no longer the shown page's.
-    const route = useRoute()
+    // A page left is still mounted while the next one loads, and its watcher still runs (a dictionary or locale
+    // change), but the head it writes is no longer the shown page's.
+    const page = usePageRoute()
     const router = useRouter()
     const write = (value: I18nHeadInput | null | undefined) => {
-      if (route.path === router.currentRoute.value.path) pageHead.value = value ?? null
+      if (!page || page.path === router.currentRoute.value.path) pageHead.value = value ?? null
     }
 
     watch(
       () => {
         // Track locale so getters that call `t()` re-run after locale-only switches.
         localeState.value
+        // the head is dropped at every path change: a layout stays, so it writes its own again
+        if (!page) router.currentRoute.value.path
         return toValue(input)
       },
       write,

@@ -1,4 +1,4 @@
-import { isNoPrefixStrategy, localeIsoMap } from '@i18n-micro/core'
+import { escapeHtml, isNoPrefixStrategy, localeIsoMap } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import type {
   CleanTranslation,
@@ -26,26 +26,20 @@ import { getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
-import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRoute, useRouter, useRuntimeConfig } from '#imports'
-import { usePageHead } from '../utils/page-head'
+import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
+import { usePageHead, usePageRoute } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import {
-  createNuxtI18nPluginApi,
-  formatterFor,
-  keepAbsoluteRoutes,
-  NuxtI18n,
-  NuxtTranslationLoader,
-  switchedPath,
-  type TranslationFn,
-} from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { translationStorage } from '../utils/storage'
-import { applyTrailingSlash } from '../utils/trailing-slash'
 
 const isDev = process.env.NODE_ENV !== 'production'
+
+/** The link of `<i18n-switcher>`, by its own class: no other link in the page is the switcher's to change. */
+const SWITCHER_LINK = /class="switcher-locale-([^"]+)" href="[^"]*"/g
 
 interface NavigationTarget {
   locale: string
@@ -61,7 +55,6 @@ export default defineNuxtPlugin({
   name: 'i18n-plugin-loader',
   async setup(nuxtApp) {
     const router = useRouter()
-    keepAbsoluteRoutes(router)
     const runtimeConfig = useRuntimeConfig()
     const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)
@@ -237,24 +230,19 @@ export default defineNuxtPlugin({
     })
 
     // A layout's switcher renders before the page's async setup reaches `$setI18nRouteParams`, and Vue cannot wait for
-    // it. By now every answer is known: links built without one get it, the same links the client's first render
-    // builds from the params in the payload. The string is the render's own and this runs only on pages with params.
+    // it. By now every answer is known: its links get what the client's first render builds from the params in the
+    // payload. Only those: a replacer, as a slug can come from the URL and `$&` means nothing here, and an escaped value,
+    // as this is an attribute. Pages with params and a switcher only.
     if (import.meta.server) {
       nuxtApp.hooks.hook('app:rendered', ({ renderResult }) => {
         const params = i18nRouteParams.value
-        if (!renderResult?.html || !params || !Object.keys(params).length) return
-        const route = router.currentRoute.value as unknown as ResolvedRouteLike
-        const from = getCurrentLocale(route)
-        const href = (code: string, routeParams: I18nRouteParams) => {
-          const switched = i18nStrategy.switchLocaleRoute(from, code, route, { i18nRouteParams: routeParams })
-          const path = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-          return `href="${(hasProtocol(path) ? path : router.resolve(path).href).replaceAll('&', '&amp;')}"`
-        }
-        for (const { code } of provideApi.getLocales()) {
-          // the URL of the current locale is also what any link to this page has: of those only the switcher's own changes
-          const anchor = code === from ? `class="switcher-locale-${code}" ` : ''
-          renderResult.html = renderResult.html.replaceAll(anchor + href(code, {}), anchor + href(code, params))
-        }
+        if (!renderResult?.html?.includes('class="switcher-locale-') || !params || !Object.keys(params).length) return
+        const codes = new Set(provideApi.getLocales().map((locale) => locale.code))
+        renderResult.html = renderResult.html.replace(SWITCHER_LINK, (link, code: string) => {
+          if (!codes.has(code)) return link
+          const path = provideApi.switchLocalePath(code)
+          return `class="switcher-locale-${code}" href="${escapeHtml(hasProtocol(path) ? path : router.resolve(path).href)}"`
+        })
       })
     }
 
@@ -327,8 +315,9 @@ export default defineNuxtPlugin({
       if (!target) return
       const { locale, routeName, changed, data } = target
 
-      // the stored chunk: `i18n:register` merged into it after this guard's load
-      const applied = !changed || loader.applyContext(locale, routeName, loader.loadFromCacheSync(locale, routeName) ?? data)
+      // the stored chunk: `i18n:register` merged into it after this guard's load. Not after a failed load: what
+      // a subscriber wrote is a fragment, and the strings on screen stay
+      const applied = !changed || loader.applyContext(locale, routeName, data && (loader.loadFromCacheSync(locale, routeName) ?? data))
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
       const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
       if (applied && !bound && locale && isValidLocale(locale) && localeState.value !== locale) setLocale(locale)
@@ -349,12 +338,12 @@ export default defineNuxtPlugin({
     const pageRouteParams: PropertyDescriptor = {
       enumerable: true,
       get: (): typeof setI18nRouteParams => {
-        if (!getCurrentInstance()) return setI18nRouteParams
-        const route = useRoute()
+        const page = getCurrentInstance() && usePageRoute()
+        if (!page) return setI18nRouteParams
         let own: I18nRouteParams | undefined
         onActivated(() => own && setI18nRouteParams(own))
         return (value) => {
-          if (route.path !== router.currentRoute.value.path) return i18nRouteParams.value
+          if (page.path !== router.currentRoute.value.path) return i18nRouteParams.value
           own = value
           return setI18nRouteParams(value)
         }
@@ -483,7 +472,10 @@ export interface PluginsInjections {
    * `$switchLocale`.
    */
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => Promise<void>
-  /** Resolve a route in the given locale, or the active one. */
+  /**
+   * Resolve a route in the given locale, or the active one. For a locale on another domain `path` and
+   * `fullPath` are absolute, which the router cannot take: such a link goes through `<i18n-link>`, or `$localePath`.
+   */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
   /**
    * Resolve a path in the given locale, or the active one. A string with an `http(s):`, `mailto:`

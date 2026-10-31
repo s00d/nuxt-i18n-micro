@@ -128,7 +128,7 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     const landing = await ssr(baseURL, '/en/slug/1')
     expect(landing.html).toContain('href="/de/slug/1-eins"')
     expect(landing.html).toContain('href="/ru/slug/1-odin"')
-    expect(landing.html).not.toContain('href="/de/slug/1"')
+    expect(landing.html).not.toContain('class="switcher-locale-de" href="/de/slug/1"')
     expect(landing.html).toContain('href="/en/slug/1-one"')
 
     // step 2: another locale's slug does not leak into the links
@@ -142,11 +142,69 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     // a plain link to this page keeps its URL: only the switcher's own link gets the slug
     await expect(page.locator('#slug-first')).toHaveAttribute('href', '/en/slug/1')
     await expect(page.locator('.switcher-locale-en').first()).toHaveAttribute('href', '/en/slug/1-one')
+    // a hand-written link in the page itself renders after the params: nothing to rewrite, nothing to mismatch
+    await expect(page.locator('#slug-own-switch')).toHaveAttribute('href', '/de/slug/1-eins')
 
     // step 4: a client navigation gets the next page's slugs
     await push(page, '/en/slug/2')
     await expect(page.locator('#slug-page')).toHaveText('slug-2')
     await expect(page.locator('.switcher-locale-de').first()).toHaveAttribute('href', '/de/slug/2-zwei')
+  })
+
+  test('a slug from the URL is text in the server HTML', async ({ page, goto, baseURL, guard }) => {
+    // step 1: `$&` in a slug must not paste the match into the attribute, with the app's JS off too
+    guard.allow(/Failed to load resource/)
+    const xss = '/en/echo/a$&b?/autofocus/onfocus=alert(1)//'
+    const fired: string[] = []
+    page.on('dialog', async (dialog) => {
+      fired.push(dialog.message())
+      await dialog.dismiss()
+    })
+    await page.route('**/_nuxt/**', (route) => route.abort())
+    await page.goto(xss)
+    await page.waitForTimeout(150)
+    expect(
+      await page
+        .locator('.switcher-locale-de')
+        .first()
+        .evaluate((link) => link.getAttributeNames()),
+    ).toEqual(['class', 'href', 'hreflang', 'lang', 'style'])
+    expect(fired).toEqual([])
+    await page.unroute('**/_nuxt/**')
+
+    // step 2: the client builds the same link, so hydration has nothing to say (the guard fails the test on a warning)
+    await goto(xss, { waitUntil: 'hydration' })
+    expect(fired).toEqual([])
+
+    // step 3: `$` patterns mean nothing, in the one place a replacement string would read them
+    for (const slug of ['a$$b', 'a$`b', "a$'b", 'a$&b']) {
+      const { html } = await ssr(baseURL, `/en/echo/${encodeURI(slug)}`)
+      expect(html.match(/<div id="__nuxt"/g)).toHaveLength(1)
+      const href = /class="switcher-locale-de" href="([^"]*)"/.exec(html)![1]!
+      expect(decodeURI(href).replaceAll('&amp;', '&').replaceAll('&#39;', "'")).toBe(`/de/echo/${slug}`)
+    }
+  })
+
+  test('a literal link to this page in another locale keeps its URL', async ({ baseURL }) => {
+    const { html } = await ssr(baseURL, '/en/slug/1')
+    expect(html).toContain('id="slug-literal" href="/de/slug/1"')
+  })
+
+  test('a layout is not left by a navigation: useI18nHead and $setI18nRouteParams keep working in it', async ({ page, goto }) => {
+    const head = page.locator('meta[name="layout-head"]')
+    await goto('/en/layout-page/1', { waitUntil: 'hydration' })
+    await expect(head).toHaveAttribute('content', 'My App')
+
+    // step 1: same chunk, another page: the head stays, and the layout's params reach the switcher
+    await push(page, '/en/layout-page/2')
+    await expect(page.locator('#layout-page')).toHaveText('layout-2')
+    await expect(head).toHaveAttribute('content', 'My App')
+    await expect(page.locator('.switcher-locale-de').first()).toHaveAttribute('href', '/de/layout-page/layout-2')
+
+    // step 2: another locale: the getter follows
+    await push(page, '/de/layout-page/2')
+    await expect(page.locator('#layout-page')).toHaveText('layout-2')
+    await expect(head).toHaveAttribute('content', 'Meine App')
   })
 
   test('a redirected link adds its history entry', async ({ page, goto }) => {
@@ -190,6 +248,30 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     await expect.poll(() => ogTitles(page)).toEqual(['SLUG-1'])
   })
 })
+
+// The client's first render has the params from the payload: the server's links must be the same, on every strategy.
+const SWITCHERS = [
+  { harness: 'strategy-no-prefix', path: '/slug/1', en: '/slug/1-one', de: '/slug/1-eins', ru: '/slug/1-odin' },
+  { harness: 'strategy-prefix-except-default', path: '/slug/1', en: '/slug/1-one', de: '/de/slug/1-eins', ru: '/ru/slug/1-odin' },
+  { harness: 'strategy-prefix-and-default', path: '/en/slug/1', en: '/en/slug/1-one', de: '/de/slug/1-eins', ru: '/ru/slug/1-odin' },
+] as const
+
+for (const { harness, path, ...links } of SWITCHERS) {
+  describe(`journey: translated slugs with a switcher in the layout (${harness})`, () => {
+    test.override({ harness })
+
+    test('each switcher link is its locale, a plain link is the page, hydration is clean', async ({ page, goto, baseURL }) => {
+      const { html } = await ssr(baseURL, path)
+      for (const [code, href] of Object.entries(links)) expect(html).toContain(`class="switcher-locale-${code}" href="${href}"`)
+      expect(html).toMatch(new RegExp(`href="${path}"[^>]*id="slug-first"`))
+
+      // the guard fails the test on a hydration warning
+      await goto(path, { waitUntil: 'hydration' })
+      for (const [code, href] of Object.entries(links)) await expect(page.locator(`.switcher-locale-${code}`).first()).toHaveAttribute('href', href)
+      await expect(page.locator('#slug-first')).toHaveAttribute('href', path)
+    })
+  })
+}
 
 describe('journey: server components take the locale as a prop (prefix)', () => {
   test.override({ harness: 'strategy-islands' })

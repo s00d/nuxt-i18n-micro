@@ -198,6 +198,7 @@ member Strategy.unknownLocale: private RegExp | null
 member Strategy.new: (ctx: PathStrategyContext): I18nPathStrategy
 interface SwitchLocaleOptions
 member SwitchLocaleOptions.i18nRouteParams?: I18nRouteParams | undefined
+member SwitchLocaleOptions.named?: boolean | undefined
 
 # ./types (src/types.ts)
 interface ClientRedirectOptions
@@ -247,3 +248,4 @@ member RouteRecordLike.path: string
 member RouteRecordLike.redirect?: unknown
 interface SwitchLocaleOptions
 member SwitchLocaleOptions.i18nRouteParams?: I18nRouteParams | undefined
+member SwitchLocaleOptions.named?: boolean | undefined

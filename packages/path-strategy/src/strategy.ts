@@ -343,20 +343,22 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
-    return byPath(onOrigin(this.switched(fromLocale, toLocale, route, options)))
+    const switched = onOrigin(this.switched(fromLocale, toLocale, route, options))
+    return options.named ? switched : byPath(switched)
   }
 
   private switched(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     // a disabled locale is no target: the link stays on the page
     if (this.disabledCodes.has(toLocale)) return route
-    const name = named(route.name)
+    const name = named(ownName(route))
     const base = name ? this.baseOf(name) : null
     if (base) return this.switchedPage(toLocale, base, route.params, route, options)
     // an unlocalized page stays; a route with a name, or matched records (an unnamed parent), stays
-    const url = route.fullPath || route.path
-    if (route.name || route.matched?.length || !url) return route
-    // a URL: a path-form route or a 404 page. Its own query and hash are what a spread changed, `fullPath` still has the old ones
-    const { path, ...written } = splitUrl(url)
+    const url = route.path || route.fullPath
+    if (ownName(route) || route.matched?.length || !url) return route
+    // a URL: a path-form route or a 404 page. Its own path, query and hash are what a spread changed, `fullPath` still has the old ones
+    const { path } = splitUrl(url)
+    const written = splitUrl(route.fullPath || url)
     const query = route.query ?? written.query
     const hash = route.hash ?? written.hash
     const page = this.findPage(path)
@@ -392,7 +394,7 @@ export class I18nPathStrategy {
     const targetLocale = this.disabledCodes.has(locale) ? this.ctx.defaultLocale : locale
     // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
     const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
-    const name = typeof routeOrPath === 'string' ? null : routeOrPath.name
+    const name = typeof routeOrPath === 'string' ? null : ownName(routeOrPath)
     let target: Target | null = null
     if (name) {
       const key = named(name)
@@ -574,6 +576,11 @@ export class I18nPathStrategy {
 /** A route name as an index key: generated records are named by strings; a symbol name is the app's own route. */
 function named(name: unknown): string | null {
   return typeof name === 'string' && name ? name : null
+}
+
+/** The name of a route, unless a spread gave it another path: the caller's `path` wins, and the name went with the old one. */
+function ownName(route: RouteLike): RouteLike['name'] {
+  return route.fullPath && route.path && !route.fullPath.startsWith(route.path) ? undefined : route.name
 }
 
 /** One level of params / query with array values copied (repeatable params, repeated query keys). */

@@ -231,8 +231,8 @@ describe('a route object in the router gives the URL of its path', () => {
       for (const descriptor of Object.values(Object.getOwnPropertyDescriptors(route))) {
         expect(descriptor).toMatchObject({ enumerable: true, writable: true, configurable: true })
       }
-      expect({ ...route }).toEqual(route)
-      expect(JSON.parse(JSON.stringify(route))).toEqual(JSON.parse(JSON.stringify({ ...route })))
+      // `toEqual` skips what is not enumerable: the own names say what a spread and JSON would lose
+      expect(Object.getOwnPropertyNames(route).sort()).toEqual(Object.keys(JSON.parse(JSON.stringify(route))).sort())
     }
   })
 
@@ -240,8 +240,11 @@ describe('a route object in the router gives the URL of its path', () => {
     const { i18n, at } = setup('prefix_except_default')
     const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'a b' }, query: { q: '1' }, hash: '#top' })
     expect(route).toEqual({ path: '/fr/blog/a%20b', fullPath: '/fr/blog/a%20b?q=1#top', query: { q: '1' }, hash: '#top' })
-    expect(i18n.localeRoute('fr', '/blog/a%20b?q=1#top')).toEqual(route)
-    expect(i18n.switchLocaleRoute('en', 'fr', at('/blog/a%20b?q=1#top'))).toEqual(route)
+    const forms = [route, i18n.localeRoute('fr', '/blog/a%20b?q=1#top'), i18n.switchLocaleRoute('en', 'fr', at('/blog/a%20b?q=1#top')) as RouteLike]
+    for (const form of forms) {
+      expect(form).toEqual(route)
+      expect(Object.getOwnPropertyNames(form).sort()).toEqual(['fullPath', 'hash', 'path', 'query'])
+    }
   })
 
   test('a spread keeps what it changes: a new query or hash, through every reader', () => {
@@ -272,6 +275,30 @@ describe('a route object in the router gives the URL of its path', () => {
     const { i18n } = setup('prefix_except_default')
     const route = { path: '/fr/blog/a%20b%2Fc/', fullPath: '/fr/blog/a%20b%2Fc/' }
     expect((i18n.switchLocaleRoute('fr', 'de', route as never) as RouteLike).fullPath).toBe('/de/artikel/a%20b%2Fc')
+  })
+
+  test("a spread with a new path: the caller's path wins, on a plain route and an escaped one", () => {
+    const { i18n } = setup('prefix_except_default')
+    for (const slug of ['plain', 'a b']) {
+      const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug } })
+      const moved = { ...route, path: '/fr/blog/c%20d' }
+      expect((i18n.switchLocaleRoute('fr', 'de', moved as never) as RouteLike).fullPath).toBe('/de/artikel/c%20d')
+      expect(i18n.localeRoute('de', moved).fullPath).toBe('/de/artikel/c%20d')
+    }
+  })
+
+  test('no_prefix, two pages on one path: `named` keeps the record that a path cannot name', () => {
+    const pages: NuxtPage[] = [
+      ...PAGES.filter((page) => page.name === 'index'),
+      { path: '/one/:id()', name: 'one-id', file: 'pages/one/[id].vue' },
+      { path: '/two/:id()', name: 'two-id', file: 'pages/two/[id].vue' },
+    ]
+    const rules: GlobalLocaleRoutes = { 'one/[id]': { en: '/co/[id]', de: '/co-one/[id]' }, 'two/[id]': { en: '/co-two/[id]', de: '/co/[id]' } }
+    const { router, i18n, at } = setup('no_prefix', {}, LOCALES, { pages, rules })
+    const here = at('/co-two/a%20b')
+    expect((i18n.switchLocaleRoute('en', 'de', here) as RouteLike).name).toBeUndefined()
+    const { path: _path, fullPath: _fullPath, ...named } = i18n.switchLocaleRoute('en', 'de', here, { named: true }) as RouteLike
+    expect(router.resolve(named as never)).toMatchObject({ name: here.name?.replace('-en', '-de'), fullPath: '/co/a%20b', params: { id: 'a b' } })
   })
 
   test('per-locale params reach a path-form route', () => {

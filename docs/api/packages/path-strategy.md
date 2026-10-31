@@ -30,7 +30,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
 | `Strategy` | class | 48 members |
-| `SwitchLocaleOptions` | interface | 1 members |
+| `SwitchLocaleOptions` | interface | 2 members |
 
 <details>
 <summary><code>ClientRedirectOptions</code> — 1 members</summary>
@@ -244,11 +244,12 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 <code>Strategy</code> — 48 members, identical to `I18nPathStrategy` above.
 
 <details>
-<summary><code>SwitchLocaleOptions</code> — 1 members</summary>
+<summary><code>SwitchLocaleOptions</code> — 2 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `i18nRouteParams?` | `I18nRouteParams \| undefined` |
+| `named?` | `boolean \| undefined` |
 
 </details>
 ## `@i18n-micro/path-strategy/types`
@@ -266,7 +267,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `SwitchLocaleOptions` | interface | 1 members |
+| `SwitchLocaleOptions` | interface | 2 members |
 
 <code>ClientRedirectOptions</code> — 1 members, identical to `ClientRedirectOptions` above.
 
@@ -282,6 +283,6 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 
 <code>RouteRecordLike</code> — 5 members, identical to `RouteRecordLike` above.
 
-<code>SwitchLocaleOptions</code> — 1 members, identical to `SwitchLocaleOptions` above.
+<code>SwitchLocaleOptions</code> — 2 members, identical to `SwitchLocaleOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

@@ -702,6 +702,7 @@ declare module '#i18n-internal/plural' {
 }
 
 declare module '#i18n-internal/payload-source' {
+  export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }
 `
@@ -837,6 +838,9 @@ declare module '#i18n-internal/payload-source' {
       const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
       if (!readsPublicDir) {
         nitro.options.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.assets')
+        if (options.cacheStorage && !apiBaseServerHost) {
+          logger.info('cacheStorage: dictionaries are embedded on this preset, so the shared cache only applies with apiBaseServerHost.')
+        }
       }
 
       if (shouldRegisterNitroServerAssets(translationPayloads, readsPublicDir)) {

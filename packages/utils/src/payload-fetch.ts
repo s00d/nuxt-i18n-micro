@@ -33,8 +33,12 @@ export async function fetchTranslationPayloadFromHost(
       baseURL: request.baseURL,
       params: request.params,
     })
+    // a 200 with another body (an HTML fallback, an array) is a failed load, not an empty dictionary
+    if (data && (typeof data !== 'object' || Array.isArray(data))) throw new TypeError(`[i18n] Invalid translation payload: ${request.path}`)
     return toTranslations(data)
-  } catch {
-    return {}
+  } catch (error) {
+    // "no such page" is an answer; anything else is a failed load, which no cache may keep
+    if ((error as { status?: number }).status === 404) return {}
+    throw error
   }
 }

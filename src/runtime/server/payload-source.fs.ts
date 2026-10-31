@@ -8,6 +8,11 @@ import { fileURLToPath } from 'node:url'
 import { resolveContainedRelPath } from '@i18n-micro/utils/app-path'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 
+export const embeddedPayloads = false
+
+/** Names a request can make up: no such file, a path through a file, a name past the file system's limit. */
+const MISSING_FILE = new Set(['ENOENT', 'ENOTDIR', 'ENAMETOOLONG'])
+
 let treeChecked = false
 
 function baseDir(): string {
@@ -40,12 +45,10 @@ export async function readPayload(relPath: string): Promise<Record<string, unkno
   try {
     return JSON.parse(await readFile(join(dir, rel), 'utf8')) as Record<string, unknown>
   } catch (error) {
-    const err = error as NodeJS.ErrnoException
-    if (err.code !== 'ENOENT') {
-      console.error(`[nuxt-i18n-micro] cannot read ${relPath} from ${dir}:`, error)
-    } else {
-      await reportMissingTree(dir)
-    }
+    const { code } = error as NodeJS.ErrnoException
+    // anything else (EACCES, EMFILE, a corrupt file) is a failed read: `{}` would be cached, or merged into a partial chunk
+    if (!MISSING_FILE.has(code!)) throw error
+    if (code === 'ENOENT') await reportMissingTree(dir)
     return {}
   }
 }

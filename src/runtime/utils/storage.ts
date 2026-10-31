@@ -48,6 +48,11 @@ function getStorageCacheControl(): ChunkCache {
   return g[STORAGE_CC_KEY] as ChunkCache
 }
 
+/** A render with a runtime host fetches it itself, unless the loader covers the host (`cacheStorage`). */
+export function readsThroughServerLoader(options: Pick<LoadOptions, 'serverLoad' | 'serverLoadsRemote'>, serverHost: string | undefined): boolean {
+  return Boolean(options.serverLoad && (!serverHost || options.serverLoadsRemote))
+}
+
 class TranslationStorage {
   private cc: ChunkCache
 
@@ -87,8 +92,7 @@ class TranslationStorage {
     const serverHost = options.apiBaseServerHost ?? (import.meta.server ? process.env.NUXT_I18N_APP_BASE_SERVER_HOST : undefined)
     // SSR: ask the server loader directly (its cached, shared chunk) instead of a local HTTP
     // round trip that re-parses the JSON into a new copy on every request
-    if (import.meta.server && options.serverLoad && (!serverHost || options.serverLoadsRemote))
-      return await options.serverLoad(locale, routeName ?? '')
+    if (import.meta.server && readsThroughServerLoader(options, serverHost)) return await options.serverLoad!(locale, routeName ?? '')
     const request = this.request(locale, routeName, options, import.meta.server, serverHost)
 
     // Call-site cast keeps Nuxt `$fetch` (Nitro localFetch when relative); avoids MatchedRoutes TS2321.

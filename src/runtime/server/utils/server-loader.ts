@@ -8,7 +8,10 @@
  *
  * Bounded: entries live in one LRU cache, concurrent loads of a chunk share one read, and in
  * premerged mode every page without its own payload shares the root entry — so request URLs
- * with made-up page names cannot grow memory.
+ * with made-up page names cannot grow memory. (With `cacheStorage` such a name keeps one LRU slot.)
+ *
+ * A failed read rejects: no level may keep it, the next request reads again. Only "there is no such
+ * dictionary" is an answer, and it is `{}`.
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
@@ -18,7 +21,7 @@ import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from 
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
 import { toTranslations } from '@i18n-micro/utils/normalize'
-import { readPayload } from '#i18n-internal/payload-source'
+import { embeddedPayloads, readPayload } from '#i18n-internal/payload-source'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { loadLiveDevTranslations } from './dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
@@ -29,12 +32,24 @@ import { toEntry } from '../../utils/translation-entry'
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
 
+/**
+ * workerd ties I/O to the request that started it: if that request is cancelled, its promise never
+ * settles, and every later request for the chunk would wait on it. Embedded reads have no I/O.
+ * ponytail: each request of a cold burst on Workers then fetches for itself, which KV's reads make up for.
+ */
+const requestBoundIo = typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers'
+
+/** The host dictionaries come from: read per load, as `$fetch` in the page render does, so one artifact can run against several. */
+export function resolveServerHost(): string | undefined {
+  return process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? getI18nPrivateConfig().apiBaseServerHost
+}
+
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<ServerTranslationCacheEntry> {
   const config = getI18nServerConfig()
   if (!isEnabledLocale(config.locales, locale)) return EMPTY
   const page = resolveTranslationPayloadPage(routeName, config.routesLocaleLinks || {})
   // dev reads live files, unless the payloads come from an external host
-  if (import.meta.dev && !getI18nPrivateConfig().apiBaseServerHost) return toEntry(await loadLiveDevTranslations(locale, page, config))
+  if (import.meta.dev && !resolveServerHost()) return toEntry(await loadLiveDevTranslations(locale, page, config))
   return cached(`${locale}:${page}`, () => readChunk(locale, page, config))
 }
 
@@ -49,7 +64,7 @@ function cached(key: string, read: () => Promise<Loaded>): Promise<ServerTransla
   const cache = getOrCreateServerTranslationCache()
   const hit = cache.get(key)
   if (hit) return Promise.resolve(hit)
-  const inFlight = pending.get(key)
+  const inFlight = requestBoundIo && !isEmbeddedRead() ? undefined : pending.get(key)
   if (inFlight) return inFlight
   const promise = read()
     .then(({ entry, shared }) => {
@@ -61,12 +76,15 @@ function cached(key: string, read: () => Promise<Loaded>): Promise<ServerTransla
   return promise
 }
 
+const isEmbeddedRead = () => embeddedPayloads && !resolveServerHost()
+
 const rootChunk = (locale: string, config: ModuleOptionsExtend) =>
   cached(`${locale}:${PREMERGED_ROOT_PAGE}`, () => readChunk(locale, PREMERGED_ROOT_PAGE, config))
 
 /** What the local level misses comes here: the source, behind the shared layer when one is on. */
 function readChunk(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
-  const key = sharedChunkKey(locale, page, config)
+  // embedded dictionaries are in the isolate already: a copy in the storage would be a network read for what memory holds
+  const key = isEmbeddedRead() ? null : sharedChunkKey(locale, page, config, resolveServerHost())
   return key ? readThroughShared(key, locale, page, config) : load(locale, page, config)
 }
 
@@ -77,18 +95,24 @@ async function readThroughShared(key: string, locale: string, page: string, conf
   // kept locally even when it is the root entry: a page with no folder must not pay a storage round trip per request
   if (shared) return { entry }
   const json = JSON.stringify(entry.data)
-  // `{}` is how a failed remote fetch looks: one bad answer must not reach every instance
   if (json === '{}') return { entry }
-  const root = page === PREMERGED_ROOT_PAGE ? null : await rootChunk(locale, config)
+  if (page === PREMERGED_ROOT_PAGE) {
+    await writeSharedChunk(key, json, config)
+    return { entry }
+  }
+  // the root tells a page from a made-up name and from an error body: without one the chunk stays here
+  const root = await rootChunk(locale, config).catch(() => null)
+  if (!root || !Object.keys(root.data).length) return { entry }
   // no page of its own, whatever the name: `source` and a remote host answer made-up pages with
   // the root, and those names must not become keys
-  if (root && JSON.stringify(root.data) === json) return { entry: root }
-  await writeSharedChunk(key, json, config)
+  if (JSON.stringify(root.data) === json) return { entry: root }
+  // a 200 with a well-formed error: every chunk holds the root keys. One bad answer must not reach every instance
+  if (Object.keys(root.data).every((rootKey) => Object.hasOwn(entry.data, rootKey))) await writeSharedChunk(key, json, config)
   return { entry }
 }
 
 async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
-  const { apiBaseServerHost } = getI18nPrivateConfig()
+  const apiBaseServerHost = resolveServerHost()
   if (apiBaseServerHost) {
     const data = await fetchTranslationPayloadFromHost(
       { apiBaseUrl: config.apiBaseUrl, apiBaseServerHost, dateBuild: config.dateBuild },

@@ -29,6 +29,24 @@ test('a page with no folder is an ordinary miss: nothing is logged', async () =>
   expect(fs.access).toHaveBeenCalledTimes(1)
 })
 
+test.each(['ENOTDIR', 'ENAMETOOLONG'])('%s is a name a request made up: a miss', async (code) => {
+  fs.readFile.mockRejectedValue(Object.assign(new Error(code), { code }))
+  expect(await (await reader())('x/en/data.json')).toEqual({})
+})
+
+test.each([
+  ['EACCES', Object.assign(new Error('EACCES'), { code: 'EACCES' })],
+  ['EMFILE', Object.assign(new Error('EMFILE'), { code: 'EMFILE' })],
+])('%s is a failed read, not an empty dictionary', async (_code, error) => {
+  fs.readFile.mockRejectedValue(error)
+  await expect((await reader())('de.json')).rejects.toBe(error)
+})
+
+test('a corrupt file is a failed read', async () => {
+  fs.readFile.mockResolvedValue('{"title":')
+  await expect((await reader())('de.json')).rejects.toThrow(SyntaxError)
+})
+
 test('a payload tree that did not reach the server is logged once, not per request', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   fs.access.mockRejectedValue(enoent())

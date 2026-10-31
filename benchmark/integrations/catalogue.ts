@@ -233,7 +233,7 @@ export const pagePaths = ['/', '/components', '/dictionaries', '/routing', '/big
 export const fetchDictionary = async (path: string): Promise<Dictionary> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`${path}: ${response.status}`)
-  return response.json()
+  return (await response.json()) as Dictionary
 }
 
 export const lazyUrl = (locale: string): string => `/lazy/${locale}.json`

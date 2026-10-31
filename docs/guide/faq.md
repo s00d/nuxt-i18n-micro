@@ -32,7 +32,7 @@ They should not: the leaving page's keys resolve until the transition ends. If t
 
 ### Translations are missing during SSR on Vercel, Netlify or Edge
 
-The server function cannot read `public/` there, so payloads are embedded in the server bundle. That is the default; check that `translationPayloads.serverAssets` is not turned off. See [Deployment](/guide/deployment).
+The server function cannot read `public/` there, so payloads are embedded in the server bundle. That is the default; check that `translationPayloads.serverAssets` is not turned off. If the log says `public/ is not deployed next to the server`, set `nitro.serveStatic: false`. See [Deployment](/guide/deployment).
 
 ### How do I put a link inside a translated sentence?
 
@@ -79,7 +79,7 @@ An old `nuxt-site-config` only knows `@nuxtjs/i18n`. Upgrade `@nuxtjs/seo` to 3 
 
 ### Build error about `@unhead/vue` on Cloudflare
 
-Install `@unhead/vue` in the app so the prerender step finds it, and enable Node compatibility in `wrangler.toml`: `compatibility_flags = ["nodejs_compat"]`.
+Install `@unhead/vue` in the app so the prerender step finds it. The module itself does not need `nodejs_compat`: add `compatibility_flags = ["nodejs_compat"]` to `wrangler.toml` only if something else in the app does.
 
 ## Related
 

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 import { join, relative } from 'node:path'
-import { formatBytes, type TranslationPayloadMode, type TranslationPayloadStats } from './payload-config'
+import type { TranslationPayloadMode, TranslationPayloadStats } from './payload-config'
 
 /**
  * Every `.json` under `dir`, recursively.
@@ -57,9 +57,10 @@ export function getEmbeddedPayloadSizeWarning(preset: string, dir: string, mode:
     collectJsonFiles(dir, files)
     const gzipBytes = files.reduce((sum, file) => sum + gzipSync(readFileSync(file)).length, 0)
     if (gzipBytes <= limit.bytes) return null
-    return embeddedSizeMessage(preset, `${formatBytes(gzipBytes)} gzip`, limit.text, mode)
+    // decimal, as these limits are: 20.5 MB must not print as 19.5 next to a limit of 20
+    return embeddedSizeMessage(preset, `${(gzipBytes / 1_000_000).toFixed(1)} MB gzip`, limit.text, mode)
   }
-  return embeddedSizeMessage(preset, formatBytes(totalBytes), limit.text, mode)
+  return embeddedSizeMessage(preset, `${(totalBytes / MiB).toFixed(1)} MiB`, limit.text, mode)
 }
 
 function embeddedSizeMessage(preset: string, size: string, limitText: string, mode: TranslationPayloadMode): string {

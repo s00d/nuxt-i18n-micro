@@ -113,7 +113,7 @@ describe('translation payload files after the build', () => {
 
     expect(warn('vercel-edge', 'embed-small')).toBeNull()
     expect(warn('vercel-edge', 'embed-plain')).toBeNull()
-    expect(warn('vercel-edge', 'embed-big')).toMatch(/gzip.*1 MB.*Hobby.*2 MB.*Pro.*4 MB.*Enterprise/)
+    expect(warn('vercel-edge', 'embed-big')).toMatch(/3\.0 MB gzip.*1 MB.*Hobby.*2 MB.*Pro.*4 MB.*Enterprise/)
     expect(warn('vercel-edge', 'embed-big')).toContain("mode: 'source'")
     expect(warn('vercel-edge', 'embed-big', 'source')).toContain('apiBaseServerHost')
 

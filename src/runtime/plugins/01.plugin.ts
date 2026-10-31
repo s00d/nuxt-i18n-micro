@@ -26,6 +26,9 @@ import { getCurrentInstance, onActivated, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
+// Every plugin and middleware default export is typed through `nuxt/dist/app`, which a declaration cannot name (TS2883,
+// an empty `.d.ts`). `nuxt/app` is its public name: one import of it in the build is what tells the emit.
+import type {} from 'nuxt/app'
 import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { usePageHead, usePageRoute } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'

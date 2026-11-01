@@ -1,3 +1,4 @@
+import { trimLeadingSlashes } from '@i18n-micro/utils/app-path'
 import { isLocaleAllowedForUnlocalizedRoute, normalizePath, type RouteGenerator } from '@i18n-micro/route-strategy'
 
 /** `localeCodes`: a rule already written under a locale prefix stays as written, a copy would double the prefix. */
@@ -8,7 +9,7 @@ export function shouldLocalizeRouteRulePath(originalPath: string, localeCodes: s
   const path = routeRulePath.startsWith('/') ? routeRulePath : `/${routeRulePath}`
   if (path === '/api' || path.startsWith('/api/')) return false
 
-  const firstSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
+  const firstSegment = trimLeadingSlashes(path).split('/')[0] ?? ''
   return !firstSegment.startsWith('_') && !localeCodes.includes(firstSegment)
 }
 

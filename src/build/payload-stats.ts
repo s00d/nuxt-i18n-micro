@@ -35,10 +35,15 @@ export function scanTranslationPayloadDirectory(dir: string): TranslationPayload
 const MiB = 1024 * 1024
 
 /** Bundle limits of Edge platforms, lowest plan first. Function platforms allow hundreds of MB: no entry. */
-const EMBED_LIMITS: { preset: RegExp; bytes: number; compressed: boolean; text: string }[] = [
-  { preset: /^vercel-edge$/, bytes: 1_000_000, compressed: true, text: 'Vercel Edge allows 1 MB gzip on Hobby, 2 MB on Pro and 4 MB on Enterprise' },
-  { preset: /^netlify-edge$/, bytes: 20_000_000, compressed: true, text: 'Netlify Edge allows 20 MB compressed' },
-  { preset: /^cloudflare-/, bytes: 64 * MiB, compressed: false, text: 'Cloudflare Workers allow 64 MiB uncompressed' },
+const EMBED_LIMITS: { preset: (name: string) => boolean; bytes: number; compressed: boolean; text: string }[] = [
+  {
+    preset: (name) => name === 'vercel-edge',
+    bytes: 1_000_000,
+    compressed: true,
+    text: 'Vercel Edge allows 1 MB gzip on Hobby, 2 MB on Pro and 4 MB on Enterprise',
+  },
+  { preset: (name) => name === 'netlify-edge', bytes: 20_000_000, compressed: true, text: 'Netlify Edge allows 20 MB compressed' },
+  { preset: (name) => name.startsWith('cloudflare-'), bytes: 64 * MiB, compressed: false, text: 'Cloudflare Workers allow 64 MiB uncompressed' },
 ]
 
 /**
@@ -47,7 +52,7 @@ const EMBED_LIMITS: { preset: RegExp; bytes: number; compressed: boolean; text: 
  * the window is 32 KB; a build of a bigger app can pass this check and still fail at deploy.
  */
 export function getEmbeddedPayloadSizeWarning(preset: string, dir: string, mode: TranslationPayloadMode): string | null {
-  const limit = EMBED_LIMITS.find((entry) => entry.preset.test(preset))
+  const limit = EMBED_LIMITS.find((entry) => entry.preset(preset))
   if (!limit) return null
   const { totalBytes } = scanTranslationPayloadDirectory(dir)
   // gzip only shrinks: most builds never pay for it

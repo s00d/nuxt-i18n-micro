@@ -129,6 +129,10 @@ describe('extractDefineI18nRouteData', () => {
 describe('pageFilePathToRoutePath', () => {
   it('maps page files to route paths', () => {
     expect(pageFilePathToRoutePath('/project/pages/index.vue', '/project')).toBe('/')
+    expect(pageFilePathToRoutePath('/project/pages/(\n)/about.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('C:\\p\\app\\pages\\a\\index.vue', 'C:\\p')).toBe('a')
+    expect(pageFilePathToRoutePath('/project/app/pages/(g)/b.vue', '/project')).toBe('b')
+    expect(pageFilePathToRoutePath('/project/pagesx/a.vue', '/project')).toBe('pagesx/a')
     expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
     expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
     expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')

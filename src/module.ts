@@ -2,7 +2,7 @@ import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
-import { isInternalPath } from '@i18n-micro/utils/app-path'
+import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/internal/translation-watcher'
 import { localesOutsideMatcher, RouteGenerator } from '@i18n-micro/route-strategy'
@@ -33,6 +33,7 @@ import {
   shouldReadPayloadsFromPublicDir,
   shouldRegisterNitroServerAssets,
   type TranslationPayloadMode,
+  pathSegments,
 } from './build/payload-config'
 import {
   compressTranslationPayloads,
@@ -87,7 +88,7 @@ async function resolveEntry(specifier: string): Promise<string> {
   } catch {
     absolutePath = await resolvePath(specifier)
   }
-  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : absolutePath.replace(/\\/g, '/')
+  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : forwardSlashes(absolutePath)
 }
 
 function generateI18nTypes(): string {
@@ -472,7 +473,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
       throw new Error('Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.')
     }
-    const apiBaseUrl = rawUrl.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
+    const apiBaseUrl = pathSegments(rawUrl)
     const apiConfig = { apiBaseUrl, apiBaseClientHost, apiBaseServerHost }
     // Public copy lands under apiBaseUrl so static hosts serve the same paths the client fetches.
     const payloadPublicRel = resolveTranslationPayloadPublicRel(options, apiBaseUrl)

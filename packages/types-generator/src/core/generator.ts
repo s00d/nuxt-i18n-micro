@@ -18,9 +18,7 @@ export interface GeneratorOptions {
  * so the .d.ts stays safe when embedded in older JS tooling.
  */
 export function formatKeyProperty(key: string): string {
-  return JSON.stringify(key)
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
+  return JSON.stringify(key).split('\u2028').join('\\u2028').split('\u2029').join('\\u2029')
 }
 
 function typeOf(value: unknown): string {

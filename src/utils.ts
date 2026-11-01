@@ -1,4 +1,5 @@
 import type { DefineI18nRouteConfig } from '@i18n-micro/types'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { parse as parseSFC } from '@vue/compiler-sfc'
 
 function extractScriptContent(content: string): string | null {
@@ -358,34 +359,42 @@ export function extractDefineI18nRouteData(content: string, filePath: string): D
   }
 }
 
+const isSeparator = (char: string | undefined): boolean => char === '/' || char === '\\'
+
+const isIndexPage = (file: string): boolean => file.endsWith('/index.vue') || file.endsWith('\\index.vue')
+
 /** Route paths of the pages that can nest others: `blog.vue`, not `blog/index.vue`. */
 export function parentPagePaths(pageFiles: string[], rootDirs: string[]): string[] {
-  const candidates = pageFiles.filter((file) => !/[/\\]index\.vue$/.test(file))
+  const candidates = pageFiles.filter((file) => !isIndexPage(file))
   return candidates.map((file) => pageFilePathToRoutePath(file, resolveRootDir(file, rootDirs) ?? ''))
 }
 
 /** The longest root the file sits beneath: `/app/layer-2` is not inside `/app/layer`. */
 export function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {
-  const beneath = (root: string) => filePath.startsWith(root) && (/[/\\]$/.test(root) || /[/\\]/.test(filePath.charAt(root.length)))
+  const beneath = (root: string) => filePath.startsWith(root) && (isSeparator(root[root.length - 1]) || isSeparator(filePath[root.length]))
   return [...rootDirs].sort((a, b) => b.length - a.length).find(beneath)
 }
 
 export function pageFilePathToRoutePath(pageFile: string, rootDir: string): string {
-  const relative = pageFile.replace(rootDir, '').replace(/^[/\\]+/, '')
-  const withoutPagesPrefix = relative.replace(/^(app[/\\])?pages[/\\]/, '')
+  const withoutRoot = pageFile.replace(rootDir, '')
+  let start = 0
+  while (isSeparator(withoutRoot[start])) start++
+  const relative = withoutRoot.slice(start)
+  const pagesAt = relative.startsWith('app/') || relative.startsWith('app\\') ? 4 : 0
+  const inPages = relative.startsWith('pages', pagesAt) && isSeparator(relative[pagesAt + 5])
+  const withoutPagesPrefix = inPages ? relative.slice(pagesAt + 6) : relative
 
   if (withoutPagesPrefix === 'index.vue') {
     return '/'
   }
 
-  const raw = withoutPagesPrefix
-    .replace(/[/\\]index\.vue$/, '')
-    .replace(/\.vue$/, '')
-    .replace(/[/\\]$/, '')
-    .replace(/\\/g, '/')
+  let page = isIndexPage(withoutPagesPrefix) ? withoutPagesPrefix.slice(0, -10) : withoutPagesPrefix
+  if (page.endsWith('.vue')) page = page.slice(0, -4)
+  if (isSeparator(page[page.length - 1])) page = page.slice(0, -1)
+  const raw = forwardSlashes(page)
     // a route group folder is not part of the URL
     .split('/')
-    .filter((segment) => !/^\(.+\)$/.test(segment))
+    .filter((segment) => !(segment.length > 2 && segment[0] === '(' && segment.endsWith(')')))
     .join('/')
 
   return raw === '' ? '/' : raw

@@ -56,6 +56,9 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
   }
 }
 
+/** `/a//b/` -> `a/b`. */
+export const pathSegments = (path: string): string => path.split('/').filter(Boolean).join('/')
+
 /**
  * Public payload directory relative to Nitro's public root.
  * Defaults to `apiBaseUrl` (`_locales`) so static files match client fetch URLs.
@@ -63,14 +66,9 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
 export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl?: string): string {
   const explicit = options.translationPayloads?.publicDir
   if (explicit !== undefined && explicit !== null && String(explicit).length > 0) {
-    return (
-      String(explicit)
-        .replace(/^\/+|\/+$/g, '')
-        .replace(/\/{2,}/g, '/') || '_locales'
-    )
+    return pathSegments(String(explicit)) || '_locales'
   }
-  const base = (apiBaseUrl ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
-  return base || '_locales'
+  return pathSegments(apiBaseUrl ?? options.apiBaseUrl ?? '_locales') || '_locales'
 }
 
 export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl?: string): string {

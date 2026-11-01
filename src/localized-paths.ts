@@ -153,7 +153,7 @@ export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<P
       if (!isPage(path) || (served && !served.includes(locale)) || isUnlocalized(path)) return null
       const target = strategy.localeRoute(locale, path).fullPath
       // another domain's URL: not this site's to prerender
-      return target && target !== path && !/^https?:/.test(target) ? target : null
+      return target && target !== path && !target.startsWith('https:') && !target.startsWith('http:') ? target : null
     },
     localeOf: (path) => strategy.getLocaleFromPath(path),
     isUnlocalized,

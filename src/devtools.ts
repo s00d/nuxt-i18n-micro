@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { isInsideDir } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
@@ -181,7 +182,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
               processDirectory(filePath, baseDir)
             } else if (file.endsWith('.json')) {
               try {
-                const relativePath = path.relative(baseDir, filePath).replace(/\\/g, '/')
+                const relativePath = forwardSlashes(path.relative(baseDir, filePath))
                 filesList[relativePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
               } catch (e) {
                 console.error(`Error parsing locale file ${filePath}:`, e)

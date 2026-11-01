@@ -1,9 +1,10 @@
 import path from 'node:path'
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 
 /** `a//b/` -> `a/b`; `''` and `.` -> `''`. */
 export function normalizePath(routePath: string): string {
   if (!routePath) return ''
-  const normalized = path.posix.normalize(routePath).replace(/\/+$/, '')
+  const normalized = trimTrailingSlashes(path.posix.normalize(routePath))
   return normalized === '.' ? '' : normalized
 }
 
@@ -71,7 +72,7 @@ export function childSegment(parentLocalizedPath: string, customValue: string): 
 export function rulePattern(routePath: string): string | null {
   const segments = absolute(routePath).split('/').slice(1)
   if (segments[0]?.includes(':')) return null
-  const repeatable = segments.findIndex((segment) => /[*+?]$/.test(segment))
+  const repeatable = segments.findIndex((segment) => segment.endsWith('*') || segment.endsWith('+') || segment.endsWith('?'))
   const fixed = repeatable === -1 ? segments : [...segments.slice(0, repeatable), '**']
   return `/${fixed.map((segment) => segment.replace(/^(:\w+)\(.*\)$/, '$1')).join('/')}`
 }

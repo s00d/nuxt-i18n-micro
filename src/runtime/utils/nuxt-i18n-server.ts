@@ -55,87 +55,66 @@ function touches(fragments: readonly Tree[], key: string): boolean {
  * ponytail: what needs the whole tree (`$resolveTranslations`, `$setTranslation`) merges once, at O(chunk) for that request.
  */
 export class ServerNuxtI18n extends NuxtI18n {
-  /** Patches not merged yet, in order, per chunk. */
-  private readonly overlays = new Map<string, Tree[]>()
-  /** Those of the dictionary on screen. Held apart: eviction can drop its chunk while the dictionary stays. */
-  private activeOverlay: Tree[] | undefined
+  /** Patches of the dictionary on screen, not merged yet, in order. A chunk off screen is read by no one here: it merges at once. */
+  private overlay: Tree[] | undefined
+
+  private keyOnScreen(): string {
+    return this.getCacheKey(this.getLocale(), this.getCurrentRouteName())
+  }
 
   /** The merge the patches stood in for, once a caller needs the tree. */
-  private settle(key: string): void {
-    const fragments = this.overlays.get(key)
-    if (!fragments) return
-    this.overlays.delete(key)
-    const active = fragments === this.activeOverlay
-    const merged = fragments.reduce<Tree>((tree, fragment) => mergeTranslationChunk(tree, fragment), this.chunkAt(key, active))
-    this.storePatched(key, merged)
-    if (!active) return
+  private settle(): void {
+    if (!this.overlay) return
+    const merged = this.overlay.reduce<Tree>((tree, fragment) => mergeTranslationChunk(tree, fragment), this.cachedTranslations)
+    this.overlay = undefined
     this.cachedTranslations = merged
-    this.activeOverlay = undefined
-  }
-
-  private chunkAt(key: string, active: boolean): Tree {
-    return active ? this.cachedTranslations : ((this.storage.translations.get(key) ?? {}) as Tree)
-  }
-
-  private settleActive(): void {
-    if (this.activeOverlay) this.settle(this.getCacheKey(this.getLocale(), this.getCurrentRouteName()))
+    this.storePatched(this.keyOnScreen(), merged)
   }
 
   override getChunk(locale: string, routeName?: string): Tree {
-    this.settle(this.getCacheKey(locale, routeName))
+    if (this.overlay && this.getCacheKey(locale, routeName) === this.keyOnScreen()) this.settle()
     return super.getChunk(locale, routeName)
   }
 
   protected override patch(locale: string, routeName: string, translations: Translations): void {
-    const key = this.getCacheKey(locale, routeName)
-    const chunk = this.storage.translations.get(key)
     const active = locale === this.getLocale() && (routeName || 'index') === this.getRoute()
-    // nothing to lay it over: a first write, or a dictionary its chunk does not hold (a stand-in)
-    if (!chunk || (active && chunk !== this.cachedTranslations)) return super.patch(locale, routeName, translations)
+    // elsewhere, a first write, or a dictionary its chunk does not hold (a stand-in): the plain merge
+    if (!active || this.storage.translations.get(this.keyOnScreen()) !== this.cachedTranslations) return super.patch(locale, routeName, translations)
     // a copy, as a merge makes: the object stays the caller's
-    const fragment = mergeTranslationChunk({}, translations as Tree)
-    const fragments = this.overlays.get(key)
-    if (fragments) fragments.push(fragment)
-    else this.overlays.set(key, [fragment])
-    if (!active) return
-    this.activeOverlay = this.overlays.get(key)
+    ;(this.overlay ??= []).push(mergeTranslationChunk({}, translations as Tree))
     this.notifyLoaded()
   }
 
   protected override resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
-    if (!this.overlays.size && !this.activeOverlay) return super.resolveLookup(key, routeContext)
+    if (!this.overlay) return super.resolveLookup(key, routeContext)
     const text = String(key)
     const chunkKey = routeContext ? this.chunkKeyOf(routeContext) : undefined
-    const fragments = chunkKey ? this.overlays.get(chunkKey) : this.activeOverlay
-    if (!fragments || !touches(fragments, text)) return super.resolveLookup(key, routeContext)
-    const chunk = chunkKey ? this.storage.translations.get(chunkKey) : this.cachedTranslations
-    return resolveLayered([chunk ?? {}, ...fragments], text)
+    if ((chunkKey !== undefined && chunkKey !== this.keyOnScreen()) || !touches(this.overlay, text)) return super.resolveLookup(key, routeContext)
+    return resolveLayered([this.cachedTranslations, ...this.overlay], text)
   }
 
   override applySwitchContext(locale: string, routeName: string | undefined, data: Tree | null): void {
-    this.settleActive()
+    this.settle()
     super.applySwitchContext(locale, routeName, data)
   }
 
   override resolveTranslations(routeContext?: unknown): Translations {
-    this.settleActive()
+    this.settle()
     return super.resolveTranslations(routeContext)
   }
 
   override setTranslation(key: TranslationKey, value: unknown): void {
-    this.settleActive()
+    this.settle()
     super.setTranslation(key, value)
   }
 
   override dropChunks(): void {
-    this.settleActive()
-    this.overlays.clear()
+    this.settle()
     super.dropChunks()
   }
 
   override clearCache(): void {
-    this.overlays.clear()
-    this.activeOverlay = undefined
+    this.overlay = undefined
     super.clearCache()
   }
 }

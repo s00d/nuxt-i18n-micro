@@ -168,12 +168,23 @@ test('a caller keeps its object', () => {
 })
 
 test('a patch laid over a chunk that was evicted settles to a fragment: the file still loads', () => {
-  const i18n = new ServerNuxtI18n({ cacheMaxSize: 2 })
-  show(i18n, 'en', 'a', { a: 'A' })
-  i18n.installChunk('en', 'b', { b: 'B' })
-  ;(i18n as unknown as { patch: (locale: string, route: string, patch: Tree) => void }).patch('en', 'b', { p: 'P' })
+  const i18n = new ServerNuxtI18n({ cacheMaxSize: 1 })
+  show(i18n, 'en', 'b', { b: 'B' })
+  i18n.mergeTranslations({ p: 'P' })
   i18n.installChunk('en', 'c', { c: 'C' })
-  i18n.installChunk('en', 'd', { d: 'D' })
-  expect(i18n.getChunk('en', 'b')).toEqual({ p: 'P' })
+  expect(i18n.getChunk('en', 'b')).toEqual({ b: 'B', p: 'P' })
   expect(i18n.hasChunk('en', 'b')).toBe(false)
+})
+
+test('a patch of a chunk off screen is a plain merge, so eviction treats it as on the client', () => {
+  const server = new ServerNuxtI18n({ cacheMaxSize: 2 })
+  const client = new NuxtI18n({ cacheMaxSize: 2 })
+  for (const i18n of [server, client]) {
+    show(i18n, 'en', 'a', { a: 'A' })
+    i18n.installChunk('en', 'b', { b: 'B' })
+    void i18n.loadPageTranslations('en', 'b', { p: 'P' })
+    i18n.installChunk('en', 'c', { c: 'C' })
+  }
+  expect(server.getChunk('en', 'b')).toEqual(client.getChunk('en', 'b'))
+  expect(server.hasChunk('en', 'b')).toBe(client.hasChunk('en', 'b'))
 })

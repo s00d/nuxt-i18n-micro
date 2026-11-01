@@ -79,6 +79,7 @@
   "/mw/named",
   "/mw/global",
   "/server-api",
+  "/debug",
   "/admin",
   "/admin/settings",
   "/excluded-glob/one",

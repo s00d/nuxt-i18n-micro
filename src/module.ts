@@ -444,8 +444,9 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    const pageGlobs = rootDirs.flatMap((root) => [join(root, 'pages/**/*.vue'), join(root, 'app/pages/**/*.vue')])
-    const pageFiles = await globby(pageGlobs, { absolute: true })
+    // by `cwd`, not a joined pattern: a `\\` of a Windows path is an escape in a glob, the pattern then loses its base and
+    // the scan walks everything under the working directory, through symlinks
+    const pageFiles = (await Promise.all(rootDirs.map((cwd) => globby(['pages/**/*.vue', 'app/pages/**/*.vue'], { cwd, absolute: true })))).flat()
 
     const {
       routeLocales,

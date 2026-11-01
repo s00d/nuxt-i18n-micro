@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { promisify } from 'node:util'
 import { defineCommand } from 'citty'
 import { assertBaseResolvable, changedPackageNames, listWorkspacePackages, resolveBase } from '../utils/git-baseline'
@@ -113,7 +113,7 @@ export async function fetchNpmLatestBulk(names: readonly string[]): Promise<NpmL
 }
 
 async function listTarballPaths(tarball: string): Promise<string[]> {
-  const listing = await runAsync('tar', ['-tzf', tarball])
+  const listing = await runAsync('tar', ['-tzf', basename(tarball)], { cwd: dirname(tarball) })
   return listing
     .split('\n')
     .filter(Boolean)
@@ -125,7 +125,8 @@ async function listTarballPaths(tarball: string): Promise<string[]> {
 async function readPackedManifest(tarball: string): Promise<PackageManifest> {
   const extractDir = mkdtempSync(join(tmpdir(), 'i18n-compare-manifest-'))
   try {
-    await runAsync('tar', ['-xzf', tarball, '-C', extractDir, 'package/package.json'])
+    // by name and with `/`: GNU tar takes `C:` for a remote host and `\r` for an escape
+    await runAsync('tar', ['-xzf', basename(tarball), '-C', extractDir.replaceAll('\\', '/'), 'package/package.json'], { cwd: dirname(tarball) })
     return parseManifest(readFileSync(join(extractDir, 'package/package.json'), 'utf8'))
   } finally {
     rmSync(extractDir, { recursive: true, force: true })

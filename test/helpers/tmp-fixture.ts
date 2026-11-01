@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 
 const fixturesDir = fileURLToPath(new URL('../fixtures', import.meta.url))
 const repoNodeModules = fileURLToPath(new URL('../../node_modules', import.meta.url))
+// on the repo's drive: Nuxt cannot scan a module's components from another one (`relative()` stays absolute), and Windows runners keep temp on C:
+const tmpBase = process.platform === 'win32' ? fileURLToPath(new URL('../.untestutils/tmp', import.meta.url)) : tmpdir()
 const SKIP = new Set(['node_modules', '.nuxt', '.output', '.nuxt-test'])
 
 /** Env key that carries the copy's path from the vitest main process to its forks (they inherit env). */
@@ -26,7 +28,8 @@ export function tmpFixture(name: string, variant?: string): string {
   if (existing && existsSync(existing)) return existing
 
   const source = resolve(fixturesDir, name)
-  const root = mkdtempSync(join(tmpdir(), `i18n-fixture-${id}-`))
+  mkdirSync(tmpBase, { recursive: true })
+  const root = mkdtempSync(join(tmpBase, `i18n-fixture-${id}-`))
   // dereference: a relative symlink in a fixture would dangle in the copy
   cpSync(source, root, { recursive: true, dereference: true, filter: (path) => !SKIP.has(basename(path)) })
   absolutizeConfigImports(source, root)

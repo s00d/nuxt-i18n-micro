@@ -21,14 +21,14 @@ const tarballFor = (manifest: PackageManifest): string => {
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2))
   writeFileSync(join(dir, 'index.mjs'), 'export default 1\n')
   const tarball = join(work, `${String(manifest.name).replace(/[@/]/g, '-')}.tgz`)
-  execFileSync('tar', ['-czf', basename(tarball), '-C', join(dir, '..'), 'package'], { cwd: work })
+  execFileSync('tar', ['-czf', basename(tarball), '-C', join(dir, '..').replaceAll('\\', '/'), 'package'], { cwd: work })
   return tarball
 }
 
 const manifestIn = (tarball: string): PackageManifest => {
   const out = join(work, `read-${Math.random().toString(36).slice(2)}`)
   mkdirSync(out, { recursive: true })
-  execFileSync('tar', ['-xzf', basename(tarball), '-C', out], { cwd: work })
+  execFileSync('tar', ['-xzf', basename(tarball), '-C', out.replaceAll('\\', '/')], { cwd: work })
   return JSON.parse(readFileSync(join(out, 'package', 'package.json'), 'utf8')) as PackageManifest
 }
 

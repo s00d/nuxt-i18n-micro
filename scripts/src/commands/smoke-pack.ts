@@ -36,8 +36,10 @@ function pack(cwd: string, outDir: string, ignoreScripts: boolean): Packed {
  */
 export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>): void {
   const work = mkdtempSync(join(tmpdir(), 'i18n-relink-'))
+  // GNU tar reads `\r` in a `-C` path as an escape
+  const workDir = work.replaceAll('\\', '/')
   try {
-    execFileSync('tar', ['-xzf', basename(tarball), '-C', work], { cwd: dirname(tarball) })
+    execFileSync('tar', ['-xzf', basename(tarball), '-C', workDir], { cwd: dirname(tarball) })
     const pkgPath = join(work, 'package', 'package.json')
     const pkg = parseManifest(readFileSync(pkgPath, 'utf8'))
 
@@ -59,7 +61,7 @@ export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>
     const list = join(work, '.files')
     const files = walkFiles(work, { skipDirs: new Set() })
     writeFileSync(list, files.join('\n'))
-    execFileSync('tar', ['-czf', basename(tarball), '-C', work, '-T', list], { cwd: dirname(tarball) })
+    execFileSync('tar', ['-czf', basename(tarball), '-C', workDir, '-T', list.replaceAll('\\', '/')], { cwd: dirname(tarball) })
   } finally {
     rmSync(work, { recursive: true, force: true })
   }

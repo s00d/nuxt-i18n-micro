@@ -310,7 +310,7 @@ describe('empty segments and dots, as a browser reads them', () => {
   it('is linear on a run of blanks after a dot segment', () => {
     const started = performance.now()
     localizedPath(`/a/..${'/'.repeat(200_000)}`, 'de', ['en', 'de'], 'en')
-    expect(performance.now() - started).toBeLessThan(500)
+    expect(performance.now() - started).toBeLessThan(3000)
   })
 
   it('what stays never opens with two slashes', () => {

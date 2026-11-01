@@ -1,14 +1,6 @@
-import { isNoPrefixStrategy, textOf, urlPath } from '@i18n-micro/core'
+import { isNoPrefixStrategy, urlPath } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
-import type {
-  DefineI18nRouteConfig,
-  I18nRouteParams,
-  MissingHandler,
-  ModuleOptionsExtend,
-  Params,
-  TranslationKey,
-  Translations,
-} from '@i18n-micro/types'
+import type { DefineI18nRouteConfig, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { hasProtocol } from 'ufo'
 import { getCurrentInstance, onActivated, watch } from 'vue'
@@ -176,10 +168,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, _locale?: string) =>
       i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? '',
     t: i18n.t.bind(i18n),
-    ts: (key: TranslationKey, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
-      const value = route ? i18n.t(key, params, defaultValue, route) : i18n.ts(key, params, defaultValue)
-      return textOf(value) ?? defaultValue ?? key
-    },
+    ts: i18n.ts.bind(i18n),
     _t: (route: RouteLocationNormalizedLoaded) => i18n.tForRoute(route),
     _ts: (route: RouteLocationNormalizedLoaded) => i18n.tsForRoute(route),
     tc: i18n.tc.bind(i18n),

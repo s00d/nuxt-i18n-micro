@@ -85,7 +85,7 @@ export class TranslationHelper {
   }
 
   /** Deep-merges into the chunk; incoming wins. */
-  mergeTranslation(locale: string, routeName: string, incoming: Translations, _force = false): void {
+  mergeTranslation(locale: string, routeName: string, incoming: Translations): void {
     const chunkKey = translationCacheKey(locale, routeName)
     // ponytail: a merge copies the chunk's top level (O(top-level keys)); fine for loads and patches, not for per-key loops.
     const existing = (this.translations.get(chunkKey) ?? {}) as Tree

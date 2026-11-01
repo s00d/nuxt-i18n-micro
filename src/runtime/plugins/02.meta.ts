@@ -59,9 +59,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
 
   const { build } = useLocaleHead({
-    addDirAttribute: true,
-    identifierAttribute: 'id',
-    addSeoAttributes: true,
     baseUrl,
     autoUpdate: false,
   })

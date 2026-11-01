@@ -22,7 +22,6 @@ export default defineNuxtPlugin({
   dependsOn: ['i18n-plugin-loader'],
   // annotated: the plugin types are inferred from every plugin's setup, this one included
   setup(nuxtApp): Promise<void> | void {
-    if (!import.meta.server) return
     const i18nStrategy: PathStrategy = nuxtApp.$i18nStrategy
     const getRuntimeConfig: () => ModuleOptionsExtend = nuxtApp.$getI18nConfig
     const event = useRequestEvent()

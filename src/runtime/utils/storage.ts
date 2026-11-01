@@ -75,10 +75,6 @@ class TranslationStorage {
     return import.meta.server ? Object.freeze(data) : data
   }
 
-  private getCacheKey(locale: string, routeName?: string): string {
-    return translationCacheKey(locale, routeName)
-  }
-
   // ==========================================================================
   // FETCH LOADER
   // ==========================================================================
@@ -108,7 +104,7 @@ class TranslationStorage {
     if (data === null || (typeof data === 'object' && !Array.isArray(data))) return data
     if (routeName !== PREMERGED_ROOT_PAGE) return null
     // a 200 with another body on the root file too: a portal or a proxy, not this site's files
-    throw new TypeError(`[i18n] Invalid translation payload: ${this.getCacheKey(locale, routeName)}`)
+    throw new TypeError(`[i18n] Invalid translation payload: ${translationCacheKey(locale, routeName)}`)
   }
 
   private request(locale: string, routeName: string | undefined, options: LoadOptions, isServer: boolean) {
@@ -139,7 +135,7 @@ class TranslationStorage {
    * Returns data if cached (and not expired), otherwise null.
    */
   getFromCache(locale: string, routeName?: string): LoadResult | null {
-    const cacheKey = this.getCacheKey(locale, routeName)
+    const cacheKey = translationCacheKey(locale, routeName)
 
     // From cache
     const cached = this.cc.get(cacheKey)
@@ -160,7 +156,7 @@ class TranslationStorage {
     const cached = direct ? null : this.getFromCache(locale, routeName)
     if (cached) return cached
 
-    const cacheKey = this.getCacheKey(locale, routeName)
+    const cacheKey = translationCacheKey(locale, routeName)
     const clears = this.cc.clears
     const data = await this.fetchChunk(locale, routeName, options)
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)

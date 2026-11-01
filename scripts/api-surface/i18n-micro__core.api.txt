@@ -169,7 +169,7 @@ member TranslationHelper.leavesOf: private (tree: Translations) => Map<string, u
 member TranslationHelper.loadPageTranslations: (locale: string, routeName: string, data: Translations) => void
 member TranslationHelper.loadTranslations: (locale: string, data: Translations, routeName?: string) => void
 member TranslationHelper.lookup: (chunkKey: string, key: string) => unknown | null
-member TranslationHelper.mergeTranslation: (locale: string, routeName: string, incoming: Translations, _force?: boolean) => void
+member TranslationHelper.mergeTranslation: (locale: string, routeName: string, incoming: Translations) => void
 member TranslationHelper.setTranslations: (locale: string, data: Translations, routeName?: string) => void
 member TranslationHelper.translations: Map<string, Translations>
 member TranslationHelper.new: (storage?: TranslationStorage | undefined): TranslationHelper

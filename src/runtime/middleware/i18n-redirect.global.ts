@@ -13,7 +13,7 @@ import { applyTrailingSlash } from '../utils/trailing-slash'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {
-  if (!name || typeof document === 'undefined') return null
+  if (!name) return null
   const prefix = `${encodeURIComponent(name)}=`
   const entry = document.cookie.split('; ').find((part) => part.startsWith(prefix))
   // a malformed cookie is absent (D2), not a throw on every navigation

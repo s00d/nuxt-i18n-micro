@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readdirSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, symlinkSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -39,7 +39,7 @@ describe('package publish checks', () => {
     execSync('publint', { cwd: packageRoot, stdio: 'pipe', encoding: 'utf8' })
   })
 
-  it('npm pack tarball contains self-contained dist entrypoints', async () => {
+  it('npm pack tarball contains working dist entrypoints', async () => {
     const packDir = mkdtempSync(join(tmpdir(), 'path-strategy-pack-'))
     const output = execSync(`npm pack --json --pack-destination ${JSON.stringify(packDir)}`, {
       cwd: packageRoot,
@@ -58,6 +58,8 @@ describe('package publish checks', () => {
     const extractDir = mkdtempSync(join(tmpdir(), 'path-strategy-extract-'))
     execSync(`tar -xzf ${JSON.stringify(tarballPath)} -C ${JSON.stringify(extractDir)}`, { encoding: 'utf8' })
     const packageDir = join(extractDir, 'package')
+    // its dependencies, as an install would bring them
+    symlinkSync(join(packageRoot, 'node_modules'), join(packageDir, 'node_modules'))
     const routes = [
       { name: 'about', path: '/about', meta: { i18n: { name: 'about', locales: ['en'] } } },
       { name: 'localized-about', path: '/:locale(zh)/about', meta: { i18n: { name: 'about', locales: ['zh'] } } },

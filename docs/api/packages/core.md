@@ -279,7 +279,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `loadPageTranslations` | `(locale: string, routeName: string, data: Translations) => void` |
 | `loadTranslations` | `(locale: string, data: Translations, routeName?: string) => void` |
 | `lookup` | `(chunkKey: string, key: string) => unknown \| null` |
-| `mergeTranslation` | `(locale: string, routeName: string, incoming: Translations, _force?: boolean) => void` |
+| `mergeTranslation` | `(locale: string, routeName: string, incoming: Translations) => void` |
 | `new` | `(storage?: TranslationStorage \| undefined): TranslationHelper` |
 | `setTranslations` | `(locale: string, data: Translations, routeName?: string) => void` |
 | `translations` | `Map<string, Translations>` |

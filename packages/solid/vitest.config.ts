@@ -29,6 +29,7 @@ export default defineConfig({
     name: 'solid',
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['../../test/helpers/quiet-jsdom.ts'],
     // one Solid instance: the router and solid-js/web go through Vite with the browser build
     server: { deps: { inline: [/solid-js/, /@solidjs\/router/] } },
     include: ['tests/**/*.{test,spec}.{ts,tsx}'],

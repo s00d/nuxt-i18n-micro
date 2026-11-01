@@ -52,6 +52,7 @@ export default defineConfig({
     name: 'preact',
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['../../test/helpers/quiet-jsdom.ts'],
     include: ['tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', 'tests/publish/**', '**/perf-benchmark*', '**/__perf__/**'],
     server: {

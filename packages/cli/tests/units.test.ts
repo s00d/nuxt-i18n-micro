@@ -325,6 +325,28 @@ describe('url credentials', () => {
     expect(out).toEqual(['echo ***'])
   })
 
+  it.each([
+    ['http://127.0.0.1:9/api?owner=me@corp.test&token=SECRETKEY123', 'http://127.0.0.1:9/api'],
+    ['http://127.0.0.1:9/x;jsessionid=S3CRET@y', 'http://127.0.0.1:9/x'],
+    ['http://127.0.0.1:9/x#a@b', 'http://127.0.0.1:9/x'],
+  ])('an @ after the address is no credential: %s', async (url, shown) => {
+    const failure = (await request(url, { retries: 0 }).catch((error: unknown) => error)) as { details: { URL: string } }
+    expect(failure.details.URL).toBe(shown)
+  })
+
+  it.each([
+    ['https://a@host.test/x', 'status: all data available', 'status: all data available'],
+    ['https://h.test:8443/x?user=a@b', 'calling h.test on port 8443', 'calling h.test on port 8443'],
+    ['https://bob:pa?ss@h.test/x', 'open https://bob:pa?ss@h.test/x', 'open https://***@h.test/x'],
+  ])('credentials of %s leave the rest of the text alone', (url, text, shown) => {
+    const out: string[] = []
+    const logSpy = vi.spyOn(console, 'log').mockImplementation((line: unknown) => void out.push(String(line)))
+    addUrlSecrets(url)
+    log.info(text)
+    logSpy.mockRestore()
+    expect(out).toEqual([shown])
+  })
+
   it('an error names the URL without them', async () => {
     const failure = (await request('http://someone:UNREGISTERED@127.0.0.1:9/x', { retries: 0 }).catch((error: unknown) => error)) as {
       details: { URL: string }

@@ -20,9 +20,7 @@ const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout
 /** What a URL may show in an error: query strings carry API keys (`?key=`). */
 function safeUrl(url: string): string {
   const { scheme, host } = urlParts(url)
-  let end = 0
-  while (end < host.length && host[end] !== '?' && host[end] !== '#' && host[end] !== ';') end++
-  return scheme + host.slice(0, end)
+  return scheme + host
 }
 
 function messageFromBody(body: string): string {

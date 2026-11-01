@@ -11,8 +11,13 @@ export function addSecret(value: string | undefined): void {
   secrets.add(encodeURIComponent(value))
 }
 
-/** A URL split around its last `@`. Not a `.*` regex: that stops at a line end and leaves the password in the text. */
-export function urlParts(address: string): { scheme: string; credentials?: string; host: string } {
+/**
+ * A URL up to its query, split around the last `@` there: one in the query is no part of the address.
+ * Not a `.*` regex: that stops at a line end and leaves the password in the text.
+ */
+export function urlParts(url: string): { scheme: string; credentials?: string; host: string } {
+  const end = url.search(/[?#;]/)
+  const address = end === -1 ? url : url.slice(0, end)
   const at = address.lastIndexOf('@')
   if (at === -1) return { scheme: '', host: address }
   const slashes = address.indexOf('://')
@@ -27,8 +32,7 @@ export function addUrlSecrets(url: string | undefined): void {
   for (const pair of tail) addSecret(pair.slice(pair.indexOf('=') + 1))
   const { credentials } = urlParts(url)
   if (!credentials) return
-  secrets.add(credentials)
-  secrets.add(encodeURIComponent(credentials))
+  addSecret(credentials)
   const colon = credentials.indexOf(':')
   addSecret(colon === -1 ? credentials : credentials.slice(0, colon))
   if (colon !== -1) addSecret(credentials.slice(colon + 1))
@@ -36,7 +40,9 @@ export function addUrlSecrets(url: string | undefined): void {
 
 const URL_CREDENTIALS = /(\/\/)[^/\s]+@/g
 
-const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text).replace(URL_CREDENTIALS, '$1***@')
+/** The address first and the longest secret first: a part replaced earlier would leave the rest of a longer one in view. */
+const redact = (text: string): string =>
+  [...secrets].sort((a, b) => b.length - a.length).reduce((out, secret) => out.replaceAll(secret, '***'), text.replace(URL_CREDENTIALS, '$1***@'))
 
 const useColor = (stream: NodeJS.WriteStream): boolean => Boolean(stream.isTTY) && !process.env.NO_COLOR
 const paint = (stream: NodeJS.WriteStream, code: number, text: string): string => (useColor(stream) ? `\u001B[${code}m${text}\u001B[39m` : text)

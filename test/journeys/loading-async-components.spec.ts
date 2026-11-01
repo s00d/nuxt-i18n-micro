@@ -129,9 +129,13 @@ describe('J8 translation loading: async components', () => {
     await expect(page.locator('h1')).toHaveText('Async Components Test Suite')
     await page.click('text=🧪 Async Components Test 1')
     await expect(page).toHaveURL('/async-components-test')
+    // the page's lazy chunks first: leaving cuts them off, and WebKit and Firefox report that
+    await expect(page.locator('.async-component-with-error h3')).toBeVisible()
     await goto('/async-components', { waitUntil: 'hydration' })
     await page.click('text=🧪 Async Components Test 2')
     await expect(page).toHaveURL('/async-components-test-2')
+    await expect(page.locator('.multiple-async-component-3')).toBeVisible()
+    await expect(page.locator('.delayed-async-component h3')).toBeVisible()
     await goto('/async-components', { waitUntil: 'hydration' })
     await expect(page.locator('text=Current Locale:')).toBeVisible()
     await page.click('button:has-text("Русский")')

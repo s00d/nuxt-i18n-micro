@@ -10,7 +10,7 @@ import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
 import { rm } from 'node:fs/promises'
-import { chromium, expect as playwrightExpect } from '@playwright/test'
+import { chromium, firefox, webkit, expect as playwrightExpect } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
 import { isolatedBuild } from './helpers/isolated-build'
@@ -108,7 +108,7 @@ describe('useI18nHead after nuxi generate', () => {
   })
 
   test('static site in a browser: index links, reload, direct visit', { timeout: 120_000 }, async () => {
-    const browser = await chromium.launch()
+    const browser = await { chromium, firefox, webkit }[(process.env.E2E_BROWSER as 'chromium') || 'chromium'].launch()
     const page = await browser.newPage()
     try {
       // step 1: index head

@@ -16,7 +16,8 @@ export default defineConfig({
   plugins: [
     untestutils({
       recipes,
-      browsers: ['chromium'],
+      // E2E_BROWSER=firefox|webkit locally (`test:e2e:browsers` runs all three); CI stays on chromium
+      browsers: [(process.env.E2E_BROWSER as 'chromium' | 'firefox' | 'webkit') || 'chromium'],
       artifactsRoot: fileURLToPath(new URL('./test/.untestutils', import.meta.url)),
       // fixture builds start together, and a build has its own budget (not the test's timeout)
       prewarmConcurrency: maxForks,

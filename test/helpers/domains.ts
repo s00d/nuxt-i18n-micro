@@ -36,6 +36,10 @@ export const alternateOf = (html: string, id: string) =>
   new RegExp(`<link[^>]*id="i18n-alternate-${id}"[^>]*href="([^"]*)"`).exec(html)?.[1] ??
   new RegExp(`<link[^>]*href="([^"]*)"[^>]*id="i18n-alternate-${id}"`).exec(html)?.[1]
 
+/** WebKit fails a fetch cut off by `page.goto` and the leaving page still runs: leave a page only once it hydrated. */
+export const hydrated = (page: Page) =>
+  page.waitForFunction(() => (globalThis as unknown as { useNuxtApp?: () => { isHydrating?: boolean } }).useNuxtApp?.().isHydrating === false)
+
 /** The browser opens the real domains; every request of them goes to the test server with that Host. */
 export async function routeDomains(page: Page, baseURL: string) {
   await page.route(/^https:\/\/example\.(?:com|de)\//, async (route) => {

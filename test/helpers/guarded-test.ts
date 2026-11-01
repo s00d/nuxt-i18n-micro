@@ -10,13 +10,21 @@ export interface BrowserGuard {
 
 const isHydrationText = (text: string) => /hydration|mismatch/i.test(text)
 
+/** WebKit words a same-origin fetch cut off by leaving the page as a CORS failure: same origin has no CORS to fail. */
+const isCutOffFetch = (message: string, pageUrl = '') => {
+  const host = /^\/([^/ ]+)\/\S* due to access control checks\.$/.exec(message)?.[1]
+  return host !== undefined && pageUrl.includes(`//${host}/`)
+}
+
 /** Every document >= 500, uncaught error, console error and hydration warning of a test's browser context. */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
   context.on('response', (res) => {
     if (res.request().resourceType() === 'document' && res.status() >= 500) issues.push(`document ${res.status()}: ${res.url()}`)
   })
-  context.on('weberror', (err) => issues.push(`pageerror: ${err.error().message}`))
+  context.on('weberror', (err) => {
+    if (!isCutOffFetch(err.error().message, err.page()?.url())) issues.push(`pageerror: ${err.error().message}`)
+  })
   context.on('console', (msg) => {
     const text = msg.text()
     if (msg.type() === 'error' || (msg.type() === 'warning' && isHydrationText(text)))

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Dialog, Page } from '@playwright/test'
 import { ssr } from '../helpers/journeys-b.ts'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
@@ -155,26 +155,30 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     await expect(page.locator('.switcher-locale-de').first()).toHaveAttribute('href', '/de/slug/2-zwei')
   })
 
-  test('a slug from the URL is text in the server HTML', async ({ page, goto, baseURL, guard }) => {
+  test('a slug from the URL is text in the server HTML', async ({ browser, page, goto, baseURL }) => {
     // step 1: `$&` in a slug must not paste the match into the attribute, with the app's JS off too
-    guard.allow(/Failed to load resource/)
     const xss = '/en/echo/a$&b?/autofocus/onfocus=alert(1)//'
     const fired: string[] = []
-    page.on('dialog', async (dialog) => {
+    const onDialog = async (dialog: Dialog) => {
       fired.push(dialog.message())
       await dialog.dismiss()
-    })
-    await page.route('**/_nuxt/**', (route) => route.abort())
-    await page.goto(xss)
-    await page.waitForTimeout(150)
+    }
+    // a context of its own: WebKit keeps the aborted scripts failed for the next load in the same one
+    const noApp = await browser.newContext({ baseURL })
+    const bare = await noApp.newPage()
+    bare.on('dialog', onDialog)
+    page.on('dialog', onDialog)
+    await bare.route('**/_nuxt/**', (route) => route.abort())
+    await bare.goto(xss)
+    await bare.waitForTimeout(150)
     expect(
-      await page
+      await bare
         .locator('.switcher-locale-de')
         .first()
         .evaluate((link) => link.getAttributeNames()),
     ).toEqual(['class', 'href', 'hreflang', 'lang', 'style'])
     expect(fired).toEqual([])
-    await page.unroute('**/_nuxt/**')
+    await noApp.close()
 
     // step 2: the client builds the same link, so hydration has nothing to say (the guard fails the test on a warning)
     await goto(xss, { waitUntil: 'hydration' })

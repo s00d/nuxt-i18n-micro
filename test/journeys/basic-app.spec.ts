@@ -421,8 +421,11 @@ describe('journey: basic app', () => {
     // was: locale-slug › Test Locale Path, › Test Locale Path de
     await walkActivity(page, goto, enActivity(''))
     await walkActivity(page, goto, deActivity('/de'))
+  })
 
-    // step 6: globalLocaleRoutes custom paths per locale; /unlocalized stays; GET /de/unlocalized → 404
+  // A test of its own: Firefox refuses history calls past 200 in 10 s in one tab, and the steps above take most of them
+  test('routing: custom paths, redirects, #210 flicker, client-only', async ({ page, goto, request }) => {
+    // step 1: globalLocaleRoutes custom paths per locale; /unlocalized stays; GET /de/unlocalized → 404
     // was: basic › Test globalLocaleRoutes for page2 and unlocalized
     for (const url of ['/custom-page2-en', '/de/custom-page2-de', '/ru/custom-page2-ru', '/unlocalized']) {
       await goto(url, { waitUntil: 'hydration' })
@@ -430,7 +433,7 @@ describe('journey: basic app', () => {
     }
     expect((await request.get('/de/unlocalized')).status()).toBe(404)
 
-    // step 7: routeRules redirects without a page → /old-product → /page, /ru/old-product → /ru/page; the rule has no /de copy, so a 404
+    // step 2: routeRules redirects without a page → /old-product → /page, /ru/old-product → /ru/page; the rule has no /de copy, so a 404
     // was: basic › redirect from /old-product to /products
     for (const [from, to] of [
       ['/old-product', '/page'],
@@ -441,7 +444,7 @@ describe('journey: basic app', () => {
     }
     expect((await request.get('/de/old-product')).status()).toBe(404)
 
-    // step 8: /fr/inventory → fr text; #link-en → /inventory en text, no flicker to the raw key, no missing-key warning
+    // step 3: /fr/inventory → fr text; #link-en → /inventory en text, no flicker to the raw key, no missing-key warning
     // was: basic › repro #210: component-local $defineI18nRoute flickers to key
     const missing = collectConsole(page, (msg) => msg.text().includes('[i18n] Missing key') && msg.text().includes('vehicleType'))
     await goto('/fr/inventory', { waitUntil: 'hydration' })
@@ -459,7 +462,7 @@ describe('journey: basic app', () => {
     missing.stop()
     expect(missing.messages).toEqual([])
 
-    // step 9: /client and /de/client SSR lack the client-only text; the client renders it with locale and $t
+    // step 4: /client and /de/client SSR lack the client-only text; the client renders it with locale and $t
     // was: basic › renders only on client; no-ssr › no-ssr test (whole-app ssr:false recipe dropped)
     for (const url of ['/client', '/de/client']) {
       expect(await (await request.get(url)).text()).not.toContain('Client only page - SSR disabled')

@@ -97,6 +97,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:strategies": "vitest run --config vitest.integration.config.ts test/strategies-",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:e2e:browsers": "rc=0; for b in chromium firefox webkit; do echo \"== $b\"; E2E_BROWSER=$b vitest run --config vitest.e2e.config.ts || rc=1; done; exit $rc",
     "test:packages": "vitest run --config vitest.packages.config.ts",
     "test:dist:packages": "pnpm --filter \"./packages/*\" run --if-present test:dist",
     "test:presets": "pnpm -C scripts cli preset-smoke --preset all",

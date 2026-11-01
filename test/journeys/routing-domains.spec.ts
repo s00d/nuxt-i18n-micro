@@ -1,5 +1,5 @@
 import { describe, expect, test } from '../helpers/guarded-test.ts'
-import { alternateOf, canonicalOf, contentOn, onHost, routeDomains } from '../helpers/domains.ts'
+import { alternateOf, canonicalOf, contentOn, hydrated, onHost, routeDomains } from '../helpers/domains.ts'
 
 import type { Page } from '@playwright/test'
 
@@ -146,6 +146,7 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
     await expect(page.locator('#content')).toHaveText('contact')
+    await hydrated(page)
 
     // step 3: $switchLocale to a locale of another domain navigates there
     await page.goto('https://example.com/')
@@ -199,6 +200,7 @@ describe('journey: one build, two domains — prefix', () => {
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/en/contact')
     await expect(page.locator('#content')).toHaveText('contact')
+    await hydrated(page)
 
     // step 3: $switchLocale crosses too; a locale on every host stays in the app
     await page.goto('https://example.com/en')
@@ -234,6 +236,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
     await page.goto('https://example.de/de')
     await expect(page.locator('#content')).toHaveText('de')
     await expect(page.locator('#contact')).toHaveAttribute('href', '/kontakt')
+    await hydrated(page)
     await page.goto('https://example.de/')
     await expect(page.locator('#content')).toHaveText('de')
     await page.locator('#contact').click()
@@ -246,6 +249,7 @@ describe('journey: one build, two domains — prefix_and_default', () => {
     await page.locator('.switcher-locale-en').click()
     await expect(page).toHaveURL('https://example.com/contact')
     await expect(page.locator('#content')).toHaveText('contact')
+    await hydrated(page)
 
     // step 3: $switchLocale crosses too
     await page.goto('https://example.com/')

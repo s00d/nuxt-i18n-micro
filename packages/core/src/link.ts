@@ -67,9 +67,19 @@ export function urlPath(url: string): string {
   return end === -1 ? url : url.slice(0, end)
 }
 
+/** A route's path is as the request wrote it, a link's is not encoded: `/caf%C3%A9` and `/café` are one page. One that does not decode stays. */
+const decoded = (path: string): string => {
+  if (!path.includes('%')) return path
+  try {
+    return decodeURI(path)
+  } catch {
+    return path
+  }
+}
+
 const pathOf = (href: string): string => {
   const path = urlPath(href)
-  return (path.endsWith('/') ? path.slice(0, -1) : path) || '/'
+  return decoded(path.endsWith('/') ? path.slice(0, -1) : path) || '/'
 }
 
 /** A click the app may take over: primary button, no modifier, no `target`, no `download`. The rest are the browser's. */
@@ -81,7 +91,7 @@ export function isPlainClick(event: MouseEvent): boolean {
 }
 
 /** Whether two URLs name one page: query, hash and a trailing slash do not count. */
-export const isSamePage = (a: string, b: string): boolean => pathOf(a) === pathOf(b)
+export const isSamePage = (a: string, b: string): boolean => a === b || pathOf(a) === pathOf(b)
 
 /**
  * Whether a link to `link` is active on `current`: the same page, or a section above it. A locale

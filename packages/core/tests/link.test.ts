@@ -67,6 +67,28 @@ describe('externalLinkHref', () => {
   })
 })
 
+describe('a path as the request wrote it and as a link holds it', () => {
+  it.each([
+    ['/caf%C3%A9', '/café'],
+    ['/café', '/caf%C3%A9'],
+    ['/news/a b', '/news/a%20b'],
+    ['/caf%C3%A9/?x=1', '/café'],
+  ])('%s is %s', (a, b) => {
+    expect(isSamePage(a, b)).toBe(true)
+    expect(isActiveLink(a, b, ['en', 'de'])).toBe(true)
+  })
+
+  it('a section above it', () => {
+    expect(isActiveLink('/caf%C3%A9/menu', '/café', ['en', 'de'])).toBe(true)
+  })
+
+  it('what does not decode stays as written, and an encoded slash stays one', () => {
+    expect(isSamePage('/100%', '/100%')).toBe(true)
+    expect(isSamePage('/100%/a', '/100%/b')).toBe(false)
+    expect(isSamePage('/a%2Fb', '/a/b')).toBe(false)
+  })
+})
+
 describe('isSamePage', () => {
   it.each([
     ['/about', '/about'],

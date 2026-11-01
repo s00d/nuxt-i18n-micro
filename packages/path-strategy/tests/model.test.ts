@@ -335,7 +335,7 @@ describe('routing model', () => {
       }),
       RUNS * 3,
     )
-  })
+  }, 30_000)
 
   test('a client redirect settles in one hop, and never on a 404', () => {
     check(

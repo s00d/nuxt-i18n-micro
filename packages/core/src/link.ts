@@ -46,7 +46,11 @@ export function routeQuery(search: string | undefined): Record<string, string | 
     const key = decodeQueryPart(equals < 0 ? text : text.slice(0, equals))
     const value = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))
     const seen = Object.prototype.hasOwnProperty.call(parsed, key) ? parsed[key] : undefined
-    const merged = seen === undefined ? value : Array.isArray(seen) ? [...seen, value] : [seen, value]
+    if (Array.isArray(seen)) {
+      seen.push(value)
+      continue
+    }
+    const merged = seen === undefined ? value : [seen, value]
     // `?__proto__=x` is a plain key
     if (key === '__proto__') Object.defineProperty(parsed, key, { value: merged, enumerable: true, writable: true, configurable: true })
     else parsed[key] = merged
@@ -71,7 +75,7 @@ export function urlPath(url: string): string {
 const decoded = (path: string): string => {
   if (!path.includes('%')) return path
   try {
-    return decodeURI(path)
+    return decodeURI(path.replace(/%25(?=2[3-6bcf]|3[abdf]|40)/gi, '%2525'))
   } catch {
     return path
   }
@@ -134,8 +138,11 @@ function resolveDots(segments: string[]): string[] {
     if (plain === '.' || plain === '..') {
       found = true
       if (plain === '..') kept.pop()
-    } else if (plain !== '') kept.push(segment)
+    } else kept.push(segment)
   }
+  // what stays of `/a/..//host` must not open with two slashes
+  if (found) while (kept.length && plainSegment(kept[0]!) === '') kept.shift()
+  if (found && kept.at(-1) === '') kept.pop()
   return found ? kept : segments
 }
 
@@ -143,6 +150,7 @@ function resolveDots(segments: string[]): string[] {
 export function withoutDots(path: string): string {
   if (!mayHoldDots(path)) return path
   const segments = path.split('\\').join('/').split('/')
+  if (segments[0] === '') segments.shift()
   const kept = resolveDots(segments)
   return kept === segments ? path : `/${kept.join('/')}`
 }
@@ -159,8 +167,9 @@ export function localizedPath(to: string | { path?: string }, locale: string, lo
   const pathname = end === -1 ? path : path.slice(0, end)
   const suffix = end === -1 ? '' : path.slice(end)
   // as a browser reads the URL: `\` is a slash and a tab or a newline is dropped, so `/\host` cannot pass for a path
-  const parts = (/[\\\t\n\r]/.test(pathname) ? pathname.split(/[/\\\t\n\r]/) : pathname.split('/')).filter(Boolean)
-  const segments = mayHoldDots(pathname) ? resolveDots(parts) : parts
+  const parts = /[\\\t\n\r]/.test(pathname) ? pathname.split(/[/\\\t\n\r]/) : pathname.split('/')
+  if (parts[0] === '') parts.shift()
+  const segments = (mayHoldDots(pathname) ? resolveDots(parts) : parts).filter(Boolean)
   if (localeCodes.includes(segments[0]!)) segments.shift()
   const clean = segments.join('/')
   if (locale === defaultLocale) return `/${clean}${suffix}`

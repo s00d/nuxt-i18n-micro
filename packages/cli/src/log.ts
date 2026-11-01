@@ -23,9 +23,15 @@ export function urlParts(address: string): { scheme: string; credentials?: strin
 /** A URL somebody typed: what is after its path and before its host can be a key, whatever a server echoes back. */
 export function addUrlSecrets(url: string | undefined): void {
   if (!url) return
-  const [address, ...tail] = url.split(/[?#;&]/)
+  const [, ...tail] = url.split(/[?#;&]/)
   for (const pair of tail) addSecret(pair.slice(pair.indexOf('=') + 1))
-  for (const part of urlParts(address!).credentials?.split(':') ?? []) addSecret(part)
+  const { credentials } = urlParts(url)
+  if (!credentials) return
+  secrets.add(credentials)
+  secrets.add(encodeURIComponent(credentials))
+  const colon = credentials.indexOf(':')
+  addSecret(colon === -1 ? credentials : credentials.slice(0, colon))
+  if (colon !== -1) addSecret(credentials.slice(colon + 1))
 }
 
 const URL_CREDENTIALS = /(\/\/)[^/\s]+@/g

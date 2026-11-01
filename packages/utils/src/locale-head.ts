@@ -72,43 +72,31 @@ export function filterQuery(url: string, whitelist: readonly string[]): string {
   const pathname = url.slice(0, cut) || '/'
   const hash = url.indexOf('#', cut)
   const search = url.slice(cut + 1, hash === -1 ? undefined : hash)
-  const params = new URLSearchParams(search)
-  const kept = new URLSearchParams()
-  for (const key of whitelist) {
-    if (params.has(key) && !kept.has(key)) for (const value of params.getAll(key)) kept.append(key, value)
-  }
-  const bare: string[] = []
+  const found = new Map<string, string[]>()
   for (const pair of search.split('&')) {
-    if (pair && !pair.includes('=')) bare.push(...new URLSearchParams(pair).keys())
+    const [entry] = new URLSearchParams(pair)
+    if (!entry || !whitelist.includes(entry[0])) continue
+    const text = new URLSearchParams([entry]).toString()
+    const kept = pair.includes('=') ? text : text.slice(0, -1)
+    const list = found.get(entry[0])
+    if (list) list.push(kept)
+    else found.set(entry[0], [kept])
   }
-  const query = withBareKeys(kept.toString(), bare)
+  const query = [...new Set(whitelist)].flatMap((key) => found.get(key) ?? []).join('&')
   return query ? `${pathname}?${query}` : pathname
-}
-
-/** `URLSearchParams` has no form for a key with no value: `keys` get theirs back from the `key=` it wrote. */
-function withBareKeys(query: string, keys: readonly string[]): string {
-  if (!keys.length) return query
-  let framed = `&${query}&`
-  for (const key of keys) {
-    const pair = new URLSearchParams([[key, '']]).toString()
-    framed = framed.replace(`&${pair}&`, `&${pair.slice(0, -1)}&`)
-  }
-  return framed.slice(1, -1)
 }
 
 /** `?a=1&a=2` of a route's query: arrays repeat the key, `null` is a key with no value, `undefined` is left out. */
 export function queryString(query?: object | null): string {
-  const params = new URLSearchParams()
-  const bare: string[] = []
+  const pairs: string[] = []
   for (const [key, value] of Object.entries(query ?? {})) {
     for (const item of [value].flat()) {
       if (item === undefined) continue
-      params.append(key, item === null ? '' : String(item))
-      if (item === null) bare.push(key)
+      const pair = new URLSearchParams([[key, item === null ? '' : String(item)]]).toString()
+      pairs.push(item === null ? pair.slice(0, -1) : pair)
     }
   }
-  const serialized = withBareKeys(params.toString(), bare)
-  return serialized && `?${serialized}`
+  return pairs.length ? `?${pairs.join('&')}` : ''
 }
 
 /**
@@ -125,7 +113,11 @@ export function joinBase(base: string, path: string): string {
 }
 
 /** The scripts written right to left. */
-const RTL_SCRIPTS = new Set(['Adlm', 'Arab', 'Armi', 'Hebr', 'Mand', 'Nkoo', 'Rohg', 'Samr', 'Syrc', 'Thaa'])
+const RTL_SCRIPTS = new Set(
+  'Adlm Arab Armi Avst Chrs Cprt Elym Hatr Hebr Hung Khar Lydi Mand Mani Mend Merc Mero Narb Nbat Nkoo Orkh Ougr Palm Phli Phlp Phnx Prti Rohg Samr Sarb Sogd Sogo Syrc Thaa Yezi'.split(
+    ' ',
+  ),
+)
 
 /**
  * The likely script of a tag decides, which no table of languages can do: `az-IR` is Arabic and `az` Latin,

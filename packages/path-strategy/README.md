@@ -2,7 +2,7 @@
 
 Runtime locale routing for **Nuxt I18n Micro**: which locale a URL is in, the URL of a page in another locale, and the server's redirect / 404 decisions.
 
-It runs in the browser, so it is one small class (~2.6 KB gzip) with no runtime dependencies (`@i18n-micro/types` is types only).
+It runs in the browser, so it is one small class (~2.6 KB gzip). Its one runtime dependency is `@i18n-micro/core`, for `routeQuery` (`@i18n-micro/types` is types only).
 
 ---
 

@@ -300,3 +300,28 @@ describe('withoutDots', () => {
     expect(withoutDots(path)).toBe(plain)
   })
 })
+
+describe('empty segments and dots, as a browser reads them', () => {
+  it('a double slash is a segment that `..` removes', () => {
+    expect(new URL('/a//../b', 'http://x').pathname).toBe('/a/b')
+    expect(localizedPath('/a//../b', 'de', ['en', 'de'], 'en')).toBe('/de/a/b')
+  })
+
+  it('what stays never opens with two slashes', () => {
+    for (const path of ['/p/..//host', '/a/..//host/x']) expect(localizedPath(path, 'de', ['en', 'de'], 'en')).toMatch(/^\/de\/[^/]/)
+  })
+})
+
+describe('a route query with many repeats', () => {
+  it('is linear', () => {
+    const started = performance.now()
+    routeQuery('a=1&'.repeat(40000))
+    expect(performance.now() - started).toBeLessThan(500)
+  })
+})
+
+describe('isSamePage', () => {
+  it('a doubly encoded separator is another page', () => {
+    expect(isSamePage('/a%252Fb', '/a%2Fb')).toBe(false)
+  })
+})

@@ -152,3 +152,17 @@ describe('buildLocaleHead', () => {
     expect(buildLocaleHead({ ...base, identifierAttribute: 'key' }).link[0]).toEqual({ key: 'i18n-can', rel: 'canonical', href: '/en' })
   })
 })
+
+describe('a long query', () => {
+  it('filterQuery takes linear time: one URL must not stall the event loop', () => {
+    const search = `?${'q&'.repeat(8000)}`
+    const started = performance.now()
+    filterQuery(`https://example.com/en${search}`, ['q'])
+    expect(performance.now() - started).toBeLessThan(200)
+  })
+
+  it('bare and empty values keep their own form and order', () => {
+    expect(filterQuery('https://example.com/?a&a=', ['a'])).toBe('https://example.com/?a&a=')
+    expect(queryString({ flag: ['', null] })).toBe('?flag=&flag')
+  })
+})

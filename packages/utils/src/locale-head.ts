@@ -93,11 +93,12 @@ export function joinBase(base: string, path: string): string {
   return `${trimTrailingSlashes(base)}/${path.replace(/^[/\\\t\n\r]+/, '')}`
 }
 
-/** A script subtag of a language tag: it decides over the language (`az-Arab` is RTL, `ar-Latn` is not). */
-const SCRIPT_SUBTAG = /[-_]([a-z]{4})(?=[-_]|$)/i
+/** The script subtag of a language tag: it decides over the language (`az-Arab` is RTL, `ar-Latn` is not). It follows the language and any extlangs, so the `arab` of an extension (`en-u-arab`) is none. */
+const SCRIPT_SUBTAG = /^[a-z]{2,8}(?:[-_][a-z]{3})*[-_]([a-z]{4})(?=[-_]|$)/i
 const RTL_SCRIPT = /^(?:adlm|arab|hebr|mand|nkoo|rohg|samr|syrc|thaa)$/i
 /** Languages written right to left in their default script. */
-const RTL_LANGUAGE = /^(?:ar|arc|ckb|dv|fa|he|iw|ji|lrc|mzn|nqo|ps|sd|syr|ug|ur|yi)(?:[-_]|$)/i
+const RTL_LANGUAGE =
+  /^(?:acm|aeb|afb|apc|apd|ar|arc|arq|ars|ary|arz|ayl|ayn|ayp|azb|bal|bgn|bqi|ckb|dv|fa|glk|haz|hbo|he|iw|ji|khw|ks|lrc|mzn|nqo|pnb|prs|ps|rhg|sam|sd|sdh|shu|skr|syc|syr|ug|ur|yi)(?:[-_]|$)/i
 
 function isRtlTag(tag: string): boolean {
   const script = SCRIPT_SUBTAG.exec(tag)?.[1]

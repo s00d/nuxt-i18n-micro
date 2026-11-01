@@ -37,15 +37,20 @@ const changes = ref(0)
 
 const resolvedKeys = computed(() => Object.keys(resolveTranslations()).length)
 
+/** A slow answer for a locale left meanwhile says nothing about the current one. */
+const report = (code: string, text: string) => {
+  if (code === locale.value) loaded.value = text
+}
+
 async function load() {
   const code = locale.value
   try {
     const [lazy, page] = await Promise.all([fetchDictionary(lazyUrl(code)), fetchDictionary(pageUrl(code))])
     addTranslations(code, lazy as never)
     addRouteTranslations(code, 'dictionaries', page as never)
-    loaded.value = code
+    report(code, code)
   } catch (error) {
-    loaded.value = `failed: ${(error as Error).message}`
+    report(code, `failed: ${(error as Error).message}`)
   }
 }
 

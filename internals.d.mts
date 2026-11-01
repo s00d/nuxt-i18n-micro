@@ -68,7 +68,7 @@ export interface I18nStrategyInstance {
   getLocaleFromPath(path: string): string | null
   resolveLocaleFromPath(path: string): string | null
   localeRoute(targetLocale: string, routeOrPath: I18nStrategyResolvedRoute | string): I18nStrategyResolvedRoute | string
-  switchLocaleRoute(toLocale: string, route: I18nStrategyResolvedRoute, options?: { i18nRouteParams?: Record<string, Record<string, unknown>> }): I18nStrategyResolvedRoute | string
+  switchLocaleRoute(toLocale: string, route: I18nStrategyResolvedRoute, options?: { i18nRouteParams?: Record<string, Record<string, unknown>>, named?: boolean }): I18nStrategyResolvedRoute | string
   getCanonicalPath(route: I18nStrategyResolvedRoute, targetLocale: string): string | null
   setRouter(router: I18nStrategyRouterLike): void
   getCurrentLocale(route: I18nStrategyResolvedRoute, getDefaultLocale?: () => string | null | undefined): string

@@ -151,7 +151,6 @@ jobs:
 
   presets-build:
     name: presets (build only)
-    needs: presets
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30

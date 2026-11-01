@@ -1,6 +1,5 @@
 ---
-import * as all from '@i18n-micro/astro'
-import { getDefaultLocale, getI18n, getI18nProps, getLocale, getLocales, useI18n } from '@i18n-micro/astro'
+import { getDefaultLocale, getI18n, getI18nProps, getLocale, getLocaleRewritePath, getLocales, useI18n } from '@i18n-micro/astro'
 import { row } from '../../../../../benchmark/integrations/catalogue'
 
 const i18n = useI18n(Astro)
@@ -9,7 +8,7 @@ const list: Array<[string, () => unknown]> = [
   ['get-locale', () => getLocale(Astro)],
   ['get-default', () => getDefaultLocale(Astro)],
   ['get-locales', () => getLocales(Astro).map((item) => item.code)],
-  ['locale-rewrite-path', () => all.getLocaleRewritePath(Astro as never)],
+  ['locale-rewrite-path', () => getLocaleRewritePath(Astro)],
   ['route-name', () => i18n.getRouteName()],
   ['route-name-path', () => i18n.getRouteName('/de/a/b')],
   ['locale-from-path', () => i18n.getLocaleFromPath('/fr/x')],

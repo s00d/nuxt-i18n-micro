@@ -6,7 +6,7 @@ Preact bindings for Nuxt I18n Micro: the same API as `@i18n-micro/react` (`creat
 pnpm add @i18n-micro/preact
 ```
 
-Peer: `preact` `^10.0.0 || ^11.0.0`. The whole range runs. Its published types need preact 10.27.3 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
+Peer: `preact` `^10.0.0 || ^11.0.0`. Tested on preact 10.29, and its types on 10.27.2 and 11. The published types need preact 10.27.2 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
 
 ```tsx
 import { render } from 'preact'

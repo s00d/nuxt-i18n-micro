@@ -33,8 +33,10 @@ export async function fetchTranslationPayloadFromHost(
       baseURL: request.baseURL,
       params: request.params,
     })
-    // a 200 with another body (an HTML fallback, an array) is a failed load, not an empty dictionary
-    if (data && (typeof data !== 'object' || Array.isArray(data))) throw new TypeError(`[i18n] Invalid translation payload: ${request.path}`)
+    // a 200 with another body (an HTML fallback, an array, `null`) is a failed load, not an empty dictionary. No body at all is empty: `$fetch` gives `''`
+    const empty = data === undefined || data === ''
+    if (!empty && (typeof data !== 'object' || data === null || Array.isArray(data)))
+      throw new TypeError(`[i18n] Invalid translation payload: ${request.path}`)
     return toTranslations(data)
   } catch (error) {
     // `null`, "no such file", is an answer; anything else is a failed load, which no cache may keep

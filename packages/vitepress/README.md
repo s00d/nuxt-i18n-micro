@@ -6,7 +6,7 @@ VitePress bindings for Nuxt I18n Micro: runtime dictionaries, `$t` and `<I18nT>`
 pnpm add @i18n-micro/vitepress
 ```
 
-Peers: `vitepress` `>=1.0.0 || >=2.0.0-alpha.0`, `vue` `^3.3.0`. The whole range runs. Its published types need Vue 3.5.5 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
+Peers: `vitepress` `>=1.0.0 || >=2.0.0-alpha.0`, `vue` `^3.3.0`. `check:oldest` runs VitePress 1.0.0, which brings its own Vue (`^3.4.21`), so Vue 3.3 itself is not tested here. The published types need Vue 3.5.5 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
 
 | Import                         | Role                                          |
 | ------------------------------ | --------------------------------------------- |

@@ -1,5 +1,5 @@
 // The script-driven server of the `runtime` and `node` playgrounds: a page is a function from the query to rows.
-import { createServer } from 'node:http'
+import { createServer, type IncomingHttpHeaders } from 'node:http'
 import { type Row, row } from './catalogue'
 
 export type Page = (query: URLSearchParams) => Row[] | Promise<Row[]>
@@ -13,17 +13,18 @@ export const pageHtml = (name: string, rows: Row[]): string =>
 /** `[id, () => value]` to rows, each guarded on its own. */
 export const rowsOf = (list: ReadonlyArray<readonly [string, () => unknown]>): Row[] => list.map(([id, run]) => ({ id, value: row(run) }))
 
-export function serve(pages: Record<string, Page>, json: (path: string) => unknown = () => undefined): void {
+export function serve(pages: Record<string, Page>, json: (path: string, headers: IncomingHttpHeaders) => unknown = () => undefined): void {
   const port = Number(process.env.PORT ?? 5900)
+  const table = new Map(Object.entries(pages))
   const server = createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://localhost')
     const name = url.pathname.slice(1)
-    const data = json(url.pathname)
+    const data = json(url.pathname, request.headers)
     if (data !== undefined) {
       response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(data))
       return
     }
-    const page = pages[name]
+    const page = table.get(name)
     if (!page) {
       response.writeHead(404).end(`no page ${name}; pages: ${Object.keys(pages).join(' ')}`)
       return

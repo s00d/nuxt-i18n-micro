@@ -89,13 +89,26 @@ export interface UseI18nReturn {
 
 export const routePath = (target: RouteTarget): string => (typeof target === 'string' ? target : target.path || '/')
 
-export type TranslationMethods = Pick<UseI18nReturn, 't' | 'ts' | 'tc' | 'tn' | 'td' | 'tdr' | 'has'> & { i18n: I18n; snapshot: string }
+type Writers = Pick<UseI18nReturn, 'addTranslations' | 'addRouteTranslations' | 'clearCache'>
 
-/** Bound per snapshot: the identity changes when the text can, so `memo` and effect deps stay right. */
+export type TranslationMethods = Pick<UseI18nReturn, 't' | 'ts' | 'tc' | 'tn' | 'td' | 'tdr' | 'has'> & Writers & { i18n: I18n; snapshot: string }
+
+const bindWriters = (i18n: I18n): Writers => ({
+  addTranslations: i18n.addTranslations.bind(i18n),
+  addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
+  clearCache: i18n.clearCache.bind(i18n),
+})
+
+/**
+ * The readers are bound per snapshot: their identity changes when the text can, so `memo` and effect deps stay right.
+ * The writers are bound once per instance: every write makes a snapshot, so an effect on one would write for ever.
+ * ponytail: without a provider there is no cache and they change with the snapshot; a bare `I18nContext` is the ceiling.
+ */
 function translationMethods(i18n: I18n, snapshot: string, cache: I18nConfig['methods'] | undefined): TranslationMethods {
   const known = cache?.current
   if (known && known.i18n === i18n && known.snapshot === snapshot) return known
   const methods = {
+    ...(known?.i18n === i18n ? known : bindWriters(i18n)),
     i18n,
     snapshot,
     t: i18n.t.bind(i18n),
@@ -117,7 +130,7 @@ function createApi(
 ): UseI18nReturn {
   const list = locales ?? []
   const localeRoute = (to: RouteTarget, code?: string): RouteTarget => (router?.resolvePath ? router.resolvePath(to, code || i18n.locale) : to)
-  const { t, ts, tc, tn, td, tdr, has } = methods
+  const { t, ts, tc, tn, td, tdr, has, addTranslations, addRouteTranslations, clearCache } = methods
   return {
     t,
     ts,
@@ -153,9 +166,9 @@ function createApi(
     localeRoute,
     localePath: (to, locale) => routePath(localeRoute(to, locale)),
 
-    addTranslations: i18n.addTranslations.bind(i18n),
-    addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
-    clearCache: i18n.clearCache.bind(i18n),
+    addTranslations,
+    addRouteTranslations,
+    clearCache,
   }
 }
 

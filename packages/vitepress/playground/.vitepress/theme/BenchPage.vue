@@ -18,8 +18,8 @@ const routing = computed(() => (locale.value ? routingRows(i18n as never) : []))
 const helpers = computed(() =>
   [
     ['with-base', () => withBase(localePath('/guide/demo', 'de'))],
-    ['locale-from-path', () => (getLocaleFromPath as unknown as (...a: unknown[]) => string)('/de/guide/demo', ['en', 'de', 'fr'], 'en')],
-    ['route-from-path', () => (routeNameFromPath as unknown as (...a: unknown[]) => string)('de/guide/demo.md', ['en', 'de', 'fr'])],
+    ['locale-from-path', () => getLocaleFromPath('/de/guide/demo', ['en', 'de', 'fr'], 'en')],
+    ['route-from-path', () => routeNameFromPath('de/guide/demo.md', ['en', 'de', 'fr'])],
     ['strip-base', () => stripSiteBase('/docs/de/x', '/docs/')],
     ['vp-lang', () => lang.value],
     ['vp-page', () => page.value.relativePath],

@@ -18,14 +18,15 @@ export function Dictionaries() {
     async (code: string) => {
       try {
         const [lazy, page] = await Promise.all([fetchDictionary(lazyUrl(code)), fetchDictionary(pageUrl(code))])
-        addTranslations(code, lazy as never)
-        addRouteTranslations(code, 'dictionaries', page as never)
-        setLoaded(code)
+        instance.addTranslations(code, lazy as never)
+        instance.addRouteTranslations(code, 'dictionaries', page as never)
+        if (code === instance.locale) setLoaded(code)
       } catch (error) {
-        setLoaded(`failed: ${(error as Error).message}`)
+        if (code === instance.locale) setLoaded(`failed: ${(error as Error).message}`)
       }
     },
-    [addTranslations, addRouteTranslations],
+    // the instance, not the hook's writers: on an older package those are new on every write, and the effect below would load for ever
+    [instance],
   )
 
   useEffect(() => {

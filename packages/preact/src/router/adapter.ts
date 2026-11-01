@@ -9,7 +9,15 @@ function go(method: 'pushState' | 'replaceState', path: string): void {
   window.dispatchEvent(new Event('popstate'))
 }
 
-const here = (): Location | null => (typeof window === 'undefined' ? null : window.location)
+type Place = Pick<Location, 'pathname' | 'search' | 'hash'>
+
+const SSR_URL = /^(?:[a-z][a-z\d+.-]*:\/\/[^/?#]*)?([^?#]+)?(\?[^#]*)?(#.*)?$/is
+
+/** The parts of a request's URL as `location` has them. A Fetch runtime's `request.url` is absolute: its origin is no part of a page. */
+function ssrPlace(url: string): Place {
+  const [, pathname = '/', search = '', hash = ''] = SSR_URL.exec(url)!
+  return { pathname, search, hash }
+}
 
 /**
  * Adapter over the History API, for any router built on it (wouter, preact-router...). Links render
@@ -18,9 +26,11 @@ const here = (): Location | null => (typeof window === 'undefined' ? null : wind
  */
 export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: string, ssrUrl = '/'): I18nRoutingStrategy {
   const codes = locales.map((locale) => locale.code)
+  const ssr = ssrPlace(ssrUrl)
+  const here = (): Place => (typeof window === 'undefined' ? ssr : window.location)
   const fullPath = () => {
-    const location = here()
-    return location ? `${location.pathname}${location.search}${location.hash}` : ssrUrl
+    const { pathname, search, hash } = here()
+    return `${pathname}${search}${hash}`
   }
 
   return {
@@ -28,6 +38,6 @@ export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: st
     push: (target) => go('pushState', target.path),
     replace: (target) => go('replaceState', target.path),
     resolvePath: (to, locale) => localizedPath(to, locale, codes, defaultLocale),
-    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(here()?.search ?? ssrUrl.slice(ssrUrl.search(/\?|$/)).split('#')[0]) }),
+    getRoute: () => ({ fullPath: fullPath(), query: routeQuery(here().search) }),
   }
 }

@@ -26,7 +26,7 @@ yarn add @i18n-micro/vue
 
 :::
 
-Peer dependencies: `vue` `^3.3.0`; `vue-router` `^4.5.1 || ^5.0.0` (optional, only for `@i18n-micro/vue/router`).
+Peer dependencies: `vue` `^3.3.0`; `vue-router` `^4.5.1 || ^5.0.0` (optional, only for `@i18n-micro/vue/router`). The published types need Vue 3.5.5 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
 
 ## Setup
 

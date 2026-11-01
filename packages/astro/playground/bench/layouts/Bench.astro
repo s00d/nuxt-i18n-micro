@@ -24,7 +24,7 @@ const lang = (head.htmlAttrs?.lang as string | undefined) ?? locale
     </header>
     <nav>
       {getLocales(Astro).filter((item) => !item.disabled).map(({ code }) => <a data-testid={`switch-${code}`} href={switchLocalePath(code)}>{code}</a>)}
-      {pagePaths.map((path) => <I18nLink href={path} data-testid={`link-${path}`}>{path}</I18nLink>)}
+      {pagePaths.filter((path) => path !== '/dictionaries').map((path) => <I18nLink href={path} data-testid={`link-${path}`}>{path}</I18nLink>)}
       <I18nLink href="/islands" data-testid="link-/islands">/islands</I18nLink>
       <I18nLink href="/nothing/here" data-testid="link-404">404</I18nLink>
       <I18nSwitcher />

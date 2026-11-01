@@ -3,7 +3,7 @@
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
-import { extname, join, resolve } from 'node:path'
+import { extname, join, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const cwd = process.cwd()
@@ -19,9 +19,22 @@ if (!production) {
   vite = await createVite({ server: { middlewareMode: true }, appType: 'custom' })
 }
 
+const client = resolve(cwd, 'dist/client')
+
+const decoded = (path) => {
+  try {
+    return decodeURIComponent(path)
+  } catch {
+    return null
+  }
+}
+
+/** The file of a URL inside `dist/client`, or null: a malformed escape or a path out of the folder is left to `page()`. */
 const file = (url) => {
-  const path = join(cwd, 'dist/client', decodeURIComponent(url.split('?')[0]))
-  return path.startsWith(resolve(cwd, 'dist/client')) && existsSync(path) && statSync(path).isFile() ? path : null
+  const name = decoded(url.split('?')[0])
+  if (name === null) return null
+  const path = join(client, name)
+  return path.startsWith(client + sep) && existsSync(path) && statSync(path).isFile() ? path : null
 }
 
 async function page(req, res) {
@@ -37,7 +50,7 @@ async function page(req, res) {
     const body = template
       .replace('<html lang="en">', `<html lang="${state.locale}" dir="${state.dir}">`)
       .replace(/<div id="(app|root)"><\/div>|<div id="(app|root)"><!--ssr-outlet--><\/div>/, (m, a, b) => `<div id="${a ?? b}">${html}</div>`)
-      .replace('</body>', () => `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script></body>`)
+      .replace('</body>', () => `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')}</script></body>`)
     res.writeHead(200, { 'content-type': 'text/html' }).end(body)
   } catch (error) {
     vite?.ssrFixStacktrace(error)

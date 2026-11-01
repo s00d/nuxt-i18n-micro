@@ -234,6 +234,25 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       expect(new Set(seen).size).toBe(2)
     })
 
+    test('an effect on the dictionary writers runs once: a write is no reason to write again', async () => {
+      const i18n = instance()
+      const load = vi.fn()
+      function Loader() {
+        const { addTranslations, addRouteTranslations, clearCache } = useI18n()
+        useEffect(() => {
+          load()
+          if (load.mock.calls.length > 5) return
+          addTranslations('en', { added: 'yes' })
+          addRouteTranslations('en', 'page', { added: 'yes' })
+        }, [addTranslations, addRouteTranslations, clearCache])
+        return null
+      }
+      await act(async () => {
+        render(withI18n(i18n, h(Loader)))
+      })
+      expect(load).toHaveBeenCalledTimes(1)
+    })
+
     test('consumers of one provider share one object', () => {
       const seen: unknown[] = []
       const Probe = () => {

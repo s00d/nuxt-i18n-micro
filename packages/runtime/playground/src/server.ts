@@ -62,7 +62,7 @@ serve(
         [
           'url-init',
           await load(
-            (i) => i.loadFromUrl(url('/locales/en.json'), { init: { headers: { 'x-a': '1' } } }),
+            (i) => i.loadFromUrl(url('/echo'), { init: { headers: { 'x-a': '1' } } }),
             (i) => i.t('welcome'),
           ),
         ],
@@ -92,7 +92,8 @@ serve(
       return list.map(([id, value]) => ({ id, value: JSON.stringify(value) }))
     },
   },
-  (path) => {
+  (path, headers) => {
+    if (path === '/echo') return { welcome: headers['x-a'] ?? 'no header' }
     const locale = /^\/locales\/(\w+)\.json$/.exec(path)?.[1]
     return locale ? messages[locale] : undefined
   },

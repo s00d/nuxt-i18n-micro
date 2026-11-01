@@ -7,14 +7,17 @@ export function Dictionaries() {
   const [loaded, setLoaded] = createSignal('')
   const [changes, setChanges] = createSignal(0)
 
+  /** A slow answer for a locale left meanwhile says nothing about the current one. */
+  const report = (code: string, text: string) => code === locale() && setLoaded(text)
+
   async function load(code: string) {
     try {
       const [lazy, page] = await Promise.all([fetchDictionary(lazyUrl(code)), fetchDictionary(pageUrl(code))])
       addTranslations(code, lazy as never)
       addRouteTranslations(code, 'dictionaries', page as never)
-      setLoaded(code)
+      report(code, code)
     } catch (error) {
-      setLoaded(`failed: ${(error as Error).message}`)
+      report(code, `failed: ${(error as Error).message}`)
     }
   }
 

@@ -3,7 +3,7 @@ import { useI18n } from '@i18n-micro/astro'
 import { bigKey, bigMessages, bigRows, BIG_KEYS } from '../../../../../benchmark/integrations/catalogue'
 
 const { t, locale, addRouteTranslations } = useI18n(Astro)
-addRouteTranslations(locale, 'big', bigMessages(BIG_KEYS, locale) as never)
+addRouteTranslations(locale, 'big', bigMessages(BIG_KEYS, locale))
 ---
 
 <ul data-testid="page-big">

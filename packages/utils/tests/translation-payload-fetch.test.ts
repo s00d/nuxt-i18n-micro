@@ -48,11 +48,14 @@ describe('fetchTranslationPayloadFromHost', () => {
   it.each([
     ['an HTML fallback', '<!doctype html>'],
     ['an array', ['x']],
+    ['null', null],
+    ['false', false],
+    ['0', 0],
   ])('rejects a 200 with %s', async (_name, body) => {
     await expect(fetchWith(vi.fn().mockResolvedValue(body) as never)).rejects.toThrow('Invalid translation payload')
   })
 
-  it('reads an empty 200 as an empty dictionary', async () => {
-    await expect(fetchWith(vi.fn().mockResolvedValue(undefined) as never)).resolves.toEqual({})
+  it.each([undefined, ''])('reads an empty 200 (%j) as an empty dictionary', async (body) => {
+    await expect(fetchWith(vi.fn().mockResolvedValue(body) as never)).resolves.toEqual({})
   })
 })

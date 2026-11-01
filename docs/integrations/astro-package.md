@@ -26,7 +26,7 @@ yarn add @i18n-micro/astro
 
 :::
 
-Peer dependencies: `astro` `^5.0.0 || ^6.0.0 || ^7.0.0`. Optional, only for [islands](./astro-islands): `vue` `^3.3.0`, `react` `^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`, `preact` `^10.27.2 || ^11.0.0-0`, `svelte` `^4.0.0 || ^5.0.0`.
+Peer dependencies: `astro` `^5.0.0 || ^6.0.0 || ^7.0.0`. Optional, only for [islands](./astro-islands): `vue` `^3.3.0`, `react` `^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`, `preact` `^10.0.0 || ^11.0.0`, `svelte` `^4.0.0 || ^5.0.0`.
 
 ## Setup
 

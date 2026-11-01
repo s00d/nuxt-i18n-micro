@@ -10,7 +10,7 @@ An island runs in the browser, where the server's i18n instance does not exist. 
 
 ## Setup
 
-Set up the [Astro integration and middleware](./astro-package#setup) first, then add the framework integration you use (`@astrojs/vue`, `@astrojs/react`, `@astrojs/preact`, `@astrojs/svelte`). The island adapters need that framework as a peer: `vue` `^3.5.43`, `react` `^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`, `preact` `^10.27.2 || ^11.0.0-0` or `svelte` `^4.0.0 || ^5.0.0`.
+Set up the [Astro integration and middleware](./astro-package#setup) first, then add the framework integration you use (`@astrojs/vue`, `@astrojs/react`, `@astrojs/preact`, `@astrojs/svelte`). The island adapters need that framework as a peer: `vue` `^3.3.0`, `react` `^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`, `preact` `^10.0.0 || ^11.0.0` or `svelte` `^4.0.0 || ^5.0.0`.
 
 ## Pass translations to an island
 

@@ -22,7 +22,7 @@
     "playground/locales/pages/huge-*/**",
     "**/__golden__/**",
     "**/_locales_hashes/**",
-    "test/fixtures/**/content/**"
+    "test/fixtures/**/content/**/*.md"
   ],
   "overrides": [
     {

@@ -22,6 +22,7 @@ const strategy: I18nRoutingStrategy = {
 const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
+  localeIso: Object.fromEntries(locales.map(({ code, iso }) => [code, iso])),
   messages: messages as never,
   routeMessages: routeMessages as never,
   missingWarn: false,

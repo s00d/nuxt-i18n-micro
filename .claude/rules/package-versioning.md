@@ -31,5 +31,5 @@ Any edit under `packages/<name>/` (source, tests that change public API, `packag
 
 ## Release vs day-to-day
 
-- **Day-to-day**: `pnpm run bump` in affected packages, rebuild, push.
+- **Day-to-day**: `pnpm run bump --level patch --packages <names>` for affected packages, rebuild, push.
 - **Formal release**: root version/changelog via `pnpm run release:patch|minor|major`; packages alone via `pnpm run release:packages`. News in `docs/news/index.md` only when the user asks.

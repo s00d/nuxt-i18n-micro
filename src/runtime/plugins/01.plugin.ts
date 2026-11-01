@@ -172,7 +172,7 @@ export default defineNuxtPlugin({
     })
 
     const locale = useI18nLocale()
-    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, isValidLocale } = locale
+    const { locale: localeState, getPreferredLocale, isValidLocale } = locale
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const pageHead = usePageHead()
     // Not useState: a function in the SSR payload makes devalue throw. Still a ref: `t` reads it
@@ -191,14 +191,11 @@ export default defineNuxtPlugin({
       // a stored preference only when it is an enabled locale (a stale or malformed cookie is none)
       return i18nStrategy.getCurrentLocale(r, getPreferredLocale())
     }
-    const getPluginRouteName = (route: ResolvedRouteLike, code: string) => i18nStrategy.getPluginRouteName(route, code)
-    const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
-      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? ''
 
     i18n.setRouteContextResolver((route) => {
       const resolvedRoute = (route ?? router.currentRoute.value) as unknown as ResolvedRouteLike
       const routeLocale = getCurrentLocale(resolvedRoute)
-      return { locale: routeLocale, routeName: getPluginRouteName(resolvedRoute, routeLocale) }
+      return { locale: routeLocale, routeName: i18nStrategy.getPluginRouteName(resolvedRoute, routeLocale) }
     })
 
     // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
@@ -218,7 +215,7 @@ export default defineNuxtPlugin({
       locale,
       getCurrentLocale,
     })
-    const initialRouteName = getPluginRouteName(initialRoute, initialLocale)
+    const initialRouteName = i18nStrategy.getPluginRouteName(initialRoute, initialLocale)
 
     try {
       await loader.switchContext(initialLocale, initialRouteName)
@@ -252,16 +249,9 @@ export default defineNuxtPlugin({
       // $getLocales lists the locales of other domains too: link targets
       i18nConfig: domains ? { ...i18nConfig, locales: i18nConfig.linkLocales ?? i18nConfig.locales } : i18nConfig,
       router,
+      locale,
       getCurrentLocale,
-      getEffectiveLocale,
-      getPluginRouteName,
-      getRouteName,
       i18nRouteParams,
-      setLocale,
-      setLocaleState: (code) => {
-        localeState.value = code
-      },
-      isValidLocale,
       navigateTo,
       setMissingHandler: (handler) => {
         customMissingHandler.value = handler

@@ -21,7 +21,7 @@ import type {
   Router,
 } from 'vue-router'
 import { domains, defineRoute } from '#build/i18n.strategy.mjs'
-import type { GetLocaleFromRoute } from '../composables/useI18nLocale'
+import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
 import { usePageRoute } from './page-head'
 import { applyTrailingSlash } from './trailing-slash'
@@ -71,15 +71,9 @@ export interface NuxtI18nPluginApiDeps {
   i18nStrategy: PathStrategy
   i18nConfig: ModuleOptionsExtend
   router: Router
+  locale: ReturnType<typeof useI18nLocale>
   getCurrentLocale: (route?: ResolvedRouteLike) => string
-  getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string
-  getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
-  getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   i18nRouteParams: { value: I18nRouteParams }
-  setLocale: (locale: string) => void
-  /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
-  setLocaleState: (locale: string) => void
-  isValidLocale: (locale: string) => boolean
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
   isHydrating: () => boolean
@@ -92,18 +86,18 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     i18nStrategy,
     i18nConfig,
     router,
+    locale: localeState,
     getCurrentLocale,
-    getEffectiveLocale,
-    getPluginRouteName,
-    getRouteName,
     i18nRouteParams,
-    setLocale,
-    setLocaleState,
-    isValidLocale,
     navigateTo,
     setMissingHandler,
     isHydrating,
   } = deps
+  const { getEffectiveLocale, setLocale, isValidLocale } = localeState
+  /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
+  const setLocaleState = (code: string) => {
+    localeState.locale.value = code
+  }
 
   const isDev = process.env.NODE_ENV !== 'production'
   const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
@@ -179,7 +173,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike, getCurrentLocale() ?? null),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
-    getRouteName,
+    getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, _locale?: string) =>
+      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? '',
     t: i18n.t.bind(i18n),
     ts: (key: TranslationKey, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
       const value = route ? i18n.t(key, params, defaultValue, route) : i18n.ts(key, params, defaultValue)
@@ -219,7 +214,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const urlless = isNoPrefix || i18nConfig.hashMode
       const retry = getCurrentLocale() === toLocale && i18n.getLocale() !== toLocale
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const loaded = urlless || retry ? await loader.switchContext(toLocale, getPluginRouteName(route, toLocale)) : null
+      const loaded = urlless || retry ? await loader.switchContext(toLocale, i18nStrategy.getPluginRouteName(route, toLocale)) : null
       // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
       if (loaded === false) return false
 

@@ -3,6 +3,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
 import { defaultPlural } from '@i18n-micro/core'
+import type { useI18nLocale } from '../src/runtime/composables/useI18nLocale'
 import { createNuxtI18nPluginApi } from '../src/runtime/utils/i18n-api'
 import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 
@@ -54,6 +55,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
     switchLocaleRoute: (_to: string, route: { hash?: string; path: string; fullPath: string }) =>
       options.onSwitch?.(route) ?? options.switched ?? { path: '/', name: 'index', force: undefined },
     localeRoute: (_locale: string, to: string) => ({ path: `/de${to}`, fullPath: `/de${to}` }),
+    getPluginRouteName: () => 'index',
   } as unknown as PathStrategy
 
   const { provide } = createNuxtI18nPluginApi({
@@ -70,14 +72,18 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
       ],
     } as ModuleOptionsExtend,
     router,
+    locale: {
+      getEffectiveLocale: () => 'en',
+      setLocale,
+      isValidLocale: () => true,
+      locale: {
+        set value(code: string) {
+          setLocaleState(code)
+        },
+      },
+    } as unknown as ReturnType<typeof useI18nLocale>,
     getCurrentLocale: () => 'en',
-    getEffectiveLocale: () => 'en',
-    getPluginRouteName: () => 'index',
-    getRouteName: () => 'index',
     i18nRouteParams: { value: {} },
-    setLocale,
-    setLocaleState,
-    isValidLocale: () => true,
     navigateTo,
     setMissingHandler: vi.fn(),
     isHydrating: options.isHydrating ?? (() => false),

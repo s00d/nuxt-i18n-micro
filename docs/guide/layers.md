@@ -90,7 +90,7 @@ Things to know:
 - **Behind a proxy** the host comes from `Host`. If the proxy puts the public host in `X-Forwarded-Host` instead, set [`trustForwardedHost`](/api/module-options#trustforwardedhost), and only when the proxy overwrites that header.
 - **`app.baseURL`** belongs in `baseUrl` too: `baseUrl: 'https://example.de/shop'` with `app.baseURL: '/shop'`.
 - **Hosts match exactly.** `www.example.de` is another host: redirect it at the edge, or set that `baseUrl` on the locale. Only one host per locale.
-- **Caches must key on the host.** A CDN normally does. Nitro's `swr` and `isr` route rules key on the path: add `cache: { varies: ['host'] }`.
+- **Caches must key on the host.** A CDN normally does. Nitro's route cache keys on the path, so in a domain build the module adds `host` to `cache.varies` of every `swr` and `cache` rule, and `x-forwarded-host` with `trustForwardedHost`. A rule with `cache: false` stays as written. `isr` is the platform's cache: check that it keys on the host.
 - **Custom paths of two host defaults must not collide.** The unprefixed records share one router, so `/x` cannot be one page on `example.de` and another on `example.com`.
 - **Prerendered pages:** a `prerender: true` route rule in `nuxt build` renders once, with no host, and the file answers every domain. Leave pages that differ per domain to the server, or [generate per domain](/guide/deployment#static-site-nuxi-generate).
 - **`noPrefixRedirect`** with a custom path of the build default redirects on every host, so it does not suit a domain build.

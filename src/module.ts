@@ -60,7 +60,7 @@ import {
 import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
-import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
+import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule, varyRouteCacheByHost } from './route-rules'
 import { createLocalizedPathResolver, type LocalizedPathResolver, namedPages, staticPagePaths, unfixedOriginWarning } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
@@ -809,6 +809,12 @@ declare module '#i18n-internal/payload-source' {
             nitroConfig.routeRules![localizedPath] = { ...nitroConfig.routeRules![localizedPath], ...restRuleValue }
             logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
           }
+        }
+      }
+
+      if (routeGenerator.locales.some((locale) => locale.baseUrl)) {
+        for (const [path, rule] of Object.entries(nitroConfig.routeRules)) {
+          nitroConfig.routeRules[path] = varyRouteCacheByHost(rule, Boolean(options.trustForwardedHost))
         }
       }
 

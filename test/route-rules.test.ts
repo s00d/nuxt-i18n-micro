@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { buildTranslationPayloadRouteRule, shouldLocalizeRouteRulePath } from '../src/route-rules'
+import { buildTranslationPayloadRouteRule, shouldLocalizeRouteRulePath, varyRouteCacheByHost } from '../src/route-rules'
 
 describe('routeRules', () => {
+  test('a cached rule of a domain build keys on the host, one that caches nothing stays as written', () => {
+    expect(varyRouteCacheByHost({ swr: 60 }, false)).toEqual({ swr: 60, cache: { varies: ['host'] } })
+    expect(varyRouteCacheByHost({ cache: { varies: ['cookie', 'host'] } }, true)).toEqual({
+      cache: { varies: ['cookie', 'host', 'x-forwarded-host'] },
+    })
+    for (const rule of [{}, { swr: false }, { swr: 60, cache: false as const }]) expect(varyRouteCacheByHost(rule, true)).toBe(rule)
+  })
+
   test('page rules are localized, internal ones are not; the payload rule carries only the given policy', () => {
     // step 1: user pages (prefix look-alikes such as /apiary included) get a localized copy
     for (const path of ['/', '/about', '/products/**', '/blog/:slug', '/tools/_assets', '/apiary', '/apiary/**']) {

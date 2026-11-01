@@ -10,6 +10,18 @@ export function shouldLocalizeRouteRulePath(originalPath: string, localeCodes: s
   return !firstSegment.startsWith('_') && !localeCodes.includes(firstSegment)
 }
 
+interface CachedRule {
+  swr?: boolean | number
+  cache?: false | { varies?: string[] | readonly string[] }
+}
+
+/** A domain build renders per host while Nitro's route cache keys on the path: one host would serve another its page. */
+export function varyRouteCacheByHost<Rule extends CachedRule>(rule: Rule, trustForwardedHost: boolean): Rule {
+  if (rule.cache === false || !(rule.swr || rule.cache)) return rule
+  const hosts = trustForwardedHost ? ['host', 'x-forwarded-host'] : ['host']
+  return { ...rule, cache: { ...rule.cache, varies: [...new Set([...(rule.cache?.varies ?? []), ...hosts])] } }
+}
+
 /** The Nitro route rule for the translation payload prefix. */
 export interface TranslationPayloadRouteRule {
   cors: true

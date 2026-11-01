@@ -71,7 +71,7 @@ Absolute URLs use the first of:
 2. `site.url` from `nuxt-site-config` (installed by `@nuxtjs/seo`);
 3. the request origin, with `app.baseURL` appended.
 
-Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto` because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links. Set both to `false` if the app is reachable directly.
+Pin one of the first two. The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto` because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links, and a cache can pass that page on. If the app is reachable directly, pin `metaBaseUrl`: unlike setting both options to `false`, it also ignores a forged `Host`. See [Behind a proxy or CDN](/guide/deployment#behind-a-proxy-or-cdn).
 
 The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin.
 

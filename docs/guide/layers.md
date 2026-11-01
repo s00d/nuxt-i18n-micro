@@ -87,7 +87,7 @@ Under `prefix` a link from another domain keeps the prefix, since the unprefixed
 
 Things to know:
 
-- **Behind a proxy** the host comes from `Host`. If the proxy puts the public host in `X-Forwarded-Host` instead, set [`trustForwardedHost`](/api/module-options#trustforwardedhost), and only when the proxy overwrites that header.
+- **Behind a proxy** the host comes from `Host`. If the proxy puts the public host in `X-Forwarded-Host` instead, set [`trustForwardedHost`](/api/module-options#trustforwardedhost), and only when the proxy overwrites that header. A proxy that sends neither cannot serve a domain build. See [Behind a proxy or CDN](/guide/deployment#behind-a-proxy-or-cdn).
 - **`app.baseURL`** belongs in `baseUrl` too: `baseUrl: 'https://example.de/shop'` with `app.baseURL: '/shop'`.
 - **Hosts match exactly.** `www.example.de` is another host: redirect it at the edge, or set that `baseUrl` on the locale. Only one host per locale.
 - **Caches must key on the host.** A CDN normally does. Nitro's route cache keys on the path, so in a domain build the module adds `host` to `cache.varies` of every `swr` and `cache` rule, and `x-forwarded-host` with `trustForwardedHost`. A rule with `cache: false` stays as written. `isr` is the platform's cache: check that it keys on the host.

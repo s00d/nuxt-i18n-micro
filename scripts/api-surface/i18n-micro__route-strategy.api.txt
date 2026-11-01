@@ -12,7 +12,6 @@ member GenerateOptions.redirects?: boolean | undefined
 member GenerateOptions.rules: Rules
 member GenerateOptions.strategy: Strategies
 function generateRoutes: (pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]
-function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isLocaleAllowedForUnlocalizedRoute: (routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean
 function nameOfPath: (fullPath: string) => string
 function normalizePath: (routePath: string) => string

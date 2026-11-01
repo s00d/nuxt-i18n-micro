@@ -154,15 +154,6 @@ function enabledFallback(
   return kept
 }
 
-/** `applyI18nRuntimeOverrides` with `runtimeConfig.public.i18nRuntime` first, then env vars. */
-export function resolveI18nConfigWithRuntimeOverrides(
-  baseConfig: ModuleOptionsExtend,
-  runtimePublic?: Record<string, unknown>,
-  warn: (message: string) => void = defaultWarn,
-): ModuleOptionsExtend {
-  return applyI18nRuntimeOverrides(baseConfig, mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), readI18nEnvOverrides()), warn)
-}
-
 const isDev = () => {
   try {
     return process.env.NODE_ENV !== 'production'
@@ -180,8 +171,8 @@ function deepFreeze<T>(value: T): T {
 }
 
 /**
- * A memoized `resolveI18nConfigWithRuntimeOverrides` for one process: env is read once, and the
- * same config object answers while the base config and the overrides are unchanged (so warnings
+ * `applyI18nRuntimeOverrides` with `runtimeConfig.public.i18nRuntime` first, then env vars, memoized
+ * for one process: env is read once, and the same config object answers while the base config and the overrides are unchanged (so warnings
  * are logged once). That object is shared by every request: in dev it is deep-frozen, so a
  * mutation throws instead of leaking into later requests.
  */

@@ -10,7 +10,7 @@ npm install @i18n-micro/core
 
 | Entry                       | What                                                                                                                                                                                                                                                                                                        |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@i18n-micro/core`          | `BaseI18n`, `useTranslationHelper` / `TranslationHelper`, `FormatService`, `createReactiveI18nStore`, and everything in `/helpers`                                                                                                                                                                          |
+| `@i18n-micro/core`          | `BaseI18n`, `TranslationHelper`, `FormatService`, `createReactiveI18nStore`, and everything in `/helpers`                                                                                                                                                                                                   |
 | `@i18n-micro/core/render`   | The `<i18n-t>` and switcher renderers Vue and Nuxt share: `renderI18nT`, `createLocaleSwitcher`. They take Vue's `h` as an argument                                                                                                                                                                         |
 | `@i18n-micro/core/helpers`  | Functions: `tokenize`, `interpolate`, `resolveText`, `pluralForm`, `escapeHtml`, `defaultPlural`, `getByPath`, `resolveTranslation`, `hasTranslationValue`, `setTranslationAtKey`, `mergeTranslationChunk`, `mergeTranslationLayers`, `collectTranslationPaths`, `translationCacheKey`, strategy predicates |
 | `@i18n-micro/core/devtools` | Vue DevTools inspector tree builders                                                                                                                                                                                                                                                                        |
@@ -23,9 +23,9 @@ Translations live in a `TranslationStorage` — a `Map` of chunks keyed `locale:
 - **Lookups always start from the Map.** Writes made straight to `storage.translations`, or by another instance sharing the storage, are seen at once. Resolved keys are cached per tree object, so replace a chunk rather than editing a stored tree in place.
 
 ```ts
-import { useTranslationHelper } from '@i18n-micro/core'
+import { TranslationHelper } from '@i18n-micro/core'
 
-const helper = useTranslationHelper()
+const helper = new TranslationHelper()
 helper.loadTranslations('en', { greeting: 'Hello, {name}!', nav: { home: 'Home' } })
 helper.mergeTranslation('en', 'index', { nav: { about: 'About' } }) // deep merge, nav.home kept
 helper.loadPageTranslations('en', 'about', { title: 'About us' })

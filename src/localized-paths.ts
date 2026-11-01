@@ -45,6 +45,72 @@ export function unfixedOriginWarning(locales: { code: string; baseUrl?: string }
   return 'locales[].baseUrl is set, but no public origin is fixed: an unknown host reaches canonical and hreflang from the request. Set metaBaseUrl, site.url, or a baseUrl on the default locale.'
 }
 
+export interface PrerenderSeedOptions {
+  localize: LocalizedPathResolver
+  locales: { code: string }[]
+  /** The pages to seed, static output only: elsewhere null. */
+  staticPaths: string[] | null
+  /** The strategy serves pages under a prefix only: an unprefixed page leaves the list. */
+  prefixedOnly: boolean
+  prerendered: (route: string) => boolean
+  isInternal: (route: string) => boolean
+}
+
+/**
+ * Static generation needs an entry point the crawler can actually follow.
+ * With `prefix`, `/` only answers with a redirect to `/<defaultLocale>`:
+ * Nitro writes the redirect stub but never enqueues its target, so nothing
+ * beyond the explicitly listed routes is prerendered. Seed the localized
+ * roots instead (never `/` itself in an SSR build — prerendering that would
+ * shadow the dynamic handler with a static redirect).
+ */
+function seedStaticRoutes(routes: Set<string>, staticPaths: string[], options: PrerenderSeedOptions): void {
+  const { localize, prerendered } = options
+  // `/` itself is kept so a static host still answers the bare root (the redirect stub).
+  if (prerendered('/')) routes.add('/')
+  for (const path of staticPaths) {
+    if (!prerendered(path)) continue
+    // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
+    if (localize.isServed(path)) routes.add(path)
+    addLocalized(routes, path, options)
+  }
+  addLocalized(routes, '/', options)
+}
+
+/** `path` in every locale, where that URL is prerendered. */
+function addLocalized(routes: Set<string>, path: string, { localize, locales, prerendered }: PrerenderSeedOptions): void {
+  for (const { code } of locales) {
+    const localized = localize.path(path, code)
+    if (localized && prerendered(localized)) routes.add(localized)
+  }
+}
+
+/** Removes what the strategy serves under a prefix only. `/` (the redirect stub), unlocalized pages and non-page routes (API, files) stay. */
+function dropUnprefixed(routes: Set<string>, localize: LocalizedPathResolver): string[] {
+  const removed = [...routes].filter(
+    (route) => route !== '/' && route !== '' && !localize.localeOf(route) && !localize.isUnlocalized(route) && localize.isPage(route),
+  )
+  for (const route of removed) routes.delete(route)
+  return removed
+}
+
+/** Completes the prerender list in place: every locale of what it holds. Answers what it added and removed. */
+export function seedPrerenderRoutes(routes: Set<string>, options: PrerenderSeedOptions): { added: string[]; removed: string[] } {
+  const { localize, staticPaths, prerendered, isInternal } = options
+  if (staticPaths) seedStaticRoutes(routes, staticPaths, options)
+
+  for (const route of routes) if (isInternal(route)) routes.delete(route)
+
+  const additional = new Set<string>()
+  for (const route of routes) {
+    if (/\.[a-z0-9]+$/i.test(route) || !prerendered(route) || localize.localeOf(route)) continue
+    addLocalized(additional, route, options)
+  }
+  for (const route of additional) routes.add(route)
+
+  return { added: [...additional], removed: options.prefixedOnly ? dropUnprefixed(routes, localize) : [] }
+}
+
 const toRecord = (page: NuxtPage): RouteRecordRaw =>
   ({
     path: page.path,

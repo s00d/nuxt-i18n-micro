@@ -15,7 +15,7 @@ import {
   setTranslationAtKey,
 } from '../src/helpers'
 import { FormatService } from '../src/format-service'
-import { createReactiveI18nStore, useTranslationHelper } from '../src'
+import { createReactiveI18nStore, TranslationHelper } from '../src'
 import { Recorder } from './characterization/record'
 
 class TestI18n extends BaseI18n {
@@ -61,7 +61,7 @@ describe('hostile input', () => {
   })
 
   test('a polluted Object.prototype never answers a lookup', () => {
-    const helper = useTranslationHelper()
+    const helper = new TranslationHelper()
     helper.loadTranslations('en', { nav: { home: 'Home' } })
     const proto = Object.prototype as Record<string, unknown>
     proto.polluted = 'EVIL'
@@ -96,7 +96,7 @@ describe('merges', () => {
   test('__proto__ from JSON is dropped by a merge into an empty chunk, as by any other', () => {
     const incoming = JSON.parse('{"__proto__":{"x":"y"},"a":1}')
     expect(getByPath(mergeTranslationChunk({}, incoming), '__proto__.x')).toBeUndefined()
-    const helper = useTranslationHelper()
+    const helper = new TranslationHelper()
     helper.mergeTranslation('en', 'proto', incoming)
     expect(helper.getTranslation('en', 'proto', '__proto__.x')).toBeNull()
     expect(helper.getTranslation('en', 'proto', 'a')).toBe(1)
@@ -179,7 +179,7 @@ describe('listeners and caches', () => {
   })
 
   test('a loaded page chunk is cached and answers lookups', async () => {
-    const helper = useTranslationHelper()
+    const helper = new TranslationHelper()
     await helper.loadPageTranslations('fr', 'home', { greeting: 'Bonjour, {name}!' })
     expect(helper.hasPageTranslation('fr', 'home')).toBe(true)
     expect(helper.getTranslation('fr', 'home', 'greeting')).toBe('Bonjour, {name}!')
@@ -243,7 +243,7 @@ describe('storage owns what it stores', () => {
   })
 
   test('the leaf cache cannot disagree with its tree', () => {
-    const helper = useTranslationHelper()
+    const helper = new TranslationHelper()
     helper.loadTranslations('en', { base: 'x' })
     const from = incoming()
     helper.loadTranslations('en', from)

@@ -11,7 +11,7 @@ import {
   resolveLiveTranslationDirs,
   TranslationContentTracker,
   translationRelativePath,
-} from '../../../src/runtime/server/utils/translation-watcher'
+} from '../../../src/runtime/server/internal/translation-watcher'
 
 describe('dev translation watcher', () => {
   const root = mkdtempSync(join(tmpdir(), 'i18n-hmr-'))

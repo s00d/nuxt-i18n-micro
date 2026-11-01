@@ -60,8 +60,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   // the locale, i18nRouteParams through $switchLocalePath, pageHead). No watchers to keep in sync.
   useHead(() => {
     const { $getLocales, $getLocale } = nuxtApp
-    const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
-    const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
+    const allLocales = $getLocales()
+    const locale = $getLocale() || i18nConfig.defaultLocale || 'en'
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
     const head = build()

@@ -5,7 +5,7 @@ Framework-agnostic utilities for Nuxt I18n Micro. Import only what you need:
 ```ts
 import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations } from '@i18n-micro/utils/merge-source'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
+import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 ```
 

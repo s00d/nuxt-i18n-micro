@@ -15,7 +15,7 @@ const subpaths = [
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },
   { subpath: './auto-detect-path', exportName: 'shouldAttemptLocaleRedirect' },
   { subpath: './split-locale-routes', exportName: 'splitLocaleRoutes' },
-  { subpath: './runtime-config', exportName: 'resolveI18nConfigWithRuntimeOverrides' },
+  { subpath: './runtime-config', exportName: 'createI18nConfigResolver' },
 ] as const
 
 describe('@i18n-micro/utils export subpaths', () => {

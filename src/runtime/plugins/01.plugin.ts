@@ -63,6 +63,7 @@ export default defineNuxtPlugin({
     const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)
     const i18nStrategy = createI18nStrategy(router, i18nConfig)
+    const noPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
     translationStorage.configure({
       // the SSR copy is process-wide, so it is bounded like the payload cache (DEFAULT_SERVER_CACHE_SIZE)
@@ -190,20 +191,16 @@ export default defineNuxtPlugin({
     const requestLocale = import.meta.server ? serverRequestLocale() : shellLocale()
     const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
-    const urlLocale = i18nConfig.hashMode
-      ? null
-      : isNoPrefixStrategy(i18nConfig.strategy!)
-        ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale)
-        : i18nStrategy.getLocaleFromPath(initialRoute.path)
-    const serverLocale = urlLocale ? undefined : requestLocale
+    const pathLocale = () =>
+      noPrefix ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale) : i18nStrategy.getLocaleFromPath(initialRoute.path)
     const initialLocale = resolveInitialLocale({
-      route: router.currentRoute.value,
-      urlLocale,
-      serverLocale,
-      preference: isNoPrefixStrategy(i18nConfig.strategy!) ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
+      route: initialRoute,
+      urlLocale: i18nConfig.hashMode ? null : pathLocale(),
+      serverLocale: requestLocale,
+      preference: noPrefix ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
       getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
     })
-    const initialRouteName = getPluginRouteName(router.currentRoute.value as unknown as ResolvedRouteLike, initialLocale)
+    const initialRouteName = getPluginRouteName(initialRoute, initialLocale)
 
     // `serverTranslationPreload` loads index in Nitro middleware — reuse it when the
     // first page is index so we do not load the same chunk twice on SSR.
@@ -230,15 +227,17 @@ export default defineNuxtPlugin({
       useHead({ link: [{ key: 'i18n-preload', rel: 'preload', as: 'fetch', crossorigin: 'anonymous', href }] })
     }
 
-    const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
-      const selectedRoute = route ?? router.currentRoute.value
-      const selectedLocale = locale ?? getCurrentLocale(selectedRoute as unknown as ResolvedRouteLike)
-      return i18nStrategy.getRouteBaseName(selectedRoute as unknown as ResolvedRouteLike, selectedLocale) ?? ''
-    }
+    const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
+      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? ''
 
     const hydrated = shallowRef(false)
-    nuxtApp.hooks.hookOnce('app:suspense:resolve', () => {
+    nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
       hydrated.value = true
+      if (!import.meta.client || !i18nConfig.hashMode) return
+      // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
+      // once hydrated: earlier, the client would render another locale than the server's HTML.
+      const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
+      if (hashLocale && hashLocale !== localeState.value) await provideApi.switchLocale(hashLocale)
     })
 
     const { helper, provide: provideApi } = createNuxtI18nPluginApi({
@@ -303,16 +302,16 @@ export default defineNuxtPlugin({
 
     // Unhead adopts the server's tags in its first render, from what it resolves then. A page head dropped earlier
     // would leave its tags in the DOM with no owner, so during hydration it goes right after that render.
-    let adopted = import.meta.server
+    let headAdopted = import.meta.server
     let headToDrop: typeof pageHead.value = null
     const dropPageHead = () => {
-      if (adopted) pageHead.value = null
+      if (headAdopted) pageHead.value = null
       else headToDrop = pageHead.value
     }
     if (import.meta.client) {
       const stop = injectHead().hooks?.hook('dom:rendered', () => {
         stop?.()
-        adopted = true
+        headAdopted = true
         if (pageHead.value === headToDrop) pageHead.value = null
       })
     }
@@ -322,7 +321,7 @@ export default defineNuxtPlugin({
     const targets = new WeakMap<object, NavigationTarget>()
 
     router.beforeEach(async (to, from) => {
-      if (to.path === from.path && !isNoPrefixStrategy(i18nConfig.strategy!)) return
+      if (to.path === from.path && !noPrefix) return
 
       // a navigation is newer than any `$switchLocale` still loading
       loader.invalidatePendingSwitches()
@@ -330,7 +329,7 @@ export default defineNuxtPlugin({
         const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
         const locale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
         const routeName = getPluginRouteName(to as unknown as ResolvedRouteLike, locale)
-        const changed = locale !== i18n.getCurrentLocale() || routeName !== i18n.getCurrentRouteName()
+        const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
         targets.set(to, { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null })
       } catch (e) {
         if (isDev) console.error('[i18n] Navigation error:', e)
@@ -361,28 +360,19 @@ export default defineNuxtPlugin({
       const stays = from.matched.some((record) => record.path === left?.path && to.matched.includes(record))
       if (changed && applied && !stays) finishWhenGone(left?.instances.default)
       // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
-      const bound = isNoPrefixStrategy(i18nConfig.strategy!) && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
+      const bound = noPrefix && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
       if (!applied || bound || !locale || !isValidLocale(locale)) return
       // a 404 renders in its URL's locale and stores nothing, as on the server: no page, no choice
       if (!to.matched.length) {
         localeState.value = locale
         return
       }
-      const urlNamed = !isNoPrefixStrategy(i18nConfig.strategy!) && !i18nConfig.hashMode
+      const urlNamed = !noPrefix && !i18nConfig.hashMode
       // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
       // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
       // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
       if ((urlNamed && from !== START_LOCATION) || localeState.value !== locale) setLocale(locale)
     })
-
-    // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
-    // once hydrated: earlier, the client would render another locale than the server's HTML.
-    if (import.meta.client && i18nConfig.hashMode) {
-      nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
-        const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-        if (hashLocale && hashLocale !== localeState.value) await provideApi.switchLocale(hashLocale)
-      })
-    }
 
     // Read in a page's setup, and often called later from a handler that has no instance left: the function itself has
     // to know its page, so an abandoned page's late answer stays off the shown one, and a kept-alive page can give it again
@@ -402,24 +392,13 @@ export default defineNuxtPlugin({
       },
     }
 
-    const provideData = {
-      ...provided,
-      helper,
-      getI18nConfig: () => i18nConfig,
-      i18n: undefined as unknown,
-      __micro: true,
-    }
-
-    const $provideData = Object.fromEntries(Object.entries(provideData).map(([key, value]) => [`$${key}`, value]))
-
-    ;(provideData as { i18n: typeof provideData & Record<string, unknown> }).i18n = Object.defineProperties(
-      { ...provideData, ...$provideData },
-      { setI18nRouteParams: pageRouteParams, $setI18nRouteParams: pageRouteParams },
-    )
+    const api = { ...provided, helper, getI18nConfig: () => i18nConfig, __micro: true }
+    const dollar = Object.fromEntries(Object.entries(api).map(([key, value]) => [`$${key}`, value]))
+    const spellings = Object.defineProperties({ ...api, ...dollar }, { setI18nRouteParams: pageRouteParams, $setI18nRouteParams: pageRouteParams })
     Object.defineProperty(nuxtApp, '$setI18nRouteParams', pageRouteParams)
     nuxtApp.vueApp.config.globalProperties.$setI18nRouteParams = setI18nRouteParams
 
-    return { provide: provideData }
+    return { provide: { ...api, i18n: spellings } }
   },
 })
 

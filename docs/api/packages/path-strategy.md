@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/path-strategy`
 
-21 exports across 2 entry points.
+20 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -29,7 +29,6 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
-| `Strategy` | class | 49 members |
 | `SwitchLocaleOptions` | interface | 2 members |
 
 <details>
@@ -63,7 +62,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getLocales` | `() => Locale[]` |
 | `getLocalizedRouteNamePrefix` | `() => string` |
 | `getPluginRouteName` | `(route: ResolvedRouteLike, locale: string) => string` |
-| `getRouteBaseName` | `(route: RouteLike, _locale?: string) => string \| null` |
+| `getRouteBaseName` | `(route: RouteLike) => string \| null` |
 | `getStrategy` | `() => Strategies` |
 | `hasPrefix` | `protected (locale: string) => boolean` |
 | `home` | `private (locale: string) => Target` |
@@ -73,7 +72,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `isOwnPage` | `protected (path: string) => boolean` |
 | `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
 | `linkCodes` | `private Set<string>` |
-| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
 | `moved` | `private (path: string, locale: string) => string \| null` |
@@ -94,9 +93,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `shared` | `private Shared` |
 | `shared_` | `private Shared \| undefined` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
-| `switched` | `private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
+| `switched` | `private (toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
 | `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
+| `switchLocaleRoute` | `(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
 | `unknownLocale` | `private RegExp \| null` |
 
 </details>
@@ -122,7 +121,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getLocales` | `() => Locale[]` |
 | `getLocalizedRouteNamePrefix` | `() => string` |
 | `getPluginRouteName` | `(route: ResolvedRouteLike, locale: string) => string` |
-| `getRouteBaseName` | `(route: RouteLike, _locale?: string) => string \| null` |
+| `getRouteBaseName` | `(route: RouteLike) => string \| null` |
 | `getStrategy` | `() => Strategies` |
 | `hasPrefix` | `protected (locale: string) => boolean` |
 | `home` | `private (locale: string) => Target` |
@@ -132,7 +131,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `isOwnPage` | `protected (path: string) => boolean` |
 | `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
 | `linkCodes` | `private Set<string>` |
-| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string, _currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
 | `moved` | `private (path: string, locale: string) => string \| null` |
@@ -151,9 +150,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `shared` | `private Shared` |
 | `shared_` | `private Shared \| undefined` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
-| `switched` | `private (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
+| `switched` | `private (toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
 | `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
+| `switchLocaleRoute` | `(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
 | `unknownLocale` | `private RegExp \| null` |
 
 </details>
@@ -242,8 +241,6 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `redirect?` | `unknown` |
 
 </details>
-
-<code>Strategy</code> — 49 members, identical to `I18nPathStrategy` above.
 
 <details>
 <summary><code>SwitchLocaleOptions</code> — 2 members</summary>

@@ -79,7 +79,7 @@ describe('package publish checks', () => {
     }
     const esm = await import(pathToFileURL(join(packageDir, 'dist/index.mjs')).href)
     expect(esm.createPathStrategy(ctx).shouldReturn404('/zh/pricing')).toBe('Unlocalized route cannot have locale prefix')
-    expect(new esm.Strategy(ctx).getRouteBaseName({ name: 'localized-about' })).toBe('about')
+    expect(new esm.I18nPathStrategy(ctx).getRouteBaseName({ name: 'localized-about' })).toBe('about')
 
     const cjs = createRequire(import.meta.url)(join(packageDir, 'dist/index.cjs'))
     expect(cjs.createPathStrategy(ctx).getRouteBaseName({ name: 'localized-about' })).toBe('about')

@@ -2,9 +2,10 @@ import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
+import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
-import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/utils/translation-watcher'
-import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/internal/translation-watcher'
+import { RouteGenerator } from '@i18n-micro/route-strategy'
 import { configForHost } from '@i18n-micro/utils/domains'
 import { buildFullConfigSource, buildPrivateConfigSource } from './config-template'
 import type {
@@ -60,8 +61,15 @@ import {
 import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
-import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule, varyRouteCacheByHost } from './route-rules'
-import { createLocalizedPathResolver, type LocalizedPathResolver, namedPages, staticPagePaths, unfixedOriginWarning } from './localized-paths'
+import { buildTranslationPayloadRouteRule, localizeRouteRules, varyRouteCacheByHost } from './route-rules'
+import {
+  createLocalizedPathResolver,
+  type LocalizedPathResolver,
+  namedPages,
+  seedPrerenderRoutes,
+  staticPagePaths,
+  unfixedOriginWarning,
+} from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
 import { parentPagePaths } from './utils'
@@ -216,7 +224,7 @@ function registerI18nTemplates(
     write: true,
     getContents: () => {
       const domains = fullConfig.locales.some((locale) => locale.baseUrl)
-      return `import { ${domains ? 'DomainPathStrategy as Strategy' : 'Strategy'} } from '${resolvedStrategyPath}'
+      return `import { ${domains ? 'DomainPathStrategy' : 'I18nPathStrategy'} as Strategy } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${buildFullConfigSource(fullConfig)}
 // disabled at build: no routes and not in the config, but routing must answer for their prefix
@@ -795,22 +803,9 @@ declare module '#i18n-internal/payload-source' {
         ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl }),
       }
 
-      const routeRules = nuxt.options.routeRules || {}
-      const localeCodes = [...routeGenerator.locales, ...routeGenerator.disabledLocales].map((locale) => locale.code)
-
-      for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-        const { redirect: _redirect, ...restRuleValue } = ruleValue
-        if (!Object.keys(restRuleValue).length || !shouldLocalizeRouteRulePath(originalPath, localeCodes)) continue
-
-        for (const { code } of routeGenerator.locales) {
-          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, code)) continue
-          for (const localizedPath of routeGenerator.resolveLocalizedRulePaths(originalPath, code)) {
-            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) continue
-            nitroConfig.routeRules![localizedPath] = { ...nitroConfig.routeRules![localizedPath], ...restRuleValue }
-            logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
-          }
-        }
-      }
+      localizeRouteRules(nuxt.options.routeRules || {}, nitroConfig.routeRules, routeGenerator, (path, rule) => {
+        logger.debug(`Replicated routeRule for ${path}: ${JSON.stringify(rule)}`)
+      })
 
       if (routeGenerator.locales.some((locale) => locale.baseUrl)) {
         for (const [path, rule] of Object.entries(nitroConfig.routeRules)) {
@@ -915,67 +910,22 @@ declare module '#i18n-internal/payload-source' {
         return
       }
 
-      const routesSet = prerenderRoutes.routes
       const routeRules = nuxt.options.routeRules || {}
-      const additionalRoutes = new Set<string>()
-      // the same router and strategy the app runs: custom paths, `false` pages and routeLocales as generated
-      const localize = await createBuildStrategy()
-      const prerendered = (route: string) => routeRules[route]?.prerender !== false
+      const { added, removed } = seedPrerenderRoutes(prerenderRoutes.routes, {
+        // the same router and strategy the app runs: custom paths, `false` pages and routeLocales as generated
+        localize: await createBuildStrategy(),
+        locales: buildConfig.locales!,
+        staticPaths: isSSG ? staticPaths : null,
+        prefixedOnly: withPrefixStrategy(options.strategy!),
+        prerendered: (route) => routeRules[route]?.prerender !== false,
+        isInternal: (route) => isInternalPath(route, options.excludePatterns, apiBaseUrl),
+      })
 
-      // Static generation needs an entry point the crawler can actually follow.
-      // With `prefix`, `/` only answers with a redirect to `/<defaultLocale>`:
-      // Nitro writes the redirect stub but never enqueues its target, so nothing
-      // beyond the explicitly listed routes is prerendered. Seed the localized
-      // roots instead (never `/` itself in an SSR build — prerendering that would
-      // shadow the dynamic handler with a static redirect).
-      if (isSSG) {
-        // `/` itself is kept so a static host still answers the bare root (the redirect stub).
-        if (prerendered('/')) routesSet.add('/')
-        // a page's path as written need not be served (`/page` with `en: '/page/:id'`, anything under `prefix`)
-        for (const path of staticPaths) {
-          if (prerendered(path) && localize.isServed(path)) routesSet.add(path)
-          for (const { code } of buildConfig.locales!) {
-            const localized = prerendered(path) ? localize.path(path, code) : null
-            if (localized && prerendered(localized)) routesSet.add(localized)
-          }
-        }
-        for (const locale of buildConfig.locales!) {
-          const localizedRoot = localize.path('/', locale.code)
-          if (localizedRoot && prerendered(localizedRoot)) routesSet.add(localizedRoot)
-        }
+      if (added.length > 0) {
+        logger.debug('[i18n prerender:routes] added localized routes:', [...added].sort().join(', '))
       }
-
-      for (const route of routesSet) {
-        if (isInternalPath(route, options.excludePatterns, apiBaseUrl)) routesSet.delete(route)
-      }
-
-      for (const route of routesSet) {
-        if (/\.[a-z0-9]+$/i.test(route) || !prerendered(route) || localize.localeOf(route)) continue
-        for (const locale of buildConfig.locales!) {
-          const localizedRoute = localize.path(route, locale.code)
-          if (localizedRoute && prerendered(localizedRoute)) additionalRoutes.add(localizedRoute)
-        }
-      }
-
-      if (additionalRoutes.size > 0) {
-        logger.debug('[i18n prerender:routes] added localized routes:', [...additionalRoutes].sort().join(', '))
-      }
-
-      for (const route of additionalRoutes) {
-        routesSet.add(route)
-      }
-
-      if (withPrefixStrategy(options.strategy!)) {
-        const deleted: string[] = []
-        for (const route of routesSet) {
-          // `/` (the redirect stub), unlocalized pages and non-page routes (API, files) are served without a prefix
-          if (route === '/' || route === '' || localize.localeOf(route) || localize.isUnlocalized(route) || !localize.isPage(route)) continue
-          routesSet.delete(route)
-          deleted.push(route)
-        }
-        if (deleted.length > 0) {
-          logger.info(`[i18n prerender:routes] removed from prerender list (no locale prefix): ${deleted.join(', ')}`)
-        }
+      if (removed.length > 0) {
+        logger.info(`[i18n prerender:routes] removed from prerender list (no locale prefix): ${removed.join(', ')}`)
       }
     })
 

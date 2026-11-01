@@ -83,14 +83,14 @@ generator.extendPages(pages) // replaces `pages` in place
 generator.resolveLocalizedPath('/about', 'de') // '/de/ueber-uns' (nitro routeRules / prerender)
 ```
 
-| Export                                                 | Purpose                                                                                                                                |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `RouteGenerator`                                       | `extendPages`, `resolveLocalizedPath`, `generateDataRoutes`, `ensureTranslationFilesExist`; `locales`, `defaultLocale`, `routeLocales` |
-| `generateRoutes(pages, options)`                       | The generation itself, as a function                                                                                                   |
-| `Rules`                                                | Normalized rules: `get(path, name)`, `allowedLocales(path, name)`                                                                      |
-| `isLocaleAllowedForUnlocalizedRoute`                   | Whether a locale may serve a path, given routeLocales                                                                                  |
-| `normalizeRouteKey`, `normalizePath`, `isInternalPath` | Path helpers the module shares                                                                                                         |
-| `RouteI18nMeta`                                        | Type of `meta.i18n`                                                                                                                    |
+| Export                               | Purpose                                                                                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `RouteGenerator`                     | `extendPages`, `resolveLocalizedPath`, `generateDataRoutes`, `ensureTranslationFilesExist`; `locales`, `defaultLocale`, `routeLocales` |
+| `generateRoutes(pages, options)`     | The generation itself, as a function                                                                                                   |
+| `Rules`                              | Normalized rules: `get(path, name)`, `allowedLocales(path, name)`                                                                      |
+| `isLocaleAllowedForUnlocalizedRoute` | Whether a locale may serve a path, given routeLocales                                                                                  |
+| `normalizeRouteKey`, `normalizePath` | Path helpers the module shares                                                                                                         |
+| `RouteI18nMeta`                      | Type of `meta.i18n`                                                                                                                    |
 
 ---
 

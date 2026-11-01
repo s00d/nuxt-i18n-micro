@@ -22,7 +22,7 @@ import {
   resolveTranslation,
   setTranslationAtKey,
   translationCacheKey,
-  useTranslationHelper,
+  TranslationHelper,
   withPrefixStrategy,
   type BaseI18nOptions,
   type TranslationStorage,
@@ -429,7 +429,7 @@ export function i18nReport(): string {
 
   r.section('useTranslationHelper')
   {
-    const helper = useTranslationHelper()
+    const helper = new TranslationHelper()
     r.run('getTranslation on empty', () => helper.getTranslation('en', 'index', 'a'))
     r.run('getCache on empty', () => helper.getCache('en', 'index'))
     r.run('hasTranslation on empty', () => helper.hasTranslation('en', 'a'))

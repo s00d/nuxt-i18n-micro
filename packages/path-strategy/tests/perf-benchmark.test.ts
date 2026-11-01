@@ -96,11 +96,9 @@ describe.each(['prefix_except_default', 'prefix', 'prefix_and_default', 'no_pref
     const targets = ['en', 'fr', 'es', 'it']
     const results: Record<string, number> = {
       'build: extendPages (300 pages)': measure(10, build),
-      'localeRoute({ name, params })': measure(20_000, (i) =>
-        i18n.localeRoute(targets[i % 4]!, { name: `s${i % 100}-id`, params: { id: '42' } }, routes[i % 100]),
-      ),
-      'localeRoute(path string)': measure(20_000, (i) => i18n.localeRoute(targets[i % 4]!, `/s${i % 100}/about?x=1`, routes[i % 100])),
-      switchLocaleRoute: measure(20_000, (i) => i18n.switchLocaleRoute('de', targets[i % 4]!, routes[i % 100]!, {})),
+      'localeRoute({ name, params })': measure(20_000, (i) => i18n.localeRoute(targets[i % 4]!, { name: `s${i % 100}-id`, params: { id: '42' } })),
+      'localeRoute(path string)': measure(20_000, (i) => i18n.localeRoute(targets[i % 4]!, `/s${i % 100}/about?x=1`)),
+      switchLocaleRoute: measure(20_000, (i) => i18n.switchLocaleRoute(targets[i % 4]!, routes[i % 100]!, {})),
       getCurrentLocale: measure(100_000, (i) => i18n.getCurrentLocale(routes[i % 100]!)),
       getPluginRouteName: measure(100_000, (i) => i18n.getPluginRouteName(routes[i % 100]!, 'de')),
       getRouteBaseName: measure(100_000, (i) => i18n.getRouteBaseName(routes[i % 100]!)),

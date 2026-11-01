@@ -22,7 +22,7 @@ import {
   isPrefixStrategy,
   withPrefixStrategy,
 } from '../src/helpers'
-import { useTranslationHelper } from '../src/storage'
+import { TranslationHelper } from '../src/storage'
 import { afterAll, describe, expect, test } from 'vitest'
 
 const ITERATIONS_FAST = 50_000
@@ -229,12 +229,12 @@ class BenchI18n extends BaseI18n {
 
 const flat500 = buildFlatTranslations(500)
 const nested100 = buildNestedTranslations(100)
-const mergeHelper = useTranslationHelper()
+const mergeHelper = new TranslationHelper()
 mergeHelper.loadTranslations('en', flat500, 'merge-bench')
 
-const loadHelper = useTranslationHelper()
+const loadHelper = new TranslationHelper()
 
-const helper = useTranslationHelper()
+const helper = new TranslationHelper()
 helper.loadTranslations('en', flat500, 'index')
 helper.loadTranslations('en', nested100, 'about')
 helper.loadTranslations('de', flat500, 'index')

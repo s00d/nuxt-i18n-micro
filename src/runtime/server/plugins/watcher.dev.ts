@@ -7,13 +7,13 @@ import {
   resolveLiveTranslationDirs,
   TranslationContentTracker,
   translationRelativePath,
-} from '../utils/translation-watcher'
+} from '../internal/translation-watcher'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import { getOrCreateServerTranslationCache } from '../utils/server-translation-cache'
+import { getOrCreateServerTranslationCache } from '../internal/server-translation-cache'
 
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 

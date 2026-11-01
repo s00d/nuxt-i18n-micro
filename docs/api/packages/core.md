@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-103 exports across 4 entry points.
+102 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -62,7 +62,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `TranslationHelper` | class | 16 members |
 | `TranslationStorage` | interface | 1 members |
 | `Tree` | type | `Record<string, unknown>` |
-| `useTranslationHelper` | function | `(storage?: TranslationStorage) => TranslationHelper` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>

@@ -232,7 +232,6 @@ function i18nOverridesKey: (overrides: RuntimeI18nOverrides) => string
 function mergeI18nOverrides: (primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides
 function readI18nEnvOverrides: () => RuntimeI18nOverrides
 function readI18nRuntimeOverrides: (runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides
-function resolveI18nConfigWithRuntimeOverrides: (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>, warn?: (message: string) => void) => ModuleOptionsExtend
 interface RuntimeI18nOverrides
 member RuntimeI18nOverrides.defaultLocale?: string | undefined
 member RuntimeI18nOverrides.disabledLocales?: string[] | undefined

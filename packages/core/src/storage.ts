@@ -129,7 +129,3 @@ export function resolveCachedTranslation(tree: Tree | null | undefined, key: str
   if (leaves === undefined) LEAVES.set(tree, (leaves = new Map()))
   return resolveIn(leaves, tree, key)
 }
-
-export function useTranslationHelper(storage?: TranslationStorage): TranslationHelper {
-  return new TranslationHelper(storage)
-}

@@ -94,7 +94,7 @@ describe('path-strategy runtime matches the generated routes', () => {
               if (!fromUrl || routeNameFor(strategy, from, router) === undefined) continue
               await router.push(fromUrl)
               warnings.length = 0
-              const switched = i18n.switchLocaleRoute(from, locale, router.currentRoute.value as never, {})
+              const switched = i18n.switchLocaleRoute(locale, router.currentRoute.value as never, {})
               const actual = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
               if (actual !== expected) problems.push(`${id} | switch from ${from}: ${actual}, expected ${expected}`)
               if (warnings.length) problems.push(`${id} | switch from ${from}: ${warnings[0]}`)
@@ -137,7 +137,7 @@ describe('path-strategy from a page opened through its alias URL', () => {
               if (!expected) continue
               const id = `${shape} | ${label} | ${from} alias ${aliasUrl} -> ${to}`
               warnings.length = 0
-              const switched = i18n.switchLocaleRoute(from, to, router.currentRoute.value as never, {})
+              const switched = i18n.switchLocaleRoute(to, router.currentRoute.value as never, {})
               const viaSwitch = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
               const viaLocaleRoute = pathOf(i18n.localeRoute(to, { name: 'about-team' }))
               // the switch may stay on the alias of the target locale; both must reach the target's record

@@ -1,7 +1,38 @@
 import { describe, expect, test } from 'vitest'
-import { buildTranslationPayloadRouteRule, shouldLocalizeRouteRulePath, varyRouteCacheByHost } from '../src/route-rules'
+import { RouteGenerator } from '@i18n-micro/route-strategy'
+import { buildTranslationPayloadRouteRule, localizeRouteRules, shouldLocalizeRouteRulePath, varyRouteCacheByHost } from '../src/route-rules'
 
 describe('routeRules', () => {
+  test('a page rule reaches its localized URLs; a redirect, an api rule and a restricted locale do not', () => {
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+      routeLocales: { '/de-only': ['de'] },
+      noPrefixRedirect: false,
+    })
+    const target: Record<string, object> = { '/de/old': { headers: {} } }
+    const copied: string[] = []
+    localizeRouteRules(
+      {
+        '/old': { swr: 60, redirect: '/new' },
+        '/gone': { redirect: '/new' },
+        '/api/**': { cors: true },
+        '/de-only': { swr: 1 },
+      },
+      target,
+      generator,
+      (path) => copied.push(path),
+    )
+    expect(target).toEqual({
+      '/de/old': { headers: {}, swr: 60 },
+      '/fr/old': { swr: 60 },
+      '/de/de-only': { swr: 1 },
+    })
+    expect(copied).toEqual(['/de/old', '/fr/old', '/de/de-only'])
+  })
+
   test('a cached rule of a domain build keys on the host, one that caches nothing stays as written', () => {
     expect(varyRouteCacheByHost({ swr: 60 }, false)).toEqual({ swr: 60, cache: { varies: ['host'] } })
     expect(varyRouteCacheByHost({ cache: { varies: ['cookie', 'host'] } }, true)).toEqual({

@@ -23,10 +23,10 @@ import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-load
 import { toTranslations } from '@i18n-micro/utils/normalize'
 import { embeddedPayloads, readPayload } from '#i18n-internal/payload-source'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import { loadLiveDevTranslations } from './dev-live-translations'
+import { loadLiveDevTranslations } from '../internal/dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
-import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from './server-translation-cache'
-import { readSharedChunk, sharedChunkKey, writeSharedChunk } from './shared-cache'
+import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from '../internal/server-translation-cache'
+import { readSharedChunk, sharedChunkKey, writeSharedChunk } from '../internal/shared-cache'
 import { toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }

@@ -96,7 +96,7 @@ function createPathStrategyStub(ctx: I18nTestContext) {
       const path = joinLocalePath(targetLocale, normalizePathInput(routeOrPath), ctx.strategy, ctx.defaultLocale())
       return { path, fullPath: path }
     },
-    switchLocaleRoute(_fromLocale: string, toLocale: string, route?: unknown) {
+    switchLocaleRoute(toLocale: string, route?: unknown) {
       const pathInput = route !== undefined ? normalizePathInput(route) : ctx.pagePath
       const path = joinLocalePath(toLocale, pathInput, ctx.strategy, ctx.defaultLocale())
       return { path, fullPath: path }

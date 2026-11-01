@@ -7,7 +7,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { createTranslationDirReader, mergeDevTranslations, resolveLiveTranslationDirs } from '../../src/runtime/server/utils/translation-watcher'
+import { createTranslationDirReader, mergeDevTranslations, resolveLiveTranslationDirs } from '../../src/runtime/server/internal/translation-watcher'
 import { buildTranslationSourceLayers, preMergeLocales } from '../../src/build/build'
 import { normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'

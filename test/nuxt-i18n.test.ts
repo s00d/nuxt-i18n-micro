@@ -428,10 +428,10 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
       i18n.setChunk('fr', 'about', { title: 'FR' })
       const stale = loader.switchContext('de', 'about')
       expect(await loader.switchContext('fr', 'about')).toBe(true)
-      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.getLocale()).toBe('fr')
       de.resolve({ title: 'DE' })
       expect(await stale).toBe(false)
-      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.getLocale()).toBe('fr')
       expect(i18n.t('title')).toBe('FR')
 
       // step 4: a pending switch is cancelled even when the caller skips switchContext
@@ -442,7 +442,7 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
       loader.invalidatePendingSwitches()
       ru.resolve({ title: 'RU' })
       expect(await pending).toBe(false)
-      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.getLocale()).toBe('fr')
       expect(i18n.t('title')).toBe('FR')
     } finally {
       loadSpy.mockRestore()

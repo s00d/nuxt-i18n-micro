@@ -175,7 +175,6 @@ member TranslationHelper.new: (storage?: TranslationStorage | undefined): Transl
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
 type Tree: Record<string, unknown>
-function useTranslationHelper: (storage?: TranslationStorage) => TranslationHelper
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./devtools (src/devtools.ts)

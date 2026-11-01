@@ -132,6 +132,15 @@ function byPath<T extends RouteLike | string>(route: T): T {
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
 
+/** `process.env.NODE_ENV` as bundlers inline it; an unbundled browser has no `process` and counts as development. */
+function isProduction(): boolean {
+  try {
+    return process.env.NODE_ENV === 'production'
+  } catch {
+    return false
+  }
+}
+
 export class I18nPathStrategy {
   protected readonly ctx: PathStrategyContext
   protected readonly codes: Set<string>
@@ -235,6 +244,8 @@ export class I18nPathStrategy {
 
   /** Resolves a URL that may match nothing, without vue-router's dev "No match found" warning. */
   protected probe(to: RouteLike | string): ResolvedRouteLike | null {
+    // vue-router warns in dev only: production keeps the global untouched
+    if (isProduction()) return this.resolve(to)
     // ponytail: swaps console.warn around a synchronous call; a router that warns through another channel still warns
     const warn = console.warn
     console.warn = () => {}
@@ -345,12 +356,12 @@ export class I18nPathStrategy {
     return rest === '/' ? `/${locale}` : `/${locale}${rest.startsWith('/') ? rest : `/${rest}`}`
   }
 
-  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
-    const switched = onOrigin(this.switched(fromLocale, toLocale, route, options))
+  switchLocaleRoute(toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
+    const switched = onOrigin(this.switched(toLocale, route, options))
     return options.named ? switched : byPath(switched)
   }
 
-  private switched(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
+  private switched(toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     // a disabled locale is no target: the link stays on the page
     if (this.disabledCodes.has(toLocale)) return route
     const name = named(ownName(route))
@@ -389,7 +400,7 @@ export class I18nPathStrategy {
     return (page && page !== UNLOCALIZED && this.routeTo(locale, page.base, page.params)) || { path, fullPath: path }
   }
 
-  localeRoute(locale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
+  localeRoute(locale: string, routeOrPath: RouteLike | string): RouteLike {
     return byPath(onOrigin(this.localized(locale, routeOrPath)))
   }
 
@@ -418,7 +429,7 @@ export class I18nPathStrategy {
     return url ? { path: url, fullPath: url } : target
   }
 
-  getRouteBaseName(route: RouteLike, _locale?: string): string | null {
+  getRouteBaseName(route: RouteLike): string | null {
     // a symbol name is never a localized page (generated records are named by strings) and has no base name
     const name = named(route.name)
     if (route.name) return name && (this.baseOf(name) ?? name)
@@ -743,11 +754,11 @@ export class DomainPathStrategy extends I18nPathStrategy {
   }
 
   /** A link `localeRoute` made absolute reads as the page it shows, so it switches like any route. */
-  override switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions): RouteLike | string {
+  override switchLocaleRoute(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions): RouteLike | string {
     const url = route.fullPath ?? ''
     const origin = this.originOf(url)
     const own = origin ? this.probe(url.slice(origin.length).replace(/^\/#/, '') || '/') : null
-    return super.switchLocaleRoute(fromLocale, toLocale, own ?? route, options)
+    return super.switchLocaleRoute(toLocale, own ?? route, options)
   }
 
   /** The `baseUrl` a URL lies on, the longest: one host can carry a locale at its root and another under a path. */
@@ -762,10 +773,10 @@ export class DomainPathStrategy extends I18nPathStrategy {
    * An absolute link of a locale's own domain says where it goes (`<i18n-link :to="$localeRoute(x, 'de')">`).
    * Any other absolute object stays a path: it can come from a request.
    */
-  override localeRoute(locale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike {
+  override localeRoute(locale: string, routeOrPath: RouteLike | string): RouteLike {
     const url = typeof routeOrPath === 'string' ? '' : routeOrPath.fullPath
     if (url && url[0] !== '/' && this.originOf(url)) return { path: url, fullPath: url }
-    return super.localeRoute(locale, routeOrPath, currentRoute)
+    return super.localeRoute(locale, routeOrPath)
   }
 
   /** A page restricted to some locales renders in one this host serves. */

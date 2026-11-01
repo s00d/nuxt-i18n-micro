@@ -50,7 +50,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
   const navigateTo = vi.fn()
 
   const i18nStrategy = {
-    switchLocaleRoute: (_from: string, _to: string, route: { hash?: string; path: string; fullPath: string }) =>
+    switchLocaleRoute: (_to: string, route: { hash?: string; path: string; fullPath: string }) =>
       options.onSwitch?.(route) ?? options.switched ?? { path: '/', name: 'index', force: undefined },
     localeRoute: (_locale: string, to: string) => ({ path: `/de${to}`, fullPath: `/de${to}` }),
   } as unknown as PathStrategy

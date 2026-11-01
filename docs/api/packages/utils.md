@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-105 exports across 22 entry points.
+104 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -549,7 +549,6 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 | `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
 | `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |
 | `readI18nRuntimeOverrides` | function | `(runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides` |
-| `resolveI18nConfigWithRuntimeOverrides` | function | `(baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>, warn?: (message: string) => void) => ModuleOptionsExtend` |
 | `RuntimeI18nOverrides` | interface | 4 members |
 
 <details>

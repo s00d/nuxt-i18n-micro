@@ -1,3 +1,5 @@
+import { isLocaleAllowedForUnlocalizedRoute, normalizePath, type RouteGenerator } from '@i18n-micro/route-strategy'
+
 /** `localeCodes`: a rule already written under a locale prefix stays as written, a copy would double the prefix. */
 export function shouldLocalizeRouteRulePath(originalPath: string, localeCodes: string[] = []): boolean {
   const routeRulePath = originalPath.trim()
@@ -8,6 +10,34 @@ export function shouldLocalizeRouteRulePath(originalPath: string, localeCodes: s
 
   const firstSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
   return !firstSegment.startsWith('_') && !localeCodes.includes(firstSegment)
+}
+
+type RuleLocales = Pick<RouteGenerator, 'locales' | 'disabledLocales' | 'routeLocales' | 'resolveLocalizedRulePaths'>
+
+/** The URLs of a rule's path in every locale that serves it, without the path itself. */
+function localizedRulePaths(path: string, generator: RuleLocales): string[] {
+  return generator.locales
+    .filter(({ code }) => isLocaleAllowedForUnlocalizedRoute(generator.routeLocales, generator.locales, path, code))
+    .flatMap(({ code }) => generator.resolveLocalizedRulePaths(path, code))
+    .filter((localized) => localized !== path && localized !== normalizePath(path))
+}
+
+/** Copies each page rule to its localized URLs, into `target`. A `redirect` stays on the path it was written for. */
+export function localizeRouteRules<Rule extends { redirect?: unknown }>(
+  rules: Record<string, Rule>,
+  target: Record<string, Omit<Rule, 'redirect'>>,
+  generator: RuleLocales,
+  onCopy: (path: string, rule: Omit<Rule, 'redirect'>) => void,
+): void {
+  const localeCodes = [...generator.locales, ...generator.disabledLocales].map((locale) => locale.code)
+  for (const [path, value] of Object.entries(rules)) {
+    const { redirect: _redirect, ...rule } = value
+    if (!Object.keys(rule).length || !shouldLocalizeRouteRulePath(path, localeCodes)) continue
+    for (const localized of localizedRulePaths(path, generator)) {
+      target[localized] = { ...target[localized], ...rule }
+      onCopy(localized, rule)
+    }
+  }
 }
 
 interface CachedRule {

@@ -2,7 +2,7 @@ import { RouteGenerator } from '@i18n-micro/route-strategy'
 import type { Locale } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, test } from 'vitest'
-import { createLocalizedPathResolver, unfixedOriginWarning } from '../../src/localized-paths'
+import { createLocalizedPathResolver, seedPrerenderRoutes, unfixedOriginWarning } from '../../src/localized-paths'
 
 const locales: Locale[] = [{ code: 'en' }, { code: 'de' }, { code: 'fr' }]
 
@@ -24,6 +24,52 @@ async function resolver(strategy: 'prefix' | 'prefix_except_default') {
   }).extendPages(pages)
   return createLocalizedPathResolver(pages, { strategy, defaultLocale: 'en', locales })
 }
+
+describe('seedPrerenderRoutes', () => {
+  interface Seed {
+    static?: string[]
+    prefixedOnly?: boolean
+    off?: string[]
+    strategy?: 'prefix' | 'prefix_except_default'
+  }
+
+  const seed = async (list: string[], options: Seed) => {
+    const routes = new Set(list)
+    const result = seedPrerenderRoutes(routes, {
+      localize: await resolver(options.strategy ?? 'prefix_except_default'),
+      locales,
+      staticPaths: options.static ?? null,
+      prefixedOnly: options.prefixedOnly ?? false,
+      prerendered: (route) => !options.off?.includes(route),
+      isInternal: (route) => route.startsWith('/_'),
+    })
+    return { routes: [...routes], ...result }
+  }
+
+  const cases: [string[], Seed, string[]][] = [
+    // an SSR build: only what is listed, in every locale that serves it
+    [['/about'], {}, ['/about', '/de/ueber-uns', '/fr/about']],
+    [['/about', '/_locales/index/en/data.json', '/robots.txt'], {}, ['/about', '/robots.txt', '/de/ueber-uns', '/fr/about']],
+    [['/unloc', '/de-only'], {}, ['/unloc', '/de-only', '/de/de-only']],
+    [['/about'], { off: ['/de/ueber-uns'] }, ['/about', '/fr/about']],
+    [['/about'], { off: ['/about'] }, ['/about']],
+    // static output: the pages and the localized roots are seeded
+    [[], { static: ['/', '/about'] }, ['/', '/de', '/fr', '/about', '/de/ueber-uns', '/fr/about']],
+    [[], { static: ['/about'], off: ['/about', '/'] }, ['/de', '/fr']],
+    // a prefix-only strategy: an unprefixed page goes, what is no page stays
+    [['/about', '/unloc', '/feed'], { strategy: 'prefix', prefixedOnly: true }, ['/unloc', '/feed', '/en/about', '/de/ueber-uns', '/fr/about']],
+  ]
+
+  test.each(cases)('%j %j', async (list, options, expected) => {
+    expect((await seed(list, options)).routes).toEqual(expected)
+  })
+
+  test('reports what it changed', async () => {
+    const { added, removed } = await seed(['/about'], { strategy: 'prefix', prefixedOnly: true })
+    expect(added).toEqual(['/en/about', '/de/ueber-uns', '/fr/about'])
+    expect(removed).toEqual(['/about'])
+  })
+})
 
 describe('unfixedOriginWarning', () => {
   const open = [{ code: 'en' }, { code: 'de', baseUrl: 'https://example.de' }]

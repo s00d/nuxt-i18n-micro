@@ -351,10 +351,10 @@ export function describeApp(app: App, strategy: Strategies, host?: string): stri
         : undefined
       return [
         url,
-        cell(() => landing(router, i18n.switchLocaleRoute(from, target, route, {}))),
-        i18nRouteParams ? cell(() => landing(router, i18n.switchLocaleRoute(from, target, route, { i18nRouteParams }))) : '',
-        cell(() => routeResult(i18n.localeRoute(target, route, route))),
-        cell(() => routeResult(i18n.localeRoute(target, `${url}?q=1#top`, route))),
+        cell(() => landing(router, i18n.switchLocaleRoute(target, route, {}))),
+        i18nRouteParams ? cell(() => landing(router, i18n.switchLocaleRoute(target, route, { i18nRouteParams }))) : '',
+        cell(() => routeResult(i18n.localeRoute(target, route))),
+        cell(() => routeResult(i18n.localeRoute(target, `${url}?q=1#top`))),
         cell(() => show(i18n.getClientRedirect(url, target))),
         cell(() => show(i18n.getClientRedirect(url, target, { switchPrefixed: true }))),
         cell(() => show(i18n.pageLocales(route))),
@@ -392,7 +392,7 @@ export function describeApp(app: App, strategy: Strategies, host?: string): stri
       .map((r) => r.path)
     const params = Object.fromEntries(Object.entries(PARAMS).filter(([k]) => paths.some((p) => p.includes(`:${k}`))))
     const cells = homes.flatMap((from) =>
-      locales.map((target) => cell(() => routeResult(i18n.localeRoute(target, { name, params: structuredClone(params) }, from)))),
+      locales.map((target) => cell(() => routeResult(i18n.localeRoute(target, { name, params: structuredClone(params) })))),
     )
     cells.unshift(name)
     return cells
@@ -464,14 +464,14 @@ function invariants(
   for (const { url, route } of served) {
     const from = i18n.getCurrentLocale(route)
     // the same page in its own locale: aliases and unprefixed fallbacks normalize to it
-    const home = quiet(() => land(i18n.switchLocaleRoute(from, from, route, {}))).value
+    const home = quiet(() => land(i18n.switchLocaleRoute(from, route, {}))).value
     const redirect = quiet(() => i18n.getClientRedirect(url, from))
     // null: the switch is an absolute link to the locale's own domain, there is no local path to compare
     if (redirect.value && home !== null && redirect.value !== home?.path)
       out.push(`${url}: getClientRedirect to its own locale ${from} gives ${redirect.value}, switch gives ${home?.path}`)
     for (const target of locales) {
-      const sw = quiet(() => land(i18n.switchLocaleRoute(from, target, route, {})))
-      const lr = quiet(() => i18n.localeRoute(target, route, route))
+      const sw = quiet(() => land(i18n.switchLocaleRoute(target, route, {})))
+      const lr = quiet(() => i18n.localeRoute(target, route))
       if (sw.error) out.push(`${url} → ${target}: switchLocaleRoute throws ${sw.error}`)
       if (sw.warned) out.push(`${url} → ${target}: switchLocaleRoute warns`)
       if (lr.warned) out.push(`${url} → ${target}: localeRoute(route) warns`)
@@ -488,7 +488,7 @@ function invariants(
       const lrPath = lrLand?.value
       if (lrPath !== undefined && lrPath !== to.fullPath) out.push(`${url} → ${target}: switch ${to.fullPath} ≠ localeRoute(route) ${lrPath}`)
       if (landed === target) {
-        const back = quiet(() => land(i18n.switchLocaleRoute(target, from, to, {})))
+        const back = quiet(() => land(i18n.switchLocaleRoute(from, to, {})))
         if (back.value && home && back.value.fullPath !== home.fullPath)
           out.push(`${url} → ${target} → ${from}: round trip ends on ${back.value.fullPath}, not ${home.fullPath}`)
       }

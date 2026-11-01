@@ -54,7 +54,7 @@ export function buildSourcePagePath(pageName: string, localeCode: string): strin
  * Storage key relative to the Nitro unstorage mount (fs-friendly `/` paths).
  */
 export function toSourceStorageKey(relativePath: string): string {
-  return forwardSlashes(trimLeadingSlashes(relativePath))
+  return trimLeadingSlashes(forwardSlashes(relativePath))
 }
 
 /**

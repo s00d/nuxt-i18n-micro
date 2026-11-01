@@ -58,3 +58,12 @@ describe('mergeSourceTranslations', () => {
     expect(data).toEqual({ rootOnly: 'en root', title: 'de root', shared: 'de page', pageOnly: 'en page' })
   })
 })
+
+describe('toSourceStorageKey, a Windows path', () => {
+  it('turns `\\` into `/` before it strips the head', () => {
+    expect(toSourceStorageKey('\\/a')).toBe('a')
+    expect(toSourceStorageKey('\\\\a')).toBe('a')
+    expect(toSourceStorageKey('\\a\\')).toBe('a/')
+    expect(toSourceStorageKey('pages\\a\\de.json')).toBe('pages/a/de.json')
+  })
+})

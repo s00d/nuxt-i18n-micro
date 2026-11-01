@@ -68,9 +68,9 @@ const CYRILLIC: Record<string, string> = {
 export function toSlug(text: string): string {
   return text
     .replace(/\p{Script=Cyrillic}/gu, (letter) => CYRILLIC[letter.toLowerCase()] ?? letter)
-    .replace(/&/g, ' and ')
-    .replace(/\$/g, ' dollar ')
-    .replace(/%/g, ' percent ')
+    .replaceAll('&', ' and ')
+    .replaceAll('$', ' dollar ')
+    .replaceAll('%', ' percent ')
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')

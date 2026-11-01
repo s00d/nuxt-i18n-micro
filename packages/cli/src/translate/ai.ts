@@ -1,3 +1,4 @@
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { usageError } from '../errors'
 import { addSecret } from '../log'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
@@ -103,7 +104,7 @@ export const aiDriver: Driver = {
   keyOptional: true,
   translate(request) {
     const { options, token } = request
-    const baseUrl = options.baseUrl?.replace(/\/+$/, '')
+    const baseUrl = options.baseUrl && trimTrailingSlashes(options.baseUrl)
     const provider = (options.provider ?? (baseUrl ? 'custom' : 'gateway')).toLowerCase()
     const model = options.model ?? (provider === 'gateway' ? DEFAULT_GATEWAY_MODEL : undefined)
     if (!model) throw usageError('AI translation needs a model.', ['Example: --options provider:openai,model:gpt-4o-mini'])

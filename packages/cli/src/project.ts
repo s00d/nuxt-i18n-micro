@@ -30,7 +30,7 @@ const merge = (target: JsonObject, source: JsonObject): JsonObject => deepMergeT
 
 /** Scopes arrive from imported files and folder names, and become directories and object keys. */
 function assertSafeScope(scope: string): void {
-  const parts = scope.split(/[/\\]/)
+  const parts = scope.split('\\').join('/').split('/')
   if (scope.startsWith('/') || parts.includes('..') || parts.includes('__proto__')) throw validationError(`Unsafe page scope: ${scope}`)
 }
 

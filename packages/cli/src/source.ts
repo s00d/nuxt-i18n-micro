@@ -14,8 +14,6 @@ const OUTPUT_DIRS = new Set(['dist', 'coverage'])
 const SKIPPED_DATA = /^(package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig.*\.json)$/
 /** Test code by location, relative to the project root. `pages/tests/` is a route. */
 const TEST_DIR = /^(tests?|__tests__|e2e|cypress|playwright)\//
-/** Served as it is, never compiled into the app. */
-const PUBLIC_DIR = /^public\//
 /** Built by a tool, wherever it sits. Here a bare `t(e)` is a minified name, not a guess worth stopping for. */
 const GENERATED_PATH = /(^|\/)(dist|\.vitepress|storybook-static)\//
 /** Test code by name. Only code: `Latest.spec.vue` renders. */
@@ -146,7 +144,8 @@ function objectName(callee: AstNode | undefined): string {
   return String(object?.name ?? asNode(object?.property)?.name ?? asNode(object?.callee)?.name ?? '')
 }
 
-const isI18nObject = (name: string, names: Names): boolean => /i18n$/i.test(name) || names.objects.has(name) || I18N_SOURCES.has(name)
+const isI18nObject = (name: string, names: Names): boolean =>
+  name.slice(-4).toLowerCase() === 'i18n' || names.objects.has(name) || I18N_SOURCES.has(name)
 
 function familyOf(callee: AstNode | undefined, names: Names): Family | null {
   if (isServerT(callee)) return 'key'
@@ -328,9 +327,12 @@ function addOpaque(expression: string, node: AstNode, context: Context, guess = 
 }
 
 /** `I18nT`, `i18n-t`, and the `Lazy` form Nuxt registers for every component. */
-const isTranslationTag = (tag: string): boolean => /^(lazy-?)?i18n-?(t|group)$/i.test(tag)
-const isKeyTag = (tag: string): boolean => /^(lazy-?)?i18n-?t$/i.test(tag)
-const isGroupTag = (tag: string): boolean => /^(lazy-?)?i18n-?group$/i.test(tag)
+const TAG_HEADS = ['i18n', 'i18n-', 'lazyi18n', 'lazyi18n-', 'lazy-i18n', 'lazy-i18n-']
+const KEY_TAGS = new Set(TAG_HEADS.map((head) => `${head}t`))
+const GROUP_TAGS = new Set(TAG_HEADS.map((head) => `${head}group`))
+const isKeyTag = (tag: string): boolean => KEY_TAGS.has(tag.toLowerCase())
+const isGroupTag = (tag: string): boolean => GROUP_TAGS.has(tag.toLowerCase())
+const isTranslationTag = (tag: string): boolean => isKeyTag(tag) || isGroupTag(tag)
 
 const RENDER_FUNCTIONS = new Set(['h', 'createVNode'])
 
@@ -454,15 +456,14 @@ const isClean = (ast: { errors?: unknown[] } | null): boolean => Boolean(ast) &&
  * an expression from a statement.
  */
 export function parseCode(code: string, lang = 'ts', strict = false): unknown | null {
-  const first = tryParse(code, /x$/.test(lang) ? ['typescript', 'jsx', 'decorators'] : ['typescript', 'decorators'])
+  const first = tryParse(code, lang.endsWith('x') ? ['typescript', 'jsx', 'decorators'] : ['typescript', 'decorators'])
   if (isClean(first)) return first
-  const retry = /^[cm]?js$/.test(lang) ? tryParse(code, ['jsx', 'decorators']) : null
+  const retry = lang === 'js' || lang === 'cjs' || lang === 'mjs' ? tryParse(code, ['jsx', 'decorators']) : null
   if (isClean(retry)) return retry
   return strict ? null : (first ?? retry)
 }
 
 const TEXT_CALL = /(?:\$tc?s?|\$has|\btc?s?)\s*\(\s*(?:['"`]([^'"`$]+)['"`]|([^'"`)\s][^)]*))/g
-const DOLLAR_CALL = /^\$/
 const QUOTED = /['"`]([^'"`\n]+)['"`]/g
 
 /** For what no parser here reads, such as Pug templates: finding a key too many is the safe mistake. */
@@ -472,7 +473,7 @@ function collectFromText(text: string, context: Context, base: number, bareCalls
     const line = lineOf(content, base + match.index)
     if (match[1]) scan.refs.push({ key: match[1], file, line, start: -1, end: -1, guard: false })
     // Minified code in a stray .html is full of `t(e)` that means nothing here.
-    else if (bareCalls || DOLLAR_CALL.test(match[0])) scan.dynamic.push({ file, line, expression: match[2]!.trim(), prefix: '' })
+    else if (bareCalls || match[0][0] === '$') scan.dynamic.push({ file, line, expression: match[2]!.trim(), prefix: '' })
   }
   for (const match of text.matchAll(QUOTED)) addLiteral(match[1]!, scan, `${file}:${lineOf(content, base + match.index)}`)
 }
@@ -514,7 +515,7 @@ interface TemplateElement {
 function addKeypathAttribute(prop: TemplateProp, context: Context): void {
   const { file, content, scan } = context
   const { value } = prop
-  const quote = /^['"]/.test(value!.loc.source) ? 1 : 0
+  const quote = value!.loc.source[0] === "'" || value!.loc.source[0] === '"' ? 1 : 0
   const start = value!.loc.start.offset + quote
   scan.refs.push({ key: value!.content, file, line: lineOf(content, start), start, end: start + value!.content.length, guard: false })
 }
@@ -655,7 +656,7 @@ export function pageNameOf(relativePath: string): string {
     .replace(/\.(client|server)$/, '')
   const segments = withoutExt
     .split('/')
-    .filter((segment) => !/^\(.*\)$/.test(segment))
+    .filter((segment) => !(segment.length > 1 && segment[0] === '(' && segment.endsWith(')')))
     .map((segment) => segment.replace(SEGMENT_TOKEN, '$1'))
   if (segments.at(-1) === 'index' && segments.length > 1) segments.pop()
   return segments.join('-') || 'index'
@@ -734,10 +735,14 @@ export const isTestFile = (config: ProjectConfig, file: string): boolean => inTe
 const AVERAGE_LINE_OF_A_BUNDLE = 1000
 
 const isMinified = (file: string, content: string): boolean =>
-  /\.min\.[cm]?js$/.test(file) || content.length / content.split('\n').length > AVERAGE_LINE_OF_A_BUNDLE
+  file.endsWith('.min.js') ||
+  file.endsWith('.min.mjs') ||
+  file.endsWith('.min.cjs') ||
+  content.length / content.split('\n').length > AVERAGE_LINE_OF_A_BUNDLE
 
 const isServedAsIs = (config: ProjectConfig, file: string, content: string): boolean =>
-  [config.rootDir, config.srcDir].some((root) => PUBLIC_DIR.test(relative(root, file).split(sep).join('/'))) || isMinified(file, content)
+  // served as it is, never compiled into the app
+  [config.rootDir, config.srcDir].some((root) => relative(root, file).split(sep).join('/').startsWith('public/')) || isMinified(file, content)
 
 function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   const content = readFileSync(file, 'utf8')

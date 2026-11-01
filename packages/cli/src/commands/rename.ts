@@ -120,7 +120,10 @@ function rewriteSources(scan: ProjectScan, rename: Rename, skipped: ScopedRef[],
 function warnLeftovers(scan: ProjectScan, rename: Rename, skipped: ScopedRef[]): void {
   for (const ref of skipped) log.warn(`Not rewritten, change by hand: ${ref.file}:${ref.line}`)
   for (const entry of scan.dynamic) {
-    if (entry.prefix && (rename.renamed(entry.prefix.replace(/\.$/, '')) || rename.from.startsWith(entry.prefix))) {
+    if (
+      entry.prefix &&
+      (rename.renamed(entry.prefix.endsWith('.') ? entry.prefix.slice(0, -1) : entry.prefix) || rename.from.startsWith(entry.prefix))
+    ) {
       log.warn(`Computed key may need the new name: ${entry.file}:${entry.line}: ${entry.expression}`)
     }
   }

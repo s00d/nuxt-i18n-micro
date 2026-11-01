@@ -61,8 +61,8 @@ function readPo(project: Project, dir: string): Entry[] {
 function csvScope(file: string, code: string, path: string): string {
   const name = file.replaceAll('\\', '/')
   if (name === `${code}.json`) return GLOBAL_SCOPE
-  const match = name.match(/^pages\/(.+)\/([^/]+)\.json$/)
-  if (match?.[2] === code) return match[1]!
+  const slash = name.lastIndexOf('/')
+  if (name.startsWith('pages/') && slash >= 7 && name.slice(slash + 1) === `${code}.json`) return name.slice(6, slash)
   throw validationError(`Row of another file in ${path}: ${file}`, [`Expected ${code}.json or pages/<page>/${code}.json.`])
 }
 

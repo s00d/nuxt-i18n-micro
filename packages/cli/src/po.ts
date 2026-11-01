@@ -14,7 +14,7 @@ export interface PoMessage {
   source?: string
 }
 
-const sourceComment = (source: string | undefined): string => (source ? `${source.replace(/\n/g, '\n#. ').replace(/^/, '#. ')}\n` : '')
+const sourceComment = (source: string | undefined): string => (source ? `#. ${source.split('\n').join('\n#. ')}\n` : '')
 
 export function compilePo(messages: PoMessage[]): string {
   const header = 'msgid ""\nmsgstr "Content-Type: text/plain; charset=utf-8\\n"\n'

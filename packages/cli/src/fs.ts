@@ -163,7 +163,7 @@ export const stringifyJson = (value: unknown, indent: number | string = 2): stri
 
 /** JSON text has no raw newline in a string, so every one of them is a line ending. */
 export const matchLineEnding = (previous: string | undefined, text: string): string =>
-  previous?.includes('\r\n') ? text.replace(/\n/g, '\r\n') : text
+  previous?.includes('\r\n') ? text.split('\n').join('\r\n') : text
 
 /** Saved the way the file was written, so an edit shows up as an edit and not as a whole-file diff. */
 export function stringifyLike(previous: string | undefined, value: unknown): string {
@@ -179,11 +179,13 @@ export function readUtf8(path: string): string {
   return text
 }
 
+const withoutBom = (text: string): string => (text.charCodeAt(0) === 0xfeff ? text.slice(1) : text)
+
 /** For what is only read: a stray byte in a data file or a locale file costs nothing until a save. */
-export const readLoose = (path: string): string => readFileSync(path, 'utf8').replace(/^\uFEFF/, '')
+export const readLoose = (path: string): string => withoutBom(readFileSync(path, 'utf8'))
 
 /** A BOM comes from Windows editors and Excel; `JSON.parse` stops at it. */
-export const readText = (path: string): string => readUtf8(path).replace(/^\uFEFF/, '')
+export const readText = (path: string): string => withoutBom(readUtf8(path))
 
 /**
  * Read a JSON object strictly.

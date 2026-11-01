@@ -93,7 +93,8 @@ export function closePrompts(): void {
 }
 
 export async function confirm(question: string): Promise<boolean> {
-  return /^y(es)?$/i.test((await ask(`${question} [y/N]`)) ?? '')
+  const answer = ((await ask(`${question} [y/N]`)) ?? '').toLowerCase()
+  return answer === 'y' || answer === 'yes'
 }
 
 export async function choose(question: string, options: string[]): Promise<string | null> {

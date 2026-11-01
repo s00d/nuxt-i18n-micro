@@ -1,3 +1,4 @@
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
 import { decodeEntities } from './protect'
 import { aiDriver } from './ai'
@@ -27,7 +28,7 @@ export interface Driver {
   translate(request: BatchRequest): Promise<string[]>
 }
 
-const base = (options: DriverOptions, fallback: string): string => (options.baseUrl ?? fallback).replace(/\/+$/, '')
+const base = (options: DriverOptions, fallback: string): string => trimTrailingSlashes(options.baseUrl ?? fallback)
 
 const bareLanguage = (code: string): string => code.split(/[-_]/)[0]!.toLowerCase()
 

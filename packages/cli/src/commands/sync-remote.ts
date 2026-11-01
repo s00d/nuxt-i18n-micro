@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { trimLeadingSlashes, trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { CliError, findingsError, remoteConfigError } from '../errors'
 import { readJsonObject } from '../fs'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
@@ -53,7 +54,7 @@ function requestOptions(config: RemoteConfig): RequestOptions {
   return { headers: authorization ? { Authorization: authorization } : {} }
 }
 
-const remoteUrl = (config: RemoteConfig): string => `${config.url!.replace(/\/+$/, '')}/${(config.path ?? 'translations').replace(/^\/+/, '')}`
+const remoteUrl = (config: RemoteConfig): string => `${trimTrailingSlashes(config.url!)}/${trimLeadingSlashes(config.path ?? 'translations')}`
 
 interface PullPlan {
   added: string[]

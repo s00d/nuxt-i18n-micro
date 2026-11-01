@@ -38,7 +38,8 @@ export function parseCsv(content: string, name = 'the CSV'): string[][] {
         index += 1
       } else {
         quoted = false
-        if (!/^(?:[,\r\n]|$)/.test(content.slice(index + 1, index + 2))) throw malformed(index)
+        const next = content[index + 1]
+        if (next !== undefined && next !== ',' && next !== '\r' && next !== '\n') throw malformed(index)
       }
       continue
     }

@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterAll, describe, expect, test, vi } from 'vitest'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '../../../src/hmr-plugin'
 import {
@@ -24,7 +24,7 @@ describe('dev translation watcher', () => {
       translationDir: 'locales',
       additionalTranslationDirs: ['common', 'shared'],
     })
-    expect(additionalRoots).toEqual(['/layer-a/common', '/app/common', '/layer-a/shared', '/app/shared'])
+    expect(additionalRoots).toEqual(['/layer-a/common', '/app/common', '/layer-a/shared', '/app/shared'].map((root) => resolve(root)))
 
     // step 2: which saved files count — any .json under a translationDir root (any depth, any
     // layer), only top-level {locale}.json in an additional root, nothing else

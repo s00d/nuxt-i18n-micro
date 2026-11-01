@@ -44,7 +44,10 @@ function absolutizeConfigImports(source: string, root: string): void {
   const text = readFileSync(config, 'utf-8')
   writeFileSync(
     config,
-    text.replace(/(['"])(\.\.?\/[^'"]+)\1/g, (_m, q: string, spec: string) => `${q}${resolve(source, spec)}${q}`),
+    text.replace(
+      /(['"])(\.\.?\/[^'"]+)\1/g, // forward slashes: this lands in a string literal, where `\` is an escape
+      (_m, q: string, spec: string) => `${q}${resolve(source, spec).replaceAll('\\', '/')}${q}`,
+    ),
   )
 }
 

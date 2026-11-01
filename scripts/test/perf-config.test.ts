@@ -140,7 +140,7 @@ export default _module
   it('includes module + package src in hashInputs', () => {
     const inputs = buildHashInputs('/tmp/fixture')
     expect(inputs[0]).toBe('/tmp/fixture')
-    expect(inputs.some((p) => p.endsWith('/src'))).toBe(true)
+    expect(inputs.some((p) => p.replace(/\\/g, '/').endsWith('/src'))).toBe(true)
     for (const dir of MODULE_PACKAGE_SRC_DIRS) {
       expect(inputs.some((p) => p.replace(/\\/g, '/').endsWith(dir))).toBe(true)
     }

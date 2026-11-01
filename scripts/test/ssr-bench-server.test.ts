@@ -40,8 +40,11 @@ describe('benchmark/integrations/ssr-server.mjs', () => {
     await new Promise((done) => child.stdout!.once('data', done))
   })
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Windows keeps the working directory of a process until it is gone
+    const exited = new Promise((done) => child.once('exit', done))
     child.kill()
+    await exited
     rmSync(cwd, { recursive: true, force: true })
   })
 

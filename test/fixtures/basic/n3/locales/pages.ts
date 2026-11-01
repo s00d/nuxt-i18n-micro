@@ -13,21 +13,20 @@ type Routes = {
 // Type assertion for the imported routes
 const typedRoutes = routes as Routes
 
-const pagesDir = join(__dirname, '../pages/')
+const pagesDir = join(__dirname, '../pages')
 const pages: Record<string, Record<string, string>> = {}
 
-const directoryListing = globSync(`${pagesDir}**/*.vue`)
+// by `cwd`: a `\` of a Windows path is an escape in a glob
+const directoryListing = globSync('**/*.vue', { cwd: pagesDir, posix: true })
 
 directoryListing.forEach((path) => {
   const pageIdentifier: string = path
-    .replace(pagesDir, '')
     .replace(/\.vue$/, '')
     .replace(/\/index$/, '')
     .replace(/\//g, '-')
     .replaceAll(/\[/g, '')
     .replaceAll(/\]/g, '')
   const partsBase: string = path
-    .replace(pagesDir, '')
     .replace(/\.vue$/, '')
     .replace(/\[/g, ':')
     .replace(/\]/g, '()')

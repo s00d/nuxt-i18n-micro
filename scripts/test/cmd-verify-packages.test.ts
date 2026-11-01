@@ -13,7 +13,7 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
 const onDisk = vi.hoisted(() => new Set<string>())
 vi.mock('node:fs', async (importOriginal) => ({
   ...(await importOriginal<typeof import('node:fs')>()),
-  existsSync: (path: string) => onDisk.has(String(path)),
+  existsSync: (path: string) => onDisk.has(String(path).replaceAll('\\', '/')),
   statSync: () => ({ isDirectory: () => true }),
 }))
 

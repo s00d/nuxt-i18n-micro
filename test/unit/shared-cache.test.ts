@@ -327,7 +327,8 @@ describe('what comes back is validated', () => {
     expect(mount.values.get(KEY)).toBe(JSON.stringify(HOME))
   })
 
-  test('the real fs driver returns its read errors: an unreadable key reaches no response', async () => {
+  // Windows has no unreadable mode: chmod sets the read-only flag and nothing else
+  test.skipIf(process.platform === 'win32')('the real fs driver returns its read errors: an unreadable key reaches no response', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     const base = mkdtempSync(join(tmpdir(), 'i18n-shared-fs-'))
     const real = createStorage({ driver: fsDriver({ base }) })

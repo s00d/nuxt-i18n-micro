@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { relinkWorkspaceDeps } from '../src/commands/smoke-pack'
 import type { PackageManifest } from '../src/utils/manifest'
@@ -21,18 +21,18 @@ const tarballFor = (manifest: PackageManifest): string => {
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2))
   writeFileSync(join(dir, 'index.mjs'), 'export default 1\n')
   const tarball = join(work, `${String(manifest.name).replace(/[@/]/g, '-')}.tgz`)
-  execFileSync('tar', ['-czf', tarball, '-C', join(dir, '..'), 'package'])
+  execFileSync('tar', ['-czf', basename(tarball), '-C', join(dir, '..'), 'package'], { cwd: work })
   return tarball
 }
 
 const manifestIn = (tarball: string): PackageManifest => {
   const out = join(work, `read-${Math.random().toString(36).slice(2)}`)
   mkdirSync(out, { recursive: true })
-  execFileSync('tar', ['-xzf', tarball, '-C', out])
+  execFileSync('tar', ['-xzf', basename(tarball), '-C', out], { cwd: work })
   return JSON.parse(readFileSync(join(out, 'package', 'package.json'), 'utf8')) as PackageManifest
 }
 
-const entriesIn = (tarball: string): string[] => execFileSync('tar', ['-tzf', tarball], { encoding: 'utf8' }).trim().split('\n').sort()
+const entriesIn = (tarball: string): string[] => execFileSync('tar', ['-tzf', basename(tarball)], { cwd: work, encoding: 'utf8' }).trim().split('\n').sort()
 
 beforeEach(() => {
   work = mkdtempSync(join(tmpdir(), 'relink-test-'))

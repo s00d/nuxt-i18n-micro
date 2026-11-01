@@ -280,4 +280,5 @@ test('the shown translations stay right under any order of answers', async () =>
     fc.asyncProperty(fc.array(step, { maxLength: 24 }), (steps) => exec(steps)),
     { numRuns: RUNS, seed: SEED },
   )
-}, 60_000)
+  // a hosted Windows runner needs more than a minute for the same runs
+}, 180_000)

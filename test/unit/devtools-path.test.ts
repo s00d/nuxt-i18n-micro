@@ -23,7 +23,7 @@ describe('devtools save path guard', () => {
     writeFileSync(join(dir, 'pages/about/de.json'), '{}')
     writeFileSync(join(root, 'secret.json'), '{}')
     symlinkSync(join(root, 'secret.json'), join(dir, 'link.json'))
-    expect(resolveTranslationFile(dir, 'pages/about/de.json')).toMatch(/pages\/about\/de\.json$/)
+    expect(resolveTranslationFile(dir, 'pages/about/de.json')).toMatch(/pages[\\/]about[\\/]de\.json$/)
     expect(resolveTranslationFile(dir, '../secret.json')).toBeNull()
     expect(resolveTranslationFile(dir, 'link.json')).toBeNull()
     expect(resolveTranslationFile(dir, 'missing.json')).toBeNull()

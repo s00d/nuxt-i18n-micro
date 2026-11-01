@@ -105,7 +105,8 @@ describe('listTranslationFiles', () => {
 })
 
 describe('a directory that cannot be read', () => {
-  test('costs its own files only, and the rest of the walk goes on', () => {
+  // Windows has no unreadable mode: chmod sets the read-only flag and nothing else
+  test.skipIf(process.platform === 'win32')('costs its own files only, and the rest of the walk goes on', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     write('a/en.json', '{}')
     write('b/en.json', '{}')

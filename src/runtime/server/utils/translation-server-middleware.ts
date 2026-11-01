@@ -33,9 +33,7 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
   function t(key: string, params?: Params, defaultValue?: string): string {
     const value = resolveTranslation(translations, key)
 
-    if (value === null) {
-      return defaultValue || key
-    }
+    if (value === null) return defaultValue && params ? interpolate(defaultValue, params) : defaultValue || key
 
     const str = typeof value === 'string' ? value : String(value)
     return params ? interpolate(str, params) : str

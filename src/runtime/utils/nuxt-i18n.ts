@@ -9,17 +9,6 @@ import {
   type TranslationStorage,
 } from '@i18n-micro/core'
 import type { CleanTranslation, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
-/**
- * Merging is for *patches* only — `$mergeTranslations`, `$loadPageTranslations` — where the
- * input is a fragment of a tree and everything it does not mention has to survive. Patches
- * are small, so a full recursive walk costs nothing.
- *
- * Navigation does not merge at all: installing a chunk replaces the active dictionary and
- * keeps the outgoing one as a fallback layer (see `applySwitchContext`). A merge there
- * would have to walk the whole incoming chunk to be correct — ~3.8 ms on the playground's
- * 103k-key dictionary, on every navigation.
- */
-import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import { type LoadOptions, translationStorage } from './storage'
@@ -264,11 +253,12 @@ export class NuxtI18n extends BaseI18n {
   protected patch(locale: string, routeName: string, translations: Translations): void {
     const stored = this.storage.translations.get(this.getCacheKey(locale, routeName))
     const merged = this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
-    if (locale !== this.currentLocale || routeName !== this.currentRouteName) return
+    // a route with no name reads the index chunk: a 404 page is on screen for that patch too
+    if (locale !== this.currentLocale || (routeName || 'index') !== this.getRoute()) return
     // One tree on screen and in store takes the one merge. Otherwise the patch, not the merged chunk: the active
     // dictionary already holds this chunk, so walking the whole thing again costs its size for a few new keys.
     const onScreen = this.cachedTranslations
-    this.cachedTranslations = stored === onScreen ? merged : deepMergeTranslationsRecursive(onScreen, translations as Record<string, unknown>)
+    this.cachedTranslations = stored === onScreen ? merged : mergeTranslationChunk(onScreen, translations as Record<string, unknown>)
     this.notifyLoaded()
   }
 

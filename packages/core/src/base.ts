@@ -226,7 +226,7 @@ export abstract class BaseI18n {
     this.touch()
     const values = typeof count === 'number' ? { count } : count
     const { count: countValue, ...params } = values
-    // as `t`: a default is interpolated, an empty one stays
+    // a default is interpolated; unlike in `t`, an empty one stays
     const fallback = (): string => (defaultValue ? interpolate(defaultValue, values) : (defaultValue ?? key))
     if (countValue === undefined || countValue === null) return fallback()
     // Missing key: `undefined` unless a default is passed, so `defaultPlural` (which calls

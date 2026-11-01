@@ -89,7 +89,7 @@ export class ServerNuxtI18n extends NuxtI18n {
   protected override patch(locale: string, routeName: string, translations: Translations): void {
     const key = this.getCacheKey(locale, routeName)
     const chunk = this.storage.translations.get(key)
-    const active = locale === this.getLocale() && routeName === this.getCurrentRouteName()
+    const active = locale === this.getLocale() && (routeName || 'index') === this.getRoute()
     // nothing to lay it over: a first write, or a dictionary its chunk does not hold (a stand-in)
     if (!chunk || (active && chunk !== this.cachedTranslations)) return super.patch(locale, routeName, translations)
     // a copy, as a merge makes: the object stays the caller's

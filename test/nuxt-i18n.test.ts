@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
 import { formatterFor, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { ServerNuxtI18n } from '../src/runtime/utils/nuxt-i18n-server'
 import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
@@ -516,5 +517,25 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
     } finally {
       loadSpy.mockRestore()
     }
+  })
+})
+
+describe('a patch of the dictionary on screen', () => {
+  test('leaves the array with the caller, when screen and chunk are two trees too', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'index', { a: 'one' })
+    i18n.setTranslation('a', 'two')
+    const list = ['one']
+    i18n.mergeTranslations({ list })
+    list[0] = 'changed by the caller'
+    expect(i18n.t('list.0')).toBe('one')
+  })
+
+  test.each([NuxtI18n, ServerNuxtI18n])('reaches a 404 page, which reads the index chunk: %o', async (Instance) => {
+    const i18n = new Instance({ missingWarn: false })
+    i18n.applySwitchContext('en', '', { a: 'A' })
+    await i18n.loadPageTranslations('en', 'index', { b: 'B' })
+    expect(i18n.t('b')).toBe('B')
+    expect(i18n.t('a')).toBe('A')
   })
 })

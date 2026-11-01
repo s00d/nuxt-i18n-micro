@@ -133,4 +133,13 @@ describe('useTranslationServerMiddleware', () => {
     state.load.mockResolvedValue({ data: { hello: 'Hello' }, json: '' })
     expect((await useTranslationServerMiddleware(e))('hello')).toBe('Hello')
   })
+
+  test('a default is interpolated, as in `$t`', async () => {
+    const { useTranslationServerMiddleware } = await import('../../src/runtime/server/utils/translation-server-middleware')
+    state.load.mockResolvedValue({ data: {}, json: '' })
+    const t = await useTranslationServerMiddleware(event('/api/x'))
+    expect(t('miss', { n: 1 }, 'D {n}')).toBe('D 1')
+    expect(t('miss', { n: 1 })).toBe('miss')
+    expect(t('miss', undefined, 'D {n}')).toBe('D {n}')
+  })
 })

@@ -5,7 +5,8 @@ import type { ServerTranslationCacheEntry } from '../server/internal/server-tran
 export function toEntry(data: Translations): ServerTranslationCacheEntry {
   let json: string | undefined
   return {
-    data,
+    // every request reads this tree: its root is frozen, once, in place
+    data: Object.freeze(data),
     get json() {
       return (json ??= JSON.stringify(data).replace(/</g, '\\u003c'))
     },

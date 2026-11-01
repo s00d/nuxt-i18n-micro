@@ -87,7 +87,7 @@ interface StartLocaleDeps {
   getCurrentLocale: (route?: ResolvedRouteLike) => string
 }
 
-/** The first page's locale, and what the request said it should be. */
+/** The first page's locale. */
 function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, noPrefix, renderLocale, initialRoute, locale, getCurrentLocale }: StartLocaleDeps) {
   const { locale: localeState, getPreferredLocale, resolveInitialLocale, isValidLocale, validLocales } = locale
 
@@ -113,7 +113,7 @@ function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, noPrefix, rende
     preference: noPrefix ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
     getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
   })
-  return { initialLocale, requestLocale }
+  return initialLocale
 }
 
 /**
@@ -208,7 +208,7 @@ export default defineNuxtPlugin({
     const loader = new NuxtTranslationLoader({ i18n, loadOptions, isDev, prerender })
 
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
-    const { initialLocale, requestLocale } = resolveStartLocale({
+    const initialLocale = resolveStartLocale({
       nuxtApp,
       i18nConfig,
       i18nStrategy,
@@ -219,14 +219,6 @@ export default defineNuxtPlugin({
       getCurrentLocale,
     })
     const initialRouteName = getPluginRouteName(initialRoute, initialLocale)
-
-    // `serverTranslationPreload` loads index in Nitro middleware — reuse it when the
-    // first page is index so we do not load the same chunk twice on SSR.
-    // Only for the locale it was detected for: under no_prefix a custom path renders another one.
-    if (import.meta.server && initialRouteName === 'index' && initialLocale === requestLocale) {
-      const preloaded = nuxtApp.ssrContext?.event?.context?.i18n?.translations
-      if (preloaded) translationStorage.seed(initialLocale, 'index', preloaded as Record<string, unknown>)
-    }
 
     try {
       await loader.switchContext(initialLocale, initialRouteName)

@@ -132,16 +132,6 @@ class TranslationStorage {
     return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
   }
 
-  /**
-   * Seed cache without fetching (`serverTranslationPreload` for index). Called per request, with the server's one shared
-   * chunk, so a chunk that is already in costs a lookup: a new tree would cost every request its leaf cache too.
-   */
-  seed(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
-    const cacheKey = this.getCacheKey(locale, routeName)
-    if (this.cc.get(cacheKey) === data || !Object.keys(data).length) return
-    this.cc.set(cacheKey, this.shared(data))
-  }
-
   // ==========================================================================
   // PUBLIC API
   // ==========================================================================
@@ -167,7 +157,9 @@ class TranslationStorage {
    * Returns data, cache key, and JSON for injection (server only).
    */
   async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
-    const cached = this.getFromCache(locale, routeName)
+    // the render reads the server's own cache, which counts `cacheTtl`: a copy here would count it a second time
+    const direct = import.meta.server && Boolean(options.serverLoad)
+    const cached = direct ? null : this.getFromCache(locale, routeName)
     if (cached) return cached
 
     const cacheKey = this.getCacheKey(locale, routeName)
@@ -181,7 +173,7 @@ class TranslationStorage {
     if (data === null && routeName === PREMERGED_ROOT_PAGE) return { data: Object.freeze({}), cacheKey, noDictionary: true }
     if (data === null) return { ...(await this.load(locale, PREMERGED_ROOT_PAGE, options)), cacheKey }
 
-    this.cc.set(cacheKey, this.shared(data))
+    if (!direct) this.cc.set(cacheKey, this.shared(data))
 
     return { data, cacheKey }
   }

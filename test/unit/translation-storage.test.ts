@@ -36,11 +36,21 @@ describe('a server render', () => {
     expect(translationStorage.getFromCache('de', 'nofile')).toBeNull()
 
     await translationStorage.load('de', 'nofile', render)
-    expect(serverLoad.mock.calls.filter(([, page]) => page === '__root')).toHaveLength(1)
+    expect(serverLoad.mock.calls.filter(([, page]) => page === '__root')).toHaveLength(2)
     expect(serverLoad.mock.calls.filter(([, page]) => page === 'nofile')).toHaveLength(2)
 
     files.nofile = { hello: 'page' }
     expect((await translationStorage.load('de', 'nofile', render)).data).toEqual({ hello: 'page' })
+  })
+
+  test('keeps no copy of what the loader caches: one TTL, the loader counts it', async () => {
+    let version = 1
+    const serverLoad = vi.fn(async () => ({ version }))
+    const render = { ...options, serverLoad }
+    expect((await translationStorage.load('de', 'about', render)).data).toEqual({ version: 1 })
+    version = 2
+    expect((await translationStorage.load('de', 'about', render)).data).toEqual({ version: 2 })
+    expect(translationStorage.getFromCache('de', 'about')).toBeNull()
   })
 
   test('no file and no root: an empty stand-in, marked, kept nowhere', async () => {

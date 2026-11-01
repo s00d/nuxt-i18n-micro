@@ -1,6 +1,6 @@
 disablePageLocales → locale=de route=about shown="own_about" state=de loads=[de:index] cookies={} writes=[] head=1
 disablePageLocales client → locale=de route=about shown="own_about" state=de loads=[de:index] cookies={"user-locale":"de"} writes=[user-locale=de]
-preload on index → locale=de route=index shown="seeded" state=de loads=[] cookies={} writes=[] head=1
+preload on index → locale=de route=index shown="de index" state=de loads=[de:index] cookies={} writes=[] head=1
 preload on a page → locale=de route=about shown="de about" state=de loads=[de:about] cookies={} writes=[] head=1
 preload of another locale → locale=de route=index shown="de index" state=de loads=[de:index] cookies={} writes=[] head=1
 empty preload → locale=de route=index shown="de index" state=de loads=[de:index] cookies={} writes=[] head=1

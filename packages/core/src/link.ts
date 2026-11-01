@@ -140,10 +140,13 @@ function resolveDots(segments: string[]): string[] {
       if (plain === '..') kept.pop()
     } else kept.push(segment)
   }
+  if (!found) return segments
   // what stays of `/a/..//host` must not open with two slashes
-  if (found) while (kept.length && plainSegment(kept[0]!) === '') kept.shift()
-  if (found && kept.at(-1) === '') kept.pop()
-  return found ? kept : segments
+  let blanks = 0
+  while (blanks < kept.length && plainSegment(kept[blanks]!) === '') blanks++
+  const rest = kept.slice(blanks)
+  if (rest.at(-1) === '') rest.pop()
+  return rest
 }
 
 /** `/a/b/../c` → `/a/c`, or a `../` would climb out of a locale prefix added later. Read as a browser reads it, `\\` a slash and `%2e` a dot. */

@@ -307,6 +307,12 @@ describe('empty segments and dots, as a browser reads them', () => {
     expect(localizedPath('/a//../b', 'de', ['en', 'de'], 'en')).toBe('/de/a/b')
   })
 
+  it('is linear on a run of blanks after a dot segment', () => {
+    const started = performance.now()
+    localizedPath(`/a/..${'/'.repeat(200_000)}`, 'de', ['en', 'de'], 'en')
+    expect(performance.now() - started).toBeLessThan(500)
+  })
+
   it('what stays never opens with two slashes', () => {
     for (const path of ['/p/..//host', '/a/..//host/x']) expect(localizedPath(path, 'de', ['en', 'de'], 'en')).toMatch(/^\/de\/[^/]/)
   })

@@ -105,16 +105,31 @@ export function joinBase(base: string, path: string): string {
   return `${trimTrailingSlashes(base)}/${path.slice(start)}`
 }
 
-/** The script subtag of a language tag: it decides over the language (`az-Arab` is RTL, `ar-Latn` is not). It follows the language and any extlangs, so the `arab` of an extension (`en-u-arab`) is none. */
-const SCRIPT_SUBTAG = /^[a-z]{2,8}(?:[-_][a-z]{3})*[-_]([a-z]{4})(?=[-_]|$)/i
-const RTL_SCRIPT = /^(?:adlm|arab|hebr|mand|nkoo|rohg|samr|syrc|thaa)$/i
-/** Languages written right to left in their default script. */
-const RTL_LANGUAGE =
-  /^(?:acm|aeb|afb|apc|apd|ar|arc|arq|ars|ary|arz|ayl|ayn|ayp|azb|bal|bgn|bqi|ckb|dv|fa|glk|haz|hbo|he|iw|ji|khw|ks|lrc|mzn|nqo|pnb|prs|ps|rhg|sam|sd|sdh|shu|skr|syc|syr|ug|ur|yi)(?:[-_]|$)/i
+/** The scripts written right to left. */
+const RTL_SCRIPTS = new Set(['Adlm', 'Arab', 'Armi', 'Hebr', 'Mand', 'Nkoo', 'Rohg', 'Samr', 'Syrc', 'Thaa'])
+
+/**
+ * The likely script of a tag decides, which no table of languages can do: `az-IR` is Arabic and `az` Latin,
+ * `sd-IN` is Devanagari, and an extension (`ar-u-nu-latn`) names no script. A tag `Intl` refuses is `ltr`, as a browser's default.
+ */
+function readsRtl(tag: string): boolean {
+  const [language, ...rest] = tag.split('_').join('-').split('-')
+  // `Intl` refuses an extlang (`ar-aao`), and three letters after the language are nothing else
+  while (rest[0]?.length === 3 && Number.isNaN(Number(rest[0]))) rest.shift()
+  try {
+    return RTL_SCRIPTS.has(new Intl.Locale([language, ...rest].join('-')).maximize().script ?? '')
+  } catch {
+    return false
+  }
+}
+
+/** By tag. A tag is the `iso` or `code` of a configured locale, never request input, so this holds one entry per locale and cannot grow. */
+const rtlByTag = new Map<string, boolean>()
 
 function isRtlTag(tag: string): boolean {
-  const script = SCRIPT_SUBTAG.exec(tag)?.[1]
-  return script ? RTL_SCRIPT.test(script) : RTL_LANGUAGE.test(tag)
+  let rtl = rtlByTag.get(tag)
+  if (rtl === undefined) rtlByTag.set(tag, (rtl = readsRtl(tag)))
+  return rtl
 }
 
 /**

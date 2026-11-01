@@ -18,6 +18,16 @@ describe('resolveOgLocale', () => {
     expect(resolveOgLocale({ code: 'en' })).toBeNull()
   })
 
+  it.each(['en_12', 'de_ß1', 'e!-US', '12-US', 'e!_US', '12_US', 'e_n-US'])('%s is no language and region', (iso) => {
+    expect(resolveOgLocale({ code: 'x', iso })).toBeNull()
+  })
+
+  it('takes either separator, in any case', () => {
+    expect(resolveOgLocale({ code: 'x', iso: 'EN_us' })).toBe('en_US')
+    expect(resolveOgLocale({ code: 'x', iso: 'yue-hk' })).toBe('yue_HK')
+    expect(resolveOgLocale({ code: 'x', iso: 'a_US' })).toBeNull()
+  })
+
   it('ignores empty og string', () => {
     expect(resolveOgLocale({ code: 'en', iso: 'en-US', og: '   ' })).toBe('en_US')
   })

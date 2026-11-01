@@ -58,7 +58,7 @@ const UNKNOWN_LOCALE_TAG = 'en'
 
 /** A locale code is free-form, `Intl` is not: `en_US` throws, and `ua` silently gets the host's locale. Runs per new formatter only. */
 function intlTag(locale: string): string {
-  const tag = locale.replace(/_/g, '-')
+  const tag = locale.includes('_') ? locale.split('_').join('-') : locale
   try {
     return Intl.NumberFormat.supportedLocalesOf(tag).length > 0 ? tag : UNKNOWN_LOCALE_TAG
   } catch {

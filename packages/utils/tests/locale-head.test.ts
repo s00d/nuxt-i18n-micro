@@ -101,6 +101,19 @@ describe('buildLocaleHead', () => {
     [{ code: 'ar-aao-Latn' }, undefined],
     ...['ks', 'rhg', 'sdh', 'bal', 'skr', 'pnb', 'arz', 'ary'].map((code) => [{ code }, 'rtl']),
     [{ code: 'az-Latn' }, undefined],
+    // an extension names no script
+    ...['ar-u-nu-latn', 'ar-EG-u-nu-latn', 'fa-u-nu-latn'].map((code) => [{ code }, 'rtl']),
+    ...['en-u-nu-arab', 'en-u-ca-hebr', 'en-x-arab'].map((code) => [{ code }, undefined]),
+    // the region decides the script
+    ...['az-IR', 'pa-PK', 'uz-AF', 'ku-IQ', 'ku-IR', 'ha-SD', 'ms-CC'].map((code) => [{ code }, 'rtl']),
+    ...['az', 'pa', 'uz', 'ku', 'ha', 'ms', 'sd-IN'].map((code) => [{ code }, undefined]),
+    // no table lists these
+    ...['aeb', 'arq', 'prs', 'bej', 'kas', 'ota'].map((code) => [{ code }, 'rtl']),
+    // an extlang adds nothing to the language
+    [{ code: 'ar-aao' }, 'rtl'],
+    [{ code: 'zh-cmn' }, undefined],
+    // no language tag at all
+    ...['ar-', 'ar_', 'fa-'].map((code) => [{ code }, undefined]),
     [{ code: 'ar', dir: 'ltr' }, 'ltr'],
     [{ code: 'en', dir: 'rtl' }, 'rtl'],
     [{ code: 'en', dir: 'auto' }, 'auto'],

@@ -19,25 +19,24 @@ export function resolveOgLocale(locale: OgLocaleInput): string | null {
   const iso = locale.iso?.trim()
   if (!iso) return null
 
-  const underscoreIndex = iso.indexOf('_')
-  if (underscoreIndex > 0) {
-    const language = iso.slice(0, underscoreIndex)
-    const territory = iso.slice(underscoreIndex + 1)
-    if (language.length >= 2 && territory.length === 2) {
-      return `${language.toLowerCase()}_${territory.toUpperCase()}`
-    }
-  }
+  return ogPair(iso, '_') ?? ogPair(iso, '-')
+}
 
-  const hyphenIndex = iso.indexOf('-')
-  if (hyphenIndex > 0) {
-    const language = iso.slice(0, hyphenIndex)
-    const region = iso.slice(hyphenIndex + 1)
-    if (language.length >= 2 && region.length === 2 && /^[A-Za-z]{2}$/.test(region)) {
-      return `${language.toLowerCase()}_${region.toUpperCase()}`
-    }
+function isAsciiLetters(text: string): boolean {
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i) | 32
+    if (c < 97 || c > 122) return false
   }
+  return true
+}
 
-  return null
+/** `language_REGION` of a tag cut at its first `separator`: letters only, a language of 2 or more and a region of 2. */
+function ogPair(iso: string, separator: string): string | null {
+  const at = iso.indexOf(separator)
+  const language = iso.slice(0, at)
+  const region = iso.slice(at + 1)
+  if (at < 2 || region.length !== 2 || !isAsciiLetters(language) || !isAsciiLetters(region)) return null
+  return `${language.toLowerCase()}_${region.toUpperCase()}`
 }
 
 /**

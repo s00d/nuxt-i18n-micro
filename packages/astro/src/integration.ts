@@ -1,5 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import type { AstroConfig, AstroIntegration, HookParameters } from 'astro'
 import type { FSWatcher } from 'vite'
 import { AstroI18n, type AstroI18nOptions } from './composer'
@@ -85,7 +86,7 @@ function i18nVitePlugin(options: I18nIntegrationOptions, config: AstroConfig) {
       if (!dir) return
       // A file Vite knows reloads by itself; a new one has no module yet: a change of a known file does it.
       const reload = (file: string) => {
-        const isLocaleFile = file.endsWith('.json') && file.replace(/\\/g, '/').includes(dir)
+        const isLocaleFile = file.endsWith('.json') && forwardSlashes(file).includes(dir)
         if (isLocaleFile && watched[0]) server.watcher.emit('change', watched[0])
       }
       server.watcher.on('add', reload)

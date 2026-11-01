@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { Locale, Translations } from '@i18n-micro/types'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { classifyTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import type { Plugin } from 'vite'
 import type { CreateI18nOptions } from '../runtime/create'
@@ -94,7 +95,7 @@ const VIRTUAL_MESSAGES_ID = 'virtual:i18n-micro/messages'
 const RESOLVED_MESSAGES_ID = `\0${VIRTUAL_MESSAGES_ID}`
 
 function toPosix(path: string): string {
-  return path.replace(/\\/g, '/')
+  return forwardSlashes(path)
 }
 
 function generateImportMessagesModule(rootDir: string, translationDir: string, disablePageLocales: boolean): string {

@@ -73,8 +73,17 @@ export function setTranslationAtKey(tree: Tree, key: string, value: unknown): Tr
   return root
 }
 
+function isIndex(segment: string): boolean {
+  if (segment === '') return false
+  for (let i = 0; i < segment.length; i++) {
+    const c = segment.charCodeAt(i)
+    if (c < 48 || c > 57) return false
+  }
+  return true
+}
+
 function copyNode(node: unknown, nextSegment: string): Tree {
-  if (Array.isArray(node) && /^\d+$/.test(nextSegment)) return [...node] as unknown as Tree
+  if (Array.isArray(node) && isIndex(nextSegment)) return [...node] as unknown as Tree
   return isTree(node) ? { ...node } : {}
 }
 

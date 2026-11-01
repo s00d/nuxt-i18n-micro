@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { buildLocaleHead, filterQuery } from '@i18n-micro/utils/locale-head'
 import { createI18nRoutingFromAdapter } from '../router/i18n-routing'
 import { getLocaleFromPath, stripSiteBase } from '../router/adapter'
@@ -45,9 +46,11 @@ export interface BuildVitePressLocaleHeadOptions {
   missingWarn?: boolean
 }
 
+const withoutSlash = (path: string): string => (path.endsWith('/') ? path.slice(0, -1) : path)
+
 function joinAbsolute(metaBaseUrl: string, siteBase: string | undefined, path: string): string {
-  const origin = metaBaseUrl.replace(/\/$/, '')
-  const base = !siteBase || siteBase === '/' ? '' : siteBase.replace(/\/$/, '')
+  const origin = withoutSlash(metaBaseUrl)
+  const base = !siteBase || siteBase === '/' ? '' : withoutSlash(siteBase)
   const p = path.startsWith('/') ? path : `/${path}`
   return `${origin}${base}${p}`
 }
@@ -56,8 +59,9 @@ function joinAbsolute(metaBaseUrl: string, siteBase: string | undefined, path: s
  * Convert VitePress `pageData.relativePath` to a route path (cleanUrls-style).
  */
 export function relativePathToRoutePath(relativePath: string): string {
-  let path = relativePath.replace(/\\/g, '/')
-  path = path.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')
+  let path = forwardSlashes(relativePath)
+  if (path === 'index.md' || path.endsWith('/index.md')) path = path.slice(0, -8)
+  else if (path.endsWith('.md')) path = path.slice(0, -3)
   if (!path.startsWith('/')) path = `/${path}`
   if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1)
   return path || '/'

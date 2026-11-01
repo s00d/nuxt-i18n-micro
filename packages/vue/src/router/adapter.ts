@@ -17,7 +17,7 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
     // `{}` names no target: the router would answer this page
     if (typeof to !== 'string') return to.path || to.name || to.params || to.query || to.hash ? router.resolve(to as RouteLocationRaw).fullPath : '/'
     // `#top`, `?x=1`: relative to this page
-    return /^[?#]/.test(to) ? `${router.currentRoute.value.path}${to}` : to
+    return to[0] === '?' || to[0] === '#' ? `${router.currentRoute.value.path}${to}` : to
   }
 
   /**

@@ -8,6 +8,9 @@ export function requestURL(event: H3Event): URL {
   try {
     return getRequestURL(event)
   } catch {
-    return new URL(event.path.replace(/^[/\\]*/, '/'), 'http://localhost')
+    const path = event.path
+    let start = 0
+    while (path[start] === '/' || path[start] === '\\') start++
+    return new URL(`/${path.slice(start)}`, 'http://localhost')
   }
 }

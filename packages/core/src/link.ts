@@ -11,6 +11,9 @@ const FILE_NAME =
  */
 export function externalLinkHref(to: unknown): string | undefined {
   if (typeof to !== 'string') return undefined
+  // `/about`, `?x`, `#y`: not one pattern below can match
+  const first = to.charCodeAt(0)
+  if ((first === 47 && to.charCodeAt(1) !== 47) || first === 63 || first === 35) return undefined
   if (HAS_SCHEME.test(to)) return to
   return BARE_DOMAIN.test(to) && !FILE_NAME.test(to) ? `https://${to}` : undefined
 }
@@ -34,8 +37,9 @@ const decodeQueryPart = (part: string): string => {
  */
 export function routeQuery(search: string | undefined): Record<string, string | null | (string | null)[]> {
   const values = new Map<string, (string | null)[]>()
-  for (const pair of (search ?? '').replace(/^\?/, '').split('&').filter(Boolean)) {
-    const text = pair.replace(/\+/g, ' ')
+  const query = search?.[0] === '?' ? search.slice(1) : (search ?? '')
+  for (const pair of query.split('&').filter(Boolean)) {
+    const text = pair.includes('+') ? pair.split('+').join(' ') : pair
     const equals = text.indexOf('=')
     const key = decodeQueryPart(equals < 0 ? text : text.slice(0, equals))
     const parsed = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))

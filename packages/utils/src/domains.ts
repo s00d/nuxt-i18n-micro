@@ -1,11 +1,11 @@
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { trimTrailingSlashes } from './app-path'
 
-const normalizeHost = (host: string) =>
-  host
-    .trim()
-    .toLowerCase()
-    .replace(/:(?:80|443)$/, '')
+function normalizeHost(rawHost: string): string {
+  const host = rawHost.trim().toLowerCase()
+  if (host.endsWith(':80')) return host.slice(0, -3)
+  return host.endsWith(':443') ? host.slice(0, -4) : host
+}
 
 function hostOf(locale: Locale): string | null {
   if (!locale.baseUrl) return null

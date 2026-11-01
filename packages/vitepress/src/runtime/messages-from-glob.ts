@@ -21,7 +21,7 @@ export function messagesFromGlob(modules: Record<string, { default: Translations
   const messages: Record<string, Translations> = {}
   for (const [path, mod] of Object.entries(modules)) {
     const file = path.split('/').pop() || ''
-    const code = file.replace(/\.json$/, '')
+    const code = file.endsWith('.json') ? file.slice(0, -5) : file
     if (!code) continue
     if (mod && typeof mod === 'object' && isModuleNamespace(mod)) {
       messages[code] = mod.default

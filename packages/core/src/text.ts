@@ -45,7 +45,17 @@ export function interpolate(template: string, params: Params): string {
   return out
 }
 
-export const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, (char) => HTML_ENTITY[char]!)
+export const escapeHtml = (text: string): string => {
+  let out = ''
+  let from = 0
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i)
+    if (c !== 38 && c !== 60 && c !== 62 && c !== 34 && c !== 39) continue
+    out += text.slice(from, i) + HTML_ENTITY[text[i]!]
+    from = i + 1
+  }
+  return from === 0 ? text : out + text.slice(from)
+}
 
 /** `String` of any translation: a subtree may have a `toString` key, which is no method. Nothing there: `undefined`. */
 export function textOf(value: unknown): string | undefined {

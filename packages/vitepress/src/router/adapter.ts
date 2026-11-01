@@ -165,7 +165,8 @@ export function routeNameFromPath(
     }
   }
   if (segments.length === 0) return 'index'
-  return segments.join('-').replace(/\.html$/, '')
+  const name = segments.join('-')
+  return name.endsWith('.html') ? name.slice(0, -5) : name
 }
 
 function createVitePressLinkComponent(toHref: (path: string) => string, go?: VitePressGo): Component {

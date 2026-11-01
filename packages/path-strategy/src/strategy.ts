@@ -94,6 +94,17 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   return { path: rest.slice(0, queryAt), query, hash }
 }
 
+const isAbsoluteUrl = (path: string): boolean => path.startsWith('https://') || path.startsWith('http://')
+
+/** `path` opens with the segment `/${name}`, then its end or a query or a hash. */
+function startsWithSegment(path: string, name: string): boolean {
+  const next = path[name.length + 1]
+  return path.startsWith(`/${name}`) && (next === undefined || next === '/' || next === '?' || next === '#')
+}
+
+/** `/re/` and `re` alike. */
+const unwrapped = (matcher: string): string => (matcher.length > 1 && matcher[0] === '/' && matcher.endsWith('/') ? matcher.slice(1, -1) : matcher)
+
 /** What a browser reads as another host: two slashes or backslashes, with the blanks it drops around them. */
 const OFF_ORIGIN = /^[\0-\x20]*(?:[/\\][\t\n\r]*){2,}/
 
@@ -161,7 +172,7 @@ export class I18nPathStrategy {
     this.linkCodes = new Set(this.codes)
     this.prefix = ctx.localizedRouteNamePrefix ?? 'localized-'
     // `/re/` and `re` alike, as route-strategy reads it
-    this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${ctx.customRegexMatcher.replace(/^\/(.*)\/$/, '$1')})$`) : null
+    this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${unwrapped(ctx.customRegexMatcher)})$`) : null
     this.foldedCodes = new Map(ctx.locales.map((l) => [l.code.toLowerCase(), l.code]))
   }
 
@@ -378,7 +389,7 @@ export class I18nPathStrategy {
     const page = this.findPage(path)
     if (page && page !== UNLOCALIZED) return this.switchedPage(toLocale, page.base, page.params, { query, hash }, options)
     const target = this.localeRoute(toLocale, { path: sameOrigin(path), query, hash })
-    return target.path && /^https?:\/\//.test(target.path) ? target.path : target
+    return target.path && isAbsoluteUrl(target.path) ? target.path : target
   }
 
   private switchedPage(
@@ -738,7 +749,7 @@ export class DomainPathStrategy extends I18nPathStrategy {
     const { fullPath, path } = route
     // under `prefix` an unprefixed URL is only a redirect
     if (config.baseDefault && this.ctx.strategy !== 'prefix')
-      return this.hasPrefix(locale) && fullPath.split(/[/?#]/, 2)[1] === locale ? fullPath.slice(locale.length + 1) || '/' : fullPath
+      return this.hasPrefix(locale) && startsWithSegment(fullPath, locale) ? fullPath.slice(locale.length + 1) || '/' : fullPath
     const { strategy, defaultLocale, locales } = this.ctx
     if (strategy !== 'prefix_except_default' || locale !== defaultLocale) return fullPath
     // the build default is unprefixed only where it is the default: another locale may hold those URLs on its host
@@ -769,7 +780,8 @@ export class DomainPathStrategy extends I18nPathStrategy {
   override switchLocaleRoute(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions): RouteLike | string {
     const url = route.fullPath ?? ''
     const origin = this.originOf(url)
-    const own = origin ? this.probe(url.slice(origin.length).replace(/^\/#/, '') || '/') : null
+    const rest = url.slice(origin?.length ?? 0)
+    const own = origin ? this.probe((rest.startsWith('/#') ? rest.slice(2) : rest) || '/') : null
     return super.switchLocaleRoute(toLocale, own ?? route, options)
   }
 

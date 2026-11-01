@@ -64,3 +64,21 @@ describe('storeLoadedTranslationFile', () => {
     expect(({} as Record<string, unknown>).en).toBeUndefined()
   })
 })
+
+describe('parseTranslationRelativePath, by position, not by pattern', () => {
+  it('a line end in a name is part of the name', () => {
+    expect(parseTranslationRelativePath('pages/a\nb/en.json')).toEqual({ type: 'page', pageName: 'a\nb', locale: 'en' })
+    expect(parseTranslationRelativePath('pages/a/e\nn.json')).toEqual({ type: 'page', pageName: 'a', locale: 'e\nn' })
+  })
+
+  it.each(['.json', 'pages/.json', 'pages/en.json', 'pages//en.json', 'pages/a/.json', 'a/en.json', 'pages/a/__proto__.json', '__proto__.json'])(
+    '%s is ignored',
+    (path) => {
+      expect(parseTranslationRelativePath(path)).toEqual({ type: 'ignore' })
+    },
+  )
+
+  it('a Windows path reads as a plain one', () => {
+    expect(parseTranslationRelativePath('pages\\a\\en.json')).toEqual({ type: 'page', pageName: 'a', locale: 'en' })
+  })
+})

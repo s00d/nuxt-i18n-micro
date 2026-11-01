@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
@@ -81,7 +82,7 @@ export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translat
 export function translationRelativePath(filePath: string, dirs: { translationRoots: string[]; additionalRoots: string[] }): string | null {
   const inside = (root: string): string | null => {
     const rel = relative(root, filePath)
-    return rel.startsWith('..') || isAbsolute(rel) ? null : rel.replace(/\\/g, '/')
+    return rel.startsWith('..') || isAbsolute(rel) ? null : forwardSlashes(rel)
   }
   // additional roots first: one nested in a translation root is still a global merge source
   for (const root of dirs.additionalRoots) {

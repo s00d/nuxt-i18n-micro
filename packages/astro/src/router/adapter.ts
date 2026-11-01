@@ -15,7 +15,9 @@ function segmentsOf(path: string, locales: readonly string[]): string[] {
 /** `/en/blog/post` → `blog-post`, `/blog/[slug]` → `blog-slug`, `/` → `index`. */
 export function routeNameFromPath(path: string, locales: readonly string[] = []): string {
   const segments = segmentsOf(path, locales)
-  return segments.length === 0 ? 'index' : segments.join('-').replace(PARAM, '$1')
+  if (segments.length === 0) return 'index'
+  const name = segments.join('-')
+  return name.includes('[') ? name.replace(PARAM, '$1') : name
 }
 
 const removeLocale = (path: string, locales: readonly string[] = []): string => `/${segmentsOf(path, locales).join('/')}`

@@ -9,7 +9,7 @@ export const embeddedPayloads = true
 export async function readPayload(relPath: string): Promise<Record<string, unknown>> {
   const safeRel = resolveContainedRelPath(relPath)
   if (!safeRel) return {}
-  const key = safeRel.replace(/\//g, ':')
+  const key = safeRel.split('/').join(':')
   const value = await useStorage().getItem(`assets:i18n:${key}`)
   if (value === null || value === undefined) return {}
   // a payload that does not parse is a failed read, not an empty dictionary

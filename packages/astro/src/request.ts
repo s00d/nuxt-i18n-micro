@@ -147,7 +147,7 @@ export function asksForPage(context: RequestContext, request: I18nRequest): bool
  */
 export function isPageView(context: RequestContext, response: Response): boolean {
   if (!response.ok || !response.headers.get('content-type')?.startsWith('text/html')) return false
-  return !/prefetch/.test(`${header(context, 'sec-purpose')} ${header(context, 'purpose')}`)
+  return !`${header(context, 'sec-purpose')} ${header(context, 'purpose')}`.includes('prefetch')
 }
 
 /** A scheme this router has no business with: `sms:`, `ftp:`, `javascript:`. `externalLinkHref` handles the common ones. */

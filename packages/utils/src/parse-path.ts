@@ -1,3 +1,4 @@
+import { forwardSlashes } from './app-path'
 import { deepMergeTranslations } from './deep-merge'
 
 export type ParsedTranslationRelativePath = { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
@@ -13,32 +14,32 @@ export interface TranslationFileBuckets<T = Record<string, unknown>> {
  * A `__proto__` page or locale is ignored: as a bucket key it would write the prototype.
  */
 export function parseTranslationRelativePath(relativePath: string): ParsedTranslationRelativePath {
-  const normalizedPath = relativePath.replace(/\\/g, '/')
+  const normalizedPath = forwardSlashes(relativePath)
 
   if (!normalizedPath.endsWith('.json')) {
     return { type: 'ignore' }
   }
 
-  if (normalizedPath.startsWith('pages/')) {
-    const match = normalizedPath.match(/^pages\/(.+)\/([^/]+)\.json$/)
-    if (!match?.[1] || !match[2]) {
-      return { type: 'ignore' }
-    }
-
-    const pageName = pagePathSegmentsToRouteName(match[1].split('/'))
-    if (!pageName || pageName === '__proto__' || match[2] === '__proto__') {
-      return { type: 'ignore' }
-    }
-
-    return { type: 'page', pageName, locale: match[2] }
-  }
-
-  const match = normalizedPath.match(/^([^/]+)\.json$/)
-  if (!match?.[1] || match[1] === '__proto__') {
+  const slash = normalizedPath.lastIndexOf('/')
+  const locale = normalizedPath.slice(slash + 1, -5)
+  if (!locale || locale === '__proto__') {
     return { type: 'ignore' }
   }
 
-  return { type: 'root', locale: match[1] }
+  if (normalizedPath.startsWith('pages/')) {
+    if (slash < 7) {
+      return { type: 'ignore' }
+    }
+
+    const pageName = pagePathSegmentsToRouteName(normalizedPath.slice(6, slash).split('/'))
+    if (!pageName || pageName === '__proto__') {
+      return { type: 'ignore' }
+    }
+
+    return { type: 'page', pageName, locale }
+  }
+
+  return slash === -1 ? { type: 'root', locale } : { type: 'ignore' }
 }
 
 /**

@@ -1,4 +1,4 @@
-import { isPlainClick } from '@i18n-micro/core'
+import { isPlainClick, pathSegments } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy, I18nRouteTarget } from '@i18n-micro/vue'
 import { joinBase, queryString } from '@i18n-micro/utils/locale-head'
@@ -238,7 +238,7 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
 
   const stripPrefix = (pathname: string): { segments: string[]; hadTrailingSlash: boolean } => {
     const hadTrailingSlash = pathname === '/' || pathname.endsWith('/')
-    const segments = pathname.split('/').filter(Boolean)
+    const segments = pathSegments(pathname)
     const first = segments[0]
     if (first !== undefined && prefixToCode.has(first)) {
       segments.shift()

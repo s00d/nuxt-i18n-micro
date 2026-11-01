@@ -158,6 +158,13 @@ export function withoutDots(path: string): string {
   return kept === segments ? path : `/${kept.join('/')}`
 }
 
+/** The segments of a path, as a browser reads the URL: `\` is a slash and a tab or a newline is dropped, so `/\host` cannot pass for a path. */
+export function pathSegments(pathname: string): string[] {
+  const parts = /[\\\t\n\r]/.test(pathname) ? pathname.split(/[/\\\t\n\r]/) : pathname.split('/')
+  if (parts[0] === '') parts.shift()
+  return (mayHoldDots(pathname) ? resolveDots(parts) : parts).filter(Boolean)
+}
+
 /**
  * `to` in `locale` for a prefix-except-default router: a leading locale segment is replaced, or
  * dropped for the default locale. Query and hash stay as they are.
@@ -169,10 +176,7 @@ export function localizedPath(to: string | { path?: string }, locale: string, lo
   if (end === 0) return path
   const pathname = end === -1 ? path : path.slice(0, end)
   const suffix = end === -1 ? '' : path.slice(end)
-  // as a browser reads the URL: `\` is a slash and a tab or a newline is dropped, so `/\host` cannot pass for a path
-  const parts = /[\\\t\n\r]/.test(pathname) ? pathname.split(/[/\\\t\n\r]/) : pathname.split('/')
-  if (parts[0] === '') parts.shift()
-  const segments = (mayHoldDots(pathname) ? resolveDots(parts) : parts).filter(Boolean)
+  const segments = pathSegments(pathname)
   if (localeCodes.includes(segments[0]!)) segments.shift()
   const clean = segments.join('/')
   if (locale === defaultLocale) return `/${clean}${suffix}`

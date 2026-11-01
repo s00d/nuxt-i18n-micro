@@ -6,6 +6,7 @@ export {
   localeIsoMap,
   localizedPath,
   pathEnd,
+  pathSegments,
   routeQuery,
   urlPath,
   withoutDots,

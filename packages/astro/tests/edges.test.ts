@@ -12,6 +12,7 @@ import { translatePlural, withLocale } from '../src/client/core'
 import { I18nProvider as PreactProvider, useAstroI18n as usePreact } from '../src/client/preact'
 import { I18nProvider, useAstroI18n } from '../src/client/react'
 import { loadTranslationsIntoI18n, readTranslationDir } from '../src/node'
+import { createAstroRouterAdapter } from '../src/router/adapter'
 import { localeLabel, resolveI18nT, resolveLinkHref } from '../src/utils'
 
 const locales = [
@@ -235,5 +236,19 @@ describe('islands', () => {
     renderPreact(h(PreactProvider, { value, children: h(Probe, null) }), host)
     expect(seen.length).toBeGreaterThan(1)
     for (const pair of seen) expect(pair).toEqual(seen[0])
+  })
+})
+
+describe('a link read as a browser reads it', () => {
+  const adapter = createAstroRouterAdapter(locales, 'en')
+
+  test.each(['/\\evil.test/x', '/\t/evil.test/x', '/\n/evil.test/x'])('%j stays on the site', (href) => {
+    expect(new URL(adapter.localizePath(href, 'en', codes, 'en'), 'https://h.test').host).toBe('h.test')
+    expect(new URL(adapter.removeLocaleFromPath(href, codes), 'https://h.test').host).toBe('h.test')
+  })
+
+  test('the query and the hash stay as they are', () => {
+    expect(adapter.localizePath('/en/a?u=/b//c#d', 'de', codes, 'en')).toBe('/de/a?u=/b//c#d')
+    expect(adapter.removeLocaleFromPath('/de/a?x=1', codes)).toBe('/a?x=1')
   })
 })

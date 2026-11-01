@@ -1,3 +1,4 @@
+import { pathSegments, urlPath } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import { trimLeadingSlashes } from '@i18n-micro/utils/app-path'
 import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
@@ -7,10 +8,13 @@ import type { I18nRoutingStrategy } from './types'
 const PARAM = /\[(?:\.\.\.)?([^\]]+)\]/g
 
 function segmentsOf(path: string, locales: readonly string[]): string[] {
-  const segments = path.split('/').filter(Boolean)
+  const segments = pathSegments(urlPath(path))
   if (segments[0] !== undefined && locales.includes(segments[0])) segments.shift()
   return segments
 }
+
+/** The query and the hash of `path`, as they are. */
+const extrasOf = (path: string): string => path.slice(urlPath(path).length)
 
 /** `/en/blog/post` → `blog-post`, `/blog/[slug]` → `blog-slug`, `/` → `index`. */
 export function routeNameFromPath(path: string, locales: readonly string[] = []): string {
@@ -20,13 +24,13 @@ export function routeNameFromPath(path: string, locales: readonly string[] = [])
   return name.includes('[') ? name.replace(PARAM, '$1') : name
 }
 
-const removeLocale = (path: string, locales: readonly string[] = []): string => `/${segmentsOf(path, locales).join('/')}`
+const removeLocale = (path: string, locales: readonly string[] = []): string => `/${segmentsOf(path, locales).join('/')}${extrasOf(path)}`
 
 /** `path` in `locale`: no prefix for the default locale, or for every locale when no default is given and `locale` is empty. */
 function addLocale(path: string, locale: string, locales: readonly string[] = [], defaultLocale?: string): string {
   const segments = segmentsOf(path, locales)
   if (locale !== defaultLocale) segments.unshift(locale)
-  return `/${segments.join('/')}`
+  return `/${segments.join('/')}${extrasOf(path)}`
 }
 
 /**

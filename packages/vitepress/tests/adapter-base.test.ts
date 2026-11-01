@@ -62,3 +62,12 @@ describe('site base on the way out', () => {
     expect(go).toHaveBeenCalledWith('/fr/guide', { replace: false })
   })
 })
+
+describe('a link read as a browser reads it', () => {
+  const strategy = createVitePressRouterAdapter({ locales, defaultLocale: 'en', base: '/', go: () => {}, getPath: () => '/' })
+
+  it.each(['/\\evil.test/x', '/\t/evil.test/x', '/\n/evil.test/x'])('%j stays on the site', (href) => {
+    expect(new URL(strategy.localizePath!(href, 'en'), 'https://h.test').host).toBe('h.test')
+    expect(new URL(strategy.removeLocaleFromPath(href), 'https://h.test').host).toBe('h.test')
+  })
+})

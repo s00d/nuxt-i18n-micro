@@ -122,6 +122,8 @@ A static host applies its own headers to these files; set caching in the host's 
 
 The first two rows are set by the server route, the third by a `/_locales/**` route rule with CORS enabled. A default `premerged` build answers from the static copy, so `immutable` applies only when the route answers: in `source` mode or with `publicAssets: false`. The browser then revalidates a payload on each navigation, at the cost of one conditional request. [`httpCacheDuration`](/api/module-options#httpcacheduration) defaults to one year; `0` sends no header.
 
+Safari requests a preloaded payload again when it may not reuse the response: with `no-cache` and an `ETag` the second request is a `304`, with neither a cache header nor a validator it is a second full download. A `max-age` above `0` gives one request. Only `httpCacheDuration: 0` on a host that adds no validator pays this.
+
 [`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`).
 
 ### When a dictionary cannot be read

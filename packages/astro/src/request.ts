@@ -1,4 +1,4 @@
-import { externalLinkHref, pathEnd } from '@i18n-micro/core'
+import { externalLinkHref, pathEnd, withoutDots } from '@i18n-micro/core'
 import { trimTrailingSlashes, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
 import type { I18nRoutingStrategy } from './router/types'
@@ -152,18 +152,6 @@ export function isPageView(context: RequestContext, response: Response): boolean
 
 /** A scheme this router has no business with: `sms:`, `ftp:`, `javascript:`. `externalLinkHref` handles the common ones. */
 const SCHEME = /^[a-z][a-z\d+.-]*:/i
-
-/** `/a/b/../c` → `/a/c`, or a `../` would climb out of the locale prefix once one is added. `%2e` counts: a browser reads it as a dot. */
-function withoutDots(path: string): string {
-  if (!/\/(\.|%2e)/i.test(path)) return path
-  const kept: string[] = []
-  for (const segment of path.split('/')) {
-    const plain = segment.replace(/%2e/gi, '.')
-    if (plain === '..') kept.pop()
-    else if (plain !== '.' && segment !== '') kept.push(segment)
-  }
-  return `/${kept.join('/')}`
-}
 
 export interface HrefContext extends Pick<I18nRouting, 'base' | 'defaultLocale' | 'strategy'> {
   codes: string[]

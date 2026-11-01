@@ -177,6 +177,7 @@ interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
 type Tree: Record<string, unknown>
 function urlPath: (url: string) => string
+function withoutDots: (path: string) => string
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./devtools (src/devtools.ts)
@@ -265,6 +266,7 @@ function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 type Tree: Record<string, unknown>
 function urlPath: (url: string) => string
+function withoutDots: (path: string) => string
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./render (src/render.ts)

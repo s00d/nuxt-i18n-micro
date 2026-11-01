@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, pathEnd, routeQuery, urlPath } from '../src/link'
+import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, pathEnd, routeQuery, urlPath, withoutDots } from '../src/link'
 
 describe('routeQuery', () => {
   it.each([
@@ -187,5 +187,94 @@ describe('the path of a URL', () => {
     expect(urlPath('/a?b')).toBe('/a')
     expect(urlPath('/a')).toBe('/a')
     expect(urlPath('?b')).toBe('')
+  })
+})
+
+describe('a link cannot climb out of the locale prefix', () => {
+  const codes = ['en', 'de']
+  const read = (to: string, locale: string) => new URL(localizedPath(to, locale, codes, 'en'), 'https://host.test/')
+
+  it.each([
+    ['/../x', '/de/x'],
+    ['/a/../../x', '/de/x'],
+    ['/%2e%2e/x', '/de/x'],
+    ['/.%2E/x', '/de/x'],
+    ['/..\\x', '/de/x'],
+    ['/.\t./x', '/de/x'],
+    ['/..\x01', '/de'],
+    ['/de/../x', '/de/x'],
+    ['/a/./b', '/de/a/b'],
+    ['/a/b/..', '/de/a'],
+    ['/a/../b?x=1#y', '/de/b?x=1#y'],
+    ['/a.b/c', '/de/a.b/c'],
+    ['/%2fx', '/de/%2fx'],
+  ])('%j is %s', (to, path) => {
+    expect(localizedPath(to, 'de', codes, 'en')).toBe(path)
+  })
+
+  it('a default locale link has no prefix to leave', () => {
+    expect(localizedPath('/de/../x', 'en', codes, 'en')).toBe('/x')
+    expect(localizedPath('/../..', 'en', codes, 'en')).toBe('/')
+  })
+
+  it('stays under the prefix and on this origin, on any string', () => {
+    // seeded: a failure names its string, and the run repeats it
+    let seed = 11
+    const next = (n: number) => ((seed = (seed * 1664525 + 1013904223) >>> 0) >>> 8) % n
+    const atoms = [
+      '/',
+      '/',
+      '\\',
+      '.',
+      '..',
+      '%2e',
+      '%2E',
+      '%2',
+      '\t',
+      '\n',
+      '\r',
+      ' ',
+      '\x01',
+      '\x7f',
+      '\xa0',
+      'a',
+      'de',
+      'en',
+      '%2f',
+      '%5c',
+      '?',
+      '#',
+      ':',
+      '@',
+    ]
+    for (let i = 0; i < 200_000; i++) {
+      let to = next(4) === 0 ? '' : '/'
+      for (let n = next(9); n >= 0; n--) to += atoms[next(atoms.length)]
+      if (to[0] === '?' || to[0] === '#') continue
+      const url = read(to, 'de')
+      const inside = url.pathname === '/de' || url.pathname.startsWith('/de/')
+      if (url.host !== 'host.test' || !inside) expect.fail(`${JSON.stringify(to)} reads as ${url.href}`)
+      if (read(to, 'en').host !== 'host.test') expect.fail(`${JSON.stringify(to)} leaves the origin`)
+    }
+  })
+})
+
+describe('withoutDots', () => {
+  it.each([
+    ['/a/b', '/a/b'],
+    ['/a//b', '/a//b'],
+    ['/.x//b', '/.x//b'],
+    ['/a/./b', '/a/b'],
+    ['/a/%2E/b/', '/a/b'],
+    ['/a/b/../c', '/a/c'],
+    ['/..\\b', '/b'],
+    ['/a\\..\\..\\b', '/b'],
+    ['/.\t./b', '/b'],
+    ['/.\n./.\r./b', '/b'],
+    ['/..\x01', '/'],
+    ['/%2e%2e\\b', '/b'],
+    ['/..%20/b', '/..%20/b'],
+  ])('%j is %j', (path, plain) => {
+    expect(withoutDots(path)).toBe(plain)
   })
 })

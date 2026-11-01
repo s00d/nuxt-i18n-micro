@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-106 exports across 4 entry points.
+108 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -64,6 +64,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `TranslationStorage` | interface | 1 members |
 | `Tree` | type | `Record<string, unknown>` |
 | `urlPath` | function | `(url: string) => string` |
+| `withoutDots` | function | `(path: string) => string` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
@@ -395,6 +396,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `Tree` | type | `Record<string, unknown>` |
 | `urlPath` | function | `(url: string) => string` |
+| `withoutDots` | function | `(path: string) => string` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.

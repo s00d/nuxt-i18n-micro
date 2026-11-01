@@ -20,7 +20,7 @@ async function load(locale: string, routeName: string) {
 
 export default defineEventHandler(async (event) => {
   const config = getI18nServerConfig(event)
-  const path = withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
+  const path = withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig().app.baseURL)
   const { serverTranslationPreload } = getI18nPrivateConfig()
 
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n

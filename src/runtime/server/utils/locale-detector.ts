@@ -30,7 +30,7 @@ function fixedHost(): string | undefined {
  * same object (so override warnings are logged once). Read-only: deep-frozen in dev.
  */
 export function getI18nServerConfig(event?: H3Event): ModuleOptionsExtend {
-  const config = resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  const config = resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig().public as Record<string, unknown>)
   if (!domains) return config
   const host = fixedHost() || (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
   return host ? configForHost(config, host) : config
@@ -71,7 +71,7 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
 function urlLocale(event: H3Event, mode: RequestLocaleMode, path: string | undefined, validLocales: string[], unprefixed: string | null) {
   const param = firstQueryValue(event.context.params?.locale)
   if (mode === 'api' && param && validLocales.includes(param)) return param
-  const prefix = localeFromPath(path ?? withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig(event).app.baseURL), validLocales)
+  const prefix = localeFromPath(path ?? withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig().app.baseURL), validLocales)
   return prefix ?? (mode === 'page' ? unprefixed : null)
 }
 

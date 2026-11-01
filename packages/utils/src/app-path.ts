@@ -54,6 +54,23 @@ export function trimTrailingSlashes(path: string): string {
   return path.slice(0, end)
 }
 
+export function trimLeadingSlashes(path: string): string {
+  let start = 0
+  while (path[start] === '/') start++
+  return path.slice(start)
+}
+
+/** `path` without the slashes at either end. */
+export function trimSlashes(path: string): string {
+  let start = 0
+  let end = path.length
+  while (path[start] === '/') start++
+  while (end > start && path[end - 1] === '/') end--
+  return path.slice(start, end)
+}
+
+export const forwardSlashes = (path: string): string => (path.includes('\\') ? path.split('\\').join('/') : path)
+
 /**
  * `*` (any run) and `?` (one character), the whole of `path`. Only the last `*` is ever retried, so
  * a pattern of many stars stays linear in the path, where the same RegExp would backtrack through all of them.
@@ -103,7 +120,7 @@ function matchesPattern(path: string, pattern: string | RegExp | object): boolea
  */
 export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl = '_locales'): boolean {
   if (INTERNAL_PREFIXES.some((prefix) => underPrefix(path, prefix))) return true
-  if (apiBaseUrl && underPrefix(path, `/${apiBaseUrl.replace(/^\/+|\/+$/g, '')}`)) return true
+  if (apiBaseUrl && underPrefix(path, `/${trimSlashes(apiBaseUrl)}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
   if (/(?:^|\/)__/.test(path)) return true
   const pathForMatch = path.length > 1 ? trimTrailingSlashes(path) : path
@@ -117,7 +134,7 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
  * Callers must use the returned string (or skip the read when this returns `null`).
  */
 export function resolveContainedRelPath(relPath: string): string | null {
-  const cleaned = relPath.replace(/\\/g, '/').replace(/^\/+/, '')
+  const cleaned = trimLeadingSlashes(forwardSlashes(relPath))
   if (!cleaned || cleaned.includes('\0')) return null
 
   const parts: string[] = []

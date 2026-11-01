@@ -1,3 +1,5 @@
+import { trimSlashes } from './app-path'
+
 export function resolveTranslationPayloadPage(routeName: string | undefined, routesLocaleLinks?: Record<string, string>): string {
   const name = routeName || 'index'
   // own keys only: the name comes from the request URL (`constructor`, `__proto__`)
@@ -6,8 +8,8 @@ export function resolveTranslationPayloadPage(routeName: string | undefined, rou
 }
 
 export function buildTranslationPayloadPath(apiBaseUrl: string, page: string, locale: string): string {
-  const normalizedBase = apiBaseUrl.replace(/^\/+|\/+$/g, '')
-  return `/${normalizedBase}/${page}/${locale}/data.json`.replace(/\/{2,}/g, '/')
+  const path = `/${trimSlashes(apiBaseUrl)}/${page}/${locale}/data.json`
+  return path.includes('//') ? `/${path.split('/').filter(Boolean).join('/')}` : path
 }
 
 export function resolveTranslationPayloadBaseURL(options: {

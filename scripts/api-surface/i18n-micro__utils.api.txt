@@ -9,9 +9,12 @@ function getEnabledLocales: (locales?: Locale[] | null) => Locale[]
 function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) => boolean
 
 # ./app-path (src/app-path.ts)
+const forwardSlashes: (path: string) => string
 function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl?: string) => boolean
 function isStaticAssetPathname: (pathname: string) => boolean
 function resolveContainedRelPath: (relPath: string) => string | null
+function trimLeadingSlashes: (path: string) => string
+function trimSlashes: (path: string) => string
 function trimTrailingSlashes: (path: string) => string
 function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
 

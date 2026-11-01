@@ -9,6 +9,7 @@ import type {
   TranslationKey,
   Translations,
 } from '@i18n-micro/types'
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { hasProtocol } from 'ufo'
 import { getCurrentInstance, onActivated, watch } from 'vue'
 import type {
@@ -139,7 +140,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 
     // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
     const url = switchedPath(switchedRoute)
-    const domain = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl?.replace(/\/+$/, '')
+    const domainUrl = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl
+    const domain = domainUrl && trimTrailingSlashes(domainUrl)
     if (domain && (url === domain || url.startsWith(`${domain}/`))) return navigateTo(url, { redirectCode: 200, external: true })
 
     if (isNoPrefix) {

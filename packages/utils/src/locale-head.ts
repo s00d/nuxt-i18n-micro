@@ -90,7 +90,12 @@ export function queryString(query?: object | null): string {
  * `//de`. A browser reads `\` as `/` and drops a tab or a newline, so `/\host` is that form as well.
  */
 export function joinBase(base: string, path: string): string {
-  return `${trimTrailingSlashes(base)}/${path.replace(/^[/\\\t\n\r]+/, '')}`
+  let start = 0
+  for (; start < path.length; start++) {
+    const c = path.charCodeAt(start)
+    if (c !== 47 && c !== 92 && c !== 9 && c !== 10 && c !== 13) break
+  }
+  return `${trimTrailingSlashes(base)}/${path.slice(start)}`
 }
 
 /** The script subtag of a language tag: it decides over the language (`az-Arab` is RTL, `ar-Latn` is not). It follows the language and any extlangs, so the `arab` of an extension (`en-u-arab`) is none. */

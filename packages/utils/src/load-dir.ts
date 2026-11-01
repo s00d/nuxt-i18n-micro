@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join, relative, resolve, sep } from 'node:path'
+import { forwardSlashes, trimTrailingSlashes } from './app-path'
 import { storeLoadedTranslationFile, type TranslationFileBuckets } from './parse-path'
 
 /**
@@ -137,6 +138,6 @@ export async function loadTranslationDirAsync<T extends Dictionary = Dictionary>
 
 /** Whether `file` lies under `dir`, on any platform: `locales-old` is no part of `locales`. */
 export function isInsideDir(file: string, dir: string): boolean {
-  const root = dir.replace(/[\\/]+$/, '').replace(/\\/g, '/')
-  return file.replace(/\\/g, '/').startsWith(`${root}/`)
+  const root = trimTrailingSlashes(forwardSlashes(dir))
+  return forwardSlashes(file).startsWith(`${root}/`)
 }

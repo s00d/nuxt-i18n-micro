@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { trimLeadingSlashes } from '@i18n-micro/utils/app-path'
 import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
 import type { I18nRoutingStrategy } from './types'
 
@@ -38,7 +39,7 @@ export function createAstroRouterAdapter(locales: Locale[], defaultLocale: strin
     getCurrentPath: () => currentUrl()?.pathname ?? '/',
     // the pattern names one route for every URL it matches: `/blog/hello` is `blog-slug`
     getRouteName: (path, codes = [], pattern) => routeNameFromPath(pattern ?? path, codes),
-    getLocaleFromPath: (path, fallback = 'en', codes = []) => localeFromPath(`/${path.replace(/^\/+/, '')}`, codes) ?? fallback,
+    getLocaleFromPath: (path, fallback = 'en', codes = []) => localeFromPath(`/${trimLeadingSlashes(path)}`, codes) ?? fallback,
     switchLocalePath: addLocale,
     localizePath: addLocale,
     removeLocaleFromPath: removeLocale,

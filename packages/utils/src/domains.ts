@@ -1,4 +1,5 @@
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { trimTrailingSlashes } from './app-path'
 
 const normalizeHost = (host: string) =>
   host
@@ -66,7 +67,7 @@ function buildHostConfigs(config: ModuleOptionsExtend): Map<string, ModuleOption
       // every locale of the host disabled: it serves nothing, and still not another domain's
       defaultLocale: hostDefault(own, served, config.defaultLocale) ?? config.defaultLocale,
       // the configured origin, never the request's
-      metaBaseUrl: own[0]!.baseUrl!.replace(/\/+$/, ''),
+      metaBaseUrl: trimTrailingSlashes(own[0]!.baseUrl!),
     })
   }
   return configs

@@ -1,5 +1,6 @@
 import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
@@ -40,9 +41,9 @@ function requestOrigin(i18nConfig: ModuleOptionsExtend): string {
  */
 function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | undefined): string {
   const configured = i18nConfig.metaBaseUrl || siteUrl
-  if (configured) return configured.replace(/\/+$/, '')
+  if (configured) return trimTrailingSlashes(configured)
 
-  return joinURL(requestOrigin(i18nConfig), useRuntimeConfig().app.baseURL).replace(/\/+$/, '')
+  return trimTrailingSlashes(joinURL(requestOrigin(i18nConfig), useRuntimeConfig().app.baseURL))
 }
 
 export default defineNuxtPlugin((nuxtApp) => {

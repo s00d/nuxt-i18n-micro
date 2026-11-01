@@ -1,4 +1,13 @@
-import { isInternalPath, isStaticAssetPathname, resolveContainedRelPath, withoutAppBaseURL } from '../src/app-path'
+import {
+  forwardSlashes,
+  isInternalPath,
+  isStaticAssetPathname,
+  resolveContainedRelPath,
+  trimLeadingSlashes,
+  trimSlashes,
+  trimTrailingSlashes,
+  withoutAppBaseURL,
+} from '../src/app-path'
 import { describe, expect, it } from 'vitest'
 
 describe('withoutAppBaseURL', () => {
@@ -103,5 +112,37 @@ describe('resolveContainedRelPath', () => {
 
   it('normalizes inner dots without escaping', () => {
     expect(resolveContainedRelPath('foo/./bar/../baz.json')).toBe('foo/baz.json')
+  })
+})
+
+describe('slash trimming', () => {
+  // a run of slashes that stops short of the end: quadratic for `/\/+$/`, 6 s at this size
+  const run = `${'/'.repeat(1 << 16)}x`
+
+  it('stays linear on a run of slashes', () => {
+    const start = performance.now()
+    expect(trimTrailingSlashes(run)).toBe(run)
+    expect(trimSlashes(run)).toBe('x')
+    expect(trimSlashes(`x${run}`)).toBe(`x${run}`)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
+  it('trims what the regexes trimmed', () => {
+    for (const [input, both, head] of [
+      ['', '', ''],
+      ['/', '', ''],
+      ['///', '', ''],
+      ['a', 'a', 'a'],
+      ['/a/', 'a', 'a/'],
+      ['//a//b//', 'a//b', 'a//b//'],
+    ] as const) {
+      expect(trimSlashes(input)).toBe(both)
+      expect(trimLeadingSlashes(input)).toBe(head)
+    }
+  })
+
+  it('turns every backslash into a slash', () => {
+    expect(forwardSlashes('a\\b\\\\c')).toBe('a/b//c')
+    expect(forwardSlashes('a/b')).toBe('a/b')
   })
 })

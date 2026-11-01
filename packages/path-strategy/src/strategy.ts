@@ -683,7 +683,13 @@ function safeDecode(path: string): string {
   }
 }
 
-const baseOf = (locale: Locale) => locale.baseUrl?.replace(/\/+$/, '')
+const baseOf = (locale: Locale) => {
+  const url = locale.baseUrl
+  if (!url) return url
+  let end = url.length
+  while (url[end - 1] === '/') end--
+  return url.slice(0, end)
+}
 
 /**
  * The strategy of a build with locale domains (`baseUrl`). On a known host (`ctx.domain`) the

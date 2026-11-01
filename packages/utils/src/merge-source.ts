@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { forwardSlashes, trimLeadingSlashes, trimSlashes } from './app-path'
 import { deepMergeTranslations } from './deep-merge'
 
 export interface SourceLocaleInfo {
@@ -53,7 +54,7 @@ export function buildSourcePagePath(pageName: string, localeCode: string): strin
  * Storage key relative to the Nitro unstorage mount (fs-friendly `/` paths).
  */
 export function toSourceStorageKey(relativePath: string): string {
-  return relativePath.replace(/^\/+/, '').replace(/\\/g, '/')
+  return forwardSlashes(trimLeadingSlashes(relativePath))
 }
 
 /**
@@ -67,7 +68,7 @@ export function toSourceStorageKey(relativePath: string): string {
 export const PREMERGED_ROOT_PAGE = '__root'
 
 export function toPremergedStorageKey(pageName: string, locale: string): string {
-  const page = pageName.replace(/^\/+|\/+$/g, '') || 'index'
+  const page = trimSlashes(pageName) || 'index'
   return toSourceStorageKey(`${page}/${locale}/data.json`)
 }
 

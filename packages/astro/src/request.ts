@@ -1,5 +1,5 @@
 import { externalLinkHref } from '@i18n-micro/core'
-import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
+import { trimTrailingSlashes, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { localeFromPath } from '@i18n-micro/utils/resolve-locale'
 import type { I18nRoutingStrategy } from './router/types'
 
@@ -39,7 +39,7 @@ export interface I18nRequest {
   route: string
 }
 
-export const normalizeBase = (base: string | undefined): string => (base ?? '').replace(/\/+$/, '')
+export const normalizeBase = (base: string | undefined): string => trimTrailingSlashes(base ?? '')
 
 /** `path`, which has no `base`, as a URL of the site. */
 export function withBase(path: string, base: string): string {
@@ -182,7 +182,7 @@ export function localizeHref(href: string, locale: string, context: HrefContext)
   const { strategy, codes, defaultLocale, base, from = '/' } = context
   const cut = href.search(/[?#]/)
   const raw = cut === -1 ? href : href.slice(0, cut)
-  const path = withoutDots(raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${from.replace(/\/+$/, '')}/${raw}`)
+  const path = withoutDots(raw[0] === '/' ? withoutAppBaseURL(raw, base) : `${trimTrailingSlashes(from)}/${raw}`)
   const localized = strategy.localizePath!(path, locale, codes, defaultLocale)
   const slash = raw.length > 1 && raw.endsWith('/') && !localized.endsWith('/') ? '/' : ''
   return `${withBase(localized + slash, base)}${cut === -1 ? '' : href.slice(cut)}`

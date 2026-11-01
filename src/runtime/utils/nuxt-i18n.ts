@@ -95,13 +95,6 @@ export class NuxtI18n extends BaseI18n {
     return (this.storage.translations.get(this.getCacheKey(locale, routeName)) ?? {}) as Record<string, unknown>
   }
 
-  setChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
-    const key = this.getCacheKey(locale, routeName)
-    this.storage.translations.set(key, data as Translations)
-    this.fragments.delete(key)
-    this.evictChunks(key)
-  }
-
   /** The chunk is loaded. What a patch alone stored is a fragment, see `installChunk`. */
   hasChunk(locale: string, routeName?: string): boolean {
     const key = this.getCacheKey(locale, routeName)
@@ -115,7 +108,10 @@ export class NuxtI18n extends BaseI18n {
   installChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): Record<string, unknown> {
     const existing = this.getChunk(locale, routeName)
     const chunk = Object.keys(existing).length ? mergeTranslationChunk(existing, data, { preserveExisting: true }) : data
-    this.setChunk(locale, routeName, chunk)
+    const key = this.getCacheKey(locale, routeName)
+    this.storage.translations.set(key, chunk as Translations)
+    this.fragments.delete(key)
+    this.evictChunks(key)
     return chunk
   }
 
@@ -208,17 +204,13 @@ export class NuxtI18n extends BaseI18n {
    * a shallow merge loses nested keys. Two plain objects + fallthrough on miss is cheaper
    * and correct for the short hot-reload window.
    */
-  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null, standIn = false): void {
-    // Stash / swap the view layer before setChunk so eviction sees keep === current
-    // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
+  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): void {
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
     this.outgoingServed = false
     this.cachedTranslations = data ?? {}
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
-    // a failed first load renders with nothing or a stand-in, but stores nothing: the next navigation loads it
-    if (data && !standIn) this.setChunk(locale, routeName, data)
     this.notifyLoaded()
   }
 
@@ -228,7 +220,6 @@ export class NuxtI18n extends BaseI18n {
    */
   replaceDictionary(data: Record<string, unknown>): void {
     this.cachedTranslations = data
-    this.setChunk(this.currentLocale, this.currentRouteName || undefined, data)
     this.notifyLoaded()
     this.notifyContextChange('refresh')
   }
@@ -435,16 +426,14 @@ export class NuxtTranslationLoader {
 
   /** The loaded chunk, or null when the load failed (reported here): a reload must tell that from an empty chunk. */
   private loadChunk(locale: string, routeName?: string): Promise<Record<string, unknown> | null> {
-    const { i18n, loadOptions, isDev, prerender } = this.options
+    const { i18n, loadOptions, isDev } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
     if (pending) return pending
 
     const promise = (async () => {
       try {
-        const { data, noDictionary } = await translationStorage.load(locale, routeName, loadOptions)
-        // a request can show raw keys and retry; a written file keeps them, so this counts as a failed load
-        if (prerender && noDictionary) throw new Error('[i18n] The host has no dictionary for this page')
+        const { data } = await translationStorage.load(locale, routeName, loadOptions)
         return i18n.installChunk(locale, routeName, data)
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
@@ -495,11 +484,11 @@ export class NuxtTranslationLoader {
    * refresh() does, since an empty dictionary would turn the strings that still work (a layout's) into raw keys.
    * Only a first render has nothing to keep. A prerender throws there instead: no next request would load it again.
    */
-  applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null, standIn = false): boolean {
+  applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): boolean {
     const { i18n, prerender } = this.options
     if (data === null && i18n.getLocale()) return false
     if (data === null && prerender) throw new Error(`[i18n] Translation load failed: ${locale} ${routeName}`)
-    i18n.applySwitchContext(locale, routeName, data, standIn)
+    i18n.applySwitchContext(locale, routeName, data)
     return true
   }
 
@@ -512,7 +501,7 @@ export class NuxtTranslationLoader {
     const generation = ++this.switchGeneration
     const data = await this.fetchContext(locale, routeName)
     const shown = data ?? (await this.firstRenderStandIn(locale, routeName))
-    return generation === this.switchGeneration && this.applyContext(locale, routeName, shown, data === null)
+    return generation === this.switchGeneration && this.applyContext(locale, routeName, shown)
   }
 
   /**

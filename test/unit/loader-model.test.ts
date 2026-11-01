@@ -61,7 +61,12 @@ test('a prerender with no file and no root fails: raw keys must not reach a writ
     isDev: false,
     prerender,
   })
+  const build = globalThis as { __i18nSide?: string; __i18nPrerender?: boolean }
+  build.__i18nSide = 'server'
+  build.__i18nPrerender = true
   await expect(new NuxtTranslationLoader(options(true)).switchContext('en', 'about')).rejects.toThrow('Translation load failed: en about')
+  delete build.__i18nSide
+  delete build.__i18nPrerender
   expect(console.warn).toHaveBeenCalledWith('[i18n] Translation load failed:', 'en', 'about')
   // a request shows what it can, and the next one reads again
   await expect(new NuxtTranslationLoader(options(false)).switchContext('en', 'about')).resolves.toBe(true)

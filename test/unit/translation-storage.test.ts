@@ -53,11 +53,10 @@ describe('a server render', () => {
     expect(translationStorage.getFromCache('de', 'about')).toBeNull()
   })
 
-  test('no file and no root: an empty stand-in, marked, kept nowhere', async () => {
+  test('no file and no root: an empty stand-in, kept nowhere', async () => {
     const render = { ...options, serverLoad: async () => null }
-    const { data, noDictionary } = await translationStorage.load('de', 'nofile', render)
+    const { data } = await translationStorage.load('de', 'nofile', render)
     expect(data).toEqual({})
-    expect(noDictionary).toBe(true)
     expect(translationStorage.getFromCache('de', '__root')).toBeNull()
   })
 })

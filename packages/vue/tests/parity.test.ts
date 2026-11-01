@@ -144,8 +144,8 @@ describe('the Nuxt i18n-t reads what $t reads', () => {
   test('an evicted chunk still renders from the active dictionary', () => {
     const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 1 })
     i18n.setRouteContextResolver(() => ({ locale: 'en', routeName: 'index' }))
-    i18n.applySwitchContext('en', 'index', { hi: 'Hello' })
-    i18n.setChunk('en', 'other', { x: '1' })
+    i18n.applySwitchContext('en', 'index', i18n.installChunk('en', 'index', { hi: 'Hello' }))
+    i18n.installChunk('en', 'other', { x: '1' })
     expect(i18n.hasChunk('en', 'index')).toBe(false)
     wireNuxtApp(i18n)
     const wrapper = mount(NuxtT as never, { props: { keypath: 'hi' } as never })

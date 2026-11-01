@@ -112,9 +112,9 @@ export class ServerNuxtI18n extends NuxtI18n {
     return resolveLayered([chunk ?? {}, ...fragments], text)
   }
 
-  override applySwitchContext(locale: string, routeName: string | undefined, data: Tree | null, standIn = false): void {
+  override applySwitchContext(locale: string, routeName: string | undefined, data: Tree | null): void {
     this.settleActive()
-    super.applySwitchContext(locale, routeName, data, standIn)
+    super.applySwitchContext(locale, routeName, data)
   }
 
   override resolveTranslations(routeContext?: unknown): Translations {

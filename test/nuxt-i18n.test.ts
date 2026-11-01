@@ -6,6 +6,11 @@ import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
 
+/** What the loader does for a page: the chunk goes in, then it goes on screen. */
+function show(i18n: NuxtI18n, locale: string, route: string | undefined, data: Record<string, unknown> | null): void {
+  i18n.applySwitchContext(locale, route, data && i18n.installChunk(locale, route, data))
+}
+
 describe('a fragment is not a loaded chunk', () => {
   const setup = (answer: (path: string) => unknown) => {
     translationStorage.clear()
@@ -110,11 +115,11 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     i18n.onContextChange((reason) => {
       reasons.push(reason)
     })
-    i18n.applySwitchContext('en', 'page-a', { a: 'A', common: { nested: 'value' } })
-    i18n.applySwitchContext('en', 'page-b', { b: 'B' })
+    show(i18n, 'en', 'page-a', { a: 'A', common: { nested: 'value' } })
+    show(i18n, 'en', 'page-b', { b: 'B' })
     expect(i18n.has('common.nested')).toBe(true)
     const leavingA = i18n.outgoing
-    i18n.applySwitchContext('en', 'page-c', { c: 'C' })
+    show(i18n, 'en', 'page-c', { c: 'C' })
     i18n.finishTransition(leavingA)
     expect(i18n.t('b')).toBe('B')
     i18n.finishTransition(i18n.outgoing)
@@ -126,8 +131,8 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     // keeps its deep subtree and its descendants under a namespace the incoming chunk made a
     // scalar; a setTranslation / patch made now survives the end of the transition
     const nav = new NuxtI18n({ missingWarn: false })
-    nav.applySwitchContext('en', 'page-a', { title: 'A', page: { a: { sub: { deep: 'A deep' } } }, menu: { home: 'Home' } })
-    nav.applySwitchContext('en', 'page-b', { title: 'B', page: { b: { title: 'B title' } }, menu: 'B menu' })
+    show(nav, 'en', 'page-a', { title: 'A', page: { a: { sub: { deep: 'A deep' } } }, menu: { home: 'Home' } })
+    show(nav, 'en', 'page-b', { title: 'B', page: { b: { title: 'B title' } }, menu: 'B menu' })
     expect(nav.t('title')).toBe('B')
     expect(nav.t('page.a.sub.deep')).toBe('A deep')
     expect(nav.t('menu')).toBe('B menu')
@@ -147,8 +152,8 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
 
     // step 3: switch en → de on the same page: no en-only key leaks into de
     const locale = new NuxtI18n({ missingWarn: false })
-    locale.applySwitchContext('en', 'page-a', { onlyInEn: 'English only', title: 'EN' })
-    locale.applySwitchContext('de', 'page-a', { title: 'DE' })
+    show(locale, 'en', 'page-a', { onlyInEn: 'English only', title: 'EN' })
+    show(locale, 'de', 'page-a', { title: 'DE' })
     expect(locale.t('title')).toBe('DE')
     expect(locale.has('onlyInEn')).toBe(false)
     expect(locale.t('onlyInEn')).toBe('onlyInEn')
@@ -159,15 +164,15 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     edit.onContextChange((reason) => {
       events.push(reason)
     })
-    edit.applySwitchContext('en', 'page-a', { aaa: { bbb: 'ccc' }, ddd: 1111 })
+    show(edit, 'en', 'page-a', { aaa: { bbb: 'ccc' }, ddd: 1111 })
     const settled = edit.resolveTranslations()
     edit.setTranslation('aaa', { fff: 'ggg' })
     expect(edit.t('aaa.fff')).toBe('ggg')
     expect(edit.getChunk('en', 'page-a')).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
-    edit.applySwitchContext('en', 'page-b', { zzz: 'z' })
+    show(edit, 'en', 'page-b', { zzz: 'z' })
     expect(edit.resolveTranslations()).toEqual({ ...settled, aaa: { fff: 'ggg' }, zzz: 'z' })
     edit.finishTransition()
-    edit.applySwitchContext('en', 'page-a', edit.getChunk('en', 'page-a'))
+    show(edit, 'en', 'page-a', edit.getChunk('en', 'page-a'))
     expect(edit.t('aaa.fff')).toBe('ggg')
     expect(edit.t('ddd')).toBe(1111)
 
@@ -180,7 +185,7 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
 
   test('a transition re-renders once, unless the old page read a key that is now gone', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
-    i18n.applySwitchContext('en', 'page-a', { layout: 'L', a: 'A' })
+    show(i18n, 'en', 'page-a', { layout: 'L', a: 'A' })
     let renders = 0
     let shown: unknown
     effect(() => {
@@ -190,7 +195,7 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
 
     // nothing came from the outgoing chunk: its removal changes no result, so no second render
     renders = 0
-    i18n.applySwitchContext('en', 'page-b', { layout: 'L', b: 'B' })
+    show(i18n, 'en', 'page-b', { layout: 'L', b: 'B' })
     expect(renders).toBe(1)
     i18n.finishTransition()
     expect(renders).toBe(1)
@@ -198,11 +203,11 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
 
     // a key served from the leaving chunk must stop resolving: that render has to run again
     const leaving = new NuxtI18n({ missingWarn: false })
-    leaving.applySwitchContext('en', 'page-a', { a: 'A' })
+    show(leaving, 'en', 'page-a', { a: 'A' })
     effect(() => {
       shown = leaving.t('a')
     })
-    leaving.applySwitchContext('en', 'page-b', { b: 'B' })
+    show(leaving, 'en', 'page-b', { b: 'B' })
     expect(shown).toBe('A')
     leaving.finishTransition()
     expect(shown).toBe('a')
@@ -210,11 +215,11 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     // has() and the resolveTranslations dump read the leaving chunk too
     for (const read of [(i: NuxtI18n) => i.has('a'), (i: NuxtI18n) => 'a' in i.resolveTranslations()]) {
       const other = new NuxtI18n({ missingWarn: false })
-      other.applySwitchContext('en', 'page-a', { a: 'A' })
+      show(other, 'en', 'page-a', { a: 'A' })
       effect(() => {
         shown = read(other)
       })
-      other.applySwitchContext('en', 'page-b', { b: 'B' })
+      show(other, 'en', 'page-b', { b: 'B' })
       expect(shown).toBe(true)
       other.finishTransition()
       expect(shown).toBe(false)
@@ -222,10 +227,10 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
 
     // a hit on the previous transition's chunk says nothing about the next one
     const next = new NuxtI18n({ missingWarn: false })
-    next.applySwitchContext('en', 'page-a', { a: 'A' })
-    next.applySwitchContext('en', 'page-b', { b: 'B' })
+    show(next, 'en', 'page-a', { a: 'A' })
+    show(next, 'en', 'page-b', { b: 'B' })
     next.t('a')
-    next.applySwitchContext('en', 'page-c', { c: 'C' })
+    show(next, 'en', 'page-c', { c: 'C' })
     let runs = 0
     effect(() => {
       runs++
@@ -242,9 +247,9 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     i18n.onMissingKey((locale, key, routeName) => {
       missing.push({ locale, key, routeName })
     })
-    i18n.setChunk('en', 'page-a', { title: 'Route A' })
-    i18n.setChunk('en', 'page-b', { title: 'Route B' })
-    i18n.applySwitchContext('en', 'page-b', i18n.getChunk('en', 'page-b'))
+    i18n.installChunk('en', 'page-a', { title: 'Route A' })
+    i18n.installChunk('en', 'page-b', { title: 'Route B' })
+    show(i18n, 'en', 'page-b', i18n.getChunk('en', 'page-b'))
 
     // step 1: tForRoute(page-a) reads page-a while page-b is on screen
     const tForA = i18n.tForRoute({ locale: 'en', routeName: 'page-a' })
@@ -260,22 +265,22 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     // step 1: merge into a page not loaded yet → the loader runs first, then the merge
     const i18n = new NuxtI18n({ missingWarn: false })
     const loader = vi.fn(async (locale: string, routeName?: string) => ({ loaded: `${locale}:${routeName || 'index'}` }))
-    i18n.applySwitchContext('en', 'index', { base: 'Base' })
+    show(i18n, 'en', 'index', { base: 'Base' })
     await i18n.mergeTranslationAsync('en', 'page-a', { extra: 'Extra' }, loader)
     expect(loader).toHaveBeenCalledWith('en', 'page-a')
     expect(i18n.getChunk('en', 'page-a')).toEqual({ loaded: 'en:page-a', extra: 'Extra' })
 
     // step 2: merge into the page on screen → the view updates, old keys stay
     const active = new NuxtI18n({ missingWarn: false })
-    active.applySwitchContext('en', 'page-a', { title: 'Initial' })
+    show(active, 'en', 'page-a', { title: 'Initial' })
     await active.mergeTranslationAsync('en', 'page-a', { injected: 'Yes' }, async () => ({}))
     expect(active.t('injected')).toBe('Yes')
     expect(active.t('title')).toBe('Initial')
 
     // step 3: a nested merge keeps siblings (a shallow merge would render raw keys next transition)
     const nested = new NuxtI18n({ missingWarn: false })
-    nested.setChunk('en', 'index', { nav: { about: 'About', home: 'Home' }, title: 'T' })
-    nested.applySwitchContext('en', 'index', nested.getChunk('en', 'index'))
+    nested.installChunk('en', 'index', { nav: { about: 'About', home: 'Home' }, title: 'T' })
+    show(nested, 'en', 'index', nested.getChunk('en', 'index'))
     nested.mergeTranslations({ nav: { extra: 'Extra' } })
     expect(nested.getChunk('en', 'index')).toEqual({ nav: { about: 'About', home: 'Home', extra: 'Extra' }, title: 'T' })
     expect(nested.t('nav.about')).toBe('About')
@@ -287,29 +292,29 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
   test('cacheMaxSize bounds the chunk map but never evicts the page on screen', () => {
     // step 1: bound 3, 20 pages written → at most 3 kept, the active page survives more writes
     const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 3 })
-    for (let n = 0; n < 20; n++) i18n.setChunk('en', `page-${n}`, { title: `Page ${n}` })
+    for (let n = 0; n < 20; n++) i18n.installChunk('en', `page-${n}`, { title: `Page ${n}` })
     expect(i18n.storage.translations.size).toBeLessThanOrEqual(3)
-    i18n.applySwitchContext('en', 'page-19', i18n.getChunk('en', 'page-19'))
-    for (let n = 0; n < 10; n++) i18n.setChunk('en', `extra-${n}`, { title: `Extra ${n}` })
+    show(i18n, 'en', 'page-19', i18n.getChunk('en', 'page-19'))
+    for (let n = 0; n < 10; n++) i18n.installChunk('en', `extra-${n}`, { title: `Extra ${n}` })
     expect(i18n.storage.translations.size).toBeLessThanOrEqual(3)
     expect(i18n.storage.translations.has(i18n.getCacheKey('en', 'page-19'))).toBe(true)
     expect(i18n.t('title')).toBe('Page 19')
 
     // step 2: bound 1 → one entry across navigations; a prefetch wins the slot, the view keeps B
     const one = new NuxtI18n({ missingWarn: false, cacheMaxSize: 1 })
-    one.applySwitchContext('en', 'page-a', { title: 'A' })
+    show(one, 'en', 'page-a', { title: 'A' })
     expect(one.storage.translations.size).toBe(1)
-    one.applySwitchContext('en', 'page-b', { title: 'B' })
+    show(one, 'en', 'page-b', { title: 'B' })
     expect(one.storage.translations.size).toBe(1)
     expect(one.storage.translations.has(one.getCacheKey('en', 'page-b'))).toBe(true)
-    one.setChunk('en', 'page-c', { title: 'C' })
+    one.installChunk('en', 'page-c', { title: 'C' })
     expect(one.storage.translations.size).toBe(1)
     expect(one.storage.translations.has(one.getCacheKey('en', 'page-c'))).toBe(true)
     expect(one.t('title')).toBe('B')
 
     // step 3: bound 0 is no bound
     const unbounded = new NuxtI18n({ missingWarn: false, cacheMaxSize: 0 })
-    for (let n = 0; n < 20; n++) unbounded.setChunk('en', `page-${n}`, { title: `Page ${n}` })
+    for (let n = 0; n < 20; n++) unbounded.installChunk('en', `page-${n}`, { title: `Page ${n}` })
     expect(unbounded.storage.translations.size).toBe(20)
   })
 
@@ -330,9 +335,9 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
 
     // step 1: a page with a loaded chunk, then another one
-    i18n.applySwitchContext('en', 'first', counted(3))
+    show(i18n, 'en', 'first', counted(3))
     walked = 0
-    i18n.applySwitchContext('en', 'second', chunk)
+    show(i18n, 'en', 'second', chunk)
     expect(walked).toBeLessThan(10)
 
     // step 2: a patch copies the changed path only
@@ -360,7 +365,7 @@ describe('NuxtI18n: context listeners', () => {
     const off = i18n.onContextChange(() => calls.push('removed'))
     i18n.onContextChange(() => calls.push('last'))
 
-    expect(() => i18n.applySwitchContext('en', 'about', { title: 'A' })).not.toThrow()
+    expect(() => show(i18n, 'en', 'about', { title: 'A' })).not.toThrow()
     expect(calls).toEqual(['first', 'last'])
     expect(i18n.t('title')).toBe('A')
     expect(error).toHaveBeenCalledOnce()
@@ -373,7 +378,7 @@ describe('NuxtTranslationLoader: reload', () => {
     translationStorage.clear()
     const i18n = new NuxtI18n({ missingWarn: false })
     const loader = new NuxtTranslationLoader({ i18n, loadOptions })
-    i18n.applySwitchContext('en', 'about', data)
+    show(i18n, 'en', 'about', data)
     return { i18n, loader }
   }
 
@@ -449,7 +454,7 @@ describe('NuxtTranslationLoader: reload', () => {
 
   test('a reload during a transition keeps the leaving page until it unmounts', async () => {
     const { i18n, loader } = setup({ leaving: 'A' })
-    i18n.applySwitchContext('en', 'about', { arriving: 'B' })
+    show(i18n, 'en', 'about', { arriving: 'B' })
     const outgoing = i18n.outgoing
     vi.stubGlobal('$fetch', async () => ({ arriving: 'B2' }))
     try {
@@ -471,13 +476,13 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
     const loader = new NuxtTranslationLoader({ i18n, loadOptions })
 
     // step 1: a chunk in memory is a sync hit, no network
-    i18n.setChunk('en', 'about', { title: 'Old', gone: 'Gone' })
+    i18n.installChunk('en', 'about', { title: 'Old', gone: 'Gone' })
     expect(loader.loadFromCacheSync('en', 'about')).toEqual({ title: 'Old', gone: 'Gone' })
 
     // step 2: reload keeps Old on screen until the fresh dictionary lands, then drops removed keys
     // and every other cached chunk (reloaded on next use)
-    i18n.applySwitchContext('en', 'about', i18n.getChunk('en', 'about'))
-    i18n.setChunk('de', 'about', { title: 'DE' })
+    show(i18n, 'en', 'about', i18n.getChunk('en', 'about'))
+    i18n.installChunk('de', 'about', { title: 'DE' })
     const fresh = deferred()
     const loads = new Map<string, Promise<Record<string, unknown>>>([['en', fresh.promise]])
     const loadSpy = vi
@@ -495,7 +500,7 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
       // step 3: switch to de (slow), then fr (cached) wins; de landing later changes nothing
       const de = deferred()
       loads.set('de', de.promise)
-      i18n.setChunk('fr', 'about', { title: 'FR' })
+      i18n.installChunk('fr', 'about', { title: 'FR' })
       const stale = loader.switchContext('de', 'about')
       expect(await loader.switchContext('fr', 'about')).toBe(true)
       expect(i18n.getLocale()).toBe('fr')
@@ -523,7 +528,7 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
 describe('a patch of the dictionary on screen', () => {
   test('leaves the array with the caller, when screen and chunk are two trees too', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
-    i18n.applySwitchContext('en', 'index', { a: 'one' })
+    show(i18n, 'en', 'index', { a: 'one' })
     i18n.setTranslation('a', 'two')
     const list = ['one']
     i18n.mergeTranslations({ list })
@@ -533,7 +538,7 @@ describe('a patch of the dictionary on screen', () => {
 
   test.each([NuxtI18n, ServerNuxtI18n])('reaches a 404 page, which reads the index chunk: %o', async (Instance) => {
     const i18n = new Instance({ missingWarn: false })
-    i18n.applySwitchContext('en', '', { a: 'A' })
+    show(i18n, 'en', '', { a: 'A' })
     await i18n.loadPageTranslations('en', 'index', { b: 'B' })
     expect(i18n.t('b')).toBe('B')
     expect(i18n.t('a')).toBe('A')

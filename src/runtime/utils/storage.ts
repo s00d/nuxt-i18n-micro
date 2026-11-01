@@ -22,8 +22,6 @@ export interface LoadOptions {
 export interface LoadResult {
   data: Record<string, unknown>
   cacheKey: string
-  /** No file for this page and none for the root: `data` is an empty stand-in. */
-  noDictionary?: true
 }
 
 // ============================================================================
@@ -170,7 +168,11 @@ class TranslationStorage {
     // (`source` mode on a file host, which the build warns about) is an empty one, as a missing file must not stop a switch.
     // Neither is kept under this key: during a deploy the file can appear, and the next page load gets it.
     // ponytail: an open tab keeps the stand-in in the i18n instance until a reload, a chunk added under it is that rare
-    if (data === null && routeName === PREMERGED_ROOT_PAGE) return { data: Object.freeze({}), cacheKey, noDictionary: true }
+    if (data === null && routeName === PREMERGED_ROOT_PAGE) {
+      // a request can show raw keys and retry; a written file keeps them, so this counts as a failed load
+      if (import.meta.server && import.meta.prerender) throw new Error('[i18n] The host has no dictionary for this page')
+      return { data: Object.freeze({}), cacheKey }
+    }
     if (data === null) return { ...(await this.load(locale, PREMERGED_ROOT_PAGE, options)), cacheKey }
 
     if (!direct) this.cc.set(cacheKey, this.shared(data))

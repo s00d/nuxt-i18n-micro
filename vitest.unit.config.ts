@@ -21,6 +21,7 @@ export default defineConfig({
         if (!id.includes('/src/runtime/')) return
         return code
           .replaceAll('import.meta.server', "(globalThis.__i18nSide === 'server')")
+          .replaceAll('import.meta.prerender', '(globalThis.__i18nPrerender === true)')
           .replaceAll('import.meta.client', "(globalThis.__i18nSide === 'client' || globalThis.__i18nSide === 'spa')")
       },
     },

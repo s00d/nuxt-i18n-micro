@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/route-strategy`
 
-11 exports across 1 entry point.
+13 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -21,6 +21,8 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `GenerateOptions` | interface | 11 members |
 | `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
 | `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
+| `localeMatcherSource` | function | `(matcher: string \| RegExp) => string` |
+| `localesOutsideMatcher` | function | `(codes: readonly string[], matcher: string \| RegExp) => string[]` |
 | `nameOfPath` | function | `(fullPath: string) => string` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |

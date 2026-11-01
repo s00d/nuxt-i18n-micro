@@ -121,12 +121,24 @@ function nextName(name: string, taken: Set<string>): string {
 
 const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
 
+/** The pattern of a `customRegexMatcher`: `/re/` and `re` alike, and a `RegExp` loses its flags, as in the route and in `path-strategy`. */
+export function localeMatcherSource(matcher: string | RegExp): string {
+  if (matcher instanceof RegExp) return matcher.source
+  return matcher.length > 1 && matcher[0] === '/' && matcher.endsWith('/') ? matcher.slice(1, -1) : matcher
+}
+
+/** The codes `matcher` cannot route. The whole code must match, without flags: what the router and `path-strategy` will do. */
+export function localesOutsideMatcher(codes: readonly string[], matcher: string | RegExp): string[] {
+  const whole = new RegExp(`^(?:${localeMatcherSource(matcher)})$`)
+  return codes.filter((code) => !whole.test(code))
+}
+
 /** Localized full paths (without prefix) by page key and locale, for nitro lookups. */
 export type LocalizedPaths = Map<string, Record<string, string>>
 
 export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, localizedPaths: LocalizedPaths = new Map()): NuxtPage[] {
   const { strategy, locales, defaultLocale, rules, namePrefix, hostDefaults = [] } = options
-  const regex = options.customRegex === undefined ? undefined : String(options.customRegex).replace(/^\/(.*)\/$/, '$1')
+  const regex = options.customRegex === undefined ? undefined : localeMatcherSource(options.customRegex)
   const localePath = (codes: string[], routePath: string) => normalizePath(`/:locale(${regex ?? codes.join('|')})/${removeLeadingSlash(routePath)}`)
 
   /** What a page's rules say, worked out once per page: every locale's tree reads it. */

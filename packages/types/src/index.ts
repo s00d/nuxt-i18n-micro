@@ -432,7 +432,7 @@ export interface ModuleOptions {
 
   /**
    * Custom regular expression (or its string source) for matching locale codes in URL segments.
-   * Every locale code in `locales` must match this pattern, or the build fails.
+   * Every locale code in `locales` must match the whole pattern, without its flags, or the build fails.
    * @default undefined (uses built-in pattern based on locale codes)
    */
   customRegexMatcher?: string | RegExp

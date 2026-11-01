@@ -5,7 +5,7 @@ import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-mic
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/internal/translation-watcher'
-import { RouteGenerator } from '@i18n-micro/route-strategy'
+import { localesOutsideMatcher, RouteGenerator } from '@i18n-micro/route-strategy'
 import { configForHost } from '@i18n-micro/utils/domains'
 import { buildFullConfigSource, buildPrivateConfigSource } from './config-template'
 import type {
@@ -525,8 +525,10 @@ export default defineNuxtModule<ModuleOptions>({
     )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
-      const localeCodes = routeGenerator.locales.map((l) => l.code)
-      const failedCodes = localeCodes.filter((code) => !code.match(options.customRegexMatcher as string | RegExp))
+      const failedCodes = localesOutsideMatcher(
+        routeGenerator.locales.map((l) => l.code),
+        options.customRegexMatcher,
+      )
       if (failedCodes.length > 0) {
         throw new Error(
           'Nuxt-i18n-micro: customRegexMatcher does not match the following locale codes: ' +

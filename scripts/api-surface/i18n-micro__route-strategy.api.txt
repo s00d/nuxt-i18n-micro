@@ -13,6 +13,8 @@ member GenerateOptions.rules: Rules
 member GenerateOptions.strategy: Strategies
 function generateRoutes: (pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]
 function isLocaleAllowedForUnlocalizedRoute: (routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean
+function localeMatcherSource: (matcher: string | RegExp) => string
+function localesOutsideMatcher: (codes: readonly string[], matcher: string | RegExp) => string[]
 function nameOfPath: (fullPath: string) => string
 function normalizePath: (routePath: string) => string
 function normalizeRouteKey: (key: string) => string

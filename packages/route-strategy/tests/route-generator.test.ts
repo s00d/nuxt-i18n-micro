@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { describe, expect, test, vi } from 'vitest'
-import { isLocaleAllowedForUnlocalizedRoute, normalizeRouteKey, RouteGenerator, type RouteGeneratorOptions } from '../src'
+import { isLocaleAllowedForUnlocalizedRoute, localesOutsideMatcher, normalizeRouteKey, RouteGenerator, type RouteGeneratorOptions } from '../src'
 
 const locales: Locale[] = [{ code: 'en' }, { code: 'de' }, { code: 'fr' }]
 
@@ -450,6 +450,12 @@ describe('aliases and options', () => {
     ])
   })
 
+  test('customRegexMatcher: a RegExp with a flag and a wrapped string give the bare pattern', () => {
+    for (const customRegexMatcher of [/de|fr|en/i, /de|fr|en/, '/de|fr|en/', 'de|fr|en']) {
+      expect(generate('prefix', [about], { customRegexMatcher })).toEqual(['localized-about /:locale(de|fr|en)/about'])
+    }
+  })
+
   test('localizedRouteNamePrefix, customRegexMatcher, noPrefixRedirect', () => {
     expect(generate('prefix', [about], { localizedRouteNamePrefix: 'i18n-', customRegexMatcher: '[a-z]{2}' })).toEqual([
       'i18n-about /:locale([a-z]{2})/about',
@@ -653,5 +659,18 @@ describe('redirects: false', () => {
     const list = pages()
     generator('prefix', { globalLocaleRoutes: rules }).extendPages(list)
     expect(list.find((page) => page.name === 'redirect-about')?.redirect).toBe('/en/about-us')
+  })
+})
+
+describe('localesOutsideMatcher, what the build says the router will do', () => {
+  test.each([
+    [['de', 'deX'], 'de|fr', ['deX']],
+    [['de', 'deu'], '[a-z]{2}', ['deu']],
+    [['de'], /DE|FR/i, ['de']],
+    [['de', 'fr'], /de|fr/g, []],
+    [['de', 'fr'], '/de|fr/', []],
+    [['en-us'], '[a-z]{2}-[a-z]{2}', []],
+  ] as [string[], string | RegExp, string[]][])('%j against %s', (codes, matcher, failed) => {
+    expect(localesOutsideMatcher(codes, matcher)).toEqual(failed)
   })
 })

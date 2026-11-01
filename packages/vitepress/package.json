@@ -15,6 +15,11 @@
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
   "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
@@ -111,7 +116,7 @@
   },
   "peerDependencies": {
     "vitepress": ">=1.0.0 || >=2.0.0-alpha.0",
-    "vue": "catalog:"
+    "vue": "^3.3.0"
   },
   "engines": {
     "node": ">=20"

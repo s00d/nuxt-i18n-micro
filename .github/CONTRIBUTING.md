@@ -17,7 +17,7 @@ pnpm run dev   # playground at http://localhost:3000
 ## Before you open a pull request
 
 - `pnpm run lint`, `pnpm run typecheck`, `pnpm run test:unit` pass; run `pnpm run test` when you touch runtime or routing.
-- A changed `packages/<name>` gets one patch version bump per pull request and a rebuilt `dist/` (`pnpm --filter @i18n-micro/<name> build`). Never edit the root `version` or `CHANGELOG.md`.
+- A changed `packages/<name>` gets one version bump per pull request (`pnpm run bump --level patch --packages <name>`; the maintainer decides on minor or major). `dist/` is not committed. Never edit the root `version` or `CHANGELOG.md`.
 - After changing JSDoc, options or exports, run `pnpm run docs:generate`.
 - Conventional Commits (`feat(scope): …`, `fix(scope): …`); new commits instead of amending.
 - Bugs and feature requests: use the [issue templates](https://github.com/s00d/nuxt-i18n-micro/issues/new/choose) with a reproduction.

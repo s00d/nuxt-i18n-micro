@@ -18,7 +18,8 @@
     "client",
     "docs"
   ],
-  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; this repo peers vue-router@4.
+  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; those exports exist only on
+  // vue-router@5, and the peer range also takes 4.
   "vueCompilerOptions": {
     "plugins": []
   }

@@ -25,7 +25,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
@@ -378,7 +379,6 @@
     "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "workspace:^",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

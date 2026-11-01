@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "import", "promise", "node", "jest", "vitest", "eslint", "oxc", "vue"],
+  "plugins": ["typescript", "import", "promise", "node", "vitest", "eslint", "oxc", "vue"],
   "categories": {
     "correctness": "error",
     "suspicious": "off",
@@ -19,7 +19,6 @@
     "**/test-results/**",
     "**/.cache/**",
     "**/.pnpm-store/**",
-    "**/.turbo/**",
     "**/.git/**",
     "**/.astro/**",
     "**/_locales_hashes/**"
@@ -40,21 +39,13 @@
     {
       "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/test/**/*.ts", "**/tests/**/*.ts"],
       "rules": {
-        "@typescript-eslint/no-explicit-any": "off",
-        "jest/prefer-snapshot-hint": "off",
+        "eslint/no-setter-return": "off",
         "vitest/prefer-snapshot-hint": "off",
-        "jest/no-conditional-expect": "off",
         "vitest/no-conditional-expect": "off",
         "vitest/no-conditional-tests": "off",
-        "jest/valid-expect": "off",
-        "jest/expect-expect": "off",
         "vitest/expect-expect": "off",
-        "jest/require-to-throw-message": "off",
         "vitest/require-to-throw-message": "off",
-        "jest/valid-title": "off",
         "vitest/valid-title": "off",
-        "jest/valid-describe-callback": "off",
-        "jest/no-export": "off",
         "vitest/require-mock-type-parameters": "off",
         "eslint/no-await-in-loop": "off"
       }

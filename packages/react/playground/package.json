@@ -13,7 +13,6 @@
     "preview:ssr": "NODE_ENV=production node ../../../benchmark/integrations/ssr-server.mjs"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:^",
     "@i18n-micro/devtools-ui": "workspace:^",
     "@i18n-micro/react": "workspace:^",
     "@i18n-micro/types": "workspace:^",

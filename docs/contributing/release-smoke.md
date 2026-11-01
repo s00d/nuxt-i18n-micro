@@ -51,7 +51,7 @@ The unit tests and the `node-server` fixtures do not catch SSR that cannot read 
 ```bash
 pnpm run prepack                       # once
 pnpm run test:presets                  # vercel, cloudflare_pages, netlify
-pnpm run test:presets:vercel           # one preset
+pnpm -C scripts cli preset-smoke --preset vercel                         # one preset
 pnpm -C scripts cli preset-smoke --preset vercel --public-assets false   # SSR from serverAssets only
 pnpm -C scripts cli preset-smoke --preset vercel --skip-pack --skip-install   # faster reruns
 ```

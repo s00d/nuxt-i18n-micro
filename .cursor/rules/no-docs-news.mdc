@@ -13,7 +13,7 @@ Do **not** treat as permission:
 
 - finishing a feature / fix / package bump
 - updating other docs (`docs/guide/`, README, API)
-- AGENTS / .cursorrules wording about "unreleased notes"
+- AGENTS wording about "unreleased notes"
 - "document user-facing changes"
 
 If release notes seem useful, mention it in chat — do not write the file.

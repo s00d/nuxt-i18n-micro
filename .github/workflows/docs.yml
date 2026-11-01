@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**' # ограничиваем только изменениями в папке docs
+      - 'docs/**'
   # trigger deployment when a new release is published
   release:
     types: [published]
@@ -24,9 +24,9 @@ jobs:
           # fetch all commits to get last updated time or other git log info
           fetch-depth: 0
 
+      # version comes from `packageManager` in package.json
       - uses: pnpm/action-setup@v6
         with:
-          version: 9.14.2
           run_install: false
 
       - name: Setup Node.js
@@ -36,9 +36,6 @@ jobs:
           node-version: 22
           # cache deps for pnpm
           cache: 'pnpm'
-
-      - name: Install Vite globally
-        run: npm install -g vite
 
       - name: Install dependencies
         run: pnpm install
@@ -50,11 +47,11 @@ jobs:
 
       # run build script
       - name: Build VitePress site
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
         run: pnpm run docs:build
 
       - name: Add nojekyll
-        env:
-          NODE_OPTIONS: --max_old_space_size=8192
         run: |-
           > docs/.vitepress/dist/.nojekyll
 
@@ -65,7 +62,7 @@ jobs:
         with:
           # deploy to gh-pages branch
           target_branch: gh-pages
-          # deploy the default output dir of VuePress
+          # the default output dir of VitePress
           build_dir: docs/.vitepress/dist
         env:
           # @see https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret

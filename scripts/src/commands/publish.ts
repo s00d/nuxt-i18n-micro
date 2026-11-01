@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { defineCommand } from 'citty'
 import { run, runCapture, tryRun } from '../utils/git-baseline'
 import { repoRoot } from '../utils/workspace'
-import { BUMP_LEVELS, isBumpLevel } from './release'
+import { BUMP_LEVELS, requireBumpLevel } from './release'
 
 /** Everything a publish needs besides the tests. Read-only: a gate that rewrites files leaves a dirty tree for `pnpm publish`. */
 const CHECKS = [['format:check'], ['lint'], ['typecheck'], ['check:versions', '--', '--npm'], ['release:source'], ['compare:published']]
@@ -112,10 +112,7 @@ export const publishCommand = defineCommand({
   },
   setup({ args }) {
     const { bump, ciPassed, force, checkOnly } = args
-    if (bump !== undefined && !isBumpLevel(bump)) {
-      console.error(`Unknown bump "${bump}". Pass --bump ${BUMP_LEVELS.join(' | ')}, or no --bump for packages only`)
-      process.exit(1)
-    }
+    if (bump !== undefined) requireBumpLevel(bump, 'bump', ', or no --bump for packages only')
     if (force && !ciPassed) {
       console.error('--force only confirms --ci-passed')
       process.exit(1)

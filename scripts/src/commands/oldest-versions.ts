@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { chromium } from '@playwright/test'
 import { defineCommand } from 'citty'
+import { waitForUrl } from '../utils/preset-runtime'
 import { repoRoot } from '../utils/workspace'
 import { CONSUMER_INSTALL, packWorkspace, writeConsumerProject } from './smoke-pack'
 
@@ -39,15 +40,6 @@ const install = (app: string) => step(app, 'pnpm', CONSUMER_INSTALL, 280_000)
 const writeManifest = (app: string, dependencies: Record<string, string>, ours: Tarballs) =>
   writeConsumerProject(app, dependencies, { ...ours, ...dependencies })
 
-async function waitFor(url: string): Promise<void> {
-  for (let tries = 0; tries < 60; tries++) {
-    const up = await fetch(url, { redirect: 'manual' }).catch(() => null)
-    if (up) return
-    await new Promise((done) => setTimeout(done, 500))
-  }
-  throw new Error(`${url} never answered`)
-}
-
 async function nuxtFloor(app: string, ours: Tarballs): Promise<void> {
   cpSync(join(repoRoot, 'test/deploy-smoke'), app, { recursive: true, filter: (from) => !/node_modules|\.nuxt|\.output/.test(from) })
   // Nuxt 3 reads the project root, not `app/`
@@ -65,7 +57,7 @@ async function nuxtFloor(app: string, ours: Tarballs): Promise<void> {
     env: { ...process.env, PORT: port, NITRO_HOST: '127.0.0.1' },
   })
   try {
-    await waitFor(url)
+    await waitForUrl(url, 30_000)
     step(repoRoot, 'pnpm', ['-C', 'scripts', 'cli', 'smoke-verify', '--url', url], 110_000)
     step(repoRoot, 'pnpm', ['-C', 'scripts', 'cli', 'smoke-browser', '--url', url], 110_000)
   } finally {
@@ -99,7 +91,7 @@ export default defineI18nTheme(DefaultTheme, { enhanceApp({ app }) { for (const 
   const server = spawn(join(app, 'node_modules/.bin/vitepress'), ['preview', '.', '--port', port], { cwd: app, stdio: 'ignore' })
   const browser = await chromium.launch()
   try {
-    await waitFor(url)
+    await waitForUrl(url, 30_000)
     const page = await browser.newPage()
     const problems: string[] = []
     page.on('pageerror', (error) => problems.push(error.message))

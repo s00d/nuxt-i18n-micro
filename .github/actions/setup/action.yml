@@ -1,0 +1,15 @@
+name: Setup
+description: pnpm (version from `packageManager`), Node 22 with the pnpm cache, and the workspace install. Run it after checkout.
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+      with:
+        run_install: false
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 22
+        cache: pnpm
+    - run: pnpm install --frozen-lockfile
+      shell: bash

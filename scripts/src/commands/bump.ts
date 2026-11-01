@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { defineCommand } from 'citty'
 import { inc } from 'semver'
 import { listWorkspacePackages, type WorkspacePackage } from '../utils/git-baseline'
-import { BUMP_LEVELS, isBumpLevel } from './release'
+import { BUMP_LEVELS, requireBumpLevel } from './release'
 
 function select(packages: WorkspacePackage[], wanted: string): { found: WorkspacePackage[]; unknown: string[] } {
   if (wanted === 'all') return { found: packages, unknown: [] }
@@ -39,11 +39,7 @@ export const bumpCommand = defineCommand({
     packages: { type: 'string', description: 'Comma-separated package names (short or scoped), or "all"' },
   },
   setup({ args }) {
-    const level = args.level
-    if (!isBumpLevel(level)) {
-      console.error(`Unknown level "${level ?? ''}". Pass --level ${BUMP_LEVELS.join(' | ')}`)
-      process.exit(1)
-    }
+    const level = requireBumpLevel(args.level, 'level')
 
     const { found, unknown } = select(listWorkspacePackages(), args.packages ?? '')
     if (unknown.length > 0 || found.length === 0) {

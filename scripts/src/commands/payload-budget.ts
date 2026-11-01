@@ -2,9 +2,9 @@ import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { connect } from 'node:net'
-import { setTimeout as sleep } from 'node:timers/promises'
 import { defineCommand } from 'citty'
 import { dirSize, walkFiles } from '../utils/fs-walk'
+import { waitForUrl } from '../utils/preset-runtime'
 import { repoRoot } from '../utils/workspace'
 
 export interface RouteMeasurement {
@@ -89,22 +89,6 @@ async function assertPortFree(port: number): Promise<void> {
   if (occupied) throw new Error(`something is already listening on port ${port}; stop it or pass --port`)
 }
 
-async function waitForServer(base: string, attempts = 90): Promise<void> {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      // Polling is sequential by definition: each attempt exists because the previous
-      // one failed, so there is nothing to run in parallel.
-      // oxlint-disable-next-line no-await-in-loop -- see above
-      await fetch(base, { signal: AbortSignal.timeout(2000) })
-      return
-    } catch {
-      // oxlint-disable-next-line no-await-in-loop -- see above
-      await sleep(1000)
-    }
-  }
-  throw new Error(`server did not answer at ${base}`)
-}
-
 async function measure(appDir: string, app: string, routes: string[], port: number): Promise<PayloadMeasurement> {
   const outputDir = join(appDir, '.output')
   const base = `http://127.0.0.1:${port}`
@@ -115,7 +99,7 @@ async function measure(appDir: string, app: string, routes: string[], port: numb
   })
 
   try {
-    await waitForServer(base, 60)
+    await waitForUrl(base, 60_000)
 
     const measured: RouteMeasurement[] = []
     for (const route of routes) {

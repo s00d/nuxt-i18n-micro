@@ -11,6 +11,13 @@ export function isBumpLevel(value: unknown): value is BumpLevel {
   return BUMP_LEVELS.includes(value as BumpLevel)
 }
 
+/** Stops the command unless `value` is a level. `hint` ends the message. */
+export function requireBumpLevel(value: unknown, flag: string, hint = ''): BumpLevel {
+  if (isBumpLevel(value)) return value
+  console.error(`Unknown ${flag} "${value ?? ''}". Pass --${flag} ${BUMP_LEVELS.join(' | ')}${hint}`)
+  process.exit(1)
+}
+
 export const releaseCommand = defineCommand({
   meta: {
     name: 'release',
@@ -34,11 +41,7 @@ export const releaseCommand = defineCommand({
     },
   },
   setup({ args }) {
-    const bump = args.bump
-    if (!isBumpLevel(bump)) {
-      console.error(`Unknown bump "${bump ?? ''}". Pass --bump ${BUMP_LEVELS.join(' | ')}`)
-      process.exit(1)
-    }
+    const bump = requireBumpLevel(args.bump, 'bump')
 
     const from = resolveFromTag('release')
 

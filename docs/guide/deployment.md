@@ -1,12 +1,14 @@
 ---
 title: Deployment
-description: Deploy to a Node server, serverless or Edge, or as a static site — where translation payloads go, cache headers, dateBuild and baseURL.
+description: Deploy to a Node server, serverless or Edge, or as a static site — where translation payloads go, what each platform needs, proxies, and caching.
 outline: [2, 3]
 ---
 
 # Deployment
 
-The module works with any Nitro preset without extra config: it picks where translation files live from the preset you build for. This page explains that choice, so you know what ends up in `.output/`, which headers the payloads get, and what to change for static hosting, large catalogs, a sub-path or a CDN. Defaults are right for most apps; read the section for your platform.
+The module works with any Nitro preset without extra config: it picks where translation files live from the preset you build for. This page explains that choice, so you know what ends up in `.output/`, which headers the payloads get, and what to change for static hosting, large catalogs, a sub-path, a proxy or a CDN. Defaults are right for most apps; read the section for your platform.
+
+Deployed and checked on real hosts: Cloudflare Workers and Pages, Vercel and Vercel Edge, Netlify and Netlify Edge, Cloud Run and Deno Deploy, each with what [Platforms](#platforms) lists. The other presets were built and run locally.
 
 ## How translations are delivered
 
@@ -30,7 +32,9 @@ With `node-server` (the default preset), `node-cluster`, `bun`, `deno-server` or
 - SSR reads them from that folder with `fs` (nothing is bundled into the server);
 - the browser gets them as static files, or from the server route.
 
-Deploy the whole `.output/` directory. Node 20 or newer is required.
+Deploy the whole `.output/` directory. The module needs Node 20 or newer, and Nuxt has its own minimum: Nuxt 4.5 declares `^22.19.0 || ^24.11.0 || >=26.0.0`.
+
+A process under steady load can hold much more memory than its live heap. See [Memory on a Node server](/guide/performance#memory-on-a-node-server) before you set a container limit.
 
 With another layout, the module embeds the payloads as described in the next section. That covers a custom `nitro.output.publicDir`, which the build reads once, and `serveStatic: true` on a preset that keeps static files elsewhere. If a build reads `public/` and the folder does not reach the server, as with `aws-lambda` and `serveStatic: true`, the server logs one error and pages show raw keys. Set `nitro.serveStatic: false` to embed the payloads.
 
@@ -39,7 +43,7 @@ With another layout, the module embeds the payloads as described in the next sec
 These presets cannot read `public/` at runtime:
 
 - function presets that ship `public/` to a CDN or do not serve it: `vercel`, `netlify`, `aws-lambda`, `aws-amplify`, `azure-swa`, `firebase`, `stormkit`, `zeabur`, `node-listener`;
-- Edge presets without a file system: `cloudflare-module`, `cloudflare-pages`, `vercel-edge`, `netlify-edge`, `deno-deploy`;
+- Edge presets without a file system: `cloudflare-module`, `cloudflare-pages`, `vercel-edge`, `netlify-edge`, `deno_deploy`;
 - `serveStatic: 'inline'`, such as `winterjs`.
 
 There the module embeds the payloads into the server bundle as Nitro server assets (`assets:i18n`) and still writes the public copy for the browser.
@@ -72,6 +76,10 @@ The build sums the dictionaries it embeds and warns only past the lowest limit o
 
 `source` pays a merge per page and locale in each isolate, about 1 ms in that example and 7 ms of CPU in a cold one. It grows with the size of the fallback chain: about 43 ms for 4 MB of chain files. Netlify Edge allows 50 ms of CPU per request and Cloudflare's Free plan 10 ms.
 
+### Dates on Edge runtimes
+
+`$td` uses the runtime's `Intl`, and its ICU data can differ from the browser's. On Netlify Edge a Russian date has U+202F before `г.` where Chrome has a normal space, so Vue logs one hydration mismatch and the text corrects itself on hydration. Plain Nuxt with plain `Intl` does the same there, and Deno Deploy does not. `<i18n-t>` with `date` or `relativeDate` already allows the mismatch. For `$td` in a template, put `data-allow-mismatch="text"` on the element.
+
 ## Static site (nuxi generate)
 
 ```bash
@@ -80,7 +88,9 @@ npx nuxi generate
 
 `nuxi build --preset <static preset>` does the same. The default `premerged` mode writes every payload into `.output/public/_locales/`, so any static host can serve them. Pages are prerendered for each locale: under `prefix` the module seeds every localized root (`/en`, `/de`), and `/` is kept as a redirect stub. Leave [`prerenderRoutes`](/api/module-options#translationpayloads) off: the public copy already contains the payload files. With `source` mode or `publicAssets: false` there is nothing for the browser to read, and the build warns.
 
-For Cloudflare Pages use the `cloudflare-pages-static` preset: `nuxi generate --preset cloudflare-pages` is a server build with no `index.html`. Under `no_prefix` the HTML holds the default locale, and the browser switches to the visitor's locale after hydration.
+There is no server to read a cookie or `Accept-Language`, so a saved locale does not redirect `/` on the first load. Under `no_prefix` the HTML holds the default locale, and a saved cookie is not applied on load: `$switchLocale` still works in the open page.
+
+For Cloudflare Pages see [Cloudflare Pages](#cloudflare-pages).
 
 For a build with [locale domains](/guide/layers#multiple-domains), run generate once per domain, with `NUXT_I18N_DOMAIN` as the host of the run. Each tree then holds that domain's pages and payloads. Nitro has no variable for the output folder, so read your own from the config:
 
@@ -149,21 +159,156 @@ export default defineNuxtConfig({
 
 The host must serve the same `<apiBaseUrl>/<page>/<locale>/data.json` layout. The build warns when every local output is off and a host is missing. The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
 
-## Platform notes
+## Platforms
+
+Only what the module or its output needs. Accounts, regions and CLI logins are in the platform's docs.
+
+### Cloudflare Workers
+
+Preset `cloudflare_module`. `wrangler deploy` bundles Nitro's output a second time with esbuild, and after that a raw `defineAsyncComponent(() => import('./X.vue'))` renders empty on the server. Nuxt's default error page is one, so a 404 has an empty body and the browser logs a hydration mismatch. The client then renders the page and the status stays 404, but without JavaScript the page is blank. This is [nuxt#33270](https://github.com/nuxt/nuxt/issues/33270): plain Nuxt without the module does the same. Page routes are not affected.
+
+Turn the second bundle off:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  nitro: {
+    preset: 'cloudflare_module',
+    cloudflare: {
+      deployConfig: true, // `wrangler` below applies only with it
+      wrangler: {
+        no_bundle: true,
+        find_additional_modules: true,
+        rules: [{ type: 'ESModule', globs: ['**/*.mjs'] }],
+      },
+    },
+  },
+})
+```
+
+```bash
+npx nuxi build
+cd .output/server && npx wrangler deploy -c wrangler.json
+```
+
+The 404 then renders, and the upload gets smaller: 190 KiB gzip against 246 KiB on the test app. Your own `error.vue` is the other way out, but it covers only the error page.
+
+The module itself does not need `nodejs_compat`. For the limits see [Bundle limits](#bundle-limits-on-edge).
+
+### Cloudflare Pages
+
+Use the `cloudflare-pages-static` preset. `nuxi generate --preset cloudflare-pages` is a server build with no `index.html`.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  nitro: {
+    preset: 'cloudflare-pages-static',
+    prerender: { autoSubfolderIndex: false },
+  },
+})
+```
+
+```bash
+npx nuxi generate
+npx wrangler pages project create my-site --production-branch main --force
+npx wrangler pages deploy dist --project-name my-site --branch main
+```
+
+- **Output.** The preset writes to `dist/`, not `.output/public`.
+- **`--force`.** Without it a new wrangler (4.156 here) hands `pages project create` over to Workers. With it you get a classic Pages project. It is needed once, for the create.
+- **`autoSubfolderIndex: false`.** Pages answers `/de` with a 308 to `/de/` while canonical and `hreflang` name `/de`, so they point at a redirect. With this option the file is `de.html`, and the redirect is gone.
+- **`NUXT_E1005` in the console on a 404** is a normal 404. Nuxt reports it that way because `404.html` starts on the client, before the app is mounted. The page works, and plain Nuxt prints the same line.
+
+### Vercel and Vercel Edge
+
+Presets `vercel` and `vercel_edge`, with no change to the app. The tags work without `metaBaseUrl`, from the platform's forwarded headers. Vercel Edge has a small bundle limit: see [Bundle limits](#bundle-limits-on-edge). For a shared cache use the [`upstash` driver](/guide/performance#upstash-on-vercel-and-vercel-edge).
+
+### Netlify
+
+Presets `netlify` and `netlify_edge`.
+
+```bash
+npx nuxi build --preset netlify
+npx netlify deploy --prod --no-build --dir dist --functions .netlify/functions-internal
+```
+
+- **Leave `nitro.output` unset.** The preset writes `.netlify/` and `dist/` itself.
+- **Keep a `package.json` in the folder you deploy from.** Without one the CLI looks at the parent folder and deploys no function, with no error.
+- **Netlify Edge** deploys with `--dir dist` alone. See [Dates on Edge runtimes](#dates-on-edge-runtimes).
+
+### Cloud Run
+
+Use the default `node-server` build. `gcloud run deploy --source` needs a `Dockerfile` in the output folder when docker is not running locally:
+
+```dockerfile
+# .output/Dockerfile
+FROM node:22-slim
+WORKDIR /app
+COPY . .
+ENV NODE_ENV=production
+CMD ["node", "server/index.mjs"]
+```
+
+```bash
+cd .output && gcloud run deploy my-app --source .
+```
+
+The tags work without `metaBaseUrl`, from the platform's forwarded headers.
+
+### Deno Deploy
+
+Preset `deno_deploy`. `deno deploy` replaces `deployctl`. Create a dynamic app with the entrypoint `server/index.ts`, and deploy from the output folder.
 
 ### Firebase
 
 App Hosting runs the Node build: use the default preset or `firebase-app-hosting`, and Node 20+. The `firebase` preset (Cloud Functions) embeds the payloads and needs `firebase-functions`. Firebase Hosting (static) serves `.output/public` as files, so `/_locales/**` gets Hosting's headers; if JSON comes back with the wrong `Content-Type` or caching, add a `headers` entry for `/_locales/**` in `firebase.json`. Nuxt `routeRules` headers do not apply to files Hosting serves itself, and the payload route sets its own `Content-Type` and `Cache-Control` on responses that do reach the server.
 
+### AWS Amplify
+
+`aws-amplify` keeps static files beside its compute folder, not next to the server, so the payloads are embedded like on a function platform.
+
 ### Several instances of one build
 
 One artifact can run with a different default or disabled locale per instance through environment variables: see [Runtime overrides](/guide/runtime-overrides). A locale disabled only at runtime still has its static files in `public/`; disable it at build time if those must not be reachable.
 
-Instances that load dictionaries from a remote host can share them in Redis, Cloudflare KV or another Nitro storage, so the backend gets one request instead of one per instance: see [Shared cache for several instances](/guide/performance#shared-cache-for-several-instances).
+Instances that load dictionaries from a remote host can share them in Redis, Upstash, Cloudflare KV or D1, Deno KV or another Nitro storage, so the backend gets one request instead of one per instance. It is a cache, not a source of translations: see [Shared cache for several instances](/guide/performance#shared-cache-for-several-instances).
 
-### AWS Amplify
+## Behind a proxy or CDN
 
-`aws-amplify` keeps static files beside its compute folder, not next to the server, so the payloads are embedded like on a function platform.
+The app has to learn the public host and the scheme from the request.
+
+| The proxy sends | Plain build | Build with `baseUrl` on locales |
+| --- | --- | --- |
+| The real `Host` | Nothing to set | Nothing to set |
+| The origin's `Host`, plus `X-Forwarded-Host` | Nothing to set | [`trustForwardedHost: true`](/api/module-options#trustforwardedhost) |
+| Neither | [`metaBaseUrl`](/api/module-options#metabaseurl) | No setting helps: every request looks like the origin's host, so change the proxy |
+
+- **`X-Forwarded-Proto`.** Send it, or canonical URLs read `http://` behind an HTTPS proxy. `metaBaseUrl` also fixes this.
+- **In a domain build** the domain picks the base URL of the tags. `metaTrustForwardedHost` does not choose the domain there, only `trustForwardedHost` does.
+- **Redirects are relative and the locale cookie has no `Domain`,** so both stay on the public host.
+
+::: warning Pin `metaBaseUrl` when the origin stays reachable
+On a plain build without `metaBaseUrl` or `site.url`, canonical, `hreflang` and `og:url` take their host from the request. [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) is on by default, so a direct request with `X-Forwarded-Host: evil.example` gets `https://evil.example` in those tags, and a cache in front spreads that page. A platform host such as `*.workers.dev` is exactly such an origin. `metaBaseUrl` closes this for `Host` too. A known host of a domain build keeps its own `baseUrl`. With `trustForwardedHost: true` a direct client can pick the page of another domain, so turn that on only behind a proxy that overwrites the header.
+:::
+
+## Caching HTML
+
+Most URLs are safe to cache, because they name their locale. These depend on the visitor:
+
+| Setup | URLs |
+| --- | --- |
+| Default, `autoDetectPath: '/'` | `/` |
+| `prefix` | `/` and every unprefixed URL, which only redirect |
+| `autoDetectPath: '*'` | Every URL |
+| `no_prefix` | Every page |
+
+- **`Vary`.** Those responses carry `Vary` with `Cookie` when [`localeCookie`](/api/module-options#localecookie) is set and `Accept-Language` when `autoDetectLanguage` is on. A cache that honours it keeps the answers apart.
+- **A cache that ignores `Vary`,** such as "cache everything by URL", must skip those URLs. Otherwise one visitor's `302 /de` reaches the next visitor, and a stored default page drops the redirect for everyone. On `/` you can also set `redirects: false`. Nitro's route cache keys on the path and its `varies` list, so keep `/` out of `swr` and `cache` rules as well.
+- **`Set-Cookie`.** With `localeCookie` set, every server-rendered page under a prefix carries `Set-Cookie`, and a correct CDN will not store it. For cached HTML leave `localeCookie` off, or strip the header at the edge.
+- **`swr` and `cache` rules on a domain build.** The module adds `host` to `cache.varies` of every such rule, and `x-forwarded-host` with `trustForwardedHost`, so one domain does not serve another its page. A rule with `cache: false` stays as written. `isr` is the platform's cache: check that it keys on the host. With the host in the key, a client that sends made-up hosts adds cache entries.
+
+For the payload files see [Cache headers and dateBuild](#cache-headers-and-datebuild).
 
 ## Related
 
@@ -171,3 +316,4 @@ Instances that load dictionaries from a remote host can share them in Redis, Clo
 - [Runtime overrides](/guide/runtime-overrides)
 - [`translationPayloads` reference](/api/module-options#translationpayloads)
 - [Layers and domains](/guide/layers)
+- [SEO](/guide/seo)

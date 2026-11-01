@@ -1,4 +1,4 @@
-import { pathEnd } from '@i18n-micro/core'
+import { localizedPath } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import type { RouteLocationRaw, Router } from 'vue-router'
 import { RouterLink } from 'vue-router'
@@ -20,32 +20,8 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
     return to[0] === '?' || to[0] === '#' ? `${router.currentRoute.value.path}${to}` : to
   }
 
-  /**
-   * Path resolution logic (add prefix or not); the query and hash stay as they are
-   */
-  const resolvePath = (to: I18nRouteTarget, locale: string): string => {
-    const url = urlOf(to)
-    const cut = pathEnd(url)
-    const path = cut === -1 ? url : url.slice(0, cut)
-    const extras = cut === -1 ? '' : url.slice(cut)
-    const pathSegments = path.split('/').filter(Boolean)
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return `${cleanPath}${extras}`
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}${extras}`
-  }
+  /** As in the other router bindings: the query and hash stay as they are. */
+  const resolvePath = (to: I18nRouteTarget, locale: string): string => localizedPath(urlOf(to), locale, localeCodes, defaultLocale)
 
   return {
     linkComponent: RouterLink,

@@ -65,6 +65,23 @@ describe('router adapter', () => {
     expect(resolve({ query: { x: '1' } }, 'de')).toBe('/de/about?x=1')
     wrapper.unmount()
   })
+
+  test.each([
+    ['/\\evil.example', 'en', '/evil.example'],
+    ['/\t/evil.example', 'en', '/evil.example'],
+    ['/de/\\evil.example', 'en', '/evil.example'],
+    ['//evil.example', 'en', '/evil.example'],
+    ['/\\evil.example', 'de', '/de/evil.example'],
+    ['/a/../../evil', 'de', '/de/evil'],
+    ['/de/../evil', 'en', '/evil'],
+    ['/%2e%2e/%2e%2e/evil', 'de', '/de/evil'],
+  ])('%j in %s stays on this site: %s', async (to, locale, path) => {
+    const { strategy, wrapper } = await app('/', 'en', () => null)
+    const url = strategy.resolvePath!(to, locale) as string
+    expect(url).toBe(path)
+    expect(new URL(url, 'https://site.example').origin).toBe('https://site.example')
+    wrapper.unmount()
+  })
 })
 
 describe('I18nLink', () => {

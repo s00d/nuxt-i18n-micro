@@ -145,7 +145,7 @@ export function localizedPath(to: string | { path?: string }, locale: string, lo
   const pathname = end === -1 ? path : path.slice(0, end)
   const suffix = end === -1 ? '' : path.slice(end)
   // as a browser reads the URL: `\` is a slash and a tab or a newline is dropped, so `/\host` cannot pass for a path
-  const parts = pathname.split(/[/\\\t\n\r]/).filter(Boolean)
+  const parts = (/[\\\t\n\r]/.test(pathname) ? pathname.split(/[/\\\t\n\r]/) : pathname.split('/')).filter(Boolean)
   const segments = mayHoldDots(pathname) ? resolveDots(parts) : parts
   if (localeCodes.includes(segments[0]!)) segments.shift()
   const clean = segments.join('/')

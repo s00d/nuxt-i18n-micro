@@ -1,0 +1,12 @@
+{"code":"en","iso":"en-US"} → {"lang":"en-US","dir":"auto"}
+{"code":"ar","iso":"ar-SA"} → {"lang":"ar-SA","dir":"auto"}
+{"code":"he"} → {"lang":"he","dir":"auto"}
+{"code":"fa-IR"} → {"lang":"fa-IR","dir":"auto"}
+{"code":"ur","iso":"ur-PK"} → {"lang":"ur-PK","dir":"auto"}
+{"code":"de","iso":"de-DE","dir":"ltr"} → {"lang":"de-DE","dir":"ltr"}
+{"code":"ar-ltr","iso":"ar","dir":"ltr"} → {"lang":"ar","dir":"ltr"}
+{"code":"x-rtl","dir":"rtl"} → {"lang":"x-rtl","dir":"rtl"}
+{"code":"y-auto","dir":"auto"} → {"lang":"y-auto","dir":"auto"}
+{"code":"az-Arab"} → {"lang":"az-Arab","dir":"auto"}
+{"code":"az-Latn"} → {"lang":"az-Latn","dir":"auto"}
+{"code":"tr"} → {"lang":"tr","dir":"auto"}

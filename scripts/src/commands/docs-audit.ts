@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, posix } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { defineCommand } from 'citty'
 import { walkFiles } from '../utils/fs-walk'
@@ -122,11 +122,11 @@ export function pageLinks(page: string, body: string): string[] {
     // reachability walk missed every link written the way VitePress renders one.
     if (target.endsWith('/')) {
       const asIndex = `${target}index.md`
-      return [asIndex.startsWith('/') ? asIndex.slice(1) : join(dir, asIndex)]
+      return [asIndex.startsWith('/') ? asIndex.slice(1) : posix.join(dir, asIndex)]
     }
 
     const withExtension = target.endsWith('.md') ? target : `${target}.md`
-    const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : join(dir, withExtension)
+    const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : posix.join(dir, withExtension)
     return [resolved, resolved.replace(/\.md$/, '/index.md')]
   })
 }
@@ -297,7 +297,7 @@ export const docsAuditCommand = defineCommand({
         if (/^[a-z]+:/i.test(link)) continue
 
         const [target = ''] = link.split('#', 1)
-        const resolved = target.startsWith('/') ? target.slice(1) : join(dir, target)
+        const resolved = target.startsWith('/') ? target.slice(1) : posix.join(dir, target)
         if (!bodies.has(resolved) && !coveredByDynamicRoute(resolved, dynamicTemplates)) {
           add('errors', 'dead-link', page, `links to "${link}", which does not exist`)
         }

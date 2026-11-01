@@ -12,7 +12,7 @@
  * on its own output it changes nothing.
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 
 const RELATIVE_SPECIFIER = /(\bfrom\s+|\bimport\s+|\bimport\(\s*|\bdeclare module\s+)(['"])(\.{1,2}(?:\/[^'"\n]*)?)\2/g
 
@@ -28,7 +28,7 @@ function rewriteSpecifiers(file: string, content: string, extension: string, onT
     const stem = declarationStem(dir, specifier)
     if (!stem) return match
     onTarget?.(stem)
-    const path = relative(dir, stem)
+    const path = relative(dir, stem).split(sep).join('/')
     return `${lead}${quote}${path.startsWith('.') ? path : `./${path}`}${extension}${quote}`
   })
 }

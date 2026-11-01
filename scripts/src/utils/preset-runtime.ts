@@ -62,11 +62,12 @@ export function prepareSmokeAppWorkspace(appDir: string): void {
 
 export function installSmokeApp(appDir: string): void {
   prepareSmokeAppWorkspace(appDir)
-  execFileSync('pnpm', ['install', '--no-frozen-lockfile'], { cwd: appDir, stdio: 'inherit' })
+  execFileSync('pnpm', ['install', '--no-frozen-lockfile'], { shell: process.platform === 'win32', cwd: appDir, stdio: 'inherit' })
 }
 
 export function buildSmokeApp(appDir: string, preset: string, env: Record<string, string> = {}): void {
   execFileSync('pnpm', ['exec', 'nuxt', 'build', '--preset', preset], {
+    shell: process.platform === 'win32',
     cwd: appDir,
     stdio: 'inherit',
     env: { ...process.env, ...env },
@@ -368,7 +369,7 @@ export function startPresetRuntime(appDir: string, preset: PresetName): Promise<
 export async function runSmokeVerify(url: string, opts: { browser?: boolean } = {}): Promise<void> {
   const run = (args: string[]) =>
     new Promise<void>((resolve, reject) => {
-      const child = spawn('pnpm', args, { cwd: repoRoot, stdio: 'inherit' })
+      const child = spawn('pnpm', args, { shell: process.platform === 'win32', cwd: repoRoot, stdio: 'inherit' })
       child.once('error', reject)
       child.once('exit', (code, signal) => {
         if (code === 0) resolve()

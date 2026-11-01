@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, isAbsolute, resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import type { RollupLog } from 'rollup'
@@ -166,7 +166,8 @@ const vitePlugin: UserConfig = {
       fileName: () => 'plugin.mjs',
     },
     rollupOptions: {
-      external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+      // `D:\\…` on Windows: only a package stays out of the bundle
+      external: (id) => !id.startsWith('.') && !isAbsolute(id),
       output: {
         format: 'es',
         entryFileNames: 'plugin.mjs',

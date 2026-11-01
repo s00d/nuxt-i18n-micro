@@ -189,7 +189,7 @@ export const payloadBudgetCommand = defineCommand({
 
     if (!args.skipBuild) {
       console.log(`Building ${app} …`)
-      execFileSync('pnpm', ['exec', 'nuxt', 'build'], { cwd: appDir, stdio: 'inherit' })
+      execFileSync('pnpm', ['exec', 'nuxt', 'build'], { shell: process.platform === 'win32', cwd: appDir, stdio: 'inherit' })
     }
 
     await assertPortFree(port)

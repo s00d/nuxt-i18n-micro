@@ -84,7 +84,12 @@ export const preflightCommand = defineCommand({
       }
 
       try {
-        execFileSync('pnpm', ['exec', 'tsx', './src/run.ts', ...gate.args], { cwd: scriptsDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+        execFileSync('pnpm', ['exec', 'tsx', './src/run.ts', ...gate.args], {
+          shell: process.platform === 'win32',
+          cwd: scriptsDir,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
         report.gates.push({ name: gate.name, ok: true, skipped: false, detail: 'ok' })
       } catch (error) {
         const err = error as { stdout?: Buffer | string; stderr?: Buffer | string }

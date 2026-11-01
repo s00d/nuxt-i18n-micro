@@ -134,7 +134,8 @@ function fromDeclaration(reflection: DeclarationReflection): DocSymbol[] {
 async function convert(entryPoints: string[], expand: boolean) {
   const app = await Application.bootstrapWithPlugins(
     {
-      entryPoints,
+      // globs: a backslash is an escape there
+      entryPoints: entryPoints.map((entry) => entry.replaceAll('\\', '/')),
       entryPointStrategy: expand ? 'expand' : 'resolve',
       tsconfig: join(repoRoot, 'tsconfig.docs.json'),
       skipErrorChecking: true,

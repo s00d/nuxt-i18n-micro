@@ -156,6 +156,7 @@ export const presetSmokeCommand = defineCommand({
     if (!args['skip-pack']) {
       console.log('\n==> smoke-pack\n')
       execFileSync('pnpm', ['-C', 'scripts', 'cli', 'smoke-pack', '--app', args.app], {
+        shell: process.platform === 'win32',
         cwd: repoRoot,
         stdio: 'inherit',
       })

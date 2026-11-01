@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { defineCommand } from 'citty'
 import { walkFiles } from '../utils/fs-walk'
 import { INSTALLED_DEPENDENCY_FIELDS, parseManifest, type PackageManifest } from '../utils/manifest'
@@ -15,7 +15,11 @@ interface Packed {
 /** `pnpm pack` prints the tarball path on the last line of stdout. */
 function pack(cwd: string, outDir: string, ignoreScripts: boolean): Packed {
   const flags = ignoreScripts ? ['--config.ignore-scripts=true'] : []
-  const stdout = execFileSync('pnpm', [...flags, 'pack', '--pack-destination', outDir], { cwd, encoding: 'utf8' })
+  const stdout = execFileSync('pnpm', [...flags, 'pack', '--pack-destination', outDir], {
+    shell: process.platform === 'win32',
+    cwd,
+    encoding: 'utf8',
+  })
   const tarball = stdout.trim().split('\n').pop()!.trim()
   const name = (JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8')) as { name: string }).name
   return { name, tarball }
@@ -33,7 +37,7 @@ function pack(cwd: string, outDir: string, ignoreScripts: boolean): Packed {
 export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>): void {
   const work = mkdtempSync(join(tmpdir(), 'i18n-relink-'))
   try {
-    execFileSync('tar', ['-xzf', tarball, '-C', work])
+    execFileSync('tar', ['-xzf', basename(tarball), '-C', work], { cwd: dirname(tarball) })
     const pkgPath = join(work, 'package', 'package.json')
     const pkg = parseManifest(readFileSync(pkgPath, 'utf8'))
 
@@ -55,7 +59,7 @@ export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>
     const list = join(work, '.files')
     const files = walkFiles(work, { skipDirs: new Set() })
     writeFileSync(list, files.join('\n'))
-    execFileSync('tar', ['-czf', tarball, '-C', work, '-T', list])
+    execFileSync('tar', ['-czf', basename(tarball), '-C', work, '-T', list], { cwd: dirname(tarball) })
   } finally {
     rmSync(work, { recursive: true, force: true })
   }

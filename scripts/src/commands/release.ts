@@ -46,6 +46,10 @@ export const releaseCommand = defineCommand({
     const from = resolveFromTag('release')
 
     console.log(`Releasing from ${from} (${bump})`)
-    execFileSync('pnpm', ['exec', 'changelogen', '--release', '--from', from, `--${bump}`], { stdio: 'inherit', cwd: repoRoot })
+    execFileSync('pnpm', ['exec', 'changelogen', '--release', '--from', from, `--${bump}`], {
+      shell: process.platform === 'win32',
+      stdio: 'inherit',
+      cwd: repoRoot,
+    })
   },
 })

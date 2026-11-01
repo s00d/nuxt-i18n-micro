@@ -78,7 +78,7 @@ function assertCiPassed(force: boolean): void {
 
 function step(args: string[]): void {
   console.log(`\n> pnpm ${args.join(' ')}`)
-  execFileSync('pnpm', args, { stdio: 'inherit', cwd: repoRoot })
+  execFileSync('pnpm', args, { shell: process.platform === 'win32', stdio: 'inherit', cwd: repoRoot })
 }
 
 export const publishCommand = defineCommand({

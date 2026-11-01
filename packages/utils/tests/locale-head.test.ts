@@ -120,6 +120,9 @@ describe('buildLocaleHead', () => {
     // an extlang adds nothing to the language
     [{ code: 'ar-aao' }, 'rtl'],
     [{ code: 'zh-cmn' }, undefined],
+    // a code `Intl` refuses keeps its language
+    ...['ar-1', 'ar-ae-x', 'he-IL.UTF-8', 'ur-Aran', 'fa-Aran'].map((code) => [{ code }, 'rtl']),
+    [{ code: 'en-1' }, undefined],
     // no language tag at all
     ...['ar-', 'ar_', 'fa-'].map((code) => [{ code }, undefined]),
     [{ code: 'ar', dir: 'ltr' }, 'ltr'],

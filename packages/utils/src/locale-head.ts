@@ -114,23 +114,30 @@ export function joinBase(base: string, path: string): string {
 
 /** The scripts written right to left. */
 const RTL_SCRIPTS = new Set(
-  'Adlm Arab Armi Avst Chrs Cprt Elym Hatr Hebr Hung Khar Lydi Mand Mani Mend Merc Mero Narb Nbat Nkoo Orkh Ougr Palm Phli Phlp Phnx Prti Rohg Samr Sarb Sogd Sogo Syrc Thaa Yezi'.split(
+  'Adlm Arab Aran Armi Avst Chrs Cprt Elym Hatr Hebr Hung Khar Lydi Mand Mani Mend Merc Mero Narb Nbat Nkoo Orkh Ougr Palm Phli Phlp Phnx Prti Rohg Samr Sarb Sogd Sogo Syrc Thaa Yezi'.split(
     ' ',
   ),
 )
 
+const inRtlScript = (tag: string): boolean => RTL_SCRIPTS.has(new Intl.Locale(tag).maximize().script ?? '')
+
 /**
  * The likely script of a tag decides, which no table of languages can do: `az-IR` is Arabic and `az` Latin,
- * `sd-IN` is Devanagari, and an extension (`ar-u-nu-latn`) names no script. A tag `Intl` refuses is `ltr`, as a browser's default.
+ * `sd-IN` is Devanagari, and an extension (`ar-u-nu-latn`) names no script. A code is free-form: of one `Intl` refuses
+ * (`ar-1`, `he-IL.UTF-8`) the language still decides, and with an empty subtag (`ar-`) or no language it is `ltr`, as a browser's default.
  */
 function readsRtl(tag: string): boolean {
   const [language, ...rest] = tag.split('_').join('-').split('-')
   // `Intl` refuses an extlang (`ar-aao`), and three letters after the language are nothing else
   while (rest[0]?.length === 3 && Number.isNaN(Number(rest[0]))) rest.shift()
   try {
-    return RTL_SCRIPTS.has(new Intl.Locale([language, ...rest].join('-')).maximize().script ?? '')
+    return inRtlScript([language, ...rest].join('-'))
   } catch {
-    return false
+    try {
+      return !rest.includes('') && inRtlScript(language!)
+    } catch {
+      return false
+    }
   }
 }
 

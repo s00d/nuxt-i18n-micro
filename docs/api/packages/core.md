@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-102 exports across 4 entry points.
+106 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -45,6 +45,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
 | `ownValue` | function | `(obj: object, key: string) => unknown` |
+| `pathEnd` | function | `(url: string) => number` |
 | `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `ReactiveI18nStoreOptions` | interface | 3 members |
@@ -62,6 +63,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `TranslationHelper` | class | 16 members |
 | `TranslationStorage` | interface | 1 members |
 | `Tree` | type | `Record<string, unknown>` |
+| `urlPath` | function | `(url: string) => string` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
@@ -379,6 +381,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
 | `ownValue` | function | `(obj: object, key: string) => unknown` |
+| `pathEnd` | function | `(url: string) => number` |
 | `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ResolvedText` | interface | 2 members |
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |
@@ -391,6 +394,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `Tree` | type | `Record<string, unknown>` |
+| `urlPath` | function | `(url: string) => string` |
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.

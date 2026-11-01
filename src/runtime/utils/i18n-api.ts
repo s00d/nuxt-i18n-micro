@@ -1,4 +1,4 @@
-import { isNoPrefixStrategy, textOf } from '@i18n-micro/core'
+import { isNoPrefixStrategy, textOf, urlPath } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
 import type {
   DefineI18nRouteConfig,
@@ -42,7 +42,7 @@ interface LocaleRouteResult {
  */
 function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
   const fullPath = result.fullPath ?? result.path ?? ''
-  const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
+  const path = result.path ?? urlPath(fullPath)
   const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
   if (result.name) out.name = result.name
   if (result.params && Object.keys(result.params).length) out.params = result.params
@@ -202,7 +202,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
       // the path alone: by name the router rebuilds the URL without the slash
       const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-      return { path: fullPath.split(/[?#]/)[0], fullPath, query: switched.query, hash: switched.hash } as RouteLocationRaw
+      return { path: urlPath(fullPath), fullPath, query: switched.query, hash: switched.hash } as RouteLocationRaw
     },
     clearCache: () => {
       void loader.reload()

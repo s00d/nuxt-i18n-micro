@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, routeQuery } from '../src/link'
+import { externalLinkHref, isActiveLink, isPlainClick, isSamePage, localizedPath, pathEnd, routeQuery, urlPath } from '../src/link'
 
 describe('routeQuery', () => {
   it.each([
@@ -164,5 +164,28 @@ describe('localizedPath', () => {
   it('takes a location object', () => {
     expect(localizedPath({ path: '/de/a' }, 'en', codes, 'en')).toBe('/a')
     expect(localizedPath({}, 'de', codes, 'en')).toBe('/de')
+  })
+})
+
+describe('the path of a URL', () => {
+  it.each(['\n', '\r', ' ', ' '])('a line end after `?` or `#` is part of them: %j', (end) => {
+    expect(isSamePage(`/a?b${end}c`, '/a')).toBe(true)
+    expect(isSamePage(`/a#b${end}c`, '/a')).toBe(true)
+  })
+
+  it('stays linear on a query full of `?` that holds a line end', () => {
+    const href = `/a${'?'.repeat(1 << 16)}\n`
+    const start = performance.now()
+    expect(isSamePage(href, '/a')).toBe(true)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
+  it('cuts at the first of `?` and `#`', () => {
+    expect(pathEnd('/a')).toBe(-1)
+    expect(pathEnd('/a?b#c')).toBe(2)
+    expect(pathEnd('/a#b?c')).toBe(2)
+    expect(urlPath('/a?b')).toBe('/a')
+    expect(urlPath('/a')).toBe('/a')
+    expect(urlPath('?b')).toBe('')
   })
 })

@@ -46,7 +46,23 @@ export function routeQuery(search: string | undefined): Record<string, string | 
   return Object.fromEntries([...values].map(([key, list]) => [key, list.length > 1 ? list : list[0]!]))
 }
 
-const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/$/, '') || '/'
+/** Where a URL's path ends: its first `?` or `#`, `-1` for neither. */
+export function pathEnd(url: string): number {
+  const query = url.indexOf('?')
+  const hash = url.indexOf('#')
+  return query === -1 ? hash : hash === -1 || query < hash ? query : hash
+}
+
+/** The URL up to its query and hash. */
+export function urlPath(url: string): string {
+  const end = pathEnd(url)
+  return end === -1 ? url : url.slice(0, end)
+}
+
+const pathOf = (href: string): string => {
+  const path = urlPath(href)
+  return (path.endsWith('/') ? path.slice(0, -1) : path) || '/'
+}
 
 /** A click the app may take over: primary button, no modifier, no `target`, no `download`. The rest are the browser's. */
 export function isPlainClick(event: MouseEvent): boolean {
@@ -76,7 +92,7 @@ export function isActiveLink(current: string, link: string, localeCodes: readonl
  */
 export function localizedPath(to: string | { path?: string }, locale: string, localeCodes: readonly string[], defaultLocale: string): string {
   const path = typeof to === 'string' ? to : to.path || '/'
-  const end = path.search(/[?#]/)
+  const end = pathEnd(path)
   // `#top`, `?x=1`: this page, in this locale
   if (end === 0) return path
   const pathname = end === -1 ? path : path.slice(0, end)

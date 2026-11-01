@@ -109,6 +109,7 @@ member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 type NumberFormatsConfig: Record<string, Record<string, Intl.NumberFormatOptions>>
 function ownValue: (obj: object, key: string) => unknown
+function pathEnd: (url: string) => number
 function pluralForm: (translation: string, count: number, locale: string) => string
 interface ReactiveI18nStore
 member ReactiveI18nStore.getFallbackLocale: () => string
@@ -175,6 +176,7 @@ member TranslationHelper.new: (storage?: TranslationStorage | undefined): Transl
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
 type Tree: Record<string, unknown>
+function urlPath: (url: string) => string
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./devtools (src/devtools.ts)
@@ -229,6 +231,7 @@ interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 function ownValue: (obj: object, key: string) => unknown
+function pathEnd: (url: string) => number
 function pluralForm: (translation: string, count: number, locale: string) => string
 interface ResolvedText
 member ResolvedText.params: Params
@@ -261,6 +264,7 @@ function textOf: (value: unknown) => string | undefined
 function tokenize: (template: string) => readonly string[]
 function translationCacheKey: (locale: string, routeName?: string) => string
 type Tree: Record<string, unknown>
+function urlPath: (url: string) => string
 const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./render (src/render.ts)

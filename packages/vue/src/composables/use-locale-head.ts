@@ -1,3 +1,4 @@
+import { urlPath } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import { buildLocaleHead, filterQuery, joinBase, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { inject, ref } from 'vue'
@@ -42,9 +43,10 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
 
     const base = typeof baseUrl === 'function' ? baseUrl() : baseUrl
     // a custom strategy's path may hold the query, which `query` adds back filtered
-    const here = routing.getCurrentPath().split(/[?#]/)[0] || '/'
+    const here = urlPath(routing.getCurrentPath()) || '/'
     const kept = filterQuery(currentFullPath(routing), canonicalQueryWhitelist)
-    const query = kept.slice(kept.search(/\?|$/))
+    const queryAt = kept.indexOf('?')
+    const query = queryAt === -1 ? '' : kept.slice(queryAt)
     const hrefOf = (code: string): string => {
       const path = pathOf(localeRoute(here, code) as string | { path?: string })
       if (!path) return ''

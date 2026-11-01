@@ -1,3 +1,4 @@
+import { pathEnd } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
 import type { RouteLocationRaw, Router } from 'vue-router'
 import { RouterLink } from 'vue-router'
@@ -24,7 +25,7 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
    */
   const resolvePath = (to: I18nRouteTarget, locale: string): string => {
     const url = urlOf(to)
-    const cut = url.search(/[?#]/)
+    const cut = pathEnd(url)
     const path = cut === -1 ? url : url.slice(0, cut)
     const extras = cut === -1 ? '' : url.slice(cut)
     const pathSegments = path.split('/').filter(Boolean)

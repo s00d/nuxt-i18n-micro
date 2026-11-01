@@ -58,9 +58,16 @@ export interface LocaleHeadInput {
   missingWarn?: boolean
 }
 
+/** Where a URL's path ends. As in `@i18n-micro/core`, which utils does not depend on. */
+function pathEnd(url: string): number {
+  const query = url.indexOf('?')
+  const hash = url.indexOf('#')
+  return query === -1 ? hash : hash === -1 || query < hash ? query : hash
+}
+
 /** Keeps the `whitelist` query params of a path or URL and drops its hash. */
 export function filterQuery(url: string, whitelist: readonly string[]): string {
-  const cut = url.search(/[?#]/)
+  const cut = pathEnd(url)
   if (cut === -1) return url
   const pathname = url.slice(0, cut) || '/'
   const hash = url.indexOf('#', cut)

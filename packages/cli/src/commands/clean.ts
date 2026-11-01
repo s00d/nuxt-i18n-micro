@@ -1,7 +1,6 @@
 import { realpathSync } from 'node:fs'
-import { relative } from 'node:path'
 import { commandFailed, findingsError, validationError } from '../errors'
-import { splitList, walkFiles } from '../fs'
+import { isUnder, splitList, walkFiles } from '../fs'
 import { getPath } from '../json'
 import { log } from '../log'
 import type { ProjectConfig } from '../nuxt'
@@ -58,7 +57,7 @@ export function deletionDoubts(project: Project, scan: ProjectScan): string[] {
 /** A locale file that lives outside the project may feed another app too, whose code was not scanned. */
 function sharedLocaleFiles(config: ProjectConfig): string[] {
   const root = realpathSync(config.rootDir)
-  return walkFiles(config.translationDir, (path) => path.endsWith('.json')).filter((file) => relative(root, realpathSync(file)).startsWith('..'))
+  return walkFiles(config.translationDir, (path) => path.endsWith('.json')).filter((file) => !isUnder(root, realpathSync(file)))
 }
 
 /** Nothing scanned proves nothing: no flag changes that. */

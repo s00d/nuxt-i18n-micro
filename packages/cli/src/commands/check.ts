@@ -1,6 +1,5 @@
-import { relative } from 'node:path'
 import { findingsError, usageError } from '../errors'
-import { splitList } from '../fs'
+import { relativePath, splitList } from '../fs'
 import { flattenStrings, groupBy } from '../json'
 import { log } from '../log'
 import { type LocaleSet, Project, relativeFile } from '../project'
@@ -92,7 +91,7 @@ function undefinedKeys(project: Project, scan: ProjectScan): Finding[] {
   return scan.refs.flatMap((ref): Finding[] => {
     if (ref.guard || ref.test || seen.has(ref.key) || isDefined(project.reference, ref)) return []
     seen.add(ref.key)
-    return [{ type: 'undefined', file: `${relative(project.config.rootDir, ref.file)}:${ref.line}`, key: ref.key }]
+    return [{ type: 'undefined', file: `${relativePath(project.config.rootDir, ref.file)}:${ref.line}`, key: ref.key }]
   })
 }
 

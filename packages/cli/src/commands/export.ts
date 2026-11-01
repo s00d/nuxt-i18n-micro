@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
-import { join, relative, resolve, sep } from 'node:path'
+import { join, resolve } from 'node:path'
 import { parseCsv, stringifyCsv } from '../csv'
 import { findingsError } from '../errors'
-import { readJsonIfExists, readLoose, stringifyJson, writeFilesAtomic } from '../fs'
+import { readJsonIfExists, readLoose, relativePath, stringifyJson, writeFilesAtomic } from '../fs'
 import { log } from '../log'
 import { type PoMessage, compilePo, parsePo } from '../po'
 import { Project, relativeFile } from '../project'
@@ -92,13 +92,13 @@ export default async function run(args: ExportArgs): Promise<void> {
   const dir = resolve(project.config.rootDir, args.dir ?? defaultExchangeDir(args.format))
   const files = args.format === 'csv' ? csvFiles(project, dir) : poFiles(project, dir)
   const manifest = readManifest(dir)
-  const nameOf = (path: string): string => relative(dir, path).split(sep).join('/')
+  const nameOf = (path: string): string => relativePath(dir, path)
 
   const edited = files.filter(([path, text]) => holdsUnimportedWork(path, text, args.format, manifest[nameOf(path)]))
   if (edited.length > 0 && !args.force) {
     log.list(
       'Changed since the last export, and not imported',
-      edited.map(([path]) => relative(project.config.rootDir, path)),
+      edited.map(([path]) => relativePath(project.config.rootDir, path)),
     )
     throw findingsError('Nothing was exported.', ['Import them first, or overwrite with --force.'])
   }

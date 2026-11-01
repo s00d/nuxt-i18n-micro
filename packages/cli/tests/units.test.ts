@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseCsv, stringifyCsv } from '../src/csv'
-import { globToRegExp, readJsonObject, stringifyLike, walkFiles, writeFilesAtomic } from '../src/fs'
+import { globToRegExp, readJsonObject, relativePath, stringifyLike, walkFiles, writeFilesAtomic } from '../src/fs'
 import { glossaryContext } from '../src/glossary'
 import { deletePath, flatten, flattenStrings, getPath, groupBy, pathConflict, setPath, sortKeys } from '../src/json'
 import { request } from '../src/http'
@@ -186,7 +186,8 @@ describe('safe writes', () => {
     rmSync(dir, { recursive: true })
   })
 
-  it('keeps the mode of the file it replaces', () => {
+  // Windows has no such mode: chmod sets the read-only flag and nothing else
+  it.skipIf(process.platform === 'win32')('keeps the mode of the file it replaces', () => {
     const dir = tempDir()
     const file = join(dir, 'a.json')
     writeFileSync(file, 'old')
@@ -204,7 +205,8 @@ describe('safe writes', () => {
     rmSync(dir, { recursive: true })
   })
 
-  it('a read-only directory fails before touching the target', () => {
+  // the read-only flag of a Windows directory does not stop a write in it
+  it.skipIf(process.platform === 'win32')('a read-only directory fails before touching the target', () => {
     if (process.getuid?.() === 0) return
     const dir = tempDir()
     const file = join(dir, 'a.json')
@@ -235,7 +237,7 @@ describe('safe writes', () => {
     symlinkSync(join(dir, 'real'), join(dir, 'link'))
     symlinkSync(dir, join(dir, 'real/up'))
     symlinkSync(join(dir, 'gone'), join(dir, 'dangling'))
-    expect(walkFiles(dir).map((file) => file.slice(dir.length))).toEqual(['/link/a.ts'])
+    expect(walkFiles(dir).map((file) => relativePath(dir, file))).toEqual(['link/a.ts'])
     rmSync(dir, { recursive: true })
   })
 

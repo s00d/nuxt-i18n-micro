@@ -1,7 +1,8 @@
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { basename, dirname, extname, relative, sep } from 'node:path'
+import { basename, dirname, extname, relative } from 'node:path'
 import { babelParse, parse as parseSfc, walk } from '@vue/compiler-sfc'
-import { globToRegExp, readLoose, walkFiles } from './fs'
+import { globToRegExp, isUnder, readLoose, relativePath, walkFiles } from './fs'
 import type { ProjectConfig } from './nuxt'
 
 const CODE_EXTENSIONS = new Set(['.vue', '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs', '.mts', '.cts'])
@@ -648,10 +649,8 @@ export function scanFile(content: string, file: string): FileScan {
 const SEGMENT_TOKEN = /\[{1,2}(?:\.\.\.)?([^\]]+)\]{1,2}/g
 
 /** Route name Nuxt gives a page file: the name of its `locales/pages/<name>/` directory. */
-export function pageNameOf(relativePath: string): string {
-  const withoutExt = relativePath
-    .split(sep)
-    .join('/')
+export function pageNameOf(pagePath: string): string {
+  const withoutExt = forwardSlashes(pagePath)
     .replace(/\.[^./]+$/, '')
     .replace(/\.(client|server)$/, '')
   const segments = withoutExt
@@ -707,7 +706,7 @@ export function projectFiles(config: ProjectConfig, options: ScanOptions = {}): 
   const excluded = new Set(config.translationDirs)
   const ignored = (options.ignore ?? []).map(globToRegExp)
   const isIgnored = (path: string): boolean => {
-    const rel = relative(config.rootDir, path).split(sep).join('/')
+    const rel = relativePath(config.rootDir, path)
     return ignored.some((pattern) => pattern.test(rel))
   }
   const accept = (path: string): boolean => {
@@ -728,7 +727,7 @@ export function projectFiles(config: ProjectConfig, options: ScanOptions = {}): 
     })
 }
 
-const inTestDir = (config: ProjectConfig, file: string): boolean => TEST_DIR.test(relative(config.rootDir, file).split(sep).join('/'))
+const inTestDir = (config: ProjectConfig, file: string): boolean => TEST_DIR.test(relativePath(config.rootDir, file))
 
 export const isTestFile = (config: ProjectConfig, file: string): boolean => inTestDir(config, file) || TEST_NAME.test(file)
 
@@ -742,12 +741,12 @@ const isMinified = (file: string, content: string): boolean =>
 
 const isServedAsIs = (config: ProjectConfig, file: string, content: string): boolean =>
   // served as it is, never compiled into the app
-  [config.rootDir, config.srcDir].some((root) => relative(root, file).split(sep).join('/').startsWith('public/')) || isMinified(file, content)
+  [config.rootDir, config.srcDir].some((root) => relativePath(root, file).startsWith('public/')) || isMinified(file, content)
 
 function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   const content = readFileSync(file, 'utf8')
   const found = scanFile(content, file)
-  const pagesRoot = config.pagesDirs.find((dir) => !relative(dir, file).startsWith('..'))
+  const pagesRoot = config.pagesDirs.find((dir) => isUnder(dir, file))
   const page = pagesRoot && isCodeFile(file) ? pageScopeOf(file, pagesRoot, content) : null
   const test = !page && isTestFile(config, file)
   for (const ref of found.refs) out.refs.push({ ...ref, page, test })
@@ -756,7 +755,7 @@ function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
   out.files += 1
   // A broken fixture, a vendor script or a bundle says nothing about what the app reads. Anywhere else, a doubt counts.
   if (!page && (inTestDir(config, file) || isServedAsIs(config, file, content))) return
-  const generated = !page && GENERATED_PATH.test(relative(config.rootDir, file).split(sep).join('/'))
+  const generated = !page && GENERATED_PATH.test(relativePath(config.rootDir, file))
   out.dynamic.push(...found.dynamic.filter((entry) => !(generated && entry.guess)))
   for (const reason of found.unproven) out.unproven.push({ file, reason })
 }
@@ -767,12 +766,13 @@ function addFile(file: string, config: ProjectConfig, out: ProjectScan): void {
  */
 export function isOwnSource(config: ProjectConfig, file: string): boolean {
   const real = realpathSync(file)
-  const under = (dir: string, path: string): boolean => !relative(dir, path).startsWith('..')
   const project = realpathSync(config.rootDir)
   // Only a layer inside the project is a separate thing here: `extends: ['..']` has the app inside the layer.
   const layers = config.layerRoots.filter((root) => existsSync(root)).map((root) => realpathSync(root))
-  const nested = layers.filter((root) => root !== project && under(project, root))
-  return under(project, real) && !real.slice(project.length).includes('/node_modules/') && !nested.some((root) => under(root, real))
+  const nested = layers.filter((root) => root !== project && isUnder(project, root))
+  return (
+    isUnder(project, real) && !forwardSlashes(real.slice(project.length)).includes('/node_modules/') && !nested.some((root) => isUnder(root, real))
+  )
 }
 
 export function scanProject(config: ProjectConfig, options: ScanOptions = {}): ProjectScan {

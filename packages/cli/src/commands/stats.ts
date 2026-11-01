@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
-import { join, relative, resolve, sep } from 'node:path'
+import { join, resolve } from 'node:path'
 import { validationError } from '../errors'
-import { writeFileAtomic } from '../fs'
+import { relativePath, writeFileAtomic } from '../fs'
 import { type JsonObject, flattenStrings, isObject, ownValue } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
@@ -63,14 +63,12 @@ function git(rootDir: string, args: string[], input?: string): string {
   return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', input, stdio: ['pipe', 'pipe', 'ignore'], maxBuffer: Number.POSITIVE_INFINITY })
 }
 
-const gitPathOf = (rootDir: string, path: string): string => relative(rootDir, path).split(sep).join('/')
-
 /**
  * The object at a path of a ref, with links followed as the project loader follows them: `git show`
  * would give a link's target as its text. `null`: no such path at that ref.
  */
 function gitObject(rootDir: string, ref: string, path: string): { oid: string; type: string; body: string } | null {
-  const gitPath = gitPathOf(rootDir, path)
+  const gitPath = relativePath(rootDir, path)
   const answer = git(rootDir, ['cat-file', '--batch', '--follow-symlinks'], `${ref}:./${gitPath}\n`)
   const header = answer.slice(0, answer.indexOf('\n'))
   const found = /^(\S+) (blob|tree) \d+$/.exec(header)
@@ -88,7 +86,7 @@ function gitShow(rootDir: string, ref: string, path: string): JsonObject {
     return isObject(parsed) ? parsed : {}
   } catch {
     // As an empty file it would read as a false gain in completion.
-    throw validationError(`Invalid JSON at ${ref}: ${gitPathOf(rootDir, path)}`)
+    throw validationError(`Invalid JSON at ${ref}: ${relativePath(rootDir, path)}`)
   }
 }
 

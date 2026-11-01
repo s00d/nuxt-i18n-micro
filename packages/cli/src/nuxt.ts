@@ -1,7 +1,9 @@
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { CliError } from './errors'
+import { isUnder } from './fs'
 
 export interface LocaleEntry {
   code: string
@@ -145,7 +147,7 @@ function dirNames(value: unknown): string[] {
 }
 
 /** A folder outside the root is still this app's code when an alias or auto-import points at it. */
-function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[] {
+export function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[] {
   const srcDir = config.srcDir ?? rootDir
   const expand = (dir: string): string =>
     resolve(
@@ -155,7 +157,7 @@ function extraSourceDirsOf(config: ResolvedNuxtConfig, rootDir: string): string[
   // An alias is a path, whatever its characters; only the folder lists take globs.
   const aliases = Object.values(config.alias ?? {}).filter((name) => typeof name === 'string')
   const dirs = [...aliases, ...[...dirNames(config.components), ...dirNames(config.imports?.dirs)].map(globBase)].map(expand)
-  const outside = dirs.filter((dir) => relative(rootDir, dir).startsWith('..') && !dir.includes('/node_modules/') && existsSync(dir))
+  const outside = dirs.filter((dir) => !isUnder(rootDir, dir) && !forwardSlashes(dir).includes('/node_modules/') && existsSync(dir))
   return [...new Set(outside.filter((dir) => statSync(dir).isDirectory()))]
 }
 

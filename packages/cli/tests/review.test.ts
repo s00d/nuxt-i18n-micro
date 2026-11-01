@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { type MockServer, cliBin, createProject, json, removeProject, runCli, startMock } from './harness'
 
@@ -714,7 +715,7 @@ describe('the command line', () => {
 
   it('a second run in one process starts from a clean exit code', () => {
     const entry = join(dirname(cliBin), 'index.mjs')
-    const script = `const { runCli } = await import(${JSON.stringify(entry)}); await runCli(['backup']); await runCli(['--version'])`
+    const script = `const { runCli } = await import(${JSON.stringify(pathToFileURL(entry).href)}); await runCli(['backup']); await runCli(['--version'])`
     expect(spawnSync(process.execPath, ['--input-type=module', '-e', script]).status).toBe(0)
   })
 

@@ -1,3 +1,4 @@
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { randomBytes } from 'node:crypto'
 import {
   accessSync,
@@ -16,7 +17,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import type { Stats } from 'node:fs'
-import { basename, dirname, join, resolve } from 'node:path'
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { CliError } from './errors'
 import { type JsonObject, findDuplicateKey, findUnsafeInteger, hasProtoKey } from './json'
 
@@ -40,6 +41,15 @@ function visit(dir: string, accept: (path: string) => boolean, skipDir: (path: s
     if (stat?.isDirectory() && !skipDir(full)) visit(full, accept, skipDir, seen, out)
     else if (stat?.isFile() && accept(full)) out.push(full)
   }
+}
+
+/** `path` from `from`, as a report, a key or a glob reads it: `/` on every platform. */
+export const relativePath = (from: string, path: string): string => forwardSlashes(relative(from, path))
+
+/** Whether `path` is `dir` or below it. `relative` gives an absolute path across Windows drives. */
+export function isUnder(dir: string, path: string): boolean {
+  const rel = relative(dir, path)
+  return !rel.startsWith('..') && !isAbsolute(rel)
 }
 
 /** Every file under `dir` that `accept` wants, sorted, symlinks followed. A missing directory is an empty result. */

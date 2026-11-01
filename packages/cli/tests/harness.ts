@@ -98,6 +98,8 @@ export function normalize(text: string, projectDir: string, port = 0): string {
   return (
     text
       .replaceAll(projectDir, '<project>')
+      // an absolute path is the platform's own, in a JSON string with its backslashes doubled
+      .replace(/<project>\S*/g, (path) => path.replace(/\\+/g, '/'))
       .replaceAll(`127.0.0.1:${port}`, '<mock>')
       .replace(ISO_STAMP, '<timestamp>')
       // oxlint-disable-next-line no-control-regex -- ANSI colors are what this strips

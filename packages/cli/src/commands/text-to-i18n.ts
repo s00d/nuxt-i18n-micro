@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
-import { readJsonIfExists, readUtf8, splitList, stringifyLike, writeFilesAtomic } from '../fs'
+import { isUnder, readJsonIfExists, readUtf8, relativePath, splitList, stringifyLike, writeFilesAtomic } from '../fs'
 import { type JsonObject, flattenStrings, isWritableKey, setPath } from '../json'
 import { ask, choose, log } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
@@ -39,7 +39,7 @@ function filesToProcess(config: ProjectConfig, args: TextToI18nArgs): string[] {
   const target = resolve(config.rootDir, args.path)
   if (!existsSync(target)) throw notFoundError(`Path does not exist: ${target}`)
   // A folder narrows the same walk: `--path .` must not reach build output and tests.
-  if (statSync(target).isDirectory()) return sources.filter((file) => !relative(target, file).startsWith('..'))
+  if (statSync(target).isDirectory()) return sources.filter((file) => isUnder(target, file))
   if (!isCodeFile(target)) throw validationError(`Unsupported file type: ${target}`, ['Supported: .vue, .js, .ts, .jsx, .tsx'])
   return [target]
 }
@@ -111,7 +111,7 @@ async function collectDecisions(created: Map<string, NewTranslation>, existing: 
 function report(title: string, items: Hardcoded[], rootDir: string): void {
   log.list(
     title,
-    items.map(({ file, line, text }) => `${relative(rootDir, file)}:${line} ${text}`),
+    items.map(({ file, line, text }) => `${relativePath(rootDir, file)}:${line} ${text}`),
   )
 }
 
@@ -144,7 +144,7 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
     let index = 0
     for (const { key, value, file, line } of result.created.values()) {
       index += 1
-      log.info(`[${index}] ${key}: "${value}" (${relative(config.rootDir, file)}:${line})`)
+      log.info(`[${index}] ${key}: "${value}" (${relativePath(config.rootDir, file)}:${line})`)
     }
     return
   }
@@ -153,5 +153,5 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
   const previous = existsSync(translationFile) ? readFileSync(translationFile, 'utf8') : undefined
   // One step: rewritten sources must not exist without the keys they call.
   writeFilesAtomic([...result.changes, [translationFile, stringifyLike(previous, translations)]])
-  log.success(`Updated ${result.changes.length} files and ${relative(config.rootDir, translationFile)}.`)
+  log.success(`Updated ${result.changes.length} files and ${relativePath(config.rootDir, translationFile)}.`)
 }

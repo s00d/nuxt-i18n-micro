@@ -1,6 +1,5 @@
-import { relative } from 'node:path'
 import { validationError } from '../errors'
-import { splitList } from '../fs'
+import { relativePath, splitList } from '../fs'
 import { flattenStrings, getPath } from '../json'
 import { log } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
@@ -38,7 +37,7 @@ function matchesOf(project: Project, scan: ProjectScan, args: SearchArgs): Searc
   const fold = (text: string): string => (args.caseSensitive ? text : text.toLowerCase())
   const query = fold((args.query ?? '').trim())
   const usagesOf = (key: string): string[] =>
-    scan.refs.filter((ref) => ref.key === key).map((ref) => `${relative(project.config.rootDir, ref.file)}:${ref.line}`)
+    scan.refs.filter((ref) => ref.key === key).map((ref) => `${relativePath(project.config.rootDir, ref.file)}:${ref.line}`)
 
   return scopesOf(project, args.scope).flatMap((scope) => {
     const byLocale = project.codes.map((code) => [code, flattenStrings(project.locale(code).tree(scope))] as const)

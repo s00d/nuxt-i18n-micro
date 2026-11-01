@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { dirname, join, relative, resolve, sep } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { notFoundError, usageError, validationError } from './errors'
-import { matchLineEnding, readJsonIfExists, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
+import { matchLineEnding, readJsonIfExists, relativePath, stringifyJson, stringifyLike, walkFiles, writeFilesAtomic } from './fs'
 import {
   type JsonObject,
   type JsonValue,
@@ -40,7 +40,7 @@ function readLayer(dir: string, code: string, withPages: boolean): LocaleLayer {
   const pages: LocaleLayer['pages'] = {}
   const files = withPages ? walkFiles(pagesDir, (path) => path.endsWith(`${sep}${fileName}`)) : []
   for (const file of files) {
-    const scope = relative(pagesDir, dirname(file)).split(sep).join('/')
+    const scope = relativePath(pagesDir, dirname(file))
     assertSafeScope(scope)
     pages[scope] = readJsonIfExists(file)
   }

@@ -333,7 +333,8 @@ describe('saving', () => {
     chmodSync(join(dir, 'locales/de.json'), 0o600)
     await runCli(['sync'], { cwd: dir })
     expect(read(dir, 'locales/de.json')).toBe('{\n    "a": "y"\n}')
-    expect(statSync(join(dir, 'locales/de.json')).mode & 0o777).toBe(0o600)
+    // Windows has no such mode: chmod sets the read-only flag and nothing else
+    if (process.platform !== 'win32') expect(statSync(join(dir, 'locales/de.json')).mode & 0o777).toBe(0o600)
     expect(read(dir, 'locales/en.json')).toBe('{\n\t"a": "x"\n}')
   })
 

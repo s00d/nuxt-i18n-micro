@@ -1,8 +1,8 @@
-import { basename, dirname, join, relative, resolve, sep } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
 import { parseCsv } from '../csv'
 import { findingsError, notFoundError, validationError } from '../errors'
-import { readText, walkFiles } from '../fs'
+import { readText, relativePath, walkFiles } from '../fs'
 import { log } from '../log'
 import { parsePo } from '../po'
 import { GLOBAL_SCOPE, Project } from '../project'
@@ -25,15 +25,15 @@ interface Entry {
 
 /** Only where `export` puts a catalog: a backup in a subfolder must not land on the global file. */
 function poScope(file: string, dir: string): string {
-  const parts = relative(dir, dirname(file)).split(sep).filter(Boolean)
+  const parts = relativePath(dir, dirname(file)).split('/').filter(Boolean)
   if (parts.length === 0) return GLOBAL_SCOPE
   if (parts[0] === 'pages' && parts.length > 1) return parts.slice(1).join('/')
-  throw validationError(`Not a place for a catalog: ${relative(dir, file)}`, ['Expected <locale>.po or pages/<page>/<locale>.po.'])
+  throw validationError(`Not a place for a catalog: ${relativePath(dir, file)}`, ['Expected <locale>.po or pages/<page>/<locale>.po.'])
 }
 
 /** A page's catalog the last export did not write: the page is gone, and importing would bring it back. */
 function assertExported(file: string, dir: string, exported: string[]): void {
-  const name = relative(dir, file).split(sep).join('/')
+  const name = relativePath(dir, file)
   if (exported.length === 0 || exported.includes(name)) return
   throw validationError(`Not part of the last export: ${name}`, ['Delete the file, or restore the page and export again.'])
 }

@@ -1,4 +1,5 @@
-import { extname, parse as parsePath, sep } from 'node:path'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
+import { extname, parse as parsePath } from 'node:path'
 import { MagicString, parse as parseSfc, walk } from '@vue/compiler-sfc'
 import { type JsonObject, isWritableKey, pathConflict, setPath } from './json'
 import { type AstNode, NODE_TYPES, lineOf, parseCode, scanFile, staticString } from './source'
@@ -87,7 +88,7 @@ const keywordsOf = (text: string): string[] =>
 /** `pages/blog/index.vue` -> `pages.blog.index`: keys say where their text came from. */
 function filePrefix(file: string): string {
   const { dir, name } = parsePath(file)
-  const segments = dir.split(sep)
+  const segments = forwardSlashes(dir).split('/')
   const rootIndex = segments.findIndex((segment) => KEY_ROOTS.includes(segment))
   if (rootIndex === -1) return 'common'
   return [...segments.slice(rootIndex), name].map(toSlug).join('.')

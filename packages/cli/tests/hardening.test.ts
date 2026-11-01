@@ -320,9 +320,11 @@ describe('rename', () => {
     })
     const result = await runCli(['rename', '--from', 'old', '--to', 'fresh'], { cwd: dir })
     expect(read(dir, 'server/api/a.ts')).toContain(`t('fresh')`)
-    expect(result.stderr).toContain('utils/k.ts:1')
-    expect(result.stderr).toContain('utils/l.ts:1')
-    expect(result.stderr).not.toContain('pages/index.vue')
+    // an absolute path, as the platform writes it
+    const stderr = result.stderr.replaceAll('\\', '/')
+    expect(stderr).toContain('utils/k.ts:1')
+    expect(stderr).toContain('utils/l.ts:1')
+    expect(stderr).not.toContain('pages/index.vue')
   })
 
   it('a position that does not hold the key is left alone', async () => {
@@ -737,9 +739,10 @@ describe('second review: rename and data files', () => {
       'data/other.json': '[{ "label": "nav.homepage" }]\n',
     })
     const result = await runCli(['rename', '--from', 'nav.home', '--to', 'nav.start'], { cwd: dir })
-    expect(result.stderr).toContain('data/menu.json')
-    expect(result.stderr).toContain('data/more.yaml')
-    expect(result.stderr).not.toContain('data/other.json')
+    const stderr = result.stderr.replaceAll('\\', '/')
+    expect(stderr).toContain('data/menu.json')
+    expect(stderr).toContain('data/more.yaml')
+    expect(stderr).not.toContain('data/other.json')
   })
 })
 

@@ -1,7 +1,7 @@
-import { relative } from 'node:path'
 import { findingsError } from '../errors'
 import { log } from '../log'
 import { Project } from '../project'
+import { relativePath } from '../fs'
 
 export interface FormatArgs {
   cwd?: string
@@ -17,7 +17,7 @@ export default async function run(args: FormatArgs): Promise<void> {
   const options = { indent: args.indent, sort: args.sortKeys, rewrite: true }
 
   if (args.check) {
-    const files = project.pendingFiles(options).map(([path]) => relative(project.config.rootDir, path))
+    const files = project.pendingFiles(options).map(([path]) => relativePath(project.config.rootDir, path))
     if (files.length === 0) {
       log.success('All translation files are formatted.')
       return

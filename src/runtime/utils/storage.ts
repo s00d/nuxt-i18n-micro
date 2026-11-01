@@ -73,12 +73,11 @@ class TranslationStorage {
   // ==========================================================================
 
   /**
-   * Freeze a shallow copy before it enters the cache so a consumer cannot mutate
-   * what other callers will read. Nested values are shared on purpose — cheap, and
-   * no caller mutates a chunk in place.
+   * On the server the cache is shared by every request, so its root is frozen, once, in place: nested values are shared
+   * on purpose, and no caller mutates a chunk. A browser fetched this object for itself and has one reader: nothing to guard.
    */
-  private freezeChunk(data: Record<string, unknown>): Record<string, unknown> {
-    return Object.freeze({ ...data })
+  private shared(data: Record<string, unknown>): Record<string, unknown> {
+    return import.meta.server ? Object.freeze(data) : data
   }
 
   private getCacheKey(locale: string, routeName?: string): string {
@@ -138,10 +137,14 @@ class TranslationStorage {
     return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
   }
 
-  /** Seed cache without fetching (e.g. `serverTranslationPreload` for index). */
+  /**
+   * Seed cache without fetching (`serverTranslationPreload` for index). Called per request, with the server's one shared
+   * chunk, so a chunk that is already in costs a lookup: a new tree would cost every request its leaf cache too.
+   */
   seed(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
     const cacheKey = this.getCacheKey(locale, routeName)
-    this.cc.set(cacheKey, this.freezeChunk(data))
+    if (this.cc.get(cacheKey) === data || !Object.keys(data).length) return
+    this.cc.set(cacheKey, this.shared(data))
   }
 
   // ==========================================================================
@@ -185,11 +188,9 @@ class TranslationStorage {
       return { data: stand, cacheKey }
     }
 
-    // Already a plain object — freezing is enough, and it guards the loader's own
-    // cached copy against in-place mutation now that we may be sharing it.
-    this.cc.set(cacheKey, this.freezeChunk(data))
+    this.cc.set(cacheKey, this.shared(data))
 
-    return { data: this.cc.get(cacheKey)!, cacheKey }
+    return { data, cacheKey }
   }
 
   /**

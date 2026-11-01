@@ -5,9 +5,8 @@
  */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import plugin from '../../src/runtime/plugins/01.plugin'
-import hooksPlugin from '../../src/runtime/plugins/05.hooks'
 import { translationStorage } from '../../src/runtime/utils/storage'
-import { createApp, runPlugin } from './plugin-harness'
+import { createApp, hydrate, runPlugin } from './plugin-harness'
 
 vi.mock('#imports', async () => (await import('./plugin-harness')).stub)
 
@@ -38,7 +37,7 @@ async function request(options: { chunk: Record<string, unknown>; preload?: bool
   const a = await createApp({ side: 'server', strategy: 'prefix', url, detected: 'en', chunk: () => chunk, preloaded: preload ? chunk : undefined })
   if (subscriber) a.nuxtApp.hook('i18n:register', subscriber)
   await runPlugin(plugin)
-  await runPlugin(hooksPlugin)
+  await hydrate(a)
   return a
 }
 
@@ -63,7 +62,7 @@ describe('shared chunks', () => {
       const a = await createApp({ side, strategy: 'prefix', url: '/en/about', detected: 'en', chunk: () => stored })
       a.nuxtApp.hook('i18n:register', ((register) => register({ a: { added: 'added' } })) as Subscriber)
       await runPlugin(plugin)
-      await runPlugin(hooksPlugin)
+      await hydrate(a)
       a.nuxtApp.$mergeTranslations({ a: { merged: 'merged' }, top: 'top' })
       a.nuxtApp.$setTranslation('a.set', 'set')
       await a.nuxtApp.$loadPageTranslations('en', 'about', { page: 'page' })
@@ -72,6 +71,31 @@ describe('shared chunks', () => {
       expect(a.nuxtApp.$t('page')).toBe('page')
       expect(stored).toEqual({ a: { b: 'b' }, c: 'c' })
     }
+  })
+
+  test('a fresh chunk is stored as it arrived: one tree, no copy', async () => {
+    for (const side of ['server', 'client'] as const) {
+      translationStorage.clear()
+      const fetched = { a: { b: 'b' } }
+      const a = await createApp({ side, strategy: 'prefix', url: '/en/about', detected: 'en', chunk: () => fetched })
+      await runPlugin(plugin)
+      expect(a.nuxtApp.$resolveTranslations()).toBe(fetched)
+    }
+  })
+
+  test('a patch made while its chunk loads survives the load, and the loaded tree stays as it was', async () => {
+    const loaded = deepFreeze({ a: { b: 'b' }, kept: 'loaded' })
+    let answer!: (value: typeof loaded) => void
+    const a = await createApp({ side: 'client', strategy: 'prefix', url: '/en/about' })
+    await runPlugin(plugin)
+    vi.stubGlobal('$fetch', () => new Promise((resolve) => (answer = resolve)))
+    const navigation = a.router.push('/de/about')
+    await vi.waitFor(() => expect(answer).toBeDefined())
+    await a.nuxtApp.$loadPageTranslations('de', 'about', { a: { patched: 'patched' }, kept: 'patched' })
+    answer(loaded)
+    await navigation
+    expect(a.nuxtApp.$resolveTranslations()).toEqual({ a: { b: 'b', patched: 'patched' }, kept: 'patched' })
+    expect(loaded).toEqual({ a: { b: 'b' }, kept: 'loaded' })
   })
 
   test('what one request registers stays in it', async () => {
@@ -85,8 +109,38 @@ describe('shared chunks', () => {
   })
 })
 
+describe('app:rendered', () => {
+  const render = async (params: Record<string, unknown> | null) => {
+    const a = await request({ chunk: {} })
+    if (params) a.nuxtApp.$setI18nRouteParams(params)
+    let reads = 0
+    const html = '<a class="switcher-locale-de" href="/de/about">de</a>'
+    const renderResult = {
+      get html() {
+        reads++
+        return html
+      },
+      set html(next: string) {
+        renderResult.written = next
+      },
+      written: '',
+    }
+    await a.nuxtApp.callHook('app:rendered', { renderResult })
+    return { reads, written: renderResult.written }
+  }
+
+  test('a page with no params leaves the HTML unread', async () => {
+    expect(await render(null)).toEqual({ reads: 0, written: '' })
+    expect(await render({})).toEqual({ reads: 0, written: '' })
+  })
+
+  test('with params the links of the switcher follow them', async () => {
+    expect((await render({ de: { id: 'x' } })).written).toBe('<a class="switcher-locale-de" href="/de/about">de</a>')
+  })
+})
+
 describe('tree identity', () => {
-  test.fails('requests share one tree, also with serverTranslationPreload', async () => {
+  test('requests share one tree, also with serverTranslationPreload', async () => {
     const chunk = { key: 'value' }
     for (const preload of [false, true]) {
       translationStorage.clear()
@@ -102,13 +156,13 @@ describe('tree identity', () => {
 describe('budget of a server request on a 100k chunk', () => {
   const chunk = bigChunk()
 
-  test.fails('serverTranslationPreload costs next to nothing', { timeout: 60_000 }, async () => {
+  test('serverTranslationPreload costs next to nothing', { timeout: 60_000 }, async () => {
     const plain = await medianRequest({ chunk, url: '/en' })
     const preloaded = await medianRequest({ chunk, preload: true, url: '/en' })
     expect(preloaded).toBeLessThan(Math.max(plain * 4, 4))
   })
 
-  test.fails('an i18n:register subscriber costs its patch', { timeout: 60_000 }, async () => {
+  test('an i18n:register subscriber costs its patch', { timeout: 60_000 }, async () => {
     const plain = await medianRequest({ chunk })
     const subscribed = await medianRequest({ chunk, subscriber: (register) => register({ extra: 'extra' }) })
     expect(subscribed).toBeLessThan(Math.max(plain * 4, 4))

@@ -1089,6 +1089,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class PreactI18n
 member PreactI18n.activeKey: private any
 member PreactI18n.activeRootKey: private any
+member PreactI18n.addFetched: private any
 member PreactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member PreactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member PreactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void

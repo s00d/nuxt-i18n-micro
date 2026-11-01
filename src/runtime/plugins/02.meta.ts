@@ -18,6 +18,20 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
   }
 }
 
+/** The request's origin, or '' for no absolute URLs: a client writes these headers, and one that does not parse must not cost the page. */
+function requestOrigin(i18nConfig: ModuleOptionsExtend): string {
+  const xForwardedProto = i18nConfig.metaTrustForwardedProto !== false
+  try {
+    return useRequestURL({ xForwardedHost: i18nConfig.metaTrustForwardedHost !== false, xForwardedProto }).origin
+  } catch {
+    try {
+      return useRequestURL({ xForwardedProto }).origin
+    } catch {
+      return ''
+    }
+  }
+}
+
 /**
  * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin plus `app.baseURL`.
  * `useRequestURL` (and X-Forwarded-*) is only used when both configured origins
@@ -28,11 +42,7 @@ function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | un
   const configured = i18nConfig.metaBaseUrl || siteUrl
   if (configured) return configured.replace(/\/+$/, '')
 
-  const url = useRequestURL({
-    xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
-    xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
-  })
-  return joinURL(url.origin, useRuntimeConfig().app.baseURL).replace(/\/+$/, '')
+  return joinURL(requestOrigin(i18nConfig), useRuntimeConfig().app.baseURL).replace(/\/+$/, '')
 }
 
 export default defineNuxtPlugin((nuxtApp) => {

@@ -107,6 +107,38 @@ describe('@i18n-micro/runtime', () => {
     expect(i18n.t('hello')).toBe('Hi')
   })
 
+  test('a fetched chunk is stored as it arrived, and a later merge leaves it as it was', async () => {
+    const body = Object.freeze({ a: Object.freeze({ b: 'b' }) })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, json: async () => body })),
+    )
+    const i18n = createI18n({ locale: 'en' })
+    await i18n.loadFromUrl('/en.json')
+    expect(i18n.storage.translations.get('en:index')).toBe(body)
+
+    i18n.addTranslations('en', { a: { c: 'c' } })
+    expect(i18n.t('a')).toEqual({ b: 'b', c: 'c' })
+    expect(body).toEqual({ a: { b: 'b' } })
+
+    await i18n.loadFromUrl('/en.json')
+    expect(i18n.t('a.c')).toBe('c')
+  })
+
+  test('__proto__ in a fetched chunk is nothing, and reaches no prototype', async () => {
+    const body = JSON.parse('{"__proto__":{"polluted":"yes"},"ok":"ok"}')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, json: async () => body })),
+    )
+    const i18n = createI18n({ locale: 'en', missingWarn: false })
+    await i18n.loadFromUrl('/en.json')
+    expect(i18n.t('ok')).toBe('ok')
+    expect(i18n.t('__proto__.polluted')).toBe('__proto__.polluted')
+    expect(i18n.t('polluted')).toBe('polluted')
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+  })
+
   test('loadFromUrl with routeName', async () => {
     vi.stubGlobal(
       'fetch',

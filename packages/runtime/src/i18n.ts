@@ -200,8 +200,7 @@ export class I18n extends BaseI18n {
 
   public async loadFromUrl(url: string, options: LoadFromUrlOptions = {}): Promise<void> {
     const locale = options.locale ?? this.getLocale()
-    const translations = await fetchJsonTranslations(url, options.init)
-    this.addRouteTranslations(locale, options.routeName || 'index', translations)
+    this.addFetched(locale, options.routeName || 'index', await fetchJsonTranslations(url, options.init))
   }
 
   /** All or nothing: a failed fetch leaves the dictionaries as they were. Merged in entry order. */
@@ -209,8 +208,13 @@ export class I18n extends BaseI18n {
     const loaded = await Promise.all(entries.map((entry) => fetchJsonTranslations(entry.url, entry.init)))
     loaded.forEach((translations, index) => {
       const entry = entries[index]!
-      this.addRouteTranslations(entry.locale, entry.routeName || 'index', translations)
+      this.addFetched(entry.locale, entry.routeName || 'index', translations)
     })
+  }
+
+  /** A parsed response belongs to nobody else, so a new chunk takes it as it is. The copy of a merge is for a caller's objects. */
+  private addFetched(locale: string, routeName: string, translations: Translations): void {
+    this.addRouteTranslations(locale, routeName, translations, this.helper.hasCache(locale, routeName))
   }
 
   public addTranslations(locale: string, translations: Translations, merge = true): void {

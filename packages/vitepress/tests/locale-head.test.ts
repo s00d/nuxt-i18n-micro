@@ -23,7 +23,7 @@ describe('buildVitePressLocaleHead', () => {
       defaultLocale: 'en',
     })
     expect(built.htmlAttrs.lang).toBe('fr-FR')
-    expect(built.htmlAttrs.dir).toBe('auto')
+    expect(built.htmlAttrs.dir).toBeUndefined()
     expect(built.head).toEqual([])
   })
 

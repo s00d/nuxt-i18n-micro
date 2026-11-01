@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
 | `FormatService` | class | 21 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 65 members |
+| `I18n` | class | 66 members |
 | `I18nOptions` | interface | 13 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadFromUrlEntry` | interface | 4 members |
@@ -39,12 +39,13 @@ import { /* … */ } from '@i18n-micro/runtime'
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
 
 <details>
-<summary><code>I18n</code> — 65 members</summary>
+<summary><code>I18n</code> — 66 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |
+| `addFetched` | `private (locale: string, routeName: string, translations: Translations) => void` |
 | `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |

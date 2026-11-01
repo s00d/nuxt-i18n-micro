@@ -180,7 +180,7 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   unmount = () => wrapper.unmount()
 
   expect(head().metaObject.value).toEqual({
-    htmlAttrs: { lang: 'de-DE', dir: 'auto' },
+    htmlAttrs: { lang: 'de-DE' },
     meta: [
       { id: 'i18n-og', property: 'og:locale', content: 'de_DE' },
       { id: 'i18n-og-url', property: 'og:url', content: 'https://shop.test/de/products' },
@@ -217,7 +217,7 @@ test('useLocaleHead builds lang, dir, canonical, hreflang and og tags for the cu
   await router.push('/?page=2&utm=x')
   head().updateMeta(['page'])
   expect(router.currentRoute.value.path).toBe('/')
-  expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'en-US', dir: 'auto' })
+  expect(head().metaObject.value.htmlAttrs).toEqual({ lang: 'en-US' })
   expect(head().metaObject.value.link[0]).toEqual({ id: 'i18n-can', rel: 'canonical', href: 'https://shop.test/?page=2' })
   expect(head().metaObject.value.link.at(-1)).toEqual({ id: 'i18n-xd', rel: 'alternate', href: 'https://shop.test/?page=2', hreflang: 'x-default' })
   expect(warn).not.toHaveBeenCalled()

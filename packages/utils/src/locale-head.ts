@@ -93,6 +93,25 @@ export function joinBase(base: string, path: string): string {
   return `${trimTrailingSlashes(base)}/${path.replace(/^[/\\\t\n\r]+/, '')}`
 }
 
+/** A script subtag of a language tag: it decides over the language (`az-Arab` is RTL, `ar-Latn` is not). */
+const SCRIPT_SUBTAG = /[-_]([a-z]{4})(?=[-_]|$)/i
+const RTL_SCRIPT = /^(?:adlm|arab|hebr|mand|nkoo|rohg|samr|syrc|thaa)$/i
+/** Languages written right to left in their default script. */
+const RTL_LANGUAGE = /^(?:ar|arc|ckb|dv|fa|he|iw|ji|lrc|mzn|nqo|ps|sd|syr|ug|ur|yi)(?:[-_]|$)/i
+
+function isRtlTag(tag: string): boolean {
+  const script = SCRIPT_SUBTAG.exec(tag)?.[1]
+  return script ? RTL_SCRIPT.test(script) : RTL_LANGUAGE.test(tag)
+}
+
+/**
+ * The configured `dir`, or `rtl` for a language known to need it. Nothing else: a browser's default is `ltr`, and
+ * `dir="auto"` on `<html>` makes its parser look for a strong character, which goes superlinear on a large page.
+ */
+function localeDir(locale: Locale): LocaleHeadAttrs['dir'] {
+  return locale.dir || (isRtlTag(locale.iso || locale.code) ? 'rtl' : undefined)
+}
+
 /**
  * The SEO head of a page: `lang`/`dir`, canonical, `hreflang`, `x-default` and the `og:` tags.
  * Pure: every adapter says what its router knows and all of them emit the same tags.
@@ -100,7 +119,9 @@ export function joinBase(base: string, path: string): string {
 export function buildLocaleHead(input: LocaleHeadInput): LocaleHead {
   const { locale, seoLocales, hrefOf, canonical, xDefault, alternates = true, addDirAttribute = true, addSeoAttributes = true } = input
   const { identifierAttribute: id = 'id', hreflangBaseLanguage = false, missingWarn = true } = input
-  const htmlAttrs: LocaleHeadAttrs = { lang: locale.iso || locale.code, ...(addDirAttribute ? { dir: locale.dir || 'auto' } : {}) }
+  const htmlAttrs: LocaleHeadAttrs = { lang: locale.iso || locale.code }
+  const dir = addDirAttribute ? localeDir(locale) : undefined
+  if (dir) htmlAttrs.dir = dir
   if (!addSeoAttributes) return { htmlAttrs, link: [], meta: [] }
 
   const meta: LocaleHeadMeta[] = []

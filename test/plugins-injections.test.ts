@@ -8,7 +8,8 @@ import type { NuxtApp, RuntimeNuxtHooks } from '#app'
 import type { ModuleRuntimeHooks } from '../src/module'
 import type { PluginsInjectionsWithAliases } from '../src/runtime/composables/useI18n'
 import type { NuxtAppOnlyInjections, PluginsInjections, TranslationFn } from '../src/runtime/plugins/01.plugin'
-import type { createNuxtI18nPluginApi, NuxtI18n, NuxtI18nPluginProvide } from '../src/runtime/utils/nuxt-i18n'
+import type { createNuxtI18nPluginApi, NuxtI18nPluginProvide } from '../src/runtime/utils/i18n-api'
+import type { NuxtI18n } from '../src/runtime/utils/nuxt-i18n'
 
 // Type contracts: these assert only under `vitest --typecheck` (the unit project enables it).
 type P = PluginsInjections
@@ -59,7 +60,7 @@ describe('PluginsInjections typing', () => {
   })
 
   /**
-   * `NuxtAppOnlyInjections` describes `$defineI18nRoute`, provided by `03.define`, and exists to
+   * `NuxtAppOnlyInjections` describes `$defineI18nRoute`, provided by the loader plugin, and exists to
    * generate the reference page: a drifted signature documents a call that does not compile.
    */
   it('NuxtAppOnlyInjections follows what is actually provided', () => {
@@ -85,10 +86,10 @@ describe('PluginsInjections typing', () => {
   })
 
   // the option's JSDoc feeds the generated options reference: it named two hooks nothing calls
-  it('the `hooks` option documents only hooks the hooks plugin calls', () => {
+  it('the `hooks` option documents only hooks the loader plugin calls', () => {
     const types = readFileSync(new URL('../packages/types/src/index.ts', import.meta.url), 'utf8')
     const doc = types.slice(0, types.indexOf('hooks?: boolean')).split('/**').pop()!
-    const plugin = readFileSync(new URL('../src/runtime/plugins/05.hooks.ts', import.meta.url), 'utf8')
+    const plugin = readFileSync(new URL('../src/runtime/utils/i18n-navigation.ts', import.meta.url), 'utf8')
     const named = [...doc.matchAll(/`(i18n:[\w-]+)`/g)].map((match) => match[1])
     expect(named).toEqual(['i18n:register'])
     for (const hook of named) expect(plugin).toContain(`'${hook}'`)

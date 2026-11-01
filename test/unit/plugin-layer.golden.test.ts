@@ -4,12 +4,10 @@
  */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import plugin from '../../src/runtime/plugins/01.plugin'
-import hooksPlugin from '../../src/runtime/plugins/05.hooks'
-import definePlugin from '../../src/runtime/plugins/03.define'
 import metaPlugin from '../../src/runtime/plugins/02.meta'
 import { translationStorage } from '../../src/runtime/utils/storage'
 import type { Strategy } from '../helpers/routing-matrix'
-import { type App, type AppOptions, cookieState, createApp, hydrate, runPlugin, type Side, stateOf } from './plugin-harness'
+import { type App, type AppOptions, cookieState, createApp, hydrate, runPlugin, type Side, stateOf, stub } from './plugin-harness'
 
 vi.mock('#imports', async () => (await import('./plugin-harness')).stub)
 
@@ -103,13 +101,19 @@ describe('boot', () => {
       ['disablePageLocales client', { side: 'client', strategy: 'prefix', url: '/de/about', config: { disablePageLocales: true } }],
       ['preload on index', { side: 'server', strategy: 'prefix', url: '/de', detected: 'de', preloaded: { own_index: 'seeded', shared: 'seeded' } }],
       ['preload on a page', { side: 'server', strategy: 'prefix', url: '/de/about', detected: 'de', preloaded: { own_index: 'seeded' } }],
-      ['preload of another locale', { side: 'server', strategy: 'no_prefix', url: '/', detected: 'en', state: 'de', preloaded: { own_index: 'seeded' } }],
+      [
+        'preload of another locale',
+        { side: 'server', strategy: 'no_prefix', url: '/', detected: 'en', state: 'de', preloaded: { own_index: 'seeded' } },
+      ],
       ['empty preload', { side: 'server', strategy: 'prefix', url: '/de', detected: 'de', preloaded: {} }],
       ['failed first load, server', { side: 'server', strategy: 'prefix', url: '/de/about', detected: 'de', failing: new Set(['de:about']) }],
       ['failed first load, client', { side: 'client', strategy: 'prefix', url: '/de/about', failing: new Set(['de:about']) }],
       ['failed first load and root', { side: 'client', strategy: 'prefix', url: '/de/about', failing: new Set(['de:about', 'de:__root']) }],
       ['hash, a detected shell', { side: 'spa', strategy: 'prefix', hashMode: true, url: '/', config: { autoDetectLanguage: true } }],
-      ['hash, a shell with a cookie', { side: 'spa', strategy: 'prefix', hashMode: true, url: '/', cookie: 'fr', config: { autoDetectLanguage: true } }],
+      [
+        'hash, a shell with a cookie',
+        { side: 'spa', strategy: 'prefix', hashMode: true, url: '/', cookie: 'fr', config: { autoDetectLanguage: true } },
+      ],
       ['hash, the locale in the hash', { side: 'client', strategy: 'prefix', hashMode: true, url: '/de', state: 'en' }],
     ]
     vi.stubGlobal('navigator', { languages: ['fr', 'en'] })
@@ -134,7 +138,10 @@ interface Step {
   run(a: App, variant: Variant): Promise<unknown>
 }
 
-const pushTo = (locale: string, page: string): Step['run'] => (a, variant) => a.router.push(urlOf(variant, locale, page))
+const pushTo =
+  (locale: string, page: string): Step['run'] =>
+  (a, variant) =>
+    a.router.push(urlOf(variant, locale, page))
 
 const NAVIGATIONS: Step[] = [
   { label: 'another page', run: pushTo('en', '/') },
@@ -143,30 +150,45 @@ const NAVIGATIONS: Step[] = [
   { label: 'same path, a query', run: (a, variant) => a.router.push(`${urlOf(variant, 'en', '/about')}?q=1`) },
   { label: 'same route, another param', run: pushTo('en', '/news/2') },
   { label: 'no such page', run: (a) => a.router.push('/en/nope/nope') },
-  { label: 'a later guard aborts', run: async (a, variant) => {
+  {
+    label: 'a later guard aborts',
+    run: async (a, variant) => {
       const stop = a.router.beforeEach(() => false)
       const failure = await a.router.push(urlOf(variant, 'de', '/'))
       stop()
       return failure
-    } },
-  { label: 'a chunk fails', run: async (a, variant) => {
+    },
+  },
+  {
+    label: 'a chunk fails',
+    run: async (a, variant) => {
       a.options.failing = new Set(['de:index'])
       return a.router.push(urlOf(variant, 'de', '/'))
-    } },
+    },
+  },
   { label: '$switchLocale', run: (a) => a.nuxtApp.$switchLocale('de') },
-  { label: '$switchLocale, chunk fails', run: async (a) => {
+  {
+    label: '$switchLocale, chunk fails',
+    run: async (a) => {
       a.options.failing = new Set(['de:about'])
       return a.nuxtApp.$switchLocale('de')
-    } },
+    },
+  },
   { label: '$switchLocale, unknown', run: (a) => a.nuxtApp.$switchLocale('xx') },
-  { label: 'params, then a new page', run: async (a, variant) => {
+  {
+    label: 'params, then a new page',
+    run: async (a, variant) => {
       a.nuxtApp.$setI18nRouteParams({ de: { id: 'x' } })
       return a.router.push(urlOf(variant, 'en', '/'))
-    } },
-  { label: 'params, then a query', run: async (a, variant) => {
+    },
+  },
+  {
+    label: 'params, then a query',
+    run: async (a, variant) => {
       a.nuxtApp.$setI18nRouteParams({ de: { id: 'x' } })
       return a.router.push(`${urlOf(variant, 'en', '/about')}?q=1`)
-    } },
+    },
+  },
 ]
 
 const describeResult = (value: unknown) => {
@@ -208,7 +230,6 @@ async function subscribed(variant: Variant, url: string, late = false) {
     })
   if (!late) subscribe()
   await runPlugin(plugin)
-  await runPlugin(hooksPlugin)
   await hydrate(a)
   if (late) subscribe()
   return { a, calls }
@@ -221,7 +242,9 @@ describe('i18n:register', () => {
       translationStorage.clear()
       const { a, calls } = await subscribed(variant, urlOf(variant, 'en', '/about'))
       const log = (label: string) => {
-        lines.push(`${variant.label} ${label} → calls=[${calls}] locale=${a.nuxtApp.$getLocale()} route=${a.nuxtApp.$getRouteName()} reg="${a.nuxtApp.$t('reg')}"`)
+        lines.push(
+          `${variant.label} ${label} → calls=[${calls}] locale=${a.nuxtApp.$getLocale()} route=${a.nuxtApp.$getRouteName()} reg="${a.nuxtApp.$t('reg')}"`,
+        )
         calls.length = 0
       }
       log('start')
@@ -255,7 +278,7 @@ describe('i18n:register', () => {
       register({ other: 'other' }, 'fr')
     })
     await runPlugin(plugin)
-    await runPlugin(hooksPlugin)
+    await hydrate(server)
     expect(server.nuxtApp.$t('reg')).toBe('reg de')
     expect(server.loads).toEqual(['de:about', 'fr:about'])
     expect(server.nuxtApp.$t('shared')).toBe('de shared')
@@ -275,13 +298,68 @@ function surface(a: App) {
   ].join('\n')
 }
 
+describe('i18n:register without a subscriber', () => {
+  test('no call and no merge, on start and on navigation', async () => {
+    const a = await createApp({ side: 'client', strategy: 'prefix', url: '/en/about' })
+    const callHook = vi.spyOn(a.nuxtApp, 'callHook')
+    await runPlugin(plugin)
+    await hydrate(a)
+    await a.router.push('/en')
+    expect(callHook.mock.calls.map(([name]) => name)).not.toContain('i18n:register')
+  })
+
+  test('`hooks: false`: a subscriber is not called', async () => {
+    stub.hooks = false
+    try {
+      const { a, calls } = await subscribed(VARIANTS[0]!, '/en/about')
+      await a.router.push('/en')
+      expect(calls).toEqual([])
+    } finally {
+      stub.hooks = true
+    }
+  })
+
+  test('a subscriber that throws stops the navigation', async () => {
+    const { a } = await subscribed(VARIANTS[0]!, '/en/about')
+    a.nuxtApp.hook('i18n:register', () => {
+      throw new Error('subscriber')
+    })
+    await expect(a.router.push('/en')).rejects.toThrow('subscriber')
+    expect(a.router.currentRoute.value.path).toBe('/en/about')
+  })
+})
+
+describe('$defineI18nRoute', () => {
+  test('merges the translations of the locale, again on a switch; the build-time forms do nothing', async () => {
+    const a = await createApp({ side: 'client', strategy: 'no_prefix', url: '/about' })
+    await runPlugin(plugin)
+    await hydrate(a)
+    const { $defineI18nRoute } = a.nuxtApp
+    await $defineI18nRoute({ locales: ['en', 'de'] })
+    await $defineI18nRoute({})
+    await $defineI18nRoute({ locales: { en: { page: 'en page' }, de: { page: 'de page' } } })
+    expect(a.nuxtApp.$t('page')).toBe('en page')
+    await a.nuxtApp.$switchLocale('de')
+    await vi.waitFor(() => expect(a.nuxtApp.$t('page')).toBe('de page'))
+  })
+
+  test('`define: false` provides nothing', async () => {
+    stub.defineRoute = false
+    try {
+      const a = await createApp({ side: 'client', strategy: 'prefix', url: '/en/about' })
+      await runPlugin(plugin)
+      expect(a.nuxtApp.$defineI18nRoute).toBeUndefined()
+    } finally {
+      stub.defineRoute = true
+    }
+  })
+})
+
 describe('provide', () => {
   test('the surface of the app', async () => {
     const a = await createApp({ side: 'client', strategy: 'prefix', url: '/en/about' })
     await runPlugin(plugin)
-    await runPlugin(hooksPlugin)
     await runPlugin(metaPlugin)
-    await runPlugin(definePlugin)
     await expect(surface(a) + '\n').toMatchFileSnapshot('__golden__/plugin-provide.md')
   })
 
@@ -309,7 +387,14 @@ describe('head', () => {
   test('<html> of every locale', async () => {
     const lines: string[] = []
     for (const locale of LOCALES) {
-      const a = await createApp({ side: 'server', strategy: 'no_prefix', url: '/', state: locale.code, unlocalized: true, config: { locales: LOCALES as never } })
+      const a = await createApp({
+        side: 'server',
+        strategy: 'no_prefix',
+        url: '/',
+        state: locale.code,
+        unlocalized: true,
+        config: { locales: LOCALES as never },
+      })
       await runPlugin(plugin)
       await runPlugin(metaPlugin)
       const getter = a.heads.find((head) => typeof head === 'function') as () => { htmlAttrs: object }

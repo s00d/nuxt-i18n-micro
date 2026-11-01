@@ -8,21 +8,21 @@ import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 
 const renderApi = { h, Fragment }
 
+/** One per `$t`, so one per app: its helpers never change, and a page can hold thousands of these. */
+const hosts = new WeakMap<object, TextHost>()
+
+function hostOf(injections: PluginsInjections): TextHost {
+  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc, $pluralLocale } = injections
+  // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
+  const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, getLocale: $getLocale, pluralFunc: $pluralFunc, pluralLocale: $pluralLocale }
+  hosts.set($t, host as unknown as TextHost)
+  return host as unknown as TextHost
+}
+
 /** Stateless, so functional: no instance per translation on a page of them. */
 const render: FunctionalComponent<I18nTRenderProps> = (props, { slots, attrs }) => {
-  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc, $pluralLocale } = useNuxtApp() as unknown as PluginsInjections
-  // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
-  const host = {
-    t: $t,
-    tc: $tc,
-    tn: $tn,
-    td: $td,
-    tdr: $tdr,
-    getLocale: $getLocale,
-    pluralFunc: $pluralFunc,
-    pluralLocale: $pluralLocale,
-  } as unknown as TextHost
-  return renderI18nT(renderApi, host, props, slots as RenderSlots, attrs) as VNode
+  const injections = useNuxtApp() as unknown as PluginsInjections
+  return renderI18nT(renderApi, hosts.get(injections.$t) ?? hostOf(injections), props, slots as RenderSlots, attrs) as VNode
 }
 
 /**

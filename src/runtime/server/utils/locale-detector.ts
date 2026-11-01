@@ -6,9 +6,10 @@ import { configForHost } from '@i18n-micro/utils/domains'
 import { firstQueryValue, localeFromPath, resolveLocale } from '@i18n-micro/utils/resolve-locale'
 import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
-import { getCookie, getHeader, getQuery, getRequestHost, getRequestURL } from 'h3'
+import { getCookie, getHeader, getQuery, getRequestHost } from 'h3'
 import { domains, getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
+import { requestURL } from '../../utils/request-url'
 
 // ponytail: env is read once per process (Nitro's env does not change while it runs); a
 // runtime env switch needs a restart, as for the rest of runtimeConfig.
@@ -70,7 +71,7 @@ export function detectRequestLocale(event: H3Event, config: DetectionConfig, mod
 function urlLocale(event: H3Event, mode: RequestLocaleMode, path: string | undefined, validLocales: string[], unprefixed: string | null) {
   const param = firstQueryValue(event.context.params?.locale)
   if (mode === 'api' && param && validLocales.includes(param)) return param
-  const prefix = localeFromPath(path ?? withoutAppBaseURL(getRequestURL(event).pathname, useRuntimeConfig(event).app.baseURL), validLocales)
+  const prefix = localeFromPath(path ?? withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig(event).app.baseURL), validLocales)
   return prefix ?? (mode === 'page' ? unprefixed : null)
 }
 

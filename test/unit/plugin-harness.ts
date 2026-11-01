@@ -8,7 +8,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { createHooks } from 'hookable'
 import type { NuxtPage } from '@nuxt/schema'
 import { vi } from 'vitest'
-import { computed, ref, shallowRef, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import type { Router } from 'vue-router'
 import { createAppRouter, generate, type Strategy } from '../helpers/routing-matrix'
 
@@ -117,6 +117,9 @@ export const stub = {
     } as ConstructorParameters<typeof I18nPathStrategy>[0]),
   domains: false,
   cookies: true,
+  // read at runtime here, unlike the build's constants: a test turns them off
+  hooks: true,
+  defineRoute: true,
   plural: (_key: string, count: number, _params: unknown, _locale: string, t: (key: string) => unknown) => t(count === 1 ? 'one' : 'many'),
 }
 
@@ -148,6 +151,12 @@ function fakeNuxtApp(a: App): Record<string, any> {
     ssrContext: options.side === 'server' ? { event: { context: { i18n: context } } } : undefined,
     $config: { public: {} },
   }
+  // the router plugin's own: the first route is replaced, with no name
+  if (options.side !== 'server') {
+    hooks.hookOnce('app:created', (async () => {
+      await a.router.replace({ path: a.router.currentRoute.value.fullPath, force: true })
+    }) as never)
+  }
   return nuxtApp
 }
 
@@ -166,7 +175,11 @@ export async function runPlugin(plugin: unknown, nuxtApp = app().nuxtApp) {
   provide(nuxtApp, (result as { provide?: Record<string, unknown> } | undefined)?.provide)
 }
 
-const LOCALES = [{ code: 'en', iso: 'en-US' }, { code: 'de', iso: 'de-DE' }, { code: 'fr', iso: 'fr-FR' }]
+const LOCALES = [
+  { code: 'en', iso: 'en-US' },
+  { code: 'de', iso: 'de-DE' },
+  { code: 'fr', iso: 'fr-FR' },
+]
 
 /** One app, routed to `url` as Nuxt's router plugin leaves it for ours: on the server pushed, in the browser ready. */
 export async function createApp(options: AppOptions): Promise<App> {
@@ -207,16 +220,13 @@ export async function createApp(options: AppOptions): Promise<App> {
   return a
 }
 
-/** Nuxt's `app:created`: on the client the first route is replaced, with no name, once the plugins ran. */
+/** What Nuxt does once the plugins ran. On the client its router comes first in `app:created`: see `fakeNuxtApp`. */
 export async function hydrate(a: App = app()) {
+  await a.nuxtApp.callHook('app:created')
   if (a.options.side === 'server') return
-  const { fullPath } = a.router.currentRoute.value
-  await a.router.replace({ path: fullPath, force: true })
   a.nuxtApp.isHydrating = false
   await a.nuxtApp.callHook('app:suspense:resolve')
 }
 
 export const cookieState = (a: App = app()) => JSON.stringify(a.cookies)
 export const stateOf = (a: App = app()) => (a.state.get('i18n-locale')?.value as string | null | undefined) ?? '-'
-
-export { computed, shallowRef }

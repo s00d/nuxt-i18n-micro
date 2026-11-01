@@ -102,9 +102,9 @@ Parts of the module you can switch off.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `define` | `boolean` | `true` | Register the plugin that provides `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages either way. |
+| `define` | `boolean` | `true` | Provide `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages either way. |
 | `plugin` | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers. |
-| `hooks` | `boolean` | `true` | Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on navigation so plugins can add translations. |
+| `hooks` | `boolean` | `true` | Call the `i18n:register` app hook on load and on navigation so plugins can add translations. |
 | `components` | `boolean` | `true` | Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`). Set to `false` to disable automatic component registration (e.g. if you don't use them and want to reduce the module footprint). |
 | `types` | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files. |
 | `debug` | `boolean` | `false` | Enable verbose debug logging for locale detection, route generation, and translation loading. |
@@ -158,7 +158,7 @@ Each entry is a `Locale` object:
 | `code` | `string` | **Required.** URL segment and file name (`en`, `de-at`). |
 | `iso` | `string` | BCP-47 tag for `<html lang>`, `hreflang`, plurals and `$tn` / `$td` / `$tdr` (`en-US`). |
 | `displayName` | `string` | Label in `<i18n-switcher>` and `$getLocaleName()`. |
-| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `<html dir>`. |
+| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `<html dir>`. Without it, known RTL languages get `rtl` and every other locale gets no attribute. See [SEO](/guide/seo#text-direction). |
 | `disabled` | `boolean` | Excluded from routes, payloads and switching. Its prefix is a 404, and links to it stay on the page. |
 | `fallbackLocale` | `string` | Fallback for this locale; overrides the global `fallbackLocale`. |
 | `seo` | `boolean` | `false` leaves the locale out of `hreflang` and `og:locale:alternate`. |
@@ -806,8 +806,8 @@ Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`,
 
 **Type** `boolean` · **Default** `true`
 
-Register the plugin that provides `$defineI18nRoute()` at runtime. The build reads
-`$defineI18nRoute()` calls in pages either way.
+Provide `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages
+either way.
 
 <!-- /generated:option:define -->
 
@@ -817,8 +817,7 @@ Register the plugin that provides `$defineI18nRoute()` at runtime. The build rea
 
 **Type** `boolean` · **Default** `true`
 
-Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
-navigation so plugins can add translations.
+Call the `i18n:register` app hook on load and on navigation so plugins can add translations.
 
 <!-- /generated:option:hooks -->
 

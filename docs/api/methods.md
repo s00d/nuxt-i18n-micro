@@ -557,7 +557,7 @@ Load translations for a page at runtime, for content whose keys are not known at
 
 <!-- /generated:method:$loadPageTranslations -->
 
-Merges into the in-memory `(locale, routeName)` chunk; no payload is fetched, so a chunk that is not loaded starts from these translations alone. The screen updates when that chunk is active.
+Merges into the in-memory `(locale, routeName)` chunk, and the screen updates when that chunk is active. No payload is fetched here: for a page not loaded yet the translations wait, and when its file loads they stay on top of it.
 
 ```ts
 await $loadPageTranslations('en', 'about', { title: 'About us' })

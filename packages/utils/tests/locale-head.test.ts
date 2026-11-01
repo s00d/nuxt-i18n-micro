@@ -67,7 +67,7 @@ describe('buildLocaleHead', () => {
 
   it('emits canonical, hreflang, x-default and og tags', () => {
     expect(buildLocaleHead(base)).toEqual({
-      htmlAttrs: { lang: 'en-US', dir: 'auto' },
+      htmlAttrs: { lang: 'en-US' },
       meta: [
         { id: 'i18n-og', property: 'og:locale', content: 'en_US' },
         { id: 'i18n-og-url', property: 'og:url', content: '/en' },
@@ -80,6 +80,32 @@ describe('buildLocaleHead', () => {
         { id: 'i18n-xd', rel: 'alternate', href: '/en', hreflang: 'x-default' },
       ],
     })
+  })
+
+  it.each([
+    [{ code: 'en', iso: 'en-US' }, undefined],
+    [{ code: 'tr' }, undefined],
+    [{ code: 'arn' }, undefined],
+    [{ code: 'ar' }, 'rtl'],
+    [{ code: 'x', iso: 'ar-SA' }, 'rtl'],
+    [{ code: 'x', iso: 'ar_AE' }, 'rtl'],
+    [{ code: 'he' }, 'rtl'],
+    [{ code: 'fa-IR' }, 'rtl'],
+    [{ code: 'ur', iso: 'ur-PK' }, 'rtl'],
+    [{ code: 'az-Arab' }, 'rtl'],
+    [{ code: 'pa-Arab-PK' }, 'rtl'],
+    [{ code: 'ar-Latn' }, undefined],
+    [{ code: 'az-Latn' }, undefined],
+    [{ code: 'ar', dir: 'ltr' }, 'ltr'],
+    [{ code: 'en', dir: 'rtl' }, 'rtl'],
+    [{ code: 'en', dir: 'auto' }, 'auto'],
+  ] as [Locale, string | undefined][])('dir of %j is %s', (locale, dir) => {
+    expect(buildLocaleHead({ ...base, locale }).htmlAttrs.dir).toBe(dir)
+    expect('dir' in buildLocaleHead({ ...base, locale }).htmlAttrs).toBe(dir !== undefined)
+  })
+
+  it('no dir at all when it is not asked for', () => {
+    expect(buildLocaleHead({ ...base, locale: { code: 'ar', dir: 'rtl' }, addDirAttribute: false }).htmlAttrs).toEqual({ lang: 'ar' })
   })
 
   it('stops at htmlAttrs without SEO tags', () => {

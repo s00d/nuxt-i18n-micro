@@ -26,12 +26,12 @@ The hook is typed through `RuntimeNuxtHooks`, so `nuxtApp.hook('i18n:register', 
 
 ## When it fires
 
-The hooks plugin (`i18n-plugin-hooks`, after `i18n-plugin-loader`) calls it:
+The loader plugin (`i18n-plugin-loader`) calls it:
 
-1. once on startup, after the first page's translations are loaded;
-2. in `router.beforeEach` when the path changes — on every navigation under `no_prefix`.
+1. once on startup, when every plugin has run (`app:created`) and before the app renders;
+2. in its `router.beforeEach`, after the target page's translations are loaded, when the path changes — on every navigation under `no_prefix`.
 
-The plugin awaits every callback and every `register` call before the navigation goes on, so the page renders with the merged keys. [`hooks: false`](/api/module-options#hooks) removes the plugin and the hook is never called.
+Every callback and every `register` call is awaited before the app renders or the navigation goes on, so the page renders with the merged keys. With [`hooks: false`](/api/module-options#hooks) the hook is never called.
 
 ## Example
 

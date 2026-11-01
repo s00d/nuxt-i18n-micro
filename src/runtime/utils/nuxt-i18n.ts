@@ -1,17 +1,14 @@
 import {
   BaseI18n,
   FormatService,
-  isNoPrefixStrategy,
   mergeTranslationChunk,
   resolveCachedTranslation,
   setTranslationAtKey,
-  textOf,
   translationCacheKey,
   type BaseI18nOptions,
   type TranslationStorage,
 } from '@i18n-micro/core'
-import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
-import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
 /**
  * Merging is for *patches* only — `$mergeTranslations`, `$loadPageTranslations` — where the
  * input is a fragment of a tree and everything it does not mention has to survive. Patches
@@ -24,60 +21,10 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
-import { hasProtocol } from 'ufo'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
-import type {
-  RouteLocationNamedRaw,
-  RouteLocationNormalizedLoaded,
-  RouteLocationRaw,
-  RouteLocationResolved,
-  RouteLocationResolvedGeneric,
-  Router,
-} from 'vue-router'
-import type { GetLocaleFromRoute } from '../composables/useI18nLocale'
 import { type LoadOptions, translationStorage } from './storage'
-import { applyTrailingSlash } from './trailing-slash'
 
 export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
-
-interface LocaleRouteResult {
-  name?: string | symbol | null
-  params?: Record<string, unknown>
-  path?: string
-  fullPath?: string
-  query?: Record<string, unknown>
-  hash?: string
-}
-
-/**
- * The strategy's result as a resolved location. `name` and `params` are kept: NuxtLink and
- * router.push resolve a named location with a Map lookup instead of matching the path.
- * A route the strategy left without them goes by its path.
- */
-function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
-  const fullPath = result.fullPath ?? result.path ?? ''
-  const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
-  const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
-  if (result.name) out.name = result.name
-  if (result.params && Object.keys(result.params).length) out.params = result.params
-  if (result.query && Object.keys(result.query).length) out.query = result.query
-  if (result.hash) out.hash = result.hash
-  return out as unknown as RouteLocationResolved
-}
-
-/** A URL by its explicit scheme. Not `//host` or a bare `x.yy`: such strings can come from a request, and stay paths. */
-const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
-
-/** `NavigationFailureType.duplicated`. */
-const DUPLICATED = 16
-
-/** Never a page, and no request can send a visitor elsewhere with one. */
-const APP_SCHEME = /^(?:mailto:|tel:)/i
-
-/** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
-export function switchedPath(switched: RouteLike | string): string {
-  return typeof switched === 'string' ? switched : (switched.fullPath ?? switched.path ?? '')
-}
 
 export interface RouteTranslationContext {
   locale: string
@@ -116,8 +63,8 @@ export function formatterFor(config: ModuleOptionsExtend): FormatService {
 export class NuxtI18n extends BaseI18n {
   readonly storage: TranslationStorage
   private readonly cacheMaxSize: number
-  private readonly contextSignal: ShallowRef<number>
-  private cachedTranslations: Record<string, unknown> = {}
+  protected readonly contextSignal: ShallowRef<number>
+  protected cachedTranslations: Record<string, unknown> = {}
   /**
    * Hot-reload buffer for page transitions: the leaving page's chunk, kept until it unmounts.
    *
@@ -127,6 +74,8 @@ export class NuxtI18n extends BaseI18n {
   private outgoingTranslations: Record<string, unknown> | null = null
   /** A lookup was answered from `outgoingTranslations`: only then does dropping it change a render. */
   private outgoingServed = false
+  /** Chunks that hold only what was patched in: no page's file has reached them, so to a loader they are not loaded. */
+  private readonly fragments = new Set<string>()
   private currentLocale = ''
   private currentRouteName = ''
   private resolveRouteContext?: GetRouteTranslationContext
@@ -160,17 +109,31 @@ export class NuxtI18n extends BaseI18n {
   setChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
     const key = this.getCacheKey(locale, routeName)
     this.storage.translations.set(key, data as Translations)
+    this.fragments.delete(key)
     this.evictChunks(key)
   }
 
+  /** The chunk is loaded. What a patch alone stored is a fragment, see `installChunk`. */
   hasChunk(locale: string, routeName?: string): boolean {
-    return this.storage.translations.has(this.getCacheKey(locale, routeName))
+    const key = this.getCacheKey(locale, routeName)
+    return this.storage.translations.has(key) && !this.fragments.has(key)
+  }
+
+  /**
+   * A chunk fresh from a load or the cache, under what was patched in before it came: patches win. Without any, it
+   * is stored as it is: a stored tree is never written to, so it needs no copy.
+   */
+  installChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): Record<string, unknown> {
+    const existing = this.getChunk(locale, routeName)
+    const chunk = Object.keys(existing).length ? mergeTranslationChunk(existing, data, { preserveExisting: true }) : data
+    this.setChunk(locale, routeName, chunk)
+    return chunk
   }
 
   mergeChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): Record<string, unknown> {
     const cacheKey = this.getCacheKey(locale, routeName)
-    const existing = (this.storage.translations.get(cacheKey) ?? {}) as Record<string, unknown>
-    const merged = mergeTranslationChunk(existing, data)
+    const merged = mergeTranslationChunk(this.getChunk(locale, routeName), data)
+    if (!this.storage.translations.has(cacheKey)) this.fragments.add(cacheKey)
     this.storage.translations.set(cacheKey, merged as Translations)
     this.evictChunks(cacheKey)
     return merged
@@ -263,8 +226,7 @@ export class NuxtI18n extends BaseI18n {
     this.currentRouteName = routeName || ''
     // a failed first load renders with nothing or a stand-in, but stores nothing: the next navigation loads it
     if (data && !standIn) this.setChunk(locale, routeName, data)
-    triggerRef(this.contextSignal)
-    this.notifyContextChange('load')
+    this.notifyLoaded()
   }
 
   /**
@@ -274,8 +236,7 @@ export class NuxtI18n extends BaseI18n {
   replaceDictionary(data: Record<string, unknown>): void {
     this.cachedTranslations = data
     this.setChunk(this.currentLocale, this.currentRouteName || undefined, data)
-    triggerRef(this.contextSignal)
-    this.notifyContextChange('load')
+    this.notifyLoaded()
     this.notifyContextChange('refresh')
   }
 
@@ -296,12 +257,19 @@ export class NuxtI18n extends BaseI18n {
   }
 
   /** Merge a fragment into a chunk and, when that chunk is on screen, into the active dictionary. */
-  private patch(locale: string, routeName: string, translations: Translations): void {
-    this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
+  protected patch(locale: string, routeName: string, translations: Translations): void {
+    const stored = this.storage.translations.get(this.getCacheKey(locale, routeName))
+    const merged = this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
     if (locale !== this.currentLocale || routeName !== this.currentRouteName) return
-    // The patch, not the merged chunk: the active dictionary already holds this chunk, so
-    // walking the whole thing again costs its size for the sake of a few new keys.
-    this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, translations as Record<string, unknown>)
+    // One tree on screen and in store takes the one merge. Otherwise the patch, not the merged chunk: the active
+    // dictionary already holds this chunk, so walking the whole thing again costs its size for a few new keys.
+    const onScreen = this.cachedTranslations
+    this.cachedTranslations = stored === onScreen ? merged : deepMergeTranslationsRecursive(onScreen, translations as Record<string, unknown>)
+    this.notifyLoaded()
+  }
+
+  /** The active dictionary changed: what rendered from it renders again. */
+  protected notifyLoaded(): void {
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
   }
@@ -317,7 +285,8 @@ export class NuxtI18n extends BaseI18n {
   async mergeTranslationAsync(locale: string, routeName: string, newTranslations: Translations, loadIfMissing: LoadTranslationsChunk): Promise<void> {
     if (!this.hasChunk(locale, routeName)) {
       const loaded = await loadIfMissing(locale, routeName || undefined)
-      this.setChunk(locale, routeName, loaded)
+      // a failed load answers `{}`: what the patch stores stays a fragment, and the next navigation tries again
+      if (!this.hasChunk(locale, routeName) && Object.keys(loaded).length) this.installChunk(locale, routeName, loaded)
     }
 
     this.patch(locale, routeName, newTranslations)
@@ -335,12 +304,17 @@ export class NuxtI18n extends BaseI18n {
     this.contextSignal.value
   }
 
+  /** The chunk a route reads from, when routes are known here. */
+  protected chunkKeyOf(routeContext: unknown): string | undefined {
+    if (!this.resolveRouteContext) return undefined
+    const { locale, routeName } = this.resolveRouteContext(routeContext)
+    return this.getCacheKey(locale, routeName)
+  }
+
   protected override resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
-    let translations = this.cachedTranslations
-    if (routeContext && this.resolveRouteContext) {
-      const { locale, routeName } = this.resolveRouteContext(routeContext)
-      translations = this.getChunk(locale, routeName)
-    }
+    const chunkKey = routeContext ? this.chunkKeyOf(routeContext) : undefined
+    const translations =
+      chunkKey === undefined ? this.cachedTranslations : ((this.storage.translations.get(chunkKey) ?? {}) as Record<string, unknown>)
 
     // every dictionary here is replaced, never edited: the per-tree leaf cache stays valid
     const value = resolveCachedTranslation(translations, String(key))
@@ -412,10 +386,12 @@ export class NuxtI18n extends BaseI18n {
 
   /** Drop every stored chunk but keep the dictionary on screen until a reload replaces it. */
   dropChunks(): void {
+    this.fragments.clear()
     super.clearCache()
   }
 
   public override clearCache(): void {
+    this.fragments.clear()
     super.clearCache()
     this.cachedTranslations = {}
     this.outgoingTranslations = null
@@ -458,12 +434,7 @@ export class NuxtTranslationLoader {
     }
 
     const cached = translationStorage.getFromCache(locale, routeName)
-    if (cached) {
-      i18n.setChunk(locale, routeName, cached.data)
-      return cached.data
-    }
-
-    return null
+    return cached && i18n.installChunk(locale, routeName, cached.data)
   }
 
   /** The chunk, or `{}` when the load fails (a page without translations still renders). */
@@ -480,11 +451,8 @@ export class NuxtTranslationLoader {
 
     const promise = (async () => {
       try {
-        const result = await translationStorage.load(locale, routeName, loadOptions)
-        const existing = i18n.getChunk(locale, routeName)
-        const mergedChunk = mergeTranslationChunk(existing, result.data, { preserveExisting: true })
-        i18n.setChunk(locale, routeName, mergedChunk)
-        return mergedChunk
+        const { data } = await translationStorage.load(locale, routeName, loadOptions)
+        return i18n.installChunk(locale, routeName, data)
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)
@@ -564,196 +532,3 @@ export class NuxtTranslationLoader {
     return this.fetchContext(locale, PREMERGED_ROOT_PAGE)
   }
 }
-
-export interface NuxtI18nPluginApiDeps {
-  i18n: NuxtI18n
-  loader: NuxtTranslationLoader
-  i18nStrategy: PathStrategy
-  i18nConfig: ModuleOptionsExtend
-  router: Router
-  getCurrentLocale: (route?: ResolvedRouteLike) => string
-  getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string
-  getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
-  getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
-  i18nRouteParams: { value: I18nRouteParams }
-  setLocale: (locale: string) => void
-  /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
-  setLocaleState: (locale: string) => void
-  isValidLocale: (locale: string) => boolean
-  navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
-  setMissingHandler: (handler: MissingHandler | null) => void
-  isHydrating: () => boolean
-}
-
-export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
-  const {
-    i18n,
-    loader,
-    i18nStrategy,
-    i18nConfig,
-    router,
-    getCurrentLocale,
-    getEffectiveLocale,
-    getPluginRouteName,
-    getRouteName,
-    i18nRouteParams,
-    setLocale,
-    setLocaleState,
-    isValidLocale,
-    navigateTo,
-    setMissingHandler,
-    isHydrating,
-  } = deps
-
-  const isDev = process.env.NODE_ENV !== 'production'
-  const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
-
-  /** A route object loses a trailing slash in `router.resolve`, so under a slash rule `push` takes the URL. */
-  const withSlashRule = (switched: RouteLike | string): RouteLike | string =>
-    i18nConfig.trailingSlash ? applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash) : switched
-
-  /** The current route for a link. The server never sees the hash, so the hydrating render leaves it out too. */
-  const linkRoute = (): ResolvedRouteLike => {
-    const route = router.currentRoute.value as unknown as ResolvedRouteLike
-    if (!route.hash || !isHydrating()) return route
-    return { ...route, hash: '', fullPath: route.fullPath.slice(0, route.fullPath.indexOf('#')) }
-  }
-
-  const switchedLink = (toLocale: string) => i18nStrategy.switchLocaleRoute(toLocale, linkRoute(), { i18nRouteParams: i18nRouteParams.value })
-
-  const isUrl = (to: unknown): to is string => typeof to === 'string' && URL_SCHEME.test(to)
-
-  /** `to` in the given locale, or the current one. */
-  const localized = (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) =>
-    i18nStrategy.localeRoute(locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale(), to as string | RouteLike)
-
-  const switchLocaleLogic = (toLocale: string, i18nParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) => {
-    if (typeof to === 'string' && APP_SCHEME.test(to)) return navigateTo(to, { redirectCode: 200, external: true })
-
-    // a path is read as the page it shows (any locale's form of it), then switched like a route,
-    // so per-locale params (`i18nRouteParams`) apply to it too
-    const from = typeof to === 'string' ? i18nStrategy.localeRoute(getCurrentLocale(), to) : (to ?? router.currentRoute.value)
-    const switchedRoute = i18nStrategy.switchLocaleRoute(toLocale, from as unknown as ResolvedRouteLike, {
-      i18nRouteParams: i18nParams,
-      named: isNoPrefix,
-    })
-
-    // only a locale's own domain leaves the app: a string handed to `$switchRoute` may come from a request
-    const url = switchedPath(switchedRoute)
-    const domain = i18nConfig.locales?.find((locale) => locale.code === toLocale)?.baseUrl?.replace(/\/+$/, '')
-    if (domain && (url === domain || url.startsWith(`${domain}/`))) return navigateTo(url, { redirectCode: 200, external: true })
-
-    if (isNoPrefix) {
-      // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
-      // By name with no path: pages can share a path here, and the router encodes params it is handed that way.
-      // A copy: the strategy may hand back the current route object itself.
-      const { path, fullPath, ...named } = switchedRoute as RouteLike
-      return router.replace({ ...(named.name ? named : { path, fullPath, ...named }), force: true } as RouteLocationRaw)
-    }
-
-    return router.push(withSlashRule(switchedRoute) as RouteLocationRaw)
-  }
-
-  /**
-   * Did `$switchLocale` take effect? A duplicate commits nothing, on a page with one URL for every locale
-   * (`excludePatterns`): the choice stands for the next one. Any other failure left the page as it was, and the state
-   * follows the page. An arrival in the locale is an explicit choice, on a 404 too, where a plain navigation stores nothing.
-   */
-  const settleSwitch = (toLocale: string, failure: unknown) => {
-    const type = failure instanceof Error ? (failure as Error & { type?: number }).type : undefined
-    if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getLocale())
-    else if (type === DUPLICATED || i18n.getLocale() === toLocale) setLocale(toLocale)
-  }
-
-  const helper = {
-    async mergeTranslation(locale: string, routeName: string, newTranslations: Translations): Promise<void> {
-      await i18n.mergeTranslationAsync(locale, routeName, newTranslations, (l, r) => loader.loadAsync(l, r))
-    },
-  }
-
-  const provide = {
-    i18nStrategy,
-    getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
-      getEffectiveLocale(route, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike)),
-    getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike, getCurrentLocale() ?? null),
-    defaultLocale: () => i18nConfig.defaultLocale,
-    getLocales: () => i18nConfig.locales || [],
-    getRouteName,
-    t: i18n.t.bind(i18n),
-    ts: (key: TranslationKey, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
-      const value = route ? i18n.t(key, params, defaultValue, route) : i18n.ts(key, params, defaultValue)
-      return textOf(value) ?? defaultValue ?? key
-    },
-    _t: (route: RouteLocationNormalizedLoaded) => i18n.tForRoute(route),
-    _ts: (route: RouteLocationNormalizedLoaded) => i18n.tsForRoute(route),
-    tc: i18n.tc.bind(i18n),
-    pluralFunc: i18n.pluralFunc,
-    pluralLocale: i18n.pluralLocale.bind(i18n),
-    tn: i18n.tn.bind(i18n),
-    td: i18n.td.bind(i18n),
-    tdr: i18n.tdr.bind(i18n),
-    has: i18n.has.bind(i18n),
-    resolveTranslations: i18n.resolveTranslations.bind(i18n),
-    setTranslation: i18n.setTranslation.bind(i18n),
-    mergeTranslations: i18n.mergeTranslations.bind(i18n),
-    switchLocaleRoute: (toLocale: string) => {
-      const switched = switchedLink(toLocale)
-      if (typeof switched === 'string' || !i18nConfig.trailingSlash) return switched as RouteLocationRaw
-      // the path alone: by name the router rebuilds the URL without the slash
-      const fullPath = applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
-      return { path: fullPath.split(/[?#]/)[0], fullPath, query: switched.query, hash: switched.hash } as RouteLocationRaw
-    },
-    clearCache: () => {
-      void loader.reload()
-    },
-    switchLocalePath: (toLocale: string) => applyTrailingSlash(switchedPath(switchedLink(toLocale)), i18nConfig.trailingSlash),
-    switchLocale: async (toLocale: string) => {
-      if (!isValidLocale(toLocale)) {
-        if (isDev) console.warn(`[i18n] Invalid locale '${toLocale}'`)
-        return false
-      }
-
-      // no URL to move: the dictionary is the switch. After a failed switch the URL already says
-      // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
-      const urlless = isNoPrefix || i18nConfig.hashMode
-      const retry = getCurrentLocale() === toLocale && i18n.getLocale() !== toLocale
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
-      const loaded = urlless || retry ? await loader.switchContext(toLocale, getPluginRouteName(route, toLocale)) : null
-      // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
-      if (loaded === false) return false
-
-      // Under no_prefix and hash mode the dictionary has already moved: the switch stands, whatever the navigation does.
-      // A move to another host cannot be stopped, and no commit follows here. Otherwise only the state goes ahead, as
-      // the client redirect reads it, and `settleSwitch` decides once the navigation has answered.
-      if (urlless || hasProtocol(provide.switchLocalePath(toLocale))) setLocale(toLocale)
-      else setLocaleState(toLocale)
-      try {
-        const failure = await switchLocaleLogic(toLocale, i18nRouteParams.value)
-        if (!urlless) settleSwitch(toLocale, failure)
-      } catch (error) {
-        if (!urlless) setLocaleState(i18n.getLocale())
-        throw error
-      }
-      return loaded ?? i18n.getLocale() === toLocale
-    },
-    switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
-      return switchLocaleLogic(toLocale ?? getCurrentLocale(), i18nRouteParams.value, route)
-    },
-    localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
-      return toRouteLocationResolved(isUrl(to) ? { path: to, fullPath: to } : localized(to, locale))
-    },
-    localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
-      return isUrl(to) ? to : applyTrailingSlash(switchedPath(localized(to, locale)), i18nConfig.trailingSlash)
-    },
-    setI18nRouteParams: (value: I18nRouteParams) => {
-      i18nRouteParams.value = value
-      return i18nRouteParams.value
-    },
-    loadPageTranslations: i18n.loadPageTranslations.bind(i18n),
-    setMissingHandler,
-  }
-
-  return { helper, provide }
-}
-
-export type NuxtI18nPluginProvide = ReturnType<typeof createNuxtI18nPluginApi>['provide']

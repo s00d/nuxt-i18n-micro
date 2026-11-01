@@ -10,7 +10,8 @@ import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getLocaleCookieName, getLocaleCookieOptions, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
 import { preferenceCounts, redirectLocale } from '@i18n-micro/utils/resolve-locale'
-import { appendResponseHeader, getCookie, getHeader, getRequestURL, setCookie } from 'h3'
+import { appendResponseHeader, getCookie, getHeader, setCookie } from 'h3'
+import { requestURL } from '../utils/request-url'
 import { applyTrailingSlash } from '../utils/trailing-slash'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRouter, useRuntimeConfig, useState } from '#imports'
 
@@ -28,7 +29,7 @@ export default defineNuxtPlugin({
     if (!event) return
 
     const i18nConfig = getRuntimeConfig()
-    const url = getRequestURL(event)
+    const url = requestURL(event)
     const path = withoutAppBaseURL(url.pathname, useRuntimeConfig().app.baseURL)
     const alwaysPrefixed = i18nConfig.strategy === 'prefix'
     const preferenceCookie = getPreferenceCookieName(i18nConfig)

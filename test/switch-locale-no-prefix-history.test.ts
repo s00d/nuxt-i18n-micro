@@ -3,7 +3,8 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
 import { defaultPlural } from '@i18n-micro/core'
-import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { createNuxtI18nPluginApi } from '../src/runtime/utils/i18n-api'
+import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 
 /**
  * Issue #238: under `no_prefix` the URL does not change on locale switch, so

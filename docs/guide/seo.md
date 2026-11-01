@@ -41,6 +41,14 @@ export default defineNuxtConfig({
 <meta property="og:locale:alternate" content="ar_SA">
 ```
 
+## Text direction
+
+`<html dir>` comes from the locale's `dir`. Without one, a language written right to left gets `rtl`, read from `iso` (or `code`): Arabic, Hebrew, Persian, Urdu and a few others, and any tag with an RTL script such as `az-Arab`. Every other locale gets no `dir` attribute, which browsers read as `ltr`.
+
+::: warning `dir: 'auto'` costs parse time on large pages
+`auto` on `<html>` makes the browser work out the direction from the content while it parses. In Chromium that cost grows faster than the page: about 100 ms at 5,000 elements and 1 s at 20,000. Use it only for a small page whose language you cannot know.
+:::
+
 ## Which tags you get
 
 - **hreflang**: one tag per locale that serves the page, value `iso` (or `code` when `iso` is missing), its URL with the same query as the canonical. A page restricted with [Page config](/guide/per-component-translations) or `routeLocales` lists only its locales. [`hreflangBaseLanguage: true`](/api/module-options#hreflangbaselanguage) also adds the bare language (`es-ES` → `es`) for the first regional locale.

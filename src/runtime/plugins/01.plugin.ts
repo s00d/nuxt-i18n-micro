@@ -3,6 +3,7 @@ import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import type {
   CleanTranslation,
   DefineI18nRouteConfig,
+  I18nHeadInput,
   I18nRouteParams,
   Locale,
   MissingHandler,
@@ -21,20 +22,23 @@ import type {
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
 } from 'vue-router'
-import { START_LOCATION } from 'vue-router'
 import { hasProtocol } from 'ufo'
-import { type ComponentPublicInstance, getCurrentInstance, onActivated, shallowRef } from 'vue'
+import { type Ref, type ShallowRef, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
+import type { NuxtApp } from '#app/nuxt'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 // Every plugin and middleware default export is typed through `nuxt/dist/app`, which a declaration cannot name (TS2883,
 // an empty `.d.ts`). `nuxt/app` is its public name: one import of it in the build is what tells the emit.
 import type {} from 'nuxt/app'
 import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
-import { usePageHead, usePageRoute } from '../utils/page-head'
+import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'
+import { createI18nProvide, createNuxtI18nPluginApi, type NuxtI18nPluginProvide } from '../utils/i18n-api'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
-import { createNuxtI18nPluginApi, formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { setupI18nNavigation } from '../utils/i18n-navigation'
+import { formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { ServerNuxtI18n } from '../utils/nuxt-i18n-server'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
@@ -45,21 +49,120 @@ const isDev = process.env.NODE_ENV !== 'production'
 /** The link of `<i18n-switcher>`, by its own class: no other link in the page is the switcher's to change. */
 const SWITCHER_LINK = /class="switcher-locale-([^"]+)" href="[^"]*"/g
 
-interface NavigationTarget {
-  locale: string
-  routeName: string
-  changed: boolean
-  /** The loaded chunk, null when its load failed. */
-  data: Record<string, unknown> | null
+/** The server keeps one instance per request, whose patches stay off the process's shared chunks. */
+function createI18n(i18nConfig: ModuleOptionsExtend, missingHandler: ShallowRef<MissingHandler | null>) {
+  return new (import.meta.server ? ServerNuxtI18n : NuxtI18n)({
+    plural,
+    missingWarn: i18nConfig.missingWarn ?? true,
+    cacheMaxSize: i18nConfig.cacheMaxSize ?? 0,
+    getCustomMissingHandler: () => missingHandler.value,
+    formatter: import.meta.server ? formatterFor(i18nConfig) : undefined,
+    numberFormats: i18nConfig.numberFormats,
+    datetimeFormats: i18nConfig.datetimeFormats,
+    timeZone: i18nConfig.timeZone,
+    localeIso: localeIsoMap(i18nConfig.linkLocales ?? i18nConfig.locales ?? []),
+  })
 }
 
-// Object form: `name` is what `dependsOn: ['i18n-plugin-loader']` (05, 06, 04 and apps) waits for at
+function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): LoadOptions {
+  const options: LoadOptions = {
+    apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
+    baseURL: useRuntimeConfig().app.baseURL,
+    apiBaseClientHost: i18nConfig.apiBaseClientHost,
+    dateBuild: i18nConfig.dateBuild,
+    routesLocaleLinks: i18nConfig.routesLocaleLinks,
+  }
+  if (import.meta.server) {
+    options.serverLoad = nuxtApp.ssrContext?.event?.context?.i18n?.load
+    options.serverLoadsRemote = nuxtApp.ssrContext?.event?.context?.i18n?.loadsRemote
+  }
+  return options
+}
+
+interface StartLocaleDeps {
+  nuxtApp: NuxtApp
+  i18nConfig: ModuleOptionsExtend
+  i18nStrategy: PathStrategy
+  noPrefix: boolean
+  renderLocale: string | undefined
+  initialRoute: ResolvedRouteLike
+  locale: ReturnType<typeof useI18nLocale>
+  getCurrentLocale: (route?: ResolvedRouteLike) => string
+}
+
+/** The first page's locale, and what the request said it should be. */
+function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, noPrefix, renderLocale, initialRoute, locale, getCurrentLocale }: StartLocaleDeps) {
+  const { locale: localeState, getPreferredLocale, resolveInitialLocale, isValidLocale, validLocales } = locale
+
+  // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
+  const shellLocale = () => {
+    const shell = i18nConfig.hashMode && i18nConfig.strategy === 'prefix' && !nuxtApp.payload.serverRendered
+    if (!shell || !i18nConfig.autoDetectLanguage || getPreferredLocale()) return undefined
+    return detectLocaleFromAcceptLanguage(navigator.languages.join(','), validLocales)
+  }
+
+  // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
+  // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
+  // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
+  const serverRequestLocale = () => renderLocale ?? nuxtApp.ssrContext?.event?.context?.i18n?.locale
+  const requestLocale = import.meta.server ? serverRequestLocale() : shellLocale()
+  const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
+  const pathLocale = () =>
+    noPrefix ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale) : i18nStrategy.getLocaleFromPath(initialRoute.path)
+  const initialLocale = resolveInitialLocale({
+    route: initialRoute,
+    urlLocale: i18nConfig.hashMode ? null : pathLocale(),
+    serverLocale: requestLocale,
+    preference: noPrefix ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
+    getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
+  })
+  return { initialLocale, requestLocale }
+}
+
+/**
+ * A layout's switcher renders before the page's async setup reaches `$setI18nRouteParams`, and Vue cannot wait for
+ * it. By now every answer is known: its links get what the client's first render builds from the params in the
+ * payload. Only those: a replacer, as a slug can come from the URL and `$&` means nothing here, and an escaped value,
+ * as this is an attribute. Pages with params and a switcher only.
+ */
+function rewriteSwitcherLinks(nuxtApp: NuxtApp, api: NuxtI18nPluginProvide, params: Ref<I18nRouteParams>, resolveHref: (path: string) => string) {
+  nuxtApp.hooks.hook('app:rendered', ({ renderResult }) => {
+    if (!Object.keys(params.value ?? {}).length || !renderResult?.html?.includes('class="switcher-locale-')) return
+    const codes = new Set(api.getLocales().map((locale) => locale.code))
+    renderResult.html = renderResult.html.replace(SWITCHER_LINK, (link, code: string) => {
+      if (!codes.has(code)) return link
+      const path = api.switchLocalePath(code)
+      return `class="switcher-locale-${code}" href="${escapeHtml(hasProtocol(path) ? path : resolveHref(path))}"`
+    })
+  })
+}
+
+/**
+ * Drops the page head when the page goes. Unhead adopts the server's tags in its first render, from what it resolves
+ * then: a page head dropped earlier would leave its tags in the DOM with no owner, so during hydration it goes right after.
+ */
+function createPageHeadDrop(pageHead: Ref<I18nHeadInput | null>) {
+  let headAdopted = import.meta.server
+  let headToDrop: I18nHeadInput | null = null
+  if (import.meta.client) {
+    const stop = injectHead().hooks?.hook('dom:rendered', () => {
+      stop?.()
+      headAdopted = true
+      if (pageHead.value === headToDrop) pageHead.value = null
+    })
+  }
+  return () => {
+    if (headAdopted) pageHead.value = null
+    else headToDrop = pageHead.value
+  }
+}
+
+// Object form: `name` is what `dependsOn: ['i18n-plugin-loader']` (06, 04 and apps) waits for at
 // runtime — the function form has no runtime name, so every dependsOn on it was inert.
 export default defineNuxtPlugin({
   name: 'i18n-plugin-loader',
   async setup(nuxtApp) {
     const router = useRouter()
-    const runtimeConfig = useRuntimeConfig()
     const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)
     const i18nStrategy = createI18nStrategy(router, i18nConfig)
@@ -71,33 +174,14 @@ export default defineNuxtPlugin({
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 
-    const {
-      locale: localeState,
-      setLocale,
-      getPreferredLocale,
-      getEffectiveLocale,
-      resolveInitialLocale,
-      isValidLocale,
-      validLocales,
-    } = useI18nLocale()
-
+    const locale = useI18nLocale()
+    const { locale: localeState, setLocale, getPreferredLocale, getEffectiveLocale, isValidLocale } = locale
     const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
     const pageHead = usePageHead()
     // Not useState: a function in the SSR payload makes devalue throw. Still a ref: `t` reads it
     // while rendering, so setting a handler re-renders the missing keys through it.
     const customMissingHandler = shallowRef<MissingHandler | null>(null)
-
-    const i18n = new NuxtI18n({
-      plural,
-      missingWarn: i18nConfig.missingWarn ?? true,
-      cacheMaxSize: i18nConfig.cacheMaxSize ?? 0,
-      getCustomMissingHandler: () => customMissingHandler.value,
-      formatter: import.meta.server ? formatterFor(i18nConfig) : undefined,
-      numberFormats: i18nConfig.numberFormats,
-      datetimeFormats: i18nConfig.datetimeFormats,
-      timeZone: i18nConfig.timeZone,
-      localeIso: localeIsoMap(i18nConfig.linkLocales ?? i18nConfig.locales ?? []),
-    })
+    const i18n = createI18n(i18nConfig, customMissingHandler)
 
     // An island is rendered from its own URL, with no page behind it: Nuxt passes it props and nothing else, so its
     // `locale` prop is the page's. Without one it falls back to the cookie and the default (docs: server components).
@@ -110,95 +194,32 @@ export default defineNuxtPlugin({
       // a stored preference only when it is an enabled locale (a stale or malformed cookie is none)
       return i18nStrategy.getCurrentLocale(r, getPreferredLocale())
     }
-
-    const getPluginRouteName = (route: ResolvedRouteLike, locale: string): string => {
-      return i18nStrategy.getPluginRouteName(route, locale)
-    }
+    const getPluginRouteName = (route: ResolvedRouteLike, code: string) => i18nStrategy.getPluginRouteName(route, code)
+    const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
+      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? ''
 
     i18n.setRouteContextResolver((route) => {
       const resolvedRoute = (route ?? router.currentRoute.value) as unknown as ResolvedRouteLike
-      const locale = getCurrentLocale(resolvedRoute)
-      return {
-        locale,
-        routeName: getPluginRouteName(resolvedRoute, locale),
-      }
+      const routeLocale = getCurrentLocale(resolvedRoute)
+      return { locale: routeLocale, routeName: getPluginRouteName(resolvedRoute, routeLocale) }
     })
-
-    // The leaving page's keys stay resolvable until it is gone. Hooks cannot say when: a page transition keeps it on
-    // screen past `page:finish`, so does a new layout until its own async parts are ready and through its transition, and
-    // a child leaving for its parent has no `page:finish` at all. Its element leaving the document covers all of them.
-    // A DOM change is what removes it, so an observer sees it with no polling, in a hidden tab too.
-    // ponytail: a `<NuxtPage page-key>` keeping one instance across records keeps the observer and those keys until the next navigation
-    let stopWaiting: (() => void) | undefined
-    let noElement: Record<string, unknown> | null = null
-    const finishWhenGone = (page: ComponentPublicInstance | null | undefined) => {
-      stopWaiting?.()
-      noElement = null
-      const outgoing = i18n.outgoing
-      const element: Node | undefined = page?.$el
-      if (!element?.isConnected) {
-        noElement = outgoing
-        return
-      }
-      if (!outgoing) return
-      const observer = new MutationObserver(() => {
-        if (element.isConnected) return
-        stopWaiting?.()
-        i18n.finishTransition(outgoing)
-      })
-      observer.observe(document, { childList: true, subtree: true })
-      stopWaiting = () => {
-        observer.disconnect()
-        stopWaiting = undefined
-      }
-    }
-    nuxtApp.hook('page:finish', () => {
-      i18n.finishTransition(noElement)
-      noElement = null
-    })
-
-    const loadOptions: LoadOptions = {
-      apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
-      baseURL: runtimeConfig.app.baseURL,
-      apiBaseClientHost: i18nConfig.apiBaseClientHost,
-      dateBuild: i18nConfig.dateBuild,
-      routesLocaleLinks: i18nConfig.routesLocaleLinks,
-      serverLoad: import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.load : undefined,
-    }
-    if (import.meta.server) loadOptions.serverLoadsRemote = nuxtApp.ssrContext?.event?.context?.i18n?.loadsRemote
 
     // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
     // Server loads into memory for SSR; client loads via /_locales in switchContext below.
     const prerender = import.meta.server && import.meta.prerender
-    const loader = new NuxtTranslationLoader({
-      i18n,
-      loadOptions,
-      isDev,
-      prerender,
-    })
+    const loadOptions = createLoadOptions(nuxtApp, i18nConfig)
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions, isDev, prerender })
 
-    // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
-    const shellLocale = () => {
-      const shell = i18nConfig.hashMode && i18nConfig.strategy === 'prefix' && !nuxtApp.payload.serverRendered
-      if (!shell || !i18nConfig.autoDetectLanguage || getPreferredLocale()) return undefined
-      return detectLocaleFromAcceptLanguage(navigator.languages.join(','), validLocales)
-    }
-
-    // a locale in the URL wins over a server-detected one (e.g. `?locale=`); a URL without one (no_prefix,
-    // hashMode, an unprefixed or unlocalized page, a runtime defaultLocale on `/`) takes the server's.
-    // Under no_prefix the URL's record has the last word: a custom path is its locale's page.
-    const serverRequestLocale = () => renderLocale ?? nuxtApp.ssrContext?.event?.context?.i18n?.locale
-    const requestLocale = import.meta.server ? serverRequestLocale() : shellLocale()
-    const preferredLocale = isValidLocale(localeState.value) ? localeState.value : (requestLocale ?? getPreferredLocale())
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
-    const pathLocale = () =>
-      noPrefix ? i18nStrategy.getCurrentLocale(initialRoute, preferredLocale) : i18nStrategy.getLocaleFromPath(initialRoute.path)
-    const initialLocale = resolveInitialLocale({
-      route: initialRoute,
-      urlLocale: i18nConfig.hashMode ? null : pathLocale(),
-      serverLocale: requestLocale,
-      preference: noPrefix ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
-      getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
+    const { initialLocale, requestLocale } = resolveStartLocale({
+      nuxtApp,
+      i18nConfig,
+      i18nStrategy,
+      noPrefix,
+      renderLocale,
+      initialRoute,
+      locale,
+      getCurrentLocale,
     })
     const initialRouteName = getPluginRouteName(initialRoute, initialLocale)
 
@@ -207,9 +228,7 @@ export default defineNuxtPlugin({
     // Only for the locale it was detected for: under no_prefix a custom path renders another one.
     if (import.meta.server && initialRouteName === 'index' && initialLocale === requestLocale) {
       const preloaded = nuxtApp.ssrContext?.event?.context?.i18n?.translations
-      if (preloaded && typeof preloaded === 'object' && Object.keys(preloaded).length > 0) {
-        translationStorage.seed(initialLocale, 'index', preloaded as Record<string, unknown>)
-      }
+      if (preloaded) translationStorage.seed(initialLocale, 'index', preloaded as Record<string, unknown>)
     }
 
     try {
@@ -227,9 +246,6 @@ export default defineNuxtPlugin({
       useHead({ link: [{ key: 'i18n-preload', rel: 'preload', as: 'fetch', crossorigin: 'anonymous', href }] })
     }
 
-    const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
-      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? ''
-
     const hydrated = shallowRef(false)
     nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
       hydrated.value = true
@@ -237,10 +253,10 @@ export default defineNuxtPlugin({
       // The server never sees the hash, so a locale in it (`/#/de`, what `$switchLocale` writes) applies
       // once hydrated: earlier, the client would render another locale than the server's HTML.
       const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
-      if (hashLocale && hashLocale !== localeState.value) await provideApi.switchLocale(hashLocale)
+      if (hashLocale && hashLocale !== localeState.value) await api.provide.switchLocale(hashLocale)
     })
 
-    const { helper, provide: provideApi } = createNuxtI18nPluginApi({
+    const api = createNuxtI18nPluginApi({
       i18n,
       loader,
       i18nStrategy,
@@ -253,8 +269,8 @@ export default defineNuxtPlugin({
       getRouteName,
       i18nRouteParams,
       setLocale,
-      setLocaleState: (locale) => {
-        localeState.value = locale
+      setLocaleState: (code) => {
+        localeState.value = code
       },
       isValidLocale,
       navigateTo,
@@ -265,32 +281,7 @@ export default defineNuxtPlugin({
       isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
     })
 
-    // A layout's switcher renders before the page's async setup reaches `$setI18nRouteParams`, and Vue cannot wait for
-    // it. By now every answer is known: its links get what the client's first render builds from the params in the
-    // payload. Only those: a replacer, as a slug can come from the URL and `$&` means nothing here, and an escaped value,
-    // as this is an attribute. Pages with params and a switcher only.
-    if (import.meta.server) {
-      nuxtApp.hooks.hook('app:rendered', ({ renderResult }) => {
-        const params = i18nRouteParams.value
-        if (!renderResult?.html?.includes('class="switcher-locale-') || !params || !Object.keys(params).length) return
-        const codes = new Set(provideApi.getLocales().map((locale) => locale.code))
-        renderResult.html = renderResult.html.replace(SWITCHER_LINK, (link, code: string) => {
-          if (!codes.has(code)) return link
-          const path = provideApi.switchLocalePath(code)
-          return `class="switcher-locale-${code}" href="${escapeHtml(hasProtocol(path) ? path : router.resolve(path).href)}"`
-        })
-      })
-    }
-
-    if (domains) {
-      const { switchLocale } = provideApi
-      // nothing to load or store here: the locale lives on another origin
-      provideApi.switchLocale = async (code) => {
-        if (isValidLocale(code) || !i18nConfig.linkLocales?.some((locale) => locale.code === code && !locale.disabled)) return switchLocale(code)
-        await navigateTo(provideApi.switchLocalePath(code), { external: true })
-        return true
-      }
-    }
+    if (import.meta.server) rewriteSwitcherLinks(nuxtApp, api.provide, i18nRouteParams, (path) => router.resolve(path).href)
 
     if (import.meta.dev && import.meta.client) {
       setI18nDevtoolsBridge({
@@ -300,105 +291,26 @@ export default defineNuxtPlugin({
       })
     }
 
-    // Unhead adopts the server's tags in its first render, from what it resolves then. A page head dropped earlier
-    // would leave its tags in the DOM with no owner, so during hydration it goes right after that render.
-    let headAdopted = import.meta.server
-    let headToDrop: typeof pageHead.value = null
-    const dropPageHead = () => {
-      if (headAdopted) pageHead.value = null
-      else headToDrop = pageHead.value
-    }
-    if (import.meta.client) {
-      const stop = injectHead().hooks?.hook('dom:rendered', () => {
-        stop?.()
-        headAdopted = true
-        if (pageHead.value === headToDrop) pageHead.value = null
-      })
-    }
-
-    // What each navigation will show, loaded by its guard and applied when it commits. A guard is too early: a later
-    // guard can abort, and the router cancels a pending navigation for a duplicate of the current page without running one.
-    const targets = new WeakMap<object, NavigationTarget>()
-
-    router.beforeEach(async (to, from) => {
-      if (to.path === from.path && !noPrefix) return
-
-      // a navigation is newer than any `$switchLocale` still loading
-      loader.invalidatePendingSwitches()
-      try {
-        const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
-        const locale = hashLocale || getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
-        const routeName = getPluginRouteName(to as unknown as ResolvedRouteLike, locale)
-        const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
-        targets.set(to, { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null })
-      } catch (e) {
-        if (isDev) console.error('[i18n] Navigation error:', e)
-      }
-    })
-
-    router.afterEach((to, from, failure) => {
-      if (failure) return
-
-      // The path decides, not the name: `/news/1` to `/news/4` is one route name and another page, and Nuxt clears
-      // `name` on the current route before its hydrating replace. That replace keeps the path, so what the server page
-      // set stays: it came in the payload, and a component that does not run here (`hydrate-never`) will not set it again
-      if (to.path !== from.path) {
+    const dropPageHead = createPageHeadDrop(pageHead)
+    setupI18nNavigation({
+      nuxtApp,
+      router,
+      i18n,
+      loader,
+      i18nConfig,
+      i18nStrategy,
+      noPrefix,
+      locale,
+      api,
+      leavePage: () => {
         i18nRouteParams.value = {}
         dropPageHead()
-      }
-
-      const target = targets.get(to)
-      if (!target) return
-      const { locale, routeName, changed, data } = target
-
-      // the stored chunk: `i18n:register` merged into it after this guard's load. Not after a failed load: what
-      // a subscriber wrote is a fragment, and the strings on screen stay
-      const applied = !changed || loader.applyContext(locale, routeName, data && (loader.loadFromCacheSync(locale, routeName) ?? data))
-      // A parent stays around its new child, and its keys with it, until the next navigation replaces them. The page that
-      // owns this dictionary is its leaf and, for an index child, the parent on the same URL: any of them still here keeps it.
-      const left = from.matched.at(-1)
-      const stays = from.matched.some((record) => record.path === left?.path && to.matched.includes(record))
-      if (changed && applied && !stays) finishWhenGone(left?.instances.default)
-      // under no_prefix a page can be bound to its locale: it shows it, and the preference stays for the next page
-      const bound = noPrefix && locale !== (getPreferredLocale() ?? i18nConfig.defaultLocale)
-      if (!applied || bound || !locale || !isValidLocale(locale)) return
-      // a 404 renders in its URL's locale and stores nothing, as on the server: no page, no choice
-      if (!to.matched.length) {
-        localeState.value = locale
-        return
-      }
-      const urlNamed = !noPrefix && !i18nConfig.hashMode
-      // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
-      // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
-      // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
-      if ((urlNamed && from !== START_LOCATION) || localeState.value !== locale) setLocale(locale)
+      },
     })
 
-    // Read in a page's setup, and often called later from a handler that has no instance left: the function itself has
-    // to know its page, so an abandoned page's late answer stays off the shown one, and a kept-alive page can give it again
-    const { setI18nRouteParams, ...provided } = provideApi
-    const pageRouteParams: PropertyDescriptor = {
-      enumerable: true,
-      get: (): typeof setI18nRouteParams => {
-        const page = getCurrentInstance() && usePageRoute()
-        if (!page) return setI18nRouteParams
-        let own: I18nRouteParams | undefined
-        onActivated(() => own && setI18nRouteParams(own))
-        return (value) => {
-          if (page.path !== router.currentRoute.value.path) return i18nRouteParams.value
-          own = value
-          return setI18nRouteParams(value)
-        }
-      },
-    }
-
-    const api = { ...provided, helper, getI18nConfig: () => i18nConfig, __micro: true }
-    const dollar = Object.fromEntries(Object.entries(api).map(([key, value]) => [`$${key}`, value]))
-    const spellings = Object.defineProperties({ ...api, ...dollar }, { setI18nRouteParams: pageRouteParams, $setI18nRouteParams: pageRouteParams })
-    Object.defineProperty(nuxtApp, '$setI18nRouteParams', pageRouteParams)
-    nuxtApp.vueApp.config.globalProperties.$setI18nRouteParams = setI18nRouteParams
-
-    return { provide: { ...api, i18n: spellings } }
+    const { provide, install } = createI18nProvide({ api, i18nConfig, router, i18nRouteParams })
+    install(nuxtApp)
+    return { provide }
   },
 })
 

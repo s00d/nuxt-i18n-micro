@@ -1,6 +1,8 @@
 import { emulateDomain, forwardedHostHeaders, parseSeoHead } from 'untestutils/utils'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
+declare const useNuxtApp: () => { $switchLocale: (locale: string) => Promise<boolean> }
+
 // `seo` fixture: prefix, en/de/ru (ru seo:false) + fr/ar/zh (og:locale formats), no metaBaseUrl (host from the request),
 // canonicalQueryWhitelist [page, filter, q]. Absorbs the old `seo-auto` and `canonical-whitelist` builds.
 const xDefaultHref = (html: string) => html.match(/<link[^>]*id="i18n-xd"[^>]*href="([^"]+)"/)?.[1]
@@ -80,13 +82,21 @@ describe('J6 seo head', () => {
     }
   })
 
+  test('S-T3: a forwarded host that does not parse is ignored, not a 500', async ({ request }) => {
+    const response = await request.get('/en', { headers: { 'x-forwarded-host': 'a b' } })
+    expect(response.status()).toBe(200)
+    const body = await response.text()
+    expect(body).toContain('rel="canonical"')
+    expect(body).not.toContain('a b/en')
+  })
+
   test('S-T2: browser head, then an emulated domain with SPA navigation and locale changes', async ({ page, goto, baseURL }) => {
-    // step 1: open /de/kontakt → html lang de_DE, dir auto, canonical on the localized path, content rendered
+    // step 1: open /de/kontakt → html lang de_DE, no dir, canonical on the localized path, content rendered
     // was: seo › should render html lang and dir attributes correctly
     // was: seo › should support locale path override with $defineI18nRoute
     await goto('/de/kontakt', { waitUntil: 'domcontentloaded' })
     await expect(page.locator('html')).toHaveAttribute('lang', 'de_DE')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'auto')
+    await expect(page.locator('html')).not.toHaveAttribute('dir')
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/de\/kontakt$/)
     await expect(page.locator('#content')).not.toBeEmpty()
 
@@ -138,7 +148,7 @@ describe('J6 seo head', () => {
     // was: seo-auto › client: html lang and dir update on locale change with emulated domain
     await goto(`${domain}/en`, { waitUntil: 'hydration' })
     await expect(page.locator('html')).toHaveAttribute('lang', 'en_EN')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'auto')
+    await expect(page.locator('html')).not.toHaveAttribute('dir')
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute('content', 'en_EN')
     await goto(`${domain}/de`, { waitUntil: 'hydration' })
     await expect(page.locator('html')).toHaveAttribute('lang', 'de_DE')
@@ -146,6 +156,13 @@ describe('J6 seo head', () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${domain}/de`)
     await goto(`${domain}/ru`, { waitUntil: 'hydration' })
     await expect(page.locator('html')).toHaveAttribute('lang', 'ru_RU')
+
+    // step 9: a client switch away from an RTL locale takes its dir with it
+    await goto(`${domain}/ar`, { waitUntil: 'hydration' })
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+    await page.evaluate(() => useNuxtApp().$switchLocale('fr'))
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr-FR')
+    await expect(page.locator('html')).not.toHaveAttribute('dir')
     // in-flight emulated requests would reject with "Route is already handled" when the page closes
     await page.unrouteAll({ behavior: 'ignoreErrors' })
   })

@@ -1001,6 +1001,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
+member ReactI18n.addFetched: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
@@ -2119,6 +2120,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
+member ReactI18n.addFetched: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
@@ -2275,6 +2277,7 @@ function interpolate: (template: string, params: Params) => string
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
+member ReactI18n.addFetched: private any
 member ReactI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member ReactI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member ReactI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void

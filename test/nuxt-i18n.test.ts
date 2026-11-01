@@ -1,9 +1,78 @@
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
 import { formatterFor, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
 const loadOptions = { apiBaseUrl: '_locales', baseURL: '/', dateBuild: 0 }
+
+describe('a fragment is not a loaded chunk', () => {
+  const setup = (answer: (path: string) => unknown) => {
+    translationStorage.clear()
+    const fetches = vi.fn(async (path: string) => answer(path))
+    vi.stubGlobal('$fetch', fetches)
+    const i18n = new NuxtI18n({ missingWarn: false })
+    return { i18n, fetches, loader: new NuxtTranslationLoader({ i18n, loadOptions }) }
+  }
+  const file = () => ({ title: 'from file', other: 'file key' })
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('$loadPageTranslations before the first visit: the file loads, and the fragment stays on top', async () => {
+    const { i18n, loader, fetches } = setup(file)
+    await loader.switchContext('en', 'index')
+    await i18n.loadPageTranslations('de', 'about', { extra: 'x', other: 'patched' })
+    expect(i18n.hasChunk('de', 'about')).toBe(false)
+    await loader.switchContext('de', 'about')
+    expect(fetches).toHaveBeenCalledTimes(2)
+    expect(['title', 'other', 'extra'].map((key) => i18n.t(key))).toEqual(['from file', 'patched', 'x'])
+    expect(i18n.hasChunk('de', 'about')).toBe(true)
+  })
+
+  test('the same with the chunk already in the shared cache: nothing is lost, nothing is fetched twice', async () => {
+    const { i18n, loader, fetches } = setup(file)
+    await loader.switchContext('de', 'about')
+    const other = new NuxtI18n({ missingWarn: false })
+    const otherLoader = new NuxtTranslationLoader({ i18n: other, loadOptions })
+    await other.loadPageTranslations('de', 'about', { extra: 'x' })
+    await otherLoader.switchContext('de', 'about')
+    expect(fetches).toHaveBeenCalledTimes(1)
+    expect(['title', 'extra'].map((key) => other.t(key))).toEqual(['from file', 'x'])
+    expect(i18n.has('extra')).toBe(false)
+  })
+
+  test('$mergeTranslations while a reload is out does not stand in for its answer', async () => {
+    let answers = 0
+    let release!: (value: unknown) => void
+    const { i18n, loader, fetches } = setup(() => (++answers === 1 ? { title: 'file' } : new Promise((resolve) => (release = resolve))))
+    await loader.switchContext('en', 'index')
+    const reloading = loader.reload()
+    await Promise.resolve()
+    i18n.mergeTranslations({ over: 'patch' })
+    expect(i18n.t('title')).toBe('file')
+    const switching = loader.switchContext('en', 'index')
+    i18n.finishTransition()
+    release({ title: 'file again' })
+    await Promise.all([reloading, switching])
+    expect(fetches).toHaveBeenCalledTimes(2)
+    expect(['title', 'over'].map((key) => i18n.t(key))).toEqual(['file again', 'patch'])
+  })
+
+  test('a load that failed under a patch is tried again', async () => {
+    let down = true
+    const { i18n, loader } = setup(() => {
+      if (down) throw Object.assign(new Error('503'), { status: 503 })
+      return file()
+    })
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    await i18n.mergeTranslationAsync('de', 'about', { extra: 'x' }, (locale, route) => loader.loadAsync(locale, route))
+    expect(i18n.getChunk('de', 'about')).toEqual({ extra: 'x' })
+    expect(i18n.hasChunk('de', 'about')).toBe(false)
+    down = false
+    await loader.switchContext('de', 'about')
+    expect(['title', 'extra'].map((key) => i18n.t(key))).toEqual(['from file', 'x'])
+    vi.restoreAllMocks()
+  })
+})
 
 describe('formatterFor', () => {
   const money = (currency: string) =>

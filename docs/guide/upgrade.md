@@ -16,6 +16,10 @@ See [Migrating from @nuxtjs/i18n](/guide/migration).
 
 The module's public API (options, `$t`/`$localePath`/`$switchLocale`…, components, composables, server utilities) keeps its signatures. What changed is behaviour, mostly bugs fixed. The adapter packages have a few real breaks: see [Framework packages](#framework-packages).
 
+### `<html dir>`
+
+- **`dir="auto"` is no longer the default.** A locale without `dir` used to get `dir="auto"`, which slows parsing of large pages. Now a known RTL language gets `dir="rtl"`, and any other locale gets no attribute. This applies to Nuxt, `@i18n-micro/vue`, `astro` and `vitepress`. Set `dir: 'auto'` on a locale to keep the old output, and see [Text direction](/guide/seo#text-direction) for what it costs.
+
 ### Requirements
 
 - **Nuxt 3.18 or newer.** The module declares `compatibility: { nuxt: '>=3.18.0' }`.
@@ -157,6 +161,12 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 
 ### Hooks and types
 
+- **The module has four plugins.** `i18n-plugin-hooks` and `i18n-plugin-define` are part of `i18n-plugin-loader` now, so a `dependsOn` on either name no longer waits for anything: use `i18n-plugin-loader`. `hooks` and `define` still turn their parts off.
+- **`i18n:register` runs at `app:created` on startup,** after every plugin instead of between them. A plugin with `order` above 1 or `enforce: 'post'` now has its subscriber called on startup too, but no longer reads registered keys in its own `setup`. In a navigation the hook now runs before other plugins' `router.beforeEach` guards.
+- **`i18n:register` gets the locale of the page it fills.** Under `hashMode` a navigation that changes the locale used to pass the old one, and the keys landed in the wrong chunk.
+- **With `plugin: false`, `$defineI18nRoute` stays callable** and does nothing at runtime. It used to crash the page.
+- **`$loadPageTranslations` on a page not visited yet no longer stops its file from loading.** The file loads on the first visit and your keys stay on top of it. The page used to show raw keys until a reload.
+- **A `Host` or `X-Forwarded-Host` that does not parse is ignored** instead of a 500 on every page. With no usable host, and no `metaBaseUrl` or `site.url`, canonical and `hreflang` URLs on that response are relative.
 - **`i18n:register` is a runtime hook:** register it with `nuxtApp.hook('i18n:register', …)` in a plugin, without `@ts-expect-error`. The exported type `ModuleHooks` is renamed `ModuleRuntimeHooks`. See [Hooks](/api/events).
 - The `hooks` option no longer documents `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch`; they were never emitted.
 - `const { $defineI18nRoute } = useNuxtApp()` in a page now works with configs that use variables.

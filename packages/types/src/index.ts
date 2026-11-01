@@ -224,8 +224,8 @@ export interface ModuleOptions {
   hreflangBaseLanguage?: boolean
 
   /**
-   * Register the plugin that provides `$defineI18nRoute()` at runtime. The build reads
-   * `$defineI18nRoute()` calls in pages either way.
+   * Provide `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages
+   * either way.
    * @default true
    */
   define?: boolean
@@ -247,8 +247,7 @@ export interface ModuleOptions {
   plugin?: boolean
 
   /**
-   * Register the i18n hooks plugin, which calls the `i18n:register` app hook on load and on
-   * navigation so plugins can add translations.
+   * Call the `i18n:register` app hook on load and on navigation so plugins can add translations.
    * @default true
    */
   hooks?: boolean

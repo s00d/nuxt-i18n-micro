@@ -16,10 +16,20 @@ const cwd = mkdtempSync(join(base, 'i18n-plugin-options-'))
 afterAll(() => rmSync(cwd, { recursive: true, force: true }))
 
 async function registered(off: readonly string[], dev: boolean) {
-  const i18n = { locales: [{ code: 'en' }, { code: 'de' }], defaultLocale: 'en', strategy: 'prefix', ...Object.fromEntries(off.map((name) => [name, false])) }
-  const nuxt = await loadNuxt({ cwd, dev, ready: true, overrides: { modules: [join(root, 'src/module.ts')], i18n, telemetry: false, devtools: { enabled: false } } as never })
+  const i18n = {
+    locales: [{ code: 'en' }, { code: 'de' }],
+    defaultLocale: 'en',
+    strategy: 'prefix',
+    ...Object.fromEntries(off.map((name) => [name, false])),
+  }
+  const nuxt = await loadNuxt({
+    cwd,
+    dev,
+    ready: true,
+    overrides: { modules: [join(root, 'src/module.ts')], i18n, telemetry: false, devtools: { enabled: false } } as never,
+  })
   const plugins = (nuxt.options.plugins as { src: string; order?: number; mode?: string }[])
-    .filter(({ src }) => /src\/runtime\/plugins\/|i18n\.hmr/.test(src))
+    .filter(({ src }) => /src\/runtime\/plugins\/|i18n\.hmr|i18n\.define/.test(src))
     .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map(({ src, order, mode }) => `${basename(src).replace(/\.\w+$/, '')}@${order}${mode && mode !== 'all' ? `/${mode}` : ''}`)
   await nuxt.close()

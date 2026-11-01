@@ -2,6 +2,7 @@
 class AstroI18n
 member AstroI18n.activeKey: private any
 member AstroI18n.activeRootKey: private any
+member AstroI18n.addFetched: private any
 member AstroI18n.addLocaleIso: (localeIso: Record<string, string>, notify?: boolean) => void
 member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
 member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void

@@ -1,6 +1,9 @@
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
-declare const useNuxtApp: () => { $t: (key: string) => unknown }
+declare const useNuxtApp: () => {
+  $t: (key: string) => unknown
+  $loadPageTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => Promise<void>
+}
 
 // basic: a local module (modules/hook) adds /test and an `i18n:register` plugin; an app plugin registers `hook`.
 describe('J8 translation loading: module hook', () => {
@@ -21,6 +24,17 @@ describe('J8 translation loading: module hook', () => {
     await page.click('a.switcher-locale-de')
     await expect(page.locator('#hook')).toHaveText('hook value')
     await expect(page.locator('#text')).toHaveText('hook de title')
+  })
+
+  test('a page patched before its first visit still loads its file', async ({ page, goto }) => {
+    await goto('/cache', { waitUntil: 'hydration' })
+    const welcome = await page.locator('#welcome').textContent()
+    await page.evaluate(() => useNuxtApp().$loadPageTranslations('en', 'Test', { extra: 'patched' }))
+    const file = page.waitForRequest('**/_locales/Test/en/**')
+    await page.click('#test-page')
+    await file
+    await expect(page).toHaveURL('/test')
+    expect(await page.evaluate(() => [useNuxtApp().$t('welcome'), useNuxtApp().$t('extra')])).toEqual([welcome?.trim(), 'patched'])
   })
 
   test('a failed chunk leaves the strings in place, though a subscriber wrote into it', async ({ page, goto, guard }) => {

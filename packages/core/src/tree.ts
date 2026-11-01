@@ -15,8 +15,8 @@ export function isTree(value: unknown): value is Tree {
 
 /**
  * `obj[key]` if it is the object's own, in one property lookup on the hot path. Only a value
- * an object could have inherited (a function, `__proto__`, or the value `Object.prototype`
- * holds, e.g. after prototype pollution) is double-checked with `hasOwnProperty`.
+ * an object could have inherited (a function, or the value `Object.prototype` holds, e.g. after
+ * prototype pollution) is double-checked with `hasOwnProperty`, as is `__proto__`.
  */
 export function ownValue(obj: object, key: string): unknown {
   const value = (obj as Tree)[key]
@@ -25,15 +25,18 @@ export function ownValue(obj: object, key: string): unknown {
   return maybeInherited && !hasOwn(obj, key) ? undefined : value
 }
 
-/** Own flat key first, then the dotted walk: objects by own key, arrays by index (`list.0`, never `list.length`). */
+/**
+ * Own flat key first, then the dotted walk: objects by own key, arrays by index (`list.0`, never `list.length`).
+ * `__proto__` is nothing, even as an own key: `JSON.parse` makes one, and a parsed tree is stored as it is.
+ */
 export function getByPath(obj: Tree | null | undefined, path: string): unknown {
-  if (!obj || typeof path !== 'string' || path === '') return undefined
+  if (!obj || typeof path !== 'string' || path === '' || path === '__proto__') return undefined
   const flat = ownValue(obj, path)
   // `null` means nothing there, in a flat key too: the nesting may still hold it
   if ((flat !== undefined && flat !== null) || path.indexOf('.') === -1) return flat
   let node: unknown = obj
   for (const part of path.split('.')) {
-    if (node === null || typeof node !== 'object' || (part === 'length' && Array.isArray(node))) return undefined
+    if (node === null || typeof node !== 'object' || part === '__proto__' || (part === 'length' && Array.isArray(node))) return undefined
     node = ownValue(node, part)
   }
   return node

@@ -480,10 +480,10 @@ test('I18nSwitcher with a router strategy and its own localeRoute; useLocaleHead
 
   // head: a locale missing from the list leaves the previous tags alone
   head.updateMeta()
-  expect(head.metaObject.value.htmlAttrs).toEqual({ lang: 'de-DE', dir: 'auto' })
+  expect(head.metaObject.value.htmlAttrs).toEqual({ lang: 'de-DE' })
   i18n.global.locale.value = 'zz'
   head.updateMeta()
-  expect(head.metaObject.value.htmlAttrs).toEqual({ lang: 'de-DE', dir: 'auto' })
+  expect(head.metaObject.value.htmlAttrs).toEqual({ lang: 'de-DE' })
 })
 
 test('useLocaleHead options: whitelisted query, relative paths, absolute alternates, no SEO tags', async () => {
@@ -518,7 +518,7 @@ test('useLocaleHead options: whitelisted query, relative paths, absolute alterna
   const [full, bare] = heads as [ReturnType<typeof useLocaleHead>, ReturnType<typeof useLocaleHead>]
 
   expect(full.metaObject.value).toEqual({
-    htmlAttrs: { lang: 'en-US', dir: 'auto' },
+    htmlAttrs: { lang: 'en-US' },
     meta: [
       { key: 'i18n-og', property: 'og:locale', content: 'en_US' },
       { key: 'i18n-og-url', property: 'og:url', content: 'https://example.com/shop?page=2&sort=asc' },
@@ -556,7 +556,7 @@ test('useLocaleHead options: whitelisted query, relative paths, absolute alterna
     { global: { plugins: [i18n] } },
   ).unmount()
   expect(head.metaObject.value).toEqual({
-    htmlAttrs: { lang: 'xx', dir: 'auto' },
+    htmlAttrs: { lang: 'xx' },
     meta: [
       { id: 'i18n-og-url', property: 'og:url', content: 'https://example.com/xx/shop' },
       { id: 'i18n-og-alt-en_US', property: 'og:locale:alternate', content: 'en_US' },

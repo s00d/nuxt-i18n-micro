@@ -7,6 +7,8 @@ const app = vi.hoisted(() => ({
   current: {} as Record<string, unknown>,
   state: new Map<string, unknown>(),
   head: null as (() => { htmlAttrs: object; link: { rel: string; href?: string }[]; meta: unknown[] }) | null,
+  badForwardedHost: false,
+  badHost: false,
 }))
 
 // every Nuxt path is one stub in unit tests, so one mock answers them all
@@ -17,7 +19,11 @@ vi.mock('#imports', () => ({
   },
   useError: () => ({ value: null }),
   useNuxtApp: () => app.current,
-  useRequestURL: () => new URL('https://example.com/'),
+  useRequestURL: (options?: { xForwardedHost?: boolean }) => {
+    if (options?.xForwardedHost && app.badForwardedHost) throw new TypeError('Invalid URL')
+    if (app.badHost) throw new TypeError('Invalid URL')
+    return new URL('https://example.com/')
+  },
   useRoute: () => ({ path: '/', name: 'index', fullPath: '/', matched: [{}] }),
   useRouter: () => ({ currentRoute: { value: { path: '/' } } }),
   useRuntimeConfig: () => ({ app: { baseURL: '/' } }),
@@ -27,10 +33,15 @@ vi.mock('#imports', () => ({
   },
 }))
 
-function setup(options: { metaDisabled?: boolean } = {}) {
+function setup(options: { metaDisabled?: boolean; noBaseUrl?: boolean } = {}) {
   const isMetaDisabled = vi.fn(() => options.metaDisabled ?? false)
   app.current = {
-    $getI18nConfig: () => ({ locales: [{ code: 'en' }], defaultLocale: 'en', metaBaseUrl: 'https://example.com', strategy: 'prefix' }),
+    $getI18nConfig: () => ({
+      locales: [{ code: 'en' }],
+      defaultLocale: 'en',
+      metaBaseUrl: options.noBaseUrl ? undefined : 'https://example.com',
+      strategy: 'prefix',
+    }),
     $getLocales: () => [{ code: 'en' }],
     $getLocale: () => 'en',
     $switchLocalePath: () => '/en',
@@ -44,6 +55,17 @@ describe('02.meta', () => {
   beforeEach(() => {
     app.state.clear()
     app.head = null
+    app.badForwardedHost = false
+    app.badHost = false
+  })
+
+  test.each([
+    ['X-Forwarded-Host', { badForwardedHost: true }, 'https://example.com/en'],
+    ['Host and X-Forwarded-Host', { badForwardedHost: true, badHost: true }, '/en'],
+  ])('%s that does not parse leaves the page its head', (_name, headers, canonical) => {
+    Object.assign(app, headers)
+    setup({ noBaseUrl: true })
+    expect(app.head!().link.find((link) => link.rel === 'canonical')?.href).toBe(canonical)
   })
 
   test('one render asks the strategy once', () => {

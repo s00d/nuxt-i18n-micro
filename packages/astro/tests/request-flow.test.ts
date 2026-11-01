@@ -277,7 +277,7 @@ test('a site loads its locales dir; requests through the middleware get a per-re
   // SEO head: disabled locales dropped, seo:false kept out of alternates, x-default → default locale
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   expect(useLocaleHead(fr.astro, { baseUrl: 'https://site.test' })).toEqual({
-    htmlAttrs: { lang: 'fr-FR', dir: 'auto' },
+    htmlAttrs: { lang: 'fr-FR' },
     link: [
       { id: 'i18n-can', rel: 'canonical', href: 'https://site.test/fr/about' },
       { id: 'i18n-alternate-en-US', rel: 'alternate', href: 'https://site.test/about', hreflang: 'en-US' },

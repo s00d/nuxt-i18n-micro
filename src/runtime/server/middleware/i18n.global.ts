@@ -4,10 +4,11 @@
  */
 
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
-import { defineEventHandler, getRequestURL } from 'h3'
+import { defineEventHandler } from 'h3'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { domains } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
+import { requestURL } from '../../utils/request-url'
 import { detectRequestLocale, getI18nServerConfig } from '../utils/locale-detector'
 import { loadTranslationsFromServer, resolveServerHost } from '../utils/server-loader'
 
@@ -19,7 +20,7 @@ const loadsRemote = (cacheStorage?: string) => Boolean(cacheStorage && resolveSe
 
 export default defineEventHandler(async (event) => {
   const config = getI18nServerConfig(event)
-  const path = withoutAppBaseURL(getRequestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
+  const path = withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
   const { cacheStorage, serverTranslationPreload } = getI18nPrivateConfig()
 
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n

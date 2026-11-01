@@ -93,6 +93,13 @@ describe('merges', () => {
     expect([getByPath(merged, 'a.b'), getByPath(merged, 'c.d'), getByPath(merged, 'e.f')]).toEqual(['new', 'kept', 'up'])
   })
 
+  test('__proto__ as an own key of a parsed tree is nothing to a read', () => {
+    const tree = JSON.parse('{"__proto__":{"x":"own"},"a":{"__proto__":{"y":"own"}}}')
+    expect(getByPath(tree, '__proto__')).toBeUndefined()
+    expect(getByPath(tree, '__proto__.x')).toBeUndefined()
+    expect(getByPath(tree, 'a.__proto__.y')).toBeUndefined()
+  })
+
   test('__proto__ from JSON is dropped by a merge into an empty chunk, as by any other', () => {
     const incoming = JSON.parse('{"__proto__":{"x":"y"},"a":1}')
     expect(getByPath(mergeTranslationChunk({}, incoming), '__proto__.x')).toBeUndefined()

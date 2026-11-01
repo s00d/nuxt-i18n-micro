@@ -46,6 +46,7 @@ import {
   addComponentsDir,
   addImportsDir,
   addPlugin,
+  addPluginTemplate,
   addPrerenderRoutes,
   addRouteMiddleware,
   addServerHandler,
@@ -237,6 +238,10 @@ export const domains = ${domains}
 
 // a constant, so a build that keeps the locale in no cookie drops useCookie (no runtime override reaches these two)
 export const cookies = ${fullConfig.localeCookie !== null || fullConfig.hashMode}
+
+// constants too, so a build with these options off drops their code from the loader plugin
+export const hooks = ${options.hooks !== false}
+export const defineRoute = ${options.define !== false}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -541,15 +546,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    // 05, 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
-    if (options.plugin && options.hooks) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/05.hooks'),
-        name: 'i18n-plugin-hooks',
-        order: 1,
-      })
-    }
-
+    // 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
     if (options.plugin && options.meta) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/02.meta'),
@@ -558,12 +555,13 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.define) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/03.define'),
-        name: 'i18n-plugin-define',
-        mode: 'all',
-        order: 3,
+    // A page may still call it: the build has read the call, and with no runtime there is nothing left for it to do
+    if (!options.plugin && options.define) {
+      addPluginTemplate({
+        filename: 'i18n.define.mjs',
+        getContents: () => `import { defineNuxtPlugin } from '#imports'
+export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () => {} } }))
+`,
       })
     }
 
@@ -696,6 +694,8 @@ declare module '#build/i18n.plural.mjs' {
 declare module '#build/i18n.strategy.mjs' {
   export const domains: boolean
   export const cookies: boolean
+  export const hooks: boolean
+  export const defineRoute: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }
@@ -707,6 +707,8 @@ declare module '#i18n-internal/config' {
 declare module '#i18n-internal/strategy' {
   export const domains: boolean
   export const cookies: boolean
+  export const hooks: boolean
+  export const defineRoute: boolean
   export function getI18nConfig(): ModuleOptionsExtend
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 }

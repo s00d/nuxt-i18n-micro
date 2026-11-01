@@ -16,6 +16,7 @@ export default defineConfig({
     name: 'vitepress',
     globals: true,
     environment: 'node',
+    setupFiles: ['../../test/helpers/quiet-jsdom.ts'],
     include: ['tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', 'playground/**'],
   },

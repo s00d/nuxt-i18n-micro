@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-108 exports across 4 entry points.
+110 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -46,6 +46,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
 | `ownValue` | function | `(obj: object, key: string) => unknown` |
 | `pathEnd` | function | `(url: string) => number` |
+| `pathSegments` | function | `(pathname: string) => string[]` |
 | `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `ReactiveI18nStoreOptions` | interface | 3 members |
@@ -378,6 +379,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
 | `ownValue` | function | `(obj: object, key: string) => unknown` |
 | `pathEnd` | function | `(url: string) => number` |
+| `pathSegments` | function | `(pathname: string) => string[]` |
 | `pluralForm` | function | `(translation: string, count: number, locale: string) => string` |
 | `ResolvedText` | interface | 2 members |
 | `resolveText` | function | `(i18n: TextHost, options: ResolveTextOptions) => ResolvedText \| null` |

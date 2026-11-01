@@ -108,6 +108,7 @@ function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 type NumberFormatsConfig: Record<string, Record<string, Intl.NumberFormatOptions>>
 function ownValue: (obj: object, key: string) => unknown
 function pathEnd: (url: string) => number
+function pathSegments: (pathname: string) => string[]
 function pluralForm: (translation: string, count: number, locale: string) => string
 interface ReactiveI18nStore
 member ReactiveI18nStore.getFallbackLocale: () => string
@@ -228,6 +229,7 @@ member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 function ownValue: (obj: object, key: string) => unknown
 function pathEnd: (url: string) => number
+function pathSegments: (pathname: string) => string[]
 function pluralForm: (translation: string, count: number, locale: string) => string
 interface ResolvedText
 member ResolvedText.params: Params

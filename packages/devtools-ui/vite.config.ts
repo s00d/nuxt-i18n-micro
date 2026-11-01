@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import type { RollupLog } from 'rollup'
 import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 const tailwindPlugins = tailwindcss() as Plugin | Plugin[]
 
@@ -46,6 +47,7 @@ const libEs: UserConfig = {
       outDir: resolve(rootDir, 'dist'),
       tsconfigPath: resolve(rootDir, 'tsconfig.json'),
       beforeWriteFile: writeIndexRequireTypes,
+      afterBuild: () => writeNodeDeclarations(resolve(rootDir, 'dist')),
     }),
   ],
   define: { 'process.env': {} },
@@ -146,7 +148,10 @@ const vitePlugin: UserConfig = {
       outDir: pluginTypesDir,
       tsconfigPath: resolve(rootDir, 'tsconfig.json'),
       beforeWriteFile: writePluginDeclarationTypes,
-      afterBuild: removeStrayPluginTypeArtifacts,
+      afterBuild: () => {
+        removeStrayPluginTypeArtifacts()
+        writeNodeDeclarations(pluginTypesDir)
+      },
     }),
   ],
   build: {

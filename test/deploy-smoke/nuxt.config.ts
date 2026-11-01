@@ -4,6 +4,8 @@
 //
 // SMOKE_PUBLIC_ASSETS=0 → translationPayloads.publicAssets: false (Tier-1 regression for
 // function presets: SSR must work from Nitro serverAssets without a public/_locales tree).
+//
+// SMOKE_STRATEGY, SMOKE_NO_META_BASE_URL → `pnpm run test:fuzz`: every strategy, SEO tags from the request.
 const publicAssetsOff = process.env.SMOKE_PUBLIC_ASSETS === '0'
 
 // Layouts where `public/` is not next to the server: SSR must embed the payloads, not read a folder that is not there.
@@ -24,10 +26,10 @@ export default defineNuxtConfig({
       { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
     ],
     defaultLocale: 'en',
-    strategy: 'prefix_except_default',
+    strategy: (process.env.SMOKE_STRATEGY ?? 'prefix_except_default') as 'prefix_except_default',
     translationDir: 'locales',
     meta: true,
-    metaBaseUrl: 'https://smoke.example.com',
+    metaBaseUrl: process.env.SMOKE_NO_META_BASE_URL ? undefined : 'https://smoke.example.com',
     autoDetectLanguage: false,
     ...(publicAssetsOff ? { translationPayloads: { publicAssets: false } } : {}),
   },

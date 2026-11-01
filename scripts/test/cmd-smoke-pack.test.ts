@@ -94,7 +94,8 @@ describe('relinkWorkspaceDeps', () => {
 
     relinkWorkspaceDeps(tarball, new Map([['@i18n-micro/core', core]]))
 
-    expect(entriesIn(tarball)).toEqual(before)
+    // files only: `pnpm pack` writes no directory entries, and Are The Types Wrong cannot read one
+    expect(entriesIn(tarball)).toEqual(before.filter((entry) => !entry.endsWith('/')))
   })
 
   it('handles a manifest with no dependency fields at all', () => {

@@ -1,0 +1,49 @@
+name: mutation
+
+# Stryker on the two packages whose logic every framework binding shares. It reports; it does not gate:
+# read the survivors in the job log and the uploaded JSON. No release, no publish, no secrets.
+# Stryker is a root dev dependency, so the frozen install below is all it needs.
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  stryker:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [core, path-strategy]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
+      - name: Mutate
+        run: pnpm run test:mutation
+        env:
+          MUTATE_PACKAGE: ${{ matrix.package }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation-${{ matrix.package }}
+          path: test-results/mutation/${{ matrix.package }}.json
+          if-no-files-found: ignore

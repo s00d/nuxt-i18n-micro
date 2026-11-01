@@ -27,6 +27,9 @@ pnpm -C scripts cli <command> --help
 | `check-versions` | `check:versions` | A changed package without a version bump (`--npm`: version already published) |
 | `verify-packages` | `verify:packages`, `verify:packages:publint` | Broken `exports` / `files` in a package |
 | `compare-published` | `compare:published` | The packed packages against the versions on npm |
+| `consumer-types` | `check:consumer` | Published `.d.ts` that break a user: Are The Types Wrong, then `tsc` with `skipLibCheck: false` under `bundler` and `node16` |
+| `oldest-versions` | `check:oldest` | A peer range that fails at its floor: Nuxt 3.18, VitePress 1.0, Vue 3.3, vue-router 4.5.1 |
+| `http-fuzz` | `test:fuzz` | Off-origin redirects, header injection, reflected HTML, traversal, crashes under hostile HTTP. For release checks, not CI |
 | `ensure-release-source` | `release:source` | Root `version` or `CHANGELOG.md` changed outside `cli release` |
 | [`preflight`](#preflight) | `preflight` | All release gates in one run |
 
@@ -180,6 +183,8 @@ pnpm run release:minor --ci-passed --force
 | `ci.yml` | Push to `main`, pull requests | Nothing |
 | `release-smoke.yml` | Manual, plus a nightly preset run on the checkout | Nothing to npm. The manual `deploy` input deploys the smoke app |
 | `docs.yml` | Push to `main` that changes `docs/`, a published GitHub release, manual | The docs site only |
+| `oldest-versions.yml` | Weekly, manual | Nothing |
+| `mutation.yml` | Nightly, manual | Nothing. A report to read, not a gate |
 
 ## Related
 

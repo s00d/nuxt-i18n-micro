@@ -26,7 +26,7 @@ yarn add -D @i18n-micro/types-generator
 
 :::
 
-Peer dependency: `@nuxt/kit` `^3.18.1 || ^4.5.2`. Only the `/nuxt` entry imports it; in a Vite-only project the peer warning can be ignored.
+Peer dependency: `@nuxt/kit` `^3.18.0 || ^4.0.0`. Only the `/nuxt` entry imports it; in a Vite-only project the peer warning can be ignored.
 
 ## Nuxt
 

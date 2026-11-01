@@ -6,7 +6,7 @@ Vue 3 plugin with the translation core of Nuxt I18n Micro: reactive `t()`, globa
 pnpm add @i18n-micro/vue
 ```
 
-Peers: `vue` `^3.5.43`; `vue-router` `^4.6.3 || ^5.0.0` (optional).
+Peers: `vue` `^3.3.0`; `vue-router` `^4.5.1 || ^5.0.0` (optional). The whole range runs. Its published types need Vue 3.5.5 or later with `skipLibCheck: false`; with `skipLibCheck: true`, the usual template setting, older versions compile too.
 
 ```ts
 import { createApp } from 'vue'

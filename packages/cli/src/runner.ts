@@ -1,9 +1,13 @@
 import { type ArgsDef, type CommandDef, defineCommand, runCommand, showUsage } from 'citty'
-import { name as packageName, version } from '../package.json'
+import { name, version as packageVersion } from '../package.json'
 import { reportError, usageError, validationError } from './errors'
 import { ownValue } from './json'
 import { closePrompts, log } from './log'
 import { type ArgSpec, type CommandSpec, REMOVED_COMMANDS, commands } from './spec'
+
+// plain strings: a re-export would leave `../package.json` in the published declarations, where it does not resolve
+export const packageName: string = name
+export const version: string = packageVersion
 
 type ParsedArgs = Record<string, unknown>
 
@@ -104,8 +108,6 @@ export const main = defineCommand({
   meta: { name: 'i18n-micro', version, description: 'Command-line tools for nuxt-i18n-micro' },
   subCommands: Object.fromEntries(Object.entries(commands).map(([name, spec]) => [name, toCommand(name, spec)])),
 })
-
-export { packageName, version }
 
 /** Run the CLI. Failures set `process.exitCode`; nothing here throws. */
 export async function runCli(rawArgs: string[]): Promise<void> {

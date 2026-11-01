@@ -12,6 +12,8 @@ export interface VitePressRouterLike {
   }
   go: (to: string, options?: { initialLoad?: boolean; replace?: boolean }) => void | Promise<void>
   onAfterRouteChange?: (to: string) => unknown
+  /** The only name VitePress calls before 1.6. */
+  onAfterRouteChanged?: (to: string) => unknown
 }
 
 export type VitePressGo = (href: string, options?: { replace?: boolean }) => void | Promise<void>

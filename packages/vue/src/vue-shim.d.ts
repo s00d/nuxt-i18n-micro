@@ -1,11 +1,23 @@
-import type { Params, CleanTranslation, TranslationKey } from '@i18n-micro/types'
+// The type rollup copies this block verbatim into each entry and drops the imports of this file,
+// so it names its types inline. `export {}` keeps the block an augmentation.
+export {}
 
 // Extend '@vue/runtime-core' module so types work correctly in all environments
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    $t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-    $ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
-    $tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+    $t: (
+      key: import('@i18n-micro/types').TranslationKey,
+      params?: import('@i18n-micro/types').Params,
+      defaultValue?: string | null,
+      routeName?: string,
+    ) => import('@i18n-micro/types').CleanTranslation
+    $ts: (
+      key: import('@i18n-micro/types').TranslationKey,
+      params?: import('@i18n-micro/types').Params,
+      defaultValue?: string,
+      routeName?: string,
+    ) => string
+    $tc: (key: import('@i18n-micro/types').TranslationKey, count: number | import('@i18n-micro/types').Params, defaultValue?: string) => string
     $tn: {
       (value: number, options?: Intl.NumberFormatOptions): string
       (value: number, key: string, overrides?: Intl.NumberFormatOptions): string
@@ -17,7 +29,7 @@ declare module '@vue/runtime-core' {
       (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string
     }
     $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
-    $has: (key: TranslationKey, routeName?: string) => boolean
+    $has: (key: import('@i18n-micro/types').TranslationKey, routeName?: string) => boolean
     $i18n: any
   }
 }

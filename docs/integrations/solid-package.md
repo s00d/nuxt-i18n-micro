@@ -26,7 +26,7 @@ yarn add @i18n-micro/solid
 
 :::
 
-Peer dependencies: `solid-js` `^1.9.15`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional, only for `@i18n-micro/solid/router`). Solid 2 is not supported yet.
+Peer dependencies: `solid-js` `^1.8.0`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional, only for `@i18n-micro/solid/router`). Solid 2 is not supported yet.
 
 ## Setup
 

@@ -4,12 +4,15 @@ import { changelogFromRefCommand } from './changelog-from-ref'
 import { checkVersionsCommand } from './check-versions'
 import { ciPrReportCommand } from './ci-pr-report'
 import { comparePublishedCommand } from './compare-published'
+import { consumerTypesCommand } from './consumer-types'
 import { depsAuditCommand } from './deps-audit'
 import { docsAuditCommand } from './docs-audit'
 import { docsGenerateCommand } from './docs-generate'
 import { ensureNpmAuthCommand } from './ensure-npm-auth'
 import { ensureReleaseSourceCommand } from './ensure-release-source'
 import { fixturesAuditCommand } from './fixtures-audit'
+import { httpFuzzCommand } from './http-fuzz'
+import { oldestVersionsCommand } from './oldest-versions'
 import { payloadBudgetCommand } from './payload-budget'
 import { performanceCommand } from './performance'
 import { preflightCommand } from './preflight'
@@ -29,12 +32,15 @@ export const commands = {
   'check-versions': checkVersionsCommand,
   'ci-pr-report': ciPrReportCommand,
   'compare-published': comparePublishedCommand,
+  'consumer-types': consumerTypesCommand,
   'deps-audit': depsAuditCommand,
   'docs-audit': docsAuditCommand,
   'docs-generate': docsGenerateCommand,
   'ensure-npm-auth': ensureNpmAuthCommand,
   'ensure-release-source': ensureReleaseSourceCommand,
   'fixtures-audit': fixturesAuditCommand,
+  'http-fuzz': httpFuzzCommand,
+  'oldest-versions': oldestVersionsCommand,
   'payload-budget': payloadBudgetCommand,
   performance: performanceCommand,
   'pr-diff-audit': prDiffAuditCommand,

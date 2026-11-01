@@ -6,7 +6,7 @@ SolidJS bindings for Nuxt I18n Micro: the runtime instance with signals over its
 pnpm add @i18n-micro/solid
 ```
 
-Peers: `solid-js` `^1.9.15`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional).
+Peers: `solid-js` `^1.8.0`; `@solidjs/router` `^0.15.4 || ^1.0.0` (optional).
 
 ```tsx
 import { render } from 'solid-js/web'

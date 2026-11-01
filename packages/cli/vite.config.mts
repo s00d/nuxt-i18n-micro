@@ -2,6 +2,7 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 import pkg from './package.json'
 
 const external = [...Object.keys(pkg.dependencies), /^@i18n-micro\//, /^node:/]
@@ -33,6 +34,7 @@ export default defineConfig({
       bundleTypes: false,
       include: ['src/**/*.ts'],
       outDir: 'dist',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
     }),
   ],

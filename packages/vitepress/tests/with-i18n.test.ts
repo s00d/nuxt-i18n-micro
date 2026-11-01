@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { withI18n, warnLocaleMismatch, type VitePressUserConfigLike } from '../src/plugin/with-i18n'
 import { messagesFromGlob } from '../src/runtime/messages-from-glob'
 import { createI18n } from '../src/runtime/create'
+import type { VitePressRouterLike } from '../src/router/adapter'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -423,6 +424,25 @@ describe('createI18n', () => {
     await after?.('/fr/')
     expect(userHook).toHaveBeenCalled()
     expect(i18n.getLocale()).toBe('fr')
+  })
+
+  it('syncs through onAfterRouteChanged, the only hook VitePress calls before 1.6', async () => {
+    const { enhanceApp, i18n } = createI18n({
+      locale: 'en',
+      defaultLocale: 'en',
+      locales: [{ code: 'en' }, { code: 'de' }],
+      messages: { en: { hi: 'Hi' }, de: { hi: 'Hallo' } },
+    })
+    const app = { use: vi.fn(), provide: vi.fn(), config: { globalProperties: {} as Record<string, unknown> }, component: vi.fn() }
+    const themeHook = vi.fn()
+    const router: VitePressRouterLike = { route: { path: '/' }, go: vi.fn(), onAfterRouteChanged: themeHook }
+
+    enhanceApp({ app: app as never, router })
+    expect(i18n.getLocale()).toBe('en')
+
+    await router.onAfterRouteChanged?.('/de/guide/demo')
+    expect(i18n.getLocale()).toBe('de')
+    expect(themeHook).toHaveBeenCalledWith('/de/guide/demo')
   })
 
   it('does not re-set routing strategy on re-enhance (avoids clobbering other apps)', () => {

@@ -235,6 +235,17 @@ jobs:
           pnpm run compare:published -- --local-only --changed-only 2>&1 | tee "$CI_LOG_DIR/compare-published.log"
           exit "${PIPESTATUS[0]}"
 
+      # Reads the tarballs as a user does; the repository's own builds set skipLibCheck: true.
+      # The root needs a real build for this, so it replaces the dev stub: keep this step last.
+      - name: Consumer types
+        id: consumer-types
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          set +e
+          { pnpm exec nuxt-module-build build && pnpm run check:consumer; } 2>&1 | tee "$CI_LOG_DIR/consumer-types.log"
+          exit "${PIPESTATUS[0]}"
+
       - name: CI summary
         if: always()
         env:
@@ -248,6 +259,7 @@ jobs:
           VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
           TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
           COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
         run: |
           set +e
           out="$(mktemp)"
@@ -277,6 +289,7 @@ jobs:
           VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
           TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
           COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

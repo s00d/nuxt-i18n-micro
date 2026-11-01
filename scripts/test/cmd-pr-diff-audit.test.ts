@@ -52,7 +52,7 @@ describe('pr-diff-audit', () => {
 
   it('escapes backticks in paths rendered into the sticky comment', () => {
     const audit = buildDiffAudit({
-      files: ['evil`x.png'] ,
+      files: ['evil`x.png'],
       numstatText: '1\t0\tevil`x.png\n',
       nameStatusText: 'A\tevil`x.png\n',
     })

@@ -76,6 +76,7 @@ catalog:
   '@testing-library/react': ^16.3.3
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
+  fast-check: ^4.10.2
   untestutils: ^0.8.1
   '@stryker-mutator/core': ^10.1.1
   '@stryker-mutator/vitest-runner': ^10.1.1

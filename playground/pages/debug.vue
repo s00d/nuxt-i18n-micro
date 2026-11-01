@@ -5,7 +5,8 @@ import { translationStorage } from '../../src/runtime/utils/storage'
 
 const route = useRoute()
 const router = useRouter()
-const { $t, $has, $getLocale, $getLocaleName, $defaultLocale, $getRouteName, $getLocales, $getI18nConfig, $localePath, $switchLocalePath } = useNuxtApp()
+const { $t, $has, $getLocale, $getLocaleName, $defaultLocale, $getRouteName, $getLocales, $getI18nConfig, $localePath, $switchLocalePath } =
+  useNuxtApp()
 
 const keysOf = (locale: string, page: string) => {
   const chunk = translationStorage.getFromCache(locale, page)
@@ -30,7 +31,7 @@ const snapshot = () => {
   } as Record<string, unknown>
 }
 
-const { data: server } = await useFetch('/api/bench/debug', {
+const { data: server } = await useFetch<{ variant: string | null }>('/api/bench/debug', {
   key: 'bench-debug',
   headers: useRequestHeaders(['host', 'accept-language', 'cookie', 'x-forwarded-host', 'x-forwarded-proto']),
 })
@@ -82,12 +83,19 @@ const readHead = () => {
 
 // a state, not a ref: /debug and /de/debug are two records, so a switch mounts this page anew
 const log = useState<string[]>('bench-debug-log', () => [])
-const write = (line: string) => log.value.unshift(`${Math.round(performance.now())} ms  ${line}`)
+const write = (line: string) => {
+  log.value.unshift(`${Math.round(performance.now())} ms  ${line}`)
+}
 const fetches = ref<{ name: string; ms: number; bytes: number; from: string }[]>([])
 const addFetch = (entry: PerformanceResourceTiming) => {
   if (!entry.name.includes('/_locales/')) return
   const url = new URL(entry.name)
-  fetches.value.push({ name: url.pathname, ms: Math.round(entry.duration), bytes: entry.encodedBodySize, from: entry.transferSize ? 'network' : 'cache' })
+  fetches.value.push({
+    name: url.pathname,
+    ms: Math.round(entry.duration),
+    bytes: entry.encodedBodySize,
+    from: entry.transferSize ? 'network' : 'cache',
+  })
 }
 
 const probeKey = ref('title')

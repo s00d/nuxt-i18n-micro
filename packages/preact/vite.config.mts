@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
   // only the bundled declarations at the top of the output dir
@@ -36,6 +37,7 @@ export default defineConfig({
       entryRoot: '..',
       include: ['src/**/*.ts', '../react/src/shared.ts', '../react/src/context.tsx', '../react/src/injection.ts', '../react/src/components/*'],
       outDir: 'dist',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       compilerOptions: {
         // Убеждаемся, что типы генерируются с учетом preact

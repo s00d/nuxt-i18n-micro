@@ -50,6 +50,12 @@ export type CreateI18nResult = I18nPlugin &
     enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> | VitePressSiteDataLike }) => void
   }
 
+// VitePress before 1.6 calls only `onAfterRouteChanged`; 1.6 prefers `onAfterRouteChange`, and 2 knows only that one.
+// No version calls both, so sync runs once per navigation.
+const ROUTE_HOOKS = ['onAfterRouteChange', 'onAfterRouteChanged'] as const
+type RouteHook = (typeof ROUTE_HOOKS)[number]
+type RouteHandler = (to: string) => unknown
+
 function applyRouteMessages(
   plugin: I18nPlugin,
   root: Record<string, Translations> | undefined,
@@ -109,8 +115,8 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
     object,
     {
       adapter: VitePressRouterAdapter
-      boundSyncHandler: ((to: string) => unknown) | null
-      chainedPrevious: ((to: string) => unknown) | undefined
+      boundSyncHandlers: Partial<Record<RouteHook, RouteHandler>>
+      chainedPrevious: Partial<Record<RouteHook, RouteHandler>>
     }
   >()
 
@@ -133,7 +139,7 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
 
       app.use(plugin)
       plugin.setRoutingStrategy(adapter)
-      state = { adapter, boundSyncHandler: null, chainedPrevious: undefined }
+      state = { adapter, boundSyncHandlers: {}, chainedPrevious: {} }
       byApp.set(app, state)
     }
 
@@ -152,23 +158,24 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
 
     sync()
 
-    const current = router.onAfterRouteChange
-    if (current !== state.boundSyncHandler) {
-      state.chainedPrevious = typeof current === 'function' ? current : undefined
-    }
-    state.boundSyncHandler = async (to: string) => {
-      if (typeof state.chainedPrevious === 'function') {
-        await state.chainedPrevious(to)
+    for (const hook of ROUTE_HOOKS) {
+      const current = router[hook]
+      if (current !== state.boundSyncHandlers[hook]) {
+        state.chainedPrevious[hook] = typeof current === 'function' ? current : undefined
       }
-      const path = to.startsWith('http')
-        ? (() => {
-            const url = new URL(to)
-            return url.pathname + url.search + url.hash
-          })()
-        : to
-      sync(path)
+      const handler = async (to: string) => {
+        await state.chainedPrevious[hook]?.(to)
+        const path = to.startsWith('http')
+          ? (() => {
+              const url = new URL(to)
+              return url.pathname + url.search + url.hash
+            })()
+          : to
+        sync(path)
+      }
+      state.boundSyncHandlers[hook] = handler
+      router[hook] = handler
     }
-    router.onAfterRouteChange = state.boundSyncHandler
   }
 
   return Object.assign(plugin, pathMethods, {

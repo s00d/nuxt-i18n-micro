@@ -13,18 +13,8 @@ import {
   resolvePerfArgs,
 } from '../src/perf/config'
 import { PERF_FIXTURES, resolveFixtureSelection } from '../src/perf/fixtures'
-import {
-  I18N_LOAD_PHASES,
-  LOAD_PROFILES,
-  artilleryKnobsFromProfile,
-  loadPathsFromProfile,
-  parseLoadProfile,
-} from '../src/perf/load'
-import {
-  MODULE_PACKAGE_SRC_DIRS,
-  buildHashInputs,
-  isJitiModuleStub,
-} from '../src/perf/artifact'
+import { I18N_LOAD_PHASES, LOAD_PROFILES, artilleryKnobsFromProfile, loadPathsFromProfile, parseLoadProfile } from '../src/perf/load'
+import { MODULE_PACKAGE_SRC_DIRS, buildHashInputs, isJitiModuleStub } from '../src/perf/artifact'
 
 describe('perf config', () => {
   it('maps keys to a clamped branch at depth 5', () => {

@@ -1127,3 +1127,56 @@ describe('stability', () => {
     expect(of(strict).getRouteBaseName({ path: '/about-us/' })).not.toBe('about')
   })
 })
+
+describe('guards no test named before mutation testing did', () => {
+  test('a link that lets the router fill a param is not cached: the next page gets its own value', async () => {
+    const { router, i18n } = setup('prefix')
+    await router.push('/de/artikel/first')
+    expect(i18n.localeRoute('fr', { name: 'blog-slug' }).path).toBe('/fr/blog/first')
+    await router.push('/de/artikel/second')
+    expect(i18n.localeRoute('fr', { name: 'blog-slug' }).path).toBe('/fr/blog/second')
+  })
+
+  test('a disabled locale is no switch target: the link stays on the page', () => {
+    const locales = LOCALES.map((l) => (l.code === 'fr' ? { ...l, disabled: true } : l))
+    const { i18n, at, url } = setup('prefix', { locales }, LOCALES)
+    expect(url(i18n.switchLocaleRoute('fr', at('/de/ueber-uns')))).toBe('/de/ueber-uns')
+  })
+
+  test('prefix: a page the preferred locale lacks moves to the default locale, else to a locale this host serves', () => {
+    expect(setup('prefix', {}, LOCALES, { routeLocales: { about: ['en', 'de'] } }).i18n.getClientRedirect('/about-us', 'fr')).toBe('/en/about-us')
+    expect(setup('prefix').i18n.getClientRedirect('/de-only', 'fr')).toBe('/de/de-only')
+  })
+
+  test('elsewhere the unprefixed URL already shows such a page: it stays', () => {
+    expect(
+      setup('prefix_except_default', {}, LOCALES, { routeLocales: { about: ['en', 'de'] } }).i18n.getClientRedirect('/about-us', 'fr'),
+    ).toBeNull()
+    expect(setup('prefix_except_default').i18n.getClientRedirect('/de-only', 'fr')).toBeNull()
+  })
+
+  describe('an unprefixed record of a host default on a domain build', () => {
+    const domains: Locale[] = [
+      { code: 'en', baseUrl: 'https://a.test', baseDefault: true },
+      { code: 'de', baseUrl: 'https://b.test', baseDefault: true },
+    ]
+    const on = (strategy: Strategies, host: Locale, defaultLocale: string, routeLocales: Record<string, string[]>) =>
+      setup(strategy, { defaultLocale, locales: [host], linkLocales: domains, domain: new URL(host.baseUrl!).host }, domains, { routeLocales }).i18n
+
+    test('the unprefixed URL of another host is not allowed here', () => {
+      expect(on('prefix_and_default', domains[0]!, 'en', {}).shouldReturn404('/ueber-uns')).toBe('Locale not allowed for this route')
+    })
+
+    test('under prefix_except_default a page the host default has moves to its URL', () => {
+      expect(on('prefix_except_default', domains[0]!, 'en', {}).shouldReturn404('/ueber-uns')).toBeNull()
+    })
+
+    test('a URL no record serves is no business of this check', () => {
+      expect(on('prefix_and_default', domains[0]!, 'en', {}).shouldReturn404('/no/such/page')).toBeNull()
+    })
+
+    test('the record of the host default itself is served', () => {
+      expect(on('prefix_and_default', domains[0]!, 'en', {}).shouldReturn404('/about-us')).toBeNull()
+    })
+  })
+})

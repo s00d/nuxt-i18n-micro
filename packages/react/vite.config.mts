@@ -3,6 +3,7 @@ import { basename, dirname, resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
   // only the entry declarations at the top of the output dir (index.d.ts, router.d.ts)
@@ -38,6 +39,7 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist/react',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.build.json'),
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['tests/**/*'],

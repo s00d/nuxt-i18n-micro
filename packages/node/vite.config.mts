@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
   if (!filePath.endsWith('index.d.ts')) {
@@ -39,6 +40,7 @@ export default defineConfig({
         }
       },
       bundleTypes: true,
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: 'tsconfig.json',
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

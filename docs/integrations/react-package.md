@@ -26,7 +26,7 @@ yarn add @i18n-micro/react
 
 :::
 
-Peer dependencies: `react` `^18.0.0 || ^19.0.0`; `react-dom` (optional, for rendering); `react-router-dom` `^6.30.6 || ^7.0.0` (optional, only for `@i18n-micro/react/router`). Tested on React 19.3 and 18.3, React Router 7.18 and 6.30.
+Peer dependencies: `react` `^18.0.0 || ^19.0.0`; `react-dom` (optional, for rendering); `react-router-dom` `^6.0.0 || ^7.0.0` (optional, only for `@i18n-micro/react/router`). Tested on React 19.3 and 18.3, React Router 7.18 and 6.30.
 
 ## Setup
 
@@ -215,7 +215,7 @@ Full signatures: [React reference](/api/packages/react).
 
 | | React | Preact |
 | --- | --- | --- |
-| Peer dependency | `react` (+ optional `react-router-dom`) | `preact` `^10.27.2 \|\| ^11.0.0`, tested on 10.29 and 11.1 |
+| Peer dependency | `react` (+ optional `react-router-dom`) | `preact` `^10.0.0 \|\| ^11.0.0`, tested on 10.29 and 11.1 |
 | Instance class | `ReactI18n` | `PreactI18n` |
 | Router adapter | `createReactRouterAdapter` from `/router` | `createBrowserHistoryAdapter(locales, defaultLocale, ssrUrl?)` from `/router` |
 | Re-render | `useSyncExternalStore` | a layout-effect subscription that re-checks the store |

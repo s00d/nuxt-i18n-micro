@@ -3,11 +3,11 @@
 Quick-start context for AI coding agents (local + Cursor Cloud) in this repository.
 
 Human docs: [README](./README.md) · [CONTRIBUTING](./.github/CONTRIBUTING.md) · [Contribution guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)  
-Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-versioning.mdc`](./.cursor/rules/package-versioning.mdc)
+Deeper agent rules: [`.cursor/rules/`](./.cursor/rules) · [`.claude/rules/`](./.claude/rules)
 
 ## What this is
 
-**nuxt-i18n-micro** — performance-focused i18n for Nuxt 3, plus framework packages under `@i18n-micro/*`.
+**nuxt-i18n-micro** — performance-focused i18n for Nuxt 3 and 4, plus framework packages under `@i18n-micro/*`.
 
 - Published root package: `nuxt-i18n-micro` (Nuxt module from `src/`)
 - Shared domain logic: `packages/core`, `packages/types`, `packages/utils`
@@ -84,7 +84,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Bench variants | `pnpm run bench list` · `pnpm run bench smoke <variant>` |
 | Docs site | `pnpm run docs:dev` |
 | Lint / format | `pnpm run lint` (oxlint) · `pnpm run format` (oxfmt) |
-| Typecheck | `pnpm run typecheck` · `pnpm run test:types` |
+| Typecheck | `pnpm run typecheck` |
 | Unit (fast) | `pnpm run test:unit` (includes tsc/vue-tsc of `test/**`) |
 | All tests | `pnpm run test` (unit + integration + e2e + package projects) |
 | Packages / e2e | `pnpm run test:packages` · `pnpm run test:e2e` |
@@ -101,15 +101,15 @@ Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
 When `packages/<name>/` changes ship:
 
-1. Bump **one patch** per affected publishable workspace package.
+1. Bump each affected publishable workspace package once: `pnpm run bump --level patch --packages <names>`.
 2. Rebuild that package so `dist/` matches source: `pnpm --filter @i18n-micro/<name> build`.
-3. Commit source + version + `dist/` together.
+3. Commit source + version together. `dist/` is gitignored; `prepack` rebuilds it for a release.
 
-**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:*` / `pnpm -C scripts cli release`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
+**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:patch|minor|major` / `pnpm -C scripts cli release --bump <level>`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
 
 Do **not** bump workspace versions on every intermediate commit in the same PR.
 
-Minor bumps only when explicitly agreed. Details: `.cursor/rules/package-versioning.mdc`.
+The level is the owner's call: patch unless the owner says minor or major, and nothing picks it from commits. Details: `.cursor/rules/package-versioning.mdc`. Publishing: `docs/contributing/maintenance-commands.md`.
 
 ## Agent do / don't
 
@@ -141,7 +141,7 @@ pnpm --filter @i18n-micro/<name> build
 
 ## Further reading
 
-- Architecture & conventions: `.cursorrules`
+- Architecture: `docs/contributing/architecture.md`
 - Routing strategies: `docs/guide/strategy.md`
 - Locales layout: `docs/guide/translations.md`
 - Maintenance / audits: `docs/contributing/maintenance-commands.md`

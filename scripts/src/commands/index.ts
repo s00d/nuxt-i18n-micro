@@ -1,4 +1,5 @@
 import { apiSurfaceCommand } from './api-surface'
+import { bumpCommand } from './bump'
 import { changelogFromRefCommand } from './changelog-from-ref'
 import { checkVersionsCommand } from './check-versions'
 import { ciPrReportCommand } from './ci-pr-report'
@@ -12,6 +13,7 @@ import { fixturesAuditCommand } from './fixtures-audit'
 import { payloadBudgetCommand } from './payload-budget'
 import { performanceCommand } from './performance'
 import { preflightCommand } from './preflight'
+import { publishCommand } from './publish'
 import { prDiffAuditCommand } from './pr-diff-audit'
 import { releaseCommand } from './release'
 import { presetSmokeCommand } from './preset-smoke'
@@ -22,6 +24,7 @@ import { verifyPackagesCommand } from './verify-packages'
 
 export const commands = {
   'api-surface': apiSurfaceCommand,
+  bump: bumpCommand,
   'changelog-from-ref': changelogFromRefCommand,
   'check-versions': checkVersionsCommand,
   'ci-pr-report': ciPrReportCommand,
@@ -37,6 +40,7 @@ export const commands = {
   'pr-diff-audit': prDiffAuditCommand,
   'preset-smoke': presetSmokeCommand,
   preflight: preflightCommand,
+  publish: publishCommand,
   release: releaseCommand,
   'smoke-pack': smokePackCommand,
   'smoke-verify': smokeVerifyCommand,

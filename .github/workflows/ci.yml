@@ -41,9 +41,9 @@ jobs:
         with:
           # Full history: check:versions diffs against the PR merge-base / last tag.
           fetch-depth: 0
+      # version comes from `packageManager` in package.json
       - uses: pnpm/action-setup@v6
         with:
-          version: 9.14.2
           run_install: false
       - uses: actions/setup-node@v7
         with:

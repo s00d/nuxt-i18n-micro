@@ -20,7 +20,9 @@
     "**/.fixture-builds/**",
     "**/.bench/**",
     "playground/locales/pages/huge-*/**",
-    "**/__golden__/**"
+    "**/__golden__/**",
+    "**/_locales_hashes/**",
+    "test/fixtures/**/content/**"
   ],
   "overrides": [
     {

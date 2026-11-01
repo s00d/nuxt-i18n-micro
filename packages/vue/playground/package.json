@@ -22,8 +22,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:",
-    "@vue/devtools-api": "catalog:",
-    "@vue/server-renderer": "catalog:",
     "vite": "catalog:",
     "vite-plugin-vue-devtools": "catalog:",
     "vue-tsc": "catalog:"

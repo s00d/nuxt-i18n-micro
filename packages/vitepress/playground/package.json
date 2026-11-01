@@ -1,5 +1,6 @@
 {
   "name": "@i18n-micro/vitepress-playground",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +11,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "devDependencies": {
-    "@i18n-micro/vitepress": "workspace:*",
+    "@i18n-micro/vitepress": "workspace:^",
     "typescript": "catalog:",
     "vitepress": "catalog:",
     "vue": "catalog:",

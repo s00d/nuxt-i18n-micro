@@ -72,13 +72,13 @@ Run at least `lint`, `typecheck` and `test:unit` before you push; run the full `
 
 ## Changing a package
 
-Packages under `packages/*` are versioned by hand; release tooling bumps only the root. `pnpm publish -r` silently skips a version that is already on npm, so a missing bump leaves the package stale.
+Packages under `packages/*` are versioned by hand; the release scripts bump only the root. `pnpm publish -r` silently skips a version that is already on npm, so a missing bump leaves the package stale.
 
-1. Bump the `version` of every changed package by **one patch**, once per pull request (not per commit).
+1. Bump every changed package once per pull request (not per commit): `pnpm run bump --level patch --packages <names>`. Use a patch unless a maintainer decides on minor or major.
 2. Rebuild it so `dist/` matches the source: `pnpm --filter @i18n-micro/<name> build`.
-3. Commit source, version and `dist/` together.
+3. Commit source and version together. `dist/` is gitignored; `prepack` rebuilds it for a release.
 
-CI runs `pnpm run check:versions` against the merge base; changes to tests, docs and playgrounds do not count. **Never** edit the root `version` or `CHANGELOG.md` by hand: only the release scripts change them.
+CI runs `pnpm run check:versions` against the merge base; changes to tests, docs and playgrounds do not count. **Never** edit the root `version` or `CHANGELOG.md` by hand: only the release scripts change them. [Publishing](/contributing/maintenance-commands#publishing) lists the commands.
 
 ## Commits and pull requests
 

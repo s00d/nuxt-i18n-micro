@@ -29,11 +29,15 @@ describe('release', () => {
     expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--from', 'v3.21.4', '--patch'])
   })
 
-  it('lets changelogen infer the bump for --bump auto', async () => {
-    execFileSync.mockClear()
-    await runCli(releaseCommand, { bump: 'auto' })
-    expect(changelogenArgs()).not.toContain('--auto')
-    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--from', 'v3.21.4'])
+  it('never lets changelogen pick the level from commits', async () => {
+    for (const bump of [undefined, 'auto']) {
+      execFileSync.mockClear()
+      // oxlint-disable-next-line no-await-in-loop
+      const { exitCode, stderr } = await runCli(releaseCommand, { bump })
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('--bump patch | minor | major')
+      expect(execFileSync).not.toHaveBeenCalled()
+    }
   })
 
   it('passes minor and major straight through', async () => {

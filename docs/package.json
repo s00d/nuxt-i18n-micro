@@ -2,8 +2,8 @@
   "name": "@i18n-micro/docs",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "VitePress documentation site for nuxt-i18n-micro.",
+  "type": "module",
   "scripts": {
     "generate": "pnpm -C ../scripts cli docs-generate",
     "dev": "pnpm run generate && vitepress dev .",

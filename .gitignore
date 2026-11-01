@@ -10,10 +10,6 @@ node_modules
 .cache
 .compare-published
 
-# Yarn
-**/.yarn/cache
-**/.yarn/*state*
-
 # Generated dirs
 dist
 
@@ -56,7 +52,6 @@ scripts/perf-fixtures/plain-nuxt/public/translations/**/*.json
 scripts/perf-fixtures/plain-nuxt/server/utils/generated-translations.ts
 
 # VSCode
-.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -109,4 +104,3 @@ test/deploy-smoke/pnpm-lock.yaml
 # `vercel link` writes the project ids here; CI reads them from secrets instead
 .vercel
 .claude/worktrees
-scripts/perf-fixtures/perf-shared/.locale-fingerprint

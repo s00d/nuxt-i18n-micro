@@ -30,7 +30,7 @@ pnpm -C scripts cli <command> --help
 | `ensure-release-source` | `release:source` | Root `version` or `CHANGELOG.md` changed outside `cli release` |
 | [`preflight`](#preflight) | `preflight` | All release gates in one run |
 
-`release`, `performance`, `preset-smoke` and the `smoke-*` commands are covered in [Release smoke checks](/contributing/release-smoke) and [Benchmark methodology](/contributing/performance-methodology).
+`release` and `bump` are covered in [Publishing](#publishing). `performance`, `preset-smoke` and the `smoke-*` commands are covered in [Release smoke checks](/contributing/release-smoke) and [Benchmark methodology](/contributing/performance-methodology).
 
 ## docs-generate
 
@@ -105,7 +105,7 @@ pnpm run budget:payload:update                    # record with --tolerance head
 
 ## preflight
 
-Runs the preflight gates, publishes nothing, and reports all results at once (the `release:*` scripts chain gates with `&&` and stop at the first failure). `release:check` also runs format, lint, typecheck, compare-published and tests, so preflight alone is not a full release check. Gates in order: `deps-audit`, `verify-packages --publint`, `api-surface`, `docs-audit`, `docs-generate --check`, `fixtures-audit --strict`, `check-versions`, `ensure-release-source`, `ensure-npm-auth` (with `--npm`), `payload-budget` (with `--budget`).
+Runs the preflight gates, publishes nothing, and reports all results at once (the `release:*` scripts stop at the first failure). `release:check` also runs prepack, format, lint, typecheck, compare-published and tests, so preflight alone is not a full release check. Gates in order: `deps-audit`, `verify-packages --publint`, `api-surface`, `docs-audit`, `docs-generate --check`, `fixtures-audit --strict`, `check-versions`, `ensure-release-source`, `ensure-npm-auth` (with `--npm`), `payload-budget` (with `--budget`).
 
 ```bash
 pnpm run preflight
@@ -114,7 +114,72 @@ pnpm -C scripts cli preflight --offline   # skip network gates
 pnpm -C scripts cli preflight --budget    # also build and check the payload budget
 ```
 
-Before pushing a change set, maintainers run: `prepack`, `format`, `lint`, `typecheck`, `check:versions -- --npm`, `release:source`, `compare:published`, plus `test` when runtime or routing changed. `release:check` chains most of these. `ensure-release-source` is part of `release:check` and `preflight`, not of `release:patch` / `minor` / `major`.
+Before pushing a change set, maintainers run: `prepack`, `format`, `lint`, `typecheck`, `check:versions -- --npm`, `release:source`, `compare:published`, plus `test` when runtime or routing changed. `release:check` chains most of these. `ensure-release-source` is part of `release:check`, `preflight` and every release command.
+
+## Publishing
+
+You pick every version level, and you start every publish. No command reads a level from commit messages, and no CI workflow publishes to npm.
+
+| What | Patch | Minor | Major |
+| --- | --- | --- | --- |
+| Root module | `pnpm run release:patch` | `pnpm run release:minor` | `pnpm run release:major` |
+| Packages | `pnpm run bump --level patch --packages <names>` | `pnpm run bump --level minor --packages <names>` | `pnpm run bump --level major --packages <names>` |
+
+Tests run by default. When CI already passed, add `--ci-passed` to any release command: see [Skip the local tests](#skip-the-local-tests).
+
+### Root module
+
+`release:patch`, `release:minor` and `release:major` run `pnpm -C scripts cli publish --bump <level>`, which does, in order:
+
+1. `release:auth`: fails when you are not logged in to npm.
+2. `prepack`: builds the packages, the module and the client.
+3. `format:check`, `lint`, `typecheck`, `check:versions -- --npm`, `release:source`, `compare:published`.
+4. `test`.
+5. `pnpm -C scripts cli release --bump <level>`: changelogen writes the root `version` and `CHANGELOG.md`, commits `chore(release): vX.Y.Z` and tags it. `--bump` is required.
+6. `pnpm publish -r`, then `git push --follow-tags`.
+
+`pnpm publish -r` also ships every package whose version is not on npm yet, so bump and commit the packages first.
+
+### Packages
+
+`bump` edits only `version` in the named `packages/*/package.json`. It does not commit, tag or publish. `--packages` takes short or scoped names separated by commas, or `all`.
+
+```bash
+pnpm run bump --level minor --packages core,vue
+pnpm run check:versions                          # names the dependents that still need a bump
+pnpm run bump --level patch --packages runtime,react
+git commit -am "chore(packages): bump versions"
+pnpm run release:packages                        # the steps above, without the root bump
+```
+
+`release:packages` leaves the root alone: its version is already on npm, so `pnpm publish -r` skips it, and no tag is created. To see what would ship without publishing, run `pnpm publish -r --dry-run`.
+
+`check:versions` fails on a changed package that was not bumped, and on a dependent of a bumped package; it never picks the level.
+
+### Skip the local tests
+
+`--ci-passed` works on every release command and on `release:check`. It skips step 4 and nothing else: the build, `dist`, version and packaging checks still run.
+
+```bash
+pnpm run release:minor --ci-passed      # root
+pnpm run release:packages --ci-passed   # packages only
+```
+
+The flag asks `gh run list --commit` about `ci.yml` on `HEAD` and prints why it skipped the tests. It refuses when a run failed or is still running, when no run passed, and when the working tree has uncommitted changes. If `gh` is missing, not logged in or cannot reach GitHub, it says so and stops; add `--force` to confirm by hand that CI passed:
+
+```bash
+pnpm run release:minor --ci-passed --force
+```
+
+`--force` does not override a failed run. In that case run the release without `--ci-passed`, which runs the tests here.
+
+### CI
+
+| Workflow | Starts on | Publishes |
+| --- | --- | --- |
+| `ci.yml` | Push to `main`, pull requests | Nothing |
+| `release-smoke.yml` | Manual, plus a nightly preset run on the checkout | Nothing to npm. The manual `deploy` input deploys the smoke app |
+| `docs.yml` | Push to `main` that changes `docs/`, a published GitHub release, manual | The docs site only |
 
 ## Related
 

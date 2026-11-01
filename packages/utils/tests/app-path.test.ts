@@ -146,3 +146,30 @@ describe('slash trimming', () => {
     expect(forwardSlashes('a/b')).toBe('a/b')
   })
 })
+
+describe('isStaticAssetPathname, by extension of the last segment', () => {
+  it.each(['/a.json', '/a.JSON', '/a/b.png/', '/a.json//', '.json', '/.json', '/x.y.css', '/sitemap-0.xml', '/robots.txt', '/favicon.ico'])(
+    '%s is one',
+    (path) => {
+      expect(isStaticAssetPathname(path)).toBe(true)
+      expect(isInternalPath(path)).toBe(true)
+    },
+  )
+
+  it.each(['', '/', '/a', '/a.b/c', '/user/john.doe', '/a.html', '/a.htm', '/a.json/b', '/a.json\n', '/a.', '/json'])('%j is not', (path) => {
+    expect(isStaticAssetPathname(path)).toBe(false)
+  })
+
+  it.each([
+    '/sitemap.xml',
+    '/sitemap-news.xml/',
+    '/robots.txt/',
+    '/favicon.ico',
+    '/apple-touch-icon-120x120.png',
+    '/manifest.json',
+    '/sw.js',
+    '/workbox-abc.js',
+  ])('%s is internal without a list of its own', (path) => {
+    expect(isInternalPath(path)).toBe(true)
+  })
+})

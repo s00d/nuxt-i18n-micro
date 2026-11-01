@@ -21,25 +21,19 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
  * Last-segment static-asset check. Dotted slugs (`/en/user/john.doe`) stay as pages;
  * only the final segment is considered. `.html` / `.htm` stay as pages.
  */
-const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
+const STATIC_ASSET_EXT = new Set(
+  'xml txt ico json js css png jpg jpeg gif svg webp avif pdf wasm map mp4 webm mp3 zip gz woff woff2 ttf eot'.split(' '),
+)
 
 export function isStaticAssetPathname(pathname: string): boolean {
-  if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
-  const last = pathname.split('/').filter(Boolean).pop() ?? ''
-  return STATIC_ASSET_EXT.test(last)
+  if (pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
+  const path = trimTrailingSlashes(pathname)
+  const dot = path.lastIndexOf('.')
+  // a `/` after the dot: the last segment has no extension
+  return dot > path.lastIndexOf('/') && STATIC_ASSET_EXT.has(path.slice(dot + 1).toLowerCase())
 }
 
 const INTERNAL_PREFIXES = ['/api', '/_nuxt'] as const
-
-const DEFAULT_STATIC_PATTERNS = [
-  /^\/sitemap.*\.xml$/,
-  /^\/robots\.txt$/,
-  /^\/favicon\.ico$/,
-  /^\/apple-touch-icon.*\.png$/,
-  /^\/manifest\.json$/,
-  /^\/sw\.js$/,
-  /^\/workbox-.*\.js$/,
-]
 
 /** `path` is `prefix` or below it: `/admin` covers `/admin` and `/admin/x`, not `/administrator`. */
 function underPrefix(path: string, prefix: string): boolean {
@@ -123,8 +117,6 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
   if (apiBaseUrl && underPrefix(path, `/${trimSlashes(apiBaseUrl)}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
   if (/(?:^|\/)__/.test(path)) return true
-  const pathForMatch = path.length > 1 ? trimTrailingSlashes(path) : path
-  if (DEFAULT_STATIC_PATTERNS.some((pattern) => pattern.test(pathForMatch))) return true
   if (isStaticAssetPathname(path)) return true
   return excludePatterns?.some((pattern) => matchesPattern(path, pattern)) ?? false
 }

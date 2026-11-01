@@ -2,7 +2,7 @@ import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
 import { createError, defineEventHandler, getQuery, getRouterParam, send, setResponseHeader } from 'h3'
 import { getI18nServerConfig } from '../utils/locale-detector'
-import { loadTranslationsFromServer } from '../utils/server-loader'
+import { loadTranslationsFromServer, NO_FILE } from '../utils/server-loader'
 
 /**
  * API Route: /_locales/:page/:locale/data.json
@@ -22,12 +22,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }
 
-  const { json } = await loadTranslationsFromServer(locale, page).catch((cause) => {
+  const entry = await loadTranslationsFromServer(locale, page).catch((cause) => {
     // a failed read leaves no copy anywhere, a browser's included: the next request reads again
     console.warn('[i18n] Translation load failed:', locale, page)
     setResponseHeader(event, 'Cache-Control', 'no-store')
     throw createError({ statusCode: 503, statusMessage: 'Translations unavailable', cause })
   })
+  // the client's own model: it shows the root for a page with no file, as the render does, and a 404 stays uncached
+  if (entry === NO_FILE) throw createError({ statusCode: 404, statusMessage: 'No such file' })
+  const { json } = entry
 
   // Send pre-serialized JSON directly (no repeated serialization)
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')

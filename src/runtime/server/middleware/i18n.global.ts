@@ -10,25 +10,24 @@ import { domains } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 import { requestURL } from '../../utils/request-url'
 import { detectRequestLocale, getI18nServerConfig } from '../utils/locale-detector'
-import { loadTranslationsFromServer, resolveServerHost } from '../utils/server-loader'
+import { loadTranslationsFromServer, NO_FILE } from '../utils/server-loader'
 
-/** The page render loads its chunks through this, not through a local fetch of /_locales. */
-const load = async (locale: string, routeName: string) => (await loadTranslationsFromServer(locale, routeName)).data
-
-/** `load` reaches the remote host too only with `cacheStorage`: otherwise the render fetches it itself. */
-const loadsRemote = (cacheStorage?: string) => Boolean(cacheStorage && resolveServerHost())
+/** The page render loads its chunks through this, not through a local fetch of /_locales. `null`: the host has no file for it. */
+async function load(locale: string, routeName: string) {
+  const entry = await loadTranslationsFromServer(locale, routeName)
+  return entry === NO_FILE ? null : entry.data
+}
 
 export default defineEventHandler(async (event) => {
   const config = getI18nServerConfig(event)
   const path = withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig(event).app.baseURL)
-  const { cacheStorage, serverTranslationPreload } = getI18nPrivateConfig()
+  const { serverTranslationPreload } = getI18nPrivateConfig()
 
   // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
   if (isInternalPath(path, undefined, config.apiBaseUrl)) {
     // an error page renders through an internal path: it belongs to its host, and its chunks enter the process-wide
     // cache, so it reads them the way every page does (a local fetch would answer them from the public copy)
-    const context = { load, loadsRemote: loadsRemote(cacheStorage) }
-    event.context.i18n = (domains ? { ...context, config } : context) as typeof event.context.i18n
+    event.context.i18n = (domains ? { load, config } : { load }) as typeof event.context.i18n
     return
   }
 
@@ -51,7 +50,6 @@ export default defineEventHandler(async (event) => {
     locale,
     translations,
     load,
-    loadsRemote: loadsRemote(cacheStorage),
     // the render reuses this request's resolved config (runtime overrides applied once)
     config,
   }

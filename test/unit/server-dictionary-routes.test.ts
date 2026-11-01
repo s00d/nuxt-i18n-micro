@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
   load: vi.fn(),
+  noFile: { data: {}, json: '{}' },
   privateConfig: {} as Record<string, unknown>,
   config: { locales: [{ code: 'en' }], apiBaseUrl: '_locales', dateBuild: 'hash', httpCacheDuration: 31536000 } as Record<string, unknown>,
   domains: false,
@@ -12,7 +13,7 @@ const state = vi.hoisted(() => ({
 
 vi.mock('../../src/runtime/server/utils/server-loader', () => ({
   loadTranslationsFromServer: state.load,
-  resolveServerHost: () => process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? state.privateConfig.apiBaseServerHost,
+  NO_FILE: state.noFile,
 }))
 vi.mock('../../src/runtime/server/utils/locale-detector', () => ({
   getI18nServerConfig: () => state.config,
@@ -65,6 +66,11 @@ describe('/_locales', () => {
     expect(e.node.res.getHeader('cache-control')).toBe('no-store')
   })
 
+  test('a file the host does not have is a 404: the client shows the root, as the render does', async () => {
+    state.load.mockResolvedValue(state.noFile)
+    await expect((await route())(request())).rejects.toMatchObject({ statusCode: 404 })
+  })
+
   test('an empty dictionary is never immutable', async () => {
     state.load.mockResolvedValue({ data: {}, json: '{}' })
     const e = request()
@@ -87,24 +93,15 @@ describe('/_locales', () => {
 describe('the Nitro middleware hands the render its loader', () => {
   const middleware = () => handler('../../src/runtime/server/middleware/i18n.global')
 
-  test('on a page: the render reaches the host through it only with cacheStorage', async () => {
-    const run = async () => {
-      const e = event('/about')
-      await (
-        await middleware()
-      )(e)
-      return e.context.i18n!
-    }
-    state.privateConfig = { apiBaseServerHost: 'https://backend.test' }
-    expect((await run()).loadsRemote).toBe(false)
-
-    state.privateConfig = { apiBaseServerHost: 'https://backend.test', cacheStorage: 'redis' }
-    expect((await run()).loadsRemote).toBe(true)
-
-    state.privateConfig = { cacheStorage: 'redis' }
-    expect((await run()).loadsRemote).toBe(false)
-    vi.stubEnv('NUXT_I18N_APP_BASE_SERVER_HOST', 'https://runtime.test')
-    expect((await run()).loadsRemote).toBe(true)
+  test('the load it gives tells a file the host does not have from an empty dictionary', async () => {
+    const e = event('/about')
+    await (
+      await middleware()
+    )(e)
+    state.load.mockResolvedValue(state.noFile)
+    expect(await e.context.i18n!.load!('en', 'about')).toBeNull()
+    state.load.mockResolvedValue({ data: {}, json: '{}' })
+    expect(await e.context.i18n!.load!('en', 'about')).toEqual({})
   })
 
   test('the load it gives returns the dictionary', async () => {

@@ -8,6 +8,7 @@ import { BUMP_LEVELS, isBumpLevel } from './release'
 const CHECKS = [['format:check'], ['lint'], ['typecheck'], ['check:versions', '--', '--npm'], ['release:source'], ['compare:published']]
 
 interface CiRun {
+  databaseId: number
   name: string
   status: string
   conclusion: string
@@ -16,23 +17,42 @@ interface CiRun {
 
 type CiVerdict = { kind: 'passed' } | { kind: 'failed'; reason: string } | { kind: 'unknown'; reason: string }
 
+/** The job that runs the tests in `ci.yml`. A run's own conclusion is not enough: closing a PR gives a green run with this job skipped. */
+const TEST_JOB = 'ci'
+
+/** `gh`'s JSON for these arguments, or why there is none. */
+function ghJson<T>(args: string[]): { value: T } | { reason: string } {
+  const { ok, stdout, stderr } = runCapture('gh', args)
+  if (!ok) return { reason: `gh is missing, not logged in, or GitHub cannot be reached${stderr ? `: ${stderr}` : ''}` }
+  try {
+    return { value: JSON.parse(stdout) as T }
+  } catch {
+    return { reason: 'gh returned something other than JSON' }
+  }
+}
+
+/** Did the test job itself pass in this run? */
+function testJobPassed(run: CiRun): { value: boolean } | { reason: string } {
+  const view = ghJson<{ jobs: { name: string; conclusion: string }[] }>(['run', 'view', String(run.databaseId), '--json', 'jobs'])
+  if ('reason' in view) return view
+  return { value: view.value.jobs.some((job) => job.name === TEST_JOB && job.conclusion === 'success') }
+}
+
 /** CI for `sha`: every run of `ci.yml`. A cancelled run says nothing, a superseded one is cancelled on purpose. */
 export function ciVerdict(sha: string): CiVerdict {
-  const { ok, stdout, stderr } = runCapture('gh', ['run', 'list', '--commit', sha, '--workflow', 'ci.yml', '--json', 'name,status,conclusion,url'])
-  if (!ok) return { kind: 'unknown', reason: `gh is missing, not logged in, or GitHub cannot be reached${stderr ? `: ${stderr}` : ''}` }
-
-  let runs: CiRun[]
-  try {
-    runs = JSON.parse(stdout) as CiRun[]
-  } catch {
-    return { kind: 'unknown', reason: 'gh returned something other than JSON' }
-  }
+  const list = ghJson<CiRun[]>(['run', 'list', '--commit', sha, '--workflow', 'ci.yml', '--json', 'databaseId,name,status,conclusion,url'])
+  if ('reason' in list) return { kind: 'unknown', reason: list.reason }
+  const runs = list.value
 
   const bad = runs.find((r) => r.status === 'completed' && !['success', 'cancelled', 'skipped'].includes(r.conclusion))
   if (bad) return { kind: 'failed', reason: `CI ${bad.conclusion} on ${sha}: ${bad.url}` }
   if (runs.some((r) => r.status !== 'completed')) return { kind: 'failed', reason: `CI is still running on ${sha}` }
-  if (!runs.some((r) => r.conclusion === 'success')) return { kind: 'failed', reason: `no passed CI run for ${sha}. Push it and wait for CI` }
-  return { kind: 'passed' }
+  for (const run of runs.filter((r) => r.conclusion === 'success')) {
+    const job = testJobPassed(run)
+    if ('reason' in job) return { kind: 'unknown', reason: job.reason }
+    if (job.value) return { kind: 'passed' }
+  }
+  return { kind: 'failed', reason: `no passed CI run for ${sha}. Push it and wait for CI` }
 }
 
 function refuse(message: string): never {
@@ -72,9 +92,10 @@ export const publishCommand = defineCommand({
       'given, `pnpm publish -r`, `git push --follow-tags`. Without `--bump` the root stays',
       'where it is and only packages whose version is not on npm ship.',
       '',
-      '`--ci-passed` skips the tests and nothing else, after checking with `gh` that CI',
-      'passed on HEAD. A failed or missing run refuses. When `gh` cannot answer, `--force`',
-      'is your confirmation; it does not override a failed run.',
+      '`--ci-passed` skips the tests and nothing else, after checking with `gh` that the',
+      '`ci` job passed on HEAD. A failed or missing run refuses, and so does a run with that',
+      'job skipped (a closed PR). When `gh` cannot answer, `--force` is your confirmation;',
+      'it does not override a failed run.',
       '',
       'Examples:',
       '  pnpm -C scripts cli publish --bump minor',
@@ -108,6 +129,8 @@ export const publishCommand = defineCommand({
     if (!ciPassed) step(['run', 'test'])
     if (checkOnly) return
 
+    // `pnpm publish` refuses a dirty tree, and by then the bump commit and the tag would exist
+    if (tryRun('git', ['status', '--porcelain'])) refuse('the working tree has uncommitted changes, nothing was bumped or published')
     if (bump) step(['-C', 'scripts', 'cli', 'release', '--bump', bump])
     step(['publish', '-r'])
     console.log('\n> git push --follow-tags')

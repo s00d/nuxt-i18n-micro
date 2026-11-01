@@ -287,6 +287,14 @@ describe('a route object in the router gives the URL of its path', () => {
     }
   })
 
+  test("a spread's new path wins when it is a prefix of the old URL, `/` included", () => {
+    const { i18n } = setup('prefix_except_default')
+    const route = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'plain' } })
+    expect(i18n.localeRoute('de', { ...route, path: '/fr/blog' }).fullPath).toBe('/de/blog')
+    expect(i18n.localeRoute('de', { ...route, path: '/' }).fullPath).toBe('/de')
+    expect((i18n.switchLocaleRoute('de', { ...route, path: '/' } as never) as RouteLike).fullPath).toBe('/de')
+  })
+
   test('no_prefix, two pages on one path: `named` keeps the record that a path cannot name', () => {
     const pages: NuxtPage[] = [
       ...PAGES.filter((page) => page.name === 'index'),

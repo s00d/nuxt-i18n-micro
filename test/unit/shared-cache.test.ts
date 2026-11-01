@@ -428,6 +428,32 @@ describe('remote host', () => {
     state.privateConfig = { ...state.privateConfig, apiBaseServerHost: HOST }
   })
 
+  test('a 404 is kept by no level: a page recovers on the next read, with the store on', async () => {
+    let files: Record<string, unknown> = {}
+    const fetcher = vi.fn(async (path: string) => {
+      const [, , page] = path.split('/')
+      if (!files[page!]) throw httpError(404)
+      return files[page!]
+    })
+    vi.stubGlobal('$fetch', fetcher)
+    const load = await instance()
+
+    expect(await load('en', 'about')).toBe((await import('../../src/runtime/server/utils/server-loader')).NO_FILE)
+    expect(mount.values.size).toBe(0)
+
+    files = { about: { hello: 'Hello', about: 'About' }, __root: { hello: 'Hello' } }
+    expect((await load('en', 'about')).data).toEqual(files.about)
+  })
+
+  test("a host's own empty file is a dictionary: it is no 404, and it stays cached", async () => {
+    const fetcher = vi.fn(async (_path: string) => ({}))
+    vi.stubGlobal('$fetch', fetcher)
+    const load = await instance()
+    expect((await load('en', 'empty')).data).toEqual({})
+    await load('en', 'empty')
+    expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/empty/'))).toHaveLength(1)
+  })
+
   test('three instances, one fetch per chunk', async () => {
     const fetcher = vi.fn(async (path: string) => (path.includes('/about/') ? { hello: 'Hello', about: 'About' } : { hello: 'Hello' }))
     vi.stubGlobal('$fetch', fetcher)
@@ -453,17 +479,6 @@ describe('remote host', () => {
 
     fetcher.mockImplementation(async (path: string) => (path.includes('/about/') ? { hello: 'Hello', about: 'About' } : { hello: 'Hello' }))
     expect((await load('en', 'about')).data).toEqual({ hello: 'Hello', about: 'About' })
-  })
-
-  test('a 404 is an answer: empty, kept locally, and not handed to the other instances', async () => {
-    const fetcher = vi.fn().mockRejectedValue(httpError(404))
-    vi.stubGlobal('$fetch', fetcher)
-    const load = await instance()
-    expect((await load('en', 'about')).data).toEqual({})
-    expect(mount.values.size).toBe(0)
-    fetcher.mockClear()
-    await load('en', 'about')
-    expect(fetcher).not.toHaveBeenCalled()
   })
 
   test('a 200 error body never reaches the other instances: a chunk holds the root keys', async () => {

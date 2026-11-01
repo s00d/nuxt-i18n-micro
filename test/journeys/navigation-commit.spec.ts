@@ -49,9 +49,13 @@ describe('journey: a navigation takes effect when it commits (prefix)', () => {
     await expect(page.locator('#page-a-title')).toHaveText('Page A Title EN')
     expect(await cookie(page)).toBe('en')
 
-    // step 2: the same with a push to the page on screen, which leaves the stored locale to the switch
-    const again = await hold(page, '**/_locales/**/de/**')
-    await page.click('button[data-locale="de"]')
+    // step 2: the same with a push to the page on screen, which leaves the stored locale to the switch. Another locale:
+    // step 1 loaded de's chunk, so nothing would hold a second switch to de, it would commit, and the push would be a real
+    // navigation back. The request proves the switch is pending
+    const again = await hold(page, '**/_locales/**/ru/**')
+    const loading = page.waitForRequest('**/_locales/**/ru/**')
+    await page.click('button[data-locale="ru"]')
+    await loading
     await push(page, '/en/page-a')
     await again()
     await page.waitForTimeout(300)

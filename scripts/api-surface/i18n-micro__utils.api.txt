@@ -156,7 +156,7 @@ member TranslationFileBuckets.root: Record<string, T>
 member TranslationFileBuckets.routes: Record<string, Record<string, T>>
 
 # ./payload-fetch (src/payload-fetch.ts)
-function fetchTranslationPayloadFromHost: (config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations>
+function fetchTranslationPayloadFromHost: (config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations | null>
 type TranslationPayloadFetcher: <T>(path: string, options: { baseURL: string; params?: Record<string, string | number>; }) => Promise<T>
 interface TranslationPayloadHostConfig
 member TranslationPayloadHostConfig.apiBaseServerHost?: string | undefined

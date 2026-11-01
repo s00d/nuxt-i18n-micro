@@ -10,8 +10,10 @@
  * premerged mode every page without its own payload shares the root entry — so request URLs
  * with made-up page names cannot grow memory. (With `cacheStorage` such a name keeps one LRU slot.)
  *
- * A failed read rejects: no level may keep it, the next request reads again. Only "there is no such
- * dictionary" is an answer, and it is `{}`.
+ * A failed read rejects: no level may keep it, the next request reads again. A 404 from a host is an
+ * answer, `NO_FILE`, for this request only: a file can appear with the host's next deploy, and `cacheTtl`
+ * is off by default. ponytail: a page the host has no file for costs one request per render; a negative
+ * cache would hide the file for as long as it lives.
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
@@ -30,6 +32,8 @@ import { readSharedChunk, sharedChunkKey, writeSharedChunk } from '../internal/s
 import { toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
+/** The host has no such file. By identity: a host's own empty file is a dictionary, and stays cached. */
+export const NO_FILE: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 const pending = new Map<string, Promise<ServerTranslationCacheEntry>>()
 
 /**
@@ -61,7 +65,7 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   return cached(`${locale}:${page}`, () => readChunk(locale, page, config))
 }
 
-/** A loaded chunk, or one shared with another key (then not stored under this one). */
+/** A loaded chunk, or one not to store under this key: another key's, or `NO_FILE`. */
 interface Loaded {
   entry: ServerTranslationCacheEntry
   shared?: true
@@ -99,7 +103,9 @@ function readChunk(locale: string, page: string, config: ModuleOptionsExtend): P
 async function readThroughShared(key: string, locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
   const hit = await readSharedChunk(key)
   if (hit) return { entry: hit }
-  const { entry, shared } = await load(locale, page, config)
+  const loaded = await load(locale, page, config)
+  const { entry, shared } = loaded
+  if (entry === NO_FILE) return loaded
   // kept locally even when it is the root entry: a page with no folder must not pay a storage round trip per request
   if (shared) return { entry }
   const json = JSON.stringify(entry.data)
@@ -128,7 +134,7 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
       page,
       $fetch as TranslationPayloadFetcher,
     )
-    return { entry: toEntry(data) }
+    return data ? { entry: toEntry(data) } : { entry: NO_FILE, shared: true }
   }
   if (config.translationPayloadMode === 'source') {
     const data = await loadSourceTranslationsFromStorage(

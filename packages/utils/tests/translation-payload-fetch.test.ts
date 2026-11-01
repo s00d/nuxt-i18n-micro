@@ -33,9 +33,9 @@ describe('fetchTranslationPayloadFromHost', () => {
   const fetchWith = (fetcher: never) =>
     fetchTranslationPayloadFromHost({ apiBaseUrl: '_locales', apiBaseServerHost: 'https://cdn.example.com' }, 'en', 'index', fetcher)
 
-  it('reads a 404 as an empty dictionary: the host has no such page', async () => {
+  it('reads a 404 as null: the host has no such file, which an empty dictionary is not', async () => {
     const fetcher = vi.fn().mockRejectedValue(Object.assign(new Error('not found'), { status: 404 }))
-    await expect(fetchWith(fetcher as never)).resolves.toEqual({})
+    await expect(fetchWith(fetcher as never)).resolves.toBeNull()
   })
 
   it.each([

@@ -131,12 +131,16 @@ export class NuxtI18n extends BaseI18n {
   }
 
   mergeChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): Record<string, unknown> {
-    const cacheKey = this.getCacheKey(locale, routeName)
     const merged = mergeTranslationChunk(this.getChunk(locale, routeName), data)
-    if (!this.storage.translations.has(cacheKey)) this.fragments.add(cacheKey)
-    this.storage.translations.set(cacheKey, merged as Translations)
-    this.evictChunks(cacheKey)
+    this.storePatched(this.getCacheKey(locale, routeName), merged)
     return merged
+  }
+
+  /** A tree a patch made: over no loaded chunk (a stand-in, an evicted one) it is a fragment, and the next visit still loads. */
+  protected storePatched(key: string, tree: Record<string, unknown>): void {
+    if (!this.storage.translations.has(key)) this.fragments.add(key)
+    this.storage.translations.set(key, tree as Translations)
+    this.evictChunks(key)
   }
 
   /**
@@ -355,11 +359,8 @@ export class NuxtI18n extends BaseI18n {
    */
   public override setTranslation(key: TranslationKey, value: unknown): void {
     this.cachedTranslations = setTranslationAtKey(this.cachedTranslations, String(key), value)
-    this.setChunk(
-      this.currentLocale,
-      this.currentRouteName,
-      setTranslationAtKey(this.getChunk(this.currentLocale, this.currentRouteName), String(key), value),
-    )
+    const chunk = this.getChunk(this.currentLocale, this.currentRouteName)
+    this.storePatched(this.getCacheKey(this.currentLocale, this.currentRouteName), setTranslationAtKey(chunk, String(key), value))
     triggerRef(this.contextSignal)
     this.notifyContextChange('refresh')
   }
@@ -444,14 +445,16 @@ export class NuxtTranslationLoader {
 
   /** The loaded chunk, or null when the load failed (reported here): a reload must tell that from an empty chunk. */
   private loadChunk(locale: string, routeName?: string): Promise<Record<string, unknown> | null> {
-    const { i18n, loadOptions, isDev } = this.options
+    const { i18n, loadOptions, isDev, prerender } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
     if (pending) return pending
 
     const promise = (async () => {
       try {
-        const { data } = await translationStorage.load(locale, routeName, loadOptions)
+        const { data, noDictionary } = await translationStorage.load(locale, routeName, loadOptions)
+        // a request can show raw keys and retry; a written file keeps them, so this counts as a failed load
+        if (prerender && noDictionary) throw new Error('[i18n] The host has no dictionary for this page')
         return i18n.installChunk(locale, routeName, data)
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)

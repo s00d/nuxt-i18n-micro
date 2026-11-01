@@ -47,6 +47,53 @@ function fakeHost() {
   return { version, missing, inflight, fetch, answer }
 }
 
+test('a prerender with no file and no root fails: raw keys must not reach a written file', async () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  vi.stubGlobal(
+    '$fetch',
+    vi.fn(async () => {
+      throw Object.assign(new Error('404'), { status: 404 })
+    }),
+  )
+  const options = (prerender: boolean) => ({
+    i18n: new NuxtI18n({ plural: (key: string) => key }),
+    loadOptions: { apiBaseUrl: '_locales', baseURL: '/' },
+    isDev: false,
+    prerender,
+  })
+  await expect(new NuxtTranslationLoader(options(true)).switchContext('en', 'about')).rejects.toThrow('Translation load failed: en about')
+  expect(console.warn).toHaveBeenCalledWith('[i18n] Translation load failed:', 'en', 'about')
+  // a request shows what it can, and the next one reads again
+  await expect(new NuxtTranslationLoader(options(false)).switchContext('en', 'about')).resolves.toBe(true)
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
+test('setTranslation over a stand-in is no loaded chunk: the next visit still loads the file', async () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  let down = true
+  vi.stubGlobal(
+    '$fetch',
+    vi.fn(async (path: string) => {
+      if (path.includes('__root')) return { nav: 'Root' }
+      if (down) throw Object.assign(new Error('503'), { status: 503 })
+      return path.includes('about') ? { nav: 'Root', other: 'Other' } : {}
+    }),
+  )
+  const i18n = new NuxtI18n({ plural: (key: string) => key })
+  const loader = new NuxtTranslationLoader({ i18n, loadOptions: { apiBaseUrl: '_locales', baseURL: '/' }, isDev: false })
+  await loader.switchContext('en', 'about')
+  i18n.setTranslation('title', 'Mine')
+  expect(i18n.hasChunk('en', 'about')).toBe(false)
+  down = false
+  await loader.switchContext('de', 'index')
+  await loader.switchContext('en', 'about')
+  expect([i18n.t('other'), i18n.t('title')]).toEqual(['Other', 'Mine'])
+  translationStorage.clear()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
 const tick = async () => {
   for (let i = 0; i < 6; i++) await Promise.resolve()
   await new Promise((done) => setTimeout(done, 0))

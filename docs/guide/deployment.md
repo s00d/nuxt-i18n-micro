@@ -132,7 +132,9 @@ A failed fetch from a host (anything but a 404), an unreadable or corrupt file, 
 - `/_locales/...` answers `503` with `no-store`;
 - `useTranslationServerMiddleware` gives a `t` that answers the key or the default value.
 
-A 404 from the host means there is no such page: it reads as an empty dictionary and stays in the server's cache. Requests during an outage each reach the host, with no timeout of the module's own.
+Such a page is a 200, so an `swr` or `cache` route rule, and a CDN, keeps its raw keys for their TTL: the module cannot mark that response. Requests during an outage each reach the host, with no timeout of the module's own.
+
+A 404 from the host means it has no such file, which is not a failure. A page render shows the root dictionary, as the browser does, and `/_locales/...` answers `{}`. No cache keeps either, so a file that appears is read on the next request, at the cost of one request to the host per render of such a page. With no root file either the dictionary is empty, and a [prerender](/guide/upgrade#server-build-and-deployment) fails.
 
 The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSize` entries (1000 by default) that reloads an entry after `cacheTtl` when set; [Performance tuning](/guide/performance) covers both, and [`cacheStorage`](/guide/performance#shared-cache-for-several-instances) adds a cache shared by instances. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
 
@@ -152,12 +154,13 @@ export default defineNuxtConfig({
     translationPayloads: {
       serverHandler: false,
       publicAssets: false,
+      serverAssets: false,
     },
   },
 })
 ```
 
-The host must serve the same `<apiBaseUrl>/<page>/<locale>/data.json` layout. The build warns when every local output is off and a host is missing. The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
+On Node `serverAssets` writes the same copy for the server's own reads, and that file answers `/_locales`: it must be off too, also if you keep the server route for the browser, which it would never reach. The host must serve the same `<apiBaseUrl>/<page>/<locale>/data.json` layout. The build warns when every local output is off and a host is missing. The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
 
 ## Platforms
 
@@ -191,7 +194,7 @@ npx nuxi build
 cd .output/server && npx wrangler deploy -c wrangler.json
 ```
 
-The 404 then renders, and the upload gets smaller: 190 KiB gzip against 246 KiB on the test app. Your own `error.vue` is the other way out, but it covers only the error page.
+Set `compatibilityDate` to `2024-09-19` or later: an older one picks the legacy preset, which writes no `wrangler.json` and gives no error. The 404 then renders, and the upload gets smaller: 190 KiB gzip against 246 KiB on the test app. Your own `error.vue` is the other way out, but it covers only the error page.
 
 The module itself does not need `nodejs_compat`. For the limits see [Bundle limits](#bundle-limits-on-edge).
 

@@ -161,3 +161,14 @@ test('a caller keeps its object', () => {
   fragment.a.b = 'changed'
   expect(i18n.t('a.b')).toBe('b')
 })
+
+test('a patch laid over a chunk that was evicted settles to a fragment: the file still loads', () => {
+  const i18n = new ServerNuxtI18n({ cacheMaxSize: 2 })
+  i18n.applySwitchContext('en', 'a', { a: 'A' })
+  i18n.installChunk('en', 'b', { b: 'B' })
+  ;(i18n as unknown as { patch: (locale: string, route: string, patch: Tree) => void }).patch('en', 'b', { p: 'P' })
+  i18n.installChunk('en', 'c', { c: 'C' })
+  i18n.installChunk('en', 'd', { d: 'D' })
+  expect(i18n.getChunk('en', 'b')).toEqual({ p: 'P' })
+  expect(i18n.hasChunk('en', 'b')).toBe(false)
+})

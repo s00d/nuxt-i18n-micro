@@ -1,6 +1,6 @@
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { STORAGE_CC_KEY } from '../../src/runtime/utils/cache-keys'
-import { readsThroughServerLoader, translationStorage } from '../../src/runtime/utils/storage'
+import { translationStorage } from '../../src/runtime/utils/storage'
 
 const options = { apiBaseUrl: '_locales', baseURL: '/' }
 
@@ -9,13 +9,47 @@ afterEach(() => {
   translationStorage.clear()
 })
 
-test('a render with a runtime host fetches it itself, unless the loader covers the host', () => {
-  const serverLoad = async () => ({})
-  expect(readsThroughServerLoader({ serverLoad }, undefined)).toBe(true)
-  expect(readsThroughServerLoader({ serverLoad }, 'https://runtime.test')).toBe(false)
-  expect(readsThroughServerLoader({ serverLoad, serverLoadsRemote: true }, 'https://runtime.test')).toBe(true)
-  expect(readsThroughServerLoader({}, undefined)).toBe(false)
-  expect(readsThroughServerLoader({ serverLoadsRemote: true }, 'https://runtime.test')).toBe(false)
+describe('a server render', () => {
+  beforeEach(() => {
+    ;(globalThis as { __i18nSide?: string }).__i18nSide = 'server'
+  })
+  afterEach(() => {
+    delete (globalThis as { __i18nSide?: string }).__i18nSide
+  })
+
+  test('has one source, the loader, with a host in the environment too', async () => {
+    vi.stubEnv('NUXT_I18N_APP_BASE_SERVER_HOST', 'https://runtime.test')
+    const fetchMock = vi.fn()
+    vi.stubGlobal('$fetch', fetchMock)
+    const serverLoad = vi.fn(async () => ({ hello: 'page' }))
+    expect((await translationStorage.load('de', 'about', { ...options, serverLoad })).data).toEqual({ hello: 'page' })
+    expect(fetchMock).not.toHaveBeenCalled()
+    vi.unstubAllEnvs()
+  })
+
+  test('a page with no file shows the root, keeps nothing under its key, and a file that appears is read', async () => {
+    const files: Record<string, Record<string, unknown> | null> = { nofile: null, __root: { hello: 'root' } }
+    const serverLoad = vi.fn(async (_locale: string, page: string) => files[page] ?? null)
+    const render = { ...options, serverLoad }
+
+    expect((await translationStorage.load('de', 'nofile', render)).data).toEqual({ hello: 'root' })
+    expect(translationStorage.getFromCache('de', 'nofile')).toBeNull()
+
+    await translationStorage.load('de', 'nofile', render)
+    expect(serverLoad.mock.calls.filter(([, page]) => page === '__root')).toHaveLength(1)
+    expect(serverLoad.mock.calls.filter(([, page]) => page === 'nofile')).toHaveLength(2)
+
+    files.nofile = { hello: 'page' }
+    expect((await translationStorage.load('de', 'nofile', render)).data).toEqual({ hello: 'page' })
+  })
+
+  test('no file and no root: an empty stand-in, marked, kept nowhere', async () => {
+    const render = { ...options, serverLoad: async () => null }
+    const { data, noDictionary } = await translationStorage.load('de', 'nofile', render)
+    expect(data).toEqual({})
+    expect(noDictionary).toBe(true)
+    expect(translationStorage.getFromCache('de', '__root')).toBeNull()
+  })
 })
 
 // the HMR watcher reaches the cache through its global key, not through translationStorage

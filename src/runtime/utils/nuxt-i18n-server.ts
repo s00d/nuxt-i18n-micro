@@ -67,7 +67,7 @@ export class ServerNuxtI18n extends NuxtI18n {
     this.overlays.delete(key)
     const active = fragments === this.activeOverlay
     const merged = fragments.reduce<Tree>((tree, fragment) => mergeTranslationChunk(tree, fragment), this.chunkAt(key, active))
-    this.storage.translations.set(key, merged as Translations)
+    this.storePatched(key, merged)
     if (!active) return
     this.cachedTranslations = merged
     this.activeOverlay = undefined

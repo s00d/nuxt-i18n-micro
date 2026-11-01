@@ -72,10 +72,7 @@ function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): L
     dateBuild: i18nConfig.dateBuild,
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
   }
-  if (import.meta.server) {
-    options.serverLoad = nuxtApp.ssrContext?.event?.context?.i18n?.load
-    options.serverLoadsRemote = nuxtApp.ssrContext?.event?.context?.i18n?.loadsRemote
-  }
+  if (import.meta.server) options.serverLoad = nuxtApp.ssrContext?.event?.context?.i18n?.load
   return options
 }
 

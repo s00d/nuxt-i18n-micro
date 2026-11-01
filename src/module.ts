@@ -662,10 +662,8 @@ declare module 'h3' {
     i18n?: {
       locale: string
       translations: Translations
-      /** Loads a chunk for this request's render (the server loader, no HTTP round trip). */
-      load?: (locale: string, routeName: string) => Promise<Translations>
-      /** \`load\` reaches the remote host too, through \`cacheStorage\`: the render must not fetch around it. */
-      loadsRemote?: boolean
+      /** Loads a chunk for this request's render (the server loader, no local HTTP round trip), or \`null\` when the host has no file for it. */
+      load?: (locale: string, routeName: string) => Promise<Translations | null>
       /** The module config with runtime overrides, resolved once for this request. */
       config?: ModuleOptionsExtend
     }

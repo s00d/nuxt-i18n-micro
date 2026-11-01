@@ -594,7 +594,13 @@ function named(name: unknown): string | null {
 
 /** The name of a route, unless a spread gave it another path: the caller's `path` wins, and the name went with the old one. */
 function ownName(route: RouteLike): RouteLike['name'] {
-  return route.fullPath && route.path && !route.fullPath.startsWith(route.path) ? undefined : route.name
+  return route.fullPath && route.path && !isPathOf(route.path, route.fullPath) ? undefined : route.name
+}
+
+/** Is `path` all of `fullPath`'s path? A prefix is another page: `/about` of `/about/team`, `/` of anything. */
+function isPathOf(path: string, fullPath: string): boolean {
+  const next = fullPath[path.length]
+  return fullPath.startsWith(path) && (next === undefined || next === '?' || next === '#')
 }
 
 /** One level of params / query with array values copied (repeatable params, repeated query keys). */

@@ -16,6 +16,8 @@ test.each([
   ['a b', '/de/about?x=1', '/de/about'],
   ['[', '//de', '/de'],
   ['', '/', '/'],
+  // a request line that does not parse is no 500: the module must not fail where a plain app answers 404
+  ['localhost', 'http://[/', '/http://[/'],
 ])('Host %j, %s', (host, url, pathname) => {
   expect(requestURL(eventFor(url, host)).pathname).toBe(pathname)
 })

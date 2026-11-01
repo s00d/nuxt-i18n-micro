@@ -10,18 +10,20 @@ export interface LoadOptions {
   apiBaseUrl: string
   baseURL: string
   apiBaseClientHost?: string
-  apiBaseServerHost?: string
   dateBuild?: string | number
   routesLocaleLinks?: Record<string, string>
-  /** Server only: the Nitro loader of this request (`event.context.i18n.load`), called directly. */
-  serverLoad?: (locale: string, routeName: string) => Promise<Record<string, unknown>>
-  /** Server only: `serverLoad` also covers a remote host, because `cacheStorage` sits in front of it. */
-  serverLoadsRemote?: boolean
+  /**
+   * Server only: the Nitro loader of this request (`event.context.i18n.load`), called directly. It reads a host too, named at
+   * build time or in the environment, so a render has one source. `null` is a host's "no such file", as a 404 is for a browser.
+   */
+  serverLoad?: (locale: string, routeName: string) => Promise<Record<string, unknown> | null>
 }
 
 export interface LoadResult {
   data: Record<string, unknown>
   cacheKey: string
+  /** No file for this page and none for the root: `data` is an empty stand-in. */
+  noDictionary?: true
 }
 
 // ============================================================================
@@ -47,11 +49,6 @@ function getStorageCacheControl(): ChunkCache {
     g[STORAGE_CC_KEY] = new ChunkCache()
   }
   return g[STORAGE_CC_KEY] as ChunkCache
-}
-
-/** A render with a runtime host fetches it itself, unless the loader covers the host (`cacheStorage`). */
-export function readsThroughServerLoader(options: Pick<LoadOptions, 'serverLoad' | 'serverLoadsRemote'>, serverHost: string | undefined): boolean {
-  return Boolean(options.serverLoad && (!serverHost || options.serverLoadsRemote))
 }
 
 class TranslationStorage {
@@ -88,12 +85,11 @@ class TranslationStorage {
   // FETCH LOADER
   // ==========================================================================
 
-  private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
-    const serverHost = options.apiBaseServerHost ?? (import.meta.server ? process.env.NUXT_I18N_APP_BASE_SERVER_HOST : undefined)
+  private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown> | null> {
     // SSR: ask the server loader directly (its cached, shared chunk) instead of a local HTTP
     // round trip that re-parses the JSON into a new copy on every request
-    if (import.meta.server && readsThroughServerLoader(options, serverHost)) return await options.serverLoad!(locale, routeName ?? '')
-    const request = this.request(locale, routeName, options, import.meta.server, serverHost)
+    if (import.meta.server && options.serverLoad) return await options.serverLoad(locale, routeName ?? '')
+    const request = this.request(locale, routeName, options, import.meta.server)
 
     // Call-site cast keeps Nuxt `$fetch` (Nitro localFetch when relative); avoids MatchedRoutes TS2321.
     return await ($fetch as TranslationPayloadFetcher)(request.path, {
@@ -117,7 +113,7 @@ class TranslationStorage {
     throw new TypeError(`[i18n] Invalid translation payload: ${this.getCacheKey(locale, routeName)}`)
   }
 
-  private request(locale: string, routeName: string | undefined, options: LoadOptions, isServer: boolean, apiBaseServerHost?: string) {
+  private request(locale: string, routeName: string | undefined, options: LoadOptions, isServer: boolean) {
     return buildTranslationPayloadFetchRequest({
       apiBaseUrl: options.apiBaseUrl,
       routeName,
@@ -125,7 +121,6 @@ class TranslationStorage {
       isServer,
       baseURL: options.baseURL,
       apiBaseClientHost: options.apiBaseClientHost,
-      apiBaseServerHost,
       dateBuild: options.dateBuild,
       routesLocaleLinks: options.routesLocaleLinks,
     })
@@ -179,14 +174,12 @@ class TranslationStorage {
     const clears = this.cc.clears
     const data = await this.fetchChunk(locale, routeName, options)
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
-    // No file: the page shows the root dictionary, as the server route answers it, and no root file either (`source` mode on
-    // a file host, which the build warns about) is an empty one, as a missing file must not stop a switch. Neither is kept
-    // under this key: during a deploy the file can appear, and the next page load gets it.
+    // No file: the page shows the root dictionary, as the server route does for a build's own pages, and no root file either
+    // (`source` mode on a file host, which the build warns about) is an empty one, as a missing file must not stop a switch.
+    // Neither is kept under this key: during a deploy the file can appear, and the next page load gets it.
     // ponytail: an open tab keeps the stand-in in the i18n instance until a reload, a chunk added under it is that rare
-    if (data === null) {
-      const stand = routeName === PREMERGED_ROOT_PAGE ? Object.freeze({}) : (await this.load(locale, PREMERGED_ROOT_PAGE, options)).data
-      return { data: stand, cacheKey }
-    }
+    if (data === null && routeName === PREMERGED_ROOT_PAGE) return { data: Object.freeze({}), cacheKey, noDictionary: true }
+    if (data === null) return { ...(await this.load(locale, PREMERGED_ROOT_PAGE, options)), cacheKey }
 
     this.cc.set(cacheKey, this.shared(data))
 

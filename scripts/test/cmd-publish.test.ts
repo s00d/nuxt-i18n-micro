@@ -20,8 +20,19 @@ const { publishCommand } = await import('../src/commands/publish')
 
 /** Everything the command ran, as "pnpm run test" strings. */
 const steps = () => execFileSync.mock.calls.map(([cmd, args]) => `${cmd} ${(args as string[]).join(' ')}`)
-const gh = (runs: unknown[]) => runCapture.mockReturnValue({ ok: true, stdout: JSON.stringify(runs), stderr: '' })
-const passed = { name: 'ci', status: 'completed', conclusion: 'success', url: 'https://ci/1' }
+/** `gh run list` answers `runs`, and `gh run view <id>` the jobs of run `<id>`: the `ci` job by default. */
+const gh = (runs: unknown[], jobs: Record<number, unknown[]> = {}) =>
+  runCapture.mockImplementation((_cmd: string, args: string[]) => ({
+    ok: true,
+    stdout: JSON.stringify(args[1] === 'view' ? { jobs: jobs[Number(args[2])] ?? [{ name: 'ci', conclusion: 'success' }] } : runs),
+    stderr: '',
+  }))
+const passed = { databaseId: 1, name: 'ci', status: 'completed', conclusion: 'success', url: 'https://ci/1' }
+/** Run 40857327536: closing a PR gives a green run, 9 seconds long, with the test job skipped. */
+const closedPr = [
+  { name: 'cleanup-sticky', conclusion: 'success' },
+  { name: 'ci', conclusion: 'skipped' },
+]
 
 describe('publish', () => {
   beforeEach(() => {
@@ -86,6 +97,45 @@ describe('publish', () => {
       expect(stderr).toContain(message)
       expect(execFileSync).not.toHaveBeenCalled()
     }
+  })
+
+  it.each([
+    ['the run of a closed PR', [passed], { 1: closedPr }],
+    ['that run beside a cancelled one', [{ ...passed, conclusion: 'cancelled', databaseId: 2 }, passed], { 1: closedPr }],
+    ['a green run whose test job was cancelled', [passed], { 1: [{ name: 'ci', conclusion: 'cancelled' }] }],
+  ])('--ci-passed refuses %s: no test ran, and --force does not override it', async (_, runs, jobs) => {
+    gh(runs, jobs)
+    for (const force of [false, true]) {
+      // oxlint-disable-next-line no-await-in-loop
+      const { exitCode, stderr } = await runCli(publishCommand, { ciPassed: true, force })
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('no passed CI run')
+      expect(execFileSync).not.toHaveBeenCalled()
+    }
+  })
+
+  it('--ci-passed finds the run that tested HEAD among others', async () => {
+    gh([passed, { ...passed, databaseId: 2 }], { 1: closedPr })
+    const { stdout } = await runCli(publishCommand, { ciPassed: true })
+    expect(stdout).toContain('Skipping local tests: CI passed on abc123.')
+  })
+
+  it('--ci-passed asks for --force when gh lists the runs but cannot show the jobs', async () => {
+    runCapture.mockImplementation((_cmd: string, args: string[]) =>
+      args[1] === 'view' ? { ok: false, stdout: '', stderr: 'HTTP 502' } : { ok: true, stdout: JSON.stringify([passed]), stderr: '' },
+    )
+    const { exitCode, stderr } = await runCli(publishCommand, { ciPassed: true })
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('HTTP 502')
+    expect(stderr).toContain('--force')
+  })
+
+  it('a dirty tree stops before the bump: no commit or tag is left behind', async () => {
+    tryRun.mockReturnValue(' M src/module.ts')
+    const { exitCode, stderr } = await runCli(publishCommand, { bump: 'minor' })
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('nothing was bumped')
+    expect(steps().some((s) => s.includes('cli release') || s.includes('publish -r'))).toBe(false)
   })
 
   it('--ci-passed refuses a dirty tree: CI never saw it', async () => {

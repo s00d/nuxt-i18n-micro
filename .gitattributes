@@ -1,0 +1,2 @@
+# Generated output, goldens and fixtures are compared byte for byte: a Windows checkout must not turn them into CRLF.
+* text=auto eol=lf

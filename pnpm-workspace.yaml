@@ -61,7 +61,8 @@ catalog:
   '@solidjs/router': "^0.15.4 || ^1.0.0"
   # Astro & Svelte (wide peer; the monorepo installs the latest match)
   astro: "^5.0.0 || ^6.0.0 || ^7.0.0"
-  '@astrojs/check': ^0.9.12
+  # 0.9.12 pulls a wasm runtime that does not resolve here, and `astro check` then waits on an install prompt
+  '@astrojs/check': 0.9.10
   '@astrojs/node': ^11.1.6
   '@astrojs/vue': ^7.0.3
   '@astrojs/react': ^7.0.0

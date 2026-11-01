@@ -11,16 +11,24 @@ export function addSecret(value: string | undefined): void {
   secrets.add(encodeURIComponent(value))
 }
 
+/** A URL split around its last `@`. Not a `.*` regex: that stops at a line end and leaves the password in the text. */
+export function urlParts(address: string): { scheme: string; credentials?: string; host: string } {
+  const at = address.lastIndexOf('@')
+  if (at === -1) return { scheme: '', host: address }
+  const slashes = address.indexOf('://')
+  const start = slashes === -1 || slashes > at ? 0 : slashes + 3
+  return { scheme: address.slice(0, start), credentials: address.slice(start, at), host: address.slice(at + 1) }
+}
+
 /** A URL somebody typed: what is after its path and before its host can be a key, whatever a server echoes back. */
 export function addUrlSecrets(url: string | undefined): void {
   if (!url) return
   const [address, ...tail] = url.split(/[?#;&]/)
   for (const pair of tail) addSecret(pair.slice(pair.indexOf('=') + 1))
-  const credentials = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(.*)@/i.exec(address!)?.[1]
-  for (const part of credentials?.split(':') ?? []) addSecret(part)
+  for (const part of urlParts(address!).credentials?.split(':') ?? []) addSecret(part)
 }
 
-const URL_CREDENTIALS = /(\/\/)[^/@\s]+@/g
+const URL_CREDENTIALS = /(\/\/)[^/\s]+@/g
 
 const redact = (text: string): string => [...secrets].reduce((out, secret) => out.replaceAll(secret, '***'), text).replace(URL_CREDENTIALS, '$1***@')
 

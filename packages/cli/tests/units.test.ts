@@ -301,6 +301,28 @@ describe('url credentials', () => {
     expect(out).toEqual(['echo ***'])
   })
 
+  it('a password with an @ in it goes whole', () => {
+    const out: string[] = []
+    const logSpy = vi.spyOn(console, 'log').mockImplementation((text: unknown) => void out.push(String(text)))
+    log.info('https://u:p@ss@host/x')
+    logSpy.mockRestore()
+    expect(out).toEqual(['https://***@host/x'])
+  })
+
+  it.each(['\n', '\u2028'])('a line end in the credentials hides nothing: %j', async (end) => {
+    const failure = (await request(`http://us${end}er:UNREGISTERED@127.0.0.1:9/x`, { retries: 0 }).catch((error: unknown) => error)) as {
+      details: { URL: string }
+    }
+    expect(failure.details.URL).toBe('http://127.0.0.1:9/x')
+
+    const out: string[] = []
+    const logSpy = vi.spyOn(console, 'log').mockImplementation((text: unknown) => void out.push(String(text)))
+    addUrlSecrets(`http://us${end}er:REGISTERED2@host`)
+    log.info('echo REGISTERED2')
+    logSpy.mockRestore()
+    expect(out).toEqual(['echo ***'])
+  })
+
   it('an error names the URL without them', async () => {
     const failure = (await request('http://someone:UNREGISTERED@127.0.0.1:9/x', { retries: 0 }).catch((error: unknown) => error)) as {
       details: { URL: string }

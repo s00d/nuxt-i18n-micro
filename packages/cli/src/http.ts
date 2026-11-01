@@ -1,4 +1,5 @@
 import { CliError } from './errors'
+import { urlParts } from './log'
 
 export interface RequestOptions extends Omit<RequestInit, 'signal'> {
   timeoutMs?: number
@@ -17,7 +18,12 @@ const MAX_WAIT_MS = 60_000
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** What a URL may show in an error: query strings carry API keys (`?key=`). */
-const safeUrl = (url: string): string => url.split(/[?#;]/)[0]!.replace(/^([a-z][a-z0-9+.-]*:\/\/)?.*@/i, '$1')
+function safeUrl(url: string): string {
+  let end = 0
+  while (end < url.length && url[end] !== '?' && url[end] !== '#' && url[end] !== ';') end++
+  const { scheme, host } = urlParts(url.slice(0, end))
+  return scheme + host
+}
 
 function messageFromBody(body: string): string {
   try {

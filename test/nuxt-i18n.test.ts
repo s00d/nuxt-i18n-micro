@@ -343,6 +343,27 @@ describe('NuxtTranslationLoader: reload', () => {
     }
   })
 
+  test('a first render with a failed chunk shows the root dictionary, keeps it apart, and a prerender does not', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    translationStorage.clear()
+    vi.stubGlobal('$fetch', (path: string) => (path.includes('__root') ? Promise.resolve({ layout: 'Root' }) : Promise.reject(new Error('502'))))
+    const start = (prerender: boolean) => {
+      const i18n = new NuxtI18n({ missingWarn: false })
+      return { i18n, done: new NuxtTranslationLoader({ i18n, loadOptions, prerender }).switchContext('en', 'about') }
+    }
+    try {
+      const first = start(false)
+      await expect(first.done).resolves.toBe(true)
+      expect(first.i18n.t('layout')).toBe('Root')
+      expect(translationStorage.getFromCache('en', 'about')).toBeNull()
+      expect(first.i18n.hasChunk('en', 'about')).toBe(false)
+      await expect(start(true).done).rejects.toThrow('Translation load failed: en about')
+    } finally {
+      vi.unstubAllGlobals()
+      warn.mockRestore()
+    }
+  })
+
   test('a failed reload keeps the dictionary on screen', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { i18n, loader } = setup({ title: 'Hi' })

@@ -178,7 +178,8 @@ class TranslationStorage {
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
     // No file: the page shows the root dictionary, as the server route answers it, and no root file either (`source` mode on
     // a file host, which the build warns about) is an empty one, as a missing file must not stop a switch. Neither is kept
-    // under this key: during a deploy the file can appear, and the next visit gets it.
+    // under this key: during a deploy the file can appear, and the next page load gets it.
+    // ponytail: an open tab keeps the stand-in in the i18n instance until a reload, a chunk added under it is that rare
     if (data === null) {
       const stand = routeName === PREMERGED_ROOT_PAGE ? Object.freeze({}) : (await this.load(locale, PREMERGED_ROOT_PAGE, options)).data
       return { data: stand, cacheKey }

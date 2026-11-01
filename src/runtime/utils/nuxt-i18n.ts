@@ -23,6 +23,7 @@ import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsEx
  * 103k-key dictionary, on every navigation.
  */
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import { hasProtocol } from 'ufo'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import type {
@@ -261,7 +262,7 @@ export class NuxtI18n extends BaseI18n {
    * a shallow merge loses nested keys. Two plain objects + fallthrough on miss is cheaper
    * and correct for the short hot-reload window.
    */
-  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): void {
+  applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null, standIn = false): void {
     // Stash / swap the view layer before setChunk so eviction sees keep === current
     // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
@@ -270,8 +271,8 @@ export class NuxtI18n extends BaseI18n {
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
-    // a failed first load renders with nothing, but stores nothing: the next navigation loads it
-    if (data) this.setChunk(locale, routeName, data)
+    // a failed first load renders with nothing or a stand-in, but stores nothing: the next navigation loads it
+    if (data && !standIn) this.setChunk(locale, routeName, data)
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
   }
@@ -549,11 +550,11 @@ export class NuxtTranslationLoader {
    * refresh() does, since an empty dictionary would turn the strings that still work (a layout's) into raw keys.
    * Only a first render has nothing to keep. A prerender throws there instead: no next request would load it again.
    */
-  applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null): boolean {
+  applyContext(locale: string, routeName: string | undefined, data: Record<string, unknown> | null, standIn = false): boolean {
     const { i18n, prerender } = this.options
     if (data === null && i18n.getCurrentLocale()) return false
     if (data === null && prerender) throw new Error(`[i18n] Translation load failed: ${locale} ${routeName}`)
-    i18n.applySwitchContext(locale, routeName, data)
+    i18n.applySwitchContext(locale, routeName, data, standIn)
     return true
   }
 
@@ -565,7 +566,18 @@ export class NuxtTranslationLoader {
   async switchContext(locale: string, routeName?: string): Promise<boolean> {
     const generation = ++this.switchGeneration
     const data = await this.fetchContext(locale, routeName)
-    return generation === this.switchGeneration && this.applyContext(locale, routeName, data)
+    const shown = data ?? (await this.firstRenderStandIn(locale, routeName))
+    return generation === this.switchGeneration && this.applyContext(locale, routeName, shown, data === null)
+  }
+
+  /**
+   * A first render whose chunk failed has nothing to keep, but its root dictionary can be at hand (the shared
+   * cache in a host outage): the layout's strings stay text. A prerender must fail instead, it would keep the file.
+   */
+  private firstRenderStandIn(locale: string, routeName?: string): ReturnType<NuxtTranslationLoader['fetchContext']> | null {
+    const { i18n, prerender } = this.options
+    if (prerender || i18n.getCurrentLocale() || routeName === PREMERGED_ROOT_PAGE) return null
+    return this.fetchContext(locale, PREMERGED_ROOT_PAGE)
   }
 }
 

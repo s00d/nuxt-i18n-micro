@@ -1,18 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
-const {
-  locale,
-  localeCookie,
-  hashCookie,
-  validLocales,
-  getLocale,
-  getPreferredLocale,
-  getLocaleWithServerFallback,
-  getEffectiveLocale,
-  isValidLocale,
-  setLocale,
-  syncLocale,
-} = useI18nLocale()
+const { locale, localeCookie, hashCookie, validLocales, getLocale, getPreferredLocale, getEffectiveLocale, isValidLocale, setLocale, syncLocale } =
+  useI18nLocale()
 </script>
 
 <template>
@@ -23,7 +12,6 @@ const {
     <R id="ul-valid" :v="validLocales" />
     <R id="ul-get" :v="getLocale()" />
     <R id="ul-preferred" :v="getPreferredLocale()" />
-    <R id="ul-server-fallback" :v="getLocaleWithServerFallback('de')" />
     <R id="ul-effective" :v="getEffectiveLocale(route, () => 'route-locale')" />
     <R id="ul-valid-en" :v="isValidLocale('en')" />
     <R id="ul-valid-es" :v="isValidLocale('es')" />

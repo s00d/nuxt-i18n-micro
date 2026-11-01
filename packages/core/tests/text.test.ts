@@ -9,7 +9,7 @@ class TestI18n extends BaseI18n {
     plural?: PluralFunc,
   ) {
     super({ plural, missingWarn: false })
-    this.helper.loadTranslations(locale, messages as never)
+    this.helper.mergeTranslation(locale, 'index', messages as never)
   }
   getLocale = () => this.locale
   getFallbackLocale = () => this.locale
@@ -418,7 +418,7 @@ describe('the plural locale of an instance', () => {
   class IsoI18n extends BaseI18n {
     constructor(plural?: PluralFunc) {
       super({ plural, missingWarn: false, localeIso: { ua: 'uk-UA', de: 'de-DE' } })
-      this.helper.loadTranslations('ua', { x: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } as never)
+      this.helper.mergeTranslation('ua', 'index', { x: '=0 нема | {count} яблуко | {count} яблука | {count} яблук' } as never)
     }
     getLocale = () => 'ua'
     getFallbackLocale = () => 'ua'

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { deepMergeTranslations, deepMergeTranslationsRecursive } from '../src/deep-merge'
+import { deepMergeTranslationsRecursive } from '../src/deep-merge'
 
-/** `deepMergeTranslations` is the recursive merge under its old name; both are pinned, it once stopped at two levels. */
 describe('nested __proto__', () => {
   it.each([
     ['onto an empty target', {}],
@@ -14,17 +13,15 @@ describe('nested __proto__', () => {
   })
 })
 
-describe('deepMergeTranslations', () => {
+describe('deepMergeTranslationsRecursive', () => {
   it('merges the first level of nesting', () => {
-    expect(deepMergeTranslations({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })
+    expect(deepMergeTranslationsRecursive({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })
   })
 
   it('merges below the second level as well', () => {
-    expect(deepMergeTranslations({ a: { b: { c: '1' } } }, { a: { b: { d: '2' } } })).toEqual({ a: { b: { c: '1', d: '2' } } })
+    expect(deepMergeTranslationsRecursive({ a: { b: { c: '1' } } }, { a: { b: { d: '2' } } })).toEqual({ a: { b: { c: '1', d: '2' } } })
   })
-})
 
-describe('deepMergeTranslationsRecursive', () => {
   it('lets the source win, and replaces arrays rather than merging them index-wise', () => {
     expect(deepMergeTranslationsRecursive({ a: '1' }, { a: '2' })).toEqual({ a: '2' })
     expect(deepMergeTranslationsRecursive({ items: ['a', 'b'] }, { items: ['c'] })).toEqual({ items: ['c'] })

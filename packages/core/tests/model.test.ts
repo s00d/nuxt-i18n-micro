@@ -243,8 +243,8 @@ describe('core model', () => {
         i18n.loadTranslationsCore('en', rootEn, false)
         i18n.loadTranslationsCore('de', rootDe, false)
         if (route !== 'index') {
-          i18n.loadRouteTranslationsCore('en', route, pageEn, false)
-          i18n.loadRouteTranslationsCore('de', route, pageDe, false)
+          i18n.loadTranslationsCore('en', pageEn, false, route)
+          i18n.loadTranslationsCore('de', pageDe, false, route)
         }
         const dump = i18n.resolveTranslations()
         for (const key of QUERIES) {

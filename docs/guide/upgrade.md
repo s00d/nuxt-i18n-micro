@@ -220,6 +220,7 @@ This section covers `<i18n-t>` in the module and `I18nT` in `@i18n-micro/vue`. F
 - The `hooks` option no longer documents `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch`; they were never emitted.
 - `const { $defineI18nRoute } = useNuxtApp()` in a page now works with configs that use variables.
 - `useI18n()` has more keys: `clearCache`, `pluralFunc`, `pluralLocale`. `clearCache` is on its type.
+- `useI18nLocale()` drops `getLocaleWithServerFallback(serverLocale)`: write `getPreferredLocale() ?? serverLocale ?? null`.
 - **`$getI18nConfig()` is read-only on the server in dev.** A write throws there, and in production it would reach every request.
 
 ### Server, build and deployment
@@ -327,10 +328,16 @@ These are public on npm, but most apps reach them only through the module.
 | --- | --- | --- |
 | core | `useTranslationHelper(storage)` is gone | `new TranslationHelper(storage)`. A destructured method loses `this` |
 | core | `TranslationHelper` drops `setCache`, `getGeneration`, `lookupIn`; `BaseI18n` drops `ensurePinnedChunk`, `invalidatePin`; route chunks hold only their own keys and lookups fall through to the root chunk | Custom adapters: use `lookup(chunkKey, key)` |
+| core | `TranslationHelper.hasPageTranslation` is gone | `hasCache(locale, routeName)` |
+| core | `TranslationHelper.loadTranslations` is gone | `mergeTranslation(locale, routeName, data)`; `routeName` has no default, the root chunk is `'index'` |
+| core | `TranslationHelper.loadPageTranslations` is gone | `mergeTranslation(locale, routeName, data)` |
+| core | `BaseI18n.loadRouteTranslationsCore(locale, routeName, translations, merge)` is gone | `loadTranslationsCore(locale, translations, merge, routeName)` |
 | core | `tc` passes the count as a `Number`, so a custom rule sees `1.5` where it saw `1` | — |
 | utils | `resolveI18nConfigWithRuntimeOverrides(base, pub, warn)` is gone | `createI18nConfigResolver(warn)(base, pub)`. It memoizes, reads the environment once, and its result is frozen in dev |
 | utils | Subpaths `./route`, `./route-pattern`, `./build`, `./payload-stats`, `./payload-config` removed | They were module internals |
-| utils | `mergeRouteTranslationsWithRoot` is gone. `deepMergeTranslations` merges at every depth, not two levels | — |
+| utils | `mergeRouteTranslationsWithRoot` is gone | `deepMergeTranslationsRecursive`, which merges at every depth |
+| utils | `deepMergeTranslations` is gone | `deepMergeTranslationsRecursive`. The old name stopped at two levels until this release |
+| utils | `applyAutoDetectLanguage` is gone | `hasExplicitPreference \|\| !autoDetect ? locale : detectLocaleFromAcceptLanguage(header, validLocales) ?? locale` |
 | utils | `LocaleHeadLink` is a union by `rel` | Code that builds one with a free `rel`, or an `alternate` with no `hreflang`, no longer compiles |
 
 #### `@i18n-micro/path-strategy`, `@i18n-micro/route-strategy`

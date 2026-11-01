@@ -44,10 +44,6 @@ export class TranslationHelper {
     return this.translations.has(translationCacheKey(locale, routeName))
   }
 
-  hasPageTranslation(locale: string, routeName: string): boolean {
-    return this.hasCache(locale, routeName)
-  }
-
   getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null {
     return this.lookup(translationCacheKey(locale, routeName), key) as T | null
   }
@@ -92,14 +88,6 @@ export class TranslationHelper {
     // The incoming tree is copied, so a caller editing its `messages` object afterwards does not reach storage.
     const next = mergeTranslationChunk(existing, incoming as Tree)
     this.translations.set(chunkKey, next as Translations)
-  }
-
-  loadTranslations(locale: string, data: Translations, routeName = 'index'): void {
-    this.mergeTranslation(locale, routeName, data)
-  }
-
-  loadPageTranslations(locale: string, routeName: string, data: Translations): void {
-    this.mergeTranslation(locale, routeName, data)
   }
 
   clearCache(): void {

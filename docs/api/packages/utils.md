@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-107 exports across 22 entry points.
+105 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,7 +18,6 @@ import { /* … */ } from '@i18n-micro/utils/accept-language'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `applyAutoDetectLanguage` | function | `(locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean \| undefined, acceptLanguageHeader: string \| undefined, validLocales: readonly string[]) => string` |
 | `detectLocaleFromAcceptLanguage` | function | `(header: string \| undefined, validLocales: readonly string[]) => string \| null` |
 | `parseAcceptLanguage` | function | `(header: string \| undefined) => string[]` |
 
@@ -134,7 +133,6 @@ import { /* … */ } from '@i18n-micro/utils/deep-merge'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `deepMergeTranslations` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
 | `deepMergeTranslationsRecursive` | function | `(target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>` |
 
 

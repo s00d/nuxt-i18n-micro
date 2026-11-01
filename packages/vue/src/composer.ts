@@ -51,7 +51,7 @@ export class VueI18n extends BaseI18n {
     this._currentRoute = shallowRef('index')
     this._revision = shallowRef(0)
 
-    for (const [lang, msgs] of Object.entries(options.messages ?? {})) this.helper.loadTranslations(lang, msgs)
+    for (const [lang, msgs] of Object.entries(options.messages ?? {})) this.helper.mergeTranslation(lang, 'index', msgs)
   }
 
   get locale(): Ref<string> {
@@ -103,11 +103,11 @@ export class VueI18n extends BaseI18n {
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    this.loadRouteTranslationsCore(locale, routeName, translations, merge)
+    this.loadTranslationsCore(locale, translations, merge, routeName)
   }
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {
-    this.loadRouteTranslationsCore(locale, routeName, translations, true)
+    this.loadTranslationsCore(locale, translations, true, routeName)
   }
 
   /** Every read depends on the revision, so `computed(() => t(key))` re-runs after a write. */

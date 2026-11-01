@@ -106,14 +106,3 @@ export function detectLocaleFromAcceptLanguage(header: string | undefined, valid
   }
   return null
 }
-
-export function applyAutoDetectLanguage(
-  locale: string,
-  hasExplicitPreference: boolean,
-  autoDetectLanguage: boolean | undefined,
-  acceptLanguageHeader: string | undefined,
-  validLocales: readonly string[],
-): string {
-  if (!autoDetectLanguage || hasExplicitPreference) return locale
-  return detectLocaleFromAcceptLanguage(acceptLanguageHeader, validLocales) ?? locale
-}

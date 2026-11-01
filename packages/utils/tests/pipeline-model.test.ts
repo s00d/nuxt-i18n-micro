@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { CacheControl } from '../src/cache-control'
-import { deepMergeTranslations } from '../src/deep-merge'
+import { deepMergeTranslationsRecursive } from '../src/deep-merge'
 import { buildFallbackLocaleChain, mergeSourceTranslations } from '../src/merge-source'
 import { storeLoadedTranslationFile, type TranslationFileBuckets } from '../src/parse-path'
 

@@ -20,15 +20,13 @@ describe('useI18nLocale', () => {
     refs.cookie.value = null
   })
 
-  test('getLocaleWithServerFallback: a stale value does not hide the server locale', () => {
-    const { getLocaleWithServerFallback } = useI18nLocale()
-    expect(getLocaleWithServerFallback('en')).toBe('en')
+  test('getPreferredLocale: a stale value counts as none', () => {
+    const { getPreferredLocale } = useI18nLocale()
+    expect(getPreferredLocale()).toBeNull()
     refs.cookie.value = 'xx'
-    expect(getLocaleWithServerFallback('en')).toBe('en')
+    expect(getPreferredLocale()).toBeNull()
     refs.state.value = 'de'
-    expect(getLocaleWithServerFallback('en')).toBe('de')
-    refs.state.value = null
-    expect(getLocaleWithServerFallback()).toBeNull()
+    expect(getPreferredLocale()).toBe('de')
   })
 
   test('resolveInitialLocale: the URL wins over the state and the server, then state, server, route', () => {

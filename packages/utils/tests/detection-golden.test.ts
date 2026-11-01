@@ -3,7 +3,7 @@
  * `__golden__/detection.md`, so a behaviour change shows up as a one-line diff.
  */
 import { expect, test } from 'vitest'
-import { applyAutoDetectLanguage, detectLocaleFromAcceptLanguage, parseAcceptLanguage } from '../src/accept-language'
+import { detectLocaleFromAcceptLanguage, parseAcceptLanguage } from '../src/accept-language'
 import { shouldAttemptLocaleRedirect } from '../src/auto-detect-path'
 import { resolveLocale } from '../src/resolve-locale'
 
@@ -57,13 +57,6 @@ function report(): string {
   section('detectLocaleFromAcceptLanguage')
   for (const locales of localeSets) {
     for (const header of headers) run(`detect(${show(header)}, ${show(locales)})`, () => detectLocaleFromAcceptLanguage(header, locales))
-  }
-
-  section('applyAutoDetectLanguage')
-  for (const explicit of [false, true]) {
-    for (const auto of [undefined, false, true]) {
-      run(`apply('en', explicit=${explicit}, auto=${auto}, 'de')`, () => applyAutoDetectLanguage('en', explicit, auto, 'de', ['en', 'de']))
-    }
   }
 
   section('resolveLocale: url, query, cookie')

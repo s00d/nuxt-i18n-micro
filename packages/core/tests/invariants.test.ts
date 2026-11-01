@@ -62,7 +62,7 @@ describe('hostile input', () => {
 
   test('a polluted Object.prototype never answers a lookup', () => {
     const helper = new TranslationHelper()
-    helper.loadTranslations('en', { nav: { home: 'Home' } })
+    helper.mergeTranslation('en', 'index', { nav: { home: 'Home' } })
     const proto = Object.prototype as Record<string, unknown>
     proto.polluted = 'EVIL'
     try {
@@ -187,8 +187,8 @@ describe('listeners and caches', () => {
 
   test('a loaded page chunk is cached and answers lookups', async () => {
     const helper = new TranslationHelper()
-    await helper.loadPageTranslations('fr', 'home', { greeting: 'Bonjour, {name}!' })
-    expect(helper.hasPageTranslation('fr', 'home')).toBe(true)
+    await helper.mergeTranslation('fr', 'home', { greeting: 'Bonjour, {name}!' })
+    expect(helper.hasCache('fr', 'home')).toBe(true)
     expect(helper.getTranslation('fr', 'home', 'greeting')).toBe('Bonjour, {name}!')
   })
 })
@@ -251,9 +251,9 @@ describe('storage owns what it stores', () => {
 
   test('the leaf cache cannot disagree with its tree', () => {
     const helper = new TranslationHelper()
-    helper.loadTranslations('en', { base: 'x' })
+    helper.mergeTranslation('en', 'index', { base: 'x' })
     const from = incoming()
-    helper.loadTranslations('en', from)
+    helper.mergeTranslation('en', 'index', from)
     expect(helper.getTranslation('en', 'index', 'sec.title')).toBe('v1')
     from.sec.title = 'EDITED'
     ;(from.sec.list as string[])[0] = 'EDITED'

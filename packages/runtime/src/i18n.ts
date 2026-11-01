@@ -222,7 +222,7 @@ export class I18n extends BaseI18n {
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    this.loadRouteTranslationsCore(locale, routeName, translations, merge)
+    this.loadTranslationsCore(locale, translations, merge, routeName)
   }
 
   public hasTranslation(key: TranslationKey): boolean {

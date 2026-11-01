@@ -71,8 +71,8 @@ function loaded(options: BaseI18nOptions = {}): TestI18n {
   const i18n = new TestI18n('en', 'en', { missingWarn: false, ...options })
   i18n.loadTranslationsCore('en', enRoot() as Translations, true)
   i18n.loadTranslationsCore('de', deRoot() as Translations, true)
-  i18n.loadRouteTranslationsCore('en', 'about', enAbout() as Translations, false)
-  i18n.loadRouteTranslationsCore('de', 'about', deAbout() as Translations, false)
+  i18n.loadTranslationsCore('en', enAbout() as Translations, false, 'about')
+  i18n.loadTranslationsCore('de', deAbout() as Translations, false, 'about')
   return i18n
 }
 
@@ -359,12 +359,12 @@ export function i18nReport(): string {
 
     const page = { p: { a: 1 } }
     const pageBefore = JSON.stringify(page)
-    i18n2.loadRouteTranslationsCore('en', 'about', page as Translations, false)
-    i18n2.loadRouteTranslationsCore('en', 'about', { p: { b: 2 } } as Translations, false)
+    i18n2.loadTranslationsCore('en', page as Translations, false, 'about')
+    i18n2.loadTranslationsCore('en', { p: { b: 2 } } as Translations, false, 'about')
     i18n2.route = 'about'
     r.run('route chunk after loadRoute(false) twice', () => i18n2.resolveTranslations())
     r.value('caller page tree mutated', JSON.stringify(page) !== pageBefore)
-    i18n2.loadRouteTranslationsCore('en', 'about', { p: { c: 3 } } as Translations, true)
+    i18n2.loadTranslationsCore('en', { p: { c: 3 } } as Translations, true, 'about')
     r.run('route chunk after loadRoute(true)', () => i18n2.resolveTranslations())
 
     const i18n3 = loaded()
@@ -433,9 +433,9 @@ export function i18nReport(): string {
     r.run('getTranslation on empty', () => helper.getTranslation('en', 'index', 'a'))
     r.run('getCache on empty', () => helper.getCache('en', 'index'))
     r.run('hasTranslation on empty', () => helper.hasTranslation('en', 'a'))
-    helper.loadTranslations('en', { a: 'root' } as Translations)
-    helper.loadPageTranslations('en', 'about', { b: 'page' } as Translations)
-    helper.loadPageTranslations('en:x', 'y', { c: 'odd locale' } as Translations)
+    helper.mergeTranslation('en', 'index', { a: 'root' } as Translations)
+    helper.mergeTranslation('en', 'about', { b: 'page' } as Translations)
+    helper.mergeTranslation('en:x', 'y', { c: 'odd locale' } as Translations)
     helper.mergeTranslation('de', 'index', { a: 'de root' } as Translations)
     helper.setTranslations('fr', { a: 'fr' } as Translations)
     for (const [l, route, key] of [

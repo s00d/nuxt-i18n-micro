@@ -112,7 +112,6 @@ member VueI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member VueI18n.helper: TranslationHelper
 member VueI18n.isoTag: private any
 member VueI18n.listeners: private Set<() => void>
-member VueI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member VueI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member VueI18n.locale: Ref<string, string>
 member VueI18n.localeIso: protected Record<string, string>
@@ -144,7 +143,6 @@ member VueI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string,
 member VueI18n.warnDev: protected (message: string) => void
 member VueI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member VueI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member VueI18n.write: private any
 member VueI18n.new: (options: VueI18nOptions): VueI18n
 interface VueI18nOptions
 member VueI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined

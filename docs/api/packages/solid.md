@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `RouteTarget` | type | `string \| { path?: string; }` |
-| `SolidI18n` | class | 72 members |
+| `SolidI18n` | class | 70 members |
 | `SolidI18nOptions` | type | `I18nOptions` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -1532,7 +1532,7 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 52 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 72 members</summary>
+<summary><code>SolidI18n</code> — 70 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1568,7 +1568,6 @@ import { /* … */ } from '@i18n-micro/solid'
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
@@ -1607,7 +1606,6 @@ import { /* … */ } from '@i18n-micro/solid'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
-| `write` | `private any` |
 
 </details>
 

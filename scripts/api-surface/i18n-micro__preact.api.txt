@@ -1118,7 +1118,6 @@ member PreactI18n.isReadable: private any
 member PreactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member PreactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
 member PreactI18n.localeIso: protected Record<string, string>
@@ -1151,7 +1150,6 @@ member PreactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: stri
 member PreactI18n.warnDev: protected (message: string) => void
 member PreactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member PreactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member PreactI18n.write: private any
 member PreactI18n.new: (options: I18nOptions): I18n
 interface PreactI18nOptions
 member PreactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined

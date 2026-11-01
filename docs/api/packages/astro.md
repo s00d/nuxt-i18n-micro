@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 72 members |
+| `AstroI18n` | class | 70 members |
 | `AstroI18nOptions` | type | `I18nOptions` |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 72 members</summary>
+<summary><code>AstroI18n</code> — 70 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -93,7 +93,6 @@ import { /* … */ } from '@i18n-micro/astro'
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeIso` | `protected Record<string, string>` |
@@ -128,7 +127,6 @@ import { /* … */ } from '@i18n-micro/astro'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
-| `write` | `private any` |
 
 </details>
 

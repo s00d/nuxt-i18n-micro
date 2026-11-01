@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 52 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 66 members |
+| `PreactI18n` | class | 64 members |
 | `PreactI18nOptions` | interface | 13 members |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
@@ -1108,7 +1108,7 @@ import { /* … */ } from '@i18n-micro/preact'
 <code>ModuleOptions</code> — 52 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>PreactI18n</code> — 66 members</summary>
+<summary><code>PreactI18n</code> — 64 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1143,7 +1143,6 @@ import { /* … */ } from '@i18n-micro/preact'
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeIso` | `protected Record<string, string>` |
@@ -1177,7 +1176,6 @@ import { /* … */ } from '@i18n-micro/preact'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
-| `write` | `private any` |
 
 </details>
 

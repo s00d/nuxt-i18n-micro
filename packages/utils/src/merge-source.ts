@@ -1,6 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { forwardSlashes, trimLeadingSlashes, trimSlashes } from './app-path'
-import { deepMergeTranslations } from './deep-merge'
+import { deepMergeTranslationsRecursive } from './deep-merge'
 
 export interface SourceLocaleInfo {
   code: string
@@ -34,7 +34,7 @@ export async function mergeTranslationsFromFallbackChainAsync(
   relativePathForLocale: (localeCode: string) => string,
 ): Promise<Record<string, unknown>> {
   const chunks = await Promise.all(chain.map((localeCode) => readLocaleFile(relativePathForLocale(localeCode))))
-  return chunks.reduce((result, data) => deepMergeTranslations(result, data), {} as Record<string, unknown>)
+  return chunks.reduce((result, data) => deepMergeTranslationsRecursive(result, data), {} as Record<string, unknown>)
 }
 
 export function resolveSourcePageName(pageName: string, disablePageLocales?: boolean): string {

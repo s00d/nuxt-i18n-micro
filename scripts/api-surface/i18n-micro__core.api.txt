@@ -17,7 +17,6 @@ member BaseI18n.getRoute: () => string
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: TranslationHelper
 member BaseI18n.isoTag: private (locale: string) => string
-member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member BaseI18n.localeIso: protected Record<string, string>
 member BaseI18n.lookupLocale: private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown | null
@@ -43,7 +42,6 @@ member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member BaseI18n.write: private (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -161,13 +159,10 @@ member TranslationHelper.clearCache: () => void
 member TranslationHelper.getCache: (locale: string, routeName: string) => Translations | undefined
 member TranslationHelper.getTranslation: <T = unknown>(locale: string, routeName: string, key: string) => T | null
 member TranslationHelper.hasCache: (locale: string, routeName: string) => boolean
-member TranslationHelper.hasPageTranslation: (locale: string, routeName: string) => boolean
 member TranslationHelper.hasTranslation: (locale: string, key: string) => boolean
 member TranslationHelper.lastLeaves: private Map<string, unknown>
 member TranslationHelper.lastTree: private Translations | undefined
 member TranslationHelper.leavesOf: private (tree: Translations) => Map<string, unknown>
-member TranslationHelper.loadPageTranslations: (locale: string, routeName: string, data: Translations) => void
-member TranslationHelper.loadTranslations: (locale: string, data: Translations, routeName?: string) => void
 member TranslationHelper.lookup: (chunkKey: string, key: string) => unknown | null
 member TranslationHelper.mergeTranslation: (locale: string, routeName: string, incoming: Translations) => void
 member TranslationHelper.setTranslations: (locale: string, data: Translations, routeName?: string) => void

@@ -1030,7 +1030,6 @@ member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
 member ReactI18n.localeIso: protected Record<string, string>
@@ -1063,7 +1062,6 @@ member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member ReactI18n.write: private any
 member ReactI18n.new: (options: I18nOptions): I18n
 interface ReactI18nOptions
 member ReactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -2149,7 +2147,6 @@ member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
 member ReactI18n.localeIso: protected Record<string, string>
@@ -2182,7 +2179,6 @@ member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member ReactI18n.write: private any
 member ReactI18n.new: (options: I18nOptions): I18n
 interface ReactI18nOptions
 member ReactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -2306,7 +2302,6 @@ member ReactI18n.isReadable: private any
 member ReactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member ReactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member ReactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
-member ReactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member ReactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member ReactI18n.locale: string
 member ReactI18n.localeIso: protected Record<string, string>
@@ -2339,7 +2334,6 @@ member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
-member ReactI18n.write: private any
 member ReactI18n.new: (options: I18nOptions): I18n
 interface ReactI18nOptions
 member ReactI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined

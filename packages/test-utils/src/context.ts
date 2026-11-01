@@ -206,7 +206,7 @@ export class I18nTestContext extends BaseI18n {
   }
 
   async loadPageTranslations(locale: string, page: string, translations: Translations): Promise<void> {
-    this.helper.loadPageTranslations(locale, page, translations)
+    this.helper.mergeTranslation(locale, page, translations)
   }
 
   setLocale = (val: string) => {

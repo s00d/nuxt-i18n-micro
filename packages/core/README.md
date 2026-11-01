@@ -26,9 +26,9 @@ Translations live in a `TranslationStorage` — a `Map` of chunks keyed `locale:
 import { TranslationHelper } from '@i18n-micro/core'
 
 const helper = new TranslationHelper()
-helper.loadTranslations('en', { greeting: 'Hello, {name}!', nav: { home: 'Home' } })
+helper.mergeTranslation('en', 'index', { greeting: 'Hello, {name}!', nav: { home: 'Home' } })
 helper.mergeTranslation('en', 'index', { nav: { about: 'About' } }) // deep merge, nav.home kept
-helper.loadPageTranslations('en', 'about', { title: 'About us' })
+helper.mergeTranslation('en', 'about', { title: 'About us' })
 
 helper.getTranslation('en', 'index', 'nav.about') // 'About'
 helper.hasTranslation('en', 'title') // true (any route of `en`)

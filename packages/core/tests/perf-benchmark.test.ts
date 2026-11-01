@@ -230,22 +230,20 @@ class BenchI18n extends BaseI18n {
 const flat500 = buildFlatTranslations(500)
 const nested100 = buildNestedTranslations(100)
 const mergeHelper = new TranslationHelper()
-mergeHelper.loadTranslations('en', flat500, 'merge-bench')
-
-const loadHelper = new TranslationHelper()
+mergeHelper.mergeTranslation('en', 'merge-bench', flat500)
 
 const helper = new TranslationHelper()
-helper.loadTranslations('en', flat500, 'index')
-helper.loadTranslations('en', nested100, 'about')
-helper.loadTranslations('de', flat500, 'index')
+helper.mergeTranslation('en', 'index', flat500)
+helper.mergeTranslation('en', 'about', nested100)
+helper.mergeTranslation('de', 'index', flat500)
 for (let r = 0; r < 10; r++) {
-  helper.loadTranslations('en', { [`route_${r}`]: `Route ${r}` }, `page-${r}`)
+  helper.mergeTranslation('en', `page-${r}`, { [`route_${r}`]: `Route ${r}` })
 }
 
 const i18n = new BenchI18n('en', 'de', 'index', { missingWarn: false, storage: { translations: new Map() } })
-i18n.helper.loadTranslations('en', flat500, 'index')
-i18n.helper.loadTranslations('en', nested100, 'about')
-i18n.helper.loadTranslations('de', flat500, 'index')
+i18n.helper.mergeTranslation('en', 'index', flat500)
+i18n.helper.mergeTranslation('en', 'about', nested100)
+i18n.helper.mergeTranslation('de', 'index', flat500)
 
 const formatter = new FormatService()
 const sampleDate = new Date('2024-06-15T12:00:00Z')
@@ -306,12 +304,8 @@ describe('Performance: translation helper', () => {
       })(),
     ],
     ['getTranslation miss', () => helper.getTranslation('en', 'index', 'missing.key')],
-    ['hasPageTranslation hit', () => helper.hasPageTranslation('en', 'index')],
-    ['hasPageTranslation miss', () => helper.hasPageTranslation('fr', 'index')],
     ['hasTranslation scan', () => helper.hasTranslation('en', 'key_42'), ITERATIONS_MEDIUM],
     ['mergeTranslation', () => mergeHelper.mergeTranslation('en', 'merge-bench', { dynamic: 'x' }), ITERATIONS_MEDIUM],
-    ['loadTranslations', () => loadHelper.loadTranslations('en', { tmp: 'v' }, 'tmp-route'), ITERATIONS_MEDIUM, 0.5],
-    ['loadPageTranslations', () => helper.loadPageTranslations('en', 'tmp-page', { page: 'v' }), ITERATIONS_MEDIUM, 0.5],
     ['hasCache', () => helper.hasCache('en', 'index'), ITERATIONS_MEDIUM],
     ['getCache', () => helper.getCache('en', 'index'), ITERATIONS_MEDIUM],
   ]
@@ -353,15 +347,6 @@ describe('Performance: BaseI18n', () => {
       () => {
         const route = `bench-${Math.random()}`
         i18n.loadTranslationsCore('en', { x: '1' }, true, route)
-      },
-      ITERATIONS_MEDIUM,
-      0.5,
-    ],
-    [
-      'loadRouteTranslationsCore merge',
-      () => {
-        const route = `bench-route-${Math.random()}`
-        i18n.loadRouteTranslationsCore('en', route, { y: '2' }, true)
       },
       ITERATIONS_MEDIUM,
       0.5,

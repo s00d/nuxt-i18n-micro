@@ -294,17 +294,8 @@ export abstract class BaseI18n {
     this.onTranslationsChanged()
   }
 
-  /** Load root translations: deep-merge, or replace the chunk when `merge` is false. */
+  /** Load a chunk: deep-merge, or replace it when `merge` is false. Root keys come from the root chunk (`index`). */
   public loadTranslationsCore(locale: string, translations: Translations, merge: boolean, routeName = 'index'): void {
-    this.write(locale, routeName, translations, merge)
-  }
-
-  /** Load a route's own translations (root keys come from the root chunk): deep-merge, or replace when `merge` is false. */
-  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, merge: boolean): void {
-    this.write(locale, routeName, translations, merge)
-  }
-
-  private write(locale: string, routeName: string, translations: Translations, merge: boolean): void {
     if (merge) this.helper.mergeTranslation(locale, routeName, translations)
     else this.helper.setTranslations(locale, translations, routeName)
     this.onTranslationsChanged(locale)

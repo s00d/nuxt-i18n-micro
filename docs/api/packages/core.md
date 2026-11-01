@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 45 members |
+| `BaseI18n` | class | 43 members |
 | `BaseI18nOptions` | interface | 12 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
@@ -60,7 +60,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `textOf` | function | `(value: unknown) => string \| undefined` |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
-| `TranslationHelper` | class | 16 members |
+| `TranslationHelper` | class | 13 members |
 | `TranslationStorage` | interface | 1 members |
 | `Tree` | type | `Record<string, unknown>` |
 | `urlPath` | function | `(url: string) => string` |
@@ -68,7 +68,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 45 members</summary>
+<summary><code>BaseI18n</code> — 43 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -89,7 +89,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `TranslationHelper` |
 | `isoTag` | `private (locale: string) => string` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `localeIso` | `protected Record<string, string>` |
 | `lookupLocale` | `private (locale: string, route: string, name: string, page: ChunkKey, root: ChunkKey) => unknown \| null` |
@@ -116,7 +115,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
-| `write` | `private (locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 
 </details>
 
@@ -263,7 +261,7 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>TranslationHelper</code> — 16 members</summary>
+<summary><code>TranslationHelper</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -271,13 +269,10 @@ import { /* … */ } from '@i18n-micro/core'
 | `getCache` | `(locale: string, routeName: string) => Translations \| undefined` |
 | `getTranslation` | `<T = unknown>(locale: string, routeName: string, key: string) => T \| null` |
 | `hasCache` | `(locale: string, routeName: string) => boolean` |
-| `hasPageTranslation` | `(locale: string, routeName: string) => boolean` |
 | `hasTranslation` | `(locale: string, key: string) => boolean` |
 | `lastLeaves` | `private Map<string, unknown>` |
 | `lastTree` | `private Translations \| undefined` |
 | `leavesOf` | `private (tree: Translations) => Map<string, unknown>` |
-| `loadPageTranslations` | `(locale: string, routeName: string, data: Translations) => void` |
-| `loadTranslations` | `(locale: string, data: Translations, routeName?: string) => void` |
 | `lookup` | `(chunkKey: string, key: string) => unknown \| null` |
 | `mergeTranslation` | `(locale: string, routeName: string, incoming: Translations) => void` |
 | `new` | `(storage?: TranslationStorage \| undefined): TranslationHelper` |

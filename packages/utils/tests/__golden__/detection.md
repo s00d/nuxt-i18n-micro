@@ -104,15 +104,6 @@
 - `detect("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ["zh","zh-Hant"])` → null
 - `detect("__proto__,constructor", ["zh","zh-Hant"])` → null
 
-## applyAutoDetectLanguage
-
-- `apply('en', explicit=false, auto=undefined, 'de')` → "en"
-- `apply('en', explicit=false, auto=false, 'de')` → "en"
-- `apply('en', explicit=false, auto=true, 'de')` → "de"
-- `apply('en', explicit=true, auto=undefined, 'de')` → "en"
-- `apply('en', explicit=true, auto=false, 'de')` → "en"
-- `apply('en', explicit=true, auto=true, 'de')` → "en"
-
 ## resolveLocale: url, query, cookie
 
 - `server(url=segment:null, q=null, cookie=null, auto=false)` → "en"

@@ -71,7 +71,7 @@ describe('fork', () => {
     expect([viaStorage.t('hi'), root.t('hi')]).toEqual(['Direct', 'Hello'])
 
     const viaMerge = root.fork()
-    viaMerge.helper.loadTranslations('en', { hi: 'Helper' })
+    viaMerge.helper.mergeTranslation('en', 'index', { hi: 'Helper' })
     expect([viaMerge.t('hi'), root.t('hi')]).toEqual(['Helper', 'Hello'])
 
     const viaSet = root.fork()

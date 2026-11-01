@@ -1,5 +1,4 @@
 # ./accept-language (src/accept-language.ts)
-function applyAutoDetectLanguage: (locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean | undefined, acceptLanguageHeader: string | undefined, validLocales: readonly string[]) => string
 function detectLocaleFromAcceptLanguage: (header: string | undefined, validLocales: readonly string[]) => string | null
 function parseAcceptLanguage: (header: string | undefined) => string[]
 
@@ -53,7 +52,6 @@ function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: st
 function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 
 # ./deep-merge (src/deep-merge.ts)
-function deepMergeTranslations: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 function deepMergeTranslationsRecursive: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 
 # ./domains (src/domains.ts)

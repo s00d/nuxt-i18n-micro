@@ -13,7 +13,7 @@ outline: [2, 3]
 <!-- generated:symbol:useI18nLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getLocaleWithServerFallback: (serverLocale?: string | null) => string | null; getPreferredLocale: () => string | null; hashCookie: CookieRef; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: CookieRef; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
+useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getPreferredLocale: () => string | null; hashCookie: CookieRef; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: CookieRef; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
 ```
 
 Centralized entry point for i18n locale management.
@@ -33,7 +33,6 @@ Combines useState('i18n-locale'), locale cookie, and sync utilities.
 | `syncLocale(locale)` | `(locale: string \| null) => void` | Write the cookies only. |
 | `getLocale()` | `() => string \| null` | State, then the preference cookie (hash cookie under hash routing). Not validated. |
 | `getPreferredLocale()` | `() => string \| null` | The first **valid** of state and preference cookie, or `null`. |
-| `getLocaleWithServerFallback(serverLocale?)` | `(serverLocale?: string \| null) => string \| null` | State, cookie, then `serverLocale`. |
 | `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string` | The state under hash routing when set; otherwise `getLocaleFromRoute(route)`. |
 | `resolveInitialLocale(options)` | `(options: ResolveInitialLocaleOptions) => string` | `options.urlLocale`, then a valid state, then `options.serverLocale`, then the route's locale. Stores the result in the state when the state is not valid; on the client it also writes the cookie. |
 | `isValidLocale(locale)` | `(locale) => locale is string` | Whether `locale` is in `validLocales`. |

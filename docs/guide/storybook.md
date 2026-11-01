@@ -33,7 +33,7 @@ The browser loads `/_locales/<page>/<locale>/data.json`. Stories have no page ro
 import fs from 'node:fs'
 import path from 'node:path'
 import type { StorybookConfig } from '@storybook-vue/nuxt'
-import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 
 type Tree = Record<string, unknown>
 
@@ -47,15 +47,15 @@ function collect(dir: string, locale: string): Tree {
   if (!fs.existsSync(dir)) return {}
   return fs.readdirSync(dir, { withFileTypes: true }).reduce<Tree>((acc, entry) => {
     const full = path.join(dir, entry.name)
-    if (entry.isDirectory()) return deepMergeTranslations(acc, collect(full, locale))
-    return entry.name === `${locale}.json` ? deepMergeTranslations(acc, readJson(full)) : acc
+    if (entry.isDirectory()) return deepMergeTranslationsRecursive(acc, collect(full, locale))
+    return entry.name === `${locale}.json` ? deepMergeTranslationsRecursive(acc, readJson(full)) : acc
   }, {})
 }
 
 for (const file of fs.readdirSync(localesDir).filter((f) => f.endsWith('.json'))) {
   const locale = path.basename(file, '.json')
   // root keys first, page keys win (as in the module's build)
-  const merged = deepMergeTranslations(readJson(path.join(localesDir, file)), collect(path.join(localesDir, 'pages'), locale))
+  const merged = deepMergeTranslationsRecursive(readJson(path.join(localesDir, file)), collect(path.join(localesDir, 'pages'), locale))
   fs.mkdirSync(path.join(outDir, locale), { recursive: true })
   fs.writeFileSync(path.join(outDir, locale, 'data.json'), JSON.stringify(merged))
 }
@@ -69,7 +69,7 @@ const config: StorybookConfig = {
 export default config
 ```
 
-`deepMergeTranslations` comes from `@i18n-micro/utils` (add it to your dev dependencies); it merges nested keys at any depth, like the module's own build. Add `storybook_locales/` to `.gitignore`.
+`deepMergeTranslationsRecursive` comes from `@i18n-micro/utils` (add it to your dev dependencies); it merges nested keys at any depth, like the module's own build. Add `storybook_locales/` to `.gitignore`.
 
 ## Related
 

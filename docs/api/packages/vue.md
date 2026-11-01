@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue").Ref<{ htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: ({ [x: string]: string \| undefined; rel: "canonical"; href: string; } \| { [x: string]: string \| undefined; rel: "alternate"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }, LocaleHead \| { htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: ({ [x: string]: string \| undefined; rel: "canonical"; href: string; } \| { [x: string]: string \| undefined; rel: "alternate"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 62 members |
+| `VueI18n` | class | 60 members |
 | `VueI18nOptions` | interface | 10 members |
 
 <code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
@@ -90,7 +90,7 @@ import { /* … */ } from '@i18n-micro/vue'
 </details>
 
 <details>
-<summary><code>VueI18n</code> — 62 members</summary>
+<summary><code>VueI18n</code> — 60 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -122,7 +122,6 @@ import { /* … */ } from '@i18n-micro/vue'
 | `helper` | `TranslationHelper` |
 | `isoTag` | `private any` |
 | `listeners` | `private Set<() => void>` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `Ref<string, string>` |
 | `localeIso` | `protected Record<string, string>` |
@@ -155,7 +154,6 @@ import { /* … */ } from '@i18n-micro/vue'
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
-| `write` | `private any` |
 
 </details>
 

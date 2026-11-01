@@ -7,7 +7,7 @@ const packageRoot = packageRootFromImportMeta(import.meta.url)
 const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 const subpaths = [
-  { subpath: './deep-merge', exportName: 'deepMergeTranslations' },
+  { subpath: './deep-merge', exportName: 'deepMergeTranslationsRecursive' },
   { subpath: './merge-source', exportName: 'mergeSourceTranslations' },
   { subpath: './resolve-og-locale', exportName: 'resolveOgLocale' },
   { subpath: './resolve-hreflang', exportName: 'resolveHreflangAlternates' },

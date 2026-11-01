@@ -67,11 +67,6 @@ export function useI18nLocale() {
     return localeState.value ?? preferenceCookie.value ?? null
   }
 
-  /** Locale with fallback to serverContext (for noPrefix initialization) */
-  const getLocaleWithServerFallback = (serverLocale?: string | null): string | null => {
-    return getPreferredLocale() ?? serverLocale ?? null
-  }
-
   /**
    * Effective locale for loading translations and rendering.
    * hashMode: localeState takes priority; otherwise — from route.
@@ -108,7 +103,6 @@ export function useI18nLocale() {
     hashCookie,
     getPreferredLocale,
     getLocale,
-    getLocaleWithServerFallback,
     getEffectiveLocale,
     resolveInitialLocale,
     setLocale,

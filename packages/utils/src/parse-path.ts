@@ -1,5 +1,5 @@
 import { forwardSlashes } from './app-path'
-import { deepMergeTranslations } from './deep-merge'
+import { deepMergeTranslationsRecursive } from './deep-merge'
 
 export type ParsedTranslationRelativePath = { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
 
@@ -93,4 +93,4 @@ const own = <V>(bucket: Record<string, V>, key: string): V | undefined =>
   Object.prototype.hasOwnProperty.call(bucket, key) ? bucket[key] : undefined
 
 const mergeInto = <T extends Record<string, unknown>>(existing: T | undefined, incoming: T): T =>
-  existing ? (deepMergeTranslations(existing, incoming) as T) : incoming
+  existing ? (deepMergeTranslationsRecursive(existing, incoming) as T) : incoming

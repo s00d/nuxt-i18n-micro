@@ -4,6 +4,7 @@
  * built once from `router.getRoutes()` maps a page (base name) and a locale to the record that
  * serves it, and every answer is one Map lookup plus one `router.resolve`.
  */
+import { routeQuery } from '@i18n-micro/core/helpers'
 import type { Locale, Strategies } from '@i18n-micro/types'
 import type {
   ClientRedirectOptions,
@@ -84,14 +85,7 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   const rest = hashAt === -1 ? url : url.slice(0, hashAt)
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }
-  // no prototype: `?constructor=x` and `?__proto__=x` are plain keys
-  const query: Record<string, unknown> = Object.create(null)
-  for (const [key, value] of new URLSearchParams(rest.slice(queryAt + 1))) {
-    const seen = query[key]
-    // `?tag=a&tag=b` -> { tag: ['a', 'b'] }, as vue-router parses it
-    query[key] = seen === undefined ? value : Array.isArray(seen) ? [...seen, value] : [seen, value]
-  }
-  return { path: rest.slice(0, queryAt), query, hash }
+  return { path: rest.slice(0, queryAt), query: routeQuery(rest.slice(queryAt + 1)), hash }
 }
 
 const isAbsoluteUrl = (path: string): boolean => path.startsWith('https://') || path.startsWith('http://')

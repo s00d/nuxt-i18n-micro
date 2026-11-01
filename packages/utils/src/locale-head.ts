@@ -71,24 +71,43 @@ export function filterQuery(url: string, whitelist: readonly string[]): string {
   if (cut === -1) return url
   const pathname = url.slice(0, cut) || '/'
   const hash = url.indexOf('#', cut)
-  const params = new URLSearchParams(url.slice(cut, hash === -1 ? undefined : hash))
+  const search = url.slice(cut + 1, hash === -1 ? undefined : hash)
+  const params = new URLSearchParams(search)
   const kept = new URLSearchParams()
   for (const key of whitelist) {
-    if (params.has(key)) kept.set(key, params.get(key)!)
+    if (params.has(key) && !kept.has(key)) for (const value of params.getAll(key)) kept.append(key, value)
   }
-  const query = kept.toString()
+  const bare: string[] = []
+  for (const pair of search.split('&')) {
+    if (pair && !pair.includes('=')) bare.push(...new URLSearchParams(pair).keys())
+  }
+  const query = withBareKeys(kept.toString(), bare)
   return query ? `${pathname}?${query}` : pathname
+}
+
+/** `URLSearchParams` has no form for a key with no value: `keys` get theirs back from the `key=` it wrote. */
+function withBareKeys(query: string, keys: readonly string[]): string {
+  if (!keys.length) return query
+  let framed = `&${query}&`
+  for (const key of keys) {
+    const pair = new URLSearchParams([[key, '']]).toString()
+    framed = framed.replace(`&${pair}&`, `&${pair.slice(0, -1)}&`)
+  }
+  return framed.slice(1, -1)
 }
 
 /** `?a=1&a=2` of a route's query: arrays repeat the key, `null` is a key with no value, `undefined` is left out. */
 export function queryString(query?: object | null): string {
   const params = new URLSearchParams()
+  const bare: string[] = []
   for (const [key, value] of Object.entries(query ?? {})) {
     for (const item of [value].flat()) {
-      if (item !== undefined) params.append(key, item === null ? '' : String(item))
+      if (item === undefined) continue
+      params.append(key, item === null ? '' : String(item))
+      if (item === null) bare.push(key)
     }
   }
-  const serialized = params.toString()
+  const serialized = withBareKeys(params.toString(), bare)
   return serialized && `?${serialized}`
 }
 

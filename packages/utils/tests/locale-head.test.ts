@@ -41,6 +41,12 @@ describe('filterQuery', () => {
     ['?q=1', ['q'], '/?q=1'],
     ['https://x.com/a?q=1&z=2', ['q'], 'https://x.com/a?q=1'],
     ['/a?h=1#?q=2', ['q'], '/a'],
+    ['/x?tag=a&tag=b', ['tag'], '/x?tag=a&tag=b'],
+    ['/x?z=1&tag=a&q=2&tag=b', ['q', 'tag'], '/x?q=2&tag=a&tag=b'],
+    ['/x?tag=a', ['tag', 'tag'], '/x?tag=a'],
+    ['/x?flag', ['flag'], '/x?flag'],
+    ['/x?flag=', ['flag'], '/x?flag='],
+    ['/x?q=a%20b', ['q'], '/x?q=a+b'],
   ])('%s keeping %j', (url, whitelist, kept) => {
     expect(filterQuery(url, whitelist)).toBe(kept)
   })
@@ -54,8 +60,10 @@ describe('queryString', () => {
     [{ a: 1, b: true }, '?a=1&b=true'],
     [{ a: ['1', '2'] }, '?a=1&a=2'],
     [{ a: undefined, b: '2' }, '?b=2'],
-    [{ a: null }, '?a='],
-    [{ a: [null, '2'] }, '?a=&a=2'],
+    [{ a: null }, '?a'],
+    [{ a: [null, '2'] }, '?a&a=2'],
+    [{ 'a b': null }, '?a+b'],
+    [{ a: '' }, '?a='],
     [{ q: 'a b&c' }, '?q=a+b%26c'],
   ])('%j', (query, serialized) => {
     expect(queryString(query)).toBe(serialized)

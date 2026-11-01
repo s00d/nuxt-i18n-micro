@@ -135,7 +135,7 @@ describe('localeRoute', () => {
   test('path strings: a flag param, encoded values, a bare hash, an empty query or hash', () => {
     const { i18n } = setup('prefix_except_default')
     const flag = i18n.localeRoute('de', '/about-us?flag')
-    expect([flag.query, flag.fullPath]).toEqual([{ flag: '' }, '/de/ueber-uns?flag='])
+    expect([flag.query, flag.fullPath]).toEqual([{ flag: null }, '/de/ueber-uns?flag'])
     expect(i18n.localeRoute('de', '/about-us?redirect=%2Fdashboard%3Ftab%3D1').query).toEqual({ redirect: '/dashboard?tab=1' })
     const hash = i18n.localeRoute('de', '/about-us#frag')
     expect([hash.path, hash.hash, hash.fullPath]).toEqual(['/de/ueber-uns', '#frag', '/de/ueber-uns#frag'])

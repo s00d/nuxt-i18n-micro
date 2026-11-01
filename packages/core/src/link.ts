@@ -24,6 +24,7 @@ export const localeIsoMap = (locales: readonly { code: string; iso?: string }[])
 
 /** A query part that does not decode stays as written: `URLSearchParams` would put U+FFFD in it. */
 const decodeQueryPart = (part: string): string => {
+  if (!part.includes('%')) return part
   try {
     return decodeURIComponent(part)
   } catch {
@@ -36,18 +37,21 @@ const decodeQueryPart = (part: string): string => {
  * `{ tag: ['a', 'b'] }`, `?flag` gives `{ flag: null }`. An empty pair (`?a&&b`) counts for nothing.
  */
 export function routeQuery(search: string | undefined): Record<string, string | null | (string | null)[]> {
-  const values = new Map<string, (string | null)[]>()
+  const parsed: Record<string, string | null | (string | null)[]> = {}
   const query = search?.[0] === '?' ? search.slice(1) : (search ?? '')
-  for (const pair of query.split('&').filter(Boolean)) {
+  for (const pair of query.split('&')) {
+    if (!pair) continue
     const text = pair.includes('+') ? pair.split('+').join(' ') : pair
     const equals = text.indexOf('=')
     const key = decodeQueryPart(equals < 0 ? text : text.slice(0, equals))
-    const parsed = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))
-    const known = values.get(key)
-    if (known) known.push(parsed)
-    else values.set(key, [parsed])
+    const value = equals < 0 ? null : decodeQueryPart(text.slice(equals + 1))
+    const seen = Object.prototype.hasOwnProperty.call(parsed, key) ? parsed[key] : undefined
+    const merged = seen === undefined ? value : Array.isArray(seen) ? [...seen, value] : [seen, value]
+    // `?__proto__=x` is a plain key
+    if (key === '__proto__') Object.defineProperty(parsed, key, { value: merged, enumerable: true, writable: true, configurable: true })
+    else parsed[key] = merged
   }
-  return Object.fromEntries([...values].map(([key, list]) => [key, list.length > 1 ? list : list[0]!]))
+  return parsed
 }
 
 /** Where a URL's path ends: its first `?` or `#`, `-1` for neither. */

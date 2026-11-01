@@ -51,7 +51,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['@i18n-micro/types'],
+      external: ['@i18n-micro/core/helpers', '@i18n-micro/types'],
       output: [
         {
           format: 'es',

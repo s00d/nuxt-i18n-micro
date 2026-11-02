@@ -1,4 +1,5 @@
-export { type GenerateOptions, generateRoutes, localeMatcherSource, localesOutsideMatcher, nameOfPath, type RouteI18nMeta } from './generate'
+export type { RouteI18nMeta } from '@i18n-micro/types'
+export { type GenerateOptions, generateRoutes, localeMatcherSource, localesOutsideMatcher, nameOfPath } from './generate'
 export { normalizePath, normalizeRouteKey, routeKey } from './paths'
 export { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 export { isLocaleAllowedForUnlocalizedRoute, Rules } from './rules'

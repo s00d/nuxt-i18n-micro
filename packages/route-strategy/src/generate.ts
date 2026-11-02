@@ -12,24 +12,11 @@
  * Every localized record carries `meta.i18n = { name, locales }`: the page's base route name and
  * the locales it serves. The runtime (path-strategy) reads that instead of re-deriving the rules.
  */
-import type { Strategies } from '@i18n-micro/types'
+import type { RouteI18nMeta, Strategies } from '@i18n-micro/types'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import type { NuxtPage } from '@nuxt/schema'
 import { absolute, childSegment, encodedVariant, joinChild, normalizePath, removeLeadingSlash, routeKey, staysUnderParent } from './paths'
 import type { Rule, Rules } from './rules'
-
-export interface RouteI18nMeta {
-  /** Base route name of the page (its translation key and the name `localeRoute({ name })` takes). */
-  name: string
-  /** Locales this record serves. */
-  locales: string[]
-  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
-  noMeta?: boolean | string[]
-  /** On the default locale's record: the path of a page with a custom default path, where it is no record of its own. A link can still name the page by it. */
-  original?: string
-  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. The locale is the visitor's, so the runtime redirects. */
-  paths?: Record<string, string>
-}
 
 export interface GenerateOptions {
   strategy: Strategies

@@ -823,3 +823,17 @@ export interface I18nHeadInput {
 const init = () => {}
 
 export { init }
+
+/** `meta.i18n` that route-strategy puts on every localized record, and path-strategy reads at runtime. */
+export interface RouteI18nMeta {
+  /** Base route name of the page (its translation key and the name `localeRoute({ name })` takes). */
+  name: string
+  /** Locales this record serves. */
+  locales: string[]
+  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
+  noMeta?: boolean | string[]
+  /** On the default locale's record: the path of a page with a custom default path, where it is no record of its own. A link can still name the page by it. */
+  original?: string
+  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. The locale is the visitor's, so the runtime redirects. */
+  paths?: Record<string, string>
+}

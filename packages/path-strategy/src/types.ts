@@ -1,5 +1,7 @@
 import type { I18nRouteParams, Locale, Strategies } from '@i18n-micro/types'
 
+export type { RouteI18nMeta } from '@i18n-micro/types'
+
 /** Route-like shape (compatible with vue-router). */
 export interface RouteLike {
   /** vue-router names may be symbols (`RouteRecordNameGeneric`). */
@@ -29,20 +31,6 @@ export interface RouteRecordLike {
   meta?: Record<string, unknown>
   redirect?: unknown
   aliasOf?: { path: string }
-}
-
-/** `meta.i18n` that route-strategy puts on every localized record. */
-export interface RouteI18nMeta {
-  /** Base route name of the page. */
-  name: string
-  /** Locales the record serves. */
-  locales: string[]
-  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
-  noMeta?: boolean | string[]
-  /** The path of a page with a custom default path, where it is no record of its own: a link can still name the page by it. */
-  original?: string
-  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. */
-  paths?: Record<string, string>
 }
 
 export interface RouterAdapter {

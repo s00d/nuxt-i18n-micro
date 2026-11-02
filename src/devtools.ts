@@ -169,6 +169,14 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
       async getLocalesAndTranslations() {
         const filesList: Record<string, string> = {}
 
+        const readFile = (key: string, filePath: string) => {
+          try {
+            filesList[key] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+          } catch (e) {
+            console.error(`Error parsing locale file ${filePath}:`, e)
+          }
+        }
+
         const processDirectory = (dir: string, baseDir: string) => {
           if (!fs.existsSync(dir)) return
 
@@ -179,12 +187,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
             if (stat.isDirectory()) {
               processDirectory(filePath, baseDir)
             } else if (file.endsWith('.json')) {
-              try {
-                const relativePath = forwardSlashes(path.relative(baseDir, filePath))
-                filesList[relativePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-              } catch (e) {
-                console.error(`Error parsing locale file ${filePath}:`, e)
-              }
+              readFile(forwardSlashes(path.relative(baseDir, filePath)), filePath)
             }
           })
         }
@@ -193,7 +196,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 
-          // Process main directory and pages (both relative to localesDir)
+          // Both relative to localesDir. The second is not a repeat: `lstat` does not enter a symlink, so a linked `pages` is read only here.
           processDirectory(localesDir, localesDir)
           processDirectory(pagesDir, localesDir)
 
@@ -205,11 +208,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
               if (!name.endsWith('.json')) continue
               const filePath = path.join(extraDir, name)
               if (!fs.statSync(filePath).isFile()) continue
-              try {
-                filesList[`additional:${extra}/${name}`] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-              } catch (e) {
-                console.error(`Error parsing locale file ${filePath}:`, e)
-              }
+              readFile(`additional:${extra}/${name}`, filePath)
             }
           }
         }

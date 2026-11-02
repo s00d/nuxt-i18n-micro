@@ -3,7 +3,7 @@ import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } f
 import { isProduction } from './helpers'
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
-import { clearTemplateCache, defaultPlural, interpolate, textOf } from './text'
+import { clearTemplateCache, convertible, defaultPlural, interpolate, textOf } from './text'
 import { mergeTranslationLayers, ownValue, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
@@ -204,6 +204,7 @@ export abstract class BaseI18n {
         defaultValue && typeof defaultValue === 'string' && params ? interpolate(defaultValue, params) : defaultValue || key
       ) as CleanTranslation
     }
+    if (typeof value === 'object') return convertible(value) as CleanTranslation
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
 

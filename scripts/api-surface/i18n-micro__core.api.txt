@@ -57,6 +57,7 @@ member BaseI18nOptions.plural?: PluralFunc | undefined
 member BaseI18nOptions.storage?: TranslationStorage | undefined
 member BaseI18nOptions.timeZone?: string | undefined
 function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
+function convertible: <T extends object>(value: T) => T
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
@@ -146,6 +147,7 @@ function routeQuery: (search: string | undefined) => Record<string, string | nul
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
+member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
@@ -209,6 +211,7 @@ function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "
 
 # ./helpers (src/helpers.ts)
 function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
+function convertible: <T extends object>(value: T) => T
 const defaultPlural: PluralFunc
 const escapeHtml: (text: string) => string
 function externalLinkHref: (to: unknown) => string | undefined
@@ -253,6 +256,7 @@ function routeQuery: (search: string | undefined) => Record<string, string | nul
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 interface TextHost
 member TextHost.getLocale: () => string
+member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation
@@ -332,6 +336,7 @@ member SwitcherVue.onUnmounted: (hook: () => void) => void
 member SwitcherVue.ref: <T>(value: T) => { value: T; }
 interface TextHost
 member TextHost.getLocale: () => string
+member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
 member TextHost.t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => CleanTranslation

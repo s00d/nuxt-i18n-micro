@@ -105,6 +105,18 @@ describe('journey: dictionaries at their worst', () => {
     })
   })
 
+  test('v-html of a subtree holding a `toString` key: the page stands, on the server and after a switch', async ({ page, baseURL }) => {
+    await eachKey(page, ['obj_tostr', 'obj_valueof', 'v_arrtostr'], async (tab, key) => {
+      for (const mode of ['vhtml', 'vhtml-p', 'vhtml-params']) {
+        const res = await open(tab, baseURL, one(key, mode))
+        expect(res?.status(), `${key} ${mode}`).toBe(200)
+        await expectAlive(tab)
+        await switchTo(tab, 'de')
+        await expectAlive(tab)
+      }
+    })
+  })
+
   // the HTML parser turns NUL into U+FFFD, so the server's text cannot equal the client's
   test('a NUL in a translation keeps the page alive', async ({ page, goto, guard }) => {
     guard.allow(/Hydration completed but contains mismatches/)

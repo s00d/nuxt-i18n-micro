@@ -1,4 +1,4 @@
-import { defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
+import { convertible, defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
 import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import type { I18nClientProps } from '../utils'
 
@@ -43,6 +43,7 @@ export function translate(
   if (!key) return ''
   // `??`: 0, false and '' are values, as on the server
   const value = lookup(state, key, routeName) ?? (defaultValue || key)
+  if (typeof value === 'object') return convertible(value)
   return typeof value === 'string' && params ? interpolate(value, params) : value
 }
 

@@ -12,9 +12,9 @@ const renderApi = { h, Fragment }
 const hosts = new WeakMap<object, TextHost>()
 
 function hostOf(injections: PluginsInjections): TextHost {
-  const { $t, $tc, $tn, $td, $tdr, $getLocale, $pluralFunc, $pluralLocale } = injections
+  const { $t, $tc, $tn, $td, $tdr, $has, $getLocale, $pluralFunc, $pluralLocale } = injections
   // `$t`, not `$_t(route)`: the active dictionary, as in a template, at a twentieth of the cost per lookup
-  const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, getLocale: $getLocale, pluralFunc: $pluralFunc, pluralLocale: $pluralLocale }
+  const host = { t: $t, tc: $tc, tn: $tn, td: $td, tdr: $tdr, has: $has, getLocale: $getLocale, pluralFunc: $pluralFunc, pluralLocale: $pluralLocale }
   hosts.set($t, host as unknown as TextHost)
   return host as unknown as TextHost
 }

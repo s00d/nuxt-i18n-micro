@@ -57,10 +57,30 @@ export const escapeHtml = (text: string): string => {
   return from === 0 ? text : out + text.slice(from)
 }
 
-/** `String` of any translation: a subtree may have a `toString` key, which is no method. Nothing there: `undefined`. */
+/** `String` of any translation: a subtree may have a `toString` key, which is no method, an array may hold one. Nothing there: `undefined`. */
 export function textOf(value: unknown): string | undefined {
   if (value === null || value === undefined) return undefined
-  return typeof value.toString === 'function' ? value.toString() : Object.prototype.toString.call(value)
+  try {
+    return String(value)
+  } catch {
+    return Array.isArray(value) ? value.map((item) => textOf(item) ?? '').join() : Object.prototype.toString.call(value)
+  }
+}
+
+/**
+ * What `t` hands back for a subtree or an array: that value, or, where `String()` throws on it, an equal copy that
+ * converts. `v-html` and a template literal convert what they get, and a dictionary is no reason for a 500.
+ * ponytail: one level. `$t('tree').sub` reads a plain node, so `v-html` on that still throws; only a Proxy would reach it.
+ */
+export function convertible<T extends object>(value: T): T {
+  try {
+    // a call, not `String(value)`: a minifier drops that as pure when its result goes unused
+    value.toString()
+    return value
+  } catch {
+    const copy = Array.isArray(value) ? [...value] : { ...value }
+    return Object.defineProperty(copy, Symbol.toPrimitive, { value: () => textOf(value) }) as T
+  }
 }
 
 /** A copy of `params` safe inside markup: only the translation itself is trusted. */
@@ -197,6 +217,8 @@ export interface TextHost {
   getLocale(): string
   /** The tag plurals go by, when it is not the locale code. */
   pluralLocale?(): string
+  /** Whether the key has a translation: tells a miss from a translation equal to what stands for one. */
+  has?(key: TranslationKey): boolean
   t(key: TranslationKey, params?: Params, defaultValue?: string | null): CleanTranslation
   tc(key: TranslationKey, count: number | Params, defaultValue?: string): string
   tn(value: number): string
@@ -227,8 +249,11 @@ export interface ResolvedText {
   params: Params
 }
 
-/** What `t` and `tc` are asked to answer on a miss: tells a miss from a translation equal to the key. */
+/** What `t` and `tc` are asked to answer on a miss: tells a miss from a translation equal to the key. Only {@link isMiss} reads it. */
 const MISSING = '\0'
+
+/** A translation can equal the sentinel too: `has` tells the two apart, and only the sentinel makes it ask. */
+const isMiss = (i18n: TextHost, key: TranslationKey, value: unknown): boolean => value === MISSING && !i18n.has?.(key)
 
 /** The key standing in for a translation. Under `html` it is text, not markup: only a translation is trusted, and a key can come from a request. */
 const keyText = (key: TranslationKey, html: boolean | undefined): string => (html ? escapeHtml(String(key)) : String(key))
@@ -242,7 +267,7 @@ function lookup(
   html?: boolean,
 ): CleanTranslation {
   const value = i18n.t(key, params, fallback || MISSING)
-  return value === MISSING ? (keyText(key, html) as CleanTranslation) : value
+  return isMiss(i18n, key, value) ? (keyText(key, html) as CleanTranslation) : value
 }
 
 /** `{ number }`, `{ date }` or `{ relativeDate }` formatted; the first one set wins. */
@@ -262,12 +287,12 @@ function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params)
   }
   if (i18n.pluralFunc !== defaultPlural) {
     const text = i18n.tc(keypath, { ...params, count }, defaultValue || MISSING)
-    return { template: text === MISSING ? keyText(keypath, html) : text, params: {} }
+    return { template: isMiss(i18n, keypath, text) ? keyText(keypath, html) : text, params: {} }
   }
   // as `tc`: a miss, a tree or a boolean has no forms, so the default or the key stands whole, pipes and all.
   // An empty `defaultValue` is no default here: it is the prop's own default.
   const value = i18n.t(keypath, undefined, MISSING)
-  const plural = value !== MISSING && (typeof value === 'string' || typeof value === 'number')
+  const plural = !isMiss(i18n, keypath, value) && (typeof value === 'string' || typeof value === 'number')
   const template = plural ? pluralForm(String(value), count, i18n.pluralLocale?.() ?? i18n.getLocale()) : defaultValue || keyText(keypath, html)
   return { template, params: { ...params, count } }
 }

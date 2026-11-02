@@ -68,6 +68,11 @@ function expectIslandApi(api: Api, read: { locale: () => string; fallbackLocale:
   ])
 }
 
+test('translate: a subtree with a `toString` key converts, as on the server', () => {
+  const state = { ...props(), translations: { index: JSON.parse('{ "tree": { "toString": "a key" } }') } }
+  expect(`${translate({ ...state, currentRoute: 'index' }, 'tree')}`).toBe('[object Object]')
+})
+
 test('the pure island core: translate / hasTranslation over the props', () => {
   const state = props()
   expect(translate(state, '')).toBe('')

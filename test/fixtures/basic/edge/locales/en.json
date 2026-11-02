@@ -87,6 +87,7 @@
   "v_false": false,
   "v_arr0": [],
   "v_arr": ["a", "b"],
+  "v_arrtostr": ["a", { "toString": "x" }],
   "v_arrobj": [{ "a": "x" }],
   "v_obj0": {},
   "v_obj": { "a": "x", "b": { "c": "y" } },

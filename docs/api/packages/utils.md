@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-112 exports across 22 entry points.
+113 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -161,6 +161,7 @@ import { /* … */ } from '@i18n-micro/utils/load-dir'
 | `loadTranslationDir` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
 | `loadTranslationDirAsync` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>` |
 | `loadTranslationFiles` | function | `<T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
+| `parseJsonFile` | const | `(text: string) => unknown` |
 | `parseTranslationFile` | function | `(text: string, path: string) => Dictionary \| null` |
 | `resolveTranslationFile` | function | `(base: string, file: string) => string \| null` |
 | `TranslationFile` | interface | 2 members |

@@ -64,6 +64,7 @@ function listTranslationFiles: (directory: string) => TranslationFile[]
 function loadTranslationDir: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>
 function loadTranslationDirAsync: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>
 function loadTranslationFiles: <T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>
+const parseJsonFile: (text: string) => unknown
 function parseTranslationFile: (text: string, path: string) => Dictionary | null
 function resolveTranslationFile: (base: string, file: string) => string | null
 interface TranslationFile

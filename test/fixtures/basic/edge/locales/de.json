@@ -87,6 +87,7 @@
   "v_false": false,
   "v_arr0": [],
   "v_arr": ["DE a", "DE b"],
+  "v_arrtostr": ["a", { "toString": "x" }],
   "v_arrobj": [{ "a": "DE x" }],
   "v_obj0": {},
   "v_obj": { "a": "DE x", "b": { "c": "DE y" } },

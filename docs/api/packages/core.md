@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-112 exports across 4 entry points.
+114 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -21,6 +21,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `BaseI18n` | class | 43 members |
 | `BaseI18nOptions` | interface | 12 members |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
+| `convertible` | function | `<T extends object>(value: T) => T` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
@@ -58,7 +59,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
-| `TextHost` | interface | 8 members |
+| `TextHost` | interface | 9 members |
 | `textOf` | function | `(value: unknown) => string \| undefined` |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
@@ -247,11 +248,12 @@ import { /* … */ } from '@i18n-micro/core'
 </details>
 
 <details>
-<summary><code>TextHost</code> — 8 members</summary>
+<summary><code>TextHost</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `getLocale` | `() => string` |
+| `has?` | `((key: TranslationKey) => boolean) \| undefined` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale?` | `(() => string) \| undefined` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null) => CleanTranslation` |
@@ -360,6 +362,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
+| `convertible` | function | `<T extends object>(value: T) => T` |
 | `defaultPlural` | const | `PluralFunc` |
 | `escapeHtml` | const | `(text: string) => string` |
 | `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
@@ -389,7 +392,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `routeQuery` | function | `(search: string \| undefined) => Record<string, string \| null \| (string \| null)[]>` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
-| `TextHost` | interface | 8 members |
+| `TextHost` | interface | 9 members |
 | `textOf` | function | `(value: unknown) => string \| undefined` |
 | `tokenize` | function | `(template: string) => readonly string[]` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
@@ -404,7 +407,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 
 <code>ResolveTextOptions</code> — 10 members, identical to `ResolveTextOptions` above.
 
-<code>TextHost</code> — 8 members, identical to `TextHost` above.
+<code>TextHost</code> — 9 members, identical to `TextHost` above.
 ## `@i18n-micro/core/render`
 
 ```ts
@@ -425,7 +428,7 @@ import { /* … */ } from '@i18n-micro/core/render'
 | `SwitcherAdapter` | interface | 8 members |
 | `SwitcherProps` | interface | 9 members |
 | `SwitcherVue` | interface | 7 members |
-| `TextHost` | interface | 8 members |
+| `TextHost` | interface | 9 members |
 
 <details>
 <summary><code>I18nTRenderProps</code> — 11 members</summary>
@@ -508,6 +511,6 @@ import { /* … */ } from '@i18n-micro/core/render'
 
 </details>
 
-<code>TextHost</code> — 8 members, identical to `TextHost` above.
+<code>TextHost</code> — 9 members, identical to `TextHost` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

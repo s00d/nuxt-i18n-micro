@@ -517,3 +517,43 @@ describe('FormatService clock', () => {
     vi.useRealTimers()
   })
 })
+
+describe('t with a subtree', () => {
+  const i18n = new TestI18n(
+    'en',
+    JSON.parse('{ "tree": { "toString": "a key", "sub": { "title": "T" } }, "list": ["a", { "toString": "b" }], "plain": { "x": "y" } }'),
+  )
+
+  // `v-html="$t('tree')"` converts what it gets: this threw, on the server a 500
+  it('converts where the subtree has a `toString` key, and is still the subtree', () => {
+    const tree = i18n.t('tree') as unknown as Record<string, unknown>
+    expect(`${tree}`).toBe('[object Object]')
+    expect(tree.toString).toBe('a key')
+    expect(tree.sub).toEqual({ title: 'T' })
+    expect(Object.keys(tree)).toEqual(['toString', 'sub'])
+  })
+
+  it('an array holding such a node converts too, and `ts` reads it', () => {
+    expect(`${i18n.t('list')}`).toBe('a,[object Object]')
+    expect(i18n.ts('list')).toBe('a,[object Object]')
+  })
+
+  it('any other subtree is the stored object, as ever', () => {
+    expect(i18n.t('plain')).toBe(i18n.t('plain'))
+    expect(String(i18n.t('plain'))).toBe('[object Object]')
+  })
+})
+
+describe('<i18n-t> with a translation equal to NUL', () => {
+  const i18n = new TestI18n('en', { nul: '\0' })
+
+  it('is that translation, in the plain and the plural path', () => {
+    expect(text(i18n, { keypath: 'nul' })).toBe('\0')
+    expect(text(i18n, { keypath: 'nul', plural: 2 })).toBe('\0')
+  })
+
+  it('a miss is still the key', () => {
+    expect(text(i18n, { keypath: 'gone' })).toBe('gone')
+    expect(text(i18n, { keypath: 'gone', plural: 2 })).toBe('gone')
+  })
+})

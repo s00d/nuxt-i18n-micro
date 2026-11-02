@@ -20,6 +20,7 @@ export {
   withPrefixStrategy,
 } from './strategy'
 export {
+  convertible,
   defaultPlural,
   escapeHtml,
   interpolate,

@@ -10,7 +10,7 @@ const { $t, $has, $getLocale, $getLocaleName, $defaultLocale, $getRouteName, $ge
 
 const keysOf = (locale: string, page: string) => {
   const chunk = translationStorage.getFromCache(locale, page)
-  return chunk ? Object.keys(chunk.data).length : null
+  return chunk ? Object.keys(chunk).length : null
 }
 
 const snapshot = () => {

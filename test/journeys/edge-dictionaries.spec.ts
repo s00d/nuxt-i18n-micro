@@ -5,11 +5,26 @@ import { describe, expect, test } from '../helpers/guarded-test.ts'
 // basic-edge: `/one?k=<key>&m=<mode>` renders one dictionary key through one API, between two neighbours and a button.
 // Real dictionaries hold broken markup and odd values, and real clients send garbage: nothing here may cost the page.
 
-declare const useNuxtApp: () => { $switchLocale: (code: string) => Promise<void> }
+declare const useNuxtApp: () => { isHydrating: boolean; $switchLocale: (code: string) => Promise<void> }
 declare const window: { __xss?: number }
 
 const one = (key: string, mode: string) => `/one?k=${encodeURIComponent(key)}&m=${mode}`
 const switchTo = (page: Page, code: string) => page.evaluate((locale) => useNuxtApp().$switchLocale(locale), code)
+
+/** A long run of visits reaches Firefox's limit on history calls per tab: each key gets its own. */
+async function eachKey(page: Page, keys: string[], visit: (tab: Page, key: string) => Promise<void>) {
+  for (const key of keys) {
+    const tab = await page.context().newPage()
+    await visit(tab, key)
+    await tab.close()
+  }
+}
+
+async function open(tab: Page, baseURL: string, path: string) {
+  const res = await tab.goto(new URL(path, baseURL).href)
+  await tab.waitForFunction(() => useNuxtApp().isHydrating === false)
+  return res
+}
 
 async function expectAlive(page: Page) {
   await expect(page.locator('#before')).toHaveText('before')
@@ -27,28 +42,32 @@ describe('journey: dictionaries at their worst', () => {
   test.override({ harness: 'basic-edge' })
 
   // the parser moves such markup around, so the server's tree is not the client's: Vue reports it and carries on
-  test('broken markup in html mode keeps the page alive, on the server and after a locale switch', async ({ page, goto, guard }) => {
+  test('broken markup in html mode keeps the page alive, on the server and after a locale switch', async ({ page, baseURL, guard }) => {
     guard.allow(/Hydration completed but contains mismatches/)
-    for (const key of ['a_unclosed', 'a_stray', 'a_mess', 'a_nested', 'b_unclosed', 'h3_stray', 'h3_unclosed']) {
+    await eachKey(page, ['a_unclosed', 'a_stray', 'a_mess', 'a_nested', 'b_unclosed', 'h3_stray', 'h3_unclosed'], async (tab, key) => {
       for (const mode of HTML_MODES) {
-        await goto(one(key, mode), { waitUntil: 'hydration' })
-        await expectAlive(page)
-        await switchTo(page, 'de')
-        await expect(page.locator('#locale')).toHaveText('de')
-        await expectAlive(page)
+        await open(tab, baseURL, one(key, mode))
+        await expectAlive(tab)
+        await switchTo(tab, 'de')
+        await expect(tab.locator('#locale')).toHaveText('de')
+        await expectAlive(tab)
       }
-    }
+    })
   })
 
-  test('broken markup and script as text stay text, and hydrate clean', async ({ page, goto }) => {
-    for (const key of ['a_unclosed', 'a_mess', 'b_unclosed', 'h3_stray', 'textarea_open', 'script_open', 'xss_script', 'xss_close', 'xss_img']) {
-      for (const mode of TEXT_MODES) {
-        await goto(one(key, mode), { waitUntil: 'hydration' })
-        await expect(page.locator('#host b, #host a, #host img, #host script, #host textarea')).toHaveCount(0)
-        await expectAlive(page)
-        expect(await page.evaluate(() => window.__xss), `${key} ${mode}`).toBeUndefined()
-      }
-    }
+  test('broken markup and script as text stay text, and hydrate clean', async ({ page, baseURL }) => {
+    await eachKey(
+      page,
+      ['a_unclosed', 'a_mess', 'b_unclosed', 'h3_stray', 'textarea_open', 'script_open', 'xss_script', 'xss_close', 'xss_img'],
+      async (tab, key) => {
+        for (const mode of TEXT_MODES) {
+          await open(tab, baseURL, one(key, mode))
+          await expect(tab.locator('#host b, #host a, #host img, #host script, #host textarea')).toHaveCount(0)
+          await expectAlive(tab)
+          expect(await tab.evaluate(() => window.__xss), `${key} ${mode}`).toBeUndefined()
+        }
+      },
+    )
   })
 
   test('a key off the URL is text, html mode or not', async ({ page, goto }) => {
@@ -59,7 +78,7 @@ describe('journey: dictionaries at their worst', () => {
     }
   })
 
-  test('any value under a key renders: a tree, a number, a boolean, null, an array, a name off Object.prototype', async ({ page, goto }) => {
+  test('any value under a key renders: a tree, a number, a boolean, null, an array, a name off Object.prototype', async ({ page, baseURL }) => {
     const keys = [
       'obj_tostr',
       'obj_valueof',
@@ -74,15 +93,16 @@ describe('journey: dictionaries at their worst', () => {
       'constructor',
       '__proto__',
     ]
-    for (const key of [...keys, 'br_proto', 'br_ctor', 'br_tostr', 'br_open', 'br_close', 'pipe_lone', 'pipe_two', 'zero_marker', 't_long']) {
+    const text = ['br_proto', 'br_ctor', 'br_tostr', 'br_open', 'br_close', 'pipe_lone', 'pipe_two', 'zero_marker', 't_long']
+    await eachKey(page, [...keys, ...text], async (tab, key) => {
       for (const mode of TEXT_MODES) {
-        const res = await goto(one(key, mode), { waitUntil: 'hydration' })
+        const res = await open(tab, baseURL, one(key, mode))
         expect(res?.status(), `${key} ${mode}`).toBe(200)
-        await expectAlive(page)
-        await switchTo(page, 'de')
-        await expectAlive(page)
+        await expectAlive(tab)
+        await switchTo(tab, 'de')
+        await expectAlive(tab)
       }
-    }
+    })
   })
 
   // the HTML parser turns NUL into U+FFFD, so the server's text cannot equal the client's

@@ -207,12 +207,13 @@ jobs:
             exit "${PIPESTATUS[0]}"
           fi
           # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
-          # heap of that one process in bounds, it passed 4 GB on the whole set.
+          # heap of that one process in bounds, it passed 4 GB on the whole set. The retry is for the runner: a socket out of
+          # buffers (`ERR_NO_BUFFER_SPACE`), an aborted manifest fetch. Each hit one test in 552, never the same one.
           rc=0
           for browser in chromium firefox webkit; do
             for shard in 1 2 3; do
               echo "== $browser $shard/3"
-              E2E_BROWSER=$browser pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
+              E2E_BROWSER=$browser pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
               [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
             done
           done

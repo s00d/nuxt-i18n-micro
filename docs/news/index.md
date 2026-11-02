@@ -7,6 +7,7 @@ description: 'Release notes and project updates.'
 
 Release notes by version, newest first.
 
+- [v4.0.0](/news/v4.0.0) — One Route Model, One Build for Every Domain
 - [v3.24.0](/news/v3.24.0) — Node SSR from `public/`, no Rollup `raw:`
 - [v3.22.0](/news/v3.22.0) — Formats, Cache & Translation Memory
 - [v3.21.0](/news/v3.21.0) — `useI18nHead` for Per-Page SEO

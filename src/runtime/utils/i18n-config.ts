@@ -28,6 +28,7 @@ function overridesOf(config: ModuleOptionsExtend): Shipped {
     fallbackLocale: config.fallbackLocale,
     disabledLocales: (config.locales ?? []).filter((locale) => locale.disabled).map((locale) => locale.code),
     domain: config.domain,
+    dateBuild: String(config.dateBuild),
   }
 }
 
@@ -42,6 +43,7 @@ export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOption
     shipped.defaultLocale === built.defaultLocale &&
     shipped.fallbackLocale === built.fallbackLocale &&
     shipped.domain === built.domain &&
+    shipped.dateBuild === built.dateBuild &&
     String(shipped.disabledLocales) === String(built.disabledLocales)
   return same ? null : shipped
 }

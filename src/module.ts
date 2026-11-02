@@ -41,7 +41,7 @@ import {
   hashTranslationSources,
   scanTranslationPayloadDirectory,
 } from './build/payload-stats'
-import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
+import { resolveTranslationPayloadCachePolicy } from '@i18n-micro/utils/payload-url'
 import { buildI18nPluralTemplate } from './plural-template'
 import {
   addComponentsDir,
@@ -124,6 +124,11 @@ function resolveDateBuild(options: ModuleOptions, translationsHash: string | nul
   return options.dateBuild ?? translationsHash ?? Date.now()
 }
 
+/** Build-time half of `live`: the server adds a host named in the environment. */
+function isLiveDictionary(options: ModuleOptions, mode: TranslationPayloadMode): boolean {
+  return mode === 'source' || Boolean(options.cacheTtl) || Boolean(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
+}
+
 function buildFullConfig(params: {
   options: ModuleOptions
   nuxt: Nuxt
@@ -132,8 +137,9 @@ function buildFullConfig(params: {
   translationPayloadMode: TranslationPayloadMode
   locales: ModuleOptionsExtend['locales']
   translationsHash: string | null
+  publicPayloads: boolean
 }) {
-  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads } = params
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -169,10 +175,12 @@ function buildFullConfig(params: {
     cacheMaxSize: options.cacheMaxSize ?? 0,
     cacheTtl: options.cacheTtl ?? 0,
     httpCacheDuration: options.httpCacheDuration,
+    httpCacheControl: options.httpCacheControl,
     numberFormats: options.numberFormats ?? {},
     datetimeFormats: options.datetimeFormats ?? {},
     timeZone: options.timeZone,
     translationPayloadMode,
+    publicPayloads,
   }
 }
 
@@ -370,7 +378,14 @@ export default defineNuxtModule<ModuleOptions>({
     // Fingerprint only when `dateBuild` is unset. Explicit `0`/`''` opts out of busting and
     // must not pay for a full JSON walk (`??` keeps those values).
     const translationsHash =
-      options.dateBuild === undefined ? hashTranslationSources(rootDirs, translationDirName, options.additionalTranslationDirs) : null
+      options.dateBuild === undefined
+        ? hashTranslationSources(
+            rootDirs,
+            translationDirName,
+            options.additionalTranslationDirs,
+            JSON.stringify([options.fallbackLocale, options.disablePageLocales, (options.locales ?? []).map((l) => [l.code, l.fallbackLocale])]),
+          )
+        : null
     const translationPayloads = resolveTranslationPayloadOptions(options)
     // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
     const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
@@ -501,6 +516,7 @@ export default defineNuxtModule<ModuleOptions>({
       defaultLocale,
       apiConfig,
       translationPayloadMode: translationPayloads.mode,
+      publicPayloads: translationPayloads.mode === 'premerged' && translationPayloads.publicAssets,
       locales: routeGenerator.locales ?? [],
       translationsHash,
     })
@@ -791,17 +807,20 @@ declare module '#i18n-internal/payload-source' {
       nitroConfig.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.fs')
 
       nitroConfig.plugins = nitroConfig.plugins || []
+      if (!nuxt.options.dev) nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/payload-cache'))
       if (nuxt.options.dev && (options.hmr ?? true)) {
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }
 
       nitroConfig.routeRules = nitroConfig.routeRules || {}
-      const httpCacheDuration = Math.floor(options.httpCacheDuration ?? 0)
-      // `null` already means "do not set a header", so the helper's own answer is the
-      // condition — repeating it here is how the two drift apart.
-      // `false`, deliberately: a route rule matches by path, so it also answers requests
-      // that omit `?v=`. The payload handler sees the query and upgrades those that carry it.
-      const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, false)
+      // A route rule matches by path, so it also answers requests that omit `?v=`. What sees the query (the
+      // payload handler, the Node plugin) sharpens it: `.file` is what any URL may be given.
+      const { file: cacheControl } = resolveTranslationPayloadCachePolicy({
+        httpCacheDuration: options.httpCacheDuration,
+        httpCacheControl: options.httpCacheControl,
+        dateBuild: fullConfig.dateBuild,
+        live: isLiveDictionary(options, translationPayloads.mode),
+      })
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
         ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl }),

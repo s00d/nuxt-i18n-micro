@@ -65,9 +65,11 @@ function createI18n(i18nConfig: ModuleOptionsExtend, missingHandler: ShallowRef<
 }
 
 function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): LoadOptions {
+  const { baseURL, cdnURL } = useRuntimeConfig().app
   const options: LoadOptions = {
     apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
-    baseURL: useRuntimeConfig().app.baseURL,
+    // files can move to the CDN with the rest of `public/`. A dictionary only the route answers cannot
+    baseURL: (i18nConfig.publicPayloads && cdnURL) || baseURL,
     apiBaseClientHost: i18nConfig.apiBaseClientHost,
     dateBuild: i18nConfig.dateBuild,
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
@@ -227,7 +229,8 @@ export default defineNuxtPlugin({
 
     // The client fetches this chunk while hydrating (dictionaries stay off the payload): let the
     // browser start it with the HTML instead of after the scripts. `crossorigin`: fetch()'s mode.
-    if (import.meta.server) {
+    // Under `noScripts` nothing would read it.
+    if (import.meta.server && !nuxtApp.ssrContext?.event?.context?._nitro?.routeRules?.noScripts) {
       const href = translationStorage.clientUrl(initialLocale, initialRouteName, loadOptions)
       useHead({ link: [{ key: 'i18n-preload', rel: 'preload', as: 'fetch', crossorigin: 'anonymous', href }] })
     }
@@ -241,6 +244,16 @@ export default defineNuxtPlugin({
       const hashLocale = i18nStrategy.getLocaleFromPath(router.currentRoute.value.path)
       if (hashLocale && hashLocale !== localeState.value) await api.provide.switchLocale(hashLocale)
     })
+
+    // A `NuxtLink` in view: one load per chunk, as `fetchContext` holds what it has and what is on its way, so 1000 links
+    // to a route cost one. Nuxt skips this on `saveData` and 2G. The active locale's only: a switcher in view is not a plan.
+    if (import.meta.client) {
+      nuxtApp.hook('link:prefetch', (url) => {
+        const route = router.resolve(url) as unknown as ResolvedRouteLike
+        const routeLocale = getCurrentLocale(route)
+        if (routeLocale === i18n.getLocale()) void loader.fetchContext(routeLocale, i18nStrategy.getPluginRouteName(route, routeLocale))
+      })
+    }
 
     const api = createNuxtI18nPluginApi({
       i18n,

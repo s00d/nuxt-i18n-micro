@@ -14,6 +14,7 @@ const state = vi.hoisted(() => ({
 vi.mock('../../src/runtime/server/utils/server-loader', () => ({
   loadTranslationsFromServer: state.load,
   NO_FILE: state.noFile,
+  resolveServerHost: () => undefined,
 }))
 vi.mock('../../src/runtime/server/utils/locale-detector', () => ({
   getI18nServerConfig: () => state.config,

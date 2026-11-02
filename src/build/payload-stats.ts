@@ -86,8 +86,14 @@ function embeddedSizeMessage(preset: string, size: string, limitText: string, mo
  *
  * Returns `null` when there is nothing to hash, leaving the caller to fall back.
  */
-export function hashTranslationSources(rootDirs: string[], translationDirName: string, additionalTranslationDirs: string[] = []): string | null {
-  const hash = createHash('sha256')
+export function hashTranslationSources(
+  rootDirs: string[],
+  translationDirName: string,
+  additionalTranslationDirs: string[] = [],
+  /** What else decides a chunk's content: the fallback chain. A pinned URL must move with it too. */
+  salt = '',
+): string | null {
+  const hash = createHash('sha256').update(salt)
   let seen = 0
 
   const hashFiles = (baseDir: string, files: string[]) => {

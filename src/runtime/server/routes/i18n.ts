@@ -1,7 +1,7 @@
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
-import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
-import { createError, defineEventHandler, getQuery, getRouterParam, send, setResponseHeader } from 'h3'
+import { createError, defineEventHandler, getRouterParam, send, setResponseHeader } from 'h3'
 import { getI18nServerConfig } from '../utils/locale-detector'
+import { payloadCacheControl } from '../utils/payload-cache'
 import { loadTranslationsFromServer, NO_FILE } from '../utils/server-loader'
 
 /**
@@ -43,11 +43,8 @@ export default defineEventHandler(async (event) => {
   // policy for exactly this reason — it cannot see the query — and this upgrades the answer
   // when the request is actually versioned.
   if (!import.meta.dev) {
-    const requested = getQuery(event).v
     // nothing to pin in `{}`: the page may exist on the host tomorrow, and a browser would keep this for a year
-    const versioned = Boolean(config.dateBuild) && String(requested ?? '') === String(config.dateBuild) && json !== '{}'
-
-    const cacheControl = buildTranslationPayloadCacheControl(config.httpCacheDuration, versioned)
+    const cacheControl = payloadCacheControl(event, config, json === '{}')
     if (cacheControl) {
       setResponseHeader(event, 'Cache-Control', cacheControl)
     }

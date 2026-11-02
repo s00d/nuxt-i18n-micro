@@ -1,5 +1,6 @@
 import {
   buildTranslationPayloadCacheControl,
+  resolveTranslationPayloadCachePolicy,
   buildTranslationPayloadFetchRequest,
   buildTranslationPayloadPath,
   resolveTranslationPayloadBaseURL,
@@ -95,5 +96,38 @@ describe('buildTranslationPayloadCacheControl', () => {
     expect(buildTranslationPayloadCacheControl(Number.NaN)).toBeNull()
     expect(buildTranslationPayloadCacheControl(Number.POSITIVE_INFINITY)).toBeNull()
     expect(buildTranslationPayloadCacheControl(1e21)).toBeNull()
+  })
+})
+
+describe('resolveTranslationPayloadCachePolicy', () => {
+  const swr = 'public, max-age=60, stale-while-revalidate=86400'
+  const revalidate = 'public, max-age=0, must-revalidate'
+  const pinned = 'private, max-age=31536000, immutable'
+  const base = { httpCacheDuration: 31536000, dateBuild: 'abc' }
+
+  it('pins the current v, revalidates the rest, and keeps a path-wide header short', () => {
+    expect(resolveTranslationPayloadCachePolicy(base)).toEqual({ file: swr, current: pinned, stale: revalidate })
+  })
+
+  it('pins nothing a CDN could hand to the next v', () => {
+    expect(resolveTranslationPayloadCachePolicy(base).current).not.toContain('public')
+  })
+
+  it('pins nothing that can change with no build', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, live: true })).toEqual({ file: swr, current: swr, stale: swr })
+  })
+
+  it('takes a header of its own', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheControl: 'public, max-age=5' }).file).toBe('public, max-age=5')
+  })
+
+  it('false keeps the old policy, no v revalidates, 0 sends nothing', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheControl: false })).toEqual({
+      file: revalidate,
+      current: 'public, max-age=31536000, immutable',
+      stale: revalidate,
+    })
+    expect(resolveTranslationPayloadCachePolicy({ ...base, dateBuild: 0 })).toEqual({ file: revalidate, current: revalidate, stale: revalidate })
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheDuration: 0 })).toEqual({ file: null, current: null, stale: null })
   })
 })

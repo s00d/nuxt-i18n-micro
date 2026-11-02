@@ -114,17 +114,20 @@ A static host applies its own headers to these files; set caching in the host's 
 
 | Request | `Cache-Control` |
 | --- | --- |
-| Server route, `?v=` equal to the current `dateBuild`, a non-empty dictionary | `public, max-age=<httpCacheDuration>, immutable` |
-| Server route, without `?v=`, with an old one, or an empty dictionary | `public, max-age=0, must-revalidate` |
-| Static copy in `public/`, any `?v=` | `public, max-age=0, must-revalidate` |
+| Node server or route, `?v=` equal to the current `dateBuild`, a non-empty dictionary | `private, max-age=<httpCacheDuration>, immutable` |
+| Node server or route, without `?v=`, with an old one, or an empty dictionary | `public, max-age=0, must-revalidate` |
+| A host's copy of `public/`, any `?v=` | `public, max-age=60, stale-while-revalidate=86400` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
+| `source` mode, `cacheTtl`, or `apiBaseServerHost`: a dictionary can change with no build | the `httpCacheControl` header, always |
 | Server route, the dictionary could not be read | `503`, `no-store` |
 | dev server | none |
 
-The first two rows are set by the server route, the third by a `/_locales/**` route rule with CORS enabled. A default `premerged` build answers from the static copy, so `immutable` applies only when the route answers: in `source` mode or with `publicAssets: false`. The browser then revalidates a payload on each navigation, at the cost of one conditional request. [`httpCacheDuration`](/api/module-options#httpcacheduration) defaults to one year; `0` sends no header.
+The URL with the current `v` is pinned like a hashed asset, and only what sees the query can say so: the server route, and a Node server, which sets the header on its static files. It is `private` so a CDN that ignores the query cannot answer the next `v` from this response. A host's static files take a path-wide header from a `/_locales/**` route rule, which cannot see the query, so it stays short; a repeat load still blocks on nothing. An old `v` stays servable, as cached HTML names it.
+
+`httpCacheControl: false` keeps every static file on `max-age=0, must-revalidate`. [`httpCacheDuration`](/api/module-options#httpcacheduration) defaults to one year; `0` sends no header. `$clearCache()` revalidates whatever it loads next.
 
 Safari requests a preloaded payload again when it may not reuse the response: with `no-cache` and an `ETag` the second request is a `304`, with neither a cache header nor a validator it is a second full download. A `max-age` above `0` gives one request. Only `httpCacheDuration: 0` on a host that adds no validator pays this.
 
-[`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`).
+[`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. It also moves with the fallback chain. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`). After replacing a dictionary in place on a Node server, restart with `NUXT_I18N_DATE_BUILD=<new value>`: nothing else moves `v` without a rebuild.
 
 ### When a dictionary cannot be read
 

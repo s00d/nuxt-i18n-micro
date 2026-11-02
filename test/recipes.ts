@@ -101,6 +101,9 @@ export const recipes = defineRecipes(
     'strategy-region-codes': app('strategy-region-codes', 'strategy', { STRATEGY: 'prefix_except_default', REGION_CODES: '1' }),
     // global URL shapes: each would break every other journey's URLs, so each is its own build
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
+    // a route with no scripts, and dictionaries on a CDN: chunk-cache.spec
+    'strategy-no-scripts': app('strategy-no-scripts', 'strategy', { STRATEGY: 'prefix' }, { routeRules: { '/en/about': { noScripts: true } } }),
+    'strategy-cdn': app('strategy-cdn', 'strategy', { STRATEGY: 'prefix' }, { app: { cdnURL: 'https://cdn.test/' } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
     // disablePageLocales: every page loads the index chunk, the one serverTranslationPreload detects without the route
     'strategy-no-prefix-preload': app(

@@ -5,6 +5,8 @@ export interface RuntimeI18nOverrides {
   fallbackLocale?: string
   disabledLocales?: string[]
   strategy?: string
+  /** A new `?v=` with no rebuild: for dictionaries replaced in place. Restart to apply, as for any env. */
+  dateBuild?: string
 }
 
 function toNonEmptyString(value: unknown): string | undefined {
@@ -43,6 +45,7 @@ export function readI18nEnvOverrides(): RuntimeI18nOverrides {
     fallbackLocale: toNonEmptyString(env.NUXT_I18N_FALLBACK_LOCALE) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_FALLBACK_LOCALE),
     disabledLocales: parseLocalesList(env.NUXT_I18N_DISABLED_LOCALES) ?? parseLocalesList(env.NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES),
     strategy: toNonEmptyString(env.NUXT_I18N_STRATEGY) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_STRATEGY),
+    dateBuild: toNonEmptyString(env.NUXT_I18N_DATE_BUILD) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_DATE_BUILD),
   }
 }
 
@@ -56,6 +59,7 @@ export function readI18nRuntimeOverrides(runtimePublic?: Record<string, unknown>
     fallbackLocale: toNonEmptyString(runtime.fallbackLocale),
     disabledLocales: parseLocalesList(runtime.disabledLocales),
     strategy: toNonEmptyString(runtime.strategy),
+    dateBuild: toNonEmptyString(runtime.dateBuild),
   }
 }
 
@@ -66,12 +70,13 @@ export function mergeI18nOverrides(primary: RuntimeI18nOverrides, secondary: Run
     fallbackLocale: primary.fallbackLocale ?? secondary.fallbackLocale,
     disabledLocales: primary.disabledLocales ?? secondary.disabledLocales,
     strategy: primary.strategy ?? secondary.strategy,
+    dateBuild: primary.dateBuild ?? secondary.dateBuild,
   }
 }
 
 /** A stable string of the overrides: equal strings resolve to equal configs. */
 export function i18nOverridesKey(overrides: RuntimeI18nOverrides): string {
-  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}`
+  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}\0${overrides.dateBuild ?? ''}`
 }
 
 const defaultWarn = (message: string) => console.warn(message)
@@ -106,9 +111,10 @@ export function applyI18nRuntimeOverrides(
   const enabledCodes = new Set(locales.filter((locale) => !locale.disabled).map((locale) => locale.code))
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
-  const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale
+  const dateBuild = overrides.dateBuild ?? baseConfig.dateBuild
+  const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale && dateBuild === baseConfig.dateBuild
   if (same && locales.every((locale, i) => locale === baseConfig.locales?.[i])) return baseConfig
-  return { ...baseConfig, locales, defaultLocale, fallbackLocale }
+  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild }
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])

@@ -89,6 +89,8 @@ class TranslationStorage {
     return await ($fetch as TranslationPayloadFetcher)(request.path, {
       baseURL: request.baseURL,
       params: request.params,
+      // after a clear a browser's copy may be what the clear is for: `max-age` would answer with it
+      cache: import.meta.client && this.cc.clears ? 'no-cache' : undefined,
     })
   }
 

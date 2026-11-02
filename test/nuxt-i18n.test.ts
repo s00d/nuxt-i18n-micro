@@ -496,9 +496,7 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
     i18n.installChunk('de', 'about', { title: 'DE' })
     const fresh = deferred()
     const loads = new Map<string, Promise<Record<string, unknown>>>([['en', fresh.promise]])
-    const loadSpy = vi
-      .spyOn(translationStorage, 'load')
-      .mockImplementation((locale) => loads.get(locale) ?? Promise.resolve({ title: 'other' }))
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation((locale) => loads.get(locale) ?? Promise.resolve({ title: 'other' }))
     try {
       const reloading = loader.reload()
       expect(i18n.t('title')).toBe('Old')

@@ -368,7 +368,12 @@ export function generateBuildComparisonCharts(
       true,
     ),
     translationsConfig: barChart(labels, [coloredBars('Translations (MB)', translationSizesMB, colors)], 'Translations Size (lower is better)', 'MB'),
-    totalBundleConfig: barChart(labels, [coloredBars('Total Bundle (MB)', totalBundleSizesMB, colors)], 'Total Deployable Output (lower is better)', 'MB'),
+    totalBundleConfig: barChart(
+      labels,
+      [coloredBars('Total Bundle (MB)', totalBundleSizesMB, colors)],
+      'Total Deployable Output (lower is better)',
+      'MB',
+    ),
   }
 }
 

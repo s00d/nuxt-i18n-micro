@@ -8,7 +8,6 @@ import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18nPluginApi } from './i18n-api'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
 
-
 interface NavigationTarget {
   locale: string
   routeName: string

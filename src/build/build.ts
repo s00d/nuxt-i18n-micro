@@ -99,7 +99,8 @@ async function mergedFiles(rootDirs: string[], translationDirName: string, outpu
     merged.set(file, content)
   }
   // a root locale file that exists only under additional dirs still needs an entry
-  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs)) if (!merged.has(`${locale}.json`)) merged.set(`${locale}.json`, {})
+  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs))
+    if (!merged.has(`${locale}.json`)) merged.set(`${locale}.json`, {})
   for (const file of [...merged.keys()].filter((f) => dirname(f) === '.'))
     merged.set(file, mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs, file.slice(0, -'.json'.length), merged.get(file)))
   return merged

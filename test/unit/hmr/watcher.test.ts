@@ -84,7 +84,9 @@ describe('dev translation watcher', () => {
     expect(change).toMatchObject({ type: 'root', dropped: true })
     expect(server.size + storage.size).toBe(0)
     server.set('en:about', 4)
-    expect(await handleTranslationWatchChange({ relativePath: 'pages/about/en.json', configuredLocales: new Set(['en']), serverCache: server })).toMatchObject({
+    expect(
+      await handleTranslationWatchChange({ relativePath: 'pages/about/en.json', configuredLocales: new Set(['en']), serverCache: server }),
+    ).toMatchObject({
       type: 'page',
       dropped: true,
     })

@@ -24,9 +24,6 @@ describe('translationPayloads build options', () => {
       publicAssets: true,
       prerenderRoutes: false,
       rootDelta: true,
-      publicDir: undefined,
-      warnFileCount: undefined,
-      warnSizeBytes: undefined,
     })
     // source mode keeps publicAssets off unless set explicitly (a leaked module default must not turn it on)
     const source = { mode: 'source', serverAssets: true, serverHandler: true, prerenderRoutes: false } as const
@@ -34,13 +31,13 @@ describe('translationPayloads build options', () => {
     expect(resolveTranslationPayloadOptions({ translationPayloads: { ...source, publicAssets: true } }).publicAssets).toBe(true)
 
     // step 2: the public directory follows publicDir, else apiBaseUrl (slashes trimmed), never translationDir
-    expect(resolveTranslationPayloadPublicRel({})).toBe('_locales')
-    expect(resolveTranslationPayloadPublicRel({ apiBaseUrl: 'i18n-data' })).toBe('i18n-data')
-    expect(resolveTranslationPayloadPublicRel({ translationDir: 'i18n/locales' })).toBe('_locales')
-    expect(resolveTranslationPayloadPublicRel({ translationPayloads: { publicDir: '_payloads' } })).toBe('_payloads')
-    expect(resolveTranslationPayloadPublicDir('/dist/public', {})).toBe(join('/dist/public', '_locales'))
-    expect(resolveTranslationPayloadPublicDir('/dist/public', { apiBaseUrl: '/_locales/' })).toBe(join('/dist/public', '_locales'))
-    expect(resolveTranslationPayloadPublicDir('/dist/public', { translationPayloads: { publicDir: '_payloads' } })).toBe(
+    expect(resolveTranslationPayloadPublicRel({}, '_locales')).toBe('_locales')
+    expect(resolveTranslationPayloadPublicRel({}, 'i18n-data')).toBe('i18n-data')
+    expect(resolveTranslationPayloadPublicRel({ translationDir: 'i18n/locales' }, '_locales')).toBe('_locales')
+    expect(resolveTranslationPayloadPublicRel({ translationPayloads: { publicDir: '_payloads' } }, '_locales')).toBe('_payloads')
+    expect(resolveTranslationPayloadPublicDir('/dist/public', {}, '_locales')).toBe(join('/dist/public', '_locales'))
+    expect(resolveTranslationPayloadPublicDir('/dist/public', {}, '/_locales/')).toBe(join('/dist/public', '_locales'))
+    expect(resolveTranslationPayloadPublicDir('/dist/public', { translationPayloads: { publicDir: '_payloads' } }, '_locales')).toBe(
       join('/dist/public', '_payloads'),
     )
 

@@ -28,7 +28,6 @@ import {
   resolveTranslationPayloadOptions,
   resolveTranslationPayloadPublicDir,
   resolveTranslationPayloadPublicRel,
-  resolveTranslationPayloadWarningThresholds,
   shouldCopyTranslationPayloadsToPublic,
   shouldReadPayloadsFromPublicDir,
   shouldRegisterNitroServerAssets,
@@ -382,7 +381,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseClientHost: options.apiBaseClientHost,
       apiBaseServerHost: options.apiBaseServerHost,
     })) {
-      logger.warn(warning.replace('[nuxt-i18n-micro] ', ''))
+      logger.warn(warning)
     }
 
     const rawServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
@@ -439,10 +438,8 @@ export default defineNuxtModule<ModuleOptions>({
       }
 
       const payloadStats = scanTranslationPayloadDirectory(publicAssetsDir)
-      const sizeWarning = getTranslationPayloadSizeWarning(payloadStats, resolveTranslationPayloadWarningThresholds(options.translationPayloads))
-      if (sizeWarning) {
-        logger.warn(sizeWarning.replace('[nuxt-i18n-micro] ', ''))
-      }
+      const sizeWarning = getTranslationPayloadSizeWarning(payloadStats, options.translationPayloads)
+      if (sizeWarning) logger.warn(sizeWarning)
     })
 
     // by `cwd`, not a joined pattern: a `\\` of a Windows path is an escape in a glob, the pattern then loses its base and

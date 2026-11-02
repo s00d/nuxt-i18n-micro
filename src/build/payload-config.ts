@@ -1,5 +1,5 @@
 import { basename, dirname, join, relative } from 'node:path'
-import type { ModuleOptions, TranslationPayloadOptions } from '@i18n-micro/types'
+import type { ModuleOptions } from '@i18n-micro/types'
 import { buildFallbackLocaleChain, type SourceLocaleInfo } from '@i18n-micro/utils/merge-source'
 
 export type TranslationPayloadMode = 'premerged' | 'source'
@@ -11,9 +11,6 @@ export interface ResolvedTranslationPayloadOptions {
   publicAssets: boolean
   prerenderRoutes: boolean
   rootDelta: boolean
-  publicDir?: string
-  warnFileCount?: number
-  warnSizeBytes?: number
 }
 
 export interface TranslationPayloadMisconfigurationInput {
@@ -32,19 +29,14 @@ export interface TranslationPayloadSizeThresholds {
   warnSizeBytes?: number
 }
 
-export const DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT = 500
-export const DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES = 10 * 1024 * 1024
-
-export function resolveTranslationPayloadMode(options: ModuleOptions): TranslationPayloadMode {
-  return options.translationPayloads?.mode === 'source' ? 'source' : 'premerged'
-}
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT = 500
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES = 10 * 1024 * 1024
 
 export function resolveTranslationPayloadOptions(options: ModuleOptions): ResolvedTranslationPayloadOptions {
-  const mode = resolveTranslationPayloadMode(options)
-  const isSourceMode = mode === 'source'
+  const isSourceMode = options.translationPayloads?.mode === 'source'
 
   return {
-    mode,
+    mode: isSourceMode ? 'source' : 'premerged',
     serverAssets: options.translationPayloads?.serverAssets !== false,
     serverHandler: options.translationPayloads?.serverHandler !== false,
     publicAssets: isSourceMode ? options.translationPayloads?.publicAssets === true : options.translationPayloads?.publicAssets !== false,
@@ -52,9 +44,6 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
     // Opt in when you need static `/{apiBaseUrl}/.../data.json` and payloads are already available.
     prerenderRoutes: options.translationPayloads?.prerenderRoutes === true,
     rootDelta: !isSourceMode && options.translationPayloads?.rootDelta !== false,
-    publicDir: options.translationPayloads?.publicDir,
-    warnFileCount: options.translationPayloads?.warnFileCount,
-    warnSizeBytes: options.translationPayloads?.warnSizeBytes,
   }
 }
 
@@ -65,15 +54,11 @@ export const pathSegments = (path: string): string => path.split('/').filter(Boo
  * Public payload directory relative to Nitro's public root.
  * Defaults to `apiBaseUrl` (`_locales`) so static files match client fetch URLs.
  */
-export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl?: string): string {
-  const explicit = options.translationPayloads?.publicDir
-  if (explicit !== undefined && explicit !== null && String(explicit).length > 0) {
-    return pathSegments(String(explicit)) || '_locales'
-  }
-  return pathSegments(apiBaseUrl ?? options.apiBaseUrl ?? '_locales') || '_locales'
+export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl: string): string {
+  return pathSegments(options.translationPayloads?.publicDir || apiBaseUrl) || '_locales'
 }
 
-export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl?: string): string {
+export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl: string): string {
   return join(outputPublicDir ?? './dist', resolveTranslationPayloadPublicRel(options, apiBaseUrl))
 }
 
@@ -83,13 +68,6 @@ export function resolveTranslationPayloadPublicDir(outputPublicDir: string | und
  */
 export type NitroServeStatic = boolean | 'node' | 'deno' | 'inline'
 
-/**
- * Whether production builds should copy the payload tree into Nitro public output.
- * - `publicAssets: true` always copies (CDN / static clients).
- * - When SSR reads `public/` (`readsPublicDir`), `serverAssets: true` also forces a copy (fs reader, no Rollup `raw:`).
- * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
- *   set `publicAssets: true` when the client/CDN needs a static copy.
- */
 /**
  * What a per-domain build copies to `public/`: the locales it serves. `premerged` holds
  * `<page>/<locale>/` with fallbacks already merged; `source` holds `<locale>.json` and
@@ -112,6 +90,13 @@ export function domainPayloadFilter(options: {
   }
 }
 
+/**
+ * Whether production builds should copy the payload tree into Nitro public output.
+ * - `publicAssets: true` always copies (CDN / static clients).
+ * - When SSR reads `public/` (`readsPublicDir`), `serverAssets: true` also forces a copy (fs reader, no Rollup `raw:`).
+ * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
+ *   set `publicAssets: true` when the client/CDN needs a static copy.
+ */
 export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
   if (translationPayloads.publicAssets) return true
   return readsPublicDir && translationPayloads.serverAssets
@@ -143,13 +128,6 @@ export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTra
   return !readsPublicDir && translationPayloads.serverAssets
 }
 
-export function resolveTranslationPayloadWarningThresholds(options?: TranslationPayloadOptions): Required<TranslationPayloadSizeThresholds> {
-  return {
-    warnFileCount: options?.warnFileCount ?? DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT,
-    warnSizeBytes: options?.warnSizeBytes ?? DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES,
-  }
-}
-
 export function hasLocalTranslationPayloadOutput(translationPayloads: ResolvedTranslationPayloadOptions): boolean {
   return (
     translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
@@ -161,7 +139,7 @@ export function getTranslationPayloadMisconfigurationWarnings(input: Translation
 
   if (!input.translationPayloads.serverAssets && !input.translationPayloads.publicAssets && !input.apiBaseServerHost) {
     warnings.push(
-      '[nuxt-i18n-micro] translationPayloads.serverAssets and publicAssets are false and apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
+      'translationPayloads.serverAssets and publicAssets are false and apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
     )
   }
 
@@ -171,13 +149,13 @@ export function getTranslationPayloadMisconfigurationWarnings(input: Translation
 
   if (!input.apiBaseServerHost) {
     warnings.push(
-      '[nuxt-i18n-micro] translationPayloads disabled all local outputs but apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
+      'translationPayloads disabled all local outputs but apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
     )
   }
 
   if (!input.apiBaseClientHost) {
     warnings.push(
-      '[nuxt-i18n-micro] translationPayloads disabled all local outputs but apiBaseClientHost is not set. Client-side navigation may load empty translations unless you provide an external client payload host.',
+      'translationPayloads disabled all local outputs but apiBaseClientHost is not set. Client-side navigation may load empty translations unless you provide an external client payload host.',
     )
   }
 
@@ -211,5 +189,5 @@ export function getTranslationPayloadSizeWarning(stats: TranslationPayloadStats,
     return null
   }
 
-  return `[nuxt-i18n-micro] Generated translation payloads are large (${stats.fileCount} files, ${formatBytes(stats.totalBytes)}). Consider translationPayloads.mode: 'source' for public output, hosting payloads externally, or disabling unused public/prerender outputs.`
+  return `Generated translation payloads are large (${stats.fileCount} files, ${formatBytes(stats.totalBytes)}). Consider translationPayloads.mode: 'source' for public output, hosting payloads externally, or disabling unused public/prerender outputs.`
 }

@@ -4,7 +4,6 @@
  * plugin keeps, without creating cookie refs per navigation.
  */
 
-import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
@@ -51,7 +50,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     state: useState<string | null>('i18n-locale', () => null).value,
     cookie: readCookie(getPreferenceCookieName(i18nConfig)),
   })
-  const preferred = i18nStrategy.getCurrentLocale(to as unknown as ResolvedRouteLike, preference)
+  const preferred = i18nStrategy.getCurrentLocale(to, preference)
 
   const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
   // no `replace`: a redirect keeps the one its navigation came with, so a link adds its history entry and the first load adds none

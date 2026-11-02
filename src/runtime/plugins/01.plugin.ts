@@ -115,7 +115,7 @@ function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, renderLocale, i
     urlLocale: i18nConfig.hashMode ? null : pathLocale(),
     serverLocale: requestLocale,
     preference: noPrefix ? (preferredLocale ?? i18nConfig.defaultLocale) : undefined,
-    getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
+    getLocaleFromRoute: (r) => getCurrentLocale(r as ResolvedRouteLike),
   })
   return initialLocale
 }
@@ -190,13 +190,13 @@ export default defineNuxtPlugin({
 
     const getCurrentLocale = (route?: ResolvedRouteLike): string => {
       if (!route && renderLocale) return renderLocale
-      const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
+      const r = route ?? router.currentRoute.value
       // a stored preference only when it is an enabled locale (a stale or malformed cookie is none)
       return i18nStrategy.getCurrentLocale(r, getPreferredLocale())
     }
 
     i18n.setRouteContextResolver((route) => {
-      const resolvedRoute = (route ?? router.currentRoute.value) as unknown as ResolvedRouteLike
+      const resolvedRoute = (route ?? router.currentRoute.value) as ResolvedRouteLike
       const routeLocale = getCurrentLocale(resolvedRoute)
       return { locale: routeLocale, routeName: i18nStrategy.getPluginRouteName(resolvedRoute, routeLocale) }
     })
@@ -207,7 +207,7 @@ export default defineNuxtPlugin({
     const loadOptions = createLoadOptions(nuxtApp, i18nConfig)
     const loader = new NuxtTranslationLoader({ i18n, loadOptions, prerender })
 
-    const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
+    const initialRoute = router.currentRoute.value
     const initialLocale = resolveStartLocale({
       nuxtApp,
       i18nConfig,

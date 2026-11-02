@@ -1,5 +1,4 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
-import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { buildLocaleHead, filterQuery, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { joinURL } from 'ufo'
@@ -63,8 +62,8 @@ export const useLocaleHead = ({
     if (!currentLocale) return empty()
 
     // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
-    const metaDisabled = i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)
-    const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
+    const metaDisabled = i18nStrategy.isMetaDisabled(route, locale)
+    const pageLocales = i18nStrategy.pageLocales(route)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
     // an unlocalized page has one URL: alternates would all point at it
     const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : []

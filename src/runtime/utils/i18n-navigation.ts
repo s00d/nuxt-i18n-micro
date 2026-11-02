@@ -1,4 +1,4 @@
-import type { PathStrategy, ResolvedRouteLike, RouteI18nMeta } from '@i18n-micro/path-strategy'
+import type { PathStrategy, RouteI18nMeta } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import type { ComponentPublicInstance } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoaded, Router } from 'vue-router'
@@ -107,7 +107,7 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
     try {
       const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
       const locale = hashLocale || api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)
-      const routeName = i18nStrategy.getPluginRouteName(to as unknown as ResolvedRouteLike, locale)
+      const routeName = i18nStrategy.getPluginRouteName(to, locale)
       const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
       return { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null }
     } catch (e) {

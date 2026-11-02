@@ -99,7 +99,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
 
   /** The current route for a link. The server never sees the hash, so the hydrating render leaves it out too. */
   const linkRoute = (): ResolvedRouteLike => {
-    const route = router.currentRoute.value as unknown as ResolvedRouteLike
+    const route = router.currentRoute.value
     if (!route.hash || !isHydrating()) return route
     return { ...route, hash: '', fullPath: route.fullPath.slice(0, route.fullPath.indexOf('#')) }
   }
@@ -118,7 +118,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     // a path is read as the page it shows (any locale's form of it), then switched like a route,
     // so per-locale params (`i18nRouteParams`) apply to it too
     const from = typeof to === 'string' ? i18nStrategy.localeRoute(getCurrentLocale(), to) : (to ?? router.currentRoute.value)
-    const switchedRoute = i18nStrategy.switchLocaleRoute(toLocale, from as unknown as ResolvedRouteLike, {
+    const switchedRoute = i18nStrategy.switchLocaleRoute(toLocale, from as ResolvedRouteLike, {
       i18nRouteParams: i18nParams,
       named: isNoPrefix,
     })
@@ -160,12 +160,12 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
   const provide = {
     i18nStrategy,
     getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
-      getEffectiveLocale(route, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike)),
-    getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike, getCurrentLocale() ?? null),
+      getEffectiveLocale(route, (r) => getCurrentLocale(r as ResolvedRouteLike)),
+    getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value, getCurrentLocale() ?? null),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, _locale?: string) =>
-      i18nStrategy.getRouteBaseName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike) ?? '',
+      i18nStrategy.getRouteBaseName(route ?? router.currentRoute.value) ?? '',
     t: i18n.t.bind(i18n),
     ts: i18n.ts.bind(i18n),
     _t: (route: RouteLocationNormalizedLoaded) => i18n.tForRoute(route),
@@ -201,7 +201,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
       const urlless = isNoPrefix || i18nConfig.hashMode
       const retry = getCurrentLocale() === toLocale && i18n.getLocale() !== toLocale
-      const route = router.currentRoute.value as unknown as ResolvedRouteLike
+      const route = router.currentRoute.value
       const loaded = urlless || retry ? await loader.switchContext(toLocale, i18nStrategy.getPluginRouteName(route, toLocale)) : null
       // its chunk failed, or a newer switchLocale / navigation won: no setLocale, no navigation
       if (loaded === false) return false

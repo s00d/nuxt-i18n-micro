@@ -1,4 +1,3 @@
-import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
@@ -74,7 +73,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
     const head = build()
     // a route that disables meta drops the page-defined i18n head too: `build` left only `lang` and `dir`
-    if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
+    if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route, locale)) return head as unknown as Head
     return mergeI18nHead(head, pageHead.value, {
       identifierAttribute: 'id',
       locales: allLocales as Locale[],

@@ -139,11 +139,13 @@ A tab open across a deploy that asks for a new delta sees that it was made again
 
 A failed fetch from a host (anything but a 404), an unreadable or corrupt file, or a 200 that is not a JSON object reaches no cache, and the next request reads again:
 
-- a page render logs a warning and shows raw keys for that dictionary, with HTTP 200;
+- a page render logs a warning, shows raw keys for that dictionary and answers `503` with `Cache-Control: no-store`, `Netlify-CDN-Cache-Control: no-store` and `Retry-After: 60`;
 - `/_locales/...` answers `503` with `no-store`;
 - `useTranslationServerMiddleware` gives a `t` that answers the key or the default value.
 
-Such a page is a 200, so an `swr` or `cache` route rule, and a CDN, keeps its raw keys for their TTL: the module cannot mark that response. Requests during an outage each reach the host, with no timeout of the module's own.
+The body of that 503 is the page itself, so a visitor sees the same page, and on hydration the browser reads the dictionary again and the text appears once the host is back, with Vue's one console error about a hydration mismatch, as the server's HTML had the keys. A crawler is told to come back later. An `swr` or `cache` route rule stores nothing with a status of 400 or more, and a CDN gets `no-store`, so no cache keeps the raw keys and the first request after recovery renders the real text. A page a rule already keeps stays as it is during the outage: its revalidation fails and stores nothing. On Vercel a failed `isr` revalidation keeps the last page the same way.
+
+This covers every chunk a render loads, a failed page chunk with its root at hand included, and a chunk merged later in the render. A page with a healthy dictionary, a redirect and an error page keep their status. A [component island](/guide/server-side-translations) is the exception: it stays a 200, as a 503 would take it out of the page, so a page whose own dictionary loads can be kept with an island's raw keys. Requests during an outage each reach the host, with no timeout of the module's own beyond the 60 seconds for response headers.
 
 A 404 from the host means it has no such file, which is not a failure. A page render shows the root dictionary, as the browser does, and `/_locales/...` answers the same 404. No cache keeps either, so a file that appears is read on the next request, at the cost of one request to the host per render of such a page. With no root file either the dictionary is empty, and a [prerender](/guide/upgrade#server-build-and-deployment) fails.
 

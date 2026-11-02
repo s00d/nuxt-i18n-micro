@@ -658,6 +658,8 @@ declare module 'h3' {
       load?: (locale: string, routeName: string) => Promise<Translations | null>
       /** The module config with runtime overrides, resolved once for this request. */
       config?: ResolvedI18nConfig
+      /** A dictionary of this page render could not be read: no cache may keep the page. */
+      failedRead?: boolean
     }
   }
 }
@@ -764,6 +766,7 @@ declare module '#i18n-internal/payload-source' {
       nitroConfig.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.fs')
 
       nitroConfig.plugins = nitroConfig.plugins || []
+      nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/failed-read'))
       if (!nuxt.options.dev) nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/payload-cache'))
       if (nuxt.options.dev && (options.hmr ?? true)) {
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))

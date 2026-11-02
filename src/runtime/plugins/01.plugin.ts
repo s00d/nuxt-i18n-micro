@@ -204,7 +204,11 @@ export default defineNuxtPlugin({
     // Server loads into memory for SSR; client loads via /_locales in switchContext below.
     const prerender = import.meta.server && import.meta.prerender
     const loadOptions = createLoadOptions(nuxtApp, i18nConfig)
-    const loader = new NuxtTranslationLoader({ i18n, loadOptions, prerender })
+    const onFailedRead = () => {
+      const context = nuxtApp.ssrContext?.event?.context.i18n
+      if (context && !prerender) context.failedRead = true
+    }
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions, prerender, onFailedRead })
 
     const initialRoute = router.currentRoute.value
     const initialLocale = resolveStartLocale({

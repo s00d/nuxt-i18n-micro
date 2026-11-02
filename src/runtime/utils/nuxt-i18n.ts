@@ -387,6 +387,8 @@ export interface NuxtTranslationLoaderOptions {
   loadOptions: LoadOptions
   /** The render is a file: a first page with no dictionary fails, as raw keys would stay in it. */
   prerender?: boolean
+  /** Any chunk of this render failed to load, the first page's or one merged later. A 404 is no failure. */
+  onFailedRead?: () => void
 }
 
 export class NuxtTranslationLoader {
@@ -436,6 +438,7 @@ export class NuxtTranslationLoader {
       } catch (e) {
         if (process.env.NODE_ENV !== 'production') console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)
+        this.options.onFailedRead?.()
         return null
       } finally {
         this.pendingLoads.delete(cacheKey)

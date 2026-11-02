@@ -48,16 +48,28 @@ describe('root + delta in a browser', () => {
   test('a failed root keeps the page, the next try loads', async ({ page, goto, guard }) => {
     guard.allow(FAILED_PAYLOAD)
     let failing = true
-    await page.route('**/_locales/__root/de/**', (route) => (failing ? route.abort() : route.fallback()))
+    let failures = 0
+    const aborted = () => failures
+    await page.route('**/_locales/__root/de/**', (route) => {
+      if (!failing) return route.fallback()
+      failures++
+      return route.abort()
+    })
     await goto('/en', { waitUntil: 'hydration' })
+    const english = await page.locator('.page-welcome').textContent()
     await page.locator('#switch-de').click()
-    await expect(page.locator('#locale')).toHaveText('en')
+    // the URL moves, the state follows it, and the text on screen stays: no dictionary to change to
+    await expect(page).toHaveURL(/\/de$/)
+    await expect.poll(aborted).toBeGreaterThan(0)
+    await expect(page.locator('.page-welcome')).toHaveText(english!)
+    await expect(page.locator('#locale')).toHaveText('de')
     failing = false
     // a click during the failed load joins it, so the test clicks until a click starts its own
     await expect(async () => {
       await page.locator('#switch-de').click()
-      await expect(page.locator('#locale')).toHaveText('de', { timeout: 500 })
+      await expect(page.locator('.page-welcome')).not.toHaveText(english!, { timeout: 500 })
     }).toPass()
+    await expect(page.locator('#locale')).toHaveText('de')
   })
 
   test('$clearCache brings root and delta back', async ({ page, goto }) => {

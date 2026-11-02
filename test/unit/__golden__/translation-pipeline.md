@@ -120,4 +120,4 @@
 - source: {}
 - dev: {}
 
-warnings: 2
+warnings: 1

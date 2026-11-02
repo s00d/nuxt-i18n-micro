@@ -106,6 +106,31 @@ async function mergedFiles(rootDirs: string[], translationDirName: string, outpu
   return merged
 }
 
+/** Levels of a parsed file. A loop: this is what runs after a recursion overflowed on the same value. */
+function depthOf(tree: unknown): number {
+  let depth = 0
+  for (let level = [tree]; level.length > 0; depth++)
+    level = level.flatMap((node) => (node !== null && typeof node === 'object' ? Object.values(node) : []))
+  return depth - 1
+}
+
+/**
+ * Runs a build step over the dictionaries. The stack is the only limit on their depth, and running out of it says
+ * nothing about where: this names the deepest file. No depth is tested up front, so whatever fits still builds.
+ */
+async function namingDeepFile(rootDirs: string[], dirNames: string[], step: () => Promise<void>): Promise<void> {
+  try {
+    await step()
+  } catch (error) {
+    if (!(error instanceof RangeError) || !error.message.includes('call stack')) throw error
+    const dirs = rootDirs.flatMap((root) => dirNames.map((name) => join(root, name))).filter((dir) => existsSync(dir))
+    const files = (await Promise.all(dirs.map((cwd) => globby('**/*.json', { cwd, absolute: true })))).flat()
+    const [deepest] = files.map((file) => ({ file, depth: depthOf(readTranslationFile(file)) })).sort((a, b) => b.depth - a.depth)
+    if (!deepest) throw error
+    throw new Error(`[i18n] ${deepest.file} is nested ${deepest.depth} levels deep, too deep to build. Flatten it.`, { cause: error })
+  }
+}
+
 export interface PreMergeOptions {
   rootDirs: string[]
   translationDirName: string
@@ -125,6 +150,10 @@ export interface PreMergeOptions {
  * With `rootDelta`, `__root/{locale}/data.json` holds the locale's root and every page file only what differs from it.
  */
 export async function preMergeLocales(options: PreMergeOptions): Promise<void> {
+  await namingDeepFile(options.rootDirs, [options.translationDirName, ...(options.additionalTranslationDirs ?? [])], () => writeChunks(options))
+}
+
+async function writeChunks(options: PreMergeOptions): Promise<void> {
   const { rootDirs, translationDirName, outputDir, locales, globalFallbackLocale, disablePageLocales, additionalTranslationDirs } = options
   const { routeNames = [], rootDelta = false } = options
   const merged = await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)
@@ -173,9 +202,11 @@ export async function buildTranslationSourceLayers(
   outputDir: string,
   additionalTranslationDirs?: string[],
 ): Promise<void> {
-  for (const [file, content] of await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)) {
-    const targetPath = join(outputDir, file)
-    mkdirSync(dirname(targetPath), { recursive: true })
-    writeFileSync(targetPath, JSON.stringify(content))
-  }
+  await namingDeepFile(rootDirs, [translationDirName, ...(additionalTranslationDirs ?? [])], async () => {
+    for (const [file, content] of await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)) {
+      const targetPath = join(outputDir, file)
+      mkdirSync(dirname(targetPath), { recursive: true })
+      writeFileSync(targetPath, JSON.stringify(content))
+    }
+  })
 }

@@ -97,6 +97,10 @@ test('a translationDir out of the project reaches nothing, by `../` or by a syml
   expect(resolveTranslationFile(app, 'linked', 'en.json')).toBeNull()
   expect(resolveTranslationFile(app, 'locales', 'en.json')).toBe(join(app, 'locales/en.json'))
   expect(resolveTranslationFile(app, '.', 'locales/en.json')).toBe(join(app, 'locales/en.json'))
+  expect(resolveTranslationFile(app, 'locales', join(sandbox, 'outside/en.json'))).toBeNull()
+  // a directory with a `.json` name is no file to write
+  mkdirSync(join(sandbox, 'app/locales/folder.json'))
+  expect(resolveTranslationFile(app, 'locales', 'folder.json')).toBeNull()
 })
 
 test('a rebinding host is refused by the plugin itself: Vite 6 runs its own check after plugin middlewares', async () => {

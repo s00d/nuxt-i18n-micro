@@ -2,19 +2,19 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterAll, describe, expect, test } from 'vitest'
-import { isInside, resolveTranslationFile } from '../../src/devtools'
+import { isInsideDir, resolveTranslationFile } from '@i18n-micro/utils/load-dir'
 
 describe('devtools save path guard', () => {
   const root = mkdtempSync(join(tmpdir(), 'i18n-devtools-'))
   afterAll(() => rmSync(root, { recursive: true, force: true }))
 
   test('a save names an existing .json inside the locales dir, nothing else', () => {
-    // step 1: isInside rejects traversal, absolute paths, the dir itself and a sibling with the same prefix
+    // step 1: isInsideDir rejects traversal, absolute paths, the dir itself and a sibling with the same prefix
     const locales = '/app/locales'
-    expect(isInside(locales, resolve(locales, '../../package.json'))).toBe(false)
-    expect(isInside(locales, resolve(locales, '/etc/passwd'))).toBe(false)
-    expect(isInside(locales, resolve(locales, '.'))).toBe(false)
-    expect(isInside(locales, resolve(locales, '../locales-other/en.json'))).toBe(false)
+    expect(isInsideDir(resolve(locales, '../../package.json'), locales)).toBe(false)
+    expect(isInsideDir(resolve(locales, '/etc/passwd'), locales)).toBe(false)
+    expect(isInsideDir(resolve(locales, '.'), locales)).toBe(false)
+    expect(isInsideDir(resolve(locales, '../locales-other/en.json'), locales)).toBe(false)
 
     // step 2: on disk: a nested file resolves; traversal, a symlink out, a missing file and the dir do not
     const dir = join(root, 'locales')
@@ -32,5 +32,9 @@ describe('devtools save path guard', () => {
     symlinkSync(join(dir, 'config.txt'), join(dir, 'alias.json'))
     expect(resolveTranslationFile(dir, 'alias.json')).toBeNull()
     expect(resolveTranslationFile(dir, '../locales')).toBeNull()
+    // an absolute path out of the dir, and a directory with a `.json` name: the write would fail on it
+    expect(resolveTranslationFile(dir, join(root, 'secret.json'))).toBeNull()
+    mkdirSync(join(dir, 'folder.json'))
+    expect(resolveTranslationFile(dir, 'folder.json')).toBeNull()
   })
 })

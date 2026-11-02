@@ -6,7 +6,7 @@ import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
-import { isInsideDir } from '@i18n-micro/utils/load-dir'
+import { isInsideDir, resolveTranslationFile } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
 
@@ -84,24 +84,6 @@ export interface ClientFunctions {
  * in both branches *and* did it through Vite, so the tab was broken for everyone —
  * installed users pointed at a dev server that was never running.
  */
-/**
- * The real path of an existing `.json` file `relative` to `base`, or null when it is missing or
- * leaves `base` — by `../`, an absolute path or a symlink (both sides are resolved to real paths).
- */
-export function resolveTranslationFile(base: string, relative: string): string | null {
-  const candidate = path.resolve(base, relative)
-  if (!candidate.endsWith('.json') || !fs.existsSync(base) || !fs.existsSync(candidate)) return null
-  const real = fs.realpathSync(candidate)
-  // the extension again on the resolved file: `alias.json` may link to any file inside `base`
-  return real.endsWith('.json') && isInside(fs.realpathSync(base), real) ? real : null
-}
-
-/** Whether `target` lies inside `base` (not `base` itself, not above it). */
-export function isInside(base: string, target: string): boolean {
-  const relative = path.relative(base, target)
-  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
-}
-
 export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
   const nuxt = useNuxt()
   const hasPrebuiltClient = fs.existsSync(path.join(clientDir, 'index.html'))

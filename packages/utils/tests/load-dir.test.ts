@@ -2,7 +2,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync }
 import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { isInsideDir, listTranslationFiles, loadTranslationDir, loadTranslationDirAsync } from '../src/load-dir'
+import { isInsideDir, listTranslationFiles, loadTranslationDir, loadTranslationDirAsync, resolveTranslationFile } from '../src/load-dir'
 
 let dir: string
 const write = (file: string, data: string) => {
@@ -138,5 +138,23 @@ describe('isInsideDir', () => {
     ['C:\\app\\locales-old\\en.json', 'C:/app/locales', false],
   ])('%s in %s: %s', (file, folder, inside) => {
     expect(isInsideDir(file, folder)).toBe(inside)
+  })
+})
+
+describe('resolveTranslationFile', () => {
+  test('an existing regular .json file inside the dir, nothing else', () => {
+    const base = join(dir, 'locales')
+    write('locales/pages/a/en.json', '{}')
+    write('secret.json', '{}')
+    write('locales/notes.txt', 'x')
+    mkdirSync(join(base, 'folder.json'))
+    symlinkSync(join(dir, 'secret.json'), join(base, 'out.json'))
+    symlinkSync(join(base, 'notes.txt'), join(base, 'alias.json'))
+
+    expect(resolveTranslationFile(base, 'pages/a/en.json')).toMatch(/pages[\\/]a[\\/]en\.json$/)
+    for (const file of ['../secret.json', join(dir, 'secret.json'), 'out.json', 'alias.json', 'folder.json', 'missing.json', '.']) {
+      expect(resolveTranslationFile(base, file)).toBeNull()
+    }
+    expect(resolveTranslationFile(join(dir, 'no-such-dir'), 'en.json')).toBeNull()
   })
 })

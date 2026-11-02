@@ -141,3 +141,16 @@ export function isInsideDir(file: string, dir: string): boolean {
   const root = trimTrailingSlashes(forwardSlashes(dir))
   return forwardSlashes(file).startsWith(`${root}/`)
 }
+
+/**
+ * The real path of an existing regular `.json` file `file`, relative to `base`, or null when it is missing or
+ * leaves `base`: by `../`, an absolute path or a symlink (both sides are resolved to real paths).
+ */
+export function resolveTranslationFile(base: string, file: string): string | null {
+  const candidate = resolve(base, file)
+  if (!candidate.endsWith('.json') || !existsSync(base) || !existsSync(candidate)) return null
+  const real = realpathSync(candidate)
+  // the name only says what the link is called: `alias.json` may lead to any file, `x.json` may be a directory
+  if (!real.endsWith('.json') || !statSync(real).isFile()) return null
+  return isInsideDir(real, realpathSync(base)) ? real : null
+}

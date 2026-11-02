@@ -173,7 +173,7 @@ function buildTranslationPayloadPath: (apiBaseUrl: string, page: string, locale:
 function resolveTranslationPayloadBaseURL: (options: { isServer: boolean; baseURL: string; apiBaseClientHost?: string; apiBaseServerHost?: string; }) => string
 function resolveTranslationPayloadCachePolicy: (input: TranslationPayloadCacheInput) => TranslationPayloadCachePolicy
 function resolveTranslationPayloadPage: (routeName: string | undefined, routesLocaleLinks?: Record<string, string>) => string
-const TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL: "public, max-age=60, stale-while-revalidate=86400"
+const TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL: "public, max-age=60"
 interface TranslationPayloadCacheInput
 member TranslationPayloadCacheInput.dateBuild?: string | number | undefined
 member TranslationPayloadCacheInput.httpCacheControl?: string | false | undefined

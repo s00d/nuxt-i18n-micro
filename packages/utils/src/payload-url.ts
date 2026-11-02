@@ -67,8 +67,12 @@ export function buildTranslationPayloadCacheControl(durationSeconds: number | un
   return 'public, max-age=0, must-revalidate'
 }
 
-/** What a path-wide header can promise: it cannot see `?v=`, so a host's copy stays short, and costs no blocking round trip on a repeat load. */
-export const TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL = 'public, max-age=60, stale-while-revalidate=86400'
+/**
+ * What a path-wide header can promise: it cannot see `?v=`, so a host's copy stays short.
+ * No `stale-while-revalidate`: past `max-age`, which a CDN's `Age` reaches on a first visit, Chromium revalidates a fetch() or a
+ * preload of this file with a loader that never reads the body, so that request is never reported finished and `networkidle` never comes.
+ */
+export const TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL = 'public, max-age=60'
 
 export interface TranslationPayloadCacheInput {
   httpCacheDuration?: number

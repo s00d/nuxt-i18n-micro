@@ -108,7 +108,7 @@ NUXT_I18N_DOMAIN=example.com PUBLIC_DIR=sites/example.com npx nuxi generate
 
 Keep the folders outside `.output`: each run empties it. Absolute links to the other domains are not crawled. Without the variable, a build with a `baseUrl` locale warns and generates the build config, where those locales are links and get no pages. On a Node server the same variable pins the process to one domain, whatever `Host` says.
 
-A static host applies its own headers to these files; set caching in the host's config. The module's `/_locales/*` rule does reach Cloudflare Pages through `_headers` and Vercel through `config.json`, as `public, max-age=60, stale-while-revalidate=86400`. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
+A static host applies its own headers to these files; set caching in the host's config. The module's `/_locales/*` rule does reach Cloudflare Pages through `_headers` and Vercel through `config.json`, as `public, max-age=60`. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
 
 ## Cache headers and dateBuild
 
@@ -116,7 +116,7 @@ A static host applies its own headers to these files; set caching in the host's 
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Node server or route, `?v=` equal to the current `dateBuild`, a non-empty dictionary     | `private, max-age=<httpCacheDuration>, immutable`                                                               |
 | Node server or route, without `?v=`, with an old one, or an empty dictionary             | `public, max-age=0, must-revalidate`                                                                            |
-| A host's copy of `public/`, any `?v=`                                                    | `public, max-age=60, stale-while-revalidate=86400` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
+| A host's copy of `public/`, any `?v=`                                                    | `public, max-age=60` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
 | `source` mode, `cacheTtl`, or `apiBaseServerHost`: a dictionary can change with no build | the `httpCacheControl` header, always                                                                           |
 | Server route, the dictionary could not be read                                           | `503`, `no-store`                                                                                               |
 | dev server                                                                               | none                                                                                                            |

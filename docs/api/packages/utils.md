@@ -418,7 +418,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-url'
 | `resolveTranslationPayloadBaseURL` | function | `(options: { isServer: boolean; baseURL: string; apiBaseClientHost?: string; apiBaseServerHost?: string; }) => string` |
 | `resolveTranslationPayloadCachePolicy` | function | `(input: TranslationPayloadCacheInput) => TranslationPayloadCachePolicy` |
 | `resolveTranslationPayloadPage` | function | `(routeName: string \| undefined, routesLocaleLinks?: Record<string, string>) => string` |
-| `TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL` | const | `"public, max-age=60, stale-while-revalidate=86400"` |
+| `TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL` | const | `"public, max-age=60"` |
 | `TranslationPayloadCacheInput` | interface | 4 members |
 | `TranslationPayloadCachePolicy` | interface | 3 members |
 | `TranslationPayloadFetchRequestInput` | interface | 9 members |

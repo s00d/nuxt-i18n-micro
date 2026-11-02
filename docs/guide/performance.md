@@ -12,7 +12,7 @@ The defaults are tuned for a typical app: one JSON payload per page and locale, 
 
 - **One payload per page.** The build merges root, page and fallback-locale keys into `/_locales/<page>/<locale>/data.json`, so a page loads one file and `$t` is a single lookup.
 - **No dictionary in the HTML.** SSR keeps translations in server memory; the browser fetches the payload instead of parsing it from `__NUXT_DATA__`.
-- **Browser cache.** `?v=` changes only when translations do, so a browser keeps its payloads across deploys that did not touch them. A host's static copy is fresh for 60 seconds and revalidates in the background after that, so a repeat load waits for no request. The server route answers `immutable` for a year ([Deployment](/guide/deployment#cache-headers-and-datebuild)).
+- **Browser cache.** `?v=` changes only when translations do, so a browser keeps its payloads across deploys that did not touch them. A host's static copy is fresh for 60 seconds and revalidates after that: a repeat load waits for one `304`. The server route answers `immutable` for a year ([Deployment](/guide/deployment#cache-headers-and-datebuild)).
 - **Bounded server memory.** The server caches at most 1000 payloads by default and drops the least recently used.
 
 ## Split translations by page

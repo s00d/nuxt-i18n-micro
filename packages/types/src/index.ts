@@ -591,7 +591,7 @@ export interface ModuleOptions {
    * On a Node server a response to the current `?v=` is pinned for `httpCacheDuration` and any other revalidates;
    * with `source`, `cacheTtl` or `apiBaseServerHost`, where a dictionary changes with no build, every response takes this header.
    * `false` keeps every file on `max-age=0, must-revalidate`.
-   * @default 'public, max-age=60, stale-while-revalidate=86400'
+   * @default 'public, max-age=60'
    */
   httpCacheControl?: string | false
 

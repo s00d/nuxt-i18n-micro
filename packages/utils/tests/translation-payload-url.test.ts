@@ -100,13 +100,13 @@ describe('buildTranslationPayloadCacheControl', () => {
 })
 
 describe('resolveTranslationPayloadCachePolicy', () => {
-  const swr = 'public, max-age=60, stale-while-revalidate=86400'
+  const short = 'public, max-age=60'
   const revalidate = 'public, max-age=0, must-revalidate'
   const pinned = 'private, max-age=31536000, immutable'
   const base = { httpCacheDuration: 31536000, dateBuild: 'abc' }
 
   it('pins the current v, revalidates the rest, and keeps a path-wide header short', () => {
-    expect(resolveTranslationPayloadCachePolicy(base)).toEqual({ file: swr, current: pinned, stale: revalidate })
+    expect(resolveTranslationPayloadCachePolicy(base)).toEqual({ file: short, current: pinned, stale: revalidate })
   })
 
   it('pins nothing a CDN could hand to the next v', () => {
@@ -114,7 +114,7 @@ describe('resolveTranslationPayloadCachePolicy', () => {
   })
 
   it('pins nothing that can change with no build', () => {
-    expect(resolveTranslationPayloadCachePolicy({ ...base, live: true })).toEqual({ file: swr, current: swr, stale: swr })
+    expect(resolveTranslationPayloadCachePolicy({ ...base, live: true })).toEqual({ file: short, current: short, stale: short })
   })
 
   it('takes a header of its own', () => {

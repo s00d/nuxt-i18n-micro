@@ -241,7 +241,7 @@ export class I18nPathStrategy {
   }
 
   /** Resolves a URL that may match nothing, without vue-router's dev "No match found" warning. */
-  protected probe(to: RouteLike | string): ResolvedRouteLike | null {
+  public probe(to: RouteLike | string): ResolvedRouteLike | null {
     // vue-router warns in dev only: production keeps the global untouched
     if (isProduction()) return this.resolve(to)
     // ponytail: swaps console.warn around a synchronous call; a router that warns through another channel still warns

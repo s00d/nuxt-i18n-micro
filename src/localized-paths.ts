@@ -3,7 +3,7 @@
  * a memory router over them and the runtime path strategy, so build and runtime agree on custom
  * paths, `false` (unlocalized) pages and routeLocales restrictions.
  */
-import { createPathStrategy, DomainPathStrategy, type PathStrategyContext } from '@i18n-micro/path-strategy'
+import { createPathStrategy, DomainPathStrategy, type PathStrategyContext, type RouteRecordLike } from '@i18n-micro/path-strategy'
 import type { Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { joinURL } from 'ufo'
@@ -129,18 +129,12 @@ export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<P
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
   const strategy = ctx.locales.some((locale) => locale.baseUrl) ? new DomainPathStrategy({ ...ctx, router }) : createPathStrategy({ ...ctx, router })
   // asked per path and per locale (prerender): one resolve per path. Build time, so unbounded.
-  const seen = new Map<string, ReturnType<typeof router.resolve>['matched']>()
+  const seen = new Map<string, RouteRecordLike[]>()
   const matched = (path: string) => {
     let records = seen.get(path)
     if (records) return records
     // prerender lists paths no page has (API routes, files): no vue-router "No match" warning for them
-    const warn = console.warn
-    console.warn = () => {}
-    try {
-      records = router.resolve(path).matched
-    } finally {
-      console.warn = warn
-    }
+    records = strategy.probe(path)?.matched ?? []
     seen.set(path, records)
     return records
   }

@@ -10,8 +10,11 @@ import { join } from 'node:path'
 /** Packages a framework binding pulls in, packed from the workspace because they are unreleased here. */
 const WORKSPACE_DEPENDENCIES = ['core', 'runtime', 'types', 'utils']
 
+/** On Windows `pnpm`, `npm` and `.bin/tsc` are `.cmd` shims, which only a shell runs. */
+const shell = process.platform === 'win32'
+
 function run(cwd: string, command: string, args: string[]): string {
-  const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8', shell })
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed in ${cwd}\n${result.stdout}${result.stderr}`)
   return result.stdout
 }
@@ -77,7 +80,7 @@ export function compileConsumer({ packagesDir, name, dependencies, compilerOptio
       }),
     )
     for (const [file, source] of Object.entries(files)) writeFileSync(join(root, file), source)
-    const result = spawnSync(join(root, 'node_modules/.bin/tsc'), ['-p', '.'], { cwd: root, encoding: 'utf8' })
+    const result = spawnSync(join(root, 'node_modules/.bin/tsc'), ['-p', '.'], { cwd: root, encoding: 'utf8', shell })
     return compilerOutput(result)
   } finally {
     rmSync(root, { recursive: true, force: true })

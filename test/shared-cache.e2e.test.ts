@@ -6,7 +6,7 @@
 import type { ChildProcess } from 'node:child_process'
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { getFreePort } from './helpers/port'
@@ -37,7 +37,7 @@ async function start(): Promise<string> {
 
 const keys = () => readdirSync(STORAGE, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile())
 const keyFile = (locale: string, page: string) => {
-  const found = keys().find((entry) => entry.parentPath.endsWith(`/${locale}`) && entry.name === page)
+  const found = keys().find((entry) => basename(entry.parentPath) === locale && entry.name === page)
   if (!found) throw new Error(`no stored ${locale}:${page}`)
   return join(found.parentPath, found.name)
 }

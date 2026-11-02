@@ -96,7 +96,11 @@ const PAYLOAD_KEYS: Record<string, string> = {
   'settings-team': 'teamTitle',
 }
 const PAYLOADS = Object.entries(PAYLOAD_KEYS).flatMap(([page, key]) =>
-  ['en', 'de', 'ru'].map((locale) => ({ file: join('_locales', page, locale, 'data.json'), key })),
+  ['en', 'de', 'ru'].map((locale) => ({
+    file: join('_locales', page, locale, 'data.json'),
+    root: join('_locales', '__root', locale, 'data.json'),
+    key,
+  })),
 )
 
 export const contentOf = (html: string) => /<p id="content">\s*([^<]*?)\s*<\/p>/.exec(html)?.[1]
@@ -133,10 +137,10 @@ export function registerStrategySuite(strategy: StrategyName): void {
     if (rootRedirect) expect(readFileSync(htmlFile(generated.publicDir, '/'), 'utf-8')).toMatch(new RegExp(`<meta[^>]+url=${rootRedirect}"`))
 
     // step 4: the premerged payload of every page × locale is published next to the pages
-    for (const { file, key } of PAYLOADS) {
+    for (const { file, root, key } of PAYLOADS) {
       // a delta holds what differs from its root: the root file is next to it
       const read = (path: string) => JSON.parse(readFileSync(join(generated.publicDir, path), 'utf-8'))
-      expect({ ...read(file.replace(/[^/]+(\/[^/]+\/data\.json)$/, '__root$1')), ...read(file) }).toHaveProperty(key)
+      expect({ ...read(root), ...read(file) }).toHaveProperty(key)
     }
   })
 }

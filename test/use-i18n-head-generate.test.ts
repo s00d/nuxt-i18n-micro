@@ -31,7 +31,8 @@ function runGenerate(): Promise<string> {
 }
 
 function serveStatic(port: number): ChildProcess {
-  return spawnServer('npx', ['serve', OUTPUT_PUBLIC, '-p', String(port)], { cwd: FIXTURES })
+  // the binary itself: on Windows `npx` is a `.cmd`, and no shell stands between stopChild and the server
+  return spawnServer(process.execPath, [join(FIXTURES, 'node_modules/serve/build/main.js'), OUTPUT_PUBLIC, '-p', String(port)], { cwd: FIXTURES })
 }
 
 async function waitForServer(port: number, path = '/') {

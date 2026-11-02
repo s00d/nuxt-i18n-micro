@@ -1,9 +1,9 @@
 import { joinURL, withQuery } from 'ufo'
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from './cache-keys'
-import { overRoot, takeRootMark } from './translation-entry'
+import { takeRootMark } from './translation-entry'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
-import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
+import { mergeOverRoot, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
@@ -218,7 +218,7 @@ class TranslationStorage {
       this.cc.delete(translationCacheKey(locale, PREMERGED_ROOT_PAGE))
       ;({ data: root } = await this.load(locale, PREMERGED_ROOT_PAGE, { ...options, dateBuild: mark }))
     }
-    return overRoot(root, delta)
+    return mergeOverRoot(root, delta)
   }
 
   /**

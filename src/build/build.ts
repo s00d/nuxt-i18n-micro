@@ -1,10 +1,9 @@
 import { createHash } from 'node:crypto'
 import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { mergeTranslationChunk } from '@i18n-micro/core/helpers'
 import { globby } from 'globby'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
-import { mergeSourceTranslations, PREMERGED_ROOT_MARK, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
+import { mergeOverRoot, mergeSourceTranslations, PREMERGED_ROOT_MARK, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 
 export interface PreMergeLocaleInfo {
   code: string
@@ -75,7 +74,7 @@ function diffTree(page: Tree, root: Tree): Tree {
  */
 export function pageFileOverRoot(page: Tree, root: Tree, mark: string): Tree {
   const delta = diffTree(page, root)
-  const merged = Object.keys(delta).length ? mergeTranslationChunk(root, delta) : root
+  const merged = mergeOverRoot(root, delta)
   const whole = Object.keys(merged).length !== Object.keys(page).length
   if (whole || Object.keys(page).some((key) => JSON.stringify(merged[key]) !== JSON.stringify(page[key]))) return page
   return { ...delta, [PREMERGED_ROOT_MARK]: mark }

@@ -2,12 +2,11 @@
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { mergeTranslationChunk } from '@i18n-micro/core/helpers'
-import { PREMERGED_ROOT_MARK } from '@i18n-micro/utils/merge-source'
+import { mergeOverRoot, PREMERGED_ROOT_MARK } from '@i18n-micro/utils/merge-source'
 import fc from 'fast-check'
 import { afterAll, afterEach, describe, expect, test, vi } from 'vitest'
 import { pageFileOverRoot, preMergeLocales } from '../../src/build/build'
-import { overRoot, takeRootMark } from '../../src/runtime/utils/translation-entry'
+import { takeRootMark } from '../../src/runtime/utils/translation-entry'
 import { translationStorage } from '../../src/runtime/utils/storage'
 
 type Tree = Record<string, unknown>
@@ -15,7 +14,7 @@ type Tree = Record<string, unknown>
 const page = (data: Tree, root: Tree) => pageFileOverRoot(data, root, 'm')
 const restored = (data: Tree, root: Tree) => {
   const file = page(data, root)
-  return takeRootMark(file) ? overRoot(root, file) : file
+  return takeRootMark(file) ? mergeOverRoot(root, file) : file
 }
 
 describe('a page file over its root', () => {
@@ -49,12 +48,19 @@ describe('a page file over its root', () => {
 
   test('a page with no key of its own is the root, one tree', () => {
     const root = { a: 1 }
-    expect(overRoot(root, {})).toBe(root)
+    expect(mergeOverRoot(root, {})).toBe(root)
+  })
+
+  test('__proto__ in a file goes nowhere', () => {
+    expect(({} as Tree).polluted).toBeUndefined()
+    const merged = mergeOverRoot({ a: 1 }, JSON.parse('{"__proto__":{"polluted":1}}'))
+    expect(merged.polluted).toBeUndefined()
+    expect(({} as Tree).polluted).toBeUndefined()
   })
 
   test('the merge copies only the paths it touches', () => {
     const root = { kept: { deep: 1 }, changed: { a: 1 } }
-    const merged = mergeTranslationChunk(root, { changed: { a: 2 } })
+    const merged = mergeOverRoot(root, { changed: { a: 2 } })
     expect(merged.kept).toBe(root.kept)
     expect(root.changed).toEqual({ a: 1 })
   })
@@ -95,7 +101,7 @@ describe('a build', () => {
       const root = JSON.parse(readFileSync(join(split, '__root', locale, 'data.json'), 'utf8')) as Tree
       takeRootMark(root)
       const mark = takeRootMark(data)
-      expect(mark ? overRoot(root, data) : data).toEqual(read(whole))
+      expect(mark ? mergeOverRoot(root, data) : data).toEqual(read(whole))
     }
     // the fallback chain's dropped key: en `about` turned `obj` into a string, and de's root makes it an object again
     if (!disablePageLocales) expect(list(split).length).toBe(list(whole).length)

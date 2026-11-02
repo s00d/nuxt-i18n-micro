@@ -18,7 +18,7 @@
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
-import { normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
+import { mergeOverRoot, normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
@@ -29,7 +29,7 @@ import { loadLiveDevTranslations } from '../internal/dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from '../internal/server-translation-cache'
 import { readSharedChunk, sharedChunkKey, writeSharedChunk } from '../internal/shared-cache'
-import { overRoot, takeRootMark, toEntry } from '../../utils/translation-entry'
+import { takeRootMark, toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 /** The host has no such file. By identity: a host's own empty file is a dictionary, and stays cached. */
@@ -178,6 +178,6 @@ async function settle(locale: string, page: string, file: Record<string, unknown
     getOrCreateServerTranslationCache().delete(`${locale}:${PREMERGED_ROOT_PAGE}`)
     root = await rootChunk(locale, config)
   }
-  const merged = overRoot(root.data, file)
+  const merged = mergeOverRoot(root.data, file)
   return { entry: merged === root.data ? root : toEntry(merged) }
 }

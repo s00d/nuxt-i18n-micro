@@ -73,6 +73,26 @@ export const PREMERGED_ROOT_PAGE = '__root'
  */
 export const PREMERGED_ROOT_MARK = '__i18n_root'
 
+const isTree = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value)
+
+/**
+ * A page's tree from its root and its delta, as a deep merge makes it: objects merge, anything else replaces. Only the
+ * nodes on the delta's paths are new, the rest is the root's, and the delta is taken as it is: a parsed file has no other
+ * owner, and copying a large one costs what parsing it did. A stored tree is never written to.
+ */
+export function mergeOverRoot(root: Record<string, unknown>, delta: Record<string, unknown>): Record<string, unknown> {
+  const keys = Object.keys(delta)
+  if (!keys.length) return root
+  const merged = { ...root }
+  for (const key of keys) {
+    if (key === '__proto__') continue
+    const value = delta[key]
+    const base = merged[key]
+    merged[key] = isTree(value) && isTree(base) ? mergeOverRoot(base, value) : value
+  }
+  return merged
+}
+
 export function toPremergedStorageKey(pageName: string, locale: string): string {
   const page = trimSlashes(pageName) || 'index'
   return toSourceStorageKey(`${page}/${locale}/data.json`)

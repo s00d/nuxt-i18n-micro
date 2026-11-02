@@ -86,7 +86,7 @@ import Modal from '../components/ui/Modal.vue'
 import { useI18nState } from '../composables/useI18nState'
 import type { TranslationContent } from '../types'
 import { flattenTranslations, unflattenTranslations } from '../util/i18nUtils'
-import { type DriverType, Translator } from '../util/Translator'
+import { type DriverType, loadTranslationSettings, Translator } from '../util/Translator'
 
 const selectedDriver = ref('disabled')
 const apiToken = ref('')
@@ -111,7 +111,7 @@ const file = ref<HTMLInputElement | null>(null)
 const localContent = ref<TranslationContent>({})
 
 onMounted(() => {
-  loadSettings()
+  loadTranslationSettings(selectedDriver, apiToken, driverOptions)
 })
 
 // Initialize local state when selectedFileContent changes
@@ -202,20 +202,6 @@ const translateMissingKeys = async () => {
   } catch (error) {
     console.error(error)
     showFeedback('Translation', 'Error.')
-  }
-}
-
-const loadSettings = () => {
-  const saved = localStorage.getItem('translationSettings')
-  if (saved) {
-    try {
-      const settings = JSON.parse(saved)
-      selectedDriver.value = settings.driver || 'disabled'
-      apiToken.value = settings.token || ''
-      driverOptions.value = settings.options || {}
-    } catch {
-      localStorage.removeItem('translationSettings')
-    }
   }
 }
 </script>

@@ -44,7 +44,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18nState } from '../../composables/useI18nState'
 import type { TranslationContent } from '../../types'
 import { flattenTranslations, unflattenTranslations } from '../../util/i18nUtils'
-import { type DriverType, Translator } from '../../util/Translator'
+import { type DriverType, loadTranslationSettings, Translator } from '../../util/Translator'
 import Pagination from '../ui/Pagination.vue'
 
 const props = defineProps<{
@@ -115,23 +115,9 @@ const translateText = async (key: string, text: string) => {
   }
 }
 
-const loadSettings = () => {
-  const saved = localStorage.getItem('translationSettings')
-  if (saved) {
-    try {
-      const settings = JSON.parse(saved)
-      selectedDriver.value = settings.driver || 'disabled'
-      apiToken.value = settings.token || ''
-      driverOptions.value = settings.options || {}
-    } catch {
-      localStorage.removeItem('translationSettings')
-    }
-  }
-}
-
 onMounted(() => {
   initializeDefaultLocale()
-  loadSettings()
+  loadTranslationSettings(selectedDriver, apiToken, driverOptions)
 })
 
 watch(

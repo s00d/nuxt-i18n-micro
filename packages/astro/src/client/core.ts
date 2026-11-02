@@ -1,5 +1,6 @@
 import { defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
 import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { I18nClientProps } from '../utils'
 
 /**
  * I18n state for client islands
@@ -95,4 +96,64 @@ export function createIslandApi(getState: () => I18nState) {
     has: (key: TranslationKey, routeName?: string): boolean => hasTranslation(getState(), key as string, routeName),
     getRoute: (): string => getState().currentRoute,
   }
+}
+
+type SetI18nState = (update: I18nState | ((current: I18nState) => I18nState)) => void
+
+export interface I18nContextValue {
+  state: I18nState
+  setState: SetI18nState
+}
+
+/** What an island binding needs of its library: core stays free of framework imports. */
+interface IslandLibrary<Children, Element, Context extends { Provider: unknown }> {
+  createContext: (value: I18nContextValue | null) => Context
+  createElement: (type: Context['Provider'], props: { value: I18nContextValue }, children: Children) => Element
+  useCallback: <T extends (arg: string) => void>(callback: T, deps: unknown[]) => T
+  useContext: (context: Context) => I18nContextValue | null
+  useMemo: <T>(factory: () => T, deps: unknown[]) => T
+  useState: <T>(initial: T) => [T, (update: T | ((current: T) => T)) => void]
+}
+
+/** The provider and hook of an island library (Preact and React have one API). */
+export function createIslandBinding<Children, Element, Context extends { Provider: unknown }>(lib: IslandLibrary<Children, Element, Context>) {
+  const { createContext, createElement, useCallback, useContext, useMemo, useState } = lib
+  const I18nContext = createContext(null)
+
+  /** A new `value` (an island with `transition:persist`) replaces the state. */
+  function I18nProvider({ children, value }: { children: Children; value: I18nClientProps }): Element {
+    const [state, setState] = useState<I18nState>(value)
+    const [seen, setSeen] = useState(value)
+    if (seen !== value) {
+      setSeen(value)
+      setState(value)
+    }
+    const context = useMemo(() => ({ state, setState }), [state])
+    return createElement(I18nContext.Provider, { value: context }, children)
+  }
+
+  function useAstroI18n() {
+    const context = useContext(I18nContext)
+    if (!context) {
+      throw new Error('useAstroI18n must be used within an I18nProvider')
+    }
+    const { state, setState } = context
+    const api = useMemo(() => createIslandApi(() => state), [state])
+    const setLocale = useCallback((locale: string) => setState((current) => withLocale(current, locale)), [setState])
+    const setRoute = useCallback((currentRoute: string) => setState((current) => ({ ...current, currentRoute })), [setState])
+
+    return {
+      ...api,
+
+      // Locale state
+      locale: state.locale,
+      fallbackLocale: state.fallbackLocale,
+      currentRoute: state.currentRoute,
+
+      setLocale,
+      setRoute,
+    }
+  }
+
+  return { I18nProvider, useAstroI18n }
 }

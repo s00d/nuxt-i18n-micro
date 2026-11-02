@@ -20,10 +20,6 @@ permissions:
 
 env:
   CI: true
-  # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
-  # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
-  # tests killing processes by port, not by memory pressure).
-  FIXTURE_BUILD_CONCURRENCY: 4
   CI_SUMMARY_MAX_LINES: '40'
   CI_SUMMARY_MAX_CHARS: '8000'
   CI_SUMMARY_MAX_TOTAL_CHARS: '28000'
@@ -31,7 +27,13 @@ env:
 jobs:
   ci:
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      FIXTURE_BUILD_CONCURRENCY: ${{ matrix.os == 'windows-latest' && 2 || 4 }}
     # `cmd | tee log` must fail the step when cmd fails (bash default uses tee's 0).
     defaults:
       run:
@@ -62,7 +64,7 @@ jobs:
       # Sticky PR comment: diff audit only (no deploy / test-run commands).
       # Same-repo only: fork PRs get a read-only token and must not hard-fail before checks.
       - name: PR diff comment
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,7 +168,7 @@ jobs:
           exit "${PIPESTATUS[0]}"
 
       # integration + e2e both drive a real browser (chromium.launch / createPage)
-      - run: pnpm exec playwright install chromium
+      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps' || '' }} chromium firefox webkit
 
       - name: Test packages
         id: test-packages
@@ -197,8 +199,21 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run test:e2e 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
-          exit "${PIPESTATUS[0]}"
+          if [ "$RUNNER_OS" != Windows ]; then
+            pnpm run test:e2e:browsers 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
+            exit "${PIPESTATUS[0]}"
+          fi
+          # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
+          # heap of that one process in bounds, it passed 4 GB on the whole set.
+          rc=0
+          for browser in chromium firefox webkit; do
+            for shard in 1 2 3; do
+              echo "== $browser $shard/3"
+              E2E_BROWSER=$browser pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
+              [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
+            done
+          done
+          exit $rc
 
       - name: Verify packages
         id: verify-packages
@@ -268,7 +283,7 @@ jobs:
           exit "$code"
 
       - name: CI PR comment
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
           VERSIONS_OUTCOME: ${{ steps.versions.outcome }}

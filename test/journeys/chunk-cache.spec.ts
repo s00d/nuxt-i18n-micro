@@ -66,6 +66,14 @@ describe('dictionaries: a page with no scripts', () => {
   })
 })
 
+describe('dictionaries: features.noScripts', () => {
+  test.override({ harness: 'strategy-no-scripts-all' })
+
+  test('no page gets a hint', async ({ request }) => {
+    expect(await (await request.get('/en')).text()).not.toMatch(/<link[^>]*_locales[^>]*>/)
+  })
+})
+
 describe('dictionaries: app.cdnURL', () => {
   test.override({ harness: 'strategy-cdn' })
 

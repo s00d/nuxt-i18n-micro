@@ -103,6 +103,7 @@ export const recipes = defineRecipes(
     'strategy-hashmode': app('strategy-hashmode', 'strategy', { STRATEGY: 'prefix_except_default' }, { router: { options: { hashMode: true } } }),
     // a route with no scripts, and dictionaries on a CDN: chunk-cache.spec
     'strategy-no-scripts': app('strategy-no-scripts', 'strategy', { STRATEGY: 'prefix' }, { routeRules: { '/en/about': { noScripts: true } } }),
+    'strategy-no-scripts-all': app('strategy-no-scripts-all', 'strategy', { STRATEGY: 'prefix' }, { features: { noScripts: true } }),
     'strategy-cdn': app('strategy-cdn', 'strategy', { STRATEGY: 'prefix' }, { app: { cdnURL: 'https://cdn.test/' } }),
     'strategy-baseurl': app('strategy-baseurl', 'strategy', { STRATEGY: 'prefix' }, { app: { baseURL: '/examples' } }),
     // disablePageLocales: every page loads the index chunk, the one serverTranslationPreload detects without the route

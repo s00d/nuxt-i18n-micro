@@ -141,6 +141,8 @@ function buildFullConfig(params: {
   rootDelta: boolean
 }) {
   const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
+  // as Nuxt reads it for `NUXT_NO_SCRIPTS`
+  const noScripts = nuxt.options.features.noScripts
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -183,6 +185,7 @@ function buildFullConfig(params: {
     translationPayloadMode,
     publicPayloads,
     rootDelta,
+    noScripts: noScripts === 'all' || (!!noScripts && !nuxt.options.dev) || undefined,
   }
 }
 

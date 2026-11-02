@@ -569,7 +569,8 @@ export interface ModuleOptions {
    * HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`.
    *
    * Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default:
-   * the response is then `public, max-age=…, immutable` and safe for browsers and CDNs.
+   * the response is then `private, max-age=…, immutable`: a browser pins it, and a CDN that ignores the query cannot
+   * (`public` with `httpCacheControl: false`).
    *
    * - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the
    *   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an
@@ -711,6 +712,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   publicPayloads?: boolean
   /** A page's file needs its root: the browser loads the two together. */
   rootDelta?: boolean
+  /** Nuxt's `features.noScripts` is on: no page runs a script, so none preloads a dictionary. */
+  noScripts?: boolean
   /** Host this config was resolved for (`locales[].baseUrl`); unset on any other host. */
   domain?: string
   /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */

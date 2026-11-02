@@ -232,7 +232,7 @@ export default defineNuxtPlugin({
     // The client fetches this chunk while hydrating (dictionaries stay off the payload): let the
     // browser start it with the HTML instead of after the scripts. `crossorigin`: fetch()'s mode.
     // Under `noScripts` nothing would read it.
-    if (import.meta.server && !nuxtApp.ssrContext?.event?.context?._nitro?.routeRules?.noScripts) {
+    if (import.meta.server && !i18nConfig.noScripts && !nuxtApp.ssrContext?.event?.context?._nitro?.routeRules?.noScripts) {
       const hint = (key: string, href: string) => ({ key, rel: 'preload' as const, as: 'fetch' as const, crossorigin: 'anonymous' as const, href })
       const link = [hint('i18n-preload', translationStorage.clientUrl(initialLocale, initialRouteName, loadOptions))]
       if (i18nConfig.rootDelta) link.push(hint('i18n-preload-root', translationStorage.clientUrl(initialLocale, PREMERGED_ROOT_PAGE, loadOptions)))

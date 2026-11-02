@@ -80,26 +80,16 @@ export function useI18n(astro: Astro) {
     locales,
 
     // Translation methods
-    t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation => {
-      return i18n.t(key, params, defaultValue, routeName)
-    },
-    ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string => {
-      return i18n.ts(key, params, defaultValue, routeName)
-    },
-    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => {
-      return i18n.tc(key, count, defaultValue)
-    },
+    t: i18n.t.bind(i18n),
+    ts: i18n.ts.bind(i18n),
+    tc: i18n.tc.bind(i18n),
     tn: i18n.tn.bind(i18n),
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
-    has: (key: TranslationKey, routeName?: string): boolean => {
-      return i18n.has(key, routeName)
-    },
+    has: i18n.has.bind(i18n),
 
     // Route management
-    getRoute: (): string => {
-      return i18n.getRoute()
-    },
+    getRoute: i18n.getRoute.bind(i18n),
     getRouteName: (path?: string): string => (path === undefined ? i18n.getRoute() : strategy.getRouteName!(bare(path), codes)),
     getLocaleFromPath: (path?: string): string => strategy.getLocaleFromPath!(path === undefined ? currentPath : bare(path), defaultLocale, codes),
 
@@ -108,26 +98,16 @@ export function useI18n(astro: Astro) {
     localizePath: (path: string, targetLocale?: string): string => localizeHref(path, targetLocale || locale, links),
 
     // Get i18n instance
-    getI18n: (): AstroI18n => {
-      return i18n
-    },
+    getI18n: () => i18n,
 
     // Path of a URL without locale and `base`: what `Astro.rewrite` takes
     getBasePath: (url?: URL): string => strategy.removeLocaleFromPath!(url ? bare(url.pathname) : currentPath, codes),
 
     // Translation management
-    addTranslations: (locale: string, translations: Record<string, unknown>, merge: boolean = true): void => {
-      i18n.addTranslations(locale, translations, merge)
-    },
-    addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge: boolean = true): void => {
-      i18n.addRouteTranslations(locale, routeName, translations, merge)
-    },
-    mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>): void => {
-      i18n.mergeTranslations(locale, routeName, translations)
-    },
-    clearCache: (): void => {
-      i18n.clearCache()
-    },
+    addTranslations: i18n.addTranslations.bind(i18n),
+    addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
+    mergeTranslations: i18n.mergeTranslations.bind(i18n),
+    clearCache: i18n.clearCache.bind(i18n),
   }
 }
 

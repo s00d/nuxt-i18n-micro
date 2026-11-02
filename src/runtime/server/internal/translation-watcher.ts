@@ -4,6 +4,7 @@ import { isAbsolute, join, relative, resolve } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { parseJsonFile } from '@i18n-micro/utils/load-dir'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
 import { type ParsedTranslationRelativePath, parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 
@@ -36,7 +37,7 @@ export function readTranslationFile(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {}
   let parsed: unknown
   try {
-    parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
+    parsed = parseJsonFile(readFileSync(filePath, 'utf-8'))
   } catch (error) {
     return skip(filePath, (error as Error).message)
   }

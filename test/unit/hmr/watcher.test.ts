@@ -102,6 +102,10 @@ describe('dev translation watcher', () => {
     expect(warn).toHaveBeenCalledTimes(1)
     expect(warn.mock.calls[0]![0]).toContain(broken)
     warn.mockRestore()
+    // an editor's BOM is no broken file: without this the whole locale builds empty and every page shows raw keys
+    const bom = join(root, 'bom.json')
+    writeFileSync(bom, '\uFEFF{ "a": "x" }')
+    expect(readTranslationFile(bom)).toEqual({ a: 'x' })
 
     // step 6: the next request merges the live files: the project layer over an extended layer,
     // translationDir over an additional root, the page over the root file

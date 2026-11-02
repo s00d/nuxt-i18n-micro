@@ -68,10 +68,13 @@ export function listTranslationFiles(directory: string): TranslationFile[] {
     .sort((a, b) => (a.relativePath < b.relativePath ? -1 : 1))
 }
 
-/** The dictionary in a file's text, `null` (reported) when it is not a JSON object. A BOM from an editor is fine. */
+/** `JSON.parse` of a file's text. A BOM from an editor is fine. */
+export const parseJsonFile = (text: string): unknown => JSON.parse(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text)
+
+/** The dictionary in a file's text, `null` (reported) when it is not a JSON object. */
 export function parseTranslationFile(text: string, path: string): Dictionary | null {
   try {
-    const parsed: unknown = JSON.parse(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text)
+    const parsed = parseJsonFile(text)
     if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as Dictionary
     console.error(`[i18n] Skipping translation file: ${path}: expected a JSON object`)
   } catch (error) {

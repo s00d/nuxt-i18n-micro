@@ -71,6 +71,7 @@ How translations reach the browser. [Performance](/guide/performance) explains w
 | `translationPayloads.publicAssets` | `boolean` | `true in premerged mode, false in source mode` | Copy payloads into Nitro public output. Premerged → `{page}/{locale}/data.json` under `apiBaseUrl`; source → compact tree. When SSR reads `public/` (`node-server` and similar), `serverAssets: true` also forces this copy. On Edge / function / `serveStatic: "inline"` presets, copy only when this is `true` (SSR uses the Nitro embed). |
 | `translationPayloads.prerenderRoutes` | `boolean` | `false` | Opt in to Nitro-prerender `/{apiBaseUrl}/.../data.json`. Usually redundant when premerged `publicAssets` already wrote those files. |
 | `translationPayloads.publicDir` | `string` | — | Public output folder relative to Nitro public root. Defaults to `apiBaseUrl` (`_locales`). So static files match client fetch URLs (`/{apiBaseUrl}/{page}/{locale}/data.json`). |
+| `translationPayloads.rootDelta` | `boolean` | `true` | Write one root file per locale, and in each page file only what differs from it. The client and SSR merge them; a whole chunk still works wherever a file is read. `false` keeps a whole dictionary in every page file. `premerged` only, and off with `disablePageLocales`. |
 | `translationPayloads.warnFileCount` | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
 | `translationPayloads.warnSizeBytes` | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
 
@@ -129,7 +130,8 @@ Parts of the module you can switch off.
 | `timeZone` | `string` | `the runtime's zone` | IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on the server and in every browser; a named format's own `timeZone` wins. |
 | `datetimeFormats` | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). Enables `$td(date, 'short')` style calls. |
 | `httpCacheDuration` | `number` | `31536000` | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default: the response is then `public, max-age=…, immutable` and safe for browsers and CDNs. - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an   unchanging URL pins the first payload a browser ever saw. - `0` — do not set `Cache-Control` at all (useful in local debugging) - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache - Reaches only responses served through Nitro. Payloads copied into `public/` and served   by the hosting platform take that platform's headers — see the Performance guide. Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an explicit response header rather than Nitro `defineCachedEventHandler` maxAge. |
-| `dateBuild` | `string \| number` | — | Value used for cache-busting translation requests (`?v=...`). When not provided, the module uses a hash of the translation files, so the value changes only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself. |
+| `httpCacheControl` | `string \| false` | `'public, max-age=60, stale-while-revalidate=86400'` | `Cache-Control` of a payload file answered by a host or by a path-wide rule, which cannot see `?v=`. On a Node server a response to the current `?v=` is pinned for `httpCacheDuration` and any other revalidates; with `source`, `cacheTtl` or `apiBaseServerHost`, where a dictionary changes with no build, every response takes this header. `false` keeps every file on `max-age=0, must-revalidate`. |
+| `dateBuild` | `string \| number` | — | Value used for cache-busting translation requests (`?v=...`). When not provided, the module uses a hash of the translation files, so the value changes only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself. `NUXT_I18N_DATE_BUILD` or `runtimeConfig.public.i18nRuntime.dateBuild` replaces it at runtime, after a dictionary was replaced in place: pinned URLs are left behind, with no rebuild. |
 | `experimental` | `Record<string, unknown>` | — | Bucket for experimental/unstable options. Contents may change or be removed without notice between minor versions. |
 
 <!-- /generated:module-options -->
@@ -550,6 +552,8 @@ Value used for cache-busting translation requests (`?v=...`).
 When not provided, the module uses a hash of the translation files, so the value changes
 only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns
 cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself.
+`NUXT_I18N_DATE_BUILD` or `runtimeConfig.public.i18nRuntime.dateBuild` replaces it at runtime, after a dictionary
+was replaced in place: pinned URLs are left behind, with no rebuild.
 
 <!-- /generated:option:dateBuild -->
 

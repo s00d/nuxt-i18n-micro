@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { mergeTranslationChunk } from '@i18n-micro/core/helpers'
 import { PREMERGED_ROOT_MARK } from '@i18n-micro/utils/merge-source'
+import fc from 'fast-check'
 import { afterAll, afterEach, describe, expect, test, vi } from 'vitest'
 import { pageFileOverRoot, preMergeLocales } from '../../src/build/build'
 import { overRoot, takeRootMark } from '../../src/runtime/utils/translation-entry'
@@ -219,6 +220,31 @@ describe('a browser', () => {
     await translationStorage.load('de', 'about', options)
     expect(calls.slice(2).map((call) => call.cache)).toEqual(['no-cache', 'no-cache'])
     delete (globalThis as { __i18nSide?: string }).__i18nSide
+  })
+
+  test('in any order of answers a page gets root and delta together', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(fc.nat(), { minLength: 12, maxLength: 12 }), async (order) => {
+        translationStorage.clear()
+        const queue: (() => void)[] = []
+        const files: Record<string, unknown> = { __root: { nav: 'root', [mark]: 'r' }, a: { x: 1, [mark]: 'r' }, b: { y: 2, [mark]: 'r' } }
+        vi.stubGlobal('$fetch', (path: string) => new Promise((resolve) => queue.push(() => resolve(structuredClone(files[path.split('/')[2]!])))))
+        const loads = [
+          translationStorage.load('de', 'a', options),
+          translationStorage.load('de', 'b', options),
+          translationStorage.load('de', 'a', options),
+        ]
+        for (const pick of order) {
+          await Promise.resolve()
+          if (queue.length) queue.splice(pick % queue.length, 1)[0]!()
+        }
+        while (queue.length) queue.shift()!()
+        const [a, b] = await Promise.all(loads)
+        expect(a!.data).toEqual({ nav: 'root', x: 1 })
+        expect(b!.data).toEqual({ nav: 'root', y: 2 })
+      }),
+      { seed: 42, numRuns: 100 },
+    )
   })
 
   test('the mark never reaches a dictionary', async () => {

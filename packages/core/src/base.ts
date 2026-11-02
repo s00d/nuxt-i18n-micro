@@ -1,5 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
+import { isProduction } from './helpers'
 import { type TranslationStorage, TranslationHelper } from './storage'
 import { translationCacheKey } from './strategy'
 import { clearTemplateCache, defaultPlural, interpolate, textOf } from './text'
@@ -40,18 +41,6 @@ class ChunkKey {
       this.key = translationCacheKey(locale, route)
     }
     return this.key
-  }
-}
-
-/**
- * `process.env.NODE_ENV` as bundlers inline it; an unbundled browser has no `process` and
- * counts as development instead of throwing.
- */
-function isProduction(): boolean {
-  try {
-    return process.env.NODE_ENV === 'production'
-  } catch {
-    return false
   }
 }
 

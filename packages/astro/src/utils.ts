@@ -1,4 +1,5 @@
 import { getByPath, interpolate, ownValue, resolveText, setTranslationAtKey, type ResolveTextOptions } from '@i18n-micro/core'
+import { isProduction } from '@i18n-micro/core/helpers'
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { getEnabledLocaleCodes, getEnabledLocales } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
@@ -234,14 +235,6 @@ function pickKeys(tree: Translations, keys: string[]): Translations {
 /** Above this, a dictionary in every island's props is worth a word to the developer. */
 const PROPS_WARN_SIZE = 20_000
 const warned = new WeakSet<object>()
-
-function isProduction(): boolean {
-  try {
-    return process.env.NODE_ENV === 'production'
-  } catch {
-    return false
-  }
-}
 
 /** A cyclic tree has no JSON, and no size to warn about. */
 function sizeOf(tree: Translations): number {

@@ -4,7 +4,7 @@
  * built once from `router.getRoutes()` maps a page (base name) and a locale to the record that
  * serves it, and every answer is one Map lookup plus one `router.resolve`.
  */
-import { routeQuery } from '@i18n-micro/core/helpers'
+import { isProduction, routeQuery } from '@i18n-micro/core/helpers'
 import type { Locale, Strategies } from '@i18n-micro/types'
 import type {
   ClientRedirectOptions,
@@ -138,15 +138,6 @@ function byPath<T extends RouteLike | string>(route: T): T {
 }
 
 const withoutTrailingSlash = (path: string) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path)
-
-/** `process.env.NODE_ENV` as bundlers inline it; an unbundled browser has no `process` and counts as development. */
-function isProduction(): boolean {
-  try {
-    return process.env.NODE_ENV === 'production'
-  } catch {
-    return false
-  }
-}
 
 export class I18nPathStrategy {
   protected readonly ctx: PathStrategyContext

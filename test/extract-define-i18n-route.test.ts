@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { mergeDefineI18nRouteMeta } from '../src/unplugin-define-i18n-route'
+import { mergeDefineI18nRouteMeta } from '../src/define-i18n-route'
 import { extractDefineI18nRouteData, pageFilePathToRoutePath, parentPagePaths, resolveRootDir } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */

@@ -104,7 +104,6 @@ catalog:
   globby: ^16.2.4
   glob: ^13.0.6
   ufo: ^1.6.4
-  unplugin: ^1.16.1 || ^2.0.0 || ^3.4.0
   serve: ^14.2.6
   '@intlify/message-compiler': ^11.4.12
   # Pinned for pnpm.overrides (exact)

@@ -19,7 +19,7 @@ const ROOT_MUTATE = [
   'src/build/**/*.ts',
   '!src/module.ts',
   // the Vite transform runs inside a build only; journeys cover it, no unit test reaches it
-  '!src/unplugin-define-i18n-route.ts',
+  '!src/define-i18n-route.ts',
   '!src/**/*.d.ts',
   'src/runtime/utils/nuxt-i18n.ts',
   'src/runtime/utils/storage.ts',

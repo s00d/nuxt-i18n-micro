@@ -73,7 +73,7 @@ import {
   unfixedOriginWarning,
 } from './localized-paths'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin, mergeDefineI18nRouteMeta } from './unplugin-define-i18n-route'
+import { collectDefineI18nRouteMetaFromFiles, mergeDefineI18nRouteMeta } from './define-i18n-route'
 import { parentPagePaths } from './utils'
 
 export type { TranslationPayloadMode } from './build/payload-config'
@@ -798,14 +798,6 @@ declare module '#i18n-internal/payload-source' {
     if (options.disablePageLocales) {
       nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
     }
-
-    // unplugin@3 types `.vite()` against Vite 8; Nuxt kit still expects Vite 7 Plugin — runtime-compatible.
-    addVitePlugin(
-      createDefineI18nRoutePlugin({
-        buildDir: nuxt.options.buildDir,
-        rootDirs,
-      }).vite() as Parameters<typeof addVitePlugin>[0],
-    )
 
     const { pluralTemplate, strategyTemplate, configTemplate } = templates
 

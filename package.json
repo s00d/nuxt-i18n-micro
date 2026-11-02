@@ -148,8 +148,7 @@
     "globby": "catalog:",
     "h3": "catalog:",
     "sirv": "catalog:",
-    "ufo": "catalog:",
-    "unplugin": "catalog:"
+    "ufo": "catalog:"
   },
   "devDependencies": {
     "@nuxt/devtools": "catalog:",

@@ -89,5 +89,7 @@ describe('dictionaries: app.cdnURL', () => {
     await page.goto(`${baseURL}en`)
     await expect(page.locator('#content')).not.toHaveText('key0')
     await expect.poll(() => seen.some((path) => path.startsWith('/_locales/index/en/'))).toBe(true)
+    // a handler still answering when the test ends rejects after it, on a page that is gone
+    await page.unrouteAll({ behavior: 'wait' })
   })
 })

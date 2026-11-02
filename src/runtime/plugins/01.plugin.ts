@@ -249,16 +249,6 @@ export default defineNuxtPlugin({
       if (hashLocale && hashLocale !== localeState.value) await api.provide.switchLocale(hashLocale)
     })
 
-    // A `NuxtLink` in view: one load per chunk, as `fetchContext` holds what it has and what is on its way, so 1000 links
-    // to a route cost one. Nuxt skips this on `saveData` and 2G. The active locale's only: a switcher in view is not a plan.
-    if (import.meta.client) {
-      nuxtApp.hook('link:prefetch', (url) => {
-        const route = router.resolve(url) as unknown as ResolvedRouteLike
-        const routeLocale = getCurrentLocale(route)
-        if (routeLocale === i18n.getLocale()) loader.prefetch(routeLocale, i18nStrategy.getPluginRouteName(route, routeLocale))
-      })
-    }
-
     const api = createNuxtI18nPluginApi({
       i18n,
       loader,

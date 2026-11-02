@@ -15,21 +15,16 @@ function watchChunks(page: import('@playwright/test').Page) {
 describe('dictionaries: the cases Nuxt covers for its payload', () => {
   test.override({ harness: 'strategy-prefix' })
 
-  // the hint and the fetch are one request, so what a link fetched in view is one more file, once
-  test('a link in view loads its chunk, once per chunk, in the active locale only', async ({ page, goto }) => {
+  // a guess at what is clicked next costs more than the one request a navigation makes
+  test('a link in view loads no dictionary until it is followed', async ({ page, goto }) => {
     const urls = watchChunks(page)
     await goto('/en', { waitUntil: 'hydration' })
-    await expect.poll(() => urls.filter((url) => url.includes('/about/')).length).toBeGreaterThan(0)
     await page.waitForLoadState('networkidle')
-    // two links to `about` on this page
-    expect(urls.filter((url) => url === '/_locales/about/en/data.json')).toHaveLength(1)
-    expect(urls.filter((url) => url.includes('/de/') || url.includes('/ru/'))).toEqual([])
+    expect(urls.filter((url) => url.includes('/about/'))).toEqual([])
 
-    // what the link loaded serves the navigation, with no request
-    const before = urls.length
     await page.locator('#about').click()
     await expect(page).toHaveURL(/\/en\/about/)
-    expect(urls.slice(before).filter((url) => url.includes('/about/'))).toEqual([])
+    expect(urls.filter((url) => url === '/_locales/about/en/data.json')).toHaveLength(1)
   })
 
   test('a failed fetch is tried again before it is a failed load', async ({ page, goto, guard }) => {

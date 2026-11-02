@@ -8,6 +8,7 @@ import metaPlugin from '../../src/runtime/plugins/02.meta'
 import { translationStorage } from '../../src/runtime/utils/storage'
 import type { Strategy } from '../helpers/routing-matrix'
 import { type App, type AppOptions, cookieState, createApp, hydrate, runPlugin, type Side, stateOf, stub } from './plugin-harness'
+import { expectOnlyCalls } from '../helpers/expect-only-calls'
 
 vi.mock('#imports', async () => (await import('./plugin-harness')).stub)
 
@@ -40,16 +41,15 @@ const LOCALE_IN_PATH = /^\/(en|de|fr)(?:\/|$)/
 /** What the Nitro middleware leaves in the context: the URL's locale, else the cookie, else the default. */
 const detect = (url: string, cookie?: string) => LOCALE_IN_PATH.exec(url)?.[1] ?? (cookie === 'de' ? cookie : 'en')
 
-const silenced = () => {
+beforeEach(() => {
   vi.spyOn(console, 'warn').mockImplementation(() => {})
   vi.spyOn(console, 'error').mockImplementation(() => {})
-}
-
-beforeEach(() => {
-  silenced()
   translationStorage.clear()
 })
 afterEach(() => {
+  // the harness routers hold no page for these URLs, and the failed loads are the cases
+  expectOnlyCalls(vi.mocked(console.warn), [/No match found/, /Invalid locale/, /Uncaught error during route navigation/])
+  expectOnlyCalls(vi.mocked(console.error), [/Load error/, /Error: subscriber/])
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })

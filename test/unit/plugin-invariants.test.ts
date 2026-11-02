@@ -12,7 +12,6 @@ import { createApp, hydrate, PAGES, runPlugin } from './plugin-harness'
 vi.mock('#imports', async () => (await import('./plugin-harness')).stub)
 
 beforeEach(() => {
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
   translationStorage.clear()
 })
 afterEach(() => {

@@ -21,7 +21,6 @@ export default defineConfig({
     name: 'react',
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['../../test/helpers/quiet-jsdom.ts'],
     include: ['tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', 'tests/publish/**', '**/perf-benchmark*', '**/__perf__/**'],
   },

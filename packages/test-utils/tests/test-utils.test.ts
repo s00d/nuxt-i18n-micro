@@ -1,5 +1,5 @@
 import { createFakeI18n, createI18nTestContext, createIsolatedFakeI18n, i18nUtils, resetI18n, setupNuxtI18nMock } from '../src'
-import { afterEach, beforeEach, describe, expect, onTestFinished, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('i18nUtils', () => {
   const mockTranslations = {
@@ -11,14 +11,8 @@ describe('i18nUtils', () => {
   }
 
   beforeEach(async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(console, 'error').mockImplementation(() => {})
     resetI18n()
     await i18nUtils.setTranslationsFromJson('en', mockTranslations)
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
   })
 
   test('t function returns correct translation', () => {
@@ -185,9 +179,6 @@ describe('i18nUtils', () => {
 
 describe('isolation', () => {
   test('createIsolatedFakeI18n does not leak into shared cache', async () => {
-    // the shared context must miss `secret`: its missing-key warning is the expected outcome
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    onTestFinished(() => warn.mockRestore())
     resetI18n()
     const { i18n, setTranslationsFromJson } = createIsolatedFakeI18n({
       translations: { secret: 'isolated' },

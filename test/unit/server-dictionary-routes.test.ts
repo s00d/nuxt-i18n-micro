@@ -60,11 +60,12 @@ describe('/_locales', () => {
   const request = (query = '?v=hash') => event(`/_locales/about/en/data.json${query}`, { page: 'about', locale: 'en' })
 
   test('a failed read answers 503 and no-store, never an immutable {}', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     state.load.mockRejectedValue(new Error('502 from https://backend.internal'))
     const e = request()
     await expect((await route())(e)).rejects.toMatchObject({ statusCode: 503, statusMessage: 'Translations unavailable' })
     expect(e.node.res.getHeader('cache-control')).toBe('no-store')
+    expect(warn).toHaveBeenCalledExactlyOnceWith('[i18n] Translation load failed:', 'en', 'about')
   })
 
   test('a file the host does not have is a 404: the client shows the root, as the render does', async () => {
@@ -126,13 +127,14 @@ describe('the Nitro middleware hands the render its loader', () => {
 
 describe('useTranslationServerMiddleware', () => {
   test('an outage costs a server route its strings, not its response, and the next call retries', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { useTranslationServerMiddleware } = await import('../../src/runtime/server/utils/translation-server-middleware')
     state.load.mockRejectedValueOnce(new Error('502'))
     const e = event('/api/x')
     expect((await useTranslationServerMiddleware(e))('hello', undefined, 'fallback')).toBe('fallback')
     state.load.mockResolvedValue({ data: { hello: 'Hello' }, json: '' })
     expect((await useTranslationServerMiddleware(e))('hello')).toBe('Hello')
+    expect(warn).toHaveBeenCalledExactlyOnceWith('[i18n] Translation load failed:', 'en', 'index')
   })
 
   test('a default is interpolated, as in `$t`', async () => {

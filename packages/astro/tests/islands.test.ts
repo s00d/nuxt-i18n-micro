@@ -88,9 +88,7 @@ test('React island: provider + hook, and the hook outside a provider fails loudl
   }
   expect(renderToString(createElement(I18nProvider, { value: props() }, createElement(Island)))).toBe('<b>Über</b>')
   expectIslandApi(api, { locale: () => api.locale, fallbackLocale: () => api.fallbackLocale, currentRoute: () => api.currentRoute })
-  vi.spyOn(console, 'error').mockImplementation(() => {})
   expect(() => renderToString(createElement(Island))).toThrow('useAstroI18n must be used within an I18nProvider')
-  vi.restoreAllMocks()
 })
 
 test('Preact island: provider + hook, and the hook outside a provider fails loudly', () => {
@@ -136,8 +134,9 @@ test('Vue island: provideI18n in the root, the hook in a child, locale and route
   api.currentRoute.value = 'about'
   expect([api.locale.value, api.getRoute(), api.t('title'), api.tn(1.5)]).toEqual(['fr', 'about', 'Über', '1,5'])
 
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   expect(() => createApp(Child).mount(document.createElement('div'))).toThrow('useAstroI18n must be used within a component that calls provideI18n')
+  expect(warn.mock.calls[0]![0]).toContain('injection "Symbol(i18n-astro)" not found')
   vi.restoreAllMocks()
 })
 

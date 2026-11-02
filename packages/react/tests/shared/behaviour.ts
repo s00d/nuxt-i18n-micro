@@ -3,6 +3,7 @@
  * its own `h`, hooks and testing library.
  */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { leftToBrowser } from '../../../../test/helpers/left-to-browser'
 
 export interface BehaviourHost {
   h: (type: any, props?: any, ...children: any[]) => any
@@ -475,9 +476,7 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
     })
 
     test('a provider with neither instance nor locale says so', () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
       expect(() => render(h(I18nProvider, { locales }))).toThrow('[i18n-micro] I18nProvider needs')
-      consoleError.mockRestore()
     })
 
     test('locales add to localeIso, they do not replace it', () => {
@@ -541,7 +540,7 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       ['middle button', { button: 1 }],
     ])('a %s click stays with the browser and still reaches onClick', (_name, init) => {
       const { onClick, pushes, anchor } = link()
-      expect(fireEvent.click(anchor, init)).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(anchor, init))).toBe(true)
       expect(onClick).toHaveBeenCalledTimes(1)
       expect(pushes).toEqual([])
     })
@@ -680,7 +679,7 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       const i18n = instance()
       const { container } = render(h(I18nProvider, { i18n, locales, routingStrategy: strategy }, h(I18nSwitcher)))
       fireEvent.click(container.querySelector('button')!)
-      expect(fireEvent.click(container.querySelector('.switcher-locale-de')!, { ctrlKey: true })).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(container.querySelector('.switcher-locale-de')!, { ctrlKey: true }))).toBe(true)
       expect([pushes, i18n.locale]).toEqual([[], 'en'])
     })
 
@@ -691,7 +690,7 @@ export function behaviourSuite({ h, useEffect, useLayoutEffect, useState, render
       fireEvent.click(container.querySelector('button')!)
       const item = container.querySelector('.switcher-locale-de')!
       expect(item.getAttribute('href')).toBe('/de/')
-      expect(fireEvent.click(item)).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(item))).toBe(true)
       expect(i18n.locale).toBe('de')
     })
 

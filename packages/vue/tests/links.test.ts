@@ -6,6 +6,7 @@ import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createI18n, I18nLink, I18nSwitcher, useI18n, useLocaleHead } from '../src'
 import { createVueRouterAdapter } from '../src/router'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 const locales: Locale[] = [
   { code: 'en', iso: 'en-US', displayName: 'English' },
@@ -41,9 +42,8 @@ test('I18nSwitcher with a custom localeRoute and no router leaves the link to th
   const localeRoute = (to: string, code?: string) => `/${code}${new URL(to, 'http://x').pathname}`
   const wrapper = mount(I18nSwitcher, { props: { localeRoute: localeRoute as never }, global: { plugins: [i18n] }, attachTo: document.body })
   await wrapper.find('button').trigger('click')
-  const click = new MouseEvent('click', { bubbles: true, cancelable: true })
-  wrapper.find('.switcher-locale-de').element.dispatchEvent(click)
-  expect(click.defaultPrevented).toBe(false)
+  const item = wrapper.find('.switcher-locale-de').element
+  expect(leftToBrowser(() => item.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))).toBe(true)
   expect(i18n.global.locale.value).toBe('de')
   wrapper.unmount()
 })
@@ -110,6 +110,7 @@ describe('I18nLink', () => {
         props: { to: '/x' },
         slots: { default: () => 'L' },
         global: { plugins: [createI18n({ locale: 'en', messages: {}, locales, defaultLocale: 'en', routingStrategy: plain(push) })] },
+        attachTo: document.body,
       })
 
     test('a plain click navigates once', () => {
@@ -125,15 +126,16 @@ describe('I18nLink', () => {
       const push = vi.fn()
       const wrapper = mountPlain(push)
       const event = new MouseEvent('click', { bubbles: true, cancelable: true, [key]: true })
-      wrapper.find('a').element.dispatchEvent(event)
+      const left = leftToBrowser(() => wrapper.find('a').element.dispatchEvent(event))
       expect(push).not.toHaveBeenCalled()
-      expect(event.defaultPrevented).toBe(false)
+      expect(left).toBe(true)
     })
 
     test('a non-primary button stays with the browser', () => {
       const push = vi.fn()
       const wrapper = mountPlain(push)
-      wrapper.find('a').element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 }))
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 })
+      expect(leftToBrowser(() => wrapper.find('a').element.dispatchEvent(event))).toBe(true)
       expect(push).not.toHaveBeenCalled()
     })
   })

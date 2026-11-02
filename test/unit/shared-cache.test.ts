@@ -329,7 +329,7 @@ describe('what comes back is validated', () => {
 
   // Windows has no unreadable mode: chmod sets the read-only flag and nothing else
   test.skipIf(process.platform === 'win32')('the real fs driver returns its read errors: an unreadable key reaches no response', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const base = mkdtempSync(join(tmpdir(), 'i18n-shared-fs-'))
     const real = createStorage({ driver: fsDriver({ base }) })
     await real.setItem(KEY, '{"hello":"Stored"}')
@@ -341,6 +341,7 @@ describe('what comes back is validated', () => {
     const entry = await (await instance())('en', 'index')
     expect(entry.data).toEqual(HOME)
     expect(entry.json).not.toContain(base)
+    expect(warn.mock.calls[0]![0]).toContain('EACCES')
     chmodSync(file, 0o600)
     rmSync(base, { recursive: true, force: true })
   })
@@ -576,18 +577,20 @@ describe('a failing storage never reaches the page', () => {
   })
 
   test('a failed write is ignored', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     mount.setItem.mockRejectedValue(new Error('READONLY'))
     expect((await (await instance())('en', 'index')).data).toEqual(HOME)
+    expect(warn.mock.calls[0]![0]).toContain('READONLY')
   })
 
   test('a failed write does not close the reads', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     mount.values.set('i18n-micro:build-a~hash~~:de:index', '{"hello":"shared"}')
     mount.setItem.mockRejectedValue(new Error('READONLY'))
     const load = await instance()
     await load('en', 'index')
     expect((await load('de', 'index')).data).toEqual({ hello: 'shared' })
+    expect(warn.mock.calls[0]![0]).toContain('READONLY')
   })
 
   test('a read that answers leaves no timer behind', async () => {
@@ -613,7 +616,7 @@ describe('a failing storage never reaches the page', () => {
 
   test('a hanging storage: a long deadline once, short ones on probation, closed after three, and no timer left', async () => {
     vi.useFakeTimers()
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     mount.getItem.mockImplementation(() => new Promise(() => {}))
     const load = await instance()
 
@@ -635,10 +638,11 @@ describe('a failing storage never reaches the page', () => {
     expect((await load('de', 'd')).data).toEqual({})
     expect(mount.getItem).not.toHaveBeenCalled()
     expect(mount.setItem).not.toHaveBeenCalled()
+    expect(warn.mock.calls[0]![0]).toContain('no answer in 1000 ms')
   })
 
   test('one failure between answers closes nothing', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const load = await instance()
     await load('en', '__root')
     for (const page of ['a1', 'a2', 'a3', 'a4']) {
@@ -649,11 +653,12 @@ describe('a failing storage never reaches the page', () => {
     mount.getItem.mockClear()
     await load('en', 'a5')
     expect(mount.getItem).toHaveBeenCalled()
+    expect(warn.mock.calls[0]![0]).toContain('blip')
   })
 
   test('the layer comes back after the cooldown, with its long deadline', async () => {
     vi.useFakeTimers()
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     mount.getItem.mockRejectedValue(new Error('down'))
     const load = await instance()
     await load('en', 'a1')
@@ -667,6 +672,7 @@ describe('a failing storage never reaches the page', () => {
     mount.getItem.mockResolvedValue(null)
     await load('de', 'index')
     expect(mount.getItem).toHaveBeenCalled()
+    expect(warn.mock.calls[0]![0]).toContain('down')
   })
 })
 

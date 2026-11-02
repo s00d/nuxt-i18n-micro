@@ -5,6 +5,7 @@ import { createI18nState } from '../src/composables/useI18nState'
 import { createRpcClient } from '../src/rpc/client'
 import { setupRpcHost } from '../src/rpc/host'
 import { buildFileTree } from '../src/util/i18nUtils'
+import { expectOnlyCalls } from '../../../test/helpers/expect-only-calls'
 
 // The devtools tab runs in an iframe: the UI state talks to an RPC client, the host page answers
 // through `setupRpcHost` with a bridge over the app's i18n instance. Two EventTargets stand in for
@@ -69,6 +70,8 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  expectOnlyCalls(vi.mocked(console.warn), [/Bridge not ready/, /No content found for file/, /No save endpoint/])
+  expectOnlyCalls(vi.mocked(console.error), [/Failed to save translation/, /Invalid JSON file/])
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })

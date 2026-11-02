@@ -14,7 +14,7 @@ const write = (file: string, data: string) => {
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'i18n-types-golden-'))
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 afterEach(() => {
   rmSync(root, { recursive: true, force: true })
@@ -32,4 +32,5 @@ test('types-generator characterization', async () => {
   write('bad.json', '{')
   write('list.json', '[1]')
   await expect(await getTypesString({ srcDir: root, translationDir: 'locales' })).toMatchFileSnapshot('./__golden__/types.md')
+  expect(console.error).toHaveBeenCalledWith(expect.stringContaining('bad.json'), expect.any(SyntaxError))
 })

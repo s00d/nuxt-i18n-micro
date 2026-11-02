@@ -6,6 +6,7 @@ import { render } from 'solid-js/web'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, type SolidI18n, useI18n } from '../src'
 import { useI18nContext, useI18nDefaultLocale, useI18nLocales } from '../src/injection'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 const locales: Locale[] = [
   { code: 'en', iso: 'en-US', displayName: 'English' },
@@ -248,9 +249,7 @@ test('I18nSwitcher driven by props and links without a router', () => {
   expect($('#here').getAttribute('style')).toBe('margin: 1px;')
   expect($('#mail').getAttribute('target')).toBe('_blank')
   expect($('#bare').getAttribute('href')).toBe('/')
-  const click = new MouseEvent('click', { bubbles: true, cancelable: true })
-  $('#plain').dispatchEvent(click)
-  expect(click.defaultPrevented).toBe(false)
+  expect(leftToBrowser(() => $('#plain').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))).toBe(true)
 
   // a disabled current locale gets the disabled style on the button and is still named
   expect(button().getAttribute('style')).toContain('opacity: 0.3;')

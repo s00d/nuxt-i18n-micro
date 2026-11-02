@@ -46,11 +46,9 @@ export function goldenSuite({ h, render, fireEvent, act, lib, adapter }: GoldenH
     beforeAll(() => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(NOW)
-      vi.spyOn(console, 'error').mockImplementation(() => {})
     })
     afterAll(() => {
       vi.useRealTimers()
-      vi.restoreAllMocks()
     })
 
     test('i18n-t', async () => {

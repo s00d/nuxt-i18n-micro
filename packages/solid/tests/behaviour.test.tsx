@@ -4,6 +4,7 @@ import { createEffect, createRoot, createSignal, type JSX, onCleanup } from 'sol
 import { render } from 'solid-js/web'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, type I18nRoutingStrategy, type SolidI18n, useI18n } from '../src'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 const locales: Locale[] = [
   { code: 'en', displayName: 'English', iso: 'en-US' },
@@ -406,7 +407,7 @@ describe('I18nLink', () => {
     ['middle button', { button: 1 }],
   ])('a %s click stays with the browser and still reaches onClick', (_name, init) => {
     const { onClick, pushes, anchor } = link()
-    expect(click(anchor, init).defaultPrevented).toBe(false)
+    expect(leftToBrowser(() => click(anchor, init))).toBe(true)
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(pushes).toEqual([])
   })
@@ -550,9 +551,7 @@ describe('string styles', () => {
     container.querySelector('button')!.click()
     const item = container.querySelector('.switcher-locale-de')!
     expect(item.getAttribute('href')).toBe('/de/')
-    const click = new MouseEvent('click', { bubbles: true, cancelable: true })
-    item.dispatchEvent(click)
-    expect(click.defaultPrevented).toBe(false)
+    expect(leftToBrowser(() => item.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))).toBe(true)
     expect(i18n.locale).toBe('de')
   })
 
@@ -649,9 +648,9 @@ describe('I18nSwitcher', () => {
     const i18n = instance()
     const container = withI18n(i18n, () => <I18nSwitcher />, { locales, routingStrategy: routing })
     container.querySelector('button')!.click()
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true })
-    container.querySelector('.switcher-locale-de')!.dispatchEvent(event)
-    expect([event.defaultPrevented, pushes, i18n.locale]).toEqual([false, [], 'en'])
+    const item = container.querySelector('.switcher-locale-de')!
+    const left = leftToBrowser(() => item.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true })))
+    expect([left, pushes, i18n.locale]).toEqual([true, [], 'en'])
   })
 
   test('a switch keeps the query and hash', () => {

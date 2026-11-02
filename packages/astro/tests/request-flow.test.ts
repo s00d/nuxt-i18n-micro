@@ -188,7 +188,7 @@ test('the virtual modules: the base without its slash, the dictionaries as code'
       messages: JSON.parse((await plugin.load.call({ addWatchFile }, '\0virtual:i18n-micro/messages')).slice('export const messages = '.length)),
     }
   }
-  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   const { config, messages, addWatchFile } = await load({ locale: 'en', translationDir: 'src/locales' }, '/docs')
   expect(addWatchFile).toHaveBeenCalledWith(join(root, 'src/locales/en.json'))
   expect(config.base).toBe('/docs')
@@ -196,6 +196,7 @@ test('the virtual modules: the base without its slash, the dictionaries as code'
   expect(messages.routes['blog-post'].en).toEqual({ title: 'Post' })
   expect((await load({ locale: 'en' })).messages).toEqual({ root: {}, routes: {} })
   expect((await load({ locale: 'en', translationDir: 'src/locales', disablePageLocales: true })).messages.routes).toEqual({})
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('broken.json'), expect.any(SyntaxError))
 })
 
 test('a site loads its locales dir; requests through the middleware get a per-request i18n and page helpers', async () => {
@@ -493,7 +494,7 @@ test('detectLocale: path, then cookie, then Accept-Language, else default', () =
 })
 
 test('loadTranslationsFromDir: nested pages, disablePageLocales, cwd default, missing dir', () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   const split = loadTranslationsFromDir({ translationDir: 'src/locales', rootDir: root })
   expect(Object.keys(split.root).sort()).toEqual(['en', 'fr'])
@@ -510,6 +511,7 @@ test('loadTranslationsFromDir: nested pages, disablePageLocales, cwd default, mi
   expect(loadTranslationsFromDir({ translationDir: 'src/locales' }).routes).toEqual(split.routes)
   expect(loadTranslationsFromDir({ translationDir: 'nope' })).toEqual({ root: {}, routes: {} })
   expect(warn).toHaveBeenCalledWith(`[i18n] Translation directory not found: ${join(root, 'nope')}`)
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('broken.json'), expect.any(SyntaxError))
 })
 
 test('router adapter outside a request reads the browser location, or `/` on the server', () => {

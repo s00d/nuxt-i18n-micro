@@ -7,9 +7,10 @@ import { RouteGenerator } from '@i18n-micro/route-strategy'
 import type { Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import fc from 'fast-check'
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, type MockInstance, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
 import { createPathStrategy, type RouteLike } from '../src'
+import { expectOnlyCalls } from '../../../test/helpers/expect-only-calls'
 
 const SEED = 42
 const RUNS = 1500
@@ -257,9 +258,12 @@ async function answer({ router, strategy }: Table, item: Step): Promise<unknown>
 }
 
 describe('routing model', () => {
+  // arbitrary paths on a small router: its "no match" warnings come with the inputs
+  let warn: MockInstance<typeof console.warn>
   beforeAll(() => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
+  afterAll(() => expectOnlyCalls(warn, [/No match found/, /cannot start with multiple slashes/]))
 
   test('name to URL and back: same page, locale, params, query', () => {
     check(

@@ -8,6 +8,7 @@ import { expect, test, vi } from 'vitest'
 import { STORAGE_CC_KEY } from '../../src/runtime/utils/cache-keys'
 import { NuxtI18n, NuxtTranslationLoader } from '../../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../../src/runtime/utils/storage'
+import { expectOnlyCalls } from '../helpers/expect-only-calls'
 
 const SEED = 42
 const RUNS = 300
@@ -75,7 +76,7 @@ test('a prerender with no file and no root fails: raw keys must not reach a writ
 })
 
 test('setTranslation over a stand-in is no loaded chunk: the next visit still loads the file', async () => {
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   let down = true
   vi.stubGlobal(
     '$fetch',
@@ -94,6 +95,7 @@ test('setTranslation over a stand-in is no loaded chunk: the next visit still lo
   await loader.switchContext('de', 'index')
   await loader.switchContext('en', 'about')
   expect([i18n.t('other'), i18n.t('title')]).toEqual(['Other', 'Mine'])
+  expect(warn).toHaveBeenCalledExactlyOnceWith('[i18n] Translation load failed:', 'en', 'about')
   translationStorage.clear()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
@@ -275,10 +277,11 @@ async function exec(steps: Step[]) {
 }
 
 test('the shown translations stay right under any order of answers', async () => {
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   await fc.assert(
     fc.asyncProperty(fc.array(step, { maxLength: 24 }), (steps) => exec(steps)),
     { numRuns: RUNS, seed: SEED },
   )
+  expectOnlyCalls(warn, [/Translation load failed/])
   // a hosted Windows runner needs more than a minute for the same runs
 }, 180_000)

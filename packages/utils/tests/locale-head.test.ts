@@ -129,7 +129,7 @@ describe('buildLocaleHead', () => {
     [{ code: 'en', dir: 'rtl' }, 'rtl'],
     [{ code: 'en', dir: 'auto' }, 'auto'],
   ] as [Locale, string | undefined][])('dir of %j is %s', (locale, dir) => {
-    const { htmlAttrs } = buildLocaleHead({ ...base, locale, addSeoAttributes: false })
+    const { htmlAttrs } = buildLocaleHead({ ...base, locale: { og: 'en_US', ...locale } })
     expect(htmlAttrs.dir).toBe(dir)
     expect('dir' in htmlAttrs).toBe(dir !== undefined)
   })

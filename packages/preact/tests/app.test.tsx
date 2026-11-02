@@ -1,10 +1,10 @@
 // @ts-nocheck — JSX typing noise between preact and RTL; behaviour is what these tests pin
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/preact'
-import { stderr } from 'node:process'
 import { useEffect, useState } from 'preact/hooks'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, PreactI18n, useI18n } from '../src'
 import { createBrowserHistoryAdapter } from '../src/router'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 // Same shape as packages/preact/playground: three locales, English default, locale files loaded later.
 const locales = [
@@ -48,19 +48,11 @@ afterEach(() => {
 
 describe('Preact app over @i18n-micro/preact', () => {
   test('hook outside the provider fails loudly', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const write = stderr.write.bind(stderr)
-    stderr.write = (() => true) as typeof stderr.write
     const Orphan = () => {
       useI18n()
       return null
     }
-    try {
-      expect(() => render(<Orphan />)).toThrow('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
-    } finally {
-      stderr.write = write
-      consoleSpy.mockRestore()
-    }
+    expect(() => render(<Orphan />)).toThrow('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
   })
 
   test('page without a router: messages arrive late, locale switches, routes scope keys, links fall back to plain hrefs', () => {
@@ -362,7 +354,7 @@ describe('Preact app over @i18n-micro/preact', () => {
     expect([probe.getLocales(), probe.getLocaleName()]).toEqual([[], null])
 
     // no router: the click is the browser's (default not prevented)
-    expect(fireEvent.click(screen.getByText('prop'))).toBe(true)
+    expect(leftToBrowser(() => fireEvent.click(screen.getByText('prop')))).toBe(true)
   })
 
   test('history-adapter app: links mark the active section, clicks and the switcher push prefixed routes', () => {
@@ -418,9 +410,9 @@ describe('Preact app over @i18n-micro/preact', () => {
       expect([link('prefix-only').getAttribute('style'), link('ext').getAttribute('style')]).toEqual([null, null])
 
       // modified or non-primary clicks, external links and handlers that prevent stay with the browser
-      expect(fireEvent.click(link('About'), { ctrlKey: true })).toBe(true)
-      expect(fireEvent.click(link('About'), { metaKey: true })).toBe(true)
-      expect(fireEvent.click(link('About'), { button: 1 })).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(link('About'), { ctrlKey: true }))).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(link('About'), { metaKey: true }))).toBe(true)
+      expect(leftToBrowser(() => fireEvent.click(link('About'), { button: 1 }))).toBe(true)
       expect(fireEvent.click(link('ext'))).toBe(true)
       fireEvent.click(link('team'))
       expect([path(), linkClicks]).toEqual(['/about/team?tab=1', ['click', 'click', 'click']])
@@ -635,7 +627,7 @@ describe('Preact app over @i18n-micro/preact', () => {
     expect(screen.getByText('tag').outerHTML).toBe('<a title="t" href="/en/about" style="color: red;">tag</a>')
     expect(screen.getByText('comp').outerHTML).toBe('<a data-router="custom" href="/en/about" style="color: red;" title="c">comp</a>')
     const pushed = pushes.length
-    expect(fireEvent.click(screen.getByText('tag'))).toBe(true)
+    expect(leftToBrowser(() => fireEvent.click(screen.getByText('tag')))).toBe(true)
     expect(pushes.length).toBe(pushed)
   })
 

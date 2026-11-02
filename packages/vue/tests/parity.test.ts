@@ -15,6 +15,7 @@ import { I18nT } from '../src/components/i18n-t'
 import { I18nInjectionKey, I18nLocalesKey } from '../src/injection'
 import { mountNuxt, mountVue, type MountOptions, vueInstance, wireNuxtApp } from './characterization/harness'
 import { routerBase } from './characterization/nuxt-stub'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 const messages = {
   en: {
@@ -228,11 +229,10 @@ describe.each(['vue', 'nuxt'] as const)('%s switcher', (side) => {
   test.each([['ctrlKey'], ['metaKey'], ['shiftKey'], ['altKey']])("%s + click is the browser's", async (key) => {
     const { wrapper, select } = mountSwitcher(side)
     await open(wrapper)
-    const event = click({ [key]: true })
-    wrapper.find('.switcher-locale-ar').element.dispatchEvent(event)
+    const left = leftToBrowser(() => wrapper.find('.switcher-locale-ar').element.dispatchEvent(click({ [key]: true })))
     await flushPromises()
     expect(select).not.toHaveBeenCalled()
-    expect(event.defaultPrevented).toBe(false)
+    expect(left).toBe(true)
     wrapper.unmount()
   })
 

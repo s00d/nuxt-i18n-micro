@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { Recorder } from '../../core/tests/characterization/record'
 import { createI18n, loadTranslations } from '../src'
+import { expectOnlyCalls } from '../../../test/helpers/expect-only-calls'
 
 let dir: string
 const write = (file: string, data: string) => {
@@ -20,6 +21,8 @@ beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
 })
 afterEach(() => {
+  expectOnlyCalls(vi.mocked(console.error), [/Skipping translation file/])
+  expectOnlyCalls(vi.mocked(console.warn), [/Translation directory not found/])
   rmSync(dir, { recursive: true, force: true })
   vi.restoreAllMocks()
 })

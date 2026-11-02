@@ -7,11 +7,9 @@ const NOW = Date.UTC(2024, 5, 15, 12, 0, 0)
 beforeAll(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOW)
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
 })
 afterAll(() => {
   vi.useRealTimers()
-  vi.restoreAllMocks()
 })
 
 function report(): string {

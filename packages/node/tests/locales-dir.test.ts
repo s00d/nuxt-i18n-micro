@@ -69,7 +69,7 @@ test('an app loads its locales dir, translates per page and locale, and reloads 
 })
 
 test('disablePageLocales folds page files into the root bucket, page values winning', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   const i18n = createI18n({ locale: 'en', translationDir: dir, disablePageLocales: true, missingWarn: false })
   await i18n.loadTranslations()
   expect(i18n.t('greeting', { name: 'Bo' })).toBe('Hello, Bo!')
@@ -90,6 +90,7 @@ test('disablePageLocales folds page files into the root bucket, page values winn
   expect(folded.root.de).toEqual({ greeting: 'Hallo, {name}!', nav: { home: 'Startseite' }, title: 'Über uns' })
   expect(await loadRootTranslations(dir)).toEqual(split.root)
   expect((await loadRootTranslations(dir, true)).de).toEqual(folded.root.de)
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('broken.json'), expect.any(SyntaxError))
 })
 
 test('an explicit dir wins over translationDir; a missing or bad dir is reported, no dir only warns', async () => {
@@ -116,23 +117,26 @@ test('an explicit dir wins over translationDir; a missing or bad dir is reported
 })
 
 test('reload: the old dictionaries answer until the new ones are in, and a broken file replaces nothing else', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   const i18n = createI18n({ locale: 'en', translationDir: dir, missingWarn: false })
   await i18n.loadTranslations()
   const reload = i18n.reload()
   expect(i18n.t('title')).toBe('Site')
   await reload
   expect(i18n.t('title')).toBe('Site')
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('broken.json'), expect.any(SyntaxError))
 })
 
 test('reload: a directory gone for a moment takes no dictionary away', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
-  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   const i18n = createI18n({ locale: 'en', translationDir: dir, missingWarn: false })
   await i18n.loadTranslations()
   i18n.translationDir = join(dir, 'nope')
   await i18n.reload()
   expect(i18n.t('title')).toBe('Site')
+  expect(warn).toHaveBeenCalledExactlyOnceWith(`[i18n] Translation directory not found: ${join(dir, 'nope')}`)
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('broken.json'), expect.any(SyntaxError))
 })
 
 describe('requests', () => {

@@ -9,6 +9,7 @@ import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { reactive, readonly, ref, shallowRef } from 'vue'
 import { createMemoryHistory, createRouter, type RouteRecordRaw, type Router } from 'vue-router'
 import { createPathStrategy, DomainPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike } from '../src'
+import { expectOnlyCalls } from '../../../test/helpers/expect-only-calls'
 
 const LOCALES: Locale[] = [
   { code: 'en', displayName: 'English' },
@@ -269,6 +270,7 @@ describe('a route object in the router gives the URL of its path', () => {
     const escaped = i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'a b' } })
     expect(router.resolve({ ...escaped, params: { locale: 'fr', slug: 'other' } } as never).fullPath).toBe('/fr/blog/a%20b')
     expect(i18n.localeRoute('de', { ...escaped, params: { slug: 'other' } }).fullPath).toBe('/de/artikel/a%20b')
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('params but they will be ignored'))
   })
 
   test('a route with a trailing slash goes back through the strategy, from any page', () => {
@@ -388,6 +390,7 @@ describe('switchLocaleRoute', () => {
     // no record serves it: it stays the 404 it is
     expect(pxd.i18n.getClientRedirect('/no/page', 'de')).toBeNull()
     expect(pxd.i18n.getClientRedirect('/no/page', 'en')).toBeNull()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('No match found'))
   })
 
   test('baseUrl locales give absolute URLs; baseDefault drops the prefix', () => {
@@ -602,6 +605,7 @@ describe('server redirects and 404', () => {
     expect(pxd.getClientRedirect('/de/\\evil.example', 'en', { switchPrefixed: true })).toBe('/%5Cevil.example')
     expect(pxd.getClientRedirect('//evil.example', 'de')).toBe('/de//evil.example')
     expect(setup('prefix').i18n.getClientRedirect('/fr//evil.example/x', 'de', { switchPrefixed: true })).toBe('/de//evil.example/x')
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('cannot start with multiple slashes'))
   })
 })
 
@@ -1027,7 +1031,10 @@ describe('a router without routes (pages: false)', () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     // no record matches anything here, so every at() is vue-router's "No match" warning
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    onTestFinished(() => warn.mockRestore())
+    onTestFinished(() => {
+      expectOnlyCalls(warn, [/No match found/])
+      warn.mockRestore()
+    })
     return { router, i18n: createPathStrategy({ strategy, defaultLocale: 'en', locales: LOCALES, router }) }
   }
 

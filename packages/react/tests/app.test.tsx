@@ -2,11 +2,11 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { createRequire } from 'node:module'
-import { stderr } from 'node:process'
 import React from 'react'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
 import { createI18n, I18nGroup, I18nLink, I18nProvider, I18nSwitcher, I18nT, ReactI18n, useI18n } from '../src'
 import { createReactRouterAdapter } from '../src/router'
+import { leftToBrowser } from '../../../test/helpers/left-to-browser'
 
 // Same shape as packages/react/playground: three locales, English default, locale files loaded later.
 const locales = [
@@ -50,19 +50,11 @@ afterEach(() => {
 
 describe('React app over @i18n-micro/react', () => {
   test('hook outside the provider fails loudly', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const write = stderr.write.bind(stderr)
-    stderr.write = (() => true) as typeof stderr.write
     const Orphan = () => {
       useI18n()
       return null
     }
-    try {
-      expect(() => render(<Orphan />)).toThrow('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
-    } finally {
-      stderr.write = write
-      consoleSpy.mockRestore()
-    }
+    expect(() => render(<Orphan />)).toThrow('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
   })
 
   test('renderToString works: the hook has a server snapshot', () => {
@@ -430,9 +422,7 @@ describe('React app over @i18n-micro/react', () => {
       expect([probe.getLocales(), probe.getLocaleName()]).toEqual([[], null])
 
       // no router: an internal click is the browser's own full page load
-      const click = new MouseEvent('click', { bubbles: true, cancelable: true })
-      screen.getByText('prop').dispatchEvent(click)
-      expect(click.defaultPrevented).toBe(false)
+      expect(leftToBrowser(() => fireEvent.click(screen.getByText('prop')))).toBe(true)
       expect(assign).not.toHaveBeenCalled()
     } finally {
       Object.defineProperty(window, 'location', { configurable: true, value: original })

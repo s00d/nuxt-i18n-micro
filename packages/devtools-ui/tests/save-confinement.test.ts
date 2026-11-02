@@ -51,7 +51,6 @@ async function call(handler: Handler, method: string, url: string, body?: unknow
 }
 
 test('save writes an existing translation file and refuses anything outside translationDir', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
   const { root, routes } = project()
   const save = (file: string) => call(routes.get('/__i18n_api/save')!, 'POST', '/', { file, content: { hacked: true } })
 
@@ -75,7 +74,6 @@ test('save writes an existing translation file and refuses anything outside tran
 })
 
 test('the real target must be a regular .json file inside the project', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {})
   const { root, routes } = project()
   writeFileSync(join(root, 'locales/app.ts'), 'export {}')
   symlinkSync(join(root, 'locales/app.ts'), join(root, 'locales/alias.json'))

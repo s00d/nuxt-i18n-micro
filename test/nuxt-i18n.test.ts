@@ -68,14 +68,14 @@ describe('a fragment is not a loaded chunk', () => {
       if (down) throw Object.assign(new Error('503'), { status: 503 })
       return file()
     })
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     await i18n.mergeTranslationAsync('de', 'about', { extra: 'x' }, (locale, route) => loader.loadAsync(locale, route))
     expect(i18n.getChunk('de', 'about')).toEqual({ extra: 'x' })
     expect(i18n.hasChunk('de', 'about')).toBe(false)
     down = false
     await loader.switchContext('de', 'about')
     expect(['title', 'extra'].map((key) => i18n.t(key))).toEqual(['from file', 'x'])
+    expect(warn).toHaveBeenCalledExactlyOnceWith('[i18n] Translation load failed:', 'de', 'about')
     vi.restoreAllMocks()
   })
 })
@@ -412,6 +412,7 @@ describe('NuxtTranslationLoader: reload', () => {
     try {
       await expect(start(false)).resolves.toBe(true)
       await expect(start(true)).rejects.toThrow('Translation load failed: en about')
+      expect(warn).toHaveBeenCalledWith('[i18n] Translation load failed:', 'en', 'about')
     } finally {
       vi.unstubAllGlobals()
       warn.mockRestore()
@@ -433,6 +434,7 @@ describe('NuxtTranslationLoader: reload', () => {
       expect(translationStorage.getFromCache('en', 'about')).toBeNull()
       expect(first.i18n.hasChunk('en', 'about')).toBe(false)
       await expect(start(true).done).rejects.toThrow('Translation load failed: en about')
+      expect(warn).toHaveBeenCalledWith('[i18n] Translation load failed:', 'en', 'about')
     } finally {
       vi.unstubAllGlobals()
       warn.mockRestore()
@@ -446,6 +448,7 @@ describe('NuxtTranslationLoader: reload', () => {
     try {
       await loader.reload()
       expect(i18n.t('title')).toBe('Hi')
+      expect(warn).toHaveBeenCalledExactlyOnceWith('[i18n] Translation load failed:', 'en', 'about')
     } finally {
       vi.unstubAllGlobals()
       warn.mockRestore()

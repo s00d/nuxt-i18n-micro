@@ -12,7 +12,7 @@ The defaults are tuned for a typical app: one JSON payload per page and locale, 
 
 - **One payload per page.** The build merges root, page and fallback-locale keys into `/_locales/<page>/<locale>/data.json`, so a page loads one file and `$t` is a single lookup.
 - **No dictionary in the HTML.** SSR keeps translations in server memory; the browser fetches the payload instead of parsing it from `__NUXT_DATA__`.
-- **Browser cache.** `?v=` changes only when translations do, so a browser keeps its payloads across deploys that did not touch them. The static copy costs one conditional request per navigation. The server route answers `immutable` for a year ([Deployment](/guide/deployment#cache-headers-and-datebuild)).
+- **Browser cache.** `?v=` changes only when translations do, so a browser keeps its payloads across deploys that did not touch them. A host's static copy is fresh for 60 seconds and revalidates in the background after that, so a repeat load waits for no request. The server route answers `immutable` for a year ([Deployment](/guide/deployment#cache-headers-and-datebuild)).
 - **Bounded server memory.** The server caches at most 1000 payloads by default and drops the least recently used.
 
 ## Split translations by page
@@ -38,11 +38,11 @@ export default defineNuxtConfig({
 
 ## Server caches
 
-| Setting | Default | Effect |
-| --- | --- | --- |
-| [`cacheMaxSize`](/api/module-options#cachemaxsize) | `0` | Max entries in the payload caches. `0` = no limit in the browser, 1000 on the server. |
-| [`cacheTtl`](/api/module-options#cachettl) | `0` | Seconds before a cached entry is reloaded. `0` = never; set it when payloads come from `apiBaseServerHost` and change without a redeploy. |
-| `serverTranslationPreload` | `false` | Load the `index` payload in the Nitro middleware for every page request, so server helpers and the home page reuse it. |
+| Setting                                            | Default | Effect                                                                                                                                    |
+| -------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [`cacheMaxSize`](/api/module-options#cachemaxsize) | `0`     | Max entries in the payload caches. `0` = no limit in the browser, 1000 on the server.                                                     |
+| [`cacheTtl`](/api/module-options#cachettl)         | `0`     | Seconds before a cached entry is reloaded. `0` = never; set it when payloads come from `apiBaseServerHost` and change without a redeploy. |
+| `serverTranslationPreload`                         | `false` | Load the `index` payload in the Nitro middleware for every page request, so server helpers and the home page reuse it.                    |
 
 Lower `cacheMaxSize` on a small instance with many pages × locales. Locally edited translations never need a TTL: dev reads files live, production payloads change only with a deploy.
 
@@ -56,10 +56,10 @@ It costs headroom: with a memory limit below that level and no heap cap, the pro
 NODE_OPTIONS=--max-old-space-size=512 node .output/server/index.mjs
 ```
 
-| 100k keys, 12 locales, 5 to 30 minutes of load | Default | `--max-old-space-size=512` |
-| --- | --- | --- |
-| RSS under load | about 1,150 MB | 254-287 MB |
-| Requests per second | 624 | 517-572 |
+| 100k keys, 12 locales, 5 to 30 minutes of load | Default        | `--max-old-space-size=512` |
+| ---------------------------------------------- | -------------- | -------------------------- |
+| RSS under load                                 | about 1,150 MB | 254-287 MB                 |
+| Requests per second                            | 624            | 517-572                    |
 
 So the cap trades 8 to 10 % of throughput for the memory. A catalog of ordinary size has a smaller heap and a smaller step. These runs were on macOS with Node 22, not in a container.
 
@@ -77,13 +77,13 @@ With several instances of one build, [`cacheStorage`](/api/module-options#caches
 
 A cold dictionary, one client, one walk each, so rough, and most of it is the distance to the host:
 
-| Store | From the host | From the store |
-| --- | --- | --- |
-| Cloudflare KV | about 300 ms | about 110 ms |
-| D1 | about 230 ms | about 115 ms |
-| Deno KV | about 430 ms | about 100 ms |
-| Upstash, Vercel serverless | about 445 ms | about 245 ms |
-| Upstash, Vercel Edge | about 505 ms | about 235 ms |
+| Store                      | From the host | From the store |
+| -------------------------- | ------------- | -------------- |
+| Cloudflare KV              | about 300 ms  | about 110 ms   |
+| D1                         | about 230 ms  | about 115 ms   |
+| Deno KV                    | about 430 ms  | about 100 ms   |
+| Upstash, Vercel serverless | about 445 ms  | about 245 ms   |
+| Upstash, Vercel Edge       | about 505 ms  | about 235 ms   |
 
 ### Redis
 
@@ -234,12 +234,12 @@ The repository tracks what the playground ships with `pnpm run budget:payload`; 
 
 Measured on `playground` across `/`, `/de`:
 
-| Measurement | Size |
-| --- | --- |
-| Translation sources on disk | 7.8 MB |
-| Served as separate payload files | 23.9 MB |
-| Largest inline `__NUXT_DATA__` | 0.4 KB |
-| Client assets | 624.4 KB |
+| Measurement                      | Size     |
+| -------------------------------- | -------- |
+| Translation sources on disk      | 7.8 MB   |
+| Served as separate payload files | 23.9 MB  |
+| Largest inline `__NUXT_DATA__`   | 0.4 KB   |
+| Client assets                    | 624.4 KB |
 
 The playground is a test bench with generated dictionaries of up to 100k keys, so these are not figures to expect from a real
 application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,

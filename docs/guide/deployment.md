@@ -108,7 +108,7 @@ NUXT_I18N_DOMAIN=example.com PUBLIC_DIR=sites/example.com npx nuxi generate
 
 Keep the folders outside `.output`: each run empties it. Absolute links to the other domains are not crawled. Without the variable, a build with a `baseUrl` locale warns and generates the build config, where those locales are links and get no pages. On a Node server the same variable pins the process to one domain, whatever `Host` says.
 
-A static host applies its own headers to these files; set caching in the host's config. The module's `/_locales/*` rule does reach Cloudflare Pages through `_headers` and Vercel through `config.json`, as `public, max-age=0, must-revalidate`. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
+A static host applies its own headers to these files; set caching in the host's config. The module's `/_locales/*` rule does reach Cloudflare Pages through `_headers` and Vercel through `config.json`, as `public, max-age=60, stale-while-revalidate=86400`. To ship `.gz` / `.br` siblings, turn on `nitro.compressPublicAssets` — the module compresses the payload copy with the same settings.
 
 ## Cache headers and dateBuild
 
@@ -145,13 +145,13 @@ A failed fetch from a host (anything but a 404), an unreadable or corrupt file, 
 
 Such a page is a 200, so an `swr` or `cache` route rule, and a CDN, keeps its raw keys for their TTL: the module cannot mark that response. Requests during an outage each reach the host, with no timeout of the module's own.
 
-A 404 from the host means it has no such file, which is not a failure. A page render shows the root dictionary, as the browser does, and `/_locales/...` answers `{}`. No cache keeps either, so a file that appears is read on the next request, at the cost of one request to the host per render of such a page. With no root file either the dictionary is empty, and a [prerender](/guide/upgrade#server-build-and-deployment) fails.
+A 404 from the host means it has no such file, which is not a failure. A page render shows the root dictionary, as the browser does, and `/_locales/...` answers the same 404. No cache keeps either, so a file that appears is read on the next request, at the cost of one request to the host per render of such a page. With no root file either the dictionary is empty, and a [prerender](/guide/upgrade#server-build-and-deployment) fails.
 
 The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSize` entries (1000 by default) that reloads an entry after `cacheTtl` when set; [Performance tuning](/guide/performance) covers both, and [`cacheStorage`](/guide/performance#shared-cache-for-several-instances) adds a cache shared by instances. Do not add a Nitro `cache` route rule on `/_locales/**` on top: it keys by full URL, query included, and stores a third copy.
 
 ## App baseURL and payload hosts
 
-With `app.baseURL: '/shop/'` the browser fetches `/shop/_locales/...`; the copy stays in `.output/public/_locales/`, which Nitro serves under the base (a static host must mount the output at `/shop/`). Nothing else to set. Locale prefixes and [excluded paths](/guide/excluding-static-files) are matched without the base. `app.cdnURL` moves Nuxt's assets, not the payloads: they stay on the app's origin.
+With `app.baseURL: '/shop/'` the browser fetches `/shop/_locales/...`; the copy stays in `.output/public/_locales/`, which Nitro serves under the base (a static host must mount the output at `/shop/`). Nothing else to set. Locale prefixes and [excluded paths](/guide/excluding-static-files) are matched without the base. `app.cdnURL` moves the payloads too, when they are files in `public/`: the browser fetches and preloads `<cdnURL>/_locales/...`. The CDN must then hold `_locales/` beside `_nuxt/`, at that path, and allow your site's origin (CORS), as the file arrives by `fetch`. A dictionary only the server route answers (`source` mode, no public copy) stays on the app's origin.
 
 A runtime `NUXT_APP_BASE_URL` on `cloudflare-module` needs Node compatibility (`nodejs_compat`). With `nitro.cloudflare.nodeCompat` off, which Nitro also falls to on an old date with no flag, it does not see the variable and serves `/`, plain Nuxt included, while a locale redirect still goes to the base. Set `app.baseURL` at build there.
 

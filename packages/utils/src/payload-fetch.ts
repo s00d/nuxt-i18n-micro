@@ -7,7 +7,7 @@ export type TranslationPayloadFetcher = <T>(
   options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache; timeout?: number },
 ) => Promise<T>
 
-/** A host that never answers must not hold a page, and the chunk's load every next page waits on. Twice with the fetcher's one retry. */
+/** A host that never answers must not hold a page, and the load every next page waits on. Until the headers only: a slow body has no limit. */
 const HOST_TIMEOUT_MS = 15_000
 
 export interface TranslationPayloadHostConfig {

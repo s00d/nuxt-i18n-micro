@@ -53,8 +53,11 @@ describe('root + delta in a browser', () => {
     await page.locator('#switch-de').click()
     await expect(page.locator('#locale')).toHaveText('en')
     failing = false
-    await page.locator('#switch-de').click()
-    await expect(page.locator('#locale')).toHaveText('de')
+    // a click during the failed load joins it, so the test clicks until a click starts its own
+    await expect(async () => {
+      await page.locator('#switch-de').click()
+      await expect(page.locator('#locale')).toHaveText('de', { timeout: 500 })
+    }).toPass()
   })
 
   test('$clearCache brings root and delta back', async ({ page, goto }) => {

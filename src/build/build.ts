@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto'
-import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import fs, { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { globby } from 'globby'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeOverRoot, mergeSourceTranslations, PREMERGED_ROOT_MARK, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
+import { readTranslationFile } from '../runtime/server/internal/translation-watcher'
 
 export interface PreMergeLocaleInfo {
   code: string
@@ -25,7 +26,7 @@ export function mergeAdditionalRootLocaleFiles(
   let content: Record<string, unknown> = {}
   for (const dirName of additionalDirNames) {
     for (const rootDir of rootDirs) {
-      content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(rootDir, dirName, `${locale}.json`)))
+      content = deepMergeTranslationsRecursive(content, readTranslationFile(join(rootDir, dirName, `${locale}.json`)))
     }
   }
 
@@ -112,7 +113,7 @@ export async function preMergeLocales(
   const merged = new Map<string, Record<string, unknown>>()
   for (const file of allFiles) {
     let content: Record<string, unknown> = {}
-    for (const lp of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(lp, file)))
+    for (const lp of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationFile(join(lp, file)))
     merged.set(file, content)
   }
   for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs ?? []))
@@ -156,32 +157,6 @@ export async function preMergeLocales(
 }
 
 /**
- * A locale JSON file as an object: missing is `{}`; broken JSON warns with the path and is `{}`
- * (one bad file must not silently empty a dictionary, nor crash dev).
- */
-export function readTranslationJsonFile(filePath: string): Record<string, unknown> {
-  if (!existsSync(filePath)) return {}
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
-  } catch (error) {
-    return skip(filePath, (error as Error).message)
-  }
-  // `null`, arrays and scalars are valid JSON but no dictionary
-  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return skip(filePath, 'not a JSON object')
-  return parsed as Record<string, unknown>
-}
-
-function skip(filePath: string, reason: string): Record<string, unknown> {
-  if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${reason}`)
-  WARNED.add(filePath)
-  return {}
-}
-
-/** Broken files already reported: once per path, not once per read. */
-const WARNED = new Set<string>()
-
-/**
  * Merge translation layers at build time but keep the source directory shape.
  */
 export async function buildTranslationSourceLayers(
@@ -210,7 +185,7 @@ export async function buildTranslationSourceLayers(
 
   for (const file of allFiles) {
     let content: Record<string, unknown> = {}
-    for (const layerPath of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationJsonFile(join(layerPath, file)))
+    for (const layerPath of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationFile(join(layerPath, file)))
 
     if (dirname(file) === '.') {
       const locale = file.slice(0, -'.json'.length)

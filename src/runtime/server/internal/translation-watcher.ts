@@ -29,8 +29,8 @@ export interface HandleTranslationWatchChangeInput {
 }
 
 /**
- * A locale file as an object: `{}` when missing; broken JSON warns with the path and is `{}`,
- * like `readTranslationJsonFile` in the build (not imported: that module pulls in globby).
+ * A locale file as an object: `{}` when missing; broken JSON warns with the path and is `{}`
+ * (one bad file must not silently empty a dictionary, nor crash dev).
  */
 export function readTranslationFile(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {}

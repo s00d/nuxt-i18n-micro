@@ -65,10 +65,11 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   return cached(`${locale}:${page}`, () => readChunk(locale, page, config))
 }
 
-/** A loaded chunk, or one not to store under this key: another key's, or `NO_FILE`. */
+/** A loaded chunk, or one not to store under this key: another key's, or `NO_FILE`. `partial`: stored nowhere, a delta with no root under it. */
 interface Loaded {
   entry: ServerTranslationCacheEntry
   shared?: true
+  partial?: true
 }
 
 /** One cache entry per key, one in-flight load per key. */
@@ -104,8 +105,8 @@ async function readThroughShared(key: string, locale: string, page: string, conf
   const hit = await readSharedChunk(key)
   if (hit) return { entry: hit }
   const loaded = await load(locale, page, config)
-  const { entry, shared } = loaded
-  if (entry === NO_FILE) return loaded
+  const { entry, shared, partial } = loaded
+  if (entry === NO_FILE || partial) return loaded
   // kept locally even when it is the root entry: a page with no folder must not pay a storage round trip per request
   if (shared) return { entry }
   const json = JSON.stringify(entry.data)
@@ -179,5 +180,7 @@ async function settle(locale: string, page: string, file: Record<string, unknown
     root = await rootChunk(locale, config)
   }
   const merged = mergeOverRoot(root.data, file)
-  return { entry: merged === root.data ? root : toEntry(merged) }
+  const entry = merged === root.data ? root : toEntry(merged)
+  // a root the host has not got yet (a deploy in progress): what this request shows, not a dictionary to keep
+  return root === NO_FILE ? { entry, shared: true, partial: true } : { entry }
 }

@@ -95,6 +95,20 @@ test('a payload host: its delta merges too, and a root older than the delta goes
   expect((await load('en', 'b')).data).toEqual({ nav: 'new', y: 2 })
 })
 
+test('a delta on a root the host has not got is kept nowhere: the next request reads again', async () => {
+  const hosted: Record<string, unknown> = { a: { x: 1, [MARK]: 'r' } }
+  vi.stubGlobal('$fetch', async (path: string) => {
+    const file = hosted[path.split('/')[2]!]
+    if (!file) throw Object.assign(new Error('404'), { status: 404 })
+    return structuredClone(file)
+  })
+  vi.stubEnv('NUXT_I18N_APP_BASE_SERVER_HOST', 'https://host.test')
+  const load = await instance()
+  expect((await load('en', 'a')).data).toEqual({ x: 1 })
+  hosted.__root = { nav: 'root', [MARK]: 'r' }
+  expect((await load('en', 'a')).data).toEqual({ nav: 'root', x: 1 })
+})
+
 test('a host with whole files keeps working, no root asked', async () => {
   const asked: string[] = []
   vi.stubGlobal('$fetch', async (path: string) => {

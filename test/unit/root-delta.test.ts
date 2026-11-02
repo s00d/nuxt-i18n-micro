@@ -199,6 +199,14 @@ describe('a browser', () => {
     expect(calls.filter((call) => call.path.includes('__root'))).toHaveLength(1)
   })
 
+  test('a delta on a root the host has not got is kept nowhere: the next load reads again', async () => {
+    const files: Record<string, unknown> = { about: { title: 'page', [mark]: 'r' } }
+    host(files)
+    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ title: 'page' })
+    files.__root = { nav: 'root', [mark]: 'r' }
+    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ nav: 'root', title: 'page' })
+  })
+
   test('a stale tab: a new delta on the root it holds asks for the new root, by a URL no cache has', async () => {
     const files: Record<string, unknown> = { __root: { nav: 'old', [mark]: 'r1' }, a: { x: 1, [mark]: 'r1' } }
     const calls = host(files)

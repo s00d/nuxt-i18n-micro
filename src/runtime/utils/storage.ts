@@ -7,6 +7,9 @@ import { mergeOverRoot, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-sour
 import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
+/** What a root file the host has not got loads as. By identity: a host's own empty root is a dictionary. */
+const NO_ROOT: Record<string, unknown> = Object.freeze({})
+
 export interface LoadOptions {
   apiBaseUrl: string
   baseURL: string
@@ -173,7 +176,8 @@ class TranslationStorage {
     root?.catch(() => {})
     const file = await this.fetchChunk(locale, routeName, options)
     const mark = file ? takeRootMark(file) : undefined
-    const data = file && mark && page ? await this.layered(locale, mark, file, root, options) : file
+    const layers = file && mark && page ? await this.layered(locale, mark, file, root, options) : null
+    const data = layers ? layers.data : file
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
     if (!page) this.rootMarks.set(locale, mark)
     // No file: the page shows the root dictionary, as the server route does for a build's own pages, and no root file either
@@ -183,11 +187,12 @@ class TranslationStorage {
     if (data === null && routeName === PREMERGED_ROOT_PAGE) {
       // a request can show raw keys and retry; a written file keeps them, so this counts as a failed load
       if (import.meta.server && import.meta.prerender) throw new Error('[i18n] The host has no dictionary for this page')
-      return { data: Object.freeze({}), cacheKey }
+      return { data: NO_ROOT, cacheKey }
     }
     if (data === null) return { ...(await this.load(locale, PREMERGED_ROOT_PAGE, options)), cacheKey }
 
-    if (!direct) this.cc.set(cacheKey, this.shared(data))
+    // a delta with no root under it is not a dictionary: a deploy in progress, the next load reads again
+    if (!direct && !layers?.partial) this.cc.set(cacheKey, this.shared(data))
 
     return { data, cacheKey }
   }
@@ -211,14 +216,14 @@ class TranslationStorage {
     delta: Record<string, unknown>,
     started: Promise<LoadResult> | undefined,
     options: LoadOptions,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<{ data: Record<string, unknown>; partial: boolean }> {
     let { data: root } = await (started ?? this.loadRoot(locale, options))
     const held = this.rootMarks.get(locale)
     if (held && held !== mark) {
       this.cc.delete(translationCacheKey(locale, PREMERGED_ROOT_PAGE))
       ;({ data: root } = await this.load(locale, PREMERGED_ROOT_PAGE, { ...options, dateBuild: mark }))
     }
-    return mergeOverRoot(root, delta)
+    return { data: mergeOverRoot(root, delta), partial: root === NO_ROOT }
   }
 
   /**

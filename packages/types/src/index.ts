@@ -738,18 +738,8 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   debug: boolean
   /** Resolved path to the translations directory. */
   translationDir: string
-  /** Resolved fallback locale code. */
-  fallbackLocale: string
-  /** Resolved translations API base URL. */
-  apiBaseUrl: string
-  /** Resolved client-side host override. */
-  apiBaseClientHost?: string
   /** Resolved server-side host override. */
   apiBaseServerHost?: string
-  /** Resolved custom regex matcher (RegExp is serialized to its `.source` string). */
-  customRegexMatcher?: string | RegExp
-  /** Resolved route-to-route translation sharing map. */
-  routesLocaleLinks?: { [key: string]: string }
   /** Preload index translations in Nitro global middleware. */
   serverTranslationPreload?: boolean
   /**

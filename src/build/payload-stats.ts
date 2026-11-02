@@ -11,12 +11,12 @@ import type { TranslationPayloadMode, TranslationPayloadStats } from './payload-
  * payload directory for the size warning, the per-layer sources for the fingerprint —
  * so they share the traversal, not the scan.
  */
-function collectJsonFiles(dir: string, out: string[]): void {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+function collectJsonFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = join(dir, entry.name)
-    if (entry.isDirectory()) collectJsonFiles(fullPath, out)
-    else if (entry.name.endsWith('.json')) out.push(fullPath)
-  }
+    if (entry.isDirectory()) return collectJsonFiles(fullPath)
+    return entry.name.endsWith('.json') ? [fullPath] : []
+  })
 }
 
 export function scanTranslationPayloadDirectory(dir: string): TranslationPayloadStats {

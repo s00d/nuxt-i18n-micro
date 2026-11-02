@@ -29,7 +29,6 @@ test('excludePatterns appears once: a minifier inlines the spread, and wrangler 
 })
 
 const privateConfig = {
-  rootDir: '/build/app',
   rootDirs: ['/build/app'],
   payloadFsDir: '/build/app/.nuxt/i18n-merged',
   debug: false,

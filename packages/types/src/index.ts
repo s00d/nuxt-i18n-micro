@@ -725,8 +725,6 @@ export interface ModuleOptionsExtend extends ModuleOptions {
  * Extends `ModuleOptions` with resolved root paths and directory info.
  */
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
-  /** Absolute path to the Nuxt project root directory. */
-  rootDir: string
   /** Nuxt's `buildId`: `cacheStorage` keys of two builds never meet. */
   cacheStorageBuild?: string
   /**

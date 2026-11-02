@@ -10,7 +10,7 @@ writeFileSync(join(root, 'locales/en.json'), '{"only":"en"}')
 writeFileSync(join(root, 'locales/de.json'), '{"own":"de"}')
 
 vi.mock('#i18n-internal/config', () => ({
-  getI18nPrivateConfig: () => ({ rootDir: root, rootDirs: [root], translationDir: 'locales' }),
+  getI18nPrivateConfig: () => ({ rootDirs: [root], translationDir: 'locales' }),
 }))
 
 describe('loadLiveDevTranslations', () => {

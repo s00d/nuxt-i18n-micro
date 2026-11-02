@@ -184,7 +184,6 @@ function buildPrivateConfig(
   payloadPublicRel: string,
 ) {
   return {
-    rootDir: nuxt.options.rootDir,
     rootDirs,
     debug: options.debug ?? false,
     locales: locales ?? [],

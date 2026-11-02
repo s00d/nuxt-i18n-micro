@@ -21,7 +21,7 @@ describe('fetchTranslationPayloadFromHost', () => {
     expect(fetcher).toHaveBeenCalledWith('/_locales/index/en/data.json', {
       baseURL: 'https://cdn.example.com',
       params: { v: 42 },
-      timeout: 15_000,
+      timeout: 60_000,
     })
   })
 

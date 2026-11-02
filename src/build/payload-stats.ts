@@ -23,9 +23,7 @@ export function scanTranslationPayloadDirectory(dir: string): TranslationPayload
   const stats: TranslationPayloadStats = { fileCount: 0, totalBytes: 0 }
   if (!existsSync(dir)) return stats
 
-  const files: string[] = []
-  collectJsonFiles(dir, files)
-  for (const file of files) {
+  for (const file of collectJsonFiles(dir)) {
     stats.fileCount += 1
     stats.totalBytes += statSync(file).size
   }
@@ -58,9 +56,7 @@ export function getEmbeddedPayloadSizeWarning(preset: string, dir: string, mode:
   // gzip only shrinks: most builds never pay for it
   if (totalBytes <= limit.bytes) return null
   if (limit.compressed) {
-    const files: string[] = []
-    collectJsonFiles(dir, files)
-    const gzipBytes = files.reduce((sum, file) => sum + gzipSync(readFileSync(file)).length, 0)
+    const gzipBytes = collectJsonFiles(dir).reduce((sum, file) => sum + gzipSync(readFileSync(file)).length, 0)
     if (gzipBytes <= limit.bytes) return null
     // decimal, as these limits are: 20.5 MB must not print as 19.5 next to a limit of 20
     return embeddedSizeMessage(preset, `${(gzipBytes / 1_000_000).toFixed(1)} MB gzip`, limit.text, mode)
@@ -108,9 +104,7 @@ export function hashTranslationSources(
 
   const hashDir = (dir: string) => {
     if (!existsSync(dir)) return
-    const files: string[] = []
-    collectJsonFiles(dir, files)
-    hashFiles(dir, files)
+    hashFiles(dir, collectJsonFiles(dir))
   }
 
   /** Only top-level `{locale}.json` — `pages/` under additional dirs is ignored by merge. */
@@ -156,11 +150,8 @@ export function compressTranslationPayloads(dir: string, compression: PublicAsse
   const brotli = compression === true || compression.brotli !== false
   if (!gzip && !brotli) return 0
 
-  const files: string[] = []
-  collectJsonFiles(dir, files)
-
   let compressed = 0
-  for (const file of files) {
+  for (const file of collectJsonFiles(dir)) {
     const raw = readFileSync(file)
     // Same floor Nitro applies to public assets: below it the compressed copy is
     // often bigger than the source, and diverging from `compressPublicAssets` would

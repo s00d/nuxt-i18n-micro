@@ -1,6 +1,6 @@
 import { joinURL } from 'ufo'
 import { defineNitroPlugin, useRuntimeConfig } from 'nitropack/runtime'
-import { setResponseHeader } from 'h3'
+import { removeResponseHeader, setResponseHeader } from 'h3'
 import { getI18nServerConfig } from '../utils/locale-detector'
 import { payloadCacheControl } from '../utils/payload-cache'
 
@@ -13,6 +13,8 @@ export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('beforeResponse', (event) => {
     prefix ??= `${joinURL(useRuntimeConfig().app.baseURL, getI18nServerConfig().apiBaseUrl ?? '_locales')}/`
     if (!event.path.startsWith(prefix) || event.node.res.statusCode >= 400) return
+    // the size is the build's and the body is today's: a file replaced in place would be cut, and a cut root is every page's
+    removeResponseHeader(event, 'Content-Length')
     const config = getI18nServerConfig(event)
     const cacheControl = config.httpCacheControl !== false && payloadCacheControl(event, config)
     if (cacheControl) setResponseHeader(event, 'Cache-Control', cacheControl)

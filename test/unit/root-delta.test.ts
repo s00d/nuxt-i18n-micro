@@ -94,7 +94,7 @@ describe('a build', () => {
       const root = JSON.parse(readFileSync(join(split, '__root', locale, 'data.json'), 'utf8')) as Tree
       takeRootMark(root)
       const mark = takeRootMark(data)
-      expect(mark ? overRoot(root, data) : data, file).toEqual(read(whole))
+      expect(mark ? overRoot(root, data) : data).toEqual(read(whole))
     }
     // the fallback chain's dropped key: en `about` turned `obj` into a string, and de's root makes it an object again
     if (!disablePageLocales) expect(list(split).length).toBe(list(whole).length)

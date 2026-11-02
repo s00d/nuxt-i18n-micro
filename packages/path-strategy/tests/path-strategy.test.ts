@@ -127,14 +127,14 @@ describe('localeRoute', () => {
     expect(i18n.localeRoute('de', { query: { a: 1 } }).fullPath).toBe('/de/no/such/page?a=1')
   })
 
-  test('a relative URL is read against the current route, every time', async () => {
+  test('a link with no path reads the current route every time, a bare path reads the root', async () => {
     const { i18n, router } = setup('prefix_except_default')
     for (const slug of ['1', '2']) {
       await router.push(`/blog/${slug}`)
       expect(i18n.localeRoute('en', '#top').fullPath).toBe(`/blog/${slug}#top`)
       expect(i18n.localeRoute('de', '?p=2').fullPath).toBe(`/de/artikel/${slug}?p=2`)
       expect(i18n.localeRoute('de', '').fullPath).toBe(`/de/artikel/${slug}`)
-      expect(i18n.localeRoute('en', 'x').fullPath).toBe('/blog/x')
+      expect(i18n.localeRoute('en', 'x').fullPath).toBe('/x')
     }
     await router.push('/page2')
     expect(i18n.localeRoute('en', 'blog/x').fullPath).toBe('/blog/x')

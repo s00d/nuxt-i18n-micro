@@ -434,8 +434,10 @@ export class I18nPathStrategy {
     let input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : ownName(routeOrPath)
     const written = input.path ?? ''
-    // `#top`, `about`, `{ query }`: only the router knows the current route. On a 404 an object has no record to go by
-    if (!name && written[0] !== '/' && !isAbsoluteUrl(written)) input = { ...input, path: (this.probe(input) ?? this.probe(''))?.path }
+    // `#top`, `?p=2`, `{ query }`: only the router knows the current route. On a 404 an object has no record to go by
+    if (!name && !written) input = { ...input, path: (this.probe(input) ?? this.probe(''))?.path }
+    // a bare `about` is a page of the site, on any page
+    else if (!name && written[0] !== '/' && !isAbsoluteUrl(written)) input = { ...input, path: `/${written}` }
     let target: Target | null = null
     if (name) {
       const key = named(name)

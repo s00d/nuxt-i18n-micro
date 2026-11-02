@@ -19,7 +19,7 @@ export interface ResolvedRouteLike extends RouteLike {
   path: string
   fullPath: string
   /** Matched records (vue-router routes have them): an unnamed route that matched is not a 404. */
-  matched?: unknown[]
+  matched?: RouteRecordLike[]
 }
 
 /** What path-strategy reads from a vue-router record (`router.getRoutes()`). */
@@ -28,7 +28,7 @@ export interface RouteRecordLike {
   path: string
   meta?: Record<string, unknown>
   redirect?: unknown
-  aliasOf?: unknown
+  aliasOf?: { path: string }
 }
 
 /** `meta.i18n` that route-strategy puts on every localized record. */
@@ -39,7 +39,7 @@ export interface RouteI18nMeta {
   locales: string[]
   /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
   noMeta?: boolean | string[]
-  /** Under `prefix` with `redirects: false`: the path of a page with a custom default path. No URL, a link can still name the page by it. */
+  /** The path of a page with a custom default path, where it is no record of its own: a link can still name the page by it. */
   original?: string
   /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. */
   paths?: Record<string, string>

@@ -38,6 +38,19 @@ describe('J2 strategies: prefix_except_default', () => {
     expect(bad.html).toMatch(/id="content"[^>]*>\s*en\s*</)
   })
 
+  test('PEC-T4 a declared alias stays a URL of its own', async ({ page, goto, request }) => {
+    // step 1: both forms answer 200 where they are, no redirect to the main path
+    for (const path of ['/not-linked', '/de/not-linked']) {
+      const res = await request.get(path, { maxRedirects: 0 })
+      expect(res.status()).toBe(200)
+    }
+
+    // step 2: the client keeps it too
+    await goto('/not-linked', { waitUntil: 'hydration' })
+    await expect(page).toHaveURL('/not-linked')
+    await expect(page.locator('#content')).toHaveText('en')
+  })
+
   // was: locale-state-prefix-except-default › *
   test('PEC-T2 forced locale: / redirects to /ru', async ({ page, goto }) => {
     await forcedLocale(page, goto, '/ru')

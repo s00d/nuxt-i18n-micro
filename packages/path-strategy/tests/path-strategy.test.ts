@@ -101,6 +101,7 @@ function setup(
       params: r.params,
       query: r.query,
       hash: r.hash,
+      matched: r.matched,
     }
   }
   const create = locales.some((l) => l.baseUrl) ? (context: PathStrategyContext) => new DomainPathStrategy(context) : createPathStrategy
@@ -115,6 +116,80 @@ function setup(
 }
 
 describe('localeRoute', () => {
+  test('a location with no path is read against the current route', async () => {
+    const { i18n, router } = setup('prefix_except_default', {}, LOCALES, { pages: PAGES.slice(0, -1) })
+    await router.push('/blog/1')
+    expect(i18n.localeRoute('en', { query: { page: 2 } }).fullPath).toBe('/blog/1?page=2')
+    expect(i18n.localeRoute('de', { query: { a: 1 } }).fullPath).toBe('/de/artikel/1?a=1')
+    expect(i18n.localeRoute('en', { hash: '#x' }).fullPath).toBe('/blog/1#x')
+    expect(i18n.localeRoute('en', { params: { slug: '9' } }).fullPath).toBe('/blog/9')
+    await router.push('/no/such/page')
+    expect(i18n.localeRoute('de', { query: { a: 1 } }).fullPath).toBe('/de/no/such/page?a=1')
+  })
+
+  test('a relative URL is read against the current route, every time', async () => {
+    const { i18n, router } = setup('prefix_except_default')
+    for (const slug of ['1', '2']) {
+      await router.push(`/blog/${slug}`)
+      expect(i18n.localeRoute('en', '#top').fullPath).toBe(`/blog/${slug}#top`)
+      expect(i18n.localeRoute('de', '?p=2').fullPath).toBe(`/de/artikel/${slug}?p=2`)
+      expect(i18n.localeRoute('de', '').fullPath).toBe(`/de/artikel/${slug}`)
+      expect(i18n.localeRoute('en', 'x').fullPath).toBe('/blog/x')
+    }
+    await router.push('/page2')
+    expect(i18n.localeRoute('en', 'blog/x').fullPath).toBe('/blog/x')
+    expect(i18n.getRouteBaseName({ path: 'admin' })).toBe(null)
+  })
+
+  test('a declared alias stays that URL, under every strategy', () => {
+    const pages = [...PAGES, { path: '/legal', name: 'legal', file: 'pages/legal.vue', alias: ['/imprint'] }]
+    const links = (strategy: Strategies) => {
+      const { i18n } = setup(strategy, {}, LOCALES, { pages })
+      return [i18n.localeRoute('en', '/imprint').fullPath, i18n.localeRoute('de', '/imprint').fullPath, i18n.getClientRedirect('/imprint', 'de')]
+    }
+    expect(links('prefix_except_default')).toEqual(['/imprint', '/de/imprint', '/de/imprint'])
+    expect(links('prefix')).toEqual(['/en/imprint', '/de/imprint', '/de/imprint'])
+    expect(links('prefix_and_default')).toEqual(['/en/imprint', '/de/imprint', null])
+    expect(links('no_prefix')).toEqual(['/imprint', '/imprint', null])
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages })
+    expect(i18n.getClientRedirect('/imprint', 'en')).toBe(null)
+    // ours, not the app's: the original URL of a custom path moves
+    expect(i18n.getClientRedirect('/about', 'en')).toBe('/about-us')
+  })
+
+  test('an alias URL a locale does not serve is the page of that locale', () => {
+    const pages = [
+      {
+        path: '/docs',
+        name: 'docs',
+        file: 'pages/docs.vue',
+        alias: ['/documentation'],
+        children: [{ path: 'intro', name: 'docs-intro', file: 'pages/docs/intro.vue' }],
+      },
+    ]
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages, rules: { 'docs/intro': { de: 'einfuehrung' } } })
+    expect(i18n.localeRoute('de', '/documentation/intro').fullPath).toBe('/de/docs/einfuehrung')
+    expect(i18n.localeRoute('fr', '/documentation/intro').fullPath).toBe('/fr/documentation/intro')
+  })
+
+  test('prefix_and_default: a custom path in every locale, by the original path', () => {
+    const { i18n } = setup('prefix_and_default')
+    expect(i18n.localeRoute('de', '/page2').fullPath).toBe('/de/custom-page2-de')
+  })
+
+  test('no_prefix: a catch-all URL named like a locale stays', () => {
+    const { i18n } = setup('no_prefix')
+    expect(i18n.localeRoute('en', '/en').fullPath).toBe('/en')
+    expect(i18n.localeRoute('de', '/de').fullPath).toBe('/de')
+  })
+
+  test('prefix: an unlocalized child is served under the prefix of its parent', () => {
+    const pages = [{ path: '/parent', name: 'parent', file: 'p.vue', children: [{ path: 'kid', name: 'parent-kid', file: 'k.vue' }] }]
+    const { at } = setup('prefix', {}, LOCALES, { pages, rules: { 'parent-kid': false } })
+    expect(at('/en/parent/kid').name).toBe('parent-kid')
+    expect(at('/de/parent/kid').name).toBe('parent-kid')
+  })
+
   test('a resolved localized route is that page in the target locale', () => {
     const { i18n, at, url } = setup('prefix')
     const route = at('/de/konto/bestellungen/7?tab=1')

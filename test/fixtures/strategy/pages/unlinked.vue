@@ -7,4 +7,6 @@ import { useNuxtApp } from '#imports'
 
 // no page links here: generate has to find it without the crawler
 const { $t } = useNuxtApp()
+
+definePageMeta({ alias: '/not-linked' })
 </script>

@@ -84,44 +84,44 @@ Every URL is resolved with `?q=1#top`.
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
 | / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
-| /%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | /about | en,fr,de |
+| /%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /%C3%BCber?q=1#top [—] | null | null | en,fr,de |
 | /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,fr,de |
 | /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
-| /company | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | /about | en,fr,de |
+| /company | /about?q=1#top [about] |  | /about?q=1#top [about] | /company?q=1#top [about] | null | null | en,fr,de |
 | /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
-| /de/%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /de/%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /%C3%BCber?q=1#top [—] | null | /%C3%BCber | en,fr,de |
 | /de/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
-| /de/company | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /de/company | /about?q=1#top [about] |  | /about?q=1#top [about] | /company?q=1#top [about] | null | /company | en,fr,de |
 | /de/docs | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | null | /docs | en,fr,de |
 | /de/docs/einfuehrung | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | null | /docs/intro | en,fr,de |
-| /de/documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | null | /docs | en,fr,de |
+| /de/documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /documentation?q=1#top [docs] | null | /documentation | en,fr,de |
 | /de/documentation/einfuehrung | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | null | /docs/intro | en,fr,de |
 | /de/help | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | null | /help | en,de,fr |
-| /de/news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
-| /de/support | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | null | /help | en,de,fr |
+| /de/news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /news/hello-world?q=1#top [blog-slug] | null | /news/hello-world | en,de,fr |
+| /de/support | /help?q=1#top [help] |  | /help?q=1#top [help] | /support?q=1#top [help] | null | /support | en,de,fr |
 | /de/ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
-| /de/über | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /de/über | /about?q=1#top [about] |  | /about?q=1#top [about] | /über?q=1#top [about] | null | /über | en,fr,de |
 | /docs | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | null | null | en,fr,de |
 | /docs/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | null | null | en,fr,de |
-| /documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | /docs | /docs | en,fr,de |
-| /documentation/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | /docs/intro | /docs/intro | en,fr,de |
+| /documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /documentation?q=1#top [docs] | null | null | en,fr,de |
+| /documentation/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /documentation/intro?q=1#top [docs-intro] | null | null | en,fr,de |
 | /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
-| /fr/%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /fr/%C3%BCber | /about?q=1#top [about] |  | /about?q=1#top [about] | /%C3%BCber?q=1#top [—] | null | /%C3%BCber | en,fr,de |
 | /fr/about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
 | /fr/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
-| /fr/company | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /fr/company | /about?q=1#top [about] |  | /about?q=1#top [about] | /company?q=1#top [about] | null | /company | en,fr,de |
 | /fr/docs | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | null | /docs | en,fr,de |
 | /fr/docs/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | null | /docs/intro | en,fr,de |
-| /fr/documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /docs?q=1#top [docs] | null | /docs | en,fr,de |
-| /fr/documentation/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /docs/intro?q=1#top [docs-intro] | null | /docs/intro | en,fr,de |
+| /fr/documentation | /docs?q=1#top [docs] |  | /docs?q=1#top [docs] | /documentation?q=1#top [docs] | null | /documentation | en,fr,de |
+| /fr/documentation/intro | /docs/intro?q=1#top [docs-intro] |  | /docs/intro?q=1#top [docs-intro] | /documentation/intro?q=1#top [docs-intro] | null | /documentation/intro | en,fr,de |
 | /fr/help | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | null | /help | en,de,fr |
-| /fr/news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | /blog/hello-world | en,de,fr |
-| /fr/support | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | null | /help | en,de,fr |
-| /fr/über | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | /about | en,fr,de |
+| /fr/news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /news/hello-world?q=1#top [blog-slug] | null | /news/hello-world | en,de,fr |
+| /fr/support | /help?q=1#top [help] |  | /help?q=1#top [help] | /support?q=1#top [help] | null | /support | en,de,fr |
+| /fr/über | /about?q=1#top [about] |  | /about?q=1#top [about] | /über?q=1#top [about] | null | /über | en,fr,de |
 | /help | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | null | null | en,de,fr |
-| /news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | /blog/hello-world | en,de,fr |
-| /support | /help?q=1#top [help] |  | /help?q=1#top [help] | /help?q=1#top [help] | /help | /help | en,de,fr |
-| /über | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | /about | en,fr,de |
+| /news/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /news/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
+| /support | /help?q=1#top [help] |  | /help?q=1#top [help] | /support?q=1#top [help] | null | null | en,de,fr |
+| /über | /about?q=1#top [about] |  | /about?q=1#top [about] | /über?q=1#top [about] | null | null | en,fr,de |
 | /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
 | /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
@@ -137,44 +137,44 @@ Every URL is resolved with `?q=1#top`.
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
 | / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de | /de | en,de,fr |
-| /%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns | /de/ueber-uns | en,fr,de |
+| /%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/%C3%BCber?q=1#top [—] | /de/%C3%BCber | /de/%C3%BCber | en,fr,de |
 | /about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns | /de/ueber-uns | en,fr,de |
 | /blog/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world | /de/blog/hello-world | en,de,fr |
-| /company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns | /de/ueber-uns | en,fr,de |
+| /company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/company?q=1#top [localized-about-de] | /de/company | /de/company | en,fr,de |
 | /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
-| /de/%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /de/%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/%C3%BCber?q=1#top [—] | null | null | en,fr,de |
 | /de/blog/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
-| /de/company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /de/company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/company?q=1#top [localized-about-de] | null | null | en,fr,de |
 | /de/docs | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | null | null | en,fr,de |
 | /de/docs/einfuehrung | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | null | null | en,fr,de |
-| /de/documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | null | null | en,fr,de |
-| /de/documentation/einfuehrung | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | null | null | en,fr,de |
+| /de/documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/documentation?q=1#top [localized-docs-de] | null | null | en,fr,de |
+| /de/documentation/einfuehrung | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/documentation/einfuehrung?q=1#top [localized-docs-intro-de] | null | null | en,fr,de |
 | /de/help | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | null | null | en,de,fr |
-| /de/news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
-| /de/support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | null | null | en,de,fr |
+| /de/news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/news/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
+| /de/support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/support?q=1#top [localized-help] | null | null | en,de,fr |
 | /de/ueber-uns | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
-| /de/über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /de/über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/über?q=1#top [localized-about-de] | null | null | en,fr,de |
 | /docs | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | /de/docs | /de/docs | en,fr,de |
 | /docs/intro | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung | /de/docs/einfuehrung | en,fr,de |
-| /documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | /de/docs | /de/docs | en,fr,de |
+| /documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/documentation?q=1#top [localized-docs-de] | /de/documentation | /de/documentation | en,fr,de |
 | /documentation/intro | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung | /de/docs/einfuehrung | en,fr,de |
 | /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
-| /fr/%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
+| /fr/%C3%BCber | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/%C3%BCber?q=1#top [—] | null | /de/%C3%BCber | en,fr,de |
 | /fr/about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
 | /fr/blog/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | null | /de/blog/hello-world | en,de,fr |
-| /fr/company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
+| /fr/company | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/company?q=1#top [localized-about-de] | null | /de/company | en,fr,de |
 | /fr/docs | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | null | /de/docs | en,fr,de |
 | /fr/docs/intro | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | null | /de/docs/einfuehrung | en,fr,de |
-| /fr/documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/docs?q=1#top [localized-docs-de] | null | /de/docs | en,fr,de |
+| /fr/documentation | /de/docs?q=1#top [localized-docs-de] |  | /de/docs?q=1#top [localized-docs-de] | /de/documentation?q=1#top [localized-docs-de] | null | /de/documentation | en,fr,de |
 | /fr/documentation/intro | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] |  | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | /de/docs/einfuehrung?q=1#top [localized-docs-intro-de] | null | /de/docs/einfuehrung | en,fr,de |
 | /fr/help | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | null | /de/help | en,de,fr |
-| /fr/news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | null | /de/blog/hello-world | en,de,fr |
-| /fr/support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | null | /de/help | en,de,fr |
-| /fr/über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
+| /fr/news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/news/hello-world?q=1#top [localized-blog-slug] | null | /de/news/hello-world | en,de,fr |
+| /fr/support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/support?q=1#top [localized-help] | null | /de/support | en,de,fr |
+| /fr/über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/über?q=1#top [localized-about-de] | null | /de/über | en,fr,de |
 | /help | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | /de/help | /de/help | en,de,fr |
-| /news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world | /de/blog/hello-world | en,de,fr |
-| /support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/help?q=1#top [localized-help] | /de/help | /de/help | en,de,fr |
-| /über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns | /de/ueber-uns | en,fr,de |
+| /news/hello-world | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/blog/hello-world-de?q=1#top [localized-blog-slug] | /de/blog/hello-world?q=1#top [localized-blog-slug] | /de/news/hello-world?q=1#top [localized-blog-slug] | /de/news/hello-world | /de/news/hello-world | en,de,fr |
+| /support | /de/help?q=1#top [localized-help] |  | /de/help?q=1#top [localized-help] | /de/support?q=1#top [localized-help] | /de/support | /de/support | en,de,fr |
+| /über | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/über?q=1#top [localized-about-de] | /de/über | /de/über | en,fr,de |
 | /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
 | /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
 | /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
@@ -190,44 +190,44 @@ Every URL is resolved with `?q=1#top`.
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
 | / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | /fr | en,de,fr |
-| /%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /fr/about | /fr/about | en,fr,de |
+| /%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/%C3%BCber?q=1#top [—] | /fr/%C3%BCber | /fr/%C3%BCber | en,fr,de |
 | /about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /fr/about | /fr/about | en,fr,de |
 | /blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world | /fr/blog/hello-world | en,de,fr |
-| /company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /fr/about | /fr/about | en,fr,de |
+| /company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/company?q=1#top [localized-about] | /fr/company | /fr/company | en,fr,de |
 | /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
-| /de/%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /de/%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/%C3%BCber?q=1#top [—] | null | /fr/%C3%BCber | en,fr,de |
 | /de/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | /fr/blog/hello-world | en,de,fr |
-| /de/company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /de/company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/company?q=1#top [localized-about] | null | /fr/company | en,fr,de |
 | /de/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | /fr/docs | en,fr,de |
 | /de/docs/einfuehrung | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | null | /fr/docs/intro | en,fr,de |
-| /de/documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | /fr/docs | en,fr,de |
+| /de/documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/documentation?q=1#top [localized-docs] | null | /fr/documentation | en,fr,de |
 | /de/documentation/einfuehrung | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | null | /fr/docs/intro | en,fr,de |
 | /de/help | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | null | /fr/help | en,de,fr |
-| /de/news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | /fr/blog/hello-world | en,de,fr |
-| /de/support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | null | /fr/help | en,de,fr |
+| /de/news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/news/hello-world?q=1#top [localized-blog-slug] | null | /fr/news/hello-world | en,de,fr |
+| /de/support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/support?q=1#top [localized-help] | null | /fr/support | en,de,fr |
 | /de/ueber-uns | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
-| /de/über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /de/über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/über?q=1#top [localized-about] | null | /fr/über | en,fr,de |
 | /docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /fr/docs | /fr/docs | en,fr,de |
 | /docs/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro | /fr/docs/intro | en,fr,de |
-| /documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /fr/docs | /fr/docs | en,fr,de |
-| /documentation/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro | /fr/docs/intro | en,fr,de |
+| /documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/documentation?q=1#top [localized-docs] | /fr/documentation | /fr/documentation | en,fr,de |
+| /documentation/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/documentation/intro?q=1#top [localized-docs-intro] | /fr/documentation/intro | /fr/documentation/intro | en,fr,de |
 | /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
-| /fr/%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /fr/%C3%BCber | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/%C3%BCber?q=1#top [—] | null | null | en,fr,de |
 | /fr/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
 | /fr/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
-| /fr/company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /fr/company | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/company?q=1#top [localized-about] | null | null | en,fr,de |
 | /fr/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | null | en,fr,de |
 | /fr/docs/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | null | null | en,fr,de |
-| /fr/documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | null | en,fr,de |
-| /fr/documentation/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/docs/intro?q=1#top [localized-docs-intro] | null | null | en,fr,de |
+| /fr/documentation | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/documentation?q=1#top [localized-docs] | null | null | en,fr,de |
+| /fr/documentation/intro | /fr/docs/intro?q=1#top [localized-docs-intro] |  | /fr/docs/intro?q=1#top [localized-docs-intro] | /fr/documentation/intro?q=1#top [localized-docs-intro] | null | null | en,fr,de |
 | /fr/help | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | null | null | en,de,fr |
-| /fr/news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
-| /fr/support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | null | null | en,de,fr |
-| /fr/über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /fr/news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/news/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,fr |
+| /fr/support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/support?q=1#top [localized-help] | null | null | en,de,fr |
+| /fr/über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/über?q=1#top [localized-about] | null | null | en,fr,de |
 | /help | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | /fr/help | /fr/help | en,de,fr |
-| /news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world | /fr/blog/hello-world | en,de,fr |
-| /support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/help?q=1#top [localized-help] | /fr/help | /fr/help | en,de,fr |
-| /über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /fr/about | /fr/about | en,fr,de |
+| /news/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/news/hello-world?q=1#top [localized-blog-slug] | /fr/news/hello-world | /fr/news/hello-world | en,de,fr |
+| /support | /fr/help?q=1#top [localized-help] |  | /fr/help?q=1#top [localized-help] | /fr/support?q=1#top [localized-help] | /fr/support | /fr/support | en,de,fr |
+| /über | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/über?q=1#top [localized-about] | /fr/über | /fr/über | en,fr,de |
 | /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |

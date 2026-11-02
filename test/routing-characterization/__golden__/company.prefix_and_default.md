@@ -132,7 +132,7 @@ Every URL is resolved with `?q=1#top`.
 | /products/42 | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42-en?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | /en/products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
 | /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
 | /de/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
-| /about/ | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | null | null | en,de,fr |
+| /about/ | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
 | /de/about/ | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | /en/about/?q=1#top [localized-slug] | null | /en/about | en,de,fr |
 | /missing | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | null | null | en,de,fr |
 | /de/missing | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | /en/missing?q=1#top [localized-slug] | null | /en/missing | en,de,fr |
@@ -182,7 +182,7 @@ Every URL is resolved with `?q=1#top`.
 | /products/42 | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42-de?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | /de/produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
 | /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
 | /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
-| /about/ | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | null | null | en,de,fr |
+| /about/ | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
 | /de/about/ | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | /de/about/?q=1#top [localized-slug] | null | null | en,de,fr |
 | /missing | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | null | null | en,de,fr |
 | /de/missing | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | /de/missing?q=1#top [localized-slug] | null | null | en,de,fr |
@@ -232,7 +232,7 @@ Every URL is resolved with `?q=1#top`.
 | /products/42 | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42-fr?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | /fr/produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |
 | /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
 | /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
-| /about/ | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | null | null | en,de,fr |
+| /about/ | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
 | /de/about/ | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | /fr/about/?q=1#top [localized-slug] | null | /fr/about | en,de,fr |
 | /missing | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | null | null | en,de,fr |
 | /de/missing | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | /fr/missing?q=1#top [localized-slug] | null | /fr/missing | en,de,fr |

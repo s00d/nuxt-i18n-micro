@@ -62,6 +62,8 @@ interface Page {
   base: string
   params: Record<string, unknown>
   catchAll: boolean
+  /** The URL is an alias the app declared: it stays that URL, only its prefix changes. */
+  alias?: boolean
 }
 
 const UNLOCALIZED = 'unlocalized' as const
@@ -263,6 +265,8 @@ export class I18nPathStrategy {
 
   /** The page a URL shows: its own record, else the record it has in another locale's form. */
   private findPage(path: string): Page | typeof UNLOCALIZED | null {
+    // the router reads a relative URL against the current route, and this cache is the process's
+    if (path[0] !== '/') return this.matchPage(path)
     const cache = this.shared.pages
     let page = cache.get(path)
     if (page === undefined) remember(cache, path, (page = this.matchPage(path)))
@@ -286,12 +290,27 @@ export class I18nPathStrategy {
       const { locale: urlLocale, ...params } = route!.params ?? {}
       // a custom matcher takes any segment for a locale: `/go` is a page in another form, not the home of `go`
       if (urlLocale && !this.codes.has(String(urlLocale))) continue
-      const page = { base: entry.base, params, catchAll: entry.catchAll }
-      if (!entry.catchAll) return page
+      const page = { base: entry.base, params, catchAll: entry.catchAll, alias: this.isDeclaredAlias(route!) }
+      // under no_prefix a first segment is no prefix: the catch-all's own `/en` stays
+      if (!entry.catchAll || this.ctx.strategy === 'no_prefix') return page
       catchAll ??= page
     }
     const original = this.index.originals.get(withoutTrailingSlash(path))
     return original ? { base: original, params: {}, catchAll: false } : catchAll
+  }
+
+  /** Matched through an alias of the app's, not one of ours: the encoded spelling of a path, a page's original path. */
+  private isDeclaredAlias(route: ResolvedRouteLike): boolean {
+    const record = route.matched?.find((matched) => matched.aliasOf)
+    if (!record) return false
+    const path = safeDecode(record.path)
+    return path !== safeDecode(record.aliasOf!.path) && !this.index.originals.has(path)
+  }
+
+  /** A declared alias stays that URL in `locale`, if it shows the page there: a translated child under an aliased parent does not. */
+  private keepsAlias(page: Page, path: string, locale: string): boolean {
+    if (!page.alias) return false
+    return this.index.records.get(named(this.probe(this.prefixed(locale, path))?.name) ?? '')?.base === page.base
   }
 
   private baseOf(name: string): string | null {
@@ -412,8 +431,11 @@ export class I18nPathStrategy {
   private localized(locale: string, routeOrPath: RouteLike | string): RouteLike {
     const targetLocale = this.linkCodes.has(locale) ? locale : this.ctx.defaultLocale
     // a string can come from a request: `//evil.example` is a path of this origin, under a catch-all too
-    const input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
+    let input: RouteLike = typeof routeOrPath === 'string' ? splitUrl(sameOrigin(routeOrPath)) : routeOrPath
     const name = typeof routeOrPath === 'string' ? null : ownName(routeOrPath)
+    const written = input.path ?? ''
+    // `#top`, `about`, `{ query }`: only the router knows the current route. On a 404 an object has no record to go by
+    if (!name && written[0] !== '/' && !isAbsoluteUrl(written)) input = { ...input, path: (this.probe(input) ?? this.probe(''))?.path }
     let target: Target | null = null
     if (name) {
       const key = named(name)
@@ -422,7 +444,7 @@ export class I18nPathStrategy {
       else if (this.ctx.router.hasRoute(name)) target = this.resolve(routeOrPath)
     } else if (input.path !== undefined) {
       const page = this.findPage(input.path)
-      if (page && page !== UNLOCALIZED)
+      if (page && page !== UNLOCALIZED && !this.keepsAlias(page, input.path, targetLocale))
         target = this.routeTo(targetLocale, page.base, page.params, input.query, input.hash) ?? this.home(targetLocale)
       else {
         const path = page === UNLOCALIZED ? input.path : this.prefixed(targetLocale, input.path)
@@ -587,7 +609,8 @@ export class I18nPathStrategy {
     // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`. Elsewhere it
     // stays the 404 it is: the prefixed form would be one too
     if (!page && this.ctx.strategy !== 'prefix' && path !== '/' && this.index.records.size > 0) return null
-    const target = sameOrigin(withoutTrailingSlash((page && this.routeTo(locale, page.base, page.params)?.path) || this.prefixed(locale, path)))
+    const own = page && !this.keepsAlias(page, path, locale) && this.routeTo(locale, page.base, page.params)?.path
+    const target = sameOrigin(withoutTrailingSlash(own || this.prefixed(locale, path)))
     return safeDecode(target) === safeDecode(withoutTrailingSlash(path)) ? null : target
   }
 }

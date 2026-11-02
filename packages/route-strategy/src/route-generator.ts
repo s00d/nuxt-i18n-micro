@@ -3,7 +3,7 @@ import path from 'node:path'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import { withHostDefaults } from '@i18n-micro/utils/domains'
 import type { NuxtPage } from '@nuxt/schema'
-import { generateRoutes, type LocalizedPaths } from './generate'
+import { generateRoutes, type LocalizedPaths, pageNames } from './generate'
 import { absolute, childSegment, joinChild, removeLeadingSlash, routeKey, rulePattern } from './paths'
 import { Rules } from './rules'
 
@@ -155,14 +155,7 @@ export class RouteGenerator {
 
   /** data.json routes to prerender: index per locale, plus one per named page unless disablePageLocales. */
   generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
-    const names = new Set<string>()
-    const visit = (list: NuxtPage[]) => {
-      for (const page of list) {
-        if (page.name) names.add(page.name)
-        if (page.children) visit(page.children)
-      }
-    }
-    visit(pages)
+    const names = new Set(pageNames(pages))
     const routes: string[] = []
     for (const locale of this.locales) {
       routes.push(`/${apiBaseUrl}/index/${locale.code}/data.json`)

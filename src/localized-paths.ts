@@ -31,11 +31,6 @@ export function staticPagePaths(pages: NuxtPage[], parent = '/'): string[] {
   })
 }
 
-/** Route names of the pages, nested ones included. */
-export function namedPages(pages: NuxtPage[]): string[] {
-  return pages.flatMap((page) => [...(page.name ? [page.name] : []), ...namedPages(page.children ?? [])])
-}
-
 /**
  * With locale domains the origin of SEO tags on an unknown host comes from the request when nothing
  * fixes it, so the `Host` a client sends reaches canonical and `hreflang`: the owner has to know.

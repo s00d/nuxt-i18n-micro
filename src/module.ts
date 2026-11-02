@@ -5,7 +5,7 @@ import { defaultPlural, isNoPrefixStrategy } from '@i18n-micro/core'
 import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/internal/translation-watcher'
-import { localesOutsideMatcher, RouteGenerator } from '@i18n-micro/route-strategy'
+import { localesOutsideMatcher, pageNames, RouteGenerator } from '@i18n-micro/route-strategy'
 import { configForHost } from '@i18n-micro/utils/domains'
 import { buildFullConfigSource, buildPrivateConfigSource } from './config-template'
 import type {
@@ -66,7 +66,6 @@ import { buildTranslationPayloadRouteRule, localizeRouteRules, varyRouteCacheByH
 import {
   createLocalizedPathResolver,
   type LocalizedPathResolver,
-  namedPages,
   seedPrerenderRoutes,
   staticPagePaths,
   unfixedOriginWarning,
@@ -746,7 +745,7 @@ declare module '#i18n-internal/payload-source' {
       }
 
       addDataRoutes(pages)
-      routeNames = namedPages(pages).filter(unlinked)
+      routeNames = pageNames(pages).filter(unlinked)
       staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages

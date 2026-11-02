@@ -108,7 +108,8 @@ function nextName(name: string, taken: Set<string>): string {
   return `${name}-${count}`
 }
 
-const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
+/** Route names of the pages, nested ones included. */
+export const pageNames = (pages: NuxtPage[]): string[] => pages.flatMap((p) => [...(p.name ? [p.name] : []), ...pageNames(p.children ?? [])])
 
 /** The pattern of a `customRegexMatcher`: `/re/` and `re` alike, and a `RegExp` loses its flags, as in the route and in `path-strategy`. */
 export function localeMatcherSource(matcher: string | RegExp): string {

@@ -425,7 +425,7 @@ export class NuxtTranslationLoader {
   }
 
   /** The loaded chunk, or null when the load failed (reported here): a reload must tell that from an empty chunk. */
-  private loadChunk(locale: string, routeName?: string): Promise<Record<string, unknown> | null> {
+  private loadChunk(locale: string, routeName?: string, quiet = false): Promise<Record<string, unknown> | null> {
     const { i18n, loadOptions, isDev } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
@@ -436,6 +436,7 @@ export class NuxtTranslationLoader {
         const { data } = await translationStorage.load(locale, routeName, loadOptions)
         return i18n.installChunk(locale, routeName, data)
       } catch (e) {
+        if (quiet) return null
         if (isDev) console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)
         return null
@@ -477,6 +478,11 @@ export class NuxtTranslationLoader {
   /** The chunk of a context, cached or loaded, or null when its load failed. */
   fetchContext(locale: string, routeName?: string): Record<string, unknown> | Promise<Record<string, unknown> | null> {
     return this.loadFromCacheSync(locale, routeName) ?? this.loadChunk(locale, routeName)
+  }
+
+  /** A chunk that may be wanted soon. Failing is no failure: leaving the page cuts it, and the navigation tries again. */
+  prefetch(locale: string, routeName?: string): void {
+    if (!this.loadFromCacheSync(locale, routeName)) void this.loadChunk(locale, routeName, true)
   }
 
   /**

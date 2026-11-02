@@ -255,7 +255,7 @@ export default defineNuxtPlugin({
       nuxtApp.hook('link:prefetch', (url) => {
         const route = router.resolve(url) as unknown as ResolvedRouteLike
         const routeLocale = getCurrentLocale(route)
-        if (routeLocale === i18n.getLocale()) void loader.fetchContext(routeLocale, i18nStrategy.getPluginRouteName(route, routeLocale))
+        if (routeLocale === i18n.getLocale()) loader.prefetch(routeLocale, i18nStrategy.getPluginRouteName(route, routeLocale))
       })
     }
 

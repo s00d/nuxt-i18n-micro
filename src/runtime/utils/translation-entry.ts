@@ -9,7 +9,7 @@ export function toEntry(data: Translations): ServerTranslationCacheEntry {
     // every request reads this tree: its root is frozen, once, in place
     data: Object.freeze(data),
     get json() {
-      return (json ??= JSON.stringify(data).replace(/</g, '\\u003c'))
+      return (json ??= JSON.stringify(data).replaceAll('<', '\\u003c'))
     },
   }
 }

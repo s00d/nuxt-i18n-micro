@@ -4,8 +4,6 @@ import { NuxtI18n } from './nuxt-i18n'
 
 type Tree = Record<string, unknown>
 
-const hasOwn = (obj: object, key: string): boolean => Object.prototype.hasOwnProperty.call(obj, key)
-
 const isTree = (value: unknown): value is Tree => value !== null && typeof value === 'object' && !Array.isArray(value)
 
 /**
@@ -16,7 +14,7 @@ function nodesAt(layers: readonly unknown[], key: string): unknown[] {
   const trees: unknown[] = []
   for (let index = layers.length - 1; index >= 0; index--) {
     const layer = layers[index] as Tree
-    if (!hasOwn(layer, key)) continue
+    if (!Object.hasOwn(layer, key)) continue
     const value = layer[key]
     if (!isTree(value)) return trees.length ? trees : [value]
     trees.unshift(value)
@@ -44,7 +42,7 @@ function resolveLayered(layers: readonly unknown[], key: string): unknown | null
 function touches(fragments: readonly Tree[], key: string): boolean {
   const dot = key.indexOf('.')
   const head = dot === -1 ? key : key.slice(0, dot)
-  return fragments.some((fragment) => hasOwn(fragment, key) || hasOwn(fragment, head))
+  return fragments.some((fragment) => Object.hasOwn(fragment, key) || Object.hasOwn(fragment, head))
 }
 
 /**

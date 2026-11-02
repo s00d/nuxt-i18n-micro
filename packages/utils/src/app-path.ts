@@ -116,7 +116,7 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
   if (INTERNAL_PREFIXES.some((prefix) => underPrefix(path, prefix))) return true
   if (apiBaseUrl && underPrefix(path, `/${trimSlashes(apiBaseUrl)}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
-  if (/(?:^|\/)__/.test(path)) return true
+  if (path.startsWith('__') || path.includes('/__')) return true
   if (isStaticAssetPathname(path)) return true
   return excludePatterns?.some((pattern) => matchesPattern(path, pattern)) ?? false
 }

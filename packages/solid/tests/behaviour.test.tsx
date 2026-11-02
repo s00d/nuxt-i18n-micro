@@ -588,6 +588,12 @@ describe('I18nGroup', () => {
     setPrefix('b')
     expect(container.textContent).toBe('B')
   })
+
+  test('a subtree with a `toString` key under the key is text, not a crash', () => {
+    const i18n = instance({ messages: { en: { a: { tree: { toString: 'a key' } } } } })
+    const container = withI18n(i18n, () => <I18nGroup prefix="a">{({ t }: { t: (key: string) => string }) => t('tree')}</I18nGroup>)
+    expect(container.textContent).toBe('[object Object]')
+  })
 })
 
 describe('I18nSwitcher', () => {

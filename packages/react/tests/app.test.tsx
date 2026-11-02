@@ -250,6 +250,18 @@ describe('React app over @i18n-micro/react', () => {
     expect(screen.getByTestId('live').textContent).toBe('Bienvenue')
   })
 
+  test('I18nGroup: a subtree with a `toString` key under the key is text, not a crash', () => {
+    const i18n = createI18n({ locale: 'en', missingWarn: false, messages: { en: { group: { tree: { toString: 'a key' } } } } })
+    render(
+      <I18nProvider i18n={i18n}>
+        <I18nGroup data-testid="tree" prefix="group">
+          {({ t }) => t('tree')}
+        </I18nGroup>
+      </I18nProvider>,
+    )
+    expect(screen.getByTestId('tree').textContent).toBe('[object Object]')
+  })
+
   test('I18nT and I18nGroup render every mode and follow locale and route changes', () => {
     const i18n = createI18n({ locale: 'en', missingWarn: false, messages: { en, fr, de } })
     const rule = vi.fn((key, count, params, locale, getter) => `${getter(key)}#${count}@${locale}/${params.who ?? '-'}`)

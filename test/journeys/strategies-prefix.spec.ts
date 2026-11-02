@@ -1,3 +1,4 @@
+import { readChunk } from '../helpers/chunk.ts'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 import { collectHydrationIssues } from 'untestutils/utils'
 import { directRoutes, forcedLocale, ssr, walkStrategy } from '../helpers/journeys-b.ts'
@@ -66,7 +67,7 @@ describe('J2 strategies: prefix with runtime overrides (env default de, runtimeC
     // payload 404) needed the locale disabled at build time too: here ru's premerged file is in public/ and served as is.
     const de = await request.get('/_locales/index/de/data.json')
     expect(de.status()).toBe(200)
-    expect(await de.json()).toMatchObject({ key0: 'de' })
+    expect(await readChunk(request, 'index', 'de')).toMatchObject({ key0: 'de' })
 
     // step 3 (F11): the client sees the same config: de content, no ru in the switcher, no hydration mismatch
     const issues = collectHydrationIssues(page)

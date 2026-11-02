@@ -1,6 +1,7 @@
 import { joinURL, withQuery } from 'ufo'
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from './cache-keys'
+import { overRoot, takeRootMark } from './translation-entry'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
 import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
@@ -12,6 +13,8 @@ export interface LoadOptions {
   apiBaseClientHost?: string
   dateBuild?: string | number
   routesLocaleLinks?: Record<string, string>
+  /** A page's file needs its root, so the two start together. A delta from a host still finds its root without it. */
+  rootDelta?: boolean
   /**
    * Server only: the Nitro loader of this request (`event.context.i18n.load`), called directly. It reads a host too, named at
    * build time or in the environment, so a render has one source. `null` is a host's "no such file", as a 404 is for a browser.
@@ -51,6 +54,10 @@ function getStorageCacheControl(): ChunkCache {
 
 class TranslationStorage {
   private cc: ChunkCache
+  /** Roots on their way: every page of a first burst waits for one request. */
+  private readonly rootLoads = new Map<string, Promise<LoadResult>>()
+  /** The mark of each root held, to tell a delta made against another one. */
+  private readonly rootMarks = new Map<string, string | undefined>()
 
   constructor() {
     this.cc = getStorageCacheControl()
@@ -160,8 +167,15 @@ class TranslationStorage {
 
     const cacheKey = translationCacheKey(locale, routeName)
     const clears = this.cc.clears
-    const data = await this.fetchChunk(locale, routeName, options)
+    const page = routeName !== PREMERGED_ROOT_PAGE
+    // started with the page, so a hint for both pays one round trip. Waited for below, whatever the page's answer
+    const root = page && options.rootDelta && !direct ? this.loadRoot(locale, options) : undefined
+    root?.catch(() => {})
+    const file = await this.fetchChunk(locale, routeName, options)
+    const mark = file ? takeRootMark(file) : undefined
+    const data = file && mark && page ? await this.layered(locale, mark, file, root, options) : file
     if (clears !== this.cc.clears) return this.load(locale, routeName, options)
+    if (!page) this.rootMarks.set(locale, mark)
     // No file: the page shows the root dictionary, as the server route does for a build's own pages, and no root file either
     // (`source` mode on a file host, which the build warns about) is an empty one, as a missing file must not stop a switch.
     // Neither is kept under this key: during a deploy the file can appear, and the next page load gets it.
@@ -178,10 +192,41 @@ class TranslationStorage {
     return { data, cacheKey }
   }
 
+  private loadRoot(locale: string, options: LoadOptions): Promise<LoadResult> {
+    const pending = this.rootLoads.get(locale)
+    if (pending) return pending
+    const load = this.load(locale, PREMERGED_ROOT_PAGE, options).finally(() => this.rootLoads.delete(locale))
+    this.rootLoads.set(locale, load)
+    return load
+  }
+
+  /**
+   * A delta on the root it was made against. A root held since an older deploy lacks what moved into it, so a stale tab
+   * asks for the delta's: `?v=` of the mark, a URL no cache holds. One try, whatever comes: a CDN mid-deploy may have
+   * neither side new yet, and the root it gives is still the best text there is. Both arrive before anything is shown.
+   */
+  private async layered(
+    locale: string,
+    mark: string,
+    delta: Record<string, unknown>,
+    started: Promise<LoadResult> | undefined,
+    options: LoadOptions,
+  ): Promise<Record<string, unknown>> {
+    let { data: root } = await (started ?? this.loadRoot(locale, options))
+    const held = this.rootMarks.get(locale)
+    if (held && held !== mark) {
+      this.cc.delete(translationCacheKey(locale, PREMERGED_ROOT_PAGE))
+      ;({ data: root } = await this.load(locale, PREMERGED_ROOT_PAGE, { ...options, dateBuild: mark }))
+    }
+    return overRoot(root, delta)
+  }
+
   /**
    * Clear cache and metadata.
    */
   clear(): void {
+    this.rootLoads.clear()
+    this.rootMarks.clear()
     this.cc.clear()
   }
 }

@@ -8,7 +8,12 @@ import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
-export type ServerTranslationCacheEntry = { data: Translations; json: string }
+export type ServerTranslationCacheEntry = {
+  data: Translations
+  json: string
+  /** Of a root read from a file: what a delta names. */
+  mark?: string
+}
 
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 

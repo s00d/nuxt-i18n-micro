@@ -23,6 +23,7 @@ describe('translationPayloads build options', () => {
       serverHandler: true,
       publicAssets: true,
       prerenderRoutes: false,
+      rootDelta: true,
       publicDir: undefined,
       warnFileCount: undefined,
       warnSizeBytes: undefined,

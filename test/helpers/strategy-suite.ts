@@ -134,7 +134,9 @@ export function registerStrategySuite(strategy: StrategyName): void {
 
     // step 4: the premerged payload of every page × locale is published next to the pages
     for (const { file, key } of PAYLOADS) {
-      expect(JSON.parse(readFileSync(join(generated.publicDir, file), 'utf-8'))).toHaveProperty(key)
+      // a delta holds what differs from its root: the root file is next to it
+      const read = (path: string) => JSON.parse(readFileSync(join(generated.publicDir, path), 'utf-8'))
+      expect({ ...read(file.replace(/[^/]+(\/[^/]+\/data\.json)$/, '__root$1')), ...read(file) }).toHaveProperty(key)
     }
   })
 }

@@ -15,6 +15,7 @@ import type {
 } from '@i18n-micro/types'
 
 import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
+import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import type {
   RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
@@ -73,6 +74,7 @@ function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): L
     apiBaseClientHost: i18nConfig.apiBaseClientHost,
     dateBuild: i18nConfig.dateBuild,
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
+    rootDelta: i18nConfig.rootDelta,
   }
   if (import.meta.server) options.serverLoad = nuxtApp.ssrContext?.event?.context?.i18n?.load
   return options
@@ -231,8 +233,10 @@ export default defineNuxtPlugin({
     // browser start it with the HTML instead of after the scripts. `crossorigin`: fetch()'s mode.
     // Under `noScripts` nothing would read it.
     if (import.meta.server && !nuxtApp.ssrContext?.event?.context?._nitro?.routeRules?.noScripts) {
-      const href = translationStorage.clientUrl(initialLocale, initialRouteName, loadOptions)
-      useHead({ link: [{ key: 'i18n-preload', rel: 'preload', as: 'fetch', crossorigin: 'anonymous', href }] })
+      const hint = (key: string, href: string) => ({ key, rel: 'preload' as const, as: 'fetch' as const, crossorigin: 'anonymous' as const, href })
+      const link = [hint('i18n-preload', translationStorage.clientUrl(initialLocale, initialRouteName, loadOptions))]
+      if (i18nConfig.rootDelta) link.push(hint('i18n-preload-root', translationStorage.clientUrl(initialLocale, PREMERGED_ROOT_PAGE, loadOptions)))
+      useHead({ link })
     }
 
     const hydrated = shallowRef(false)

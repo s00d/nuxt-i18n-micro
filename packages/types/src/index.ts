@@ -668,6 +668,14 @@ export interface TranslationPayloadOptions {
   publicDir?: string
 
   /**
+   * Write one root file per locale, and in each page file only what differs from it. The client and SSR merge them;
+   * a whole chunk still works wherever a file is read. `false` keeps a whole dictionary in every page file.
+   * `premerged` only, and off with `disablePageLocales`.
+   * @default true
+   */
+  rootDelta?: boolean
+
+  /**
    * Warn during build when generated payload file count exceeds this threshold.
    * @default 500
    */
@@ -701,6 +709,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   translationPayloadMode?: 'premerged' | 'source'
   /** Premerged files are in `public/`, so they can sit on `app.cdnURL`. */
   publicPayloads?: boolean
+  /** A page's file needs its root: the browser loads the two together. */
+  rootDelta?: boolean
   /** Host this config was resolved for (`locales[].baseUrl`); unset on any other host. */
   domain?: string
   /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */

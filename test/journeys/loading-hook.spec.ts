@@ -30,9 +30,7 @@ describe('J8 translation loading: module hook', () => {
     await goto('/cache', { waitUntil: 'hydration' })
     const welcome = await page.locator('#welcome').textContent()
     await page.evaluate(() => useNuxtApp().$loadPageTranslations('en', 'Test', { extra: 'patched' }))
-    const file = page.waitForRequest('**/_locales/Test/en/**')
     await page.click('#test-page')
-    await file
     await expect(page).toHaveURL('/test')
     expect(await page.evaluate(() => [useNuxtApp().$t('welcome'), useNuxtApp().$t('extra')])).toEqual([welcome?.trim(), 'patched'])
   })

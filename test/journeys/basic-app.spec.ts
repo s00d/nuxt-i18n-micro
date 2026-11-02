@@ -52,8 +52,8 @@ describe('journey: basic app', () => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#locale')).toHaveText('en')
     await expect(page.locator('.text_escaping')).toHaveText('test {text_escaping} } { { ')
-    await expect(page.locator('link[rel="preload"][as="fetch"]')).toHaveAttribute('href', preloadHref)
-    await expect(page.locator('link[rel="preload"][as="fetch"]')).toHaveAttribute('crossorigin', 'anonymous')
+    await expect(page.locator(`link[rel="preload"][as="fetch"][href="${preloadHref}"]`)).toHaveCount(1)
+    await expect(page.locator(`link[rel="preload"][as="fetch"][href="${preloadHref}"]`)).toHaveAttribute('crossorigin', 'anonymous')
     expect(fetched).toContain(preloadHref)
     expect(fetched.filter((u) => /^\/_locales\/[^/]+\/(de|ru)\//.test(u))).toEqual([])
     await expect(page.locator('#home-link')).toHaveCSS('color', 'rgb(255, 0, 0)')
@@ -65,10 +65,10 @@ describe('journey: basic app', () => {
 
     // step 4: click #page-link → /page, the client chunk fetch carries ?v=12345 and gets 200; back and forth
     // was: basic › cache busting uses configured i18n.dateBuild, › test routes (en)
-    const chunk = page.waitForResponse((r) => r.url().includes('/_locales/') && r.url().includes('/data.json') && r.url().includes('v=12345'))
     await page.click('#page-link')
     await expect(page).toHaveURL('/page')
-    expect((await chunk).status()).toBe(200)
+    // a link in view loads its chunk: it may be in before the click
+    expect(fetched.some((url) => url.includes('/data.json') && url.includes('v=12345'))).toBe(true)
     await page.click('#page-link')
     await expect(page).toHaveURL('/')
     await page.click('#page-link')
@@ -575,7 +575,7 @@ describe('journey: basic app', () => {
 
     // step 3: a page without its own folder → a non-empty subset of index's dictionary
     // was: server › a page without its own folder gets the root dictionary
-    const index = await (await request.get('/_locales/index/en/data.json')).json()
+    const index = await (await request.get('/_locales/__root/en/data.json')).json()
     const unknown = await request.get('/_locales/no-such-page-123/en/data.json')
     expect(unknown.status()).toBe(200)
     const root = await unknown.json()

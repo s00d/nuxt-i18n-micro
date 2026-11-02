@@ -29,7 +29,7 @@ import { loadLiveDevTranslations } from '../internal/dev-live-translations'
 import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from '../internal/server-translation-cache'
 import { readSharedChunk, sharedChunkKey, writeSharedChunk } from '../internal/shared-cache'
-import { toEntry } from '../../utils/translation-entry'
+import { overRoot, takeRootMark, toEntry } from '../../utils/translation-entry'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 /** The host has no such file. By identity: a host's own empty file is a dictionary, and stays cached. */
@@ -125,6 +125,12 @@ async function readThroughShared(key: string, locale: string, page: string, conf
   return { entry }
 }
 
+function toEntryWithMark(data: Record<string, unknown>, mark: string): ServerTranslationCacheEntry {
+  const entry = toEntry(data)
+  entry.mark = mark
+  return entry
+}
+
 async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
   const apiBaseServerHost = resolveServerHost()
   if (apiBaseServerHost) {
@@ -134,7 +140,7 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
       page,
       $fetch as TranslationPayloadFetcher,
     )
-    return data ? { entry: toEntry(data) } : { entry: NO_FILE, shared: true }
+    return data ? settle(locale, page, data, config) : { entry: NO_FILE, shared: true }
   }
   if (config.translationPayloadMode === 'source') {
     const data = await loadSourceTranslationsFromStorage(
@@ -153,6 +159,25 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
   // a page payload always carries the root keys: an empty one means the page has no folder,
   // and it shares the root entry (made-up page names cannot add entries)
   const own = toTranslations(await readPayload(toPremergedStorageKey(page, locale)))
-  if (Object.keys(own).length || page === PREMERGED_ROOT_PAGE) return { entry: toEntry(own) }
+  if (Object.keys(own).length || page === PREMERGED_ROOT_PAGE) return settle(locale, page, own, config)
   return { entry: await rootChunk(locale, config), shared: true }
+}
+
+/**
+ * A file as a dictionary: a delta on its root, once per chunk, and from then on the entry serves every request as before.
+ * With no key of its own a page is the root's entry, one tree and one leaf cache. Its own key holds it, so no file is
+ * read per request; the root stays the only tree in memory. A root read from a host may be older than the delta (the
+ * host deployed while this process kept it): it goes, and the next read is the host's.
+ */
+async function settle(locale: string, page: string, file: Record<string, unknown>, config: ModuleOptionsExtend): Promise<Loaded> {
+  const mark = takeRootMark(file)
+  if (!mark) return { entry: toEntry(file) }
+  if (page === PREMERGED_ROOT_PAGE) return { entry: toEntryWithMark(file, mark) }
+  let root = await rootChunk(locale, config)
+  if (root.mark && root.mark !== mark) {
+    getOrCreateServerTranslationCache().delete(`${locale}:${PREMERGED_ROOT_PAGE}`)
+    root = await rootChunk(locale, config)
+  }
+  const merged = overRoot(root.data, file)
+  return { entry: merged === root.data ? root : toEntry(merged) }
 }

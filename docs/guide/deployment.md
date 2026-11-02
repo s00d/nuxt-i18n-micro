@@ -66,11 +66,11 @@ In `source` mode the browser always fetches payloads from the server route, whic
 
 ### Bundle limits on Edge
 
-| Platform | Limit |
-| --- | --- |
+| Platform           | Limit                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------- |
 | Cloudflare Workers | 64 MiB uncompressed, on Free and Paid. No compressed limit. 1 s startup, 128 MB memory |
-| Vercel Edge | 1 MB gzip on Hobby, 2 MB on Pro, 4 MB on Enterprise |
-| Netlify Edge | 20 MB compressed |
+| Vercel Edge        | 1 MB gzip on Hobby, 2 MB on Pro, 4 MB on Enterprise                                    |
+| Netlify Edge       | 20 MB compressed                                                                       |
 
 The build sums the dictionaries it embeds and warns only past the lowest limit of the platform. It counts dictionaries alone, so the app comes on top. As an example, 120 pages × 4 locales with a 60 KB root file embed 34.9 MiB in `premerged` mode, which fits Cloudflare but not Vercel Edge or Netlify Edge, and 5.7 MiB in `source` mode, which is still 3 MB gzip on Vercel Edge. A catalog that size on Vercel Edge needs a [payload host](#app-baseurl-and-payload-hosts).
 
@@ -112,14 +112,14 @@ A static host applies its own headers to these files; set caching in the host's 
 
 ## Cache headers and dateBuild
 
-| Request | `Cache-Control` |
-| --- | --- |
-| Node server or route, `?v=` equal to the current `dateBuild`, a non-empty dictionary | `private, max-age=<httpCacheDuration>, immutable` |
-| Node server or route, without `?v=`, with an old one, or an empty dictionary | `public, max-age=0, must-revalidate` |
-| A host's copy of `public/`, any `?v=` | `public, max-age=60, stale-while-revalidate=86400` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
-| `source` mode, `cacheTtl`, or `apiBaseServerHost`: a dictionary can change with no build | the `httpCacheControl` header, always |
-| Server route, the dictionary could not be read | `503`, `no-store` |
-| dev server | none |
+| Request                                                                                  | `Cache-Control`                                                                                                 |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Node server or route, `?v=` equal to the current `dateBuild`, a non-empty dictionary     | `private, max-age=<httpCacheDuration>, immutable`                                                               |
+| Node server or route, without `?v=`, with an old one, or an empty dictionary             | `public, max-age=0, must-revalidate`                                                                            |
+| A host's copy of `public/`, any `?v=`                                                    | `public, max-age=60, stale-while-revalidate=86400` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
+| `source` mode, `cacheTtl`, or `apiBaseServerHost`: a dictionary can change with no build | the `httpCacheControl` header, always                                                                           |
+| Server route, the dictionary could not be read                                           | `503`, `no-store`                                                                                               |
+| dev server                                                                               | none                                                                                                            |
 
 The URL with the current `v` is pinned like a hashed asset, and only what sees the query can say so: the server route, and a Node server, which sets the header on its static files. It is `private` so a CDN that ignores the query cannot answer the next `v` from this response. A host's static files take a path-wide header from a `/_locales/**` route rule, which cannot see the query, so it stays short; a repeat load still blocks on nothing. An old `v` stays servable, as cached HTML names it.
 
@@ -128,6 +128,12 @@ The URL with the current `v` is pinned like a hashed asset, and only what sees t
 Safari requests a preloaded payload again when it may not reuse the response: with `no-cache` and an `ETag` the second request is a `304`, with neither a cache header nor a validator it is a second full download. A `max-age` above `0` gives one request. Only `httpCacheDuration: 0` on a host that adds no validator pays this.
 
 [`dateBuild`](/api/module-options#datebuild) is the `?v=` value. By default it is a hash of your translation files, so it changes only when translations change and browsers keep their cached payloads across deploys that did not touch them. It also moves with the fallback chain. Set it yourself to pin a value, or set `0` / `''` to drop `?v=` entirely (payloads are then never `immutable`). After replacing a dictionary in place on a Node server, restart with `NUXT_I18N_DATE_BUILD=<new value>`: nothing else moves `v` without a rebuild.
+
+### Root and delta files
+
+`premerged` writes one root per locale, `__root/<locale>/data.json`, and in each page's file only what differs from it. The file marks the root it was made against with a `__i18n_root` key. The browser fetches both, the page shows nothing until both are in, and SSR merges them once per chunk. A file with no mark is a whole dictionary and stands alone: dev, `source` mode, the server route, and a host still holding older files all answer one, with no setting. So anyone reading `_locales/*/data.json` directly reads a delta. Set `translationPayloads.rootDelta: false` to keep whole files.
+
+A tab open across a deploy that asks for a new delta sees that it was made against another root, and fetches that root before showing it.
 
 ### When a dictionary cannot be read
 
@@ -288,11 +294,11 @@ Instances that load dictionaries from a remote host can share them in Redis, Ups
 
 The app has to learn the public host and the scheme from the request.
 
-| The proxy sends | Plain build | Build with `baseUrl` on locales |
-| --- | --- | --- |
-| The real `Host` | Nothing to set | Nothing to set |
-| The origin's `Host`, plus `X-Forwarded-Host` | Nothing to set | [`trustForwardedHost: true`](/api/module-options#trustforwardedhost) |
-| Neither | [`metaBaseUrl`](/api/module-options#metabaseurl) | No setting helps: every request looks like the origin's host, so change the proxy |
+| The proxy sends                              | Plain build                                      | Build with `baseUrl` on locales                                                   |
+| -------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| The real `Host`                              | Nothing to set                                   | Nothing to set                                                                    |
+| The origin's `Host`, plus `X-Forwarded-Host` | Nothing to set                                   | [`trustForwardedHost: true`](/api/module-options#trustforwardedhost)              |
+| Neither                                      | [`metaBaseUrl`](/api/module-options#metabaseurl) | No setting helps: every request looks like the origin's host, so change the proxy |
 
 - **`X-Forwarded-Proto`.** Send it, or canonical URLs read `http://` behind an HTTPS proxy. `metaBaseUrl` also fixes this.
 - **In a domain build** the domain picks the base URL of the tags. `metaTrustForwardedHost` does not choose the domain there, only `trustForwardedHost` does.
@@ -306,12 +312,12 @@ On a plain build without `metaBaseUrl` or `site.url`, canonical, `hreflang` and 
 
 Most URLs are safe to cache, because they name their locale. These depend on the visitor:
 
-| Setup | URLs |
-| --- | --- |
-| Default, `autoDetectPath: '/'` | `/` |
-| `prefix` | `/` and every unprefixed URL, which only redirect |
-| `autoDetectPath: '*'` | Every URL |
-| `no_prefix` | Every page |
+| Setup                          | URLs                                              |
+| ------------------------------ | ------------------------------------------------- |
+| Default, `autoDetectPath: '/'` | `/`                                               |
+| `prefix`                       | `/` and every unprefixed URL, which only redirect |
+| `autoDetectPath: '*'`          | Every URL                                         |
+| `no_prefix`                    | Every page                                        |
 
 - **`Vary`.** Those responses carry `Vary` with `Cookie` when [`localeCookie`](/api/module-options#localecookie) is set and `Accept-Language` when `autoDetectLanguage` is on. A cache that honours it keeps the answers apart.
 - **A cache that ignores `Vary`,** such as "cache everything by URL", must skip those URLs. Otherwise one visitor's `302 /de` reaches the next visitor, and a stored default page drops the redirect for everyone. On `/` you can also set `redirects: false`. Nitro's route cache keys on the path and its `varies` list, so keep `/` out of `swr` and `cache` rules as well.

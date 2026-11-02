@@ -67,6 +67,12 @@ export function toSourceStorageKey(relativePath: string): string {
  */
 export const PREMERGED_ROOT_PAGE = '__root'
 
+/**
+ * Own key of a premerged file: the root file's content hash, in the root and in every delta made against it.
+ * A file without it is a whole chunk (dev, `source`, the server route, a host's older files) and stands alone.
+ */
+export const PREMERGED_ROOT_MARK = '__i18n_root'
+
 export function toPremergedStorageKey(pageName: string, locale: string): string {
   const page = trimSlashes(pageName) || 'index'
   return toSourceStorageKey(`${page}/${locale}/data.json`)

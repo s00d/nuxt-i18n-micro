@@ -2,7 +2,10 @@ import type { Translations } from '@i18n-micro/types'
 import { toTranslations } from './normalize'
 import { buildTranslationPayloadFetchRequest } from './payload-url'
 
-export type TranslationPayloadFetcher = <T>(path: string, options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache }) => Promise<T>
+export type TranslationPayloadFetcher = <T>(
+  path: string,
+  options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache },
+) => Promise<T>
 
 export interface TranslationPayloadHostConfig {
   apiBaseUrl?: string

@@ -138,8 +138,9 @@ function buildFullConfig(params: {
   locales: ModuleOptionsExtend['locales']
   translationsHash: string | null
   publicPayloads: boolean
+  rootDelta: boolean
 }) {
-  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
   const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
@@ -181,6 +182,7 @@ function buildFullConfig(params: {
     timeZone: options.timeZone,
     translationPayloadMode,
     publicPayloads,
+    rootDelta,
   }
 }
 
@@ -448,6 +450,8 @@ export default defineNuxtModule<ModuleOptions>({
           options.disablePageLocales,
           options.additionalTranslationDirs,
           routeNames,
+          // dev reads live files, and a prerender merges what it reads like any server
+          !nuxt.options.dev && translationPayloads.rootDelta,
         )
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
@@ -517,6 +521,12 @@ export default defineNuxtModule<ModuleOptions>({
       apiConfig,
       translationPayloadMode: translationPayloads.mode,
       publicPayloads: translationPayloads.mode === 'premerged' && translationPayloads.publicAssets,
+      rootDelta:
+        !nuxt.options.dev &&
+        translationPayloads.mode === 'premerged' &&
+        translationPayloads.rootDelta &&
+        !options.disablePageLocales &&
+        (translationPayloads.publicAssets || Boolean(options.apiBaseClientHost)),
       locales: routeGenerator.locales ?? [],
       translationsHash,
     })

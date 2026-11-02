@@ -60,6 +60,7 @@ describe('i18n public payload ignores process.cwd()', () => {
     expect(res.status).toBe(200)
     const data = (await res.json()) as Record<string, unknown>
     expect(Object.keys(data).length).toBeGreaterThan(0)
-    expect(data).toMatchObject({ basic: 'basic text' })
+    const root = (await (await fetch(`http://${HOST}:${port}/_locales/__root/en/data.json`)).json()) as Record<string, unknown>
+    expect({ ...root, ...data }).toMatchObject({ basic: 'basic text' })
   })
 })

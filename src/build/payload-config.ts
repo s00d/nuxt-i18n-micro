@@ -10,6 +10,7 @@ export interface ResolvedTranslationPayloadOptions {
   serverHandler: boolean
   publicAssets: boolean
   prerenderRoutes: boolean
+  rootDelta: boolean
   publicDir?: string
   warnFileCount?: number
   warnSizeBytes?: number
@@ -50,6 +51,7 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
     // Off by default: prerendering `/_locales` without a live handler writes empty public stubs.
     // Opt in when you need static `/{apiBaseUrl}/.../data.json` and payloads are already available.
     prerenderRoutes: options.translationPayloads?.prerenderRoutes === true,
+    rootDelta: !isSourceMode && options.translationPayloads?.rootDelta !== false,
     publicDir: options.translationPayloads?.publicDir,
     warnFileCount: options.translationPayloads?.warnFileCount,
     warnSizeBytes: options.translationPayloads?.warnSizeBytes,

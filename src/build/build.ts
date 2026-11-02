@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto'
 import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { mergeTranslationChunk } from '@i18n-micro/core/helpers'
 import { globby } from 'globby'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
-import { mergeSourceTranslations, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
+import { mergeSourceTranslations, PREMERGED_ROOT_MARK, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 
 export interface PreMergeLocaleInfo {
   code: string
@@ -48,10 +50,42 @@ export function listAdditionalRootLocales(rootDirs: string[], additionalDirNames
   return [...locales]
 }
 
+type Tree = Record<string, unknown>
+
+const isTree = (value: unknown): value is Tree => value !== null && typeof value === 'object' && !Array.isArray(value)
+
+/** The paths of `page` that `root` does not hold as they are. Arrays and scalars are whole values, as in a merge. */
+function diffTree(page: Tree, root: Tree): Tree {
+  const delta: Tree = {}
+  for (const key of Object.keys(page)) {
+    const value = page[key]
+    const base = root[key]
+    if (isTree(value) && isTree(base)) {
+      const nested = diffTree(value, base)
+      if (Object.keys(nested).length) delta[key] = nested
+    } else if (!Object.hasOwn(root, key) || JSON.stringify(value) !== JSON.stringify(base)) delta[key] = value
+  }
+  return delta
+}
+
+/**
+ * The file of a page: its delta, or the whole chunk when no merge gives that page back. A fallback chain can do both:
+ * a page file that replaced an object drops root keys under it, and a delta has no way to delete; a nested key can end
+ * up in another order, which a `v-for` over the object would show. Top-level order is no one's to read but a dump.
+ */
+export function pageFileOverRoot(page: Tree, root: Tree, mark: string): Tree {
+  const delta = diffTree(page, root)
+  const merged = Object.keys(delta).length ? mergeTranslationChunk(root, delta) : root
+  const whole = Object.keys(merged).length !== Object.keys(page).length
+  if (whole || Object.keys(page).some((key) => JSON.stringify(merged[key]) !== JSON.stringify(page[key]))) return page
+  return { ...delta, [PREMERGED_ROOT_MARK]: mark }
+}
+
 /**
  * Pre-merge all translation files at build time.
  *
  * Output: `{page}/{locale}/data.json` (same relative path the client fetches under `apiBaseUrl`).
+ * With `rootDelta`, `__root/{locale}/data.json` holds the locale's root and every page file only what differs from it.
  */
 export async function preMergeLocales(
   rootDirs: string[],
@@ -62,6 +96,7 @@ export async function preMergeLocales(
   disablePageLocales?: boolean,
   additionalTranslationDirs?: string[],
   routeNames: string[] = [],
+  rootDelta = false,
 ): Promise<void> {
   if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
   mkdirSync(outputDir, { recursive: true })
@@ -90,20 +125,33 @@ export async function preMergeLocales(
   // a route with no folder has a file too: a static host has no server route to answer it with the root dictionary
   const pages = new Set([...[...merged.keys()].filter((f) => f.startsWith('pages/')).map((f) => dirname(f).slice('pages/'.length)), ...routeNames])
   const targets = disablePageLocales || pages.size === 0 ? ['index'] : [...pages, ...(pages.has('index') ? [] : ['index'])]
-  const outputs = [...targets, PREMERGED_ROOT_PAGE].flatMap((page) => locales.map((locale) => ({ page, locale: locale.code })))
+  const chunk = (page: string, locale: string) =>
+    mergeSourceTranslations({
+      locale,
+      pageName: page,
+      locales,
+      globalFallbackLocale,
+      disablePageLocales,
+      readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
+    })
+  const write = (page: string, locale: string, data: Tree) => {
+    const targetPath = join(outputDir, page, locale, 'data.json')
+    mkdirSync(dirname(targetPath), { recursive: true })
+    writeFileSync(targetPath, JSON.stringify(data))
+  }
+  const split = rootDelta && !disablePageLocales
   await Promise.all(
-    outputs.map(async ({ page, locale }) => {
-      const data = await mergeSourceTranslations({
-        locale,
-        pageName: page,
-        locales,
-        globalFallbackLocale,
-        disablePageLocales,
-        readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
-      })
-      const targetPath = join(outputDir, page, locale, 'data.json')
-      mkdirSync(dirname(targetPath), { recursive: true })
-      writeFileSync(targetPath, JSON.stringify(data))
+    locales.map(async ({ code: locale }) => {
+      const root = await chunk(PREMERGED_ROOT_PAGE, locale)
+      const mark = createHash('sha256').update(JSON.stringify(root)).digest('hex').slice(0, 8)
+      // the mark last: it is deleted on load, and that keeps a parsed object's fast shape
+      write(PREMERGED_ROOT_PAGE, locale, split ? { ...root, [PREMERGED_ROOT_MARK]: mark } : root)
+      await Promise.all(
+        targets.map(async (page) => {
+          const data = await chunk(page, locale)
+          write(page, locale, split ? pageFileOverRoot(data, root, mark) : data)
+        }),
+      )
     }),
   )
 }

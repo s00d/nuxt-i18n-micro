@@ -1,3 +1,4 @@
+import { readChunk } from '../helpers/chunk.ts'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // Production build of the pristine repo fixture; nothing edits it (the HMR journeys patch tmp copies).
@@ -9,7 +10,7 @@ describe('J10 additionalTranslationDirs (prod server)', () => {
     // was: translation-watcher › additionalTranslationDirs (prod server) › merges common into UI, primary wins, ignores additional pages/
     const en = await request.get('/_locales/index/en/data.json')
     expect(en.ok()).toBe(true)
-    const enIndex = (await en.json()) as Record<string, unknown>
+    const enIndex = await readChunk(request, 'index', 'en')
     expect(enIndex).toMatchObject({
       fromCommon: 'From Common EN',
       sharedRoot: 'Shared EN',
@@ -31,7 +32,7 @@ describe('J10 additionalTranslationDirs (prod server)', () => {
     // was: translation-watcher › additionalTranslationDirs (prod server) › supports locale that exists only in additional dirs
     const fr = await request.get('/_locales/index/fr/data.json')
     expect(fr.ok()).toBe(true)
-    expect(await fr.json()).toMatchObject({
+    expect(await readChunk(request, 'index', 'fr')).toMatchObject({
       fromCommon: 'From Common FR',
       onlyCommon: 'C-fr',
       deep: { a: { x: 10, y: 20 } },

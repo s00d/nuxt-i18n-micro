@@ -523,7 +523,12 @@ describe('smaller things', () => {
   })
 
   it('a CSV row of a nested page lands in its file', async () => {
-    project({ 'locales/en.json': { a: 'x' }, 'locales/de.json': {}, 'locales/pages/blog/post/de.json': {}, 'csv_exports/de.csv': 'File,Key,Translation\npages/blog/post/de.json,a,b\n' })
+    project({
+      'locales/en.json': { a: 'x' },
+      'locales/de.json': {},
+      'locales/pages/blog/post/de.json': {},
+      'csv_exports/de.csv': 'File,Key,Translation\npages/blog/post/de.json,a,b\n',
+    })
     expect((await runCli(['import', '--format', 'csv'], { cwd: dir })).code).toBe(0)
     expect(readJson(dir, 'locales/pages/blog/post/de.json')).toEqual({ a: 'b' })
   })

@@ -129,8 +129,9 @@ describe('buildLocaleHead', () => {
     [{ code: 'en', dir: 'rtl' }, 'rtl'],
     [{ code: 'en', dir: 'auto' }, 'auto'],
   ] as [Locale, string | undefined][])('dir of %j is %s', (locale, dir) => {
-    expect(buildLocaleHead({ ...base, locale }).htmlAttrs.dir).toBe(dir)
-    expect('dir' in buildLocaleHead({ ...base, locale }).htmlAttrs).toBe(dir !== undefined)
+    const { htmlAttrs } = buildLocaleHead({ ...base, locale, addSeoAttributes: false })
+    expect(htmlAttrs.dir).toBe(dir)
+    expect('dir' in htmlAttrs).toBe(dir !== undefined)
   })
 
   it('no dir at all when it is not asked for', () => {

@@ -1,7 +1,7 @@
 /** Root + delta: a page's text is the same whatever the layout, and no client sees a half of it. */
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { mergeOverRoot, PREMERGED_ROOT_MARK } from '@i18n-micro/utils/merge-source'
 import fc from 'fast-check'
 import { afterAll, afterEach, describe, expect, test, vi } from 'vitest'
@@ -97,7 +97,7 @@ describe('a build', () => {
     for (const file of list(whole)) {
       const read = (root: string) => JSON.parse(readFileSync(file.replace(whole, root), 'utf8')) as Tree
       const data = read(split)
-      const locale = file.split('/').at(-2)!
+      const locale = basename(dirname(file))
       const root = JSON.parse(readFileSync(join(split, '__root', locale, 'data.json'), 'utf8')) as Tree
       takeRootMark(root)
       const mark = takeRootMark(data)

@@ -25,10 +25,12 @@ member DomainPathStrategy.getStrategy: () => Strategies
 member DomainPathStrategy.hasPrefix: protected (locale: string) => boolean
 member DomainPathStrategy.home: private (locale: string) => Target
 member DomainPathStrategy.index: protected Index
+member DomainPathStrategy.isDeclaredAlias: private (route: ResolvedRouteLike) => boolean
 member DomainPathStrategy.isDisabledPrefix: private (path: string, segment: string) => boolean
 member DomainPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
 member DomainPathStrategy.isOwnPage: protected (path: string) => boolean
 member DomainPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
+member DomainPathStrategy.keepsAlias: private (page: Page, path: string, locale: string) => boolean
 member DomainPathStrategy.linkCodes: private Set<string>
 member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member DomainPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
@@ -41,7 +43,7 @@ member DomainPathStrategy.pageLocales: (route: RouteLike) => string[] | null
 member DomainPathStrategy.pathOnHost: private (locale: string, config: Locale, route: Target) => string
 member DomainPathStrategy.prefix: private string
 member DomainPathStrategy.prefixed: private (locale: string, path: string) => string
-member DomainPathStrategy.probe: protected (to: RouteLike | string) => ResolvedRouteLike | null
+member DomainPathStrategy.probe: (to: RouteLike | string) => ResolvedRouteLike | null
 member DomainPathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
 member DomainPathStrategy.resolveLocaleFromPath: (path: string) => string | null
 member DomainPathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
@@ -77,10 +79,12 @@ member I18nPathStrategy.getStrategy: () => Strategies
 member I18nPathStrategy.hasPrefix: protected (locale: string) => boolean
 member I18nPathStrategy.home: private (locale: string) => Target
 member I18nPathStrategy.index: protected Index
+member I18nPathStrategy.isDeclaredAlias: private (route: ResolvedRouteLike) => boolean
 member I18nPathStrategy.isDisabledPrefix: private (path: string, segment: string) => boolean
 member I18nPathStrategy.isMetaDisabled: (route: RouteLike, locale: string) => boolean
 member I18nPathStrategy.isOwnPage: protected (path: string) => boolean
 member I18nPathStrategy.isUnknownLocale: private (path: string, segment: string) => boolean
+member I18nPathStrategy.keepsAlias: private (page: Page, path: string, locale: string) => boolean
 member I18nPathStrategy.linkCodes: private Set<string>
 member I18nPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member I18nPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
@@ -91,7 +95,7 @@ member I18nPathStrategy.pageBase: private (route: RouteLike) => string | null
 member I18nPathStrategy.pageLocales: (route: RouteLike) => string[] | null
 member I18nPathStrategy.prefix: private string
 member I18nPathStrategy.prefixed: private (locale: string, path: string) => string
-member I18nPathStrategy.probe: protected (to: RouteLike | string) => ResolvedRouteLike | null
+member I18nPathStrategy.probe: (to: RouteLike | string) => ResolvedRouteLike | null
 member I18nPathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
 member I18nPathStrategy.resolveLocaleFromPath: (path: string) => string | null
 member I18nPathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
@@ -120,7 +124,7 @@ member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
-member ResolvedRouteLike.matched?: unknown[] | undefined
+member ResolvedRouteLike.matched?: RouteRecordLike[] | undefined
 member ResolvedRouteLike.meta?: Record<string, unknown> | undefined
 member ResolvedRouteLike.name: string | symbol | null | undefined
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
@@ -145,7 +149,7 @@ member RouterAdapter.getRoutes: () => RouteRecordLike[]
 member RouterAdapter.hasRoute: (name: string | symbol) => boolean
 member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
 interface RouteRecordLike
-member RouteRecordLike.aliasOf?: unknown
+member RouteRecordLike.aliasOf?: { path: string; } | undefined
 member RouteRecordLike.meta?: Record<string, unknown> | undefined
 member RouteRecordLike.name?: string | symbol | null | undefined
 member RouteRecordLike.path: string
@@ -171,7 +175,7 @@ member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
-member ResolvedRouteLike.matched?: unknown[] | undefined
+member ResolvedRouteLike.matched?: RouteRecordLike[] | undefined
 member ResolvedRouteLike.meta?: Record<string, unknown> | undefined
 member ResolvedRouteLike.name: string | symbol | null | undefined
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
@@ -196,7 +200,7 @@ member RouterAdapter.getRoutes: () => RouteRecordLike[]
 member RouterAdapter.hasRoute: (name: string | symbol) => boolean
 member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
 interface RouteRecordLike
-member RouteRecordLike.aliasOf?: unknown
+member RouteRecordLike.aliasOf?: { path: string; } | undefined
 member RouteRecordLike.meta?: Record<string, unknown> | undefined
 member RouteRecordLike.name?: string | symbol | null | undefined
 member RouteRecordLike.path: string

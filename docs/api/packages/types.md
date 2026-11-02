@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/types`
 
-26 exports across 1 entry point.
+28 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -33,11 +33,13 @@ import { /* … */ } from '@i18n-micro/types'
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 53 members |
-| `ModuleOptionsExtend` | interface | 60 members |
-| `ModulePrivateOptionsExtend` | interface | 58 members |
+| `ModuleOptionsExtend` | interface | 61 members |
+| `ModulePrivateOptionsExtend` | interface | 57 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
+| `ResolvedI18nConfig` | type | `Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>` |
+| `RouteI18nMeta` | interface | 5 members |
 | `ScopedKey` | type | ``<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>`` |
 | `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
 | `Translation` | type | `CleanTranslation \| unknown` |
@@ -180,7 +182,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 60 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 61 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -225,6 +227,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `metaTrustForwardedProto?` | `boolean \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `noPrefixRedirect?` | `boolean \| undefined` |
+| `noScripts?` | `boolean \| undefined` |
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
@@ -248,14 +251,14 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 58 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `additionalTranslationDirs?` | `string[] \| undefined` |
 | `apiBaseClientHost?` | `string \| undefined` |
 | `apiBaseServerHost?` | `string \| undefined` |
-| `apiBaseUrl` | `string` |
+| `apiBaseUrl?` | `string \| undefined` |
 | `autoDetectLanguage?` | `boolean \| undefined` |
 | `autoDetectPath?` | `string \| undefined` |
 | `cacheMaxSize?` | `number \| undefined` |
@@ -274,7 +277,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `disableWatcher?` | `boolean \| undefined` |
 | `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
 | `experimental?` | `Record<string, unknown> \| undefined` |
-| `fallbackLocale` | `string` |
+| `fallbackLocale?` | `string \| undefined` |
 | `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
@@ -296,7 +299,6 @@ import { /* … */ } from '@i18n-micro/types'
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |
-| `rootDir` | `string` |
 | `rootDirs` | `string[]` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
@@ -320,6 +322,19 @@ import { /* … */ } from '@i18n-micro/types'
 | --- | --- |
 | `plural` | `string` |
 | `singular` | `string` |
+
+</details>
+
+<details>
+<summary><code>RouteI18nMeta</code> — 5 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `locales` | `string[]` |
+| `name` | `string` |
+| `noMeta?` | `boolean \| string[] \| undefined` |
+| `original?` | `string \| undefined` |
+| `paths?` | `Record<string, string> \| undefined` |
 
 </details>
 

@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-111 exports across 22 entry points.
+112 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -144,7 +144,7 @@ import { /* … */ } from '@i18n-micro/utils/domains'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `configForHost` | function | `(config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend` |
+| `configForHost` | function | `<T extends ModuleOptionsExtend>(config: T, host: string) => T` |
 | `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
@@ -162,6 +162,7 @@ import { /* … */ } from '@i18n-micro/utils/load-dir'
 | `loadTranslationDirAsync` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>` |
 | `loadTranslationFiles` | function | `<T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
 | `parseTranslationFile` | function | `(text: string, path: string) => Dictionary \| null` |
+| `resolveTranslationFile` | function | `(base: string, file: string) => string \| null` |
 | `TranslationFile` | interface | 2 members |
 
 <details>
@@ -573,8 +574,8 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `applyI18nRuntimeOverrides` | function | `(baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend` |
-| `createI18nConfigResolver` | function | `(warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend` |
+| `applyI18nRuntimeOverrides` | function | `<T extends ModuleOptionsExtend>(baseConfig: T, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => T` |
+| `createI18nConfigResolver` | function | `(warn?: (message: string) => void) => <T extends ModuleOptionsExtend>(baseConfig: T, runtimePublic?: Record<string, unknown>) => T` |
 | `i18nOverridesKey` | function | `(overrides: RuntimeI18nOverrides) => string` |
 | `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
 | `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |

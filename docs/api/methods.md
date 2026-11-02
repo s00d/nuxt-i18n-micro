@@ -36,7 +36,7 @@ const { t, localePath } = useI18n()
 | [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<string>` | Bind `$ts` to a specific route. |
 | [`$clearCache`](#clearcache) | `() => void` | Drop every cached translation chunk and reload the current page's dictionary. |
 | [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
-| [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it. |
+| [`$getI18nConfig`](#geti18nconfig) | `() => ResolvedI18nConfig` | The resolved module configuration, as the runtime sees it. |
 | [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
 | [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
 | [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
@@ -127,7 +127,7 @@ Code of the configured default locale.
 <!-- generated:method:$getI18nConfig — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-() => ModuleOptionsExtend
+() => ResolvedI18nConfig
 ```
 
 The resolved module configuration, as the runtime sees it.

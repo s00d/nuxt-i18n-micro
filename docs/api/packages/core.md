@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-110 exports across 4 entry points.
+112 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -37,6 +37,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
+| `isProduction` | function | `() => boolean` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `localizedPath` | function | `(to: string \| { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string` |
@@ -371,6 +372,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
 | `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
+| `isProduction` | function | `() => boolean` |
 | `isSamePage` | const | `(a: string, b: string) => boolean` |
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
 | `localizedPath` | function | `(to: string \| { path?: string; }, locale: string, localeCodes: readonly string[], defaultLocale: string) => string` |

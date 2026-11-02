@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/route-strategy`
 
-13 exports across 1 entry point.
+14 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -26,6 +26,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `nameOfPath` | function | `(fullPath: string) => string` |
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
+| `pageNames` | const | `(pages: NuxtPage[]) => string[]` |
 | `RouteGenerator` | class | 18 members |
 | `RouteGeneratorOptions` | interface | 13 members |
 | `RouteI18nMeta` | interface | 5 members |
@@ -98,7 +99,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 </details>
 
-<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/types).
 
 <details>
 <summary><code>Rules</code> — 12 members</summary>

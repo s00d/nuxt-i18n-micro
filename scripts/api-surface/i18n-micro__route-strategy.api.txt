@@ -18,6 +18,7 @@ function localesOutsideMatcher: (codes: readonly string[], matcher: string | Reg
 function nameOfPath: (fullPath: string) => string
 function normalizePath: (routePath: string) => string
 function normalizeRouteKey: (key: string) => string
+const pageNames: (pages: NuxtPage[]) => string[]
 class RouteGenerator
 member RouteGenerator.defaultLocale: Locale
 member RouteGenerator.disabledLocales: Locale[]

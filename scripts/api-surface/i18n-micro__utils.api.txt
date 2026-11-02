@@ -55,7 +55,7 @@ function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 function deepMergeTranslationsRecursive: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
 
 # ./domains (src/domains.ts)
-function configForHost: (config: ModuleOptionsExtend, host: string) => ModuleOptionsExtend
+function configForHost: <T extends ModuleOptionsExtend>(config: T, host: string) => T
 function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
 
 # ./load-dir (src/load-dir.ts)
@@ -65,6 +65,7 @@ function loadTranslationDir: <T extends Dictionary = Dictionary>(dir: string, di
 function loadTranslationDirAsync: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => Promise<TranslationFileBuckets<T>>
 function loadTranslationFiles: <T extends Dictionary = Dictionary>(files: TranslationFile[], disablePageLocales?: boolean) => TranslationFileBuckets<T>
 function parseTranslationFile: (text: string, path: string) => Dictionary | null
+function resolveTranslationFile: (base: string, file: string) => string | null
 interface TranslationFile
 member TranslationFile.absolutePath: string
 member TranslationFile.relativePath: string
@@ -240,8 +241,8 @@ member WarnUnresolvedOgLocaleOptions.missingWarn?: boolean | undefined
 member WarnUnresolvedOgLocaleOptions.tag?: "og:locale" | "og:locale:alternate" | undefined
 
 # ./runtime-config (src/runtime-config.ts)
-function applyI18nRuntimeOverrides: (baseConfig: ModuleOptionsExtend, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => ModuleOptionsExtend
-function createI18nConfigResolver: (warn?: (message: string) => void) => (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend
+function applyI18nRuntimeOverrides: <T extends ModuleOptionsExtend>(baseConfig: T, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => T
+function createI18nConfigResolver: (warn?: (message: string) => void) => <T extends ModuleOptionsExtend>(baseConfig: T, runtimePublic?: Record<string, unknown>) => T
 function i18nOverridesKey: (overrides: RuntimeI18nOverrides) => string
 function mergeI18nOverrides: (primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides
 function readI18nEnvOverrides: () => RuntimeI18nOverrides

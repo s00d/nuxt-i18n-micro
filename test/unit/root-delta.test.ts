@@ -146,7 +146,7 @@ describe('a browser', () => {
     await new Promise((resolve) => setTimeout(resolve, 5))
     expect(done).toBe(false)
     release()
-    expect((await load).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await load).toEqual({ nav: 'root', title: 'page' })
   })
 
   test('the same the other way round', async () => {
@@ -156,7 +156,7 @@ describe('a browser', () => {
     const load = translationStorage.load('de', 'about', options)
     await new Promise((resolve) => setTimeout(resolve, 5))
     release()
-    expect((await load).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await load).toEqual({ nav: 'root', title: 'page' })
   })
 
   test('a burst of pages costs one root', async () => {
@@ -167,17 +167,17 @@ describe('a browser', () => {
 
   test('no mark is a whole chunk: it stands alone, a key the root has and it dropped stays dropped', async () => {
     host({ __root: { nav: 'root', dropped: 1, [mark]: 'r' }, about: { nav: 'root', title: 'whole' } })
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ nav: 'root', title: 'whole' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ nav: 'root', title: 'whole' })
   })
 
   test('a host with no root file and whole chunks works, with the flag on', async () => {
     host({ about: { title: 'whole' } })
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ title: 'whole' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ title: 'whole' })
   })
 
   test('a delta from a build that did not announce one still finds its root', async () => {
     const calls = host({ __root: { nav: 'root', [mark]: 'r' }, about: { title: 'page', [mark]: 'r' } })
-    expect((await translationStorage.load('de', 'about', { ...options, rootDelta: false })).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await translationStorage.load('de', 'about', { ...options, rootDelta: false })).toEqual({ nav: 'root', title: 'page' })
     expect(calls).toHaveLength(2)
   })
 
@@ -187,7 +187,7 @@ describe('a browser', () => {
     await expect(translationStorage.load('de', 'about', options)).rejects.toThrow('503')
     expect(translationStorage.getFromCache('de', 'about')).toBeNull()
     files.__root = { nav: 'root', [mark]: 'r' }
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ nav: 'root', title: 'page' })
   })
 
   test('a failed delta fails the load, and the root it loaded stays', async () => {
@@ -195,16 +195,16 @@ describe('a browser', () => {
     const calls = host(files)
     await expect(translationStorage.load('de', 'about', options)).rejects.toThrow('503')
     files.about = { title: 'page', [mark]: 'r' }
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ nav: 'root', title: 'page' })
     expect(calls.filter((call) => call.path.includes('__root'))).toHaveLength(1)
   })
 
   test('a delta on a root the host has not got is kept nowhere: the next load reads again', async () => {
     const files: Record<string, unknown> = { about: { title: 'page', [mark]: 'r' } }
     host(files)
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ title: 'page' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ title: 'page' })
     files.__root = { nav: 'root', [mark]: 'r' }
-    expect((await translationStorage.load('de', 'about', options)).data).toEqual({ nav: 'root', title: 'page' })
+    expect(await translationStorage.load('de', 'about', options)).toEqual({ nav: 'root', title: 'page' })
   })
 
   test('a stale tab: a new delta on the root it holds asks for the new root, by a URL no cache has', async () => {
@@ -214,7 +214,7 @@ describe('a browser', () => {
     // deploy: `moved` went from a page into the root
     files.__root = { nav: 'new', moved: 'in root', [mark]: 'r2' }
     files.b = { y: 2, [mark]: 'r2' }
-    expect((await translationStorage.load('de', 'b', options)).data).toEqual({ nav: 'new', moved: 'in root', y: 2 })
+    expect(await translationStorage.load('de', 'b', options)).toEqual({ nav: 'new', moved: 'in root', y: 2 })
     expect(calls.at(-1)).toMatchObject({ params: { v: 'r2' } })
   })
 
@@ -222,7 +222,7 @@ describe('a browser', () => {
     const files = { __root: { nav: 'old', [mark]: 'r1' }, a: { x: 1, [mark]: 'r1' }, b: { y: 2, [mark]: 'r2' } }
     const calls = host(files)
     await translationStorage.load('de', 'a', options)
-    expect((await translationStorage.load('de', 'b', options)).data).toEqual({ nav: 'old', y: 2 })
+    expect(await translationStorage.load('de', 'b', options)).toEqual({ nav: 'old', y: 2 })
     expect(calls.filter((call) => call.path.includes('__root'))).toHaveLength(2)
   })
 
@@ -254,8 +254,8 @@ describe('a browser', () => {
         }
         while (queue.length) queue.shift()!()
         const [a, b] = await Promise.all(loads)
-        expect(a!.data).toEqual({ nav: 'root', x: 1 })
-        expect(b!.data).toEqual({ nav: 'root', y: 2 })
+        expect(a).toEqual({ nav: 'root', x: 1 })
+        expect(b).toEqual({ nav: 'root', y: 2 })
       }),
       { seed: 42, numRuns: 100 },
     )
@@ -263,8 +263,8 @@ describe('a browser', () => {
 
   test('the mark never reaches a dictionary', async () => {
     host({ __root: { nav: 'root', [mark]: 'r' }, about: { [mark]: 'r' } })
-    const { data } = await translationStorage.load('de', 'about', options)
+    const data = await translationStorage.load('de', 'about', options)
     expect(Object.keys(data)).toEqual(['nav'])
-    expect(Object.keys((await translationStorage.load('de', '__root', options)).data)).toEqual(['nav'])
+    expect(Object.keys(await translationStorage.load('de', '__root', options))).toEqual(['nav'])
   })
 })

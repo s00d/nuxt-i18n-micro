@@ -397,7 +397,7 @@ describe('NuxtTranslationLoader: reload', () => {
       await reloading
       expect(await inFlight).toEqual({ title: 'fresh' })
       expect(i18n.t('title')).toBe('fresh')
-      expect(translationStorage.getFromCache('en', 'about')?.data).toEqual({ title: 'fresh' })
+      expect(translationStorage.getFromCache('en', 'about')).toEqual({ title: 'fresh' })
     } finally {
       vi.unstubAllGlobals()
     }
@@ -490,7 +490,7 @@ describe('NuxtTranslationLoader: loads racing navigations', () => {
     const loads = new Map<string, Promise<Record<string, unknown>>>([['en', fresh.promise]])
     const loadSpy = vi
       .spyOn(translationStorage, 'load')
-      .mockImplementation(async (locale) => ({ data: await (loads.get(locale) ?? Promise.resolve({ title: 'other' })), cacheKey: `${locale}:about` }))
+      .mockImplementation((locale) => loads.get(locale) ?? Promise.resolve({ title: 'other' }))
     try {
       const reloading = loader.reload()
       expect(i18n.t('title')).toBe('Old')

@@ -25,15 +25,6 @@ export interface LoadOptions {
   serverLoad?: (locale: string, routeName: string) => Promise<Record<string, unknown> | null>
 }
 
-export interface LoadResult {
-  data: Record<string, unknown>
-  cacheKey: string
-}
-
-// ============================================================================
-// STORAGE CLASS
-// ============================================================================
-
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
 /** The process-wide chunk cache. `clears` lives with it: the HMR watcher empties it without this module. */
@@ -58,7 +49,7 @@ function getStorageCacheControl(): ChunkCache {
 class TranslationStorage {
   private cc: ChunkCache
   /** Roots on their way: every page of a first burst waits for one request. */
-  private readonly rootLoads = new Map<string, Promise<LoadResult>>()
+  private readonly rootLoads = new Map<string, Promise<Record<string, unknown>>>()
   /** The mark of each root held, to tell a delta made against another one. */
   private readonly rootMarks = new Map<string, string | undefined>()
 
@@ -73,10 +64,6 @@ class TranslationStorage {
     this.cc.configure(options)
   }
 
-  // ==========================================================================
-  // HELPERS
-  // ==========================================================================
-
   /**
    * On the server the cache is shared by every request, so its root is frozen, once, in place: nested values are shared
    * on purpose, and no caller mutates a chunk. A browser fetched this object for itself and has one reader: nothing to guard.
@@ -84,10 +71,6 @@ class TranslationStorage {
   private shared(data: Record<string, unknown>): Record<string, unknown> {
     return import.meta.server ? Object.freeze(data) : data
   }
-
-  // ==========================================================================
-  // FETCH LOADER
-  // ==========================================================================
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown> | null> {
     // SSR: ask the server loader directly (its cached, shared chunk) instead of a local HTTP
@@ -138,37 +121,18 @@ class TranslationStorage {
     return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
   }
 
-  // ==========================================================================
-  // PUBLIC API
-  // ==========================================================================
-
-  /**
-   * Synchronous cache check and retrieval.
-   * Returns data if cached (and not expired), otherwise null.
-   */
-  getFromCache(locale: string, routeName?: string): LoadResult | null {
-    const cacheKey = translationCacheKey(locale, routeName)
-
-    // From cache
-    const cached = this.cc.get(cacheKey)
-    if (cached) {
-      return { data: cached, cacheKey }
-    }
-
-    return null
+  /** The cached chunk (not expired), or null. */
+  getFromCache(locale: string, routeName?: string): Record<string, unknown> | null {
+    return this.cc.get(translationCacheKey(locale, routeName)) ?? null
   }
 
-  /**
-   * Load translations (with caching).
-   * Returns data, cache key, and JSON for injection (server only).
-   */
-  async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
+  /** Load a chunk, with caching. */
+  async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
     // the render reads the server's own cache, which counts `cacheTtl`: a copy here would count it a second time
     const direct = import.meta.server && Boolean(options.serverLoad)
     const cached = direct ? null : this.getFromCache(locale, routeName)
     if (cached) return cached
 
-    const cacheKey = translationCacheKey(locale, routeName)
     const clears = this.cc.clears
     const page = routeName !== PREMERGED_ROOT_PAGE
     // started with the page, so a hint for both pays one round trip. Waited for below, whatever the page's answer
@@ -187,17 +151,17 @@ class TranslationStorage {
     if (data === null && routeName === PREMERGED_ROOT_PAGE) {
       // a request can show raw keys and retry; a written file keeps them, so this counts as a failed load
       if (import.meta.server && import.meta.prerender) throw new Error('[i18n] The host has no dictionary for this page')
-      return { data: NO_ROOT, cacheKey }
+      return NO_ROOT
     }
-    if (data === null) return { ...(await this.load(locale, PREMERGED_ROOT_PAGE, options)), cacheKey }
+    if (data === null) return this.load(locale, PREMERGED_ROOT_PAGE, options)
 
     // a delta with no root under it is not a dictionary: a deploy in progress, the next load reads again
-    if (!direct && !layers?.partial) this.cc.set(cacheKey, this.shared(data))
+    if (!direct && !layers?.partial) this.cc.set(translationCacheKey(locale, routeName), this.shared(data))
 
-    return { data, cacheKey }
+    return data
   }
 
-  private loadRoot(locale: string, options: LoadOptions): Promise<LoadResult> {
+  private loadRoot(locale: string, options: LoadOptions): Promise<Record<string, unknown>> {
     const pending = this.rootLoads.get(locale)
     if (pending) return pending
     const load = this.load(locale, PREMERGED_ROOT_PAGE, options).finally(() => this.rootLoads.delete(locale))
@@ -214,14 +178,14 @@ class TranslationStorage {
     locale: string,
     mark: string,
     delta: Record<string, unknown>,
-    started: Promise<LoadResult> | undefined,
+    started: Promise<Record<string, unknown>> | undefined,
     options: LoadOptions,
   ): Promise<{ data: Record<string, unknown>; partial: boolean }> {
-    let { data: root } = await (started ?? this.loadRoot(locale, options))
+    let root = await (started ?? this.loadRoot(locale, options))
     const held = this.rootMarks.get(locale)
     if (held && held !== mark) {
       this.cc.delete(translationCacheKey(locale, PREMERGED_ROOT_PAGE))
-      ;({ data: root } = await this.load(locale, PREMERGED_ROOT_PAGE, { ...options, dateBuild: mark }))
+      root = await this.load(locale, PREMERGED_ROOT_PAGE, { ...options, dateBuild: mark })
     }
     return { data: mergeOverRoot(root, delta), partial: root === NO_ROOT }
   }
@@ -235,9 +199,5 @@ class TranslationStorage {
     this.cc.clear()
   }
 }
-
-// ============================================================================
-// SINGLETON
-// ============================================================================
 
 export const translationStorage = new TranslationStorage()

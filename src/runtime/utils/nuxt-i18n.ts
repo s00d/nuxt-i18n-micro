@@ -416,7 +416,7 @@ export class NuxtTranslationLoader {
     }
 
     const cached = translationStorage.getFromCache(locale, routeName)
-    return cached && i18n.installChunk(locale, routeName, cached.data)
+    return cached && i18n.installChunk(locale, routeName, cached)
   }
 
   /** The chunk, or `{}` when the load fails (a page without translations still renders). */
@@ -433,8 +433,7 @@ export class NuxtTranslationLoader {
 
     const promise = (async () => {
       try {
-        const { data } = await translationStorage.load(locale, routeName, loadOptions)
-        return i18n.installChunk(locale, routeName, data)
+        return i18n.installChunk(locale, routeName, await translationStorage.load(locale, routeName, loadOptions))
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)

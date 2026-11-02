@@ -164,7 +164,7 @@ async function exec(steps: Step[]) {
       for (const r of [...ROUTES, ROOT]) {
         const hit = translationStorage.getFromCache(l, r)
         const floor = cleared.get(`${l}/${r}`) ?? 0
-        if (hit && (hit.data.ver as number) < floor) throw new Error(`${at}: cache holds ${l}/${r} v${String(hit.data.ver)}, cleared at v${floor}`)
+        if (hit && (hit.ver as number) < floor) throw new Error(`${at}: cache holds ${l}/${r} v${String(hit.ver)}, cleared at v${floor}`)
       }
   }
   const markClear = () => {

@@ -45,6 +45,7 @@ export const recipes = defineRecipes(
     'basic-pages-false-no-prefix': app('basic-pages-false-no-prefix', 'basic', { BASIC_VARIANT: 'pages-false', STRATEGY: 'no_prefix' }),
     'basic-no-plugin': app('basic-no-plugin', 'basic', { BASIC_VARIANT: 'no-plugin' }),
     'basic-serverless': app('basic-serverless', 'basic', { BASIC_VARIANT: 'serverless' }),
+    'basic-edge': app('basic-edge', 'basic', { BASIC_VARIANT: 'edge' }),
     // @nuxt/content and @nuxtjs/seo in one app
     integrations: app('integrations'),
     seo: app('seo'),

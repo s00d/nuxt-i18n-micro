@@ -5,7 +5,7 @@ import n3Routes from './n3/locales/pages'
 
 // One fixture, several builds (test/recipes.ts). BASIC_VARIANT picks the variant below; the default is basic.
 // The `basic-layer` recipe builds ./layer, which extends this dir.
-type Variant = 'basic' | 'pages-false' | 'no-plugin' | 'serverless' | 'n3'
+type Variant = 'basic' | 'pages-false' | 'no-plugin' | 'serverless' | 'n3' | 'edge'
 
 const routeRules = {
   '/client': { ssr: false },
@@ -105,6 +105,29 @@ const variants: Record<Variant, Record<string, unknown>> = {
       fallbackLocale: 'en',
       translationDir: 'locales',
       autoDetectLanguage: false,
+    },
+  },
+  // Dictionaries at their worst (edge-dictionaries.spec.ts): `/one?k=<key>&m=<mode>` renders one key through one API
+  edge: {
+    dir: { pages: 'edge/pages' },
+    i18n: {
+      strategy: 'prefix_except_default',
+      defaultLocale: 'en',
+      translationDir: 'edge/locales',
+      localeCookie: 'user-locale',
+      autoDetectLanguage: true,
+      meta: true,
+      locales: [
+        { code: 'en', iso: 'en-US' },
+        { code: 'de', iso: 'de-DE' },
+        { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+        // only `pages/index/page-only.json`
+        { code: 'page-only', iso: 'it-IT' },
+        // no file at all
+        { code: 'no-file', iso: 'es-ES' },
+        // `{}`
+        { code: 'zero', iso: 'fr-FR' },
+      ],
     },
   },
   // A real app's routing kept as a regression matrix (test/journeys/n3-matrix.spec.ts): 27 locales over

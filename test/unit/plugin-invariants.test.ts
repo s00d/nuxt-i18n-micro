@@ -123,6 +123,13 @@ describe('a first load', () => {
     await a.router.push('/about')
     expect(a.cookieWrites).toEqual(['user-locale=en'])
   })
+
+  test('that lands on another locale stores the change', async () => {
+    const a = await createApp({ side: 'spa', strategy: 'prefix_except_default', url: '/about', state: 'en' })
+    await runPlugin(plugin)
+    await a.router.push('/de/about')
+    expect(a.cookieWrites).toEqual(['user-locale=de'])
+  })
 })
 
 describe('noPrefixRedirect', () => {

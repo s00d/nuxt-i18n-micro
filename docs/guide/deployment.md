@@ -153,7 +153,7 @@ The server keeps loaded payloads in an in-process LRU cache of up to `cacheMaxSi
 
 With `app.baseURL: '/shop/'` the browser fetches `/shop/_locales/...`; the copy stays in `.output/public/_locales/`, which Nitro serves under the base (a static host must mount the output at `/shop/`). Nothing else to set. Locale prefixes and [excluded paths](/guide/excluding-static-files) are matched without the base. `app.cdnURL` moves Nuxt's assets, not the payloads: they stay on the app's origin.
 
-A runtime `NUXT_APP_BASE_URL` on `cloudflare-module` needs `nodejs_compat` or a compatibility date from 2024-09-23: without them Nitro does not see the variable and serves `/`, plain Nuxt included, while a locale redirect still goes to the base. Set `app.baseURL` at build there.
+A runtime `NUXT_APP_BASE_URL` on `cloudflare-module` needs Node compatibility (`nodejs_compat`). With `nitro.cloudflare.nodeCompat` off, which Nitro also falls to on an old date with no flag, it does not see the variable and serves `/`, plain Nuxt included, while a locale redirect still goes to the base. Set `app.baseURL` at build there.
 
 To serve payloads from another origin, point the client and server at it and turn the local outputs off:
 

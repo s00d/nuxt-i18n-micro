@@ -32,9 +32,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 52 members |
-| `ModuleOptionsExtend` | interface | 57 members |
-| `ModulePrivateOptionsExtend` | interface | 57 members |
+| `ModuleOptions` | interface | 53 members |
+| `ModuleOptionsExtend` | interface | 60 members |
+| `ModulePrivateOptionsExtend` | interface | 58 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -42,7 +42,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
 | `Translation` | type | `CleanTranslation \| unknown` |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
-| `TranslationPayloadOptions` | interface | 8 members |
+| `TranslationPayloadOptions` | interface | 9 members |
 | `Translations` | interface | 1 members |
 
 <details>
@@ -119,7 +119,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 52 members</summary>
+<summary><code>ModuleOptions</code> — 53 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -149,6 +149,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -179,7 +180,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 57 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 60 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -211,6 +212,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `isSSG?` | `boolean \| undefined` |
 | `linkLocales?` | `Locale[] \| undefined` |
@@ -226,7 +228,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `publicPayloads?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
+| `rootDelta?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
@@ -244,7 +248,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 57 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 58 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -275,6 +279,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -319,7 +324,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>TranslationPayloadOptions</code> — 8 members</summary>
+<summary><code>TranslationPayloadOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -327,6 +332,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `prerenderRoutes?` | `boolean \| undefined` |
 | `publicAssets?` | `boolean \| undefined` |
 | `publicDir?` | `string \| undefined` |
+| `rootDelta?` | `boolean \| undefined` |
 | `serverAssets?` | `boolean \| undefined` |
 | `serverHandler?` | `boolean \| undefined` |
 | `warnFileCount?` | `number \| undefined` |

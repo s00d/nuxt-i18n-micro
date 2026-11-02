@@ -65,6 +65,7 @@ member ModuleOptions.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModuleOptions.hmr?: boolean | undefined
 member ModuleOptions.hooks?: boolean | undefined
 member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
+member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.locales?: Locale[] | undefined
@@ -120,6 +121,7 @@ member ModuleOptionsExtend.hashMode: boolean
 member ModuleOptionsExtend.hmr?: boolean | undefined
 member ModuleOptionsExtend.hooks?: boolean | undefined
 member ModuleOptionsExtend.hreflangBaseLanguage?: boolean | undefined
+member ModuleOptionsExtend.httpCacheControl?: string | false | undefined
 member ModuleOptionsExtend.httpCacheDuration?: number | undefined
 member ModuleOptionsExtend.isSSG?: boolean | undefined
 member ModuleOptionsExtend.linkLocales?: Locale[] | undefined
@@ -135,7 +137,9 @@ member ModuleOptionsExtend.noPrefixRedirect?: boolean | undefined
 member ModuleOptionsExtend.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
 member ModuleOptionsExtend.plugin?: boolean | undefined
 member ModuleOptionsExtend.plural?: PluralFunc | undefined
+member ModuleOptionsExtend.publicPayloads?: boolean | undefined
 member ModuleOptionsExtend.redirects?: boolean | undefined
+member ModuleOptionsExtend.rootDelta?: boolean | undefined
 member ModuleOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
@@ -177,6 +181,7 @@ member ModulePrivateOptionsExtend.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModulePrivateOptionsExtend.hmr?: boolean | undefined
 member ModulePrivateOptionsExtend.hooks?: boolean | undefined
 member ModulePrivateOptionsExtend.hreflangBaseLanguage?: boolean | undefined
+member ModulePrivateOptionsExtend.httpCacheControl?: string | false | undefined
 member ModulePrivateOptionsExtend.httpCacheDuration?: number | undefined
 member ModulePrivateOptionsExtend.localeCookie?: string | null | undefined
 member ModulePrivateOptionsExtend.locales?: Locale[] | undefined
@@ -221,6 +226,7 @@ member TranslationPayloadOptions.mode?: "premerged" | "source" | undefined
 member TranslationPayloadOptions.prerenderRoutes?: boolean | undefined
 member TranslationPayloadOptions.publicAssets?: boolean | undefined
 member TranslationPayloadOptions.publicDir?: string | undefined
+member TranslationPayloadOptions.rootDelta?: boolean | undefined
 member TranslationPayloadOptions.serverAssets?: boolean | undefined
 member TranslationPayloadOptions.serverHandler?: boolean | undefined
 member TranslationPayloadOptions.warnFileCount?: number | undefined

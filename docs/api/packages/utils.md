@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-105 exports across 22 entry points.
+111 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -311,10 +311,12 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `buildFallbackLocaleChain` | function | `(locale: string, locales: SourceLocaleInfo[], globalFallbackLocale?: string) => string[]` |
 | `buildSourcePagePath` | function | `(pageName: string, localeCode: string) => string` |
 | `buildSourceRootPath` | function | `(localeCode: string) => string` |
+| `mergeOverRoot` | function | `(root: Record<string, unknown>, delta: Record<string, unknown>) => Record<string, unknown>` |
 | `mergeSourceTranslations` | function | `(input: MergeSourceTranslationsInput) => Promise<Record<string, unknown>>` |
 | `MergeSourceTranslationsInput` | interface | 6 members |
 | `mergeTranslationsFromFallbackChainAsync` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>` |
 | `normalizeConfiguredLocales` | function | `(locales: Array<string \| Locale> \| undefined) => SourceLocaleInfo[]` |
+| `PREMERGED_ROOT_MARK` | const | `"__i18n_root"` |
 | `PREMERGED_ROOT_PAGE` | const | `"__root"` |
 | `resolveSourcePageName` | function | `(pageName: string, disablePageLocales?: boolean) => string` |
 | `SourceLocaleInfo` | interface | 2 members |
@@ -389,7 +391,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-fetch'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `fetchTranslationPayloadFromHost` | function | `(config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations \| null>` |
-| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; }) => Promise<T>` |
+| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; cache?: RequestCache; }) => Promise<T>` |
 | `TranslationPayloadHostConfig` | interface | 3 members |
 
 <details>
@@ -414,8 +416,35 @@ import { /* … */ } from '@i18n-micro/utils/payload-url'
 | `buildTranslationPayloadFetchRequest` | function | `(input: TranslationPayloadFetchRequestInput) => { path: string; baseURL: string; params?: Record<string, string \| number>; }` |
 | `buildTranslationPayloadPath` | function | `(apiBaseUrl: string, page: string, locale: string) => string` |
 | `resolveTranslationPayloadBaseURL` | function | `(options: { isServer: boolean; baseURL: string; apiBaseClientHost?: string; apiBaseServerHost?: string; }) => string` |
+| `resolveTranslationPayloadCachePolicy` | function | `(input: TranslationPayloadCacheInput) => TranslationPayloadCachePolicy` |
 | `resolveTranslationPayloadPage` | function | `(routeName: string \| undefined, routesLocaleLinks?: Record<string, string>) => string` |
+| `TRANSLATION_PAYLOAD_FILE_CACHE_CONTROL` | const | `"public, max-age=60, stale-while-revalidate=86400"` |
+| `TranslationPayloadCacheInput` | interface | 4 members |
+| `TranslationPayloadCachePolicy` | interface | 3 members |
 | `TranslationPayloadFetchRequestInput` | interface | 9 members |
+
+<details>
+<summary><code>TranslationPayloadCacheInput</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `dateBuild?` | `string \| number \| undefined` |
+| `httpCacheControl?` | `string \| false \| undefined` |
+| `httpCacheDuration?` | `number \| undefined` |
+| `live?` | `boolean \| undefined` |
+
+</details>
+
+<details>
+<summary><code>TranslationPayloadCachePolicy</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `current` | `string \| null` |
+| `file` | `string \| null` |
+| `stale` | `string \| null` |
+
+</details>
 
 <details>
 <summary><code>TranslationPayloadFetchRequestInput</code> — 9 members</summary>
@@ -550,13 +579,14 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 | `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
 | `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |
 | `readI18nRuntimeOverrides` | function | `(runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides` |
-| `RuntimeI18nOverrides` | interface | 4 members |
+| `RuntimeI18nOverrides` | interface | 5 members |
 
 <details>
-<summary><code>RuntimeI18nOverrides</code> — 4 members</summary>
+<summary><code>RuntimeI18nOverrides</code> — 5 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `dateBuild?` | `string \| undefined` |
 | `defaultLocale?` | `string \| undefined` |
 | `disabledLocales?` | `string[] \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |

@@ -5,7 +5,7 @@ import type { Locale } from '@i18n-micro/types'
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
-import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
+import { type ParsedTranslationRelativePath, parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 
 /** A cache the watcher drops on change (the server cache, the SSR storage cache). */
 interface TranslationWatchCache {
@@ -62,12 +62,11 @@ export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translat
   translationRoots: string[]
   additionalRoots: string[]
 } {
-  const roots = input.rootDirs.length > 0 ? input.rootDirs : ['.']
-  const translationRoots = roots.map((root) => resolve(root, input.translationDir))
+  const translationRoots = input.rootDirs.map((root) => resolve(root, input.translationDir))
   // Same nest order as `mergeAdditionalRootLocaleFiles`: dir outer, layer root inner.
   const additionalRoots: string[] = []
   for (const dir of input.additionalTranslationDirs ?? []) {
-    for (const root of roots) {
+    for (const root of input.rootDirs) {
       additionalRoots.push(resolve(root, dir))
     }
   }
@@ -143,12 +142,16 @@ export async function mergeDevTranslations(input: DevTranslationMergeInput): Pro
  * (pages it did not list, `disablePageLocales` keys, fallback locales). Dev reads are live
  * merges, so the next request rebuilds only what is asked for.
  */
-export async function handleTranslationWatchChange(input: HandleTranslationWatchChangeInput): Promise<'page' | 'root' | 'ignored'> {
+export async function handleTranslationWatchChange(
+  input: HandleTranslationWatchChangeInput,
+): Promise<ParsedTranslationRelativePath & { dropped: boolean }> {
   const parsed = parseTranslationRelativePath(input.relativePath)
-  if (parsed.type === 'ignore' || (parsed.type === 'root' && !input.configuredLocales.has(parsed.locale))) return 'ignored'
-  input.serverCache.clear()
-  input.storageCache?.clear()
-  return parsed.type
+  const dropped = parsed.type === 'page' || (parsed.type === 'root' && input.configuredLocales.has(parsed.locale))
+  if (dropped) {
+    input.serverCache.clear()
+    input.storageCache?.clear()
+  }
+  return { ...parsed, dropped }
 }
 
 /**

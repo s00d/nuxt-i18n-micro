@@ -70,7 +70,10 @@ describe('dev translation watcher', () => {
       ['de:index', 2],
     ])
     const storage = new Map([['en:about', 3]])
-    expect(await handleTranslationWatchChange({ relativePath: 'xx.json', configuredLocales: new Set(['en']), serverCache: server })).toBe('ignored')
+    expect(await handleTranslationWatchChange({ relativePath: 'xx.json', configuredLocales: new Set(['en']), serverCache: server })).toMatchObject({
+      type: 'root',
+      dropped: false,
+    })
     expect(server.size).toBe(2)
     const change = await handleTranslationWatchChange({
       relativePath: 'en.json',
@@ -78,12 +81,13 @@ describe('dev translation watcher', () => {
       serverCache: server,
       storageCache: storage,
     })
-    expect(change).toBe('root')
+    expect(change).toMatchObject({ type: 'root', dropped: true })
     expect(server.size + storage.size).toBe(0)
     server.set('en:about', 4)
-    expect(await handleTranslationWatchChange({ relativePath: 'pages/about/en.json', configuredLocales: new Set(['en']), serverCache: server })).toBe(
-      'page',
-    )
+    expect(await handleTranslationWatchChange({ relativePath: 'pages/about/en.json', configuredLocales: new Set(['en']), serverCache: server })).toMatchObject({
+      type: 'page',
+      dropped: true,
+    })
     expect(server.size).toBe(0)
 
     // step 5: a missing file reads {}; a broken one reads {} and warns once, not once per read

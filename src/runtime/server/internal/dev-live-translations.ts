@@ -13,7 +13,7 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 export async function loadLiveDevTranslations(locale: string, pageName: string, config: ModuleOptionsExtend): Promise<Translations> {
   const privateConfig = getI18nPrivateConfig()
   const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({
-    rootDirs: privateConfig.rootDirs?.length ? privateConfig.rootDirs : [privateConfig.rootDir],
+    rootDirs: privateConfig.rootDirs,
     translationDir: privateConfig.translationDir,
     additionalTranslationDirs: privateConfig.additionalTranslationDirs,
   })

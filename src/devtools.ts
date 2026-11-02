@@ -145,8 +145,6 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
   })
 
   onDevToolsInitialized(() => {
-    const dirs = rootDirs.length > 0 ? rootDirs : [nuxt.options.rootDir]
-
     const functions: ServerFunctions = {
       // Writes only an existing `.json` inside a translation directory: `file` comes from the
       // client, so `../` and absolute paths must not reach the filesystem. The project layer (listed
@@ -158,7 +156,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
           : undefined
         if (file.startsWith('additional:') && !extraDir) throw new Error(`Not a configured additional translation directory: ${file}`)
         const relativeFile = extraDir ? file.slice(`additional:${extraDir}/`.length) : file
-        const target = [...dirs]
+        const target = [...rootDirs]
           .reverse()
           .map((rootDir) => resolveTranslationFile(path.join(rootDir, extraDir ?? (options.translationDir || 'locales')), relativeFile))
           .find((candidate) => candidate !== null)
@@ -191,7 +189,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
           })
         }
 
-        for (const rootDir of dirs) {
+        for (const rootDir of rootDirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 
@@ -224,7 +222,7 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
 
     // The open tab follows edits made on disk, and its own saves
     const directories = [options.translationDir || 'locales', ...(options.additionalTranslationDirs ?? [])]
-    const roots = dirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
+    const roots = rootDirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
     let timer: ReturnType<typeof setTimeout> | undefined
     nuxt.hook('builder:watch', (_event, watched) => {
       // Nuxt reports a path relative to `srcDir`, the folders are relative to the root

@@ -8,7 +8,6 @@ import {
   TranslationContentTracker,
   translationRelativePath,
 } from '../internal/translation-watcher'
-import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
@@ -23,20 +22,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   }
 
   const i18nConfig = getI18nPrivateConfig()
-
-  if (process.env.NODE_ENV !== 'development') {
-    return
-  }
-
   const log = (...args: unknown[]) => i18nConfig.debug && console.log('[i18n-hmr]', ...args)
   const warn = (...args: unknown[]) => i18nConfig.debug && console.warn('[i18n-hmr]', ...args)
-  const rawLocales = (i18nConfig as { locales?: Array<{ code?: string }> }).locales
-  const configuredLocales = new Set(
-    (Array.isArray(rawLocales) ? rawLocales : []).map((l) => l.code).filter((code): code is string => typeof code === 'string' && code.length > 0),
-  )
+  const configuredLocales = new Set((i18nConfig.locales ?? []).map((l) => l.code))
 
   const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({
-    rootDirs: i18nConfig.rootDirs?.length ? i18nConfig.rootDirs : [i18nConfig.rootDir],
+    rootDirs: i18nConfig.rootDirs,
     translationDir: i18nConfig.translationDir,
     additionalTranslationDirs: i18nConfig.additionalTranslationDirs,
   })
@@ -56,25 +47,17 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     }
 
     try {
-      const result = await handleTranslationWatchChange({
+      const change = await handleTranslationWatchChange({
         relativePath,
         configuredLocales,
         serverCache: getOrCreateServerTranslationCache(),
         storageCache: (globalThis as unknown as Record<symbol, { clear(): void } | undefined>)[STORAGE_CC_KEY],
       })
 
-      if (result === 'root') {
-        const parsed = parseTranslationRelativePath(relativePath)
-        if (parsed.type === 'root') {
-          log(`Dropped cached translations after a change to '${parsed.locale}'`)
-        }
-      } else if (result === 'page') {
-        log(`Dropped cached translations after a change to '${relativePath}'`)
-      } else if (result === 'ignored') {
-        const parsed = parseTranslationRelativePath(relativePath)
-        if (parsed.type === 'root' && !configuredLocales.has(parsed.locale)) {
-          warn(`Detected ${event} for '${relativePath}', but locale '${parsed.locale}' is not in i18n.locales. Update config and restart dev server.`)
-        }
+      if (change.dropped) {
+        log(`Dropped cached translations after a change to '${change.type === 'root' ? change.locale : relativePath}'`)
+      } else if (change.type === 'root') {
+        warn(`Detected ${event} for '${relativePath}', but locale '${change.locale}' is not in i18n.locales. Update config and restart dev server.`)
       }
     } catch (e) {
       // The cache still holds the last good merge, and the hash is dropped so the next

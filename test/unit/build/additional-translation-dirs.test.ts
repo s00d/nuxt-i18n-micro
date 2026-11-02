@@ -23,7 +23,7 @@ describe('additionalTranslationDirs', () => {
     writeFileSync(join(root, 'locales', 'pages', 'index', 'fr.json'), JSON.stringify({ page: 'Accueil' }))
 
     const outputDir = join(root, 'out')
-    await preMergeLocales([root], 'locales', outputDir, [{ code: 'en' }])
+    await preMergeLocales({ rootDirs: [root], translationDirName: 'locales', outputDir, locales: [{ code: 'en' }] })
 
     expect(JSON.parse(readFileSync(join(outputDir, 'index', 'en', 'data.json'), 'utf-8'))).toMatchObject({ hello: 'Hello', page: 'Home' })
     expect(() => readFileSync(join(outputDir, 'index', 'fr', 'data.json'))).toThrow()
@@ -37,13 +37,13 @@ describe('additionalTranslationDirs', () => {
     writeFileSync(join(root, 'locales', 'pages', 'parent', 'en.json'), JSON.stringify({ page: 'Parent' }))
 
     const outputDir = join(root, 'out')
-    await preMergeLocales([root], 'locales', outputDir, [{ code: 'en' }], undefined, false, [], ['parent', 'parent-id'])
+    await preMergeLocales({ rootDirs: [root], translationDirName: 'locales', outputDir, locales: [{ code: 'en' }], routeNames: ['parent', 'parent-id'] })
 
     expect(JSON.parse(readFileSync(join(outputDir, 'parent', 'en', 'data.json'), 'utf-8'))).toEqual({ hello: 'Hello', page: 'Parent' })
     expect(JSON.parse(readFileSync(join(outputDir, 'parent-id', 'en', 'data.json'), 'utf-8'))).toEqual({ hello: 'Hello' })
 
     const disabled = join(root, 'disabled')
-    await preMergeLocales([root], 'locales', disabled, [{ code: 'en' }], undefined, true, [], ['parent-id'])
+    await preMergeLocales({ rootDirs: [root], translationDirName: 'locales', outputDir: disabled, locales: [{ code: 'en' }], disablePageLocales: true, routeNames: ['parent-id'] })
     expect(() => readFileSync(join(disabled, 'parent-id', 'en', 'data.json'))).toThrow()
   })
 
@@ -56,7 +56,7 @@ describe('additionalTranslationDirs', () => {
     // no frontend/en.json
 
     const outputDir = join(root, 'out')
-    await preMergeLocales([root], 'frontend', outputDir, [{ code: 'en' }], undefined, true, ['common'])
+    await preMergeLocales({ rootDirs: [root], translationDirName: 'frontend', outputDir, locales: [{ code: 'en' }], disablePageLocales: true, additionalTranslationDirs: ['common'] })
 
     expect(JSON.parse(readFileSync(join(outputDir, 'index', 'en', 'data.json'), 'utf-8'))).toEqual({
       only: 'common',

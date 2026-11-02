@@ -82,44 +82,51 @@ export function pageFileOverRoot(page: Tree, root: Tree, mark: string): Tree {
 }
 
 /**
+ * Empties `outputDir` and returns every translation file by relative path, its layers merged
+ * (later layers win) and additional root dirs under the root files.
+ */
+async function mergedFiles(rootDirs: string[], translationDirName: string, outputDir: string, additionalTranslationDirs: string[] = []) {
+  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
+  mkdirSync(outputDir, { recursive: true })
+
+  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
+  const filesByLayer = await Promise.all(layerPaths.filter((lp) => existsSync(lp)).map((lp) => globby('**/*.json', { cwd: lp })))
+
+  const merged = new Map<string, Tree>()
+  for (const file of new Set(filesByLayer.flat())) {
+    let content: Tree = {}
+    for (const lp of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationFile(join(lp, file)))
+    merged.set(file, content)
+  }
+  // a root locale file that exists only under additional dirs still needs an entry
+  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs)) if (!merged.has(`${locale}.json`)) merged.set(`${locale}.json`, {})
+  for (const file of [...merged.keys()].filter((f) => dirname(f) === '.'))
+    merged.set(file, mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs, file.slice(0, -'.json'.length), merged.get(file)))
+  return merged
+}
+
+export interface PreMergeOptions {
+  rootDirs: string[]
+  translationDirName: string
+  outputDir: string
+  locales: PreMergeLocaleInfo[]
+  globalFallbackLocale?: string
+  disablePageLocales?: boolean
+  additionalTranslationDirs?: string[]
+  routeNames?: string[]
+  rootDelta?: boolean
+}
+
+/**
  * Pre-merge all translation files at build time.
  *
  * Output: `{page}/{locale}/data.json` (same relative path the client fetches under `apiBaseUrl`).
  * With `rootDelta`, `__root/{locale}/data.json` holds the locale's root and every page file only what differs from it.
  */
-export async function preMergeLocales(
-  rootDirs: string[],
-  translationDirName: string,
-  outputDir: string,
-  locales: PreMergeLocaleInfo[],
-  globalFallbackLocale?: string,
-  disablePageLocales?: boolean,
-  additionalTranslationDirs?: string[],
-  routeNames: string[] = [],
-  rootDelta = false,
-): Promise<void> {
-  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
-  mkdirSync(outputDir, { recursive: true })
-
-  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
-
-  const allFiles = new Set<string>()
-  const filesByLayer = await Promise.all(layerPaths.filter((lp) => existsSync(lp)).map((lp) => globby('**/*.json', { cwd: lp })))
-  for (const files of filesByLayer) {
-    files.forEach((f) => allFiles.add(f))
-  }
-
-  // every file with its layers merged (later layers win), additional root dirs under the root files
-  const merged = new Map<string, Record<string, unknown>>()
-  for (const file of allFiles) {
-    let content: Record<string, unknown> = {}
-    for (const lp of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationFile(join(lp, file)))
-    merged.set(file, content)
-  }
-  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs ?? []))
-    if (!merged.has(`${locale}.json`)) merged.set(`${locale}.json`, {})
-  for (const file of [...merged.keys()].filter((f) => dirname(f) === '.'))
-    merged.set(file, mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs ?? [], file.slice(0, -'.json'.length), merged.get(file)))
+export async function preMergeLocales(options: PreMergeOptions): Promise<void> {
+  const { rootDirs, translationDirName, outputDir, locales, globalFallbackLocale, disablePageLocales, additionalTranslationDirs } = options
+  const { routeNames = [], rootDelta = false } = options
+  const merged = await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)
 
   // the same read source mode and dev do (fallback chain, root under page): one model, three modes
   // a route with no folder has a file too: a static host has no server route to answer it with the root dictionary
@@ -165,33 +172,7 @@ export async function buildTranslationSourceLayers(
   outputDir: string,
   additionalTranslationDirs?: string[],
 ): Promise<void> {
-  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
-  mkdirSync(outputDir, { recursive: true })
-
-  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
-  const allFiles = new Set<string>()
-
-  const filesByLayer = await Promise.all(
-    layerPaths.filter((layerPath) => existsSync(layerPath)).map((layerPath) => globby('**/*.json', { cwd: layerPath })),
-  )
-  for (const files of filesByLayer) {
-    files.forEach((file) => allFiles.add(file))
-  }
-
-  // Root locale files that exist only under additional dirs still need an output entry.
-  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs ?? [])) {
-    allFiles.add(`${locale}.json`)
-  }
-
-  for (const file of allFiles) {
-    let content: Record<string, unknown> = {}
-    for (const layerPath of layerPaths) content = deepMergeTranslationsRecursive(content, readTranslationFile(join(layerPath, file)))
-
-    if (dirname(file) === '.') {
-      const locale = file.slice(0, -'.json'.length)
-      content = mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs ?? [], locale, content)
-    }
-
+  for (const [file, content] of await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)) {
     const targetPath = join(outputDir, file)
     mkdirSync(dirname(targetPath), { recursive: true })
     writeFileSync(targetPath, JSON.stringify(content))

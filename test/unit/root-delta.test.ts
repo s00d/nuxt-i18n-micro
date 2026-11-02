@@ -91,9 +91,9 @@ describe('a build', () => {
   test.for([false, true])('every locale and page reads the same, disablePageLocales %s', async (disablePageLocales) => {
     const whole = join(dir, `whole-${disablePageLocales}`)
     const split = join(dir, `split-${disablePageLocales}`)
-    const args: [string[], string] = [[join(dir, 'app')], 'locales']
-    await preMergeLocales(...args, whole, LOCALES, undefined, disablePageLocales, [], ['contact'])
-    await preMergeLocales(...args, split, LOCALES, undefined, disablePageLocales, [], ['contact'], true)
+    const input = { rootDirs: [join(dir, 'app')], translationDirName: 'locales', locales: LOCALES, disablePageLocales, routeNames: ['contact'] }
+    await preMergeLocales({ ...input, outputDir: whole })
+    await preMergeLocales({ ...input, outputDir: split, rootDelta: true })
     for (const file of list(whole)) {
       const read = (root: string) => JSON.parse(readFileSync(file.replace(whole, root), 'utf8')) as Tree
       const data = read(split)

@@ -50,7 +50,7 @@ const readJson = (path: string): Record<string, unknown> => {
 /** Same reads as server-loader: the page payload, else the root alone. */
 async function premerged(disablePageLocales: boolean) {
   const out = join(root, `premerged-${disablePageLocales}`)
-  await preMergeLocales(rootDirs, 'locales', out, LOCALES, undefined, disablePageLocales, ['extra'])
+  await preMergeLocales({ rootDirs, translationDirName: 'locales', outputDir: out, locales: LOCALES, disablePageLocales, additionalTranslationDirs: ['extra'] })
   return (locale: string, page: string) => {
     const own = readJson(join(out, toPremergedStorageKey(disablePageLocales ? 'index' : page, locale)))
     return Object.keys(own).length ? own : readJson(join(out, toPremergedStorageKey(PREMERGED_ROOT_PAGE, locale)))

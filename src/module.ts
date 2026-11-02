@@ -444,18 +444,18 @@ export default defineNuxtModule<ModuleOptions>({
         await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir, options.additionalTranslationDirs)
         logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
       } else {
-        await preMergeLocales(
+        await preMergeLocales({
           rootDirs,
           translationDirName,
-          mergedLocalesDir,
-          localeInfos,
-          options.fallbackLocale,
-          options.disablePageLocales,
-          options.additionalTranslationDirs,
+          outputDir: mergedLocalesDir,
+          locales: localeInfos,
+          globalFallbackLocale: options.fallbackLocale,
+          disablePageLocales: options.disablePageLocales,
+          additionalTranslationDirs: options.additionalTranslationDirs,
           routeNames,
           // dev reads live files, and a prerender merges what it reads like any server
-          !nuxt.options.dev && translationPayloads.rootDelta,
-        )
+          rootDelta: !nuxt.options.dev && translationPayloads.rootDelta,
+        })
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
 

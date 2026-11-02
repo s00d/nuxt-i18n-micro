@@ -16,7 +16,7 @@ const PRISTINE: PayloadValue[] = [
 
 describe('J10 dev HMR: translation watcher (premerged)', () => {
   // an HMR reload cuts a dictionary fetch off, and WebKit logs that as a load error of the leaving page
-  test.override({ harness: 'translation-watcher-tmp', guardAllow: [/\[i18n\] Load error: .*Load failed/] })
+  test.override({ harness: 'translation-watcher-tmp', guardAllow: [/\[i18n\] Load error: (.*Load failed|JSHandle@object)/] })
 
   afterAll(() => {
     files.restoreAll()

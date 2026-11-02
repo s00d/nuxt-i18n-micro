@@ -4,8 +4,11 @@ import { buildTranslationPayloadFetchRequest } from './payload-url'
 
 export type TranslationPayloadFetcher = <T>(
   path: string,
-  options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache },
+  options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache; timeout?: number },
 ) => Promise<T>
+
+/** A host that never answers must not hold a page, and the chunk's load every next page waits on. Twice with the fetcher's one retry. */
+const HOST_TIMEOUT_MS = 15_000
 
 export interface TranslationPayloadHostConfig {
   apiBaseUrl?: string
@@ -35,6 +38,7 @@ export async function fetchTranslationPayloadFromHost(
     const data = await fetcher(request.path, {
       baseURL: request.baseURL,
       params: request.params,
+      timeout: HOST_TIMEOUT_MS,
     })
     // a 200 with another body (an HTML fallback, an array, `null`) is a failed load, not an empty dictionary. No body at all is empty: `$fetch` gives `''`
     const empty = data === undefined || data === ''

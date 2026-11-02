@@ -393,7 +393,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-fetch'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `fetchTranslationPayloadFromHost` | function | `(config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations \| null>` |
-| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; cache?: RequestCache; }) => Promise<T>` |
+| `TranslationPayloadFetcher` | type | `<T>(path: string, options: { baseURL: string; params?: Record<string, string \| number>; cache?: RequestCache; timeout?: number; }) => Promise<T>` |
 | `TranslationPayloadHostConfig` | interface | 3 members |
 
 <details>

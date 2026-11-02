@@ -1,6 +1,5 @@
 /** SSR reads the files in process: a delta is merged once, and from then on an entry is an entry. */
 import { beforeEach, expect, test, vi } from 'vitest'
-import { SERVER_CC_KEY } from '../../src/runtime/utils/cache-keys'
 
 const MARK = '__i18n_root'
 const state = vi.hoisted(() => ({
@@ -22,7 +21,6 @@ vi.mock('../../src/runtime/server/utils/locale-detector', () => ({ getI18nServer
 
 async function instance() {
   vi.resetModules()
-  delete (globalThis as Record<symbol, unknown>)[SERVER_CC_KEY]
   return (await import('../../src/runtime/server/utils/server-loader')).loadTranslationsFromServer
 }
 

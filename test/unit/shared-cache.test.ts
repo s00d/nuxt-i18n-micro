@@ -4,7 +4,6 @@ import { join } from 'node:path'
 import { createStorage } from 'unstorage'
 import fsDriver from 'unstorage/drivers/fs'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { SERVER_CC_KEY } from '../../src/runtime/utils/cache-keys'
 
 /** The parts of a mounted unstorage the layer uses. getItem parses like unstorage's destr: a broken string stays a string. */
 function fakeMount(values = new Map<string, string>()) {
@@ -61,7 +60,6 @@ vi.mock('../../src/runtime/server/utils/locale-detector', () => ({ getI18nServer
 /** One Nitro process: a fresh module graph and an empty LRU. */
 async function instance() {
   vi.resetModules()
-  delete (globalThis as Record<symbol, unknown>)[SERVER_CC_KEY]
   return (await import('../../src/runtime/server/utils/server-loader')).loadTranslationsFromServer
 }
 

@@ -15,28 +15,6 @@ import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getOrCreateServerTranslationCache } from '../internal/server-translation-cache'
 
-type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
-
-interface CacheLike {
-  keys(): IterableIterator<string>
-  delete(key: string): boolean
-  set(key: string, value: unknown): void
-  clear(): void
-}
-
-function getCacheByKey(key: symbol): CacheLike | null {
-  const g = globalThis as GlobalWithCC
-  const cc = g[key]
-  if (cc && typeof cc === 'object' && 'keys' in (cc as object) && 'set' in (cc as object)) {
-    return cc as CacheLike
-  }
-  return null
-}
-
-function getStorageCache(): CacheLike | null {
-  return getCacheByKey(STORAGE_CC_KEY)
-}
-
 let watcherInstance: FSWatcher | null = null
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
@@ -82,7 +60,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         relativePath,
         configuredLocales,
         serverCache: getOrCreateServerTranslationCache(),
-        storageCache: getStorageCache(),
+        storageCache: (globalThis as unknown as Record<symbol, { clear(): void } | undefined>)[STORAGE_CC_KEY],
       })
 
       if (result === 'root') {

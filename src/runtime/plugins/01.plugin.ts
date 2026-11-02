@@ -43,6 +43,7 @@ import { ServerNuxtI18n } from '../utils/nuxt-i18n-server'
 
 export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
+import { DEFAULT_SERVER_CACHE_SIZE } from '../utils/cache-keys'
 import { type LoadOptions, translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -170,8 +171,8 @@ export default defineNuxtPlugin({
     const noPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
     translationStorage.configure({
-      // the SSR copy is process-wide, so it is bounded like the payload cache (DEFAULT_SERVER_CACHE_SIZE)
-      maxSize: i18nConfig.cacheMaxSize || (import.meta.server ? 1000 : 0),
+      // the SSR copy is process-wide, so it is bounded like the payload cache
+      maxSize: i18nConfig.cacheMaxSize || (import.meta.server ? DEFAULT_SERVER_CACHE_SIZE : 0),
       ttl: i18nConfig.cacheTtl ?? 0,
     })
 

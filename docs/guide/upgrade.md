@@ -119,6 +119,7 @@ A `%` or `?` in a param does not survive a server-rendered reload on Nuxt 4.5.2,
 - **The server rewrites the links of `<i18n-switcher>` when the render ends**, on pages with params, because a switcher in the layout renders before the page's async setup. A hand-written `$switchLocalePath` link is not rewritten: see [custom locale routes](/guide/custom-locale-routes). Under Nuxt's SSR streaming the first HTML keeps the URL's params.
 - **A prop named `locale` on a server component sets its render locale**, so `<Greeting :locale="$getLocale()" />` follows the URL and a switch. `$getLocale()`, `$localePath` and `$getLocaleName` inside it follow the prop too. See [server-side translations](/guide/server-side-translations). Without the prop it still uses the cookie or the default.
 - **`keepalive` pages get their params and head back** on return.
+- **A nested page set to `false` under `prefix_except_default` has no locale URL.** `/de/parent/kid` with `globalLocaleRoutes: { 'parent-kid': false }` was served and is now a 404: the page stays on `/parent/kid`.
 
 ### Locale detection and the cookie
 

@@ -56,10 +56,11 @@ describe('package publish checks', () => {
     }
 
     const extractDir = mkdtempSync(join(tmpdir(), 'path-strategy-extract-'))
-    execSync(`tar -xzf ${JSON.stringify(tarballPath)} -C ${JSON.stringify(extractDir)}`, { encoding: 'utf8' })
+    // by name from its folder, with `/`: GNU tar reads `C:` as a remote host and `\` as an escape
+    execSync(`tar -xzf ${JSON.stringify(filename)} -C ${JSON.stringify(extractDir.replaceAll('\\', '/'))}`, { cwd: packDir, encoding: 'utf8' })
     const packageDir = join(extractDir, 'package')
     // its dependencies, as an install would bring them
-    symlinkSync(join(packageRoot, 'node_modules'), join(packageDir, 'node_modules'))
+    symlinkSync(join(packageRoot, 'node_modules'), join(packageDir, 'node_modules'), 'junction')
     const routes = [
       { name: 'about', path: '/about', meta: { i18n: { name: 'about', locales: ['en'] } } },
       { name: 'localized-about', path: '/:locale(zh)/about', meta: { i18n: { name: 'about', locales: ['zh'] } } },

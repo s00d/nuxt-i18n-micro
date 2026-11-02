@@ -32,7 +32,7 @@ describe('generate per domain', () => {
     for (const dir of [generated.buildDir, trees]) await rm(dir, { recursive: true, force: true }).catch(() => {})
   })
 
-  test('each tree holds its domain: pages, payloads, hreflang', { timeout: 300_000 }, async () => {
+  test('each tree holds its domain: pages, payloads, hreflang', { timeout: process.platform === 'win32' ? 600_000 : 300_000 }, async () => {
     await rm(generated.buildDir, { recursive: true, force: true })
     await generate('example.de', 'de')
     await generate('example.com', 'com')

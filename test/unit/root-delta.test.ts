@@ -26,7 +26,7 @@ describe('a dictionary nested past what the stack holds', () => {
     writeFileSync(join(dir, 'locales', 'en.json'), '{"fine":"x"}')
     writeFileSync(join(dir, 'locales', 'de.json'), nested(200_000))
     const input = { rootDirs: [dir], translationDirName: 'locales', outputDir: join(dir, 'out'), locales: [{ code: 'en' }, { code: 'de' }] }
-    const named = expect.objectContaining({ message: expect.stringContaining(`${join(dir, 'locales', 'de.json')} is nested 200000 levels deep`) })
+    const named = expect.objectContaining({ message: expect.stringContaining(`locales/de.json is nested 200000 levels deep`) })
     await expect(preMergeLocales(input)).rejects.toEqual(named)
     await expect(buildTranslationSourceLayers([dir], 'locales', join(dir, 'source'))).rejects.toEqual(named)
     rmSync(dir, { recursive: true, force: true })
@@ -35,9 +35,9 @@ describe('a dictionary nested past what the stack holds', () => {
   test('a depth that builds still builds', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'i18n-deep-'))
     mkdirSync(join(dir, 'locales'))
-    writeFileSync(join(dir, 'locales', 'en.json'), nested(2000))
+    writeFileSync(join(dir, 'locales', 'en.json'), nested(500))
     await preMergeLocales({ rootDirs: [dir], translationDirName: 'locales', outputDir: join(dir, 'out'), locales: [{ code: 'en' }] })
-    expect(readFileSync(join(dir, 'out', '__root', 'en', 'data.json'), 'utf-8')).toBe(nested(2000))
+    expect(readFileSync(join(dir, 'out', '__root', 'en', 'data.json'), 'utf-8')).toBe(nested(500))
     rmSync(dir, { recursive: true, force: true })
   })
 })

@@ -101,6 +101,33 @@ test('a page the host has no file for gets the root dictionary, and the next vis
   expect(await translationStorage.load('de', 'added-at-runtime', options)).toEqual({ hello: 'page' })
 })
 
+test('a 200 with a `null` root is a failed load: nothing kept, and the next try reads again', async () => {
+  const fetchMock = answering(() => null)
+  vi.stubGlobal('$fetch', fetchMock)
+  await expect(translationStorage.load('de', '__root', options)).rejects.toThrow('Invalid translation payload')
+  expect(translationStorage.getFromCache('de', '__root')).toBeNull()
+
+  vi.stubGlobal(
+    '$fetch',
+    answering(() => ({ hello: 'root' })),
+  )
+  expect(await translationStorage.load('de', '__root', options)).toEqual({ hello: 'root' })
+})
+
+test('a 200 with a `null` page stands in the root, as any bad body there, and is not kept', async () => {
+  vi.stubGlobal(
+    '$fetch',
+    answering((url) => (url.includes('__root') ? { hello: 'root' } : null)),
+  )
+  expect(await translationStorage.load('de', 'nulled', options)).toEqual({ hello: 'root' })
+  expect(translationStorage.getFromCache('de', 'nulled')).toBeNull()
+})
+
+test('a 404 on the root is still no file: an empty stand-in, not a failure', async () => {
+  vi.stubGlobal('$fetch', answering(notFound))
+  expect(await translationStorage.load('de', '__root', options)).toEqual({})
+})
+
 test("a static host's SPA shell in place of the page's file counts as no file", async () => {
   vi.stubGlobal(
     '$fetch',

@@ -9,6 +9,8 @@ import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-u
 
 /** What a root file the host has not got loads as. By identity: a host's own empty root is a dictionary. */
 const NO_ROOT: Record<string, unknown> = Object.freeze({})
+/** A 404, told from a `null` body by identity. */
+const NO_FILE: Record<string, unknown> = Object.freeze({})
 
 export interface LoadOptions {
   apiBaseUrl: string
@@ -88,15 +90,17 @@ class TranslationStorage {
   }
 
   /**
-   * A chunk, or `null` when the host has no file for it: a 404, or a static host's SPA shell in a page's place.
-   * Anything else is a failed load, and the next try can work.
+   * A chunk, or `null` when the host has no file for it: a 404, a server loader's `null`, or a static host's SPA shell
+   * in a page's place. Anything else is a failed load, and the next try can work. A `null` body is one of those: a
+   * dictionary it is not, and read as "no file" on the root it would be kept as an empty one until a reload.
    */
   private async fetchChunk(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown> | null> {
     const data = await this.fetchTranslations(locale, routeName, options).catch((error) => {
-      if ((error as { status?: number }).status === 404) return null
+      if ((error as { status?: number }).status === 404) return NO_FILE
       throw error
     })
-    if (data === null || (typeof data === 'object' && !Array.isArray(data))) return data
+    if (data === NO_FILE || (data === null && import.meta.server && options.serverLoad)) return null
+    if (data !== null && typeof data === 'object' && !Array.isArray(data)) return data
     if (routeName !== PREMERGED_ROOT_PAGE) return null
     // a 200 with another body on the root file too: a portal or a proxy, not this site's files
     throw new TypeError(`[i18n] Invalid translation payload: ${translationCacheKey(locale, routeName)}`)

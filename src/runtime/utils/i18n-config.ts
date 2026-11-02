@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ModuleOptionsExtend, ResolvedI18nConfig } from '@i18n-micro/types'
 import {
   applyI18nRuntimeOverrides,
   createI18nConfigResolver,
@@ -11,7 +11,7 @@ import { configForHost } from '@i18n-micro/utils/domains'
 import { domains, getI18nConfig } from '#build/i18n.strategy.mjs'
 
 /** One resolved config per app (one per SSR request, one in the browser). */
-const configs = new WeakMap<NuxtApp, ModuleOptionsExtend>()
+const configs = new WeakMap<NuxtApp, ResolvedI18nConfig>()
 
 /** Server renders without the Nitro middleware's config (no context): the same memo, env read once. */
 const resolveOnServer = import.meta.server ? createI18nConfigResolver() : undefined
@@ -48,8 +48,8 @@ export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOption
   return same ? null : shipped
 }
 
-function resolve(nuxtApp: NuxtApp): ModuleOptionsExtend {
-  const base = getI18nConfig() as ModuleOptionsExtend
+function resolve(nuxtApp: NuxtApp): ResolvedI18nConfig {
+  const base = getI18nConfig()
   const shipped = useState<Shipped | null>('i18n-runtime-overrides', () => null)
   if (import.meta.server) {
     // the Nitro middleware resolved it for this request (runtimeConfig and env); env reads stay server-side
@@ -70,7 +70,7 @@ function resolve(nuxtApp: NuxtApp): ModuleOptionsExtend {
  * The module config with runtime overrides, the same on server and client: routing (the path
  * strategy), validation (`useI18nLocale`) and redirects all read this one.
  */
-export function useResolvedI18nConfig(nuxtApp: NuxtApp): ModuleOptionsExtend {
+export function useResolvedI18nConfig(nuxtApp: NuxtApp): ResolvedI18nConfig {
   let config = configs.get(nuxtApp)
   if (!config) configs.set(nuxtApp, (config = resolve(nuxtApp)))
   return config

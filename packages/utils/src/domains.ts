@@ -80,8 +80,8 @@ const hostConfigs = new WeakMap<ModuleOptionsExtend, Map<string, ModuleOptionsEx
  * itself and nothing of the request is kept or echoed: the table holds configured hosts only, one
  * per resolved config (immutable, so it cannot go stale).
  */
-export function configForHost(config: ModuleOptionsExtend, host: string): ModuleOptionsExtend {
+export function configForHost<T extends ModuleOptionsExtend>(config: T, host: string): T {
   let configs = hostConfigs.get(config)
   if (!configs) hostConfigs.set(config, (configs = buildHostConfigs(config)))
-  return configs.get(normalizeHost(host)) ?? config
+  return (configs.get(normalizeHost(host)) as T | undefined) ?? config
 }

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
 import { formatterFor, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { ServerNuxtI18n } from '../src/runtime/utils/nuxt-i18n-server'
@@ -12,6 +12,10 @@ function show(i18n: NuxtI18n, locale: string, route: string | undefined, data: R
 }
 
 describe('a fragment is not a loaded chunk', () => {
+  // a failed load warns in production, and logs the error in dev
+  beforeEach(() => vi.stubEnv('NODE_ENV', 'production'))
+  afterEach(() => vi.unstubAllEnvs())
+
   const setup = (answer: (path: string) => unknown) => {
     translationStorage.clear()
     const fetches = vi.fn(async (path: string) => answer(path))
@@ -374,6 +378,10 @@ describe('NuxtI18n: context listeners', () => {
 })
 
 describe('NuxtTranslationLoader: reload', () => {
+  // a failed load warns in production, and logs the error in dev
+  beforeEach(() => vi.stubEnv('NODE_ENV', 'production'))
+  afterEach(() => vi.unstubAllEnvs())
+
   const setup = (data: Record<string, unknown>) => {
     translationStorage.clear()
     const i18n = new NuxtI18n({ missingWarn: false })

@@ -6,7 +6,7 @@
  * in front because `$t` is synchronous and needs the tree in memory. No lock: two instances that
  * miss at once both read the source and write the same value.
  */
-import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import type { ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import { useStorage } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { toEntry } from '../../utils/translation-entry'
@@ -79,7 +79,7 @@ const segment = (value: string | number) => String(value).replace(/[^\w-]/g, (ch
  * `0`/`''` turns it off. A runtime `fallbackLocale` changes what `source` and remote chunks hold, and
  * a runtime host is another backend: one artifact can run against several.
  */
-export function sharedChunkKey(locale: string, page: string, config: ModuleOptionsExtend, host = ''): string | null {
+export function sharedChunkKey(locale: string, page: string, config: ResolvedI18nConfig, host = ''): string | null {
   if (!sharedStorage()) return null
   const pageSegment = segment(page)
   if (pageSegment.length > MAX_PAGE_LENGTH) return null
@@ -116,9 +116,9 @@ export async function readSharedChunk(key: string): Promise<ServerTranslationCac
  * the response. Only while the store is trusted: a write must not wait out a store whose reads just failed.
  * A failed write closes nothing: a read-only replica or a KV write limit still serves reads.
  */
-export async function writeSharedChunk(key: string, json: string, config: ModuleOptionsExtend): Promise<void> {
+export async function writeSharedChunk(key: string, json: string, config: ResolvedI18nConfig): Promise<void> {
   if (failures) return
-  const cacheTtl = config.cacheTtl ?? 0
+  const { cacheTtl } = config
   const ttl = cacheTtl > 0 && Number.isFinite(cacheTtl) ? Math.ceil(cacheTtl) : DEFAULT_TTL_SECONDS
   await withDeadline(() => sharedStorage()!.setItem(key, json, { ttl }), TRUSTED_TIMEOUT_MS).catch(warn)
 }

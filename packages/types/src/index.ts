@@ -720,6 +720,22 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   linkLocales?: Locale[]
 }
 
+/** The keys `buildFullConfig` always sets: read at runtime with no default of their own. */
+type ResolvedI18nConfigKey =
+  | 'apiBaseUrl'
+  | 'autoDetectPath'
+  | 'cacheMaxSize'
+  | 'cacheTtl'
+  | 'canonicalQueryWhitelist'
+  | 'defaultLocale'
+  | 'hreflangBaseLanguage'
+  | 'locales'
+  | 'missingWarn'
+  | 'strategy'
+
+/** The config the build writes, as `getI18nConfig()` and `$getI18nConfig()` give it. */
+export type ResolvedI18nConfig = Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>
+
 /**
  * Private (server-only) module options passed to Nitro plugins and server middleware.
  * Extends `ModuleOptions` with resolved root paths and directory info.

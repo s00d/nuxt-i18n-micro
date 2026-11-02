@@ -6,7 +6,7 @@ import {
   parseInspectorNodeId,
   type I18nDevtoolsStateSnapshot,
 } from '@i18n-micro/core/devtools'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import type { App } from 'vue'
 import type { I18nContextChangeReason, NuxtI18n } from '../utils/nuxt-i18n'
 
@@ -17,7 +17,7 @@ const TIMELINE_LAYER_ID = 'i18n-micro'
 export interface VueI18nDevtoolsContext {
   app: App
   i18n: NuxtI18n
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   onContextChange: (listener: (reason: I18nContextChangeReason) => void) => () => void
   onMissingKey: (listener: (locale: string, key: string, routeName: string) => void) => () => void
 }
@@ -45,7 +45,7 @@ function toInspectorState(snapshot: I18nDevtoolsStateSnapshot) {
   return state
 }
 
-function createSnapshot(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend): I18nDevtoolsStateSnapshot {
+function createSnapshot(i18n: NuxtI18n, i18nConfig: ResolvedI18nConfig): I18nDevtoolsStateSnapshot {
   return {
     locale: i18n.getLocale(),
     routeName: i18n.getCurrentRouteName() || 'index',
@@ -61,7 +61,7 @@ function createSnapshot(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend): I18nDe
   }
 }
 
-function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId: string): Record<string, Array<{ key: string; value: unknown }>> {
+function buildNodeState(i18n: NuxtI18n, i18nConfig: ResolvedI18nConfig, nodeId: string): Record<string, Array<{ key: string; value: unknown }>> {
   const parsed = parseInspectorNodeId(nodeId)
 
   if (parsed.kind === 'active') {

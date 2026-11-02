@@ -16,7 +16,7 @@ export interface LocaleInfo {
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
   const config = getI18nServerConfig(event)
   const enabledLocales = getEnabledLocales(config.locales)
-  const resolvedDefault = defaultLocale || config.defaultLocale || 'en'
+  const resolvedDefault = defaultLocale || config.defaultLocale
   const fallback = config.fallbackLocale || resolvedDefault
   const current = currentLocale || getRequestLocale(event, config, defaultLocale)
 

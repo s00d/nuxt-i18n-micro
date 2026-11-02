@@ -11,7 +11,7 @@ import { payloadCacheControl } from '../utils/payload-cache'
 export default defineNitroPlugin((nitroApp) => {
   let prefix: string | undefined
   nitroApp.hooks.hook('beforeResponse', (event) => {
-    prefix ??= `${joinURL(useRuntimeConfig().app.baseURL, getI18nServerConfig().apiBaseUrl ?? '_locales')}/`
+    prefix ??= `${joinURL(useRuntimeConfig().app.baseURL, getI18nServerConfig().apiBaseUrl)}/`
     if (!event.path.startsWith(prefix) || event.node.res.statusCode >= 400) return
     // the size is the build's and the body is today's: a file replaced in place would be cut, and a cut root is every page's
     removeResponseHeader(event, 'Content-Length')

@@ -4,7 +4,7 @@
  * `import.meta.server` and `client` read `side`: `vitest.unit.config.ts` rewrites them under `src/runtime/`.
  */
 import { I18nPathStrategy } from '@i18n-micro/path-strategy'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import { createHooks } from 'hookable'
 import type { NuxtPage } from '@nuxt/schema'
 import { vi } from 'vitest'
@@ -30,7 +30,7 @@ export interface AppOptions {
   state?: string
   /** What the Nitro middleware detected. */
   detected?: string
-  config?: Partial<ModuleOptionsExtend>
+  config?: Partial<ResolvedI18nConfig>
   /** Chunks whose load fails, `locale:route`. */
   failing?: Set<string>
   /** Answers a chunk; `undefined` falls back to the default small dictionary. */
@@ -47,7 +47,7 @@ export interface App {
   options: AppOptions
   router: Router
   nuxtApp: Record<string, any>
-  config: ModuleOptionsExtend
+  config: ResolvedI18nConfig
   state: Map<string, Ref>
   cookies: Record<string, string | null | undefined>
   /** Every cookie write, in order. */
@@ -107,7 +107,7 @@ export const stub = {
   },
   createError: (input: { statusCode: number; statusMessage: string }) => Object.assign(new Error(input.statusMessage), input),
   getI18nConfig: () => app().config,
-  createI18nStrategy: (router: Router, config: ModuleOptionsExtend) =>
+  createI18nStrategy: (router: Router, config: ResolvedI18nConfig) =>
     new I18nPathStrategy({
       strategy: config.strategy,
       defaultLocale: config.defaultLocale,
@@ -197,9 +197,14 @@ export async function createApp(options: AppOptions): Promise<App> {
     apiBaseUrl: '_locales',
     missingWarn: false,
     autoDetectLanguage: false,
+    autoDetectPath: '/',
+    cacheMaxSize: 0,
+    cacheTtl: 0,
+    canonicalQueryWhitelist: [],
+    hreflangBaseLanguage: false,
     routesLocaleLinks: {},
     ...options.config,
-  } as ModuleOptionsExtend
+  } as ResolvedI18nConfig
   const router = createAppRouter(options.pages ?? (options.unlocalized ? PAGES() : generate(strategy, 'pages', {}, { pages: PAGES })))
   const a: App = {
     options,

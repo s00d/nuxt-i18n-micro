@@ -1,10 +1,10 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import { resolveTranslationPayloadCachePolicy } from '@i18n-micro/utils/payload-url'
 import { getQuery, type H3Event } from 'h3'
 import { resolveServerHost } from './server-loader'
 
 /** The header of a payload response, by the `?v=` of its request. */
-export function payloadCacheControl(event: H3Event, config: ModuleOptionsExtend, empty = false): string | null {
+export function payloadCacheControl(event: H3Event, config: ResolvedI18nConfig, empty = false): string | null {
   const policy = resolveTranslationPayloadCachePolicy({
     httpCacheDuration: config.httpCacheDuration,
     httpCacheControl: config.httpCacheControl,

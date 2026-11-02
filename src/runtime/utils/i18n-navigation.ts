@@ -1,5 +1,5 @@
 import type { PathStrategy, RouteI18nMeta } from '@i18n-micro/path-strategy'
-import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import type { ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import type { ComponentPublicInstance } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoaded, Router } from 'vue-router'
 import type { NuxtApp } from '#app/nuxt'
@@ -22,7 +22,7 @@ export interface I18nNavigationDeps {
   router: Router
   i18n: NuxtI18n
   loader: NuxtTranslationLoader
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   i18nStrategy: PathStrategy
   locale: ReturnType<typeof useI18nLocale>
   api: NuxtI18nPluginApi

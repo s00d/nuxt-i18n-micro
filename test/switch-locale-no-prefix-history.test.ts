@@ -1,5 +1,5 @@
 import type { PathStrategy } from '@i18n-micro/path-strategy'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import { describe, expect, test, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type RouteLocationRaw, type Router } from 'vue-router'
 import { defaultPlural } from '@i18n-micro/core'
@@ -19,7 +19,7 @@ interface MakeApiOptions {
   onSwitch?: (route: { hash?: string; path: string; fullPath: string }) => unknown
 }
 
-function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true, options: MakeApiOptions = {}) {
+function makeApi(strategy: ResolvedI18nConfig['strategy'], switchApplies = true, options: MakeApiOptions = {}) {
   const push = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
   const replace = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
   const currentRoute = {
@@ -70,7 +70,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy'], switchApplies = true
         { code: 'en', iso: 'en' },
         { code: 'es', iso: 'es', baseUrl: 'https://es.example' },
       ],
-    } as ModuleOptionsExtend,
+    } as ResolvedI18nConfig,
     router,
     locale: {
       getEffectiveLocale: () => 'en',

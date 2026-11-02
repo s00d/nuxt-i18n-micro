@@ -16,7 +16,7 @@
  * cache would hide the file for as long as it lives.
  */
 
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { mergeOverRoot, normalizeConfiguredLocales, PREMERGED_ROOT_PAGE, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
@@ -91,17 +91,17 @@ function cached(key: string, read: () => Promise<Loaded>): Promise<ServerTransla
 
 const isEmbeddedRead = () => embeddedPayloads && !resolveServerHost()
 
-const rootChunk = (locale: string, config: ModuleOptionsExtend) =>
+const rootChunk = (locale: string, config: ResolvedI18nConfig) =>
   cached(`${locale}:${PREMERGED_ROOT_PAGE}`, () => readChunk(locale, PREMERGED_ROOT_PAGE, config))
 
 /** What the local level misses comes here: the source, behind the shared layer when one is on. */
-function readChunk(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
+function readChunk(locale: string, page: string, config: ResolvedI18nConfig): Promise<Loaded> {
   // embedded dictionaries are in the isolate already: a copy in the storage would be a network read for what memory holds
   const key = isEmbeddedRead() ? null : sharedChunkKey(locale, page, config, resolveServerHost())
   return key ? readThroughShared(key, locale, page, config) : load(locale, page, config)
 }
 
-async function readThroughShared(key: string, locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
+async function readThroughShared(key: string, locale: string, page: string, config: ResolvedI18nConfig): Promise<Loaded> {
   const hit = await readSharedChunk(key)
   if (hit) return { entry: hit }
   const loaded = await load(locale, page, config)
@@ -132,7 +132,7 @@ function toEntryWithMark(data: Record<string, unknown>, mark: string): ServerTra
   return entry
 }
 
-async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
+async function load(locale: string, page: string, config: ResolvedI18nConfig): Promise<Loaded> {
   const apiBaseServerHost = resolveServerHost()
   if (apiBaseServerHost) {
     const data = await fetchTranslationPayloadFromHost(
@@ -170,7 +170,7 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
  * read per request; the root stays the only tree in memory. A root read from a host may be older than the delta (the
  * host deployed while this process kept it): it goes, and the next read is the host's.
  */
-async function settle(locale: string, page: string, file: Record<string, unknown>, config: ModuleOptionsExtend): Promise<Loaded> {
+async function settle(locale: string, page: string, file: Record<string, unknown>, config: ResolvedI18nConfig): Promise<Loaded> {
   const mark = takeRootMark(file)
   if (!mark) return { entry: toEntry(file) }
   if (page === PREMERGED_ROOT_PAGE) return { entry: toEntryWithMark(file, mark) }

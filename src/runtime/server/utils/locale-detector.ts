@@ -1,4 +1,4 @@
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ResolvedI18nConfig } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getPreferenceCookieName } from '@i18n-micro/utils/cookie'
@@ -29,14 +29,14 @@ function fixedHost(): string | undefined {
  * once: every caller of a request, and every request with the same overrides and host, gets the
  * same object (so override warnings are logged once). Read-only: deep-frozen in dev.
  */
-export function getI18nServerConfig(event?: H3Event): ModuleOptionsExtend {
-  const config = resolveConfig(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig().public as Record<string, unknown>)
+export function getI18nServerConfig(event?: H3Event): ResolvedI18nConfig {
+  const config = resolveConfig(getI18nConfig(), useRuntimeConfig().public as Record<string, unknown>)
   if (!domains) return config
   const host = fixedHost() || (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
   return host ? configForHost(config, host) : config
 }
 
-type DetectionConfig = Pick<ModuleOptionsExtend, 'defaultLocale' | 'localeCookie' | 'autoDetectLanguage' | 'strategy' | 'hashMode'> & {
+type DetectionConfig = Pick<ResolvedI18nConfig, 'defaultLocale' | 'localeCookie' | 'autoDetectLanguage' | 'strategy' | 'hashMode'> & {
   locales?: { code: string; disabled?: boolean }[]
 }
 
@@ -52,10 +52,10 @@ export type RequestLocaleMode = 'page' | 'api'
 /** The one server detection: i18n.global stores it in `event.context.i18n.locale`, the helpers reuse it. */
 export function detectRequestLocale(event: H3Event, config: DetectionConfig, mode: RequestLocaleMode, path?: string): string {
   const validLocales = getEnabledLocaleCodes(config.locales as Locale[])
-  const defaultLocale = config.defaultLocale || 'en'
+  const defaultLocale = config.defaultLocale
   const urlless = config.strategy === 'no_prefix' || Boolean(config.hashMode)
   const unprefixedIsDefault = config.strategy === 'prefix_except_default' || config.strategy === 'prefix_and_default'
-  const cookieName = getPreferenceCookieName(config as ModuleOptionsExtend)
+  const cookieName = getPreferenceCookieName(config as ResolvedI18nConfig)
   return resolveLocale({
     defaultLocale,
     validLocales,
@@ -96,6 +96,6 @@ export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleC
  * param / prefix → cookie → Accept-Language) on every route, `/api` or not — never the page
  * render's locale, which ignores `?locale` under the prefix strategies.
  */
-export function getRequestLocale(event: H3Event, config: ModuleOptionsExtend, defaultLocale?: string): string {
+export function getRequestLocale(event: H3Event, config: ResolvedI18nConfig, defaultLocale?: string): string {
   return detectRequestLocale(event, defaultLocale ? { ...config, defaultLocale } : config, 'api')
 }

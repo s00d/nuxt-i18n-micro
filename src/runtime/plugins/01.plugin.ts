@@ -7,7 +7,7 @@ import type {
   I18nRouteParams,
   Locale,
   MissingHandler,
-  ModuleOptionsExtend,
+  ResolvedI18nConfig,
   Params,
   PluralFunc,
   Translations,
@@ -46,29 +46,28 @@ import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { DEFAULT_SERVER_CACHE_SIZE } from '../utils/cache-keys'
 import { type LoadOptions, translationStorage } from '../utils/storage'
 
-
 /** The link of `<i18n-switcher>`, by its own class: no other link in the page is the switcher's to change. */
 const SWITCHER_LINK = /class="switcher-locale-([^"]+)" href="[^"]*"/g
 
 /** The server keeps one instance per request, whose patches stay off the process's shared chunks. */
-function createI18n(i18nConfig: ModuleOptionsExtend, missingHandler: ShallowRef<MissingHandler | null>) {
+function createI18n(i18nConfig: ResolvedI18nConfig, missingHandler: ShallowRef<MissingHandler | null>) {
   return new (import.meta.server ? ServerNuxtI18n : NuxtI18n)({
     plural,
-    missingWarn: i18nConfig.missingWarn ?? true,
-    cacheMaxSize: i18nConfig.cacheMaxSize ?? 0,
+    missingWarn: i18nConfig.missingWarn,
+    cacheMaxSize: i18nConfig.cacheMaxSize,
     getCustomMissingHandler: () => missingHandler.value,
     formatter: import.meta.server ? formatterFor(i18nConfig) : undefined,
     numberFormats: i18nConfig.numberFormats,
     datetimeFormats: i18nConfig.datetimeFormats,
     timeZone: i18nConfig.timeZone,
-    localeIso: localeIsoMap(i18nConfig.linkLocales ?? i18nConfig.locales ?? []),
+    localeIso: localeIsoMap(i18nConfig.linkLocales ?? i18nConfig.locales),
   })
 }
 
-function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): LoadOptions {
+function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ResolvedI18nConfig): LoadOptions {
   const { baseURL, cdnURL } = useRuntimeConfig().app
   const options: LoadOptions = {
-    apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
+    apiBaseUrl: i18nConfig.apiBaseUrl,
     // files can move to the CDN with the rest of `public/`. A dictionary only the route answers cannot
     baseURL: (i18nConfig.publicPayloads && cdnURL) || baseURL,
     apiBaseClientHost: i18nConfig.apiBaseClientHost,
@@ -82,7 +81,7 @@ function createLoadOptions(nuxtApp: NuxtApp, i18nConfig: ModuleOptionsExtend): L
 
 interface StartLocaleDeps {
   nuxtApp: NuxtApp
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   i18nStrategy: PathStrategy
   renderLocale: string | undefined
   initialRoute: ResolvedRouteLike
@@ -93,7 +92,7 @@ interface StartLocaleDeps {
 /** The first page's locale. */
 function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, renderLocale, initialRoute, locale, getCurrentLocale }: StartLocaleDeps) {
   const { locale: localeState, getPreferredLocale, resolveInitialLocale, isValidLocale, validLocales } = locale
-  const noPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
+  const noPrefix = isNoPrefixStrategy(i18nConfig.strategy)
 
   // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
   const shellLocale = () => {
@@ -164,14 +163,14 @@ export default defineNuxtPlugin({
   name: 'i18n-plugin-loader',
   async setup(nuxtApp) {
     const router = useRouter()
-    const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
+    const i18nConfig: ResolvedI18nConfig = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)
     const i18nStrategy = createI18nStrategy(router, i18nConfig)
 
     translationStorage.configure({
       // the SSR copy is process-wide, so it is bounded like the payload cache
       maxSize: i18nConfig.cacheMaxSize || (import.meta.server ? DEFAULT_SERVER_CACHE_SIZE : 0),
-      ttl: i18nConfig.cacheTtl ?? 0,
+      ttl: i18nConfig.cacheTtl,
     })
 
     const locale = useI18nLocale()
@@ -301,7 +300,7 @@ export interface PluginsInjections {
   /** The active routing strategy, resolving locales to and from paths. */
   $i18nStrategy: PathStrategy
   /** The resolved module configuration, as the runtime sees it. */
-  $getI18nConfig: () => ModuleOptionsExtend
+  $getI18nConfig: () => ResolvedI18nConfig
   /** Code of the active locale. Pass a route to read the locale that route belongs to. */
   $getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => string
   /** The active locale's `displayName` from the config, or `null` when it has none. */

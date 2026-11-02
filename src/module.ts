@@ -17,6 +17,7 @@ import type {
   ModuleOptionsExtend,
   ModulePrivateOptionsExtend,
   PluralFunc,
+  ResolvedI18nConfig,
   Strategies,
 } from '@i18n-micro/types'
 import { buildTranslationSourceLayers, type PreMergeLocaleInfo, preMergeLocales } from './build/build'
@@ -123,7 +124,7 @@ function buildFullConfig(params: {
   translationsHash: string | null
   publicPayloads: boolean
   rootDelta: boolean
-}) {
+}): ResolvedI18nConfig {
   const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
   // as Nuxt reads it for `NUXT_NO_SCRIPTS`
   const noScripts = nuxt.options.features.noScripts
@@ -135,13 +136,13 @@ function buildFullConfig(params: {
     metaTrustForwardedHost: options.metaTrustForwardedHost,
     metaTrustForwardedProto: options.metaTrustForwardedProto,
     trustForwardedHost: options.trustForwardedHost,
-    hreflangBaseLanguage: options.hreflangBaseLanguage,
+    hreflangBaseLanguage: options.hreflangBaseLanguage!,
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
     autoDetectLanguage: options.autoDetectLanguage,
-    autoDetectPath: options.autoDetectPath,
-    strategy: options.strategy,
+    autoDetectPath: options.autoDetectPath || '/',
+    strategy: options.strategy!,
     // the `?v=` of payload URLs: a fingerprint of the translations, as a timestamp would make clients re-download
     // what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
     dateBuild: options.dateBuild ?? translationsHash ?? Date.now(),
@@ -151,10 +152,10 @@ function buildFullConfig(params: {
       (nuxt.options.experimental as { defaults?: { nuxtLink?: { trailingSlash?: 'append' | 'remove' } } })?.defaults?.nuxtLink?.trailingSlash,
     apiBaseUrl: apiConfig.apiBaseUrl,
     apiBaseClientHost: apiConfig.apiBaseClientHost,
-    disablePageLocales: options.disablePageLocales,
+    disablePageLocales: options.disablePageLocales!,
     canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? DEFAULT_CANONICAL_QUERY_WHITELIST,
     excludePatterns: options.excludePatterns ?? [],
-    missingWarn: options.missingWarn,
+    missingWarn: options.missingWarn!,
     redirects: options.redirects !== false,
     localizedRouteNamePrefix: options.localizedRouteNamePrefix,
     routesLocaleLinks: options.routesLocaleLinks ?? {},
@@ -316,7 +317,8 @@ export default defineNuxtModule<ModuleOptions>({
     httpCacheDuration: 31536000,
   },
   async setup(options, nuxt) {
-    const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
+    // an empty value is none: routes and the runtime must agree on the default
+    const defaultLocale = process.env.DEFAULT_LOCALE || options.defaultLocale || 'en'
     /** Static output, set in `nitro:init`: `nuxt build --preset static` is only known once the preset is resolved. */
     let isSSG = false
     const logger = useLogger('nuxt-i18n-micro')
@@ -645,7 +647,7 @@ export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () =>
       })
       addTypeTemplate({
         filename: 'types/h3.d.ts',
-        getContents: () => `import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+        getContents: () => `import type { ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 
 declare module 'h3' {
   interface H3EventContext {
@@ -655,7 +657,7 @@ declare module 'h3' {
       /** Loads a chunk for this request's render (the server loader, no local HTTP round trip), or \`null\` when the host has no file for it. */
       load?: (locale: string, routeName: string) => Promise<Translations | null>
       /** The module config with runtime overrides, resolved once for this request. */
-      config?: ModuleOptionsExtend
+      config?: ResolvedI18nConfig
     }
   }
 }
@@ -673,10 +675,10 @@ export {}
   export const cookies: boolean
   export const hooks: boolean
   export const defineRoute: boolean
-  export function getI18nConfig(): ModuleOptionsExtend
+  export function getI18nConfig(): ResolvedI18nConfig
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 `
-        return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
+        return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc, ResolvedI18nConfig } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import type { Router } from 'vue-router'
 

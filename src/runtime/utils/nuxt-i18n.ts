@@ -8,7 +8,7 @@ import {
   type BaseI18nOptions,
   type TranslationStorage,
 } from '@i18n-micro/core'
-import type { CleanTranslation, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, ResolvedI18nConfig, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import { type LoadOptions, translationStorage } from './storage'
@@ -36,14 +36,14 @@ export interface NuxtI18nOptions extends BaseI18nOptions {
   cacheMaxSize?: number
 }
 
-const formatters = new WeakMap<ModuleOptionsExtend, FormatService>()
+const formatters = new WeakMap<ResolvedI18nConfig, FormatService>()
 
 /**
  * The server's formatters. `Intl` objects are costly and depend only on what the service is built
  * from, so requests share them: its input is this read-only config, and no request reaches it
  * (`$tn` and `$td` pass the locale per call). One per resolved config: runtime overrides and hosts.
  */
-export function formatterFor(config: ModuleOptionsExtend): FormatService {
+export function formatterFor(config: ResolvedI18nConfig): FormatService {
   let formatter = formatters.get(config)
   if (!formatter) formatters.set(config, (formatter = new FormatService(config)))
   return formatter

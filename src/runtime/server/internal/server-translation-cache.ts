@@ -1,6 +1,6 @@
 /** The Nitro translation cache of the loader and the HMR watcher: one bundle, one instance. */
 import { DEFAULT_SERVER_CACHE_SIZE } from '../../utils/cache-keys'
-import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import type { ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
@@ -16,7 +16,7 @@ let cache: CacheControl<ServerTranslationCacheEntry> | undefined
 export function getOrCreateServerTranslationCache(): CacheControl<ServerTranslationCacheEntry> {
   if (cache) return cache
   // cache limits are build-time options: no runtime overrides to apply
-  const { cacheMaxSize, cacheTtl } = getI18nConfig() as ModuleOptionsExtend
-  cache = new CacheControl<ServerTranslationCacheEntry>({ maxSize: cacheMaxSize || DEFAULT_SERVER_CACHE_SIZE, ttl: cacheTtl ?? 0 })
+  const { cacheMaxSize, cacheTtl } = getI18nConfig()
+  cache = new CacheControl<ServerTranslationCacheEntry>({ maxSize: cacheMaxSize || DEFAULT_SERVER_CACHE_SIZE, ttl: cacheTtl })
   return cache
 }

@@ -1,5 +1,5 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale } from '@i18n-micro/types'
 import { buildLocaleHead, filterQuery, type LocaleHead } from '@i18n-micro/utils/locale-head'
 import { joinURL } from 'ufo'
 import { ref, unref, watch } from 'vue'
@@ -52,12 +52,12 @@ export const useLocaleHead = ({
   const metaObject = ref<LocaleHead>(empty())
 
   function build(): LocaleHead {
-    const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
+    const i18nConfig = nuxtApp.$getI18nConfig()
     const { canonicalQueryWhitelist, strategy, trailingSlash } = i18nConfig
     const { $getLocale, $switchLocalePath } = nuxtApp
     const i18nStrategy = nuxtApp.$i18nStrategy
     const allLocales = nuxtApp.$getLocales()
-    const locale = $getLocale() || i18nConfig.defaultLocale || 'en'
+    const locale = $getLocale() || i18nConfig.defaultLocale
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     if (!currentLocale) return empty()
 
@@ -67,7 +67,6 @@ export const useLocaleHead = ({
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
     // an unlocalized page has one URL: alternates would all point at it
     const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : []
-    const whitelist = canonicalQueryWhitelist ?? []
 
     /**
      * Absolute SEO href from `$switchLocalePath` (path or locale `baseUrl` URL).
@@ -76,15 +75,15 @@ export const useLocaleHead = ({
      */
     const toSeoHref = (pathOrUrl: string): string => {
       if (!pathOrUrl) return ''
-      const filtered = filterQuery(pathOrUrl, whitelist)
+      const filtered = filterQuery(pathOrUrl, canonicalQueryWhitelist)
       const absolute = filtered.startsWith('http://') || filtered.startsWith('https://')
       return applyTrailingSlash(absolute ? filtered : joinURL(unref(baseUrl), filtered.startsWith('/') ? filtered : `/${filtered}`), trailingSlash)
     }
 
     const hrefOf = (code: string): string => toSeoHref($switchLocalePath(code))
-    const defaultLocale = i18nConfig.defaultLocale || 'en'
+    const defaultLocale = i18nConfig.defaultLocale
     const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
-    const noPrefix = isNoPrefixStrategy(strategy!)
+    const noPrefix = isNoPrefixStrategy(strategy)
     // x-default only when the page exists in the default locale (else it would point at another page)
     const hasXDefault = !noPrefix && defaultLocaleObj?.seo !== false && pageLocales?.includes(defaultLocale)
 
@@ -101,8 +100,8 @@ export const useLocaleHead = ({
       // 404 routes and disableMeta keep the language, but must not emit SEO tags: a 404 the module answers has a matched record
       addSeoAttributes: addSeoAttributes && !metaDisabled && route.matched.length > 0 && !error.value,
       identifierAttribute,
-      hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
-      missingWarn: i18nConfig.missingWarn ?? true,
+      hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage,
+      missingWarn: i18nConfig.missingWarn,
     })
   }
 

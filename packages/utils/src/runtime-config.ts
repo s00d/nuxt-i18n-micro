@@ -87,11 +87,11 @@ const defaultWarn = (message: string) => console.warn(message)
  * `defaultLocale` and `fallbackLocale` must be enabled. No env reads: see `readI18nEnvOverrides`.
  * When nothing changes, the build config itself is returned (a disabled build default is still replaced).
  */
-export function applyI18nRuntimeOverrides(
-  baseConfig: ModuleOptionsExtend,
+export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
+  baseConfig: T,
   requested: RuntimeI18nOverrides,
   warn: (message: string) => void = defaultWarn,
-): ModuleOptionsExtend {
+): T {
   if (requested.strategy && requested.strategy !== baseConfig.strategy) {
     warn(
       `[nuxt-i18n-micro] runtime i18n strategy override is ignored: ` +
@@ -114,7 +114,7 @@ export function applyI18nRuntimeOverrides(
   const dateBuild = overrides.dateBuild ?? baseConfig.dateBuild
   const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale && dateBuild === baseConfig.dateBuild
   if (same && locales.every((locale, i) => locale === baseConfig.locales?.[i])) return baseConfig
-  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild }
+  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild } as T
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])
@@ -184,16 +184,16 @@ function deepFreeze<T>(value: T): T {
  */
 export function createI18nConfigResolver(
   warn: (message: string) => void = defaultWarn,
-): (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>) => ModuleOptionsExtend {
+): <T extends ModuleOptionsExtend>(baseConfig: T, runtimePublic?: Record<string, unknown>) => T {
   let env: RuntimeI18nOverrides | undefined
   let memo: { base: ModuleOptionsExtend; key: string; config: ModuleOptionsExtend } | undefined
-  return (base, runtimePublic) => {
+  return <T extends ModuleOptionsExtend>(base: T, runtimePublic?: Record<string, unknown>): T => {
     env ??= readI18nEnvOverrides()
     const overrides = mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), env)
     const key = i18nOverridesKey(overrides)
-    if (memo && memo.base === base && memo.key === key) return memo.config
+    if (memo && memo.base === base && memo.key === key) return memo.config as T
     const config = applyI18nRuntimeOverrides(base, overrides, warn)
     memo = { base, key, config: isDev() ? deepFreeze(config) : config }
-    return memo.config
+    return memo.config as T
   }
 }

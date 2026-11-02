@@ -30,7 +30,7 @@ async function respond(url: string, statusCode = 200) {
 const FILE = '/shop/_locales/index/en/data.json'
 
 beforeEach(() => {
-  state.config = { dateBuild: 'abc', httpCacheDuration: 3600 }
+  state.config = { apiBaseUrl: '_locales', dateBuild: 'abc', httpCacheDuration: 3600 }
 })
 
 test('the current ?v= is pinned for this browser, and the size of the build goes', async () => {

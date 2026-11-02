@@ -4,7 +4,7 @@
  * Accept-Language) and writes the response. Client SPA redirects: the i18n-redirect middleware.
  */
 
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
@@ -23,7 +23,7 @@ export default defineNuxtPlugin({
   // annotated: the plugin types are inferred from every plugin's setup, this one included
   setup(nuxtApp): Promise<void> | void {
     const i18nStrategy: PathStrategy = nuxtApp.$i18nStrategy
-    const getRuntimeConfig: () => ModuleOptionsExtend = nuxtApp.$getI18nConfig
+    const getRuntimeConfig: () => ResolvedI18nConfig = nuxtApp.$getI18nConfig
     const event = useRequestEvent()
     if (!event) return
 
@@ -49,8 +49,8 @@ export default defineNuxtPlugin({
       throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
     }
 
-    const defaultLocale = i18nConfig.defaultLocale || 'en'
-    const autoDetectPath = i18nConfig.autoDetectPath || '/'
+    const defaultLocale = i18nConfig.defaultLocale
+    const autoDetectPath = i18nConfig.autoDetectPath
     const anyPath = autoDetectPath === '*'
     const redirects = i18nConfig.redirects !== false
     const cookieName = getLocaleCookieName(i18nConfig)

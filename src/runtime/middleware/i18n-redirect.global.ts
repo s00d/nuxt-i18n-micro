@@ -30,8 +30,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const samePage = to.path === from.path && nuxtApp.payload.serverRendered
   if (i18nConfig.redirects === false || samePage || isInternalPath(to.path, i18nConfig.excludePatterns, i18nConfig.apiBaseUrl)) return
 
-  const defaultLocale = i18nConfig.defaultLocale || 'en'
-  const autoDetectPath = i18nConfig.autoDetectPath || '/'
+  const defaultLocale = i18nConfig.defaultLocale
+  const autoDetectPath = i18nConfig.autoDetectPath
   const anyPath = autoDetectPath === '*'
   const path = to.path || '/'
   const urlLocale = i18nStrategy.getLocaleFromPath(path)

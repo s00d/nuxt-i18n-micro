@@ -1,6 +1,6 @@
 import { isNoPrefixStrategy, urlPath } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
-import type { DefineI18nRouteConfig, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import type { DefineI18nRouteConfig, I18nRouteParams, MissingHandler, ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { hasProtocol } from 'ufo'
 import { getCurrentInstance, onActivated, watch } from 'vue'
@@ -61,7 +61,7 @@ export interface NuxtI18nPluginApiDeps {
   i18n: NuxtI18n
   loader: NuxtTranslationLoader
   i18nStrategy: PathStrategy
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   router: Router
   locale: ReturnType<typeof useI18nLocale>
   getCurrentLocale: (route?: ResolvedRouteLike) => string
@@ -91,7 +91,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     localeState.locale.value = code
   }
 
-  const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
+  const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy)
 
   /** A route object loses a trailing slash in `router.resolve`, so under a slash rule `push` takes the URL. */
   const withSlashRule = (switched: RouteLike | string): RouteLike | string =>
@@ -163,7 +163,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       getEffectiveLocale(route, (r) => getCurrentLocale(r as ResolvedRouteLike)),
     getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value, getCurrentLocale() ?? null),
     defaultLocale: () => i18nConfig.defaultLocale,
-    getLocales: () => i18nConfig.locales || [],
+    getLocales: () => i18nConfig.locales,
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, _locale?: string) =>
       i18nStrategy.getRouteBaseName(route ?? router.currentRoute.value) ?? '',
     t: i18n.t.bind(i18n),
@@ -268,7 +268,7 @@ function createDefineI18nRoute({ getLocale, mergeTranslations }: Pick<NuxtI18nPl
 
 export interface I18nProvideDeps {
   api: NuxtI18nPluginApi
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   router: Router
   i18nRouteParams: { value: I18nRouteParams }
 }

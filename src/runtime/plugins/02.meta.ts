@@ -1,4 +1,4 @@
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ResolvedI18nConfig } from '@i18n-micro/types'
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
@@ -19,7 +19,7 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
 }
 
 /** The request's origin, or '' for no absolute URLs: a client writes these headers, and one that does not parse must not cost the page. */
-function requestOrigin(i18nConfig: ModuleOptionsExtend): string {
+function requestOrigin(i18nConfig: ResolvedI18nConfig): string {
   const xForwardedProto = i18nConfig.metaTrustForwardedProto !== false
   try {
     return useRequestURL({ xForwardedHost: i18nConfig.metaTrustForwardedHost !== false, xForwardedProto }).origin
@@ -38,7 +38,7 @@ function requestOrigin(i18nConfig: ModuleOptionsExtend): string {
  * are missing — that fallback trusts proxy headers when the corresponding
  * `metaTrustForwarded*` flags are true (the published default).
  */
-function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | undefined): string {
+function resolveSeoBaseUrl(i18nConfig: ResolvedI18nConfig, siteUrl: string | undefined): string {
   const configured = i18nConfig.metaBaseUrl || siteUrl
   if (configured) return trimTrailingSlashes(configured)
 
@@ -68,7 +68,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   useHead(() => {
     const { $getLocales, $getLocale } = nuxtApp
     const allLocales = $getLocales()
-    const locale = $getLocale() || i18nConfig.defaultLocale || 'en'
+    const locale = $getLocale() || i18nConfig.defaultLocale
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
     const head = build()

@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
   routeRules: {
-    '/swr': { swr: 60 },
+    '/swr': { swr: 60, headers: { 'CDN-Cache-Control': 'public, max-age=600', 'Surrogate-Control': 'max-age=600' } },
     '/swr-kept': { swr: 1 },
     '/burst': { swr: 60 },
     '/cached': { cache: { swr: false, maxAge: 60 } },

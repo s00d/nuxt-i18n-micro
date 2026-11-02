@@ -4,6 +4,15 @@ import { getResponseHeader, removeResponseHeader, setResponseHeaders } from 'h3'
 /** Lives on the cache entry: a request that waited on another's render, in Nitro's cache, has no flag of its own. */
 const MARK = 'x-i18n-failed-read'
 
+const NOT_KEPT = {
+  'Cache-Control': 'no-store',
+  'CDN-Cache-Control': 'no-store',
+  'Cloudflare-CDN-Cache-Control': 'no-store',
+  'Netlify-CDN-Cache-Control': 'no-store',
+  'Vercel-CDN-Cache-Control': 'no-store',
+  'Surrogate-Control': 'no-store',
+}
+
 /**
  * A page rendered with a dictionary that could not be read keeps its HTML, and the browser reads the dictionary again
  * on hydration. A 200 would be kept by a route rule and a CDN for their TTL, raw keys included.
@@ -17,10 +26,10 @@ export default defineNitroPlugin((nitroApp) => {
     response.headers = { ...response.headers, [MARK]: '1' }
   })
   // outside it: for a `swr` or `cache` rule it writes its own `cache-control` over whatever the render set.
-  // Netlify's preset adds its own CDN header for an `isr` rule, which outranks `Cache-Control` and comes from no status
+  // A CDN header outranks `Cache-Control`, from a route rule of the app or from Netlify's preset for an `isr` rule
   nitroApp.hooks.hook('beforeResponse', (event) => {
     if (!getResponseHeader(event, MARK)) return
     removeResponseHeader(event, MARK)
-    setResponseHeaders(event, { 'Cache-Control': 'no-store', 'Netlify-CDN-Cache-Control': 'no-store', 'Retry-After': '60' })
+    setResponseHeaders(event, { ...NOT_KEPT, 'Retry-After': '60' })
   })
 })

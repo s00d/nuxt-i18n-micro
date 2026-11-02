@@ -139,7 +139,7 @@ A tab open across a deploy that asks for a new delta sees that it was made again
 
 A failed fetch from a host (anything but a 404), an unreadable or corrupt file, or a 200 that is not a JSON object reaches no cache, and the next request reads again:
 
-- a page render logs a warning, shows raw keys for that dictionary and answers `503` with `Cache-Control: no-store`, `Netlify-CDN-Cache-Control: no-store` and `Retry-After: 60`;
+- a page render logs a warning, shows raw keys for that dictionary and answers `503` with `Cache-Control: no-store`, the same in every CDN header (`CDN-Cache-Control`, `Cloudflare-CDN-Cache-Control`, `Netlify-CDN-Cache-Control`, `Vercel-CDN-Cache-Control`, `Surrogate-Control`, over any from a route rule) and `Retry-After: 60`;
 - `/_locales/...` answers `503` with `no-store`;
 - `useTranslationServerMiddleware` gives a `t` that answers the key or the default value.
 

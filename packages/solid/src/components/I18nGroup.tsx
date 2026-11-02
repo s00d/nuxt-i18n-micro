@@ -15,7 +15,7 @@ export const I18nGroup: Component<I18nGroupProps> = (props): JSX.Element => {
   const [local, others] = splitProps(props, ['prefix', 'groupClass', 'class', 'children'])
 
   const translate = (key: string, params?: Record<string, string | number | boolean>): string =>
-    String(i18n.t(`${local.prefix}.${key}` as TranslationKey, params))
+    i18n.ts(`${local.prefix}.${key}` as TranslationKey, params)
 
   const className = createMemo(() => ['i18n-group', local.groupClass, local.class].filter(Boolean).join(' '))
 

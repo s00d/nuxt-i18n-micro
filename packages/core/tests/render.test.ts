@@ -23,3 +23,12 @@ describe('renderI18nT hideIfEmpty', () => {
     expect(renderI18nT(api, host, { keypath: 'empty', hideIfEmpty: true, defaultValue: 'Default' }, {}, {})).toBe('Default')
   })
 })
+
+describe('renderI18nT with a subtree under the key', () => {
+  // `{ "tree": { "toString": "..." } }`: `String()` throws on it, which took a whole page down with a 500
+  it('a key named toString in the subtree is no method', () => {
+    const tree = { toString: 'a key' } as never
+    const node = renderI18nT(api, { ...host, t: () => tree }, { keypath: 'tree' }, {}, {}) as { children: unknown }
+    expect(node.children).toBe('[object Object]')
+  })
+})

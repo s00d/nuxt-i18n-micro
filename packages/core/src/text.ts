@@ -283,7 +283,7 @@ export function resolveText(i18n: TextHost, options: ResolveTextOptions): Resolv
   const resolved = usesPlural
     ? pluralText(i18n, options, params)
     : {
-        template: String(lookup(i18n, options.keypath, undefined, options.defaultValue, options.html) ?? ''),
+        template: textOf(lookup(i18n, options.keypath, undefined, options.defaultValue, options.html)) ?? '',
         params: formatted ? { ...params, ...formatted } : params,
       }
   return options.hideIfEmpty && !interpolate(resolved.template, resolved.params).trim() ? null : resolved

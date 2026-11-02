@@ -25,70 +25,58 @@ export function resetI18n(options: ResetI18nOptions = {}): void {
   shared.reset(options)
 }
 
-export const t = shared.t.bind(shared) as I18nTestContext['t']
-export const tc = shared.tc.bind(shared) as I18nTestContext['tc']
-export const ts = shared.ts.bind(shared) as I18nTestContext['ts']
-
-export function _t(...args: Parameters<I18nTestContext['_t']>) {
-  return shared._t(...args)
+/** `target` with its methods bound, for destructuring. */
+function bound<T extends object>(target: T): T {
+  return new Proxy(target, {
+    get(object, key) {
+      const value = Reflect.get(object, key)
+      return typeof value === 'function' ? value.bind(object) : value
+    },
+  })
 }
 
-export function _ts(...args: Parameters<I18nTestContext['_ts']>) {
-  return shared._ts(...args)
-}
-
-export async function setTranslationsFromJson(...args: Parameters<I18nTestContext['setTranslationsFromJson']>) {
-  return shared.setTranslationsFromJson(...args)
-}
-
-export async function loadPageTranslations(...args: Parameters<I18nTestContext['loadPageTranslations']>) {
-  return shared.loadPageTranslations(...args)
-}
-
-export const getLocale = () => shared.getLocale()
-export const setLocale = (...args: Parameters<I18nTestContext['setLocale']>) => shared.setLocale(...args)
-export const getLocaleName = (...args: Parameters<I18nTestContext['getLocaleName']>) => shared.getLocaleName(...args)
-export const setLocaleName = (...args: Parameters<I18nTestContext['setLocaleName']>) => shared.setLocaleName(...args)
-export const getLocales = (...args: Parameters<I18nTestContext['getLocales']>) => shared.getLocales(...args)
-export const setLocales = (...args: Parameters<I18nTestContext['setLocales']>) => shared.setLocales(...args)
-export const defaultLocale = (...args: Parameters<I18nTestContext['defaultLocale']>) => shared.defaultLocale(...args)
-export const setDefaultLocale = (...args: Parameters<I18nTestContext['setDefaultLocale']>) => shared.setDefaultLocale(...args)
-export const getRouteName = (...args: Parameters<I18nTestContext['getRouteName']>) => shared.getRouteName(...args)
-export const setRouteName = (...args: Parameters<I18nTestContext['setRouteName']>) => shared.setRouteName(...args)
-export const tn = shared.tn.bind(shared) as I18nTestContext['tn']
-export const td = shared.td.bind(shared) as I18nTestContext['td']
-export const tdr = shared.tdr.bind(shared) as I18nTestContext['tdr']
-export const has = shared.has.bind(shared) as I18nTestContext['has']
-export const mergeTranslations = (...args: Parameters<I18nTestContext['mergeTranslations']>) => shared.mergeTranslations(...args)
-export const resolveTranslations = shared.resolveTranslations.bind(shared) as I18nTestContext['resolveTranslations']
-export const setTranslation = shared.setTranslation.bind(shared) as I18nTestContext['setTranslation']
-export const setMissingHandler = (...args: Parameters<I18nTestContext['setMissingHandler']>) => shared.setMissingHandler(...args)
-export const getI18nConfig = (...args: Parameters<I18nTestContext['getI18nConfig']>) => shared.getI18nConfig(...args)
-export const localePath = (...args: Parameters<I18nTestContext['localePath']>) => shared.localePath(...args)
-export const switchLocalePath = (...args: Parameters<I18nTestContext['switchLocalePath']>) => shared.switchLocalePath(...args)
-export const localeRoute = (...args: Parameters<I18nTestContext['localeRoute']>) => shared.localeRoute(...args)
-export const switchLocaleRoute = (...args: Parameters<I18nTestContext['switchLocaleRoute']>) => shared.switchLocaleRoute(...args)
-export const switchLocale = (...args: Parameters<I18nTestContext['switchLocale']>) => shared.switchLocale(...args)
-export const switchRoute = (...args: Parameters<I18nTestContext['switchRoute']>) => shared.switchRoute(...args)
-export const setI18nRouteParams = (...args: Parameters<I18nTestContext['setI18nRouteParams']>) => shared.setI18nRouteParams(...args)
+export const {
+  t,
+  tc,
+  ts,
+  _t,
+  _ts,
+  setTranslationsFromJson,
+  loadPageTranslations,
+  getLocale,
+  setLocale,
+  getLocaleName,
+  setLocaleName,
+  getLocales,
+  setLocales,
+  defaultLocale,
+  setDefaultLocale,
+  getRouteName,
+  setRouteName,
+  tn,
+  td,
+  tdr,
+  has,
+  mergeTranslations,
+  resolveTranslations,
+  setTranslation,
+  setMissingHandler,
+  getI18nConfig,
+  localePath,
+  switchLocalePath,
+  localeRoute,
+  switchLocaleRoute,
+  switchLocale,
+  switchRoute,
+  setI18nRouteParams,
+} = bound(shared)
 
 /** Minimal strategy stub so `useI18n().$i18nStrategy` does not throw. */
 export const i18nStrategy = shared.i18nStrategy
 
 function applySharedFactoryOptions(options: CreateFakeI18nOptions): void {
   const { spy: _spy, isolated: _isolated, ...resetOptions } = options
-  if (
-    resetOptions.locale !== undefined ||
-    resetOptions.defaultLocale !== undefined ||
-    resetOptions.localeName !== undefined ||
-    resetOptions.locales !== undefined ||
-    resetOptions.routeName !== undefined ||
-    resetOptions.strategy !== undefined ||
-    resetOptions.translations !== undefined ||
-    resetOptions.messages !== undefined
-  ) {
-    shared.reset(resetOptions)
-  }
+  if (Object.values(resetOptions).some((value) => value !== undefined)) shared.reset(resetOptions)
 }
 
 /**

@@ -7,7 +7,8 @@ declare const useNuxtApp: () => {
   $switchLocale: (locale: string) => Promise<boolean>
 }
 
-const cookie = async (page: Page) => (await page.context().cookies()).find((entry) => entry.name === 'user-locale')?.value
+// With no cookie Nuxt's `useCookie` sends a delete on load, `Max-Age=-1`: libsoup (WebKit on Linux) keeps that as an empty session cookie
+const cookie = async (page: Page) => (await page.context().cookies()).find((entry) => entry.name === 'user-locale')?.value || undefined
 const push = (page: Page, to: string) =>
   page.evaluate((path) => {
     void useNuxtApp().$router.push(path)

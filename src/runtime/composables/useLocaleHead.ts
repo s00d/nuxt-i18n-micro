@@ -49,21 +49,16 @@ export const useLocaleHead = ({
   const nuxtApp = useNuxtApp()
   const route = useRoute()
   const error = useError()
-  const metaObject = ref<LocaleHead>({
-    htmlAttrs: {},
-    link: [],
-    meta: [],
-  })
-
   const empty = (): LocaleHead => ({ htmlAttrs: {}, link: [], meta: [] })
+  const metaObject = ref<LocaleHead>(empty())
 
   function build(): LocaleHead {
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
     const { canonicalQueryWhitelist, strategy, trailingSlash } = i18nConfig
-    const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
+    const { $getLocale, $switchLocalePath } = nuxtApp
     const i18nStrategy = nuxtApp.$i18nStrategy
-    const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
-    const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
+    const allLocales = nuxtApp.$getLocales()
+    const locale = $getLocale() || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     if (!currentLocale) return empty()
 

@@ -110,23 +110,9 @@ interface NormalizedApiConfig {
   apiBaseServerHost: string | undefined
 }
 
-/**
- * The cache-buster appended to payload URLs as `?v=`.
- *
- * Prefer a fingerprint of the translations themselves: a timestamp moves on every build and
- * makes clients re-download a dictionary that never changed. `options.dateBuild` wins even
- * when it is `0`/`''`, which is how an app opts out of busting entirely.
- *
- * Derived here and nowhere else — the runtime config and the Nitro route rules both need it,
- * and computing it twice is an invariant somebody has to remember.
- */
-function resolveDateBuild(options: ModuleOptions, translationsHash: string | null | undefined): string | number {
-  return options.dateBuild ?? translationsHash ?? Date.now()
-}
-
 /** Build-time half of `live`: the server adds a host named in the environment. */
-function isLiveDictionary(options: ModuleOptions, mode: TranslationPayloadMode): boolean {
-  return mode === 'source' || Boolean(options.cacheTtl) || Boolean(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
+function isLiveDictionary(options: ModuleOptions, mode: TranslationPayloadMode, serverHost: string | undefined): boolean {
+  return mode === 'source' || Boolean(options.cacheTtl) || Boolean(serverHost)
 }
 
 function buildFullConfig(params: {
@@ -143,37 +129,38 @@ function buildFullConfig(params: {
   const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
   // as Nuxt reads it for `NUXT_NO_SCRIPTS`
   const noScripts = nuxt.options.features.noScripts
-  const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
     locales: locales ?? [],
     // an unknown host of a build whose default has a domain takes that origin, not the request's
     metaBaseUrl: options.metaBaseUrl || locales?.find((locale) => locale.code === defaultLocale)?.baseUrl || undefined,
-    metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
-    metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
-    trustForwardedHost: options.trustForwardedHost ?? false,
-    hreflangBaseLanguage: options.hreflangBaseLanguage ?? false,
+    metaTrustForwardedHost: options.metaTrustForwardedHost,
+    metaTrustForwardedProto: options.metaTrustForwardedProto,
+    trustForwardedHost: options.trustForwardedHost,
+    hreflangBaseLanguage: options.hreflangBaseLanguage,
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
-    autoDetectLanguage: options.autoDetectLanguage ?? true,
-    autoDetectPath: options.autoDetectPath ?? '/',
-    strategy: options.strategy ?? 'prefix_except_default',
-    dateBuild,
+    autoDetectLanguage: options.autoDetectLanguage,
+    autoDetectPath: options.autoDetectPath,
+    strategy: options.strategy,
+    // the `?v=` of payload URLs: a fingerprint of the translations, as a timestamp would make clients re-download
+    // what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
+    dateBuild: options.dateBuild ?? translationsHash ?? Date.now(),
     hashMode: nuxt.options?.router?.options?.hashMode ?? false,
     trailingSlash:
       options.trailingSlash ??
       (nuxt.options.experimental as { defaults?: { nuxtLink?: { trailingSlash?: 'append' | 'remove' } } })?.defaults?.nuxtLink?.trailingSlash,
     apiBaseUrl: apiConfig.apiBaseUrl,
     apiBaseClientHost: apiConfig.apiBaseClientHost,
-    disablePageLocales: options.disablePageLocales ?? false,
+    disablePageLocales: options.disablePageLocales,
     canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? DEFAULT_CANONICAL_QUERY_WHITELIST,
     excludePatterns: options.excludePatterns ?? [],
-    missingWarn: options.missingWarn ?? true,
+    missingWarn: options.missingWarn,
     redirects: options.redirects !== false,
-    localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
+    localizedRouteNamePrefix: options.localizedRouteNamePrefix,
     routesLocaleLinks: options.routesLocaleLinks ?? {},
-    debug: options.debug ?? false,
+    debug: options.debug,
     customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
     cacheMaxSize: options.cacheMaxSize ?? 0,
     cacheTtl: options.cacheTtl ?? 0,
@@ -192,6 +179,7 @@ function buildFullConfig(params: {
 function buildPrivateConfig(
   options: ModuleOptions,
   nuxt: Nuxt,
+  rootDirs: string[],
   apiConfig: NormalizedApiConfig,
   locales: ModulePrivateOptionsExtend['locales'],
   payloadFsDir: string,
@@ -199,8 +187,7 @@ function buildPrivateConfig(
 ) {
   return {
     rootDir: nuxt.options.rootDir,
-    // Same order as build translation merge: extends first, project last (wins).
-    rootDirs: nuxt.options._layers.map((layer) => layer.config.rootDir).reverse(),
+    rootDirs,
     debug: options.debug ?? false,
     locales: locales ?? [],
     fallbackLocale: options.fallbackLocale ?? undefined,
@@ -314,11 +301,8 @@ export default defineNuxtModule<ModuleOptions>({
     disablePageLocales: false,
     disableWatcher: false,
     noPrefixRedirect: false,
-    fallbackLocale: undefined,
     localeCookie: null,
     apiBaseUrl: '_locales',
-    apiBaseClientHost: undefined,
-    apiBaseServerHost: undefined,
     translationPayloads: {
       mode: 'premerged',
       serverAssets: true,
@@ -330,10 +314,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
-    canonicalQueryWhitelist: undefined,
     plural: defaultPlural,
-    customRegexMatcher: undefined,
-    excludePatterns: undefined,
     localizedRouteNamePrefix: 'localized-',
     missingWarn: true,
     metaTrustForwardedHost: true,
@@ -375,6 +356,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     const resolver = createResolver(import.meta.url)
+    // Same order as build translation merge: extends first, project last (wins).
     const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse()
 
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
@@ -403,11 +385,8 @@ export default defineNuxtModule<ModuleOptions>({
       logger.warn(warning.replace('[nuxt-i18n-micro] ', ''))
     }
 
-    if (
-      !translationPayloads.serverAssets &&
-      !translationPayloads.publicAssets &&
-      !(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
-    ) {
+    const rawServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
+    if (!translationPayloads.serverAssets && !translationPayloads.publicAssets && !rawServerHost) {
       throw new Error(
         'nuxt-i18n-micro: local SSR payloads are disabled (serverAssets/publicAssets false) and apiBaseServerHost is not set. ' +
           'SSR would load empty translations.',
@@ -475,11 +454,6 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
     } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
-    if (options.debug) {
-      logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
-      logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])
-      logger.debug('[i18n module] strategy:', options.strategy)
-    }
 
     const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
     const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
@@ -488,10 +462,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (apiBaseClientHost?.endsWith('/')) {
       apiBaseClientHost = apiBaseClientHost.slice(0, -1)
     }
-    let apiBaseServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
-    if (apiBaseServerHost?.endsWith('/')) {
-      apiBaseServerHost = apiBaseServerHost.slice(0, -1)
-    }
+    const apiBaseServerHost = rawServerHost?.endsWith('/') ? rawServerHost.slice(0, -1) : rawServerHost
     const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales'
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
       throw new Error('Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.')
@@ -544,7 +515,7 @@ export default defineNuxtModule<ModuleOptions>({
     const originWarning = buildConfig.domain ? null : unfixedOriginWarning(routeGenerator.locales, defaultLocale, options.metaBaseUrl, siteUrl)
     if (originWarning) logger.warn(originWarning)
 
-    const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
+    const privateConfig = buildPrivateConfig(options, nuxt, rootDirs, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
     const templates = registerI18nTemplates(
       options,
       resolvedStrategyPath,
@@ -577,51 +548,47 @@ export default defineNuxtModule<ModuleOptions>({
         name: 'i18n-plugin-loader',
         order: -5,
       })
-    }
 
-    // 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
-    if (options.plugin && options.meta) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/02.meta'),
-        name: 'i18n-plugin-meta',
-        order: 2,
-      })
-    }
+      // 02 and 06 read what the loader plugin provides: `plugin: false` leaves them nothing to run on
+      if (options.meta) {
+        addPlugin({
+          src: resolver.resolve('./runtime/plugins/02.meta'),
+          name: 'i18n-plugin-meta',
+          order: 2,
+        })
+      }
 
-    // A page may still call it: the build has read the call, and with no runtime there is nothing left for it to do
-    if (!options.plugin && options.define) {
-      addPluginTemplate({
-        filename: 'i18n.define.mjs',
-        getContents: () => `import { defineNuxtPlugin } from '#imports'
-export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () => {} } }))
-`,
-      })
-    }
+      if (nuxt.options.dev && options.vueDevtools !== false) {
+        addPlugin({
+          src: resolver.resolve('./runtime/plugins/04.vue-devtools'),
+          name: 'i18n-vue-devtools',
+          mode: 'client',
+          order: 5,
+        })
+      }
 
-    if (nuxt.options.dev && options.plugin !== false && options.vueDevtools !== false) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/04.vue-devtools'),
-        name: 'i18n-vue-devtools',
-        mode: 'client',
-        order: 5,
-      })
-    }
-
-    if (options.plugin) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/06.redirect'),
         mode: 'server',
         name: 'i18n-plugin-redirect',
         order: 10,
       })
-    }
 
-    // no_prefix: no URL names a locale, so there is nothing to redirect (`getClientRedirect`)
-    if (options.redirects !== false && options.plugin !== false && options.strategy !== 'no_prefix') {
-      addRouteMiddleware({
-        name: 'i18n-redirect',
-        path: resolver.resolve('./runtime/middleware/i18n-redirect.global'),
-        global: true,
+      // no_prefix: no URL names a locale, so there is nothing to redirect (`getClientRedirect`)
+      if (options.redirects !== false && options.strategy !== 'no_prefix') {
+        addRouteMiddleware({
+          name: 'i18n-redirect',
+          path: resolver.resolve('./runtime/middleware/i18n-redirect.global'),
+          global: true,
+        })
+      }
+    } else if (options.define) {
+      // A page may still call it: the build has read the call, and with no runtime there is nothing left for it to do
+      addPluginTemplate({
+        filename: 'i18n.define.mjs',
+        getContents: () => `import { defineNuxtPlugin } from '#imports'
+export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () => {} } }))
+`,
       })
     }
 
@@ -654,7 +621,7 @@ export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () =>
       // live files). Same roots as the Nitro watcher: every layer's translationDir + additional dirs.
       const translationDirs = resolveLiveTranslationDirs({
         rootDirs,
-        translationDir: options.translationDir || 'locales',
+        translationDir: translationDirName,
         additionalTranslationDirs: options.additionalTranslationDirs,
       })
       addVitePlugin(
@@ -711,6 +678,14 @@ export {}
     addTypeTemplate({
       filename: 'types/i18n-internal.d.ts',
       getContents: () => {
+        const strategyDeclaration = `
+  export const domains: boolean
+  export const cookies: boolean
+  export const hooks: boolean
+  export const defineRoute: boolean
+  export function getI18nConfig(): ModuleOptionsExtend
+  export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
+`
         return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import type { Router } from 'vue-router'
@@ -722,27 +697,13 @@ declare module '#build/i18n.plural.mjs' {
   export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
 }
 
-declare module '#build/i18n.strategy.mjs' {
-  export const domains: boolean
-  export const cookies: boolean
-  export const hooks: boolean
-  export const defineRoute: boolean
-  export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
-}
+declare module '#build/i18n.strategy.mjs' {${strategyDeclaration}}
 
 declare module '#i18n-internal/config' {
   export function getI18nPrivateConfig(): ModulePrivateOptionsExtend
 }
 
-declare module '#i18n-internal/strategy' {
-  export const domains: boolean
-  export const cookies: boolean
-  export const hooks: boolean
-  export const defineRoute: boolean
-  export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
-}
+declare module '#i18n-internal/strategy' {${strategyDeclaration}}
 
 declare module '#i18n-internal/plural' {
   export const plural: PluralFunc
@@ -771,25 +732,24 @@ declare module '#i18n-internal/payload-source' {
         customRegexMatcher: fullConfig.customRegexMatcher as string | undefined,
       })
 
+    const unlinked = (name: string) => !options.routesLocaleLinks?.[name]
     const addDataRoutes = (pages: NuxtPage[] = []) => {
       if (!translationPayloads.prerenderRoutes) return
 
-      const pagesForDataRoutes = pages.filter((p) => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]))
+      const pagesForDataRoutes = pages.filter((p) => p.name !== undefined && unlinked(p.name))
       const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
       addPrerenderRoutes(dataRoutes)
     }
 
     nuxt.hook('pages:resolved', (pages) => {
-      const pagesNames = pages
-        .map((page) => page.name)
-        .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
+      const pagesNames = pages.map((page) => page.name).filter((name): name is string => name !== undefined && unlinked(name))
 
       if (!options.disableWatcher) {
-        routeGenerator.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir, options.disablePageLocales)
+        routeGenerator.ensureTranslationFilesExist(pagesNames, translationDirName, nuxt.options.rootDir, options.disablePageLocales)
       }
 
       addDataRoutes(pages)
-      routeNames = namedPages(pages).filter((name) => !options.routesLocaleLinks?.[name])
+      routeNames = namedPages(pages).filter(unlinked)
       staticPaths = staticPagePaths(pages)
       routeGenerator.extendPages(pages)
       generatedPages = pages
@@ -824,7 +784,7 @@ declare module '#i18n-internal/payload-source' {
         httpCacheDuration: options.httpCacheDuration,
         httpCacheControl: options.httpCacheControl,
         dateBuild: fullConfig.dateBuild,
-        live: isLiveDictionary(options, translationPayloads.mode),
+        live: isLiveDictionary(options, translationPayloads.mode, rawServerHost),
       })
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),

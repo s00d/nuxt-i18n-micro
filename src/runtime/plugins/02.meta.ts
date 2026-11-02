@@ -73,7 +73,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
     type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
     const head = build()
-    // a route that disables meta drops the page-defined i18n head too: `build` already left it empty
+    // a route that disables meta drops the page-defined i18n head too: `build` left only `lang` and `dir`
     if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return head as unknown as Head
     return mergeI18nHead(head, pageHead.value, {
       identifierAttribute: 'id',

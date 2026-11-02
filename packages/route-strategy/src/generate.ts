@@ -27,6 +27,8 @@ export interface RouteI18nMeta {
   noMeta?: boolean | string[]
   /** Under `prefix` with `redirects: false`, on the default locale's record: the path of a page with a custom default path. No URL, a link can still name the page by it. */
   original?: string
+  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. The locale is the visitor's, so the runtime redirects. */
+  paths?: Record<string, string>
 }
 
 export interface GenerateOptions {
@@ -305,9 +307,11 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       const { plain, records } = localeRecords(page, allowed, false, variants)
       const base = emit(localize(page, null, '', '', true, true)!, plain, '', false, false, true)
       const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales.includes(defaultLocale))
-      // a string redirect cannot carry params: dynamic pages are left to the router
-      if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path && !defaultRecord.path.includes(':'))
-        base.redirect = defaultRecord.path
+      // a path cannot carry params: dynamic pages are left to the router
+      if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path && !defaultRecord.path.includes(':')) {
+        const paths = records.flatMap((r) => (r.path.includes(':') ? [] : (r.meta!.i18n as RouteI18nMeta).locales.map((code) => [code, r.path])))
+        base.meta = { ...base.meta, i18n: { ...(base.meta!.i18n as RouteI18nMeta), paths: Object.fromEntries(paths) } }
+      }
       unprefixed.push(base)
       localized.push(...records)
       continue

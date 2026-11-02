@@ -25,7 +25,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
 | `PathStrategyContext` | interface | 10 members |
 | `ResolvedRouteLike` | interface | 8 members |
-| `RouteI18nMeta` | interface | 4 members |
+| `RouteI18nMeta` | interface | 5 members |
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
@@ -192,7 +192,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>RouteI18nMeta</code> — 4 members</summary>
+<summary><code>RouteI18nMeta</code> — 5 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -200,6 +200,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `name` | `string` |
 | `noMeta?` | `boolean \| string[] \| undefined` |
 | `original?` | `string \| undefined` |
+| `paths?` | `Record<string, string> \| undefined` |
 
 </details>
 
@@ -262,7 +263,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | `ClientRedirectOptions` | interface | 1 members |
 | `PathStrategyContext` | interface | 10 members |
 | `ResolvedRouteLike` | interface | 8 members |
-| `RouteI18nMeta` | interface | 4 members |
+| `RouteI18nMeta` | interface | 5 members |
 | `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
@@ -274,7 +275,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 
 <code>ResolvedRouteLike</code> — 8 members, identical to `ResolvedRouteLike` above.
 
-<code>RouteI18nMeta</code> — 4 members, identical to `RouteI18nMeta` above.
+<code>RouteI18nMeta</code> — 5 members, identical to `RouteI18nMeta` above.
 
 <code>RouteLike</code> — 7 members, identical to `RouteLike` above.
 

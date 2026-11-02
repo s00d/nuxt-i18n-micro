@@ -3,10 +3,11 @@
  * not follow the size of the dictionary. Each budget is a ratio to a request of the same app with the feature off, as a
  * ratio survives a slow machine.
  */
+import { RouteGenerator } from '@i18n-micro/route-strategy'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import plugin from '../../src/runtime/plugins/01.plugin'
 import { translationStorage } from '../../src/runtime/utils/storage'
-import { createApp, hydrate, runPlugin } from './plugin-harness'
+import { createApp, hydrate, PAGES, runPlugin } from './plugin-harness'
 
 vi.mock('#imports', async () => (await import('./plugin-harness')).stub)
 
@@ -106,6 +107,58 @@ describe('shared chunks', () => {
     expect(second.nuxtApp.$t('mine')).toBe('mine')
     expect(second.nuxtApp.$t('shared')).toBe('shared')
     expect(first.nuxtApp.$t('shared')).toBe('changed')
+  })
+})
+
+describe('a first load', () => {
+  // Nuxt runs the middleware of a load in a second navigation, on both sides: what it redirects to has a `from`
+  test.for(['server', 'client', 'spa'] as const)('redirected by a middleware stores nothing: %s', async (side) => {
+    const a = await createApp({ side, strategy: 'prefix_except_default', url: '/about', state: 'en' })
+    await runPlugin(plugin)
+    await a.router.push('/')
+    expect(a.router.currentRoute.value.path).toBe('/')
+    expect(a.cookieWrites).toEqual([])
+    if (side === 'server') return
+    await hydrate(a)
+    await a.router.push('/about')
+    expect(a.cookieWrites).toEqual(['user-locale=en'])
+  })
+})
+
+describe('noPrefixRedirect', () => {
+  const pages = () => {
+    const generated = PAGES()
+    new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }],
+      defaultLocaleCode: 'en',
+      strategy: 'no_prefix',
+      globalLocaleRoutes: { about: { en: '/about-us', de: '/ueber-uns' } },
+      noPrefixRedirect: true,
+    }).extendPages(generated)
+    return generated
+  }
+
+  test.for([
+    [undefined, '/about-us'],
+    ['de', '/ueber-uns'],
+    ['fr', '/about'],
+  ])('the original path with preference %s lands on %s, on both sides', async ([cookie, path]) => {
+    for (const side of ['server', 'client'] as const) {
+      const a = await createApp({ side, strategy: 'no_prefix', url: '/about', cookie, pages: pages() })
+      await runPlugin(plugin)
+      // the replace of a load, which runs the guards
+      await a.router.replace({ path: '/about', query: { a: '1' }, force: true })
+      expect(a.router.currentRoute.value.fullPath).toBe(`${path}?a=1`)
+    }
+  })
+
+  test('$switchLocale to a locale without a custom path stays on the original path', async () => {
+    const a = await createApp({ side: 'client', strategy: 'no_prefix', url: '/ueber-uns', pages: pages() })
+    await runPlugin(plugin)
+    await hydrate(a)
+    await a.nuxtApp.$switchLocale('fr')
+    expect(a.router.currentRoute.value.path).toBe('/about')
+    expect(a.nuxtApp.$getLocale()).toBe('fr')
   })
 })
 

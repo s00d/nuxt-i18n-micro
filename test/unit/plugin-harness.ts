@@ -39,6 +39,8 @@ export interface AppOptions {
   preloaded?: Record<string, unknown>
   /** Plain routes with no generated records: for locales the generated ones (en, de, fr) do not list. */
   unlocalized?: boolean
+  /** Generated records of an app of its own. */
+  pages?: NuxtPage[]
 }
 
 export interface App {
@@ -147,7 +149,7 @@ function fakeNuxtApp(a: App): Record<string, any> {
     callHook: hooks.callHook,
     vueApp: { config: { globalProperties: {} } },
     payload: { serverRendered: options.side !== 'spa' },
-    isHydrating: options.side === 'client',
+    isHydrating: options.side !== 'server',
     ssrContext: options.side === 'server' ? { event: { context: { i18n: context } } } : undefined,
     $config: { public: {} },
   }
@@ -198,7 +200,7 @@ export async function createApp(options: AppOptions): Promise<App> {
     routesLocaleLinks: {},
     ...options.config,
   } as ModuleOptionsExtend
-  const router = createAppRouter(options.unlocalized ? PAGES() : generate(strategy, 'pages', {}, { pages: PAGES }))
+  const router = createAppRouter(options.pages ?? (options.unlocalized ? PAGES() : generate(strategy, 'pages', {}, { pages: PAGES })))
   const a: App = {
     options,
     router,

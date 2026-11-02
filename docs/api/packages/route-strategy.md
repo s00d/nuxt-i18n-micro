@@ -28,7 +28,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `normalizeRouteKey` | function | `(key: string) => string` |
 | `RouteGenerator` | class | 18 members |
 | `RouteGeneratorOptions` | interface | 13 members |
-| `RouteI18nMeta` | interface | 4 members |
+| `RouteI18nMeta` | interface | 5 members |
 | `routeKey` | function | `(routePathOrName: string) => string` |
 | `Rules` | class | 12 members |
 
@@ -98,7 +98,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 
 </details>
 
-<code>RouteI18nMeta</code> — 4 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
 
 <details>
 <summary><code>Rules</code> — 12 members</summary>

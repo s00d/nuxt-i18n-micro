@@ -6,7 +6,9 @@ import { createLocalizedPathResolver, seedPrerenderRoutes, unfixedOriginWarning 
 
 const locales: Locale[] = [{ code: 'en' }, { code: 'de' }, { code: 'fr' }]
 
-async function resolver(strategy: 'prefix' | 'prefix_except_default') {
+type Strategy = 'prefix' | 'prefix_except_default' | 'prefix_and_default'
+
+async function resolver(strategy: Strategy) {
   const pages: NuxtPage[] = [
     { path: '/', name: 'index', file: 'pages/index.vue' },
     { path: '/about', name: 'about', file: 'pages/about.vue' },
@@ -28,18 +30,19 @@ async function resolver(strategy: 'prefix' | 'prefix_except_default') {
 describe('seedPrerenderRoutes', () => {
   interface Seed {
     static?: string[]
-    prefixedOnly?: boolean
     off?: string[]
-    strategy?: 'prefix' | 'prefix_except_default'
+    strategy?: Strategy
+    hostDefault?: boolean
   }
 
   const seed = async (list: string[], options: Seed) => {
     const routes = new Set(list)
+    const strategy = options.strategy ?? 'prefix_except_default'
     const result = seedPrerenderRoutes(routes, {
-      localize: await resolver(options.strategy ?? 'prefix_except_default'),
-      locales,
+      localize: await resolver(strategy),
+      locales: options.hostDefault ? locales.map((locale) => ({ ...locale, baseDefault: locale.code === 'de' })) : locales,
       staticPaths: options.static ?? null,
-      prefixedOnly: options.prefixedOnly ?? false,
+      strategy,
       prerendered: (route) => !options.off?.includes(route),
       isInternal: (route) => route.startsWith('/_'),
     })
@@ -57,7 +60,11 @@ describe('seedPrerenderRoutes', () => {
     [[], { static: ['/', '/about'] }, ['/', '/de', '/fr', '/about', '/de/ueber-uns', '/fr/about']],
     [[], { static: ['/about'], off: ['/about', '/'] }, ['/de', '/fr']],
     // a prefix-only strategy: an unprefixed page goes, what is no page stays
-    [['/about', '/unloc', '/feed'], { strategy: 'prefix', prefixedOnly: true }, ['/unloc', '/feed', '/en/about', '/de/ueber-uns', '/fr/about']],
+    [['/about', '/unloc', '/feed'], { strategy: 'prefix' }, ['/unloc', '/feed', '/en/about', '/de/ueber-uns', '/fr/about']],
+    [['/about'], { strategy: 'prefix_and_default' }, ['/en/about', '/de/ueber-uns', '/fr/about']],
+    // a host default links to the unprefixed URL, and the route rule on it says prerendered: the file has to exist
+    [['/about'], { strategy: 'prefix_and_default', hostDefault: true }, ['/about', '/en/about', '/de/ueber-uns', '/fr/about']],
+    [['/about'], { strategy: 'prefix', hostDefault: true }, ['/en/about', '/de/ueber-uns', '/fr/about']],
   ]
 
   test.each(cases)('%j %j', async (list, options, expected) => {
@@ -65,7 +72,7 @@ describe('seedPrerenderRoutes', () => {
   })
 
   test('reports what it changed', async () => {
-    const { added, removed } = await seed(['/about'], { strategy: 'prefix', prefixedOnly: true })
+    const { added, removed } = await seed(['/about'], { strategy: 'prefix' })
     expect(added).toEqual(['/en/about', '/de/ueber-uns', '/fr/about'])
     expect(removed).toEqual(['/about'])
   })

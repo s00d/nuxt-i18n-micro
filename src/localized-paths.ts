@@ -4,6 +4,7 @@
  * paths, `false` (unlocalized) pages and routeLocales restrictions.
  */
 import { createPathStrategy, DomainPathStrategy, type PathStrategyContext } from '@i18n-micro/path-strategy'
+import type { Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { joinURL } from 'ufo'
 import type { RouteRecordRaw } from 'vue-router'
@@ -47,11 +48,10 @@ export function unfixedOriginWarning(locales: { code: string; baseUrl?: string }
 
 export interface PrerenderSeedOptions {
   localize: LocalizedPathResolver
-  locales: { code: string }[]
+  locales: { code: string; baseDefault?: boolean }[]
   /** The pages to seed, static output only: elsewhere null. */
   staticPaths: string[] | null
-  /** The strategy serves pages under a prefix only: an unprefixed page leaves the list. */
-  prefixedOnly: boolean
+  strategy: Strategies
   prerendered: (route: string) => boolean
   isInternal: (route: string) => boolean
 }
@@ -108,7 +108,10 @@ export function seedPrerenderRoutes(routes: Set<string>, options: PrerenderSeedO
   }
   for (const route of additional) routes.add(route)
 
-  return { added: [...additional], removed: options.prefixedOnly ? dropUnprefixed(routes, localize) : [] }
+  // pages are served under a prefix only, or links use it: `prefix_and_default` with a host default links to its unprefixed URL
+  const { strategy, locales } = options
+  const prefixedOnly = strategy === 'prefix' || (strategy === 'prefix_and_default' && !locales.some((locale) => locale.baseDefault))
+  return { added: [...additional], removed: prefixedOnly ? dropUnprefixed(routes, localize) : [] }
 }
 
 const toRecord = (page: NuxtPage): RouteRecordRaw =>

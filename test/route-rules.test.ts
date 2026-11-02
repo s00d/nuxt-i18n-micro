@@ -33,6 +33,20 @@ describe('routeRules', () => {
     expect(copied).toEqual(['/de/old', '/fr/old', '/de/de-only'])
   })
 
+  test('with no documents under a prefix a prerender rule stays on its path: nothing writes the payload a link would fetch', () => {
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes: {},
+      noPrefixRedirect: false,
+    })
+    const rules: Record<string, { prerender?: boolean; swr?: number }> = { '/page': { prerender: true }, '/cached': { prerender: true, swr: 60 } }
+    const target: typeof rules = {}
+    localizeRouteRules(rules, target, generator, () => {}, true)
+    expect(target).toEqual({ '/en/cached': { swr: 60 }, '/de/cached': { swr: 60 } })
+  })
+
   test('a cached rule of a domain build keys on the host, one that caches nothing stays as written', () => {
     expect(varyRouteCacheByHost({ swr: 60 }, false)).toEqual({ swr: 60, cache: { varies: ['host'] } })
     expect(varyRouteCacheByHost({ cache: { varies: ['cookie', 'host'] } }, true)).toEqual({

@@ -56,6 +56,7 @@ member RouteI18nMeta.locales: string[]
 member RouteI18nMeta.name: string
 member RouteI18nMeta.noMeta?: boolean | string[] | undefined
 member RouteI18nMeta.original?: string | undefined
+member RouteI18nMeta.paths?: Record<string, string> | undefined
 function routeKey: (routePathOrName: string) => string
 class Rules
 member Rules.allowedLocales: (fullPath: string, name: string | undefined) => string[] | undefined

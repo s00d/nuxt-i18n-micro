@@ -37,7 +37,7 @@ Which languages exist and how they appear in the URL.
 | `localeCookie` | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. Set to `null` to disable cookie-based persistence. Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit `null` in the `i18n` config block keeps it off there too. |
 | `globalLocaleRoutes` | `GlobalLocaleRoutes` | `{}` | Global route-level locale configuration. Allows restricting or customizing locale routes for specific pages without modifying their components. - `false` — exclude the route from localization. - `Record<LocaleCode, string>` — custom per-locale paths. |
 | `customRegexMatcher` | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments. Every locale code in `locales` must match the whole pattern, without its flags, or the build fails. |
-| `noPrefixRedirect` | `boolean` | `false` | For `no_prefix` strategy: when the default locale has a custom path for a page (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to it (e.g. `/about` → `/about-us`). Pages with dynamic segments are not redirected. |
+| `noPrefixRedirect` | `boolean` | `false` | For `no_prefix` strategy: when the default locale has a custom path for a page (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to the custom path of the visitor's locale, the default locale's otherwise (e.g. `/about` → `/about-us`). A locale with no custom path of its own stays on the original path. Pages with dynamic segments are not redirected. |
 | `excludePatterns` | `(string \| RegExp)[]` | `undefined` | Paths to leave out of i18n routing: a string is a path prefix (`/admin` covers `/admin/x`) or a `*` / `?` glob; a RegExp is tested against the path. Matching pages get no locale variants, no locale redirect or 404, and are dropped from prerender; they still render with translations. `/api`, `/_nuxt`, `/__*`, the translations route and common static files (sitemap, robots.txt, favicon, assets by extension) are always excluded. |
 | `routeLocales` | `Record<string, string[]>` | — | Per-route locale restrictions, extracted at build time from `$defineI18nRoute()` calls. Maps a route path (e.g. `'/about'`) to an array of allowed locale codes. Routes not listed have no restrictions (all locales allowed). |
 
@@ -782,8 +782,10 @@ Without a cookie, `Accept-Language` still drives redirects; the cookie remembers
 **Type** `boolean` · **Default** `false`
 
 For `no_prefix` strategy: when the default locale has a custom path for a page
-(`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to it
-(e.g. `/about` → `/about-us`). Pages with dynamic segments are not redirected.
+(`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to the custom
+path of the visitor's locale, the default locale's otherwise (e.g. `/about` → `/about-us`).
+A locale with no custom path of its own stays on the original path. Pages with dynamic
+segments are not redirected.
 
 <!-- /generated:option:noPrefixRedirect -->
 

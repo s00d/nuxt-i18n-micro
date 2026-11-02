@@ -439,8 +439,10 @@ export interface ModuleOptions {
 
   /**
    * For `no_prefix` strategy: when the default locale has a custom path for a page
-   * (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to it
-   * (e.g. `/about` → `/about-us`). Pages with dynamic segments are not redirected.
+   * (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to the custom
+   * path of the visitor's locale, the default locale's otherwise (e.g. `/about` → `/about-us`).
+   * A locale with no custom path of its own stays on the original path. Pages with dynamic
+   * segments are not redirected.
    * @default false
    */
   noPrefixRedirect?: boolean

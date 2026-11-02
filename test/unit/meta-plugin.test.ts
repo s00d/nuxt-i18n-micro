@@ -82,10 +82,10 @@ describe('02.meta', () => {
     expect(app.head!().link.length).toBe(generated.link.length)
   })
 
-  test('a route that disables meta drops the page head too', () => {
+  test('a route that disables meta drops the SEO tags and the page head, not the language', () => {
     setup({ metaDisabled: true })
     useI18nHead({ meta: [{ name: 'x', content: 'y' }] })
-    expect(app.head!()).toEqual({ htmlAttrs: {}, link: [], meta: [] })
+    expect(app.head!()).toEqual({ htmlAttrs: { lang: 'en' }, link: [], meta: [] })
   })
 
   test('hydration: a page head from the payload applies though no client code calls useI18nHead', () => {

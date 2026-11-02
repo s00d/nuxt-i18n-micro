@@ -41,6 +41,8 @@ export interface RouteI18nMeta {
   noMeta?: boolean | string[]
   /** Under `prefix` with `redirects: false`: the path of a page with a custom default path. No URL, a link can still name the page by it. */
   original?: string
+  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. */
+  paths?: Record<string, string>
 }
 
 export interface RouterAdapter {

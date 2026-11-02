@@ -23,16 +23,18 @@ function localizedRulePaths(path: string, generator: RuleLocales): string[] {
     .filter((localized) => localized !== path && localized !== normalizePath(path))
 }
 
-/** Copies each page rule to its localized URLs, into `target`. A `redirect` stays on the path it was written for. */
-export function localizeRouteRules<Rule extends { redirect?: unknown }>(
+/** Copies each page rule to its localized URLs, into `target`. A `redirect` stays on the path it was written for, and so does `prerender` with `noDocuments`. */
+export function localizeRouteRules<Rule extends { redirect?: unknown; prerender?: unknown }>(
   rules: Record<string, Rule>,
   target: Record<string, Omit<Rule, 'redirect'>>,
   generator: RuleLocales,
   onCopy: (path: string, rule: Omit<Rule, 'redirect'>) => void,
+  noDocuments = false,
 ): void {
   const localeCodes = [...generator.locales, ...generator.disabledLocales].map((locale) => locale.code)
   for (const [path, value] of Object.entries(rules)) {
     const { redirect: _redirect, ...rule } = value
+    if (noDocuments) delete rule.prerender
     if (!Object.keys(rule).length || !shouldLocalizeRouteRulePath(path, localeCodes)) continue
     for (const localized of localizedRulePaths(path, generator)) {
       target[localized] = { ...target[localized], ...rule }

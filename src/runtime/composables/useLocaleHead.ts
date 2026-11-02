@@ -65,9 +65,10 @@ export const useLocaleHead = ({
     const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
     const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
-    // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
-    if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return empty()
+    if (!currentLocale) return empty()
 
+    // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
+    const metaDisabled = i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)
     const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
     // an unlocalized page has one URL: alternates would all point at it
@@ -103,8 +104,8 @@ export const useLocaleHead = ({
       xDefault: hasXDefault ? hrefOf(defaultLocale) : undefined,
       alternates: !noPrefix,
       addDirAttribute,
-      // 404 routes keep the language, but must not emit SEO tags: a 404 the module answers has a matched record
-      addSeoAttributes: addSeoAttributes && route.matched.length > 0 && !error.value,
+      // 404 routes and disableMeta keep the language, but must not emit SEO tags: a 404 the module answers has a matched record
+      addSeoAttributes: addSeoAttributes && !metaDisabled && route.matched.length > 0 && !error.value,
       identifierAttribute,
       hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
       missingWarn: i18nConfig.missingWarn ?? true,

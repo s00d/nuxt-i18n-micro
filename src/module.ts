@@ -1,7 +1,7 @@
 import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
+import { defaultPlural, isNoPrefixStrategy } from '@i18n-micro/core'
 import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
 import { resolveLiveTranslationDirs, translationRelativePath } from './runtime/server/internal/translation-watcher'
@@ -807,9 +807,17 @@ declare module '#i18n-internal/payload-source' {
         ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, cacheControl }),
       }
 
-      localizeRouteRules(nuxt.options.routeRules || {}, nitroConfig.routeRules, routeGenerator, (path, rule) => {
-        logger.debug(`Replicated routeRule for ${path}: ${JSON.stringify(rule)}`)
-      })
+      // under hash + prefix a prefixed URL only redirects into the hash: prerendered there, links would fetch a payload that no build writes
+      const noDocuments = Boolean(buildConfig.hashMode) && options.strategy === 'prefix'
+      localizeRouteRules(
+        nuxt.options.routeRules || {},
+        nitroConfig.routeRules,
+        routeGenerator,
+        (path, rule) => {
+          logger.debug(`Replicated routeRule for ${path}: ${JSON.stringify(rule)}`)
+        },
+        noDocuments,
+      )
 
       if (routeGenerator.locales.some((locale) => locale.baseUrl)) {
         for (const [path, rule] of Object.entries(nitroConfig.routeRules)) {
@@ -920,7 +928,7 @@ declare module '#i18n-internal/payload-source' {
         localize: await createBuildStrategy(),
         locales: buildConfig.locales!,
         staticPaths: isSSG ? staticPaths : null,
-        prefixedOnly: withPrefixStrategy(options.strategy!),
+        strategy: options.strategy!,
         prerendered: (route) => routeRules[route]?.prerender !== false,
         isInternal: (route) => isInternalPath(route, options.excludePatterns, apiBaseUrl),
       })

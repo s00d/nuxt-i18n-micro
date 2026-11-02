@@ -1,8 +1,7 @@
-import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
+import type { PathStrategy, ResolvedRouteLike, RouteI18nMeta } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import type { ComponentPublicInstance } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoaded, Router } from 'vue-router'
-import { START_LOCATION } from 'vue-router'
 import type { NuxtApp } from '#app/nuxt'
 import { hooks } from '#build/i18n.strategy.mjs'
 import type { useI18nLocale } from '../composables/useI18nLocale'
@@ -121,6 +120,11 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
   router.beforeEach(async (to, from) => {
     if (to.path === from.path && !noPrefix) return
 
+    // `noPrefixRedirect`: the page's original path sends the visitor to their locale's custom path, a locale without one stays
+    const paths = noPrefix ? (to.matched.at(-1)?.meta.i18n as RouteI18nMeta | undefined)?.paths : undefined
+    const customPath = paths?.[api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)]
+    if (customPath) return { path: customPath, query: to.query, hash: to.hash }
+
     // a navigation is newer than any `$switchLocale` still loading
     loader.invalidatePendingSwitches()
     const target = await loadTarget(to)
@@ -158,10 +162,11 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
       localeState.value = locale
       return
     }
-    const urlNamed = !noPrefix && !i18nConfig.hashMode
     // Where the URL names the locale, reaching a page is the visitor's choice, with the state already on it too: the
-    // server stores a prefixed page only, not an unprefixed page's locale. A first load stays out of it, as it would
-    // replace the preference `/` goes by. Without a locale in the URL only a change is a choice.
-    if ((urlNamed && from !== START_LOCATION) || localeState.value !== locale) setLocale(locale)
+    // server stores a prefixed page only (06.redirect), not an unprefixed page's locale. A first load stays out of it,
+    // redirected or not, as it would replace the preference `/` goes by: on both sides Nuxt runs the middleware of that
+    // load in a second navigation, so `from` cannot tell it. Without a locale in the URL only a change is a choice.
+    const urlNamed = !noPrefix && !i18nConfig.hashMode && import.meta.client && !nuxtApp.isHydrating
+    if (urlNamed || localeState.value !== locale) setLocale(locale)
   })
 }

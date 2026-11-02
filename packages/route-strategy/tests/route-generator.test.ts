@@ -461,10 +461,10 @@ describe('aliases and options', () => {
       'i18n-about /:locale([a-z]{2})/about',
     ])
     expect(generate('no_prefix', [about], { noPrefixRedirect: true, globalLocaleRoutes: { about: { en: '/about-us' } } })).toEqual([
-      'about /about -> /about-us',
+      'about /about',
       'localized-about-en /about-us',
     ])
-    // a string redirect cannot carry `:id`
+    // a path cannot carry `:id`
     const item: NuxtPage = { path: '/item/:id()', name: 'item-id', file: 'pages/item/[id].vue' }
     expect(generate('no_prefix', [item], { noPrefixRedirect: true, globalLocaleRoutes: { 'item/[id]': { en: '/thing/[id]' } } })).toEqual([
       'item-id /item/:id()',
@@ -585,9 +585,17 @@ describe('no_prefix: a path shared by locales', () => {
     expect(records.map((page) => page.name)).toEqual(['about', 'localized-about-at', 'localized-about-de'])
   })
 
-  test('noPrefixRedirect finds the default locale behind another code of the group', () => {
-    const records = generate({ about: { en: '/shared', at: '/shared' } })
-    expect(records.find((page) => page.name === 'about')?.redirect).toBe('/shared')
+  test('noPrefixRedirect gives the runtime the custom path of each locale, the default behind another code of the group too', () => {
+    const records = generate({ about: { en: '/shared', at: '/shared', de: '/ueber-uns' } })
+    const base = records.find((page) => page.name === 'about')
+    expect(base?.redirect).toBeUndefined()
+    expect(base?.meta?.i18n).toMatchObject({ paths: { en: '/shared', at: '/shared', de: '/ueber-uns' } })
+  })
+
+  test('noPrefixRedirect: no paths when the default locale keeps the original path, and none with params', () => {
+    expect(generate({ about: { de: '/ueber-uns' } }).find((page) => page.name === 'about')?.meta?.i18n).not.toHaveProperty('paths')
+    const base = generate({ about: { en: '/about-us', de: '/ueber-uns/:x' } }).find((page) => page.name === 'about')
+    expect(base?.meta?.i18n).toEqual(expect.objectContaining({ paths: { en: '/about-us' } }))
   })
 })
 

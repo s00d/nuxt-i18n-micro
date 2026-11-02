@@ -46,7 +46,6 @@ import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { DEFAULT_SERVER_CACHE_SIZE } from '../utils/cache-keys'
 import { type LoadOptions, translationStorage } from '../utils/storage'
 
-const isDev = process.env.NODE_ENV !== 'production'
 
 /** The link of `<i18n-switcher>`, by its own class: no other link in the page is the switcher's to change. */
 const SWITCHER_LINK = /class="switcher-locale-([^"]+)" href="[^"]*"/g
@@ -85,7 +84,6 @@ interface StartLocaleDeps {
   nuxtApp: NuxtApp
   i18nConfig: ModuleOptionsExtend
   i18nStrategy: PathStrategy
-  noPrefix: boolean
   renderLocale: string | undefined
   initialRoute: ResolvedRouteLike
   locale: ReturnType<typeof useI18nLocale>
@@ -93,8 +91,9 @@ interface StartLocaleDeps {
 }
 
 /** The first page's locale. */
-function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, noPrefix, renderLocale, initialRoute, locale, getCurrentLocale }: StartLocaleDeps) {
+function resolveStartLocale({ nuxtApp, i18nConfig, i18nStrategy, renderLocale, initialRoute, locale, getCurrentLocale }: StartLocaleDeps) {
   const { locale: localeState, getPreferredLocale, resolveInitialLocale, isValidLocale, validLocales } = locale
+  const noPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
   // hash + prefix renders `/` in the browser, so no server read Accept-Language: the browser's list stands in
   const shellLocale = () => {
@@ -168,7 +167,6 @@ export default defineNuxtPlugin({
     const i18nConfig: ModuleOptionsExtend = useResolvedI18nConfig(nuxtApp)
     // routing follows the runtime overrides too (defaultLocale, disabledLocales)
     const i18nStrategy = createI18nStrategy(router, i18nConfig)
-    const noPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
     translationStorage.configure({
       // the SSR copy is process-wide, so it is bounded like the payload cache
@@ -207,14 +205,13 @@ export default defineNuxtPlugin({
     // Server loads into memory for SSR; client loads via /_locales in switchContext below.
     const prerender = import.meta.server && import.meta.prerender
     const loadOptions = createLoadOptions(nuxtApp, i18nConfig)
-    const loader = new NuxtTranslationLoader({ i18n, loadOptions, isDev, prerender })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions, prerender })
 
     const initialRoute = router.currentRoute.value as unknown as ResolvedRouteLike
     const initialLocale = resolveStartLocale({
       nuxtApp,
       i18nConfig,
       i18nStrategy,
-      noPrefix,
       renderLocale,
       initialRoute,
       locale,
@@ -225,7 +222,7 @@ export default defineNuxtPlugin({
     try {
       await loader.switchContext(initialLocale, initialRouteName)
     } catch (e) {
-      if (isDev) console.error('[i18n] Initial load error:', e)
+      if (process.env.NODE_ENV !== 'production') console.error('[i18n] Initial load error:', e)
       if (prerender) throw e
       throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
     }
@@ -286,7 +283,6 @@ export default defineNuxtPlugin({
       loader,
       i18nConfig,
       i18nStrategy,
-      noPrefix,
       locale,
       api,
       leavePage: () => {

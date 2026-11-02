@@ -91,7 +91,6 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     localeState.locale.value = code
   }
 
-  const isDev = process.env.NODE_ENV !== 'production'
   const isNoPrefix = isNoPrefixStrategy(i18nConfig.strategy!)
 
   /** A route object loses a trailing slash in `router.resolve`, so under a slash rule `push` takes the URL. */
@@ -194,7 +193,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     switchLocalePath: (toLocale: string) => applyTrailingSlash(switchedPath(switchedLink(toLocale)), i18nConfig.trailingSlash),
     switchLocale: async (toLocale: string) => {
       if (!isValidLocale(toLocale)) {
-        if (isDev) console.warn(`[i18n] Invalid locale '${toLocale}'`)
+        if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] Invalid locale '${toLocale}'`)
         return false
       }
 

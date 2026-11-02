@@ -385,7 +385,6 @@ export class NuxtI18n extends BaseI18n {
 export interface NuxtTranslationLoaderOptions {
   i18n: NuxtI18n
   loadOptions: LoadOptions
-  isDev?: boolean
   /** The render is a file: a first page with no dictionary fails, as raw keys would stay in it. */
   prerender?: boolean
 }
@@ -426,7 +425,7 @@ export class NuxtTranslationLoader {
 
   /** The loaded chunk, or null when the load failed (reported here): a reload must tell that from an empty chunk. */
   private loadChunk(locale: string, routeName?: string): Promise<Record<string, unknown> | null> {
-    const { i18n, loadOptions, isDev } = this.options
+    const { i18n, loadOptions } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
     if (pending) return pending
@@ -435,7 +434,7 @@ export class NuxtTranslationLoader {
       try {
         return i18n.installChunk(locale, routeName, await translationStorage.load(locale, routeName, loadOptions))
       } catch (e) {
-        if (isDev) console.error('[i18n] Load error:', e)
+        if (process.env.NODE_ENV !== 'production') console.error('[i18n] Load error:', e)
         else console.warn('[i18n] Translation load failed:', locale, routeName)
         return null
       } finally {

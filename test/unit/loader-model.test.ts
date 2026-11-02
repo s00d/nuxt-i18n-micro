@@ -4,7 +4,7 @@
  * This is the model that found the fragment bug in `$loadPageTranslations`.
  */
 import fc from 'fast-check'
-import { expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { STORAGE_CC_KEY } from '../../src/runtime/utils/cache-keys'
 import { NuxtI18n, NuxtTranslationLoader } from '../../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../../src/runtime/utils/storage'
@@ -48,6 +48,10 @@ function fakeHost() {
   return { version, missing, inflight, fetch, answer }
 }
 
+// a failed load warns in production, and logs the error in dev
+beforeEach(() => vi.stubEnv('NODE_ENV', 'production'))
+afterEach(() => vi.unstubAllEnvs())
+
 test('a prerender with no file and no root fails: raw keys must not reach a written file', async () => {
   vi.spyOn(console, 'warn').mockImplementation(() => {})
   vi.stubGlobal(
@@ -59,7 +63,6 @@ test('a prerender with no file and no root fails: raw keys must not reach a writ
   const options = (prerender: boolean) => ({
     i18n: new NuxtI18n({ plural: (key: string) => key }),
     loadOptions: { apiBaseUrl: '_locales', baseURL: '/' },
-    isDev: false,
     prerender,
   })
   const build = globalThis as { __i18nSide?: string; __i18nPrerender?: boolean }
@@ -87,7 +90,7 @@ test('setTranslation over a stand-in is no loaded chunk: the next visit still lo
     }),
   )
   const i18n = new NuxtI18n({ plural: (key: string) => key })
-  const loader = new NuxtTranslationLoader({ i18n, loadOptions: { apiBaseUrl: '_locales', baseURL: '/' }, isDev: false })
+  const loader = new NuxtTranslationLoader({ i18n, loadOptions: { apiBaseUrl: '_locales', baseURL: '/' } })
   await loader.switchContext('en', 'about')
   i18n.setTranslation('title', 'Mine')
   expect(i18n.hasChunk('en', 'about')).toBe(false)

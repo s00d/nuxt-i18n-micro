@@ -8,7 +8,6 @@ import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18nPluginApi } from './i18n-api'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
 
-const isDev = process.env.NODE_ENV !== 'production'
 
 interface NavigationTarget {
   locale: string
@@ -25,7 +24,6 @@ export interface I18nNavigationDeps {
   loader: NuxtTranslationLoader
   i18nConfig: ModuleOptionsExtend
   i18nStrategy: PathStrategy
-  noPrefix: boolean
   locale: ReturnType<typeof useI18nLocale>
   api: NuxtI18nPluginApi
   /** The page changed: what the last one set for itself (route params, head) goes. */
@@ -94,7 +92,8 @@ function createRegister(nuxtApp: NuxtApp, { mergeTranslation }: NuxtI18nPluginAp
  * ponytail: a file of its own, like `i18n-api`, keeps the plugin a flat list of steps for about 300 B gzip of property names. Inline them if a bundle budget needs it.
  */
 export function setupI18nNavigation(deps: I18nNavigationDeps): void {
-  const { nuxtApp, router, i18n, loader, i18nConfig, i18nStrategy, noPrefix, api, leavePage } = deps
+  const { nuxtApp, router, i18n, loader, i18nConfig, i18nStrategy, api, leavePage } = deps
+  const noPrefix = i18nConfig.strategy === 'no_prefix'
   const { locale: localeState, getPreferredLocale, isValidLocale, setLocale } = deps.locale
 
   const finishWhenGone = createOutgoingWatch(nuxtApp, i18n)
@@ -112,7 +111,7 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
       const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
       return { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null }
     } catch (e) {
-      if (isDev) console.error('[i18n] Navigation error:', e)
+      if (process.env.NODE_ENV !== 'production') console.error('[i18n] Navigation error:', e)
       return undefined
     }
   }

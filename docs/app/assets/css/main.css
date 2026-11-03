@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@source "../../../content/**/*";
+
+@theme static {
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand green (#32ba8c) — used when ui.colors.primary = green */
+  --color-green-50: #ecfdf6;
+  --color-green-100: #d1fae8;
+  --color-green-200: #a7f3d4;
+  --color-green-300: #6ee7b7;
+  --color-green-400: #3ecf9a;
+  --color-green-500: #32ba8c;
+  --color-green-600: #249e74;
+  --color-green-700: #1c7f5d;
+  --color-green-800: #16644a;
+  --color-green-900: #134e3b;
+  --color-green-950: #0a2f24;
+}
+
+:root {
+  /* Stronger muted / dimmed text — default zinc tones wash out on dark docs. */
+  --ui-text-muted: var(--ui-color-neutral-500);
+  --ui-text-dimmed: var(--ui-color-neutral-500);
+}
+
+.dark {
+  --ui-text-muted: var(--ui-color-neutral-400);
+  --ui-text-dimmed: var(--ui-color-neutral-400);
+}

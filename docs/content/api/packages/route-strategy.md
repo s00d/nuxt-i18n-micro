@@ -1,0 +1,126 @@
+---
+title: '@i18n-micro/route-strategy'
+description: 'Exported API of @i18n-micro/route-strategy, generated from the source.'
+navigation:
+  title: 'route-strategy'
+outline: 'deep'
+---
+
+# `@i18n-micro/route-strategy`
+
+14 exports across 1 entry point.
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
+checks against the TypeScript sources.
+
+## `@i18n-micro/route-strategy`
+
+```ts
+import { /* … */ } from '@i18n-micro/route-strategy'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `GenerateOptions` | interface | 11 members |
+| `generateRoutes` | function | `(pages: NuxtPage[], options: GenerateOptions, localizedPaths?: LocalizedPaths) => NuxtPage[]` |
+| `isLocaleAllowedForUnlocalizedRoute` | function | `(routeLocales: Record<string, string[]>, locales: Locale[], routePath: string, localeCode: string) => boolean` |
+| `localeMatcherSource` | function | `(matcher: string \| RegExp) => string` |
+| `localesOutsideMatcher` | function | `(codes: readonly string[], matcher: string \| RegExp) => string[]` |
+| `nameOfPath` | function | `(fullPath: string) => string` |
+| `normalizePath` | function | `(routePath: string) => string` |
+| `normalizeRouteKey` | function | `(key: string) => string` |
+| `pageNames` | const | `(pages: NuxtPage[]) => string[]` |
+| `RouteGenerator` | class | 18 members |
+| `RouteGeneratorOptions` | interface | 13 members |
+| `RouteI18nMeta` | interface | 5 members |
+| `routeKey` | function | `(routePathOrName: string) => string` |
+| `Rules` | class | 12 members |
+
+<details>
+<summary><code>GenerateOptions</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `apiBaseUrl?` | `string \| undefined` |
+| `customRegex?` | `string \| RegExp \| undefined` |
+| `defaultLocale` | `string` |
+| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
+| `hostDefaults?` | `string[] \| undefined` |
+| `locales` | `string[]` |
+| `namePrefix` | `string` |
+| `noPrefixRedirect` | `boolean` |
+| `redirects?` | `boolean \| undefined` |
+| `rules` | `Rules` |
+| `strategy` | `Strategies` |
+
+</details>
+
+<details>
+<summary><code>RouteGenerator</code> — 18 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `defaultLocale` | `Locale` |
+| `disabledLocales` | `Locale[]` |
+| `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
+| `extendPages` | `(pages: NuxtPage[]) => void` |
+| `generateDataRoutes` | `(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]` |
+| `hostDefaults` | `private string[]` |
+| `locales` | `Locale[]` |
+| `localizedKey` | `private (key: string, localeCode: string) => string` |
+| `localizedPaths` | `private LocalizedPaths` |
+| `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
+| `options` | `private RouteGeneratorOptions` |
+| `parentKeys` | `private string[]` |
+| `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |
+| `resolveLocalizedRulePaths` | `(originalPath: string, localeCode: string) => string[]` |
+| `routeLocales` | `Record<string, string[]>` |
+| `rules` | `private Rules` |
+| `strategy` | `Strategies` |
+| `withPrefix` | `private (localized: string, localeCode: string) => string` |
+
+</details>
+
+<details>
+<summary><code>RouteGeneratorOptions</code> — 13 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `apiBaseUrl?` | `string \| undefined` |
+| `customRegexMatcher?` | `string \| RegExp \| undefined` |
+| `defaultLocaleCode` | `string` |
+| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
+| `globalLocaleRoutes` | `GlobalLocaleRoutes` |
+| `locales` | `Locale[]` |
+| `localizedRouteNamePrefix?` | `string \| undefined` |
+| `noPrefixRedirect` | `boolean` |
+| `parentPaths?` | `string[] \| undefined` |
+| `redirects?` | `boolean \| undefined` |
+| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
+| `routeLocales?` | `Record<string, string[]> \| undefined` |
+| `strategy` | `Strategies` |
+
+</details>
+
+<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/types).
+
+<details>
+<summary><code>Rules</code> — 12 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `allowedLocales` | `(fullPath: string, name: string \| undefined) => string[] \| undefined` |
+| `byName` | `private Map<string, Rule>` |
+| `customKeysUnder` | `(base: string, locale: string) => string[]` |
+| `customPath` | `(fullPath: string, locale: string) => string \| undefined` |
+| `disableMeta` | `(fullPath: string, name: string \| undefined) => NoMeta \| undefined` |
+| `get` | `(fullPath: string, name: string \| undefined) => Rule \| undefined` |
+| `new` | `(globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[], routeDisableMeta?: Record<string, NoMeta>): Rules` |
+| `noMeta` | `private Map<string, NoMeta>` |
+| `noMetaByName` | `private Map<string, NoMeta>` |
+| `restrictions` | `private Map<string, string[]>` |
+| `restrictionsByName` | `private Map<string, string[]>` |
+| `rules` | `private Map<string, Rule>` |
+
+</details>
+
+Back to [all packages](/api/packages) · [Integration guides](/integrations/)

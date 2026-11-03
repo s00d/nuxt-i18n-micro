@@ -14,7 +14,7 @@ const cliReference = async (): Promise<string> => {
 
 describe('docs/api/cli.md', () => {
   it('is what the generator writes from the spec', async () => {
-    const page = readFileSync(join(repoRoot, 'docs/api/cli.md'), 'utf8')
+    const page = readFileSync(join(repoRoot, 'docs/content/api/cli.md'), 'utf8')
     expect(page).toContain((await cliReference()).trim())
   })
 

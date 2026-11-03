@@ -8,6 +8,9 @@ const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
 /** Workspace-root module src (fixtures import ../../../src/module). Belt for older untestutils without root-src hash. */
 const moduleSrc = fileURLToPath(new URL('../src', import.meta.url))
 
+/** `I18N_NUXT5=1`: every build with Nuxt 5 defaults and the early 404 matcher, to see what the next major changes. */
+const nuxt5 = process.env.I18N_NUXT5 ? { future: { compatibilityVersion: 5 }, experimental: { early404: true } } : undefined
+
 /**
  * One production build of `test/fixtures/<dir>`. `env` reaches nuxt.config at build time and the server at start;
  * `nuxtConfig` is a defu override (arrays concatenate, so never pass `locales` here).
@@ -18,7 +21,9 @@ function app(id: string, dir = id, env?: Record<string, string>, nuxtConfig?: Re
     root: resolve(fixtures, dir),
     run: 'server',
     env,
-    nuxtConfig,
+    // part of the build hash: these builds never mix with the default ones
+    // a copy per recipe: the build merges into it, and a shared object would move every other recipe's hash
+    nuxtConfig: nuxt5 ? structuredClone({ ...nuxt5, ...nuxtConfig }) : nuxtConfig,
     // the whole fixture dir: `basic/layer` builds on its parent
     hashInputs: [resolve(fixtures, dir.split('/')[0]!), moduleSrc],
   })

@@ -48,7 +48,9 @@ function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRunti
     },
     bundle: {
       dirs: ['.output/public', '.output/server'],
-      classify: (absPath) => (isTranslationFile(absPath) ? 'asset' : 'code'),
+      // Source maps are not shipped code. Fixture apps link the module from the repo, not node_modules, so Nitro
+      // writes full maps for it and none for npm deps: counted as code, they would inflate only i18n-micro.
+      classify: (absPath) => (absPath.endsWith('.map') ? 'other' : isTranslationFile(absPath) ? 'asset' : 'code'),
     },
   }
 }

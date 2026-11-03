@@ -87,6 +87,9 @@ export function createMarkdownWriter(
 title: "Performance Test Results"
 description: "Benchmarks vs nuxt-i18n on real fixtures."
 outline: "deep"
+navigation:
+  order: 180
+  group: Production
 ---
 
 # Performance Test Results
@@ -109,10 +112,12 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 - Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
 - **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [benchmark methodology](/contributing/performance-methodology).
 - **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
+- **Code** excludes source maps (\`*.map\`): the fixtures link the module from the repo, so Nitro writes full maps for it and none for npm dependencies.
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 - Load profile \`--load ${load}\`: ${loadLabel}.
 - Cool-downs \`--cool ${cool}\` (see methodology doc).
 - Each of the \`runs\` builds is **forced** (no warm-cache zeroing of build time).
+- Artillery **Error rate** in tables is HTTP-status errors from the load metrics. Charts also plot \`vusers.failed\` (client timeouts under saturation); those can be high while HTTP error rate stays 0%.
 ### Runs
 
 All metrics below are **means across ${runs} runs**.
@@ -147,7 +152,8 @@ ${Object.entries(dependencies)
     },
     commit() {
       if (!enabled) return
-      writeFileSync(filePath, buffer)
+      // the sections are template blocks with their own leading and trailing blank lines
+      writeFileSync(filePath, buffer.replace(/\n{3,}/g, '\n\n'))
     },
     getBuffer() {
       return buffer
@@ -193,6 +199,9 @@ ${rows}
 `)
 }
 
+/** Code + translations: what a deploy serves, without source maps (`other`). */
+const deployable = (bundle?: { code: number; asset: number }): number => (bundle?.code || 0) + (bundle?.asset || 0)
+
 function writeBuildSection(write: (c: string) => void, result: PerfTargetResult): void {
   const b = result.build
   const bundle = b.bundle
@@ -200,7 +209,7 @@ function writeBuildSection(write: (c: string) => void, result: PerfTargetResult)
 ## Build Performance for scripts/perf-fixtures/${result.id}
 
 - **Build Time**: ${b.buildTimeSec.toFixed(2)} seconds
-- **Bundle Size**: ${formatBytes(bundle?.total || 0)} (code: ${formatBytes(bundle?.code || 0)}, translations: ${formatBytes(bundle?.asset || 0)})
+- **Bundle Size**: ${formatBytes(deployable(bundle))} (code: ${formatBytes(bundle?.code || 0)}, translations: ${formatBytes(bundle?.asset || 0)})
 - **Output dirs**: public: ${formatBytes(bundle?.byDir.public || 0)}, server: ${formatBytes(bundle?.byDir.server || 0)}
 - **Max / Avg CPU**: ${b.maxCpuPct.toFixed(2)}% / ${b.avgCpuPct.toFixed(2)}%
 - **Max / Avg Memory**: ${b.maxMemoryMb.toFixed(2)} MB / ${b.avgMemoryMb.toFixed(2)} MB
@@ -242,7 +251,7 @@ export function writeDocsReport(write: (c: string) => void, results: PerfTargetR
   const buildTimes = results.map((r) => Math.round(r.build.buildTimeSec * 10) / 10)
   const codeMB = results.map((r) => mb(r.build.bundle?.code || 0))
   const trMB = results.map((r) => mb(r.build.bundle?.asset || 0))
-  const totalMB = results.map((r) => mb(r.build.bundle?.total || 0))
+  const totalMB = results.map((r) => mb(deployable(r.build.bundle)))
 
   const charts = generateBuildComparisonCharts(labels, buildTimes, codeMB, trMB, totalMB)
   saveChartJsConfig('build-time-comparison.js', charts.buildTimeConfig)
@@ -259,31 +268,23 @@ export function writeDocsReport(write: (c: string) => void, results: PerfTargetR
 ${results
   .map(
     (r) =>
-      `| **${displayLabel(r.id, r.label)}** | ${r.build.buildTimeSec.toFixed(2)}s | ${formatBytes(r.build.bundle?.code || 0)} | ${formatBytes(r.build.bundle?.asset || 0)} | ${formatBytes(r.build.bundle?.total || 0)} |`,
+      `| **${displayLabel(r.id, r.label)}** | ${r.build.buildTimeSec.toFixed(2)}s | ${formatBytes(r.build.bundle?.code || 0)} | ${formatBytes(r.build.bundle?.asset || 0)} | ${formatBytes(deployable(r.build.bundle))} |`,
   )
   .join('\n')}
 
 > “Total” = code + translations (\`bundle.asset\`). Translations include \`locales/\`, \`_locales/\`, \`chunks/raw/\`, and matching locale chunks.
 
-\`\`\`chart
-url: /charts/build-time-comparison.js
-height: 350px
-\`\`\`
+::docs-chart{url="/charts/build-time-comparison.js"}
+::
 
-\`\`\`chart
-url: /charts/bundle-size-comparison.js
-height: 400px
-\`\`\`
+::docs-chart{url="/charts/bundle-size-comparison.js"}
+::
 
-\`\`\`chart
-url: /charts/translations-size-comparison.js
-height: 350px
-\`\`\`
+::docs-chart{url="/charts/translations-size-comparison.js"}
+::
 
-\`\`\`chart
-url: /charts/total-bundle-comparison.js
-height: 350px
-\`\`\`
+::docs-chart{url="/charts/total-bundle-comparison.js"}
+::
 `)
 
   const withLoad = results.filter((r) => r.load)
@@ -302,15 +303,11 @@ height: 350px
     const safeName = r.label.replace(/[^a-z0-9-]/gi, '-')
     const chartsBlock = l.artillery
       ? `
-\`\`\`chart
-url: /charts/${safeName}-traffic.js
-height: 400px
-\`\`\`
+::docs-chart{url="/charts/${safeName}-traffic.js"}
+::
 
-\`\`\`chart
-url: /charts/${safeName}-latency.js
-height: 300px
-\`\`\`
+::docs-chart{url="/charts/${safeName}-latency.js"}
+::
 `
       : ''
     write(`

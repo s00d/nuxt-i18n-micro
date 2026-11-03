@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Total Bundle (MB)",
         "data": [
-          8.1,
-          9.2,
-          8.3
+          7.9,
+          9,
+          8.1
         ],
         "backgroundColor": [
           "rgb(75, 192, 192)",

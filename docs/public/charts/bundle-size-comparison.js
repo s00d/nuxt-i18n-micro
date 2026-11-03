@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Code Bundle (MB)",
         "data": [
-          1.3,
-          1.9,
-          1.5
+          1.1,
+          1.8,
+          1.3
         ],
         "backgroundColor": "rgba(75, 192, 192, 0.8)",
         "borderColor": "rgb(75, 192, 192)",

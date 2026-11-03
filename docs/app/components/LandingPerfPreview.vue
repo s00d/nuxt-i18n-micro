@@ -3,14 +3,16 @@ import { tv } from '~/utils/tv'
 
 /**
  * Landing benchmark preview: the same fixture app built and load-tested with three setups.
- * req/s and p95 from the PR #308 production load rounds (87.0, 88.4 · 242.1, 238.6 · 414.0, 394.5
- * → ~88 / ~240 / ~404); build times are the fixture means in guide/performance-results.md.
+ * Numbers are the means of three runs in guide/performance-results.md (`pnpm test:performance --load full`).
  */
 const fixtures = [
-  { id: 'plain', label: 'Plain Nuxt', note: 'no i18n', build: 4.59, rps: 88, latency: 292, win: false },
-  { id: 'nuxtjs', label: '@nuxtjs/i18n', note: 'v10', build: 5.48, rps: 240, latency: 58, win: false },
-  { id: 'micro', label: 'nuxt-i18n-micro', note: 'v4', build: 4.99, rps: 404, latency: 31, win: true },
+  { id: 'plain', label: 'Plain Nuxt', note: 'no i18n', build: 5.92, rps: 115, latency: 11585, win: false },
+  { id: 'nuxtjs', label: '@nuxtjs/i18n', note: 'v10', build: 6.18, rps: 178, latency: 6074, win: false },
+  { id: 'micro', label: 'nuxt-i18n-micro', note: 'v4', build: 4.74, rps: 415, latency: 102, win: true },
 ] as const
+
+/** p95 under saturation reaches seconds: show those as seconds. */
+const formatLatency = (ms: number) => (ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`)
 
 const maxBuild = Math.max(...fixtures.map((f) => f.build))
 const maxRps = Math.max(...fixtures.map((f) => f.rps))
@@ -155,7 +157,7 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
 
         <div :class="ui.value()">
           <p :class="f.win ? ui.rpsWin() : ui.rps()">{{ phase === 'build' ? '—' : displayRps[i] }} <span :class="ui.unit()">req/s</span></p>
-          <p :class="ui.meta()">p95 {{ f.latency }} ms</p>
+          <p :class="ui.meta()">p95 {{ formatLatency(f.latency) }}</p>
         </div>
       </div>
     </div>

@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Build Time (seconds)",
         "data": [
-          4.6,
-          5.5,
-          5
+          5.9,
+          6.2,
+          4.7
         ],
         "backgroundColor": [
           "rgb(75, 192, 192)",

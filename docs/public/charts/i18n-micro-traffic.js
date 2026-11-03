@@ -11,22 +11,20 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s",
-      "80s"
+      "70s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          49,
-          224,
-          316,
-          325,
-          323,
-          318,
-          318,
-          256,
-          61
+          54,
+          259,
+          490,
+          481,
+          482,
+          480,
+          481,
+          480
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -39,15 +37,14 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          14,
-          1979,
-          3678,
-          3534,
-          3534,
-          3534,
-          3606,
-          3678,
-          111
+          10,
+          162,
+          156,
+          113,
+          103,
+          107,
+          99,
+          82
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -60,15 +57,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          21,
-          461,
-          601,
-          601,
-          601,
-          601,
+          7,
+          340,
           600,
-          150,
-          0
+          600,
+          600,
+          600,
+          600,
+          289
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -81,13 +77,12 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          1,
-          217,
-          139,
           0,
-          16,
-          9,
+          41,
           0,
+          2,
+          0,
+          5,
           0,
           0
         ],
@@ -104,12 +99,11 @@ export default function() {
         "data": [
           0,
           0,
-          107,
-          239,
-          214,
-          233,
-          237,
-          139,
+          0,
+          0,
+          0,
+          0,
+          0,
           0
         ],
         "borderColor": "rgb(255, 99, 132)",

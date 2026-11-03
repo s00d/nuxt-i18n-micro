@@ -1,6 +1,7 @@
 import { chmodSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { PREMERGED_ROOT_MARK } from '@i18n-micro/utils/merge-source'
 import { createStorage } from 'unstorage'
 import fsDriver from 'unstorage/drivers/fs'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -389,6 +390,28 @@ describe('made-up pages add no keys', () => {
       await load('en', 'no-such-page')
       await load('en', 'about')
       expect(keys()).toEqual(['__root', 'about'])
+    })
+
+    test('a page file with a root mark is stored even as an empty delta, and answers from the store with the host down', async () => {
+      const mark = { [PREMERGED_ROOT_MARK]: 'm' }
+      const fetcher = vi.fn(async (path: string) => (path.includes('__root') ? { hello: 'Hello', ...mark } : { ...mark }))
+      vi.stubGlobal('$fetch', fetcher)
+      expect((await (await instance())('en', 'index')).data).toEqual({ hello: 'Hello' })
+      expect(keys()).toEqual(['__root', 'index'])
+
+      fetcher.mockRejectedValue(httpError(503))
+      expect((await (await instance())('en', 'index')).data).toEqual({ hello: 'Hello' })
+    })
+
+    test('a made-up name without a mark is still not stored, beside a marked root', async () => {
+      vi.stubGlobal(
+        '$fetch',
+        vi.fn(async (path: string) => (path.includes('__root') ? { hello: 'Hello', [PREMERGED_ROOT_MARK]: 'm' } : { hello: 'Hello' })),
+      )
+      await (
+        await instance()
+      )('en', 'no-such-page')
+      expect(keys()).toEqual(['__root'])
     })
 
     test('a root that failed once adds no key for made-up names, and the page still answers', async () => {

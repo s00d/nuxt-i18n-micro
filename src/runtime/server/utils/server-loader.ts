@@ -65,11 +65,15 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   return cached(`${locale}:${page}`, () => readChunk(locale, page, config))
 }
 
-/** A loaded chunk, or one not to store under this key: another key's, or `NO_FILE`. `partial`: stored nowhere, a delta with no root under it. */
+/**
+ * A loaded chunk, or one not to store under this key: another key's, or `NO_FILE`. `partial`: stored nowhere, a delta with no root under it.
+ * `marked`: the file came with a root mark, so it is a page of the build, stored even when it equals its root.
+ */
 interface Loaded {
   entry: ServerTranslationCacheEntry
   shared?: true
   partial?: true
+  marked?: true
 }
 
 /** One cache entry per key, one in-flight load per key. */
@@ -105,7 +109,7 @@ async function readThroughShared(key: string, locale: string, page: string, conf
   const hit = await readSharedChunk(key)
   if (hit) return { entry: hit }
   const loaded = await load(locale, page, config)
-  const { entry, shared, partial } = loaded
+  const { entry, shared, partial, marked } = loaded
   if (entry === NO_FILE || partial) return loaded
   // kept locally even when it is the root entry: a page with no folder must not pay a storage round trip per request
   if (shared) return { entry }
@@ -119,8 +123,8 @@ async function readThroughShared(key: string, locale: string, page: string, conf
   const root = await rootChunk(locale, config).catch(() => null)
   if (!root || !Object.keys(root.data).length) return { entry }
   // no page of its own, whatever the name: `source` and a remote host answer made-up pages with
-  // the root, and those names must not become keys
-  if (JSON.stringify(root.data) === json) return { entry: root }
+  // the root, and those names must not become keys. A marked file is a page of the build, even an empty delta
+  if (!marked && JSON.stringify(root.data) === json) return { entry: root }
   // a 200 with a well-formed error: every chunk holds the root keys. One bad answer must not reach every instance
   if (Object.keys(root.data).every((rootKey) => Object.hasOwn(entry.data, rootKey))) await writeSharedChunk(key, json, config)
   return { entry }
@@ -182,5 +186,5 @@ async function settle(locale: string, page: string, file: Record<string, unknown
   const merged = mergeOverRoot(root.data, file)
   const entry = merged === root.data ? root : toEntry(merged)
   // a root the host has not got yet (a deploy in progress): what this request shows, not a dictionary to keep
-  return root === NO_FILE ? { entry, shared: true, partial: true } : { entry }
+  return root === NO_FILE ? { entry, shared: true, partial: true } : { entry, marked: true }
 }

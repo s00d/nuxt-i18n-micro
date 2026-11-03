@@ -59,7 +59,9 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     await clickUntil(page, '#path-link-de', 'https://example.de/kontakt')
   })
 
-  test('an unchecked absolute $localeRoute is no way off the origin, in a link or in the router', async ({ page, baseURL }) => {
+  test('an unchecked absolute $localeRoute is no way off the origin, in a link or in the router', async ({ page, baseURL, guard }) => {
+    // the click lands on this origin's path `/https://evil.example/x`, no page: Nuxt 4.6 loads it from the server (a 404)
+    guard.allow(/Failed to load resource.*404.*example\.com\/https:\/\/evil\.example\/x/)
     const { html } = await onHost(baseURL, '/named?unchecked', COM)
     expect(html).toContain('id="unchecked-link"')
     expect(html).not.toMatch(/href="https:\/\/evil\.example/)

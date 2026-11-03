@@ -139,9 +139,12 @@ describe('J7 useI18nHead page head', () => {
       await page.getByRole('link', { name: scenario.linkLabel }).click()
       await expect(page).toHaveURL(new RegExp(`${esc(scenario.path)}$`))
       await assertI18nHeadScenario(page, scenario)
+      // the links in view prefetch their payloads: leaving mid-request aborts it, and Nuxt 4.6 reports that (NUXT_E7002) in Firefox
+      await page.waitForLoadState('networkidle')
       // step 3: reload → the SSR head matches the scenario too
       await page.reload({ waitUntil: 'domcontentloaded' })
       await assertI18nHeadScenario(page, scenario)
+      await page.waitForLoadState('networkidle')
     }
   })
 

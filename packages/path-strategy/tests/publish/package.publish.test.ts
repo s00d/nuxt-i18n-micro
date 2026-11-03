@@ -41,9 +41,11 @@ describe('package publish checks', () => {
 
   it('npm pack tarball contains working dist entrypoints', async () => {
     const packDir = mkdtempSync(join(tmpdir(), 'path-strategy-pack-'))
+    // under `pnpm publish --dry-run` (prepublishOnly) npm would inherit the flag and write no tarball
     const output = execSync(`npm pack --json --pack-destination ${JSON.stringify(packDir)}`, {
       cwd: packageRoot,
       encoding: 'utf8',
+      env: { ...process.env, npm_config_dry_run: 'false' },
     })
     const { filename, files } = parseNpmPackJson(output)
     const tarballPath = join(packDir, filename)

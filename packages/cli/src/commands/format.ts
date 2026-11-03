@@ -1,5 +1,5 @@
 import { findingsError } from '../errors'
-import { log } from '../log'
+import { log, pick, plural } from '../log'
 import { Project } from '../project'
 import { relativePath } from '../fs'
 
@@ -24,7 +24,7 @@ export default async function run(args: FormatArgs): Promise<void> {
     }
     log.list('Not formatted', files)
     const flags = `${args.indent === 2 ? '' : ` --indent ${args.indent}`}${args.sortKeys === false ? ' --no-sortKeys' : ''}`
-    throw findingsError(`${files.length} files need formatting.`, [`Run i18n-micro format${flags}.`])
+    throw findingsError(`${plural(files.length, 'file')} ${pick(files.length, 'needs', 'need')} formatting.`, [`Run i18n-micro format${flags}.`])
   }
 
   const written = project.save(options)

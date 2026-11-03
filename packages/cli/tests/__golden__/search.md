@@ -5,17 +5,17 @@
 ## Output
 
 ```
-== global: common.save ==
-en: Save
-de: Speichern
-ru: Сохранить
-Used in: pages/index.vue:4
+◇ global: common.save
+  en: Save
+  de: Speichern
+  ru: Сохранить
+  Used in: pages/index.vue:4
 
-== pages/index: footer ==
-en: Save
-de: [missing]
-ru: Сохранить
-Used in: a string or a computed key
+◇ pages/index: footer
+  en: Save
+  de: [missing]
+  ru: Сохранить
+  Used in: a string or a computed key
 ```
 
 ## Files

@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Exported 9 PO files to <project>/pots
+◆ Exported 9 PO files to <project>/pots
 ```
 
 ## Files

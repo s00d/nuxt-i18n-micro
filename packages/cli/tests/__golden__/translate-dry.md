@@ -5,10 +5,11 @@
 ## Output
 
 ```
-== To translate ==
-de: 8 keys, 98 characters
-ru: 0 keys, 0 characters
-Dry run: nothing was sent.
+◇ To translate
+  de: 8 keys, 98 characters
+  ru: 0 keys, 0 characters
+
+● Dry run: nothing was sent.
 ```
 
 ## Files

@@ -5,10 +5,11 @@
 ## Output
 
 ```
-Changed since the last export, and not imported:
-  - pots/de.po
-Nothing was exported.
-  Import them first, or overwrite with --force.
+◇ Changed since the last export, and not imported (1)
+  pots/de.po
+
+■ Nothing was exported.
+  → Import them first, or overwrite with --force.
 ```
 
 ## Files

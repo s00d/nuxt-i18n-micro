@@ -5,7 +5,7 @@ import { CliError, findingsError, remoteConfigError } from '../errors'
 import { readJsonObject } from '../fs'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
 import { type JsonObject, type JsonValue, flatten, getPath, isObject, pathConflict, setPath } from '../json'
-import { addSecret, addUrlSecrets, log } from '../log'
+import { addSecret, addUrlSecrets, log, pick, plural } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 
 export interface SyncRemoteArgs {
@@ -114,7 +114,7 @@ async function pull(args: SyncRemoteArgs, project: Project, config: RemoteConfig
   log.list('Replaced', plan.updated)
   log.list('Conflicts', plan.conflicts)
   if (args.dryRun) {
-    log.info(`Dry run: ${plan.added.length} new, ${plan.updated.length} replaced, ${plan.conflicts.length} conflicts. Nothing was written.`)
+    log.note(`Dry run: ${plan.added.length} new, ${plan.updated.length} replaced, ${plural(plan.conflicts.length, 'conflict')}. Nothing was written.`)
     return
   }
 
@@ -127,7 +127,9 @@ async function pull(args: SyncRemoteArgs, project: Project, config: RemoteConfig
   }
   for (const [code, key, value] of plan.apply) project.locale(code).set(key, value)
   project.save()
-  log.success(`Pulled ${plan.added.length} new and ${plan.updated.length} replaced values.`)
+  log.success(
+    `Pulled ${plan.added.length} new and ${plan.updated.length} replaced ${pick(plan.added.length + plan.updated.length, 'value', 'values')}.`,
+  )
 }
 
 /** A blank local value is a gap, not a text: pushed, it could clear what a translator wrote. */
@@ -163,7 +165,7 @@ function lostOnPush(project: Project, remote: LocaleTranslations, body: LocaleTr
 
 async function push(args: SyncRemoteArgs, project: Project, config: RemoteConfig): Promise<void> {
   if (args.dryRun) {
-    log.info(`Dry run: would push ${project.codes.join(', ')}. Nothing was sent.`)
+    log.note(`Dry run: would push ${project.codes.join(', ')}. Nothing was sent.`)
     return
   }
   // The project's own keys: pulled back, a layer's key would land in this app's file and shadow the layer.
@@ -180,14 +182,14 @@ async function push(args: SyncRemoteArgs, project: Project, config: RemoteConfig
     ...jsonBody(body),
     headers: { ...options.headers, 'Content-Type': 'application/json' },
   })
-  log.success(`Pushed ${project.codes.length} locales.`)
+  log.success(`Pushed ${plural(project.codes.length, 'locale')}.`)
 }
 
 export default async function run(args: SyncRemoteArgs): Promise<void> {
   const project = await Project.load(args)
   const config = loadConfig(project.config.rootDir)
   const pages = new Set(project.codes.flatMap((code) => project.locale(code).pageScopes)).size
-  if (pages > 0) log.warn(`Global files only: ${pages} page scopes are not exchanged.`)
+  if (pages > 0) log.warn(`Global files only: ${plural(pages, 'page scope')} ${pick(pages, 'is', 'are')} not exchanged.`)
 
   if (args.pull) await pull(args, project, config)
   if (args.push) await push(args, project, config)

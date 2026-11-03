@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Dry run: would push en, de, ru. Nothing was sent.
-Global files only: 2 page scopes are not exchanged.
+● Dry run: would push en, de, ru. Nothing was sent.
+▲ Global files only: 2 page scopes are not exchanged.
 ```
 
 ## Files

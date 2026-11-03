@@ -2,7 +2,7 @@ import { realpathSync } from 'node:fs'
 import { commandFailed, findingsError, validationError } from '../errors'
 import { isUnder, splitList, walkFiles } from '../fs'
 import { getPath } from '../json'
-import { log } from '../log'
+import { log, plural } from '../log'
 import type { ProjectConfig } from '../nuxt'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { type ProjectScan, scanProject, usageDoubts, usageIndex } from '../source'
@@ -66,7 +66,7 @@ export function assertScanned(scan: ProjectScan): void {
     throw commandFailed('No source files found: nothing proves a key unused or extra, so none is removed.', ['Run from the app root, or pass --cwd.'])
 }
 
-const describe = ({ code, scope, key }: UnusedKey): string => `${code} ${scope === GLOBAL_SCOPE ? '' : `${scope} `}${key}`
+const describe = ({ code, scope, key }: UnusedKey): string[] => [code, key, ...(scope === GLOBAL_SCOPE ? [] : [scope])]
 
 export default async function run(args: CleanArgs): Promise<void> {
   const project = await Project.load(args)
@@ -87,11 +87,11 @@ export default async function run(args: CleanArgs): Promise<void> {
   const unused = findUnused(project, scan).filter(({ key }) => (!include || include.test(key)) && !exclude?.test(key))
   if (args.dryRun) {
     log.list('Would remove', unused.map(describe))
-    log.info(`Dry run: ${unused.length} keys would be removed.${doubts.length > 0 ? ' Without --force, none would be.' : ''}`)
+    log.note(`Dry run: ${plural(unused.length, 'key')} would be removed.${doubts.length > 0 ? ' Without --force, none would be.' : ''}`)
     return
   }
 
   for (const { code, scope, key } of unused) project.locale(code).delete(key, scope)
   project.save()
-  log.success(`Removed ${unused.length} unused keys.`)
+  log.success(`Removed ${plural(unused.length, 'unused key')}.`)
 }

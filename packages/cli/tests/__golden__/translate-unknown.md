@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Unsupported translation service: nope
-  Supported: ai, azure, deepl, google, libretranslate, yandexcloud
+■ Unsupported translation service: nope
+  → Supported: ai, azure, deepl, google, libretranslate, yandexcloud
 ```
 
 ## Files

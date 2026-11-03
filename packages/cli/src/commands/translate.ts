@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { findingsError, notFoundError, usageError } from '../errors'
 import { splitList } from '../fs'
 import { type Glossary, glossaryContext, loadGlossary } from '../glossary'
-import { addSecret, addUrlSecrets, ask, choose, log } from '../log'
+import { addSecret, addUrlSecrets, ask, choose, log, pick, plural, spinner } from '../log'
 import { GLOBAL_SCOPE, type LocaleSet, Project } from '../project'
 import { drivers } from '../translate/drivers'
 import { type EngineOptions, parseOptions, resolveDriver, translateItems } from '../translate/engine'
@@ -68,11 +68,11 @@ function printPlan(project: Project, codes: string[], replace: boolean): void {
   const rows = codes.map((code): [string, string] => {
     const items = jobsFor(project.reference, project.locale(code), replace).flatMap((job) => job.items)
     const chars = items.reduce((sum, item) => sum + item.text.length, 0)
-    return [code, `${items.length} keys, ${chars} characters`]
+    return [code, `${plural(items.length, 'key')}, ${plural(chars, 'character')}`]
   })
   log.section('To translate')
   log.rows(rows)
-  log.info('Dry run: nothing was sent.')
+  log.note('Dry run: nothing was sent.')
 }
 
 export default async function run(args: TranslateArgs): Promise<void> {
@@ -107,7 +107,8 @@ export default async function run(args: TranslateArgs): Promise<void> {
 
   for (const code of codes) {
     const locale = project.locale(code)
-    log.info(`Translating locale: ${code}`)
+    log.note(`Translating locale: ${code}`)
+    spinner.update(`Translating ${code}`)
     const glossaryText = glossary && glossaryContext(glossary, defaultLocale, code)
 
     for (const { scope, items } of jobsFor(reference, locale, Boolean(args.replace))) {
@@ -133,6 +134,7 @@ export default async function run(args: TranslateArgs): Promise<void> {
   }
 
   log.list('Not written', rejected)
-  log.success(`Translated ${translated} strings.`)
-  if (rejected.length > 0) throw findingsError(`${rejected.length} strings were not written.`, ['Fill them in by hand.'])
+  log.success(`Translated ${plural(translated, 'string')}.`)
+  if (rejected.length > 0)
+    throw findingsError(`${plural(rejected.length, 'string')} ${pick(rejected.length, 'was', 'were')} not written.`, ['Fill them in by hand.'])
 }

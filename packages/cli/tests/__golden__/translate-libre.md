@@ -5,9 +5,9 @@
 ## Output
 
 ```
-Translating locale: de
-Translating locale: ru
-Translated 8 strings.
+● Translating locale: de
+● Translating locale: ru
+◆ Translated 8 strings.
 ```
 
 ## Files

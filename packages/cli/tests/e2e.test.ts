@@ -287,7 +287,7 @@ describe('extract', () => {
     const before = snapshotFiles(dir)
     const result = await runCli(['extract'], { cwd: dir })
     expect(result.code).toBe(0)
-    expect(result.stdout).toContain('b.c (pages/index.vue:1)')
+    expect(result.stdout).toMatch(/b\.c +pages\/index\.vue:1/)
     expect(snapshotFiles(dir)).toEqual(before)
     expect((await check('undefined')).report.findings).toMatchObject([{ type: 'undefined', key: 'b.c' }])
   })
@@ -483,7 +483,7 @@ describe('sync', () => {
     fresh()
     const before = snapshotFiles(dir)
     const result = await runCli(['sync', '--dryRun'], { cwd: dir })
-    expect(result.stdout).toContain('de.json common.extra')
+    expect(result.stdout).toMatch(/de\.json +common\.extra/)
     expect(snapshotFiles(dir)).toEqual(before)
   })
 
@@ -916,7 +916,7 @@ describe('import / export', () => {
       'msgid "common.save"\nmsgstr ""\n\nmsgid "one"\nmsgid_plural "many"\nmsgstr[0] "ein"\nmsgstr[1] "viele"\n\n#, fuzzy\nmsgid "guess"\nmsgstr "vielleicht"\n\nmsgid "next"\nmsgstr "weiter"\n',
     )
     const result = await runCli(['import'], { cwd: dir })
-    expect(result.stderr).toContain('fuzzy entries')
+    expect(result.stderr).toContain('1 fuzzy entry')
     const de = readJson(dir, 'locales/de.json')
     expect(de.common.save).toBe('Speichern')
     expect(de.one).toBe('ein|viele')
@@ -1069,8 +1069,8 @@ describe('text-to-i18n', () => {
     const before = { data: read(dir, 'components/data.ts'), tsx: read(dir, 'pages/x.tsx'), vue: read(dir, 'pages/i.vue') }
     const result = await runCli(['text-to-i18n'], { cwd: dir })
     expect(result.code).toBe(0)
-    expect(result.stdout).toContain('components/data.ts:3 Something went wrong')
-    expect(result.stdout).toContain('pages/x.tsx:1 Hello there')
+    expect(result.stdout).toMatch(/components\/data\.ts:3 +Something went wrong/)
+    expect(result.stdout).toMatch(/pages\/x\.tsx:1 +Hello there/)
     expect({ data: read(dir, 'components/data.ts'), tsx: read(dir, 'pages/x.tsx'), vue: read(dir, 'pages/i.vue') }).toEqual(before)
   })
 
@@ -1273,7 +1273,7 @@ describe('search', () => {
     })
     const unused = JSON.parse((await runCli(['search', '--onlyUnused', '--json'], { cwd: dir })).stdout)
     expect(unused.matches.map((match: { key: string }) => match.key)).toEqual(['dead'])
-    expect((await runCli(['clean', '--dryRun'], { cwd: dir })).stdout).toContain('en dead')
+    expect((await runCli(['clean', '--dryRun'], { cwd: dir })).stdout).toMatch(/en +dead/)
     const live = JSON.parse((await runCli(['search', 'live', '--json'], { cwd: dir })).stdout)
     expect(live.matches[0].usages).toEqual(['pages/i.vue:2'])
   })

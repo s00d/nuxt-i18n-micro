@@ -305,7 +305,7 @@ describe('sync has the brakes of clean', () => {
     project({ 'locales/en.json': {}, 'locales/de.json': de, 'pages/index.vue': USE })
     const result = await runCli(['sync', '--dryRun'], { cwd: dir })
     expect(result.code).toBe(0)
-    expect(result.stdout).toContain('de.json menu.a')
+    expect(result.stdout).toMatch(/de\.json +menu\.a/)
   })
 })
 

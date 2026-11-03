@@ -170,8 +170,8 @@ export function runChecks(project: Project, scan: ProjectScan, types: Set<CheckT
 function print(report: CheckReport): void {
   for (const [type, items] of groupBy(report.findings, (finding) => finding.type)) {
     log.list(
-      `${type} (${items.length})`,
-      items.map(({ locale, file, key, detail }) => `${locale ? `${locale} ` : ''}${key} [${file}]${detail ? `: ${detail}` : ''}`),
+      type,
+      items.map(({ locale, file, key, detail }) => [locale, key, file, detail].filter((cell): cell is string => Boolean(cell))),
     )
   }
   if (report.unusedSkipped) log.warn(`Unused keys not checked:\n  ${report.unusedSkipped.join('\n  ')}`)

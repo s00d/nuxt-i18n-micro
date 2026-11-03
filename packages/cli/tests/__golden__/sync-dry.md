@@ -5,9 +5,10 @@
 ## Output
 
 ```
-Would remove:
-  - de.json common.extra
-Dry run: 1 keys would be removed.
+◇ Would remove (1)
+  de.json  common.extra
+
+● Dry run: 1 key would be removed.
 ```
 
 ## Files

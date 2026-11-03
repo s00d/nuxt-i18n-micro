@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Formatted translation files: 8 changed.
+◆ Formatted translation files: 8 changed.
 ```
 
 ## Files

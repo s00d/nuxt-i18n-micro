@@ -1,4 +1,5 @@
 import { commandFailed, usageError } from '../errors'
+import { plural } from '../log'
 import { ownValue } from '../json'
 import type { BatchRequest, Driver, DriverOptions } from './drivers'
 import { drivers, removedServices } from './drivers'
@@ -130,7 +131,7 @@ export async function translateItems(
     // oxlint-disable-next-line no-await-in-loop -- one request at a time: every vendor rate-limits, and order keeps runs reproducible
     const translated = await driver.translate({ ...base, texts: batch.map((segment) => segment.masked) })
     if (translated.length !== batch.length) {
-      throw commandFailed(`${driver.label} returned ${translated.length} translations for ${batch.length} strings.`, [
+      throw commandFailed(`${driver.label} returned ${plural(translated.length, 'translation')} for ${plural(batch.length, 'string')}.`, [
         'Nothing from this batch was written.',
       ])
     }

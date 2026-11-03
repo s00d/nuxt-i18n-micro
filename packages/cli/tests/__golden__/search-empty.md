@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Search query cannot be empty unless --onlyUnused is set
-  Example: i18n-micro search "welcome"
+■ Search query cannot be empty unless --onlyUnused is set
+  → Example: i18n-micro search "welcome"
 ```
 
 ## Files

@@ -5,10 +5,10 @@
 ## Output
 
 ```
-Active rules: no-trailing-spaces
-Fixed 1 issues.
-Check completed. No issues remain.
-[no-trailing-spaces] spaced (en) in en.json
+● Active rules: no-trailing-spaces
+◆ Fixed 1 issue.
+◆ Check completed. No issues remain.
+▲ [no-trailing-spaces] spaced (en) in en.json
 ```
 
 ## Files

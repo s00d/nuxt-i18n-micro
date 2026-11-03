@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Unknown command nope
-  See i18n-micro --help
+■ Unknown command nope
+  → See i18n-micro --help
 ```
 
 ## Files

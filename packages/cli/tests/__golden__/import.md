@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Imported 2 translations.
+◆ Imported 2 translations.
 ```
 
 ## Files

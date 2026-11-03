@@ -5,9 +5,10 @@
 ## Output
 
 ```
-Removed:
-  - de.json common.extra
-Translations have been synchronized: 1 extra keys removed.
+◇ Removed (1)
+  de.json  common.extra
+
+◆ Translations have been synchronized: 1 extra key removed.
 ```
 
 ## Files

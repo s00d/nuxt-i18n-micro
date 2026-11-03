@@ -1,6 +1,6 @@
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { usageError } from '../errors'
-import { addSecret } from '../log'
+import { addSecret, plural } from '../log'
 import { type RequestOptions, jsonBody, requestJson } from '../http'
 import type { BatchRequest, Driver } from './drivers'
 
@@ -47,7 +47,8 @@ function parseTranslations(content: string | null | undefined, reason: string | 
   if (!content) throw usageError('AI: empty answer.')
   const parsed = JSON.parse(content) as { translations?: unknown }
   const translations = parsed.translations
-  if (!Array.isArray(translations) || translations.length !== count) throw usageError(`AI: expected ${count} translations.`, ['Lower --chunkSize.'])
+  if (!Array.isArray(translations) || translations.length !== count)
+    throw usageError(`AI: expected ${plural(count, 'translation')}.`, ['Lower --chunkSize.'])
   return translations
 }
 

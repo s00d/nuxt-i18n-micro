@@ -23,9 +23,9 @@
     }
   ]
 }
-Found 1 issues that need to be fixed
-  Review the issues above, or run with --json for machine-readable output.
-  Apply automatic fixes where available: i18n-micro lint --fix
+■ Found 1 issue that needs to be fixed
+  → Review the issues above, or run with --json for machine-readable output.
+  → Apply automatic fixes where available: i18n-micro lint --fix
 ```
 
 ## Files

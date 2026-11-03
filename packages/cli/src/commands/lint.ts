@@ -3,7 +3,7 @@ import { findingsError, usageError } from '../errors'
 import { readJsonIfExists, splitList } from '../fs'
 import { flattenStrings } from '../json'
 import { type LintRule, lintRules } from '../lint-rules'
-import { log } from '../log'
+import { log, plural } from '../log'
 import { Project, relativeFile } from '../project'
 import { LINT_RULES } from '../spec'
 
@@ -126,14 +126,14 @@ export default async function run(args: LintArgs): Promise<void> {
   if (args.json) {
     log.json({ rulesChecked: rules.map((rule) => rule.name), issueCount: results.length, fixedCount, fixApplied: Boolean(args.fix), issues: results })
   } else {
-    log.info(`Active rules: ${rules.map((rule) => rule.name).join(', ')}`)
+    log.note(`Active rules: ${rules.map((rule) => rule.name).join(', ')}`)
     for (const { rule, file, key, locale } of results) log.warn(`[${rule}] ${key} (${locale}) in ${file}`)
-    if (fixedCount > 0) log.success(`Fixed ${fixedCount} issues.`)
+    if (fixedCount > 0) log.success(`Fixed ${plural(fixedCount, 'issue')}.`)
     if (remaining === 0) log.success('Check completed. No issues remain.')
   }
 
   if (remaining > 0) {
-    throw findingsError(`Found ${remaining} issues that need to be fixed`, [
+    throw findingsError(`Found ${plural(remaining, 'issue')} that need${remaining === 1 ? 's' : ''} to be fixed`, [
       'Review the issues above, or run with --json for machine-readable output.',
       'Apply automatic fixes where available: i18n-micro lint --fix',
     ])

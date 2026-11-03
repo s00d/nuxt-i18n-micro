@@ -1,7 +1,7 @@
 import { validationError } from '../errors'
 import { relativePath, splitList } from '../fs'
 import { flattenStrings, getPath } from '../json'
-import { log } from '../log'
+import { log, style } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { type ProjectScan, scanProject, usageDoubts, usageIndex } from '../source'
 
@@ -69,7 +69,7 @@ function matchesOf(project: Project, scan: ProjectScan, args: SearchArgs): Searc
 function printMatch(match: SearchMatch): void {
   log.section(`${match.scope}: ${match.key}`)
   log.rows(Object.entries(match.translations).map(([code, value]) => [code, value ?? '[missing]']))
-  log.info(match.isUsed ? `Used in: ${match.usages.join(', ') || 'a string or a computed key'}` : 'Not used')
+  log.info(style('gray', `  ${match.isUsed ? `Used in: ${match.usages.join(', ') || 'a string or a computed key'}` : 'Not used'}`))
 }
 
 export default async function run(args: SearchArgs): Promise<void> {
@@ -91,7 +91,7 @@ export default async function run(args: SearchArgs): Promise<void> {
     return
   }
   if (matches.length === 0) {
-    log.info(query ? `No matches found for "${query}"` : 'No matches found')
+    log.note(query ? `No matches found for "${query}"` : 'No matches found')
     return
   }
   for (const match of matches) printMatch(match)

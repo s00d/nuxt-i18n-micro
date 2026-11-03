@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { type MockServer, cliBin, createProject, json, removeProject, runCli, startMock } from './harness'
+import { type MockServer, createProject, distEntry, json, removeProject, runCli, startMock } from './harness'
 
 /** The findings of the PR review, each reproduced from the built bin first. */
 const read = (dir: string, file: string): string => readFileSync(join(dir, file), 'utf8')
@@ -714,7 +714,7 @@ describe('the command line', () => {
   })
 
   it('a second run in one process starts from a clean exit code', () => {
-    const entry = join(dirname(cliBin), 'index.mjs')
+    const entry = distEntry
     const script = `const { runCli } = await import(${JSON.stringify(pathToFileURL(entry).href)}); await runCli(['backup']); await runCli(['--version'])`
     expect(spawnSync(process.execPath, ['--input-type=module', '-e', script]).status).toBe(0)
   })

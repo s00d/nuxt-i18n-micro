@@ -25,10 +25,11 @@
     "directory": "packages/cli"
   },
   "bin": {
-    "i18n-micro": "./dist/cli.mjs",
-    "i18n-micro-cli": "./dist/cli.mjs"
+    "i18n-micro": "./bin/i18n-micro.mjs",
+    "i18n-micro-cli": "./bin/i18n-micro.mjs"
   },
   "files": [
+    "bin",
     "dist",
     "README.md",
     "LICENSE"

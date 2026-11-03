@@ -16,7 +16,11 @@
     // Without this, vue-tsc walks the whole monorepo via `.nuxt`'s `../**/*`.
     "packages/**",
     "client",
-    "docs"
+    "docs",
+    // Build output of the test fixtures: a stale one from an older Nuxt brings old global types into this program.
+    "test/fixtures/**/.nuxt",
+    "test/fixtures/**/.nuxt-test",
+    "test/fixtures/**/.output"
   ],
   // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; those exports exist only on
   // vue-router@5, and the peer range also takes 4.

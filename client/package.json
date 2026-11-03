@@ -2,6 +2,7 @@
   "name": "@i18n-micro/client",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build"

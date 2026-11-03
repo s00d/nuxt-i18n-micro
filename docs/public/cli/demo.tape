@@ -5,7 +5,7 @@
 #   2. A small Nuxt app outside the repo with `nuxt` and `nuxt-i18n-micro` installed or linked into
 #      node_modules: locales en + de, one key missing in de, one key used in code with only a default
 #      text, two keys nothing uses. Commit it, so the run can be repeated after `git checkout .`.
-#   3. From that app: env -u CI -u NO_COLOR I18N_MICRO_CLI=<repo>/packages/cli/dist/cli.mjs vhs <repo>/docs/public/cli/demo.tape
+#   3. From that app: env -u CI -u NO_COLOR I18N_MICRO_CLI=<repo>/packages/cli/bin/i18n-micro.mjs vhs <repo>/docs/public/cli/demo.tape
 #      (with CI or NO_COLOR set the CLI prints without colors, as it should)
 #   4. Copy demo.gif here (docs/public/cli/demo.gif).
 

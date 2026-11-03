@@ -8,7 +8,9 @@ import { fileURLToPath } from 'node:url'
 const packageDir = fileURLToPath(new URL('..', import.meta.url))
 
 /** The binary under test. `CLI_BIN` points at another build, for mutation runs. */
-export const cliBin = process.env.CLI_BIN || join(packageDir, 'dist/cli.mjs')
+export const cliBin = process.env.CLI_BIN || join(packageDir, 'bin/i18n-micro.mjs')
+/** The built library entry, next to the bin's target. */
+export const distEntry = join(packageDir, 'dist/index.mjs')
 export const fixtureDir = join(packageDir, 'tests/fixtures/app')
 
 /** Inside the package, so the temp project resolves `nuxt` from `packages/cli/node_modules`. */

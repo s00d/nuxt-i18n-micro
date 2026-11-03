@@ -84,10 +84,14 @@
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {
-    "vite": ">=5.4.0"
+    "vite": ">=5.4.0",
+    "vue": "^3.3.0"
   },
   "peerDependenciesMeta": {
     "vite": {
+      "optional": true
+    },
+    "vue": {
       "optional": true
     }
   },

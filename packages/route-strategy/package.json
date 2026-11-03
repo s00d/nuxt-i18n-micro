@@ -64,14 +64,22 @@
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:^",
-    "@i18n-micro/utils": "workspace:^",
-    "@nuxt/schema": "catalog:"
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
+    "@nuxt/schema": "catalog:",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@nuxt/schema": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/schema": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"

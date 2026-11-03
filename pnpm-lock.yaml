@@ -813,10 +813,10 @@ importers:
       '@i18n-micro/utils':
         specifier: workspace:^
         version: link:../utils
+    devDependencies:
       '@nuxt/schema':
         specifier: 4.5.2
         version: 4.5.2
-    devDependencies:
       publint:
         specifier: 'catalog:'
         version: 0.3.25

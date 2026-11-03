@@ -115,8 +115,14 @@
     "vue": "catalog:"
   },
   "peerDependencies": {
+    "vite": ">=5.4.0",
     "vitepress": ">=1.0.0 || >=2.0.0-alpha.0",
     "vue": "^3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"

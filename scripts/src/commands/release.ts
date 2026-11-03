@@ -46,7 +46,10 @@ export const releaseCommand = defineCommand({
     const from = resolveFromTag('release')
 
     console.log(`Releasing from ${from} (${bump})`)
-    execFileSync('pnpm', ['exec', 'changelogen', '--release', '--from', from, `--${bump}`], {
+    // `--no-github`: here the tag is not pushed yet. With a token GitHub would create `v<version>` on the
+    // remote default branch (and the later `git push --follow-tags` is rejected); without one changelogen
+    // opens a releases/new URL carrying the whole changelog. After the push: `changelogen gh release`.
+    execFileSync('pnpm', ['exec', 'changelogen', '--release', '--no-github', '--from', from, `--${bump}`], {
       shell: process.platform === 'win32',
       stdio: 'inherit',
       cwd: repoRoot,

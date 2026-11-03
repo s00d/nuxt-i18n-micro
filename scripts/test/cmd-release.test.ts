@@ -26,7 +26,14 @@ describe('release', () => {
     // thousands of lines long.
     execFileSync.mockClear()
     await runCli(releaseCommand, { bump: 'patch' })
-    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--from', 'v3.21.4', '--patch'])
+    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--no-github', '--from', 'v3.21.4', '--patch'])
+  })
+
+  // before the push a GitHub release would tag the remote default branch, or open a URL with the whole changelog
+  it('leaves the GitHub release for after the push', async () => {
+    execFileSync.mockClear()
+    await runCli(releaseCommand, { bump: 'major' })
+    expect(changelogenArgs()).toContain('--no-github')
   })
 
   it('never lets changelogen pick the level from commits', async () => {

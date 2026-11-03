@@ -49,14 +49,16 @@ export function withHostDefaults(locales: Locale[], defaultLocale: string): Loca
     // a locale with no domain is no host's own
     if (own.some((locale) => locale.code === code)) codes.add(code!)
   }
-  return locales.map((locale) => (codes.has(locale.code) && !locale.baseDefault ? { ...locale, baseDefault: true } : locale))
+  return locales.map((locale) => (codes.has(locale.code) && !locale.baseDefault ? Object.assign({}, locale, { baseDefault: true }) : locale))
 }
 
 function buildHostConfigs(config: ModuleOptionsExtend): Map<string, ModuleOptionsExtend> {
   const configs = new Map<string, ModuleOptionsExtend>()
   // ponytail: silent, unlike pinDefault; this runs in the browser too, and the docs state it
   const pinned = config.strategy === 'prefix_except_default' || config.strategy === 'prefix_and_default'
-  const locales = (config.locales ?? []).map((locale) => (pinned && locale.baseDefault && locale.disabled ? { ...locale, disabled: false } : locale))
+  const locales = (config.locales ?? []).map((locale) =>
+    pinned && locale.baseDefault && locale.disabled ? Object.assign({}, locale, { disabled: false }) : locale,
+  )
   for (const [host, own] of localesByHost(locales)) {
     const served = servedOn(host, locales)
     configs.set(host, {

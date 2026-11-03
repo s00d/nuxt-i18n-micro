@@ -102,7 +102,7 @@ export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
 
   const overrides = pinDefault(baseConfig, requested, warn)
   const disabledSet = new Set(overrides.disabledLocales ?? [])
-  let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? { ...locale, disabled: true } : locale))
+  let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? Object.assign({}, locale, { disabled: true }) : locale))
   if (disabledSet.size > 0 && !locales.some((locale) => !locale.disabled)) {
     warn('[nuxt-i18n-micro] runtime disabledLocales override would disable all locales; override ignored.')
     locales = baseConfig.locales ?? []

@@ -51,6 +51,12 @@
       }
     },
     {
+      "files": ["scripts/src/**", "playground/bench/**"],
+      "rules": {
+        "eslint/no-await-in-loop": "off"
+      }
+    },
+    {
       "files": ["**/*.svelte"],
       "rules": {
         "eslint/no-unassigned-vars": "off"

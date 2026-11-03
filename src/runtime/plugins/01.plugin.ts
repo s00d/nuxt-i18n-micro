@@ -26,12 +26,12 @@ import type {
 import { hasProtocol } from 'ufo'
 import { type Ref, type ShallowRef, shallowRef } from 'vue'
 import { useState } from '#app/composables/state'
-import type { NuxtApp } from '#app/nuxt'
-import { plural } from '#build/i18n.plural.mjs'
-import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 // Every plugin and middleware default export is typed through `nuxt/dist/app`, which a declaration cannot name (TS2883,
 // an empty `.d.ts`). `nuxt/app` is its public name: an import of it tells the emit. Since Nuxt 4.6 each such file needs its own.
-import type {} from 'nuxt/app'
+// Not `#app/nuxt`: the emit would name the plugin type by it, and a consumer's tsc cannot resolve `#app`.
+import type { NuxtApp } from 'nuxt/app'
+import { plural } from '#build/i18n.plural.mjs'
+import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'
 import { useI18nLocale } from '../composables/useI18nLocale'

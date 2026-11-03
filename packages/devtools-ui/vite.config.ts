@@ -87,7 +87,7 @@ const libUmd: UserConfig = {
       entry: resolve(rootDir, 'src/index.ts'),
       name: 'I18nDevToolsUI',
       formats: ['umd'],
-      fileName: () => 'index.umd.js',
+      fileName: () => 'index.umd.cjs',
     },
     rollupOptions: {
       external: ['@i18n-micro/types', '@i18n-micro/utils/merge-source', '@i18n-micro/utils/parse-path'],

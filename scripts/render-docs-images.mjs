@@ -128,7 +128,9 @@ const diagrams = {
 
 const LOGO = readFileSync(new URL('logo.svg', PUBLIC), 'utf-8')
 
+/** [subtitle, chips, art]: `art` is a file in scripts/art/ drawn behind the text (generated, no text in it). */
 const banners = {
+  '4.0.0': ['One route model, one build for every domain', ['1.5× requests/s', 'p95 −35%', 'Dictionaries up to −89%'], '4.0.0.jpg'],
   '3.24.0': ['Node SSR from public/, no Rollup raw:', ['Node SSR', 'public/ payloads', 'Smaller server']],
   '3.22.0': ['Formats, cache and translation memory', ['$tn / $td', 'Smart cache', 'resolveTranslations']],
   '3.21.0': ['useI18nHead for per-page SEO', ['useI18nHead', 'Per-page head', 'Reactive tags']],
@@ -142,11 +144,15 @@ const banners = {
   '1.58.0': ['Optimized translation loading', ['Per-page chunks', 'Less memory']],
 }
 
-function card({ eyebrow, title, subtitle, chips = [] }) {
+function card({ eyebrow, title, subtitle, chips = [], art }) {
+  // the art fades out under the text, so the left side reads as on the plain cards
+  const glow = art
+    ? `linear-gradient(90deg,${INK.bg} 0%,${INK.bg} 30%,transparent 72%),url(data:image/jpeg;base64,${readFileSync(new URL(`art/${art}`, import.meta.url)).toString('base64')}) center/cover`
+    : 'radial-gradient(620px 460px at 88% 110%,rgba(50,186,140,.22),transparent 70%)'
   return `<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0}
 body{width:1280px;height:640px;background:${INK.bg};color:${INK.text};font-family:${FONT};padding:72px 80px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
-body:before{content:'';position:absolute;inset:0;background:radial-gradient(620px 460px at 88% 110%,rgba(50,186,140,.22),transparent 70%)}
+body:before{content:'';position:absolute;inset:0;background:${glow}}
 .brand{display:flex;align-items:center;gap:14px;font-size:24px;font-weight:600;color:${INK.dim};position:relative}
 .brand svg{width:44px;height:44px}
 h1{font-size:${title.length > 12 ? 74 : 112}px;letter-spacing:-.035em;line-height:1.05;font-weight:700}
@@ -166,8 +172,8 @@ const shoot = async (file, html) => {
   await page.setContent(html)
   await page.screenshot({ path: fileURLToPath(new URL(file, PUBLIC)) })
 }
-for (const [version, [subtitle, chips]] of Object.entries(banners)) {
-  await shoot(`${version}.png`, card({ eyebrow: 'Nuxt I18n Micro', title: `v${version}`, subtitle, chips }))
+for (const [version, [subtitle, chips, art]] of Object.entries(banners)) {
+  await shoot(`${version}.png`, card({ eyebrow: 'Nuxt I18n Micro', title: `v${version}`, subtitle, chips, art }))
 }
 await shoot('og-image.png', card({ eyebrow: 'Docs', title: 'Nuxt I18n Micro', subtitle: 'Small, fast i18n for Nuxt', chips: ['Per-page JSON', 'Build-time routing', 'SEO included'] }))
 await browser.close()

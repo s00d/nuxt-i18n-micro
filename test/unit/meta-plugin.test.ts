@@ -33,9 +33,10 @@ vi.mock('#imports', () => ({
   },
 }))
 
-function setup(options: { metaDisabled?: boolean; noBaseUrl?: boolean } = {}) {
+function setup(options: { metaDisabled?: boolean; noBaseUrl?: boolean; ssrContext?: object } = {}) {
   const isMetaDisabled = vi.fn(() => options.metaDisabled ?? false)
   app.current = {
+    ssrContext: options.ssrContext,
     $getI18nConfig: () => ({
       locales: [{ code: 'en' }],
       defaultLocale: 'en',
@@ -66,6 +67,26 @@ describe('02.meta', () => {
     Object.assign(app, headers)
     setup({ noBaseUrl: true })
     expect(app.head!().link.find((link) => link.rel === 'canonical')?.href).toBe(canonical)
+  })
+
+  test('a cached render with no configured origin warns once; with one, never', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const side = globalThis as unknown as { __i18nSide?: string }
+    side.__i18nSide = 'server'
+    try {
+      const cachedRender = (noBaseUrl: boolean) => {
+        setup({ noBaseUrl, ssrContext: { event: { context: { cache: {} } } } })
+      }
+      cachedRender(false)
+      expect(warn).not.toHaveBeenCalled()
+      cachedRender(true)
+      cachedRender(true)
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn.mock.calls[0]![0]).toContain('Set `i18n.metaBaseUrl` or `site.url`')
+    } finally {
+      side.__i18nSide = undefined
+      warn.mockRestore()
+    }
   })
 
   test('one render asks the strategy once', () => {

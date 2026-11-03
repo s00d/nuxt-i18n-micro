@@ -45,6 +45,9 @@ function resolveSeoBaseUrl(i18nConfig: ResolvedI18nConfig, siteUrl: string | und
   return trimTrailingSlashes(joinURL(requestOrigin(i18nConfig), useRuntimeConfig().app.baseURL))
 }
 
+/** Once per process: the warning names a setting, not a request. */
+let warnedCachedRender = false
+
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const pageHead = usePageHead()
@@ -56,6 +59,15 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
   const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
+  // Nitro renders a `swr` or `cache` route on a copy of the request with no host: the origin read there is
+  // `http://localhost`, in every visitor's page. Only a configured origin is right, and only the app can set it.
+  const event = nuxtApp.ssrContext?.event as { context?: { cache?: unknown } } | undefined
+  if (import.meta.server && !warnedCachedRender && event?.context?.cache && !i18nConfig.metaBaseUrl && !siteUrl) {
+    warnedCachedRender = true
+    console.warn(
+      '[i18n] A route cached by `swr` or `cache` renders without the request host, so canonical and hreflang URLs point to http://localhost. Set `i18n.metaBaseUrl` or `site.url`.',
+    )
+  }
 
   const { build } = useLocaleHead({
     baseUrl,

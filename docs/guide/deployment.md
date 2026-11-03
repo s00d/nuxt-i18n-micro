@@ -302,6 +302,7 @@ The app has to learn the public host and the scheme from the request.
 | The origin's `Host`, plus `X-Forwarded-Host` | Nothing to set                                   | [`trustForwardedHost: true`](/api/module-options#trustforwardedhost)              |
 | Neither                                      | [`metaBaseUrl`](/api/module-options#metabaseurl) | No setting helps: every request looks like the origin's host, so change the proxy |
 
+- **Routes under `swr` or `cache`.** The table does not hold there: see [Caching HTML](#caching-html). Set `metaBaseUrl` or `site.url`.
 - **`X-Forwarded-Proto`.** Send it, or canonical URLs read `http://` behind an HTTPS proxy. `metaBaseUrl` also fixes this.
 - **In a domain build** the domain picks the base URL of the tags. `metaTrustForwardedHost` does not choose the domain there, only `trustForwardedHost` does.
 - **Redirects are relative and the locale cookie has no `Domain`,** so both stay on the public host.
@@ -324,6 +325,7 @@ Most URLs are safe to cache, because they name their locale. These depend on the
 - **`Vary`.** Those responses carry `Vary` with `Cookie` when [`localeCookie`](/api/module-options#localecookie) is set and `Accept-Language` when `autoDetectLanguage` is on. A cache that honours it keeps the answers apart.
 - **A cache that ignores `Vary`,** such as "cache everything by URL", must skip those URLs. Otherwise one visitor's `302 /de` reaches the next visitor, and a stored default page drops the redirect for everyone. On `/` you can also set `redirects: false`. Nitro's route cache keys on the path and its `varies` list, so keep `/` out of `swr` and `cache` rules as well.
 - **`Set-Cookie`.** With `localeCookie` set, every server-rendered page under a prefix carries `Set-Cookie`, and a correct CDN will not store it. For cached HTML leave `localeCookie` off, or strip the header at the edge.
+- **`swr` and `cache` rules need `metaBaseUrl` or `site.url`.** Nitro renders such a route with only the headers in `cache.varies`, so `Host`, `X-Forwarded-Host` and `X-Forwarded-Proto` are gone and the request URL reads `http://localhost`. Without a fixed origin, canonical, `hreflang` and `og:url` on those routes point at `http://localhost`, on every platform. Plain Nuxt's `useRequestURL()` reads the same there. Taking the host from the visitor instead would put one visitor's `X-Forwarded-Host` into the page every visitor gets. A domain build is not affected: its tags use the `baseUrl` of the locales.
 - **`swr` and `cache` rules on a domain build.** The module adds `host` to `cache.varies` of every such rule, and `x-forwarded-host` with `trustForwardedHost`, so one domain does not serve another its page. A rule with `cache: false` stays as written. `isr` is the platform's cache: check that it keys on the host. With the host in the key, a client that sends made-up hosts adds cache entries.
 
 For the payload files see [Cache headers and dateBuild](#cache-headers-and-datebuild).

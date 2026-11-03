@@ -8,7 +8,7 @@ interface I18nGroupProps {
   groupClass?: string
 }
 
-export const I18nGroup = defineComponent<I18nGroupProps>({
+export const I18nGroup = /*#__PURE__*/ defineComponent<I18nGroupProps>({
   name: 'I18nGroup',
   props: {
     prefix: {

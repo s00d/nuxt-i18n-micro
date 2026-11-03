@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { repoRoot } from '../utils/workspace'
-import type { FixtureAlias, FixtureId, FixtureOnly, LocaleDef } from './types'
+import type { FixtureAlias, FixtureId, FixtureOnly } from './types'
 
 /**
  * Single registry for every performance project.
@@ -16,11 +16,6 @@ export interface PerfFixtureDef {
   dir: string
   /** On-disk dictionaries relative to repo (measured pre-build) */
   sourceDictDir: string
-  /**
-   * Shape of generated `perf-locales.mjs` next to nuxt.config.
-   * Omit when the fixture has no i18n locale list in config (plain-nuxt).
-   */
-  localesFile?: 'micro' | 'i18n'
 }
 
 export const PERF_FIXTURES: readonly PerfFixtureDef[] = [
@@ -28,24 +23,22 @@ export const PERF_FIXTURES: readonly PerfFixtureDef[] = [
     id: 'plain-nuxt',
     alias: 'plain',
     label: 'plain-nuxt',
-    dir: 'test/fixtures/plain-nuxt',
-    sourceDictDir: 'test/fixtures/plain-nuxt/data',
+    dir: 'scripts/perf-fixtures/plain-nuxt',
+    sourceDictDir: 'scripts/perf-fixtures/plain-nuxt/data',
   },
   {
     id: 'i18n',
     alias: 'i18n',
     label: 'i18n-v10',
-    dir: 'test/fixtures/i18n',
-    sourceDictDir: 'test/fixtures/i18n/i18n/locales',
-    localesFile: 'i18n',
+    dir: 'scripts/perf-fixtures/i18n',
+    sourceDictDir: 'scripts/perf-fixtures/i18n/i18n/locales',
   },
   {
     id: 'i18n-micro',
     alias: 'micro',
     label: 'i18n-micro',
-    dir: 'test/fixtures/i18n-micro',
-    sourceDictDir: 'test/fixtures/i18n-micro/locales',
-    localesFile: 'micro',
+    dir: 'scripts/perf-fixtures/i18n-micro',
+    sourceDictDir: 'scripts/perf-fixtures/i18n-micro/locales',
   },
 ] as const
 
@@ -75,12 +68,4 @@ export function parseOnly(raw: string): FixtureOnly {
   if (value in BY_ALIAS) return value as FixtureAlias
   const aliases = PERF_FIXTURES.map((f) => f.alias).join(' | ')
   throw new Error(`--only must be ${aliases} | all, got "${raw}"`)
-}
-
-/** Locale objects written into fixture `perf-locales.mjs`. */
-export function localesForNuxtConfig(kind: 'micro' | 'i18n', locales: LocaleDef[]): object[] {
-  if (kind === 'micro') {
-    return locales.map((l) => ({ code: l.code, iso: l.iso.replace('-', '_') }))
-  }
-  return locales.map((l) => ({ code: l.code, language: l.language, file: `${l.code}.json` }))
 }

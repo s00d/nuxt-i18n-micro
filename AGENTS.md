@@ -2,20 +2,20 @@
 
 Quick-start context for AI coding agents (local + Cursor Cloud) in this repository.
 
-Human docs: [README](./README.md) · [CONTRIBUTING](./.github/CONTRIBUTING.md) · [Contribution guide](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)  
-Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-versioning.mdc`](./.cursor/rules/package-versioning.mdc)
+Human docs: [README](./README.md) · [CONTRIBUTING](./.github/CONTRIBUTING.md) · [Contribution guide](https://s00d.github.io/nuxt-i18n-micro/contributing/)  
+Deeper agent rules: [`.cursor/rules/`](./.cursor/rules) · [`.claude/rules/`](./.claude/rules)
 
 ## What this is
 
-**nuxt-i18n-micro** — performance-focused i18n for Nuxt 3, plus framework packages under `@i18n-micro/*`.
+**nuxt-i18n-micro** — performance-focused i18n for Nuxt 3 and 4, plus framework packages under `@i18n-micro/*`.
 
 - Published root package: `nuxt-i18n-micro` (Nuxt module from `src/`)
 - Shared domain logic: `packages/core`, `packages/types`, `packages/utils`
 - Framework-agnostic runtime: `packages/runtime` (`createI18n`, messages/fetch; no `fs`)
 - Routing: `packages/route-strategy` (build) + `packages/path-strategy` (runtime)
 - Framework bindings: `vue`, `react`, `preact`, `solid`, `astro`, `node`, `vitepress`
-- Tooling: `hmr`, `devtools-ui`, `types-generator`, `test-utils`
-- Local apps: `playground/` (Nuxt), `client/` (devtools UI), `docs/` (VitePress)
+- Tooling: `devtools-ui`, `types-generator`, `test-utils` (dev HMR lives in the root module)
+- Local apps: `playground/` (the Nuxt test bench: every feature, one page each), `client/` (devtools UI), `docs/` (Nuxt Content + Nuxt UI, static via `nuxt generate`)
 
 Priorities: small bundles, fast builds, low runtime cost. Prefer reusing `@i18n-micro/utils/*` and core over duplicating logic in framework packages.
 
@@ -51,8 +51,9 @@ pnpm run dev                 # http://localhost:3000
 
 Notes for `dev`:
 
-- `/` 302-redirects to the default locale (`/en`); locales are prefixed (`/en`, `/de`, `/fr`, `/es`).
-- Startup warnings about `localeCookie` and large translation payloads are expected in the playground — not errors.
+- `/` 302-redirects to the default locale (`/en`) and lists every bench page; locales are prefixed (`/en`, `/de`, `/fr`, `/ru`, `/ar`, `/pt`). `/es` is disabled on purpose.
+- `nuxt.config.ts` reads `BENCH_*` env, and the first run generates `locales/pages/huge-*` (gitignored). `pnpm run bench list` shows every build variant; `pnpm run bench build|start|smoke <variant>` runs one, into `playground/.bench/<variant>`. DevTools is on in plain `pnpm run dev` and starts a `client/` dev server on port 3030 when `client/` has no prebuilt UI.
+- A startup warning about large translation payloads is expected in the playground, as are `[i18n] Missing key` warnings on the pages that test them. Not errors.
 
 StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCommand` (simpler path without the playground package build; use the full order above when running tests).
 
@@ -69,7 +70,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Locale route generation | `packages/route-strategy/` |
 | Runtime path strategies | `packages/path-strategy/` |
 | Vue SPA bindings | `packages/vue/` (`/` and `/router` entries) |
-| User docs | `docs/` (guide, API). **Do not** edit `docs/news/` unless the user explicitly asks |
+| User docs | `docs/` (guide, API). **Do not** edit `docs/content/news/` unless the user explicitly asks |
 | E2E / fixtures | `test/` · `test/fixtures/` |
 | Package unit / dist tests | `packages/*/tests/` |
 
@@ -80,18 +81,22 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Action | Command |
 | --- | --- |
 | Playground | `pnpm run dev` |
+| Bench variants | `pnpm run bench list` · `pnpm run bench smoke <variant>` |
 | Docs site | `pnpm run docs:dev` |
 | Lint / format | `pnpm run lint` (oxlint) · `pnpm run format` (oxfmt) |
-| Typecheck | `pnpm run typecheck` · `pnpm run test:types` |
+| Typecheck | `pnpm run typecheck` |
 | Unit (fast) | `pnpm run test:unit` (includes tsc/vue-tsc of `test/**`) |
 | All tests | `pnpm run test` (unit + integration + e2e + package projects) |
 | Packages / e2e | `pnpm run test:packages` · `pnpm run test:e2e` |
 | E2E browser | `pnpm exec playwright install chromium` (once, before e2e) |
+| Published types | `pnpm run check:consumer` (tarballs, ATTW, `tsc` with `skipLibCheck: false`; needs a built root) |
+| Peer floors | `pnpm run check:oldest` (weekly in CI) |
+| HTTP fuzz | `pnpm run test:fuzz` (release checks, not CI) |
 | Build one package | `pnpm --filter @i18n-micro/<name> build` |
 | Build packages (no playgrounds) | `pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |
 | Full module pack | `pnpm run prepack` |
 | Regenerate API docs | `pnpm run docs:generate` |
-| Release gate helpers | `pnpm run preflight` · see `docs/guide/maintenance-commands.md` |
+| Release gate helpers | `pnpm run preflight` · see `docs/content/contributing/maintenance-commands.md` |
 
 Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
@@ -99,15 +104,15 @@ Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
 When `packages/<name>/` changes ship:
 
-1. Bump **one patch** per affected publishable workspace package.
+1. Bump each affected publishable workspace package once: `pnpm run bump --level patch --packages <names>`.
 2. Rebuild that package so `dist/` matches source: `pnpm --filter @i18n-micro/<name> build`.
-3. Commit source + version + `dist/` together.
+3. Commit source + version together. `dist/` is gitignored; `prepack` rebuilds it for a release.
 
-**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:*` / `pnpm -C scripts cli release`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
+**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:patch|minor|major` / `pnpm -C scripts cli release --bump <level>`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/content/news/index.md` unless the user explicitly asks.
 
 Do **not** bump workspace versions on every intermediate commit in the same PR.
 
-Minor bumps only when explicitly agreed. Details: `.cursor/rules/package-versioning.mdc`.
+The level is the owner's call: patch unless the owner says minor or major, and nothing picks it from commits. Details: `.cursor/rules/package-versioning.mdc`. Publishing: `docs/content/contributing/maintenance-commands.md`.
 
 ## Agent do / don't
 
@@ -139,9 +144,9 @@ pnpm --filter @i18n-micro/<name> build
 
 ## Further reading
 
-- Architecture & conventions: `.cursorrules`
-- Routing strategies: `docs/guide/strategy.md`
-- Locales layout: `docs/guide/folder-structure.md`
-- Maintenance / audits: `docs/guide/maintenance-commands.md`
+- Architecture: `docs/content/contributing/architecture.md`
+- Routing strategies: `docs/content/guide/strategy.md`
+- Locales layout: `docs/content/guide/translations.md`
+- Maintenance / audits: `docs/content/contributing/maintenance-commands.md`
 - Package READMEs: `packages/*/README.md`
 - CI build order: `.github/workflows/ci.yml`

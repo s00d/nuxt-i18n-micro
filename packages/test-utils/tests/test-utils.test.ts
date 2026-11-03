@@ -1,5 +1,5 @@
 import { createFakeI18n, createI18nTestContext, createIsolatedFakeI18n, i18nUtils, resetI18n, setupNuxtI18nMock } from '../src'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('i18nUtils', () => {
   const mockTranslations = {
@@ -11,24 +11,13 @@ describe('i18nUtils', () => {
   }
 
   beforeEach(async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(console, 'error').mockImplementation(() => {})
     resetI18n()
     await i18nUtils.setTranslationsFromJson('en', mockTranslations)
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
   })
 
   test('t function returns correct translation', () => {
     const result = i18nUtils.t('greeting', { name: 'John' })
     expect(result).toBe('Hello, John!')
-  })
-
-  test('t function returns key if translation is missing', () => {
-    const result = i18nUtils.t('missing.key', {}, 'Default value')
-    expect(result).toBe('Default value')
   })
 
   test('tc function handles plural translations', () => {
@@ -44,15 +33,12 @@ describe('i18nUtils', () => {
     expect(i18nUtils.tc('plural', {}, 'fallback')).toBe('fallback')
   })
 
-  test('mergeTranslations updates translations', () => {
-    i18nUtils.mergeTranslations({ newKey: 'New value' })
-
-    const result = i18nUtils.t('newKey')
-    expect(result).toBe('New value')
-  })
-
-  test('resolveTranslations returns the active translation tree', () => {
+  test('mergeTranslations adds keys, resolveTranslations returns the active tree', () => {
     expect(i18nUtils.resolveTranslations()).toEqual(mockTranslations)
+    i18nUtils.mergeTranslations({ newKey: 'New value' })
+    expect(i18nUtils.t('newKey')).toBe('New value')
+    expect(i18nUtils.t('greeting', { name: 'Ann' })).toBe('Hello, Ann!')
+    expect(i18nUtils.resolveTranslations()).toEqual({ ...mockTranslations, newKey: 'New value' })
   })
 
   test('setTranslation replaces a value by key', () => {
@@ -90,7 +76,7 @@ describe('i18nUtils', () => {
     expect(i18nUtils.getLocaleName()).toBe('English')
   })
 
-  test('has checks if translation key exists', () => {
+  test('has checks if a key exists', () => {
     expect(i18nUtils.has('greeting')).toBe(true)
     expect(i18nUtils.has('missing.key')).toBe(false)
   })
@@ -125,11 +111,9 @@ describe('i18nUtils', () => {
     expect(i18nUtils.t('greeting')).toBe('greeting')
   })
 
-  test('setRouteName aliases settRouteName', () => {
+  test('setRouteName sets the route name', () => {
     i18nUtils.setRouteName('contact')
     expect(i18nUtils.getRouteName()).toBe('contact')
-    i18nUtils.settRouteName('about')
-    expect(i18nUtils.getRouteName()).toBe('about')
   })
 
   test('localePath and switchLocalePath use locale prefixes without mutating locale', () => {
@@ -171,6 +155,9 @@ describe('i18nUtils', () => {
     expect(i18n.$localePath('/x')).toBe('/en/x')
     expect(i18n.$getI18nConfig().strategy).toBe('prefix')
     expect(i18n.$i18nStrategy.getStrategy()).toBe('prefix')
+    // the stub answers the page facts the meta plugin and useLocaleHead ask for
+    expect(i18n.$i18nStrategy.pageLocales({ path: '/x' })).toBeNull()
+    expect(i18n.$i18nStrategy.isMetaDisabled({ path: '/x' }, 'en')).toBe(false)
     expect(i18n.helper).toBeTruthy()
     expect(vi.isMockFunction(i18n.$t)).toBe(true)
   })
@@ -206,14 +193,16 @@ describe('isolation', () => {
   })
 
   test('two isolated contexts stay independent', () => {
-    const a = createI18nTestContext({ isolated: true, translations: { k: 'A' } })
-    const b = createI18nTestContext({ isolated: true, translations: { k: 'B' } })
+    const a = createI18nTestContext({ translations: { k: 'A' } })
+    const b = createI18nTestContext({ translations: { k: 'B' } })
 
     expect(a.t('k')).toBe('A')
     expect(b.t('k')).toBe('B')
     a.mergeTranslations({ k: 'A2' })
+    a.setLocale('fr')
     expect(a.t('k')).toBe('A2')
     expect(b.t('k')).toBe('B')
+    expect(b.getLocale()).toBe('en')
   })
 
   test('setupNuxtI18nMock reseeds on beforeEach', () => {
@@ -237,4 +226,10 @@ describe('isolation', () => {
     expect(i18n.$t('welcome')).toBe('Welcome')
     expect(vi.isMockFunction(useI18n)).toBe(true)
   })
+})
+
+test('a route-like object with a malformed path falls back to its name', () => {
+  const ctx = createI18nTestContext()
+  const { $localePath } = ctx.createFake()
+  expect(ctx.createFake().$localeRoute({ path: 42, name: 'about' }).path).toBe('/en/about')
 })

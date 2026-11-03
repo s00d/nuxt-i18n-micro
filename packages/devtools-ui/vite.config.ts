@@ -1,10 +1,11 @@
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, isAbsolute, resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import type { RollupLog } from 'rollup'
 import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 const tailwindPlugins = tailwindcss() as Plugin | Plugin[]
 
@@ -46,6 +47,7 @@ const libEs: UserConfig = {
       outDir: resolve(rootDir, 'dist'),
       tsconfigPath: resolve(rootDir, 'tsconfig.json'),
       beforeWriteFile: writeIndexRequireTypes,
+      afterBuild: () => writeNodeDeclarations(resolve(rootDir, 'dist')),
     }),
   ],
   define: { 'process.env': {} },
@@ -85,7 +87,7 @@ const libUmd: UserConfig = {
       entry: resolve(rootDir, 'src/index.ts'),
       name: 'I18nDevToolsUI',
       formats: ['umd'],
-      fileName: () => 'index.umd.js',
+      fileName: () => 'index.umd.cjs',
     },
     rollupOptions: {
       external: ['@i18n-micro/types', '@i18n-micro/utils/merge-source', '@i18n-micro/utils/parse-path'],
@@ -146,7 +148,10 @@ const vitePlugin: UserConfig = {
       outDir: pluginTypesDir,
       tsconfigPath: resolve(rootDir, 'tsconfig.json'),
       beforeWriteFile: writePluginDeclarationTypes,
-      afterBuild: removeStrayPluginTypeArtifacts,
+      afterBuild: () => {
+        removeStrayPluginTypeArtifacts()
+        writeNodeDeclarations(pluginTypesDir)
+      },
     }),
   ],
   build: {
@@ -161,7 +166,8 @@ const vitePlugin: UserConfig = {
       fileName: () => 'plugin.mjs',
     },
     rollupOptions: {
-      external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+      // `D:\\…` on Windows: only a package stays out of the bundle
+      external: (id) => !id.startsWith('.') && !isAbsolute(id),
       output: {
         format: 'es',
         entryFileNames: 'plugin.mjs',

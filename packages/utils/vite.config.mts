@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 const rootDir = import.meta.dirname
 
@@ -9,27 +10,25 @@ const libEntries = {
   'deep-merge': resolve(rootDir, 'src/deep-merge.ts'),
   'merge-source': resolve(rootDir, 'src/merge-source.ts'),
   'source-loader': resolve(rootDir, 'src/source-loader.ts'),
-  'payload-config': resolve(rootDir, 'src/payload-config.ts'),
   'payload-url': resolve(rootDir, 'src/payload-url.ts'),
   'payload-fetch': resolve(rootDir, 'src/payload-fetch.ts'),
-  'payload-stats': resolve(rootDir, 'src/payload-stats.ts'),
   'accept-language': resolve(rootDir, 'src/accept-language.ts'),
   'resolve-locale': resolve(rootDir, 'src/resolve-locale.ts'),
   'auto-detect-path': resolve(rootDir, 'src/auto-detect-path.ts'),
   'split-locale-routes': resolve(rootDir, 'src/split-locale-routes.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
+  'locale-head': resolve(rootDir, 'src/locale-head.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
+  domains: resolve(rootDir, 'src/domains.ts'),
   cookie: resolve(rootDir, 'src/cookie.ts'),
   'cache-control': resolve(rootDir, 'src/cache-control.ts'),
   'parse-path': resolve(rootDir, 'src/parse-path.ts'),
-  'route-pattern': resolve(rootDir, 'src/route-pattern.ts'),
-  route: resolve(rootDir, 'src/route.ts'),
   'runtime-config': resolve(rootDir, 'src/runtime-config.ts'),
   normalize: resolve(rootDir, 'src/normalize.ts'),
-  build: resolve(rootDir, 'src/build.ts'),
   'app-path': resolve(rootDir, 'src/app-path.ts'),
+  'load-dir': resolve(rootDir, 'src/load-dir.ts'),
 } as const
 
 const publishedEntryNames = new Set(Object.keys(libEntries))
@@ -56,9 +55,7 @@ function manualChunks(id: string): string | undefined {
   const normalized = id.replace(/\\/g, '/')
   if (normalized.endsWith('/src/deep-merge.ts')) return 'deep-merge'
   if (normalized.endsWith('/src/accept-language.ts')) return 'accept-language'
-  if (normalized.endsWith('/src/payload-config.ts')) return 'payload-config'
   if (normalized.endsWith('/src/payload-url.ts')) return 'payload-url'
-  if (normalized.endsWith('/src/route-pattern.ts')) return 'route-pattern'
   return undefined
 }
 
@@ -71,6 +68,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(rootDir, 'tsconfig.build.json'),
       entryRoot: resolve(rootDir, 'src'),
       outDir: resolve(rootDir, 'dist'),

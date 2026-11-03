@@ -1,3 +1,5 @@
+import type { Getter, Params } from '@i18n-micro/types'
+
 declare module '#build/i18n.plural.mjs' {
   export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
 }
@@ -17,6 +19,8 @@ interface I18nPrivateConfig {
   customRegexMatcher?: string
   routesLocaleLinks?: Record<string, string>
   serverTranslationPreload?: boolean
+  cacheStorage?: string
+  cacheStorageBuild?: string
   /** Absolute buildDir payload dir for Node fs reads in dev/prerender. */
   payloadFsDir: string
   /** Relative dir under Nitro `public/` for prod payload files. */
@@ -63,8 +67,8 @@ export interface I18nStrategyInstance {
   getRedirect(currentPath: string, targetLocale: string): string | null
   getLocaleFromPath(path: string): string | null
   resolveLocaleFromPath(path: string): string | null
-  localeRoute(targetLocale: string, routeOrPath: I18nStrategyResolvedRoute | string, currentRoute?: I18nStrategyResolvedRoute): I18nStrategyResolvedRoute | string
-  switchLocaleRoute(fromLocale: string, toLocale: string, route: I18nStrategyResolvedRoute, options?: { i18nRouteParams?: Record<string, Record<string, unknown>> }): I18nStrategyResolvedRoute | string
+  localeRoute(targetLocale: string, routeOrPath: I18nStrategyResolvedRoute | string): I18nStrategyResolvedRoute | string
+  switchLocaleRoute(toLocale: string, route: I18nStrategyResolvedRoute, options?: { i18nRouteParams?: Record<string, Record<string, unknown>>, named?: boolean }): I18nStrategyResolvedRoute | string
   getCanonicalPath(route: I18nStrategyResolvedRoute, targetLocale: string): string | null
   setRouter(router: I18nStrategyRouterLike): void
   getCurrentLocale(route: I18nStrategyResolvedRoute, getDefaultLocale?: () => string | null | undefined): string
@@ -87,6 +91,7 @@ interface I18nStrategyRouterLike {
 }
 
 declare module '#build/i18n.strategy.mjs' {
+  export const domains: boolean
   /** Создаёт инстанс стратегии: контекст (build-time) уже в файле, при импорте передаётся только router. */
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
   export function getI18nConfig(): unknown
@@ -98,10 +103,12 @@ declare module '#i18n-internal/config' {
 }
 
 declare module '#i18n-internal/strategy' {
+  export const domains: boolean
   export function getI18nConfig(): unknown
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
 }
 
 declare module '#i18n-internal/payload-source' {
+  export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }

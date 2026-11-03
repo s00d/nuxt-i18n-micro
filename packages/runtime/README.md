@@ -1,52 +1,27 @@
 # @i18n-micro/runtime
 
-Framework-agnostic i18n runtime for vanilla TypeScript/JavaScript — browser, workers, or any environment with `fetch` (no filesystem APIs).
-
-For loading translation JSON from disk in Node/CLI, use [`@i18n-micro/node`](../node) (built on this package).
-
-## Installation
+Framework-agnostic i18n instance of Nuxt I18n Micro for browsers, workers and edge runtimes: dictionaries, `t()`, plurals, `Intl` formatting, `fetch` loading and a change subscription. No `fs`, no framework; for files on disk use `@i18n-micro/node`.
 
 ```bash
 pnpm add @i18n-micro/runtime
-# or
-npm install @i18n-micro/runtime
-# or
-yarn add @i18n-micro/runtime
 ```
 
-## Quick Start
-
-```typescript
+```ts
 import { createI18n } from '@i18n-micro/runtime'
 
 const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
-  messages: {
-    en: {
-      greeting: 'Hello, {name}!',
-      apples: 'no apples|one apple|{count} apples',
-    },
-    de: {
-      greeting: 'Hallo, {name}!',
-    },
-  },
+  messages: { en: { greeting: 'Hello, {name}!', apples: 'no apples | one apple | {count} apples' } },
 })
 
-console.log(i18n.t('greeting', { name: 'John' })) // "Hello, John!"
-console.log(i18n.tc('apples', 5)) // "5 apples"
-
+i18n.t('greeting', { name: 'Ada' }) // 'Hello, Ada!'
+i18n.tc('apples', 5) // '5 apples'
+await i18n.loadFromUrl('/locales/de.json', { locale: 'de' })
 i18n.locale = 'de'
-console.log(i18n.t('greeting', { name: 'Hans' })) // "Hallo, Hans!"
-
-// Or load remote JSON
-await i18n.loadFromUrl('/locales/fr.json', { locale: 'fr' })
 ```
 
-## Resources
-
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+Docs: [https://s00d.github.io/nuxt-i18n-micro/integrations/runtime-package](https://s00d.github.io/nuxt-i18n-micro/integrations/runtime-package) · Repository: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

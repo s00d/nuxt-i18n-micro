@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" font-family="Inter, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#93a5a0"/></marker></defs>
+<rect width="960" height="300" rx="14" fill="#0c1211"/><text x="44" y="46" font-size="14" fill="#93a5a0">strategy</text><text x="340" y="46" font-size="14" fill="#93a5a0">en (default)</text><text x="560" y="46" font-size="14" fill="#93a5a0">de</text><text x="700" y="46" font-size="14" fill="#93a5a0">what it means</text><rect x="24" y="66" width="912" height="46" rx="9" fill="#10261f" stroke="#1f9b72"/>
+<text x="44" y="95" font-size="16" font-weight="600" fill="#e8f0ed" font-family="'SF Mono', Menlo, Consolas, monospace">prefix_except_default</text>
+<text x="340" y="95" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/about</text>
+<text x="560" y="95" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/de/about</text>
+<text x="700" y="95" font-size="14.500" fill="#93a5a0">No prefix for the default</text><rect x="24" y="120" width="912" height="46" rx="9" fill="#141c1a" stroke="#2c3b36"/>
+<text x="44" y="149" font-size="16" font-weight="600" fill="#e8f0ed" font-family="'SF Mono', Menlo, Consolas, monospace">prefix</text>
+<text x="340" y="149" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/en/about</text>
+<text x="560" y="149" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/de/about</text>
+<text x="700" y="149" font-size="14.500" fill="#93a5a0">Prefix on every locale</text><rect x="24" y="174" width="912" height="46" rx="9" fill="#141c1a" stroke="#2c3b36"/>
+<text x="44" y="203" font-size="16" font-weight="600" fill="#e8f0ed" font-family="'SF Mono', Menlo, Consolas, monospace">prefix_and_default</text>
+<text x="340" y="203" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/about, /en/about</text>
+<text x="560" y="203" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/de/about</text>
+<text x="700" y="203" font-size="14.500" fill="#93a5a0">Default works on both</text><rect x="24" y="228" width="912" height="46" rx="9" fill="#141c1a" stroke="#2c3b36"/>
+<text x="44" y="257" font-size="16" font-weight="600" fill="#e8f0ed" font-family="'SF Mono', Menlo, Consolas, monospace">no_prefix</text>
+<text x="340" y="257" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/about</text>
+<text x="560" y="257" font-size="15.500" fill="#5fe0ae" font-family="'SF Mono', Menlo, Consolas, monospace">/about</text>
+<text x="700" y="257" font-size="14.500" fill="#93a5a0">Locale is not in the URL</text></svg>

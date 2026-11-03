@@ -2,13 +2,15 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
   if (!filePath.endsWith('.d.ts')) {
     return { filePath, content }
   }
   let next = content
-  if (filePath.endsWith('index.d.ts') || filePath.endsWith('node.d.ts') || filePath.endsWith('config.d.ts') || filePath.endsWith('theme.d.ts')) {
+  // entries at the dist root only: a suffix match also caught plugin/virtual-stubs/config and runtime/define-theme
+  if (/[\\/]dist[\\/](index|node|config|theme)\.d\.ts$/.test(filePath)) {
     if (filePath.endsWith('index.d.ts') && !next.includes('@i18n-micro/vitepress/client')) {
       next = `/// <reference types="@i18n-micro/vitepress/client" />\n${next}`
     }
@@ -37,9 +39,11 @@ export default defineConfig({
         '@i18n-micro/core',
         '@i18n-micro/types',
         '@i18n-micro/utils',
+        '@i18n-micro/utils/load-dir',
         '@i18n-micro/utils/parse-path',
         '@i18n-micro/utils/deep-merge',
         '@i18n-micro/utils/resolve-hreflang',
+        '@i18n-micro/utils/locale-head',
         '@i18n-micro/utils/resolve-og-locale',
         '@i18n-micro/utils/merge-i18n-head',
         '@i18n-micro/vue',
@@ -69,6 +73,7 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       beforeWriteFile: dualPackageBeforeWriteFile,
     }) as never,

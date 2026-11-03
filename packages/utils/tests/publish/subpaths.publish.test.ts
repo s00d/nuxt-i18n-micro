@@ -7,17 +7,15 @@ const packageRoot = packageRootFromImportMeta(import.meta.url)
 const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 const subpaths = [
-  { subpath: './deep-merge', exportName: 'deepMergeTranslations' },
+  { subpath: './deep-merge', exportName: 'deepMergeTranslationsRecursive' },
   { subpath: './merge-source', exportName: 'mergeSourceTranslations' },
-  { subpath: './payload-config', exportName: 'resolveTranslationPayloadOptions' },
   { subpath: './resolve-og-locale', exportName: 'resolveOgLocale' },
   { subpath: './resolve-hreflang', exportName: 'resolveHreflangAlternates' },
-  { subpath: './route', exportName: 'findAllowedLocalesForRoute' },
   { subpath: './parse-path', exportName: 'parseTranslationRelativePath' },
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },
   { subpath: './auto-detect-path', exportName: 'shouldAttemptLocaleRedirect' },
   { subpath: './split-locale-routes', exportName: 'splitLocaleRoutes' },
-  { subpath: './runtime-config', exportName: 'resolveI18nConfigWithRuntimeOverrides' },
+  { subpath: './runtime-config', exportName: 'createI18nConfigResolver' },
 ] as const
 
 describe('@i18n-micro/utils export subpaths', () => {

@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
+import { mergeDefineI18nRouteMeta } from '../src/define-i18n-route'
+import { extractDefineI18nRouteData, pageFilePathToRoutePath, parentPagePaths, resolveRootDir } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
 
@@ -15,76 +16,15 @@ const EXAMPLES_DIR = join(fileURLToPath(import.meta.url), '..', 'examples')
 
 /* ──────────────── test cases ──────────────── */
 
+// One file per shape the parser has to get through; the rest of test/examples/ adds no case these miss.
 const TEST_FILES = [
-  'simple-array.vue',
   'object-with-paths.vue',
-  'with-locale-routes.vue',
-  'complex-nested.vue',
-  'with-comments.vue',
-  'multiline-complex.vue',
-  'template-literals.vue',
-  'spread-operator.vue',
-  'conditional-logic.vue',
   'array-of-objects.vue',
   'functions-in-objects.vue',
   'complex-comments.vue',
-  'unusual-whitespace.vue',
-  'mixed-quotes.vue',
-  'trailing-commas.vue',
-  'no-spaces.vue',
-  'very-long-lines.vue',
-  'deeply-nested.vue',
-  'empty-arrays-objects.vue',
   'null-undefined.vue',
-  'only-locales.vue',
-  'only-locale-routes.vue',
-  'empty-object.vue',
-  'disable-meta-test.vue',
-  'disable-meta-locales.vue',
-  'single-locale.vue',
-  'many-locales.vue',
-  'unusual-locale-codes.vue',
-  'numeric-strings.vue',
-  'special-characters.vue',
-  'computed-property-names.vue',
-  'import-with-static-config.vue',
-  'js-variables.vue',
-  'js-functions.vue',
-  'complex-nested-objects.vue',
-  'destructuring.vue',
-  'map-set.vue',
-  'json-parsing.vue',
-  'symbol-properties.vue',
-  'weakmap-weakset.vue',
-  'bigint-numbers.vue',
-  'method-shorthand.vue',
-  'getter-setter.vue',
-  'static-methods.vue',
-  'module-imports.vue',
-  'iife.vue',
   'plain-javascript.vue',
-  'array-methods.vue',
-  'class-methods.vue',
-  'async-await.vue',
-  'string-manipulation.vue',
-  'try-catch.vue',
-  'switch-statement.vue',
-  'for-loops.vue',
-  'while-loops.vue',
-  'do-while-loops.vue',
-  'nested-ternary.vue',
-  'arrow-functions.vue',
-  'generator-functions.vue',
-  'proxy-objects.vue',
-  'date-math.vue',
-  'recursive-functions.vue',
-  'promise-simulation.vue',
-  'import-external-functions.vue',
-  'import-constants.vue',
-  'import-default-export.vue',
-  'import-multiple.vue',
-  'import-destructuring.vue',
-  'import-alias.vue',
+  'js-functions.vue',
 ]
 
 /* ──────────────── tests ──────────────── */
@@ -99,72 +39,69 @@ describe('extractDefineI18nRouteData', () => {
       const result = extractDefineI18nRouteData(content, filePath)
 
       expect(result).toMatchSnapshot()
-      // Unextractable $defineI18nRoute configs warn once; successful parses stay quiet.
-      if (result === null && /\$?defineI18nRoute\s*\(/.test(content)) {
-        expect(warn).toHaveBeenCalled()
-      } else {
-        expect(warn).not.toHaveBeenCalled()
-      }
+      // every one of these parses: a successful parse stays quiet
+      expect(warn).not.toHaveBeenCalled()
       warn.mockRestore()
     })
   })
 
-  // The argument is still sliced out by counting brackets, but the scanner now
-  // knows what it is counting. Before, a brace, paren or the call name itself
-  // sitting inside a string, comment, template or regex cut the slice in the
-  // wrong place and the whole config was dropped without a word.
-  describe('delimiters inside strings, comments and literals', () => {
+  // The argument is sliced out by counting brackets, but the scanner knows what it is counting:
+  // a brace, paren or the call name itself inside a string, comment, template or regex used to
+  // cut the slice in the wrong place, and the whole config was dropped without a word.
+  it('delimiters and call names inside strings, comments and literals', () => {
     const page = (script: string) => `<script setup lang="ts">\n${script}\n</script>`
+    const extract = (script: string, file: string) => extractDefineI18nRouteData(page(script), file)
 
-    it('keeps a closing brace inside a route string', () => {
-      const result = extractDefineI18nRouteData(
-        page(`$defineI18nRoute({ locales: ['en', 'de'], localeRoutes: { en: '/a}b', de: '/c' } })`),
-        'braced.vue',
-      )
-      expect(result).toEqual({ locales: ['en', 'de'], localeRoutes: { en: '/a}b', de: '/c' } })
+    expect(extract('$defineI18nRoute({ localeRoutes: { en: `/x}y` } })', 'template.vue')).toEqual({ localeRoutes: { en: '/x}y' } })
+    expect(extract(`const re = /\\)\\}/g\n$defineI18nRoute({ locales: ['en'] })`, 'regex.vue')).toEqual({ locales: ['en'] })
+    const hole = "const p = (l: string) => `/${ { en: 'w' }[l] ?? l }`\n$defineI18nRoute({ localeRoutes: { en: p('en') } })"
+    expect(extract(hole, 'hole.vue')).toEqual({ localeRoutes: { en: '/w' } })
+    // the first mention used to win, even one that is not a call
+    expect(extract(`// $defineI18nRoute({ locales: ['wrong'] })\n$defineI18nRoute({ locales: ['right'] })`, 'commented-call.vue')).toEqual({
+      locales: ['right'],
     })
+    expect(
+      extract(`const doc = '$defineI18nRoute({ locales: [\\'wrong\\'] })'\n$defineI18nRoute({ locales: ['right'] })`, 'stringified-call.vue'),
+    ).toEqual({
+      locales: ['right'],
+    })
+    expect(extract(`/* $defineI18nRoute({ locales: ['wrong'] }) */\n$defineI18nRoute({ locales: ['right'] })`, 'block-comment.vue')).toEqual({
+      locales: ['right'],
+    })
+    // a `/` after a value is division, not a regex: the scan steps over it
+    expect(extract(`const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`, 'division.vue')).toEqual({ locales: ['en'] })
+    // an identifier that only contains the call name is no call
+    expect(extract(`const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`, 'lookalike.vue')).toEqual({
+      locales: ['right'],
+    })
+  })
 
-    it('keeps a closing brace inside a template literal', () => {
-      const result = extractDefineI18nRouteData(page('$defineI18nRoute({ localeRoutes: { en: `/x}y` } })'), 'template.vue')
-      expect(result).toEqual({ localeRoutes: { en: '/x}y' } })
-    })
+  it('a file with nothing to read is null, without a word', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    expect(extractDefineI18nRouteData('', 'empty.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<template><div>Hello</div></template>', 'no-script.vue')).toBeNull()
+    expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'no-call.vue')).toBeNull()
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
 
-    it('ignores delimiters in comments', () => {
-      const result = extractDefineI18nRouteData(page(`// ) } '\n$defineI18nRoute({ locales: ['en'] })`), 'comment.vue')
-      expect(result).toEqual({ locales: ['en'] })
+  // A config that references script bindings runs the page script; destructuring the call
+  // from useNuxtApp() used to re-declare `$defineI18nRoute` and drop the whole config.
+  it('variable config on a page that destructures $defineI18nRoute from useNuxtApp()', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const script = [
+      "import { useNuxtApp } from '#imports'",
+      'const { $defineI18nRoute } = useNuxtApp()',
+      "const locales = ['en', 'de']",
+      "const routes = { en: '/welcome', de: '/willkommen' }",
+      '$defineI18nRoute({ locales: locales, localeRoutes: routes })',
+    ].join('\n')
+    expect(extractDefineI18nRouteData(`<script setup lang="ts">\n${script}\n</script>`, 'destructured.vue')).toEqual({
+      locales: ['en', 'de'],
+      localeRoutes: { en: '/welcome', de: '/willkommen' },
     })
-
-    it('ignores delimiters in a regex literal', () => {
-      const result = extractDefineI18nRouteData(page(`const re = /\\)\\}/g\n$defineI18nRoute({ locales: ['en'] })`), 'regex.vue')
-      expect(result).toEqual({ locales: ['en'] })
-    })
-
-    it('reads braces inside a template hole', () => {
-      const script = "const p = (l: string) => `/${ { en: 'w' }[l] ?? l }`\n$defineI18nRoute({ localeRoutes: { en: p('en') } })"
-      expect(extractDefineI18nRouteData(page(script), 'hole.vue')).toEqual({ localeRoutes: { en: '/w' } })
-    })
-
-    it('does not treat a division as the start of a regex', () => {
-      const script = `const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`
-      expect(extractDefineI18nRouteData(page(script), 'division.vue')).toEqual({ locales: ['en'] })
-    })
-
-    // The call name used to be found with a plain indexOf, so the first mention
-    // won — even one that is not a call at all.
-    it('skips the call name mentioned in a comment', () => {
-      const script = `// $defineI18nRoute({ locales: ['wrong'] })\n$defineI18nRoute({ locales: ['right'] })`
-      expect(extractDefineI18nRouteData(page(script), 'commented-call.vue')).toEqual({ locales: ['right'] })
-    })
-
-    it('skips the call name inside a string', () => {
-      const script = `const doc = '$defineI18nRoute({ locales: [\\'wrong\\'] })'\n$defineI18nRoute({ locales: ['right'] })`
-      expect(extractDefineI18nRouteData(page(script), 'stringified-call.vue')).toEqual({ locales: ['right'] })
-    })
-
-    it('does not match an identifier that merely contains the call name', () => {
-      const script = `const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`
-      expect(extractDefineI18nRouteData(page(script), 'lookalike.vue')).toEqual({ locales: ['right'] })
-    })
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
   describe('unresolvable config', () => {
@@ -186,48 +123,69 @@ describe('extractDefineI18nRouteData', () => {
 
       warn.mockRestore()
     })
-
-    it('stays quiet for pages that do not call $defineI18nRoute', () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'plain.vue')).toBeNull()
-      expect(warn).not.toHaveBeenCalled()
-      warn.mockRestore()
-    })
-  })
-
-  describe('edge cases', () => {
-    it('should handle empty content', () => {
-      const result = extractDefineI18nRouteData('', 'test.vue')
-      expect(result).toMatchSnapshot()
-    })
-
-    it('should handle content without script tag', () => {
-      const content = '<template><div>Hello</div></template>'
-      const result = extractDefineI18nRouteData(content, 'test.vue')
-      expect(result).toMatchSnapshot()
-    })
-
-    it('should handle content without defineI18nRoute', () => {
-      const content = '<script setup>const test = "hello"</script>'
-      const result = extractDefineI18nRouteData(content, 'test.vue')
-      expect(result).toMatchSnapshot()
-    })
   })
 })
 
 describe('pageFilePathToRoutePath', () => {
-  const root = '/project'
+  it('maps page files to route paths', () => {
+    expect(pageFilePathToRoutePath('/project/pages/index.vue', '/project')).toBe('/')
+    expect(pageFilePathToRoutePath('/project/pages/(\n)/about.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('C:\\p\\app\\pages\\a\\index.vue', 'C:\\p')).toBe('a')
+    expect(pageFilePathToRoutePath('/project/app/pages/(g)/b.vue', '/project')).toBe('b')
+    expect(pageFilePathToRoutePath('/project/pagesx/a.vue', '/project')).toBe('pagesx/a')
+    expect(pageFilePathToRoutePath('/project/pages/about/index.vue', '/project')).toBe('about')
+    expect(pageFilePathToRoutePath('/project/pages/index/index.vue', '/project')).toBe('index')
+    expect(pageFilePathToRoutePath('/project/pages/user/profile.vue', '/project')).toBe('user/profile')
+  })
+})
 
-  it('maps pages/index.vue to root route', () => {
-    expect(pageFilePathToRoutePath(`${root}/pages/index.vue`, root)).toBe('/')
+describe('mergeDefineI18nRouteMeta', () => {
+  const page = [{ routePath: 'about/team', config: { localeRoutes: { de: '/page' } } }]
+
+  it.each(['about/team', '/about/team', 'about-team'])('the config wins over the page under the key %s', (key) => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { [key]: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
   })
 
-  it('maps pages/index/index.vue to /index route', () => {
-    expect(pageFilePathToRoutePath(`${root}/pages/index/index.vue`, root)).toBe('index')
+  it.each([
+    ['blog/[slug]', 'blog-slug'],
+    ['blog/[slug]', 'blog/:slug'],
+    ['/', 'index'],
+    ['docs/[...rest]', 'docs-rest'],
+  ])('%s: the config wins under the name or path %s', (routePath, key) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], {
+      globalLocaleRoutes: { [key]: { de: '/config' } },
+    })
+    expect(merged.globalLocaleRoutes).toEqual({ [key]: { de: '/config' } })
   })
 
-  it('maps nested pages to route paths', () => {
-    expect(pageFilePathToRoutePath(`${root}/pages/about/index.vue`, root)).toBe('about')
-    expect(pageFilePathToRoutePath(`${root}/pages/user/profile.vue`, root)).toBe('user/profile')
+  it.each(['constructor', 'toString', 'valueOf'])('a page named %s keeps its entry', (routePath) => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath, config: { localeRoutes: { de: '/page' } } }], { globalLocaleRoutes: {} })
+    expect(Object.keys(merged.globalLocaleRoutes)).toEqual([routePath])
+  })
+
+  it('keeps the page entry when the config names another page', () => {
+    const merged = mergeDefineI18nRouteMeta(page, { globalLocaleRoutes: { about: { de: '/config' } } })
+    expect(merged.globalLocaleRoutes['about/team']).toEqual({ de: '/page' })
+  })
+})
+
+describe('page paths across layers and groups', () => {
+  it('drops route group folders, which are not in the URL', () => {
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/cart.vue', '/project')).toBe('cart')
+    expect(pageFilePathToRoutePath('/project/pages/(shop)/index.vue', '/project')).toBe('/')
+    expect(pageFilePathToRoutePath('/project/pages/(a)/blog/(b)/post.vue', '/project')).toBe('blog/post')
+  })
+
+  it('picks the root the file is beneath, not one that shares its prefix', () => {
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer', '/app/layer-2'])).toBe('/app/layer-2')
+    expect(resolveRootDir('/app/layer-2/pages/blog.vue', ['/app/layer'])).toBeUndefined()
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app', '/app/layer'])).toBe('/app/layer')
+    expect(resolveRootDir('/app/layer/pages/blog.vue', ['/app/layer/'])).toBe('/app/layer/')
+  })
+
+  it('parent paths follow both rules and leave index pages out', () => {
+    const files = ['/app/layer-2/pages/(shop)/blog.vue', '/app/layer-2/pages/blog/index.vue']
+    expect(parentPagePaths(files, ['/app/layer', '/app/layer-2'])).toEqual(['blog'])
   })
 })

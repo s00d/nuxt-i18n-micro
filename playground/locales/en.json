@@ -1,23 +1,39 @@
 {
-  "test_key": "test_val",
-  "fallback": {
-    "value": "fallback en text"
+  "title": "Bench",
+  "welcome": "Welcome, {name}!",
+  "error_title": "Something broke",
+  "empty": "",
+  "only_en": "only in en",
+  "list": ["one", "two"],
+  "nav": {
+    "home": "Home"
   },
-  "navigation": {
-    "contact": "Contact"
-  },
-  "navigation_component": {
-    "title": "Navigation EN",
-    "home": "Home",
-    "scroll_test": "Scroll test (scrollBehavior)"
-  },
-  "key1": {
-    "key1": {
-      "key1": {
-        "key1": {
-          "key1": "en en en"
-        }
-      }
+  "nested": {
+    "deep": {
+      "key": "Deep value"
     }
+  },
+  "group": {
+    "a": "Group A",
+    "b": "Group {x}"
+  },
+  "layout": {
+    "alt": "Alt layout"
+  },
+  "apples": "no apples | one apple | {count} apples",
+  "files": "=0 none | one | many",
+  "marker_en": "=0 nothing | {count} item | {count} items",
+  "two_forms": "one | many",
+  "count_of": "{count} of {total}",
+  "html": "Hello <b>{name}</b>",
+  "slotted": "Read {link} now",
+  "total": "Total: {number}",
+  "dated": "Date: {date}",
+  "updated": "Updated {relativeDate}",
+  "extra": {
+    "override": "translationDir wins"
+  },
+  "layer": {
+    "override": "app wins en"
   }
 }

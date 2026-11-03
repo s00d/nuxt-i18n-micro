@@ -18,9 +18,10 @@ export interface I18nRoutingStrategy {
 
   /**
    * Get route name from path (e.g., /en/about -> about)
-   * Used in middleware to set route name
+   * Used in middleware to set route name. `routePattern` is the page's pattern (`/blog/[slug]`), with
+   * a `[locale]` param already replaced by its value: use it to give every URL of a page one name.
    */
-  getRouteName?: (path: string, locales: string[]) => string
+  getRouteName?: (path: string, locales: string[], routePattern?: string) => string
 
   /**
    * Get locale from path

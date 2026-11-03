@@ -16,7 +16,8 @@
     "declarationMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "#host": ["./src/host.ts"]
     },
     "types": ["preact", "vite/client"],
     "ignoreDeprecations": "6.0"

@@ -1,12 +1,2 @@
-export {
-  analyzeRoute,
-  buildLocalizedName,
-  type GetRouteBaseNameOptions,
-  getRouteBaseName,
-  type IsIndexRouteNameOptions,
-  isIndexRouteName,
-  resolvePathWithParams,
-  type RouteAnalysis,
-} from './resolver'
-export * from './strategies'
+export { createPathStrategy, DomainPathStrategy, I18nPathStrategy, type PathStrategy } from './strategy'
 export * from './types'

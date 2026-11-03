@@ -1,0 +1,9 @@
+---
+import Islands from '../../components/Islands.astro'
+import Bench from '../../layouts/Bench.astro'
+import { localePaths } from '../../paths'
+
+export const getStaticPaths = localePaths
+---
+
+<Bench><Islands /></Bench>

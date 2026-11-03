@@ -1,5 +1,6 @@
 {
-  "name": "@nuxtjs/i18n-client",
+  "name": "@i18n-micro/client",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "nuxi dev",
@@ -8,8 +9,5 @@
   "dependencies": {
     "@i18n-micro/devtools-ui": "workspace:^",
     "@i18n-micro/types": "workspace:^"
-  },
-  "devDependencies": {
-    "json-editor-vue": "catalog:"
   }
 }

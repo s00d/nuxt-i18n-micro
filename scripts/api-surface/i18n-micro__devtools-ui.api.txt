@@ -9,6 +9,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
@@ -33,7 +34,7 @@ member JsonRpcResponse.error?: { code: number; message: string; data?: unknown; 
 member JsonRpcResponse.id: string
 member JsonRpcResponse.jsonrpc: "2.0"
 member JsonRpcResponse.result?: unknown
-type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue; }
 type LocaleData: Record<string, TranslationContent>
 function register: () => void
 function setupRpcHost: (iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void
@@ -52,7 +53,7 @@ member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
 member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
 member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
 member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
-type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue; }
 type LocaleData: Record<string, TranslationContent>
 interface TranslationContent
 member TranslationContent.[string]: JSONValue
@@ -68,6 +69,7 @@ member BridgeAdapter.subscribe: (callback: () => void) => () => void
 function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
 interface CreateBridgeOptions
 member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.base?: string | undefined
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
@@ -75,6 +77,9 @@ member CreateBridgeOptions.translationDir?: string | undefined
 # ./vite (vite/plugin.ts)
 interface DevToolsPluginOptions
 member DevToolsPluginOptions.base?: string | undefined
+member DevToolsPluginOptions.defaultLocale?: string | undefined
+member DevToolsPluginOptions.fallbackLocale?: string | undefined
 member DevToolsPluginOptions.injectButton?: boolean | undefined
 member DevToolsPluginOptions.translationDir?: string | undefined
+function i18nDevToolsIntegration: (options?: Omit<DevToolsPluginOptions, "injectButton">) => { name: string; hooks: { 'astro:config:setup': ({ command, updateConfig, addDevToolbarApp }: ToolbarSetup) => void; }; }
 function i18nDevToolsPlugin: (options?: DevToolsPluginOptions) => PluginOption

@@ -1,13 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { join, posix } from 'node:path'
 import { defineCommand } from 'citty'
 import { walkFiles } from '../utils/fs-walk'
 import { readModuleOptions } from '../utils/module-options'
 import { repoRoot } from '../utils/workspace'
 
 /** Pages whose `#### \`name\`` headings document module options. Kept in step with the generator. */
-const OPTION_PAGES = new Set(['guide/configuration.md', 'guide/strategy.md'])
+const OPTION_PAGES = new Set(['api/module-options.md', 'guide/strategy.md'])
 
 export interface DocsFinding {
   code: string
@@ -122,11 +121,11 @@ export function pageLinks(page: string, body: string): string[] {
     // reachability walk missed every link written the way VitePress renders one.
     if (target.endsWith('/')) {
       const asIndex = `${target}index.md`
-      return [asIndex.startsWith('/') ? asIndex.slice(1) : join(dir, asIndex)]
+      return [asIndex.startsWith('/') ? asIndex.slice(1) : posix.join(dir, asIndex)]
     }
 
     const withExtension = target.endsWith('.md') ? target : `${target}.md`
-    const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : join(dir, withExtension)
+    const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : posix.join(dir, withExtension)
     return [resolved, resolved.replace(/\.md$/, '/index.md')]
   })
 }
@@ -160,8 +159,8 @@ export const docsAuditCommand = defineCommand({
       '',
       'Four kinds of drift, none of which any build step notices: an option that exists',
       'but is documented nowhere, a documented option that no longer exists, a link to a',
-      'page that was renamed, and a nav or sidebar entry pointing at a file that is gone.',
-      'VitePress builds all four happily.',
+      'page that was renamed, and a page that nothing links to.',
+      'Nuxt Content builds all four happily.',
       '',
       'Examples:',
       '  pnpm -C scripts cli docs-audit',
@@ -170,7 +169,7 @@ export const docsAuditCommand = defineCommand({
     ].join('\n'),
   },
   args: {
-    dir: { type: 'string', default: 'docs', description: 'Documentation directory' },
+    dir: { type: 'string', default: 'docs/content', description: 'Markdown content directory' },
     json: { type: 'boolean', default: false, description: 'Print machine-readable output' },
     warningsAsErrors: { type: 'boolean', default: false, description: 'Exit non-zero on warnings too' },
   },
@@ -236,57 +235,41 @@ export const docsAuditCommand = defineCommand({
     }
 
     // --- options documented that no longer exist --------------------------------------
-    // Only the hand-written option sections of the Configuration guide: that is a
+    // Only the hand-written option details of the reference page: that is a
     // thousand lines that can outlive an option, while the generated tables cannot go
     // stale by construction, and prose elsewhere mentions option-like words constantly.
     const known = new Set(options.map((option) => option.path.split('.').pop()!))
-    const configuration = bodies.get('guide/configuration.md')
-    for (const match of (configuration ?? '').matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
+    const details = bodies.get('api/module-options.md')
+    for (const match of (details ?? '').matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
       const name = match[1]!.split('.').pop()!
-      if (!known.has(name)) add('warnings', 'stale-option', 'guide/configuration.md', `documents "${match[1]!}", which is not in ModuleOptions`)
+      if (!known.has(name)) add('warnings', 'stale-option', 'api/module-options.md', `documents "${match[1]!}", which is not in ModuleOptions`)
     }
 
-    // --- nav and sidebar --------------------------------------------------------------
-    const configPath = join(docsDir, '.vitepress/config.mts')
-    if (existsSync(configPath)) {
-      const module = (await import(pathToFileURL(configPath).href)) as { default?: { themeConfig?: ThemeConfig } }
-      const theme = module.default?.themeConfig ?? {}
-
-      const linked = new Set<string>()
-      for (const link of collectLinks(theme)) {
-        const candidates = pageCandidatesForLink(link)
-        if (candidates.length === 0) continue
-
-        const resolved = candidates.find((candidate) => bodies.has(candidate))
-        if (resolved) linked.add(resolved)
-        else if (!candidates.some((candidate) => coveredByDynamicRoute(candidate, dynamicTemplates))) {
-          add('errors', 'dead-nav-link', '.vitepress/config.mts', `"${link}" resolves to none of ${candidates.join(', ')}`)
-        }
-      }
-
-      // A page linked from a reachable page is reachable too — a generated reference
-      // index links its per-package pages, and listing all fifteen in the sidebar would
-      // bury everything else in it.
-      const reachable = new Set(linked)
-      for (let added = true; added;) {
-        added = false
-        for (const page of reachable) {
-          const body = bodies.get(page)
-          if (!body) continue
-          for (const target of pageLinks(page, body)) {
-            if (bodies.has(target) && !reachable.has(target)) {
-              reachable.add(target)
-              added = true
-            }
+    // --- reachability (file-based nav + in-page links) --------------------------------
+    // Nuxt Content builds the sidebar from the content tree, so every page is "in nav".
+    // Still flag pages that nothing else links to and that are not a section index —
+    // those are usually leftovers after a rename.
+    const linked = new Set<string>()
+    for (const page of pages) {
+      if (page === 'index.md' || page.endsWith('/index.md') || isDynamicTemplate(page)) linked.add(page)
+    }
+    const reachable = new Set(linked)
+    for (let added = true; added;) {
+      added = false
+      for (const page of reachable) {
+        const body = bodies.get(page)
+        if (!body) continue
+        for (const target of pageLinks(page, body)) {
+          if (bodies.has(target) && !reachable.has(target)) {
+            reachable.add(target)
+            added = true
           }
         }
       }
-
-      for (const page of pages) {
-        // A dynamic template is never linked directly; the pages it renders are.
-        if (page.startsWith('public/') || page === 'index.md' || isDynamicTemplate(page)) continue
-        if (!reachable.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav, the sidebar, or another reachable page')
-      }
+    }
+    for (const page of pages) {
+      if (isDynamicTemplate(page) || page === 'index.md') continue
+      if (!reachable.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from a section index or another reachable page')
     }
 
     // --- links between pages ----------------------------------------------------------
@@ -297,7 +280,7 @@ export const docsAuditCommand = defineCommand({
         if (/^[a-z]+:/i.test(link)) continue
 
         const [target = ''] = link.split('#', 1)
-        const resolved = target.startsWith('/') ? target.slice(1) : join(dir, target)
+        const resolved = target.startsWith('/') ? target.slice(1) : posix.join(dir, target)
         if (!bodies.has(resolved) && !coveredByDynamicRoute(resolved, dynamicTemplates)) {
           add('errors', 'dead-link', page, `links to "${link}", which does not exist`)
         }

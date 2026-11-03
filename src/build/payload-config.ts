@@ -1,0 +1,193 @@
+import { basename, dirname, join, relative } from 'node:path'
+import type { ModuleOptions } from '@i18n-micro/types'
+import { buildFallbackLocaleChain, type SourceLocaleInfo } from '@i18n-micro/utils/merge-source'
+
+export type TranslationPayloadMode = 'premerged' | 'source'
+
+export interface ResolvedTranslationPayloadOptions {
+  mode: TranslationPayloadMode
+  serverAssets: boolean
+  serverHandler: boolean
+  publicAssets: boolean
+  prerenderRoutes: boolean
+  rootDelta: boolean
+}
+
+export interface TranslationPayloadMisconfigurationInput {
+  translationPayloads: ResolvedTranslationPayloadOptions
+  apiBaseClientHost?: string
+  apiBaseServerHost?: string
+}
+
+export interface TranslationPayloadStats {
+  fileCount: number
+  totalBytes: number
+}
+
+export interface TranslationPayloadSizeThresholds {
+  warnFileCount?: number
+  warnSizeBytes?: number
+}
+
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT = 500
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES = 10 * 1024 * 1024
+
+export function resolveTranslationPayloadOptions(options: ModuleOptions): ResolvedTranslationPayloadOptions {
+  const isSourceMode = options.translationPayloads?.mode === 'source'
+
+  return {
+    mode: isSourceMode ? 'source' : 'premerged',
+    serverAssets: options.translationPayloads?.serverAssets !== false,
+    serverHandler: options.translationPayloads?.serverHandler !== false,
+    publicAssets: isSourceMode ? options.translationPayloads?.publicAssets === true : options.translationPayloads?.publicAssets !== false,
+    // Off by default: prerendering `/_locales` without a live handler writes empty public stubs.
+    // Opt in when you need static `/{apiBaseUrl}/.../data.json` and payloads are already available.
+    prerenderRoutes: options.translationPayloads?.prerenderRoutes === true,
+    rootDelta: !isSourceMode && options.translationPayloads?.rootDelta !== false,
+  }
+}
+
+/** `/a//b/` -> `a/b`. */
+export const pathSegments = (path: string): string => path.split('/').filter(Boolean).join('/')
+
+/**
+ * Public payload directory relative to Nitro's public root.
+ * Defaults to `apiBaseUrl` (`_locales`) so static files match client fetch URLs.
+ */
+export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl: string): string {
+  return pathSegments(options.translationPayloads?.publicDir || apiBaseUrl) || '_locales'
+}
+
+export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl: string): string {
+  return join(outputPublicDir ?? './dist', resolveTranslationPayloadPublicRel(options, apiBaseUrl))
+}
+
+/**
+ * Nitro `serveStatic` values (see nitropack `NitroOptions.serveStatic`).
+ * Disk-serving: `true` | `"node"` | `"deno"`. Embed/bundle: `false` | `"inline"`.
+ */
+export type NitroServeStatic = boolean | 'node' | 'deno' | 'inline'
+
+/**
+ * What a per-domain build copies to `public/`: the locales it serves. `premerged` holds
+ * `<page>/<locale>/` with fallbacks already merged; `source` holds `<locale>.json` and
+ * `pages/<page>/<locale>.json`, and the server merges the fallback chain from them.
+ */
+export function domainPayloadFilter(options: {
+  mode: TranslationPayloadMode
+  root: string
+  served: SourceLocaleInfo[]
+  linkLocales?: SourceLocaleInfo[]
+  fallbackLocale?: string
+}): (source: string) => boolean {
+  const { mode, root, served, linkLocales = served, fallbackLocale } = options
+  const needed = served.flatMap((locale) => (mode === 'source' ? buildFallbackLocaleChain(locale.code, linkLocales, fallbackLocale) : [locale.code]))
+  const foreign = new Set(linkLocales.map((locale) => locale.code).filter((code) => !needed.includes(code)))
+  return (source) => {
+    const name = basename(source)
+    if (mode === 'source') return !name.endsWith('.json') || !foreign.has(name.slice(0, -'.json'.length))
+    return !foreign.has(name) || dirname(source) === root
+  }
+}
+
+/**
+ * Whether production builds should copy the payload tree into Nitro public output.
+ * - `publicAssets: true` always copies (CDN / static clients).
+ * - When SSR reads `public/` (`readsPublicDir`), `serverAssets: true` also forces a copy (fs reader, no Rollup `raw:`).
+ * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
+ *   set `publicAssets: true` when the client/CDN needs a static copy.
+ */
+export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
+  if (translationPayloads.publicAssets) return true
+  return readsPublicDir && translationPayloads.serverAssets
+}
+
+/**
+ * Whether SSR can `readFile` payloads from `public/` next to the server bundle, given the resolved Nitro options.
+ * Only presets whose server serves `public/` from disk ship it there (`node-server`, `node-cluster`, dev, prerender).
+ * Function platforms (`vercel`, `netlify`, `aws-lambda`) deploy `public/` to a CDN, Edge has no fs, and
+ * `serveStatic: "inline"` (e.g. winterjs) bundles it into the server.
+ * The fs reader looks at `../public` from the server, so any other layout (`aws-amplify`, a custom
+ * `nitro.output.publicDir`, `serveStatic: true` on `vercel`/`netlify`) embeds. That layout cannot prove the folder
+ * ships: `aws-lambda` with `serveStatic: true` passes and may still have no `public/`, which the reader reports.
+ */
+export function shouldReadPayloadsFromPublicDir(nitroOptions: {
+  node: boolean
+  serveStatic: NitroServeStatic
+  output: { serverDir: string; publicDir: string }
+}): boolean {
+  const { node, serveStatic, output } = nitroOptions
+  return node && !!serveStatic && serveStatic !== 'inline' && relative(output.serverDir, output.publicDir) === join('..', 'public')
+}
+
+/**
+ * Register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled and SSR cannot read `public/`.
+ * Pass the result of `shouldReadPayloadsFromPublicDir` as `readsPublicDir`.
+ */
+export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
+  return !readsPublicDir && translationPayloads.serverAssets
+}
+
+export function hasLocalTranslationPayloadOutput(translationPayloads: ResolvedTranslationPayloadOptions): boolean {
+  return (
+    translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
+  )
+}
+
+export function getTranslationPayloadMisconfigurationWarnings(input: TranslationPayloadMisconfigurationInput): string[] {
+  const warnings: string[] = []
+
+  if (!input.translationPayloads.serverAssets && !input.translationPayloads.publicAssets && !input.apiBaseServerHost) {
+    warnings.push(
+      'translationPayloads.serverAssets and publicAssets are false and apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
+    )
+  }
+
+  if (hasLocalTranslationPayloadOutput(input.translationPayloads)) {
+    return warnings
+  }
+
+  if (!input.apiBaseServerHost) {
+    warnings.push(
+      'translationPayloads disabled all local outputs but apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
+    )
+  }
+
+  if (!input.apiBaseClientHost) {
+    warnings.push(
+      'translationPayloads disabled all local outputs but apiBaseClientHost is not set. Client-side navigation may load empty translations unless you provide an external client payload host.',
+    )
+  }
+
+  return warnings
+}
+
+/** Static output has no server route: the browser needs premerged files, prerendered routes or another host. */
+export function getStaticPayloadWarning(
+  input: Pick<TranslationPayloadMisconfigurationInput, 'translationPayloads' | 'apiBaseClientHost'>,
+): string | null {
+  const { mode, publicAssets, prerenderRoutes } = input.translationPayloads
+  if (input.apiBaseClientHost || prerenderRoutes || (mode === 'premerged' && publicAssets)) return null
+  return `Static output has no server route, and this build writes no /_locales/<page>/<locale>/data.json (mode: '${mode}', publicAssets: ${publicAssets}): the browser gets a 404 and raw keys, unless something else serves that path. Use the default premerged mode with public assets, translationPayloads.prerenderRoutes, or apiBaseClientHost.`
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+  if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`
+  }
+  return `${bytes} B`
+}
+
+export function getTranslationPayloadSizeWarning(stats: TranslationPayloadStats, thresholds?: TranslationPayloadSizeThresholds): string | null {
+  const warnFileCount = thresholds?.warnFileCount ?? DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT
+  const warnSizeBytes = thresholds?.warnSizeBytes ?? DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES
+
+  if (stats.fileCount < warnFileCount && stats.totalBytes < warnSizeBytes) {
+    return null
+  }
+
+  return `Generated translation payloads are large (${stats.fileCount} files, ${formatBytes(stats.totalBytes)}). Consider translationPayloads.mode: 'source' for public output, hosting payloads externally, or disabling unused public/prerender outputs.`
+}

@@ -2,9 +2,62 @@ import { defineCommand } from 'citty'
 import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { repoRoot } from '../utils/workspace'
-import { buildSmokeApp, installSmokeApp, type PresetName, runSmokeVerify, startPresetRuntime } from '../utils/preset-runtime'
+import { buildSmokeApp, installSmokeApp, PRESET_TARGETS, type PresetName, runSmokeVerify, startPresetRuntime } from '../utils/preset-runtime'
 
-const PRESETS: PresetName[] = ['vercel', 'cloudflare_pages', 'netlify']
+const PRESETS = Object.keys(PRESET_TARGETS) as PresetName[]
+
+/** `--build-only`: every Nitro preset that builds a Nuxt app, not only those a runner can start here. */
+const BUILD_ONLY_PRESETS = [
+  'alwaysdata',
+  'aws_amplify',
+  'aws_lambda',
+  'azure_functions',
+  'azure_swa',
+  'bun',
+  'cleavr',
+  'cli',
+  'cloudflare_durable',
+  'cloudflare_module',
+  'cloudflare_module_legacy',
+  'cloudflare_pages',
+  'cloudflare_pages_static',
+  'cloudflare_worker',
+  'deno_deploy',
+  'deno_server',
+  'deno_server_legacy',
+  'digital_ocean',
+  'edgio',
+  'firebase',
+  'firebase_app_hosting',
+  'flight_control',
+  'genezio',
+  'github_pages',
+  'gitlab_pages',
+  'heroku',
+  'iis_handler',
+  'iis_node',
+  'koyeb',
+  'netlify',
+  'netlify_builder',
+  'netlify_edge',
+  'netlify_legacy',
+  'netlify_static',
+  'node_cluster',
+  'node_listener',
+  'node_server',
+  'platform_sh',
+  'render_com',
+  'static',
+  'stormkit',
+  'vercel',
+  'vercel_edge',
+  'vercel_static',
+  'winterjs',
+  'zeabur',
+  'zeabur_static',
+  'zerops',
+  'zerops_static',
+]
 
 function parsePresets(raw: string): PresetName[] {
   if (raw === 'all') return [...PRESETS]
@@ -32,11 +85,22 @@ export const presetSmokeCommand = defineCommand({
       '  vercel            — import .vercel/output/functions/__fallback.func (as Nitro CI)',
       '  cloudflare_pages  — wrangler pages dev dist (Nitro commands.preview)',
       '  netlify           — import .netlify/functions-internal/server/main.mjs (fetch handler)',
+      '  cloudflare_module — wrangler dev on .output/server/index.mjs',
+      '  vercel_edge       — import the Edge bundle (fetch handler, in Node)',
+      '  netlify_edge      — the Edge bundle on Deno',
+      '  aws_lambda        — the handler behind an API Gateway v2 event',
+      '  aws_amplify       — compute/default/server.js, no static folder in reach',
+      '  bun, deno_server  — that runtime on .output/server/index.mjs',
+      '  node_custom_public  — node_server with nitro.output.publicDir beside public/',
+      '  vercel_serve_static — vercel with nitro.serveStatic: true',
+      '',
+      '--build-only builds every Nitro preset and starts nothing.',
       '',
       'Examples:',
       '  pnpm -C scripts cli preset-smoke --preset vercel',
       '  pnpm -C scripts cli preset-smoke --preset all --browser',
       '  pnpm -C scripts cli preset-smoke --preset vercel --skip-pack --skip-install',
+      '  pnpm -C scripts cli preset-smoke --build-only --skip-pack',
     ].join('\n'),
   },
   args: {
@@ -70,6 +134,11 @@ export const presetSmokeCommand = defineCommand({
       default: false,
       description: 'Skip nuxt build (reuse existing preset output)',
     },
+    'build-only': {
+      type: 'boolean',
+      default: false,
+      description: 'Only build: every Nitro preset, a failure is a failed build',
+    },
     'public-assets': {
       type: 'string',
       default: '',
@@ -77,7 +146,7 @@ export const presetSmokeCommand = defineCommand({
     },
   },
   async setup({ args }) {
-    const presets = parsePresets(args.preset)
+    const presets = args['build-only'] ? [] : parsePresets(args.preset)
     const appDir = resolve(repoRoot, args.app)
     const buildEnv: Record<string, string> = {}
     if (args['public-assets'] === 'false') {
@@ -87,6 +156,7 @@ export const presetSmokeCommand = defineCommand({
     if (!args['skip-pack']) {
       console.log('\n==> smoke-pack\n')
       execFileSync('pnpm', ['-C', 'scripts', 'cli', 'smoke-pack', '--app', args.app], {
+        shell: process.platform === 'win32',
         cwd: repoRoot,
         stdio: 'inherit',
       })
@@ -97,11 +167,28 @@ export const presetSmokeCommand = defineCommand({
       installSmokeApp(appDir)
     }
 
+    if (args['build-only']) {
+      const failed: string[] = []
+      for (const preset of BUILD_ONLY_PRESETS) {
+        console.log(`\n==> build ${preset}\n`)
+        try {
+          // the app's own date is older than `cloudflare_durable`, and it resolves `cloudflare_module` to the legacy Worker
+          buildSmokeApp(appDir, preset, { ...buildEnv, SMOKE_COMPATIBILITY_DATE: '2025-09-01' })
+        } catch {
+          failed.push(preset)
+        }
+      }
+      if (failed.length > 0) throw new Error(`Presets that do not build: ${failed.join(', ')}`)
+      console.log(`\npreset-smoke: ${BUILD_ONLY_PRESETS.length} presets build\n`)
+      return
+    }
+
     // One preset at a time: shared appDir output dirs and fixed wrangler port.
     for (const preset of presets) {
       console.log(`\n==> preset ${preset}\n`)
+      const target = PRESET_TARGETS[preset] as { preset: string; env?: Record<string, string> }
       if (!args['skip-build']) {
-        buildSmokeApp(appDir, preset, buildEnv)
+        buildSmokeApp(appDir, target.preset, { ...buildEnv, ...target.env })
       }
 
       // oxlint-disable-next-line no-await-in-loop -- sequential presets (shared dirs/ports)

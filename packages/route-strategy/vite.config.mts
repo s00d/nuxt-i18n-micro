@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
   if (!filePath.endsWith('index.d.ts')) {
@@ -23,7 +24,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/core', '@i18n-micro/types', '@i18n-micro/utils/app-path', '@nuxt/schema', 'node:path', 'path', 'node:fs', 'fs'],
+      external: ['@i18n-micro/types', '@i18n-micro/utils/app-path', '@nuxt/schema', 'node:path', 'path', 'node:fs', 'fs'],
       output: {
         exports: 'named',
       },
@@ -37,6 +38,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: 'tsconfig.build.json',
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

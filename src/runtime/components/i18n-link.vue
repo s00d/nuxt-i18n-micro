@@ -4,15 +4,17 @@
     <slot />
   </a>
 
-  <NuxtLink v-else :to="$localePath(to)" :style="computedStyle">
+  <NuxtLink v-else :to="localizedPath" :style="computedStyle">
     <slot />
   </NuxtLink>
 </template>
 
 <script lang="ts" setup>
+import { externalLinkHref, isSamePage } from '@i18n-micro/core'
+import type { CSSProperties } from 'vue'
 import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
-import { useNuxtApp, useRoute, useRouter } from '#imports'
+import { useNuxtApp, useRoute } from '#imports'
 
 /**
  * A link that keeps the active locale: renders `NuxtLink` to the localized route, or a
@@ -26,42 +28,21 @@ interface Props {
   /** Target route. Localized automatically; an external URL is passed through unchanged. */
   to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
   /** Inline style applied while the link points at the current route. */
-  activeStyle?: Partial<CSSStyleValue>
+  activeStyle?: CSSProperties
 }
 
 const props = defineProps<Props>()
 const route = useRoute()
-const router = useRouter()
 
-const isExternalLink = computed(() => {
-  if (typeof props.to === 'string') {
-    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to)
-  }
-  return false
-})
+const externalHref = computed(() => externalLinkHref(props.to))
+const isExternalLink = computed(() => externalHref.value !== undefined)
 
-const externalHref = computed(() => {
-  if (isExternalLink.value && typeof props.to === 'string') {
-    if (props.to.startsWith('//')) {
-      return props.to
-    }
-    if (!/^https?:\/\//.test(props.to)) {
-      return `https://${props.to}`
-    }
-    return props.to
-  }
-  return undefined
-})
+const localizedPath = computed(() => (isExternalLink.value ? '' : $localePath(props.to)))
 
-const isActive = computed(() => {
-  if (isExternalLink.value) {
-    return false
-  }
-  const pathStr = $localePath(props.to)
-  return route.path === router.resolve(pathStr).path
-})
+// compared as paths: a router.resolve per render matched the URL against every record
+const isActive = computed(() => !isExternalLink.value && isSamePage(route.path, localizedPath.value))
 
-const computedStyle = computed((): Partial<CSSStyleValue> => {
+const computedStyle = computed((): CSSProperties => {
   return isActive.value ? { ...props.activeStyle } : {}
 })
 </script>

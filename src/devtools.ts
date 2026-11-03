@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
+import { isInsideDir, resolveTranslationFile } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
 
@@ -58,6 +60,7 @@ export interface ServerFunctions {
 
 export interface ClientFunctions {
   showNotification: (message: string) => void
+  localesUpdated: (locales: Record<string, string>) => void
 }
 
 /**
@@ -124,50 +127,37 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
   })
 
   onDevToolsInitialized(() => {
-    const dirs = rootDirs.length > 0 ? rootDirs : [nuxt.options.rootDir]
-
-    extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, {
+    const functions: ServerFunctions = {
+      // Writes only an existing `.json` inside a translation directory: `file` comes from the
+      // client, so `../` and absolute paths must not reach the filesystem. The project layer (listed
+      // last, shown in the tab) wins over extended layers.
       async saveTranslationContent(file, content) {
-        let filePath: string | null = null
-
-        const additionalMatch = /^additional:([^/]+)\/(.+)$/.exec(file)
-        if (additionalMatch?.[1] && additionalMatch[2]) {
-          const extraDir = additionalMatch[1]
-          const relFile = additionalMatch[2]
-          for (const rootDir of dirs) {
-            const candidatePath = path.join(rootDir, extraDir, relFile)
-            if (fs.existsSync(candidatePath)) {
-              filePath = candidatePath
-              break
-            }
-          }
-        } else {
-          for (const rootDir of dirs) {
-            const localesDir = path.join(rootDir, options.translationDir || 'locales')
-            const candidatePath = path.join(localesDir, file)
-            if (fs.existsSync(candidatePath)) {
-              filePath = candidatePath
-              break
-            }
-          }
-        }
-
-        // If file not found in any rootDir, try resolving as absolute path (fallback)
-        if (!filePath) {
-          filePath = path.resolve(file)
-        }
-
-        if (fs.existsSync(filePath)) {
-          fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
-        } else {
-          throw new Error(`File not found: ${filePath}`)
-        }
+        // `additional:<configured dir, maybe nested>/<file>`, or a path inside translationDir
+        const extraDir = file.startsWith('additional:')
+          ? (options.additionalTranslationDirs ?? []).find((dir) => file.startsWith(`additional:${dir}/`))
+          : undefined
+        if (file.startsWith('additional:') && !extraDir) throw new Error(`Not a configured additional translation directory: ${file}`)
+        const relativeFile = extraDir ? file.slice(`additional:${extraDir}/`.length) : file
+        const target = [...rootDirs]
+          .reverse()
+          .map((rootDir) => resolveTranslationFile(path.join(rootDir, extraDir ?? (options.translationDir || 'locales')), relativeFile))
+          .find((candidate) => candidate !== null)
+        if (!target) throw new Error(`File not found in the translation directories: ${file}`)
+        fs.writeFileSync(target, JSON.stringify(content, null, 2), 'utf-8')
       },
       async getConfigs() {
         return Promise.resolve(options)
       },
       async getLocalesAndTranslations() {
         const filesList: Record<string, string> = {}
+
+        const readFile = (key: string, filePath: string) => {
+          try {
+            filesList[key] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+          } catch (e) {
+            console.error(`Error parsing locale file ${filePath}:`, e)
+          }
+        }
 
         const processDirectory = (dir: string, baseDir: string) => {
           if (!fs.existsSync(dir)) return
@@ -179,21 +169,16 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
             if (stat.isDirectory()) {
               processDirectory(filePath, baseDir)
             } else if (file.endsWith('.json')) {
-              try {
-                const relativePath = path.relative(baseDir, filePath).replace(/\\/g, '/')
-                filesList[relativePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-              } catch (e) {
-                console.error(`Error parsing locale file ${filePath}:`, e)
-              }
+              readFile(forwardSlashes(path.relative(baseDir, filePath)), filePath)
             }
           })
         }
 
-        for (const rootDir of dirs) {
+        for (const rootDir of rootDirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 
-          // Process main directory and pages (both relative to localesDir)
+          // Both relative to localesDir. The second is not a repeat: `lstat` does not enter a symlink, so a linked `pages` is read only here.
           processDirectory(localesDir, localesDir)
           processDirectory(pagesDir, localesDir)
 
@@ -205,17 +190,32 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
               if (!name.endsWith('.json')) continue
               const filePath = path.join(extraDir, name)
               if (!fs.statSync(filePath).isFile()) continue
-              try {
-                filesList[`additional:${extra}/${name}`] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-              } catch (e) {
-                console.error(`Error parsing locale file ${filePath}:`, e)
-              }
+              readFile(`additional:${extra}/${name}`, filePath)
             }
           }
         }
 
         return filesList
       },
+    }
+    // `extendServerRpc` hands back `{ broadcast }` only, whatever its types say
+    const rpc = extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, functions)
+
+    // The open tab follows edits made on disk, and its own saves
+    const directories = [options.translationDir || 'locales', ...(options.additionalTranslationDirs ?? [])]
+    const roots = rootDirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
+    let timer: ReturnType<typeof setTimeout> | undefined
+    nuxt.hook('builder:watch', (_event, watched) => {
+      // Nuxt reports a path relative to `srcDir`, the folders are relative to the root
+      const file = resolve(nuxt.options.srcDir, watched)
+      if (!file.endsWith('.json') || !roots.some((root) => isInsideDir(file, root))) return
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        functions
+          .getLocalesAndTranslations()
+          .then((locales) => rpc.broadcast.localesUpdated.asEvent(locales))
+          .catch((error) => console.error('[i18n-devtools] Failed to push locales:', error))
+      }, 100)
     })
   })
 }

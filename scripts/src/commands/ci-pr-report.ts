@@ -28,6 +28,7 @@ export const DEFAULT_CHECKS = Object.freeze([
   { name: 'Verify packages', key: 'verify-packages', env: 'VERIFY_PACKAGES_OUTCOME' },
   { name: 'Test dist', key: 'test-dist', env: 'TEST_DIST_OUTCOME' },
   { name: 'Compare published', key: 'compare-published', env: 'COMPARE_PUBLISHED_OUTCOME' },
+  { name: 'Consumer types', key: 'consumer-types', env: 'CONSUMER_TYPES_OUTCOME' },
 ])
 
 export const DEFAULT_LIMITS = Object.freeze({

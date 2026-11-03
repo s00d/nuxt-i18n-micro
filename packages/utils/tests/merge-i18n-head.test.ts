@@ -114,18 +114,18 @@ describe('mergeI18nHead', () => {
     const withoutOg = mergeI18nHead(base, {
       replace: { ogLocale: false, ogUrl: false },
     })
-    expect(withoutOg.meta.some((m) => m.property === 'og:locale')).toBe(false)
-    expect(withoutOg.meta.some((m) => m.property === 'og:url')).toBe(false)
+    expect(withoutOg.meta).not.toContainEqual(expect.objectContaining({ property: 'og:locale' }))
+    expect(withoutOg.meta).not.toContainEqual(expect.objectContaining({ property: 'og:url' }))
   })
 
   it('disables og and og-alternates groups', () => {
     const result = mergeI18nHead(base, { disable: ['og', 'og-alternates'] })
-    expect(result.meta.some((m) => m.property?.startsWith('og:'))).toBe(false)
+    expect(result.meta.filter((m) => m.property?.startsWith('og:'))).toEqual([])
   })
 
   it('removes all alternates when hreflang replace is false', () => {
     const result = mergeI18nHead(base, { replace: { hreflang: false } })
-    expect(result.link.every((l) => l.rel !== 'alternate')).toBe(true)
+    expect(result.link.filter((l) => l.rel === 'alternate')).toEqual([])
   })
 
   it('appends link with dedupe by rel and hreflang', () => {
@@ -149,8 +149,8 @@ describe('mergeI18nHead', () => {
 
   it('disable hreflang keeps x-default unless disabled too', () => {
     const result = mergeI18nHead(base, { disable: ['hreflang'] })
-    expect(result.link.some((l) => l.hreflang === 'en')).toBe(false)
-    expect(result.link.some((l) => l.hreflang === 'fr')).toBe(false)
-    expect(result.link.some((l) => l.hreflang === 'x-default')).toBe(true)
+    expect(result.link).not.toContainEqual(expect.objectContaining({ hreflang: 'en' }))
+    expect(result.link).not.toContainEqual(expect.objectContaining({ hreflang: 'fr' }))
+    expect(result.link).toContainEqual(expect.objectContaining({ hreflang: 'x-default' }))
   })
 })

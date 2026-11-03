@@ -11,7 +11,7 @@ const props = defineProps<{
 }>()
 
 // Initialize provider and get state directly
-const state = provideI18n(props.i18n)
+const state = provideI18n(() => props.i18n)
 const formatter = new FormatService()
 
 // Use state directly instead of inject

@@ -1,18 +1,14 @@
 {
-  "name": "nuxt-i18n-next-playground",
+  "name": "@i18n-micro/playground",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
-    "generate:en": "nuxi generate --dotenv .env.en",
-    "generate:de": "nuxi generate --dotenv .env.de",
-    "client:prepare": "nuxt prepare",
     "generate": "nuxi generate",
-    "init": "nuxt prepare",
-    "typecheck": "tsc --noEmit",
-    "test:types": "vue-tsc --noEmit",
-    "test": "echo \"Error: no test specified\""
+    "bench": "node bench/matrix.mjs",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "nuxt": "catalog:"

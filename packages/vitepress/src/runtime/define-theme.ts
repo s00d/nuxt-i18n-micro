@@ -2,7 +2,7 @@ import type { PluralFunc, Translations } from '@i18n-micro/types'
 import type { Theme } from 'vitepress'
 import { config as virtualConfig } from 'virtual:i18n-micro/config'
 import { messages as virtualMessages, routeMessages as virtualRouteMessages } from 'virtual:i18n-micro/messages'
-import { createI18n, type CreateI18nResult } from './create'
+import { createI18n, type CreateI18nOptions, type CreateI18nResult } from './create'
 import { getLocaleFromPath } from '../router/adapter'
 import type { VirtualI18nConfig } from '../plugin/with-i18n'
 
@@ -14,10 +14,14 @@ export interface DefineI18nThemeOptions {
    */
   enhanceApp?: NonNullable<Theme['enhanceApp']>
   /**
-   * Overrides not serializable into `virtual:i18n-micro/config`.
+   * Overrides for this theme: `plural` and `missingHandler` cannot be serialized into
+   * `virtual:i18n-micro/config`; the formats and `timeZone` default to what `withI18n` got.
    */
   plural?: PluralFunc
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  numberFormats?: CreateI18nOptions['numberFormats']
+  datetimeFormats?: CreateI18nOptions['datetimeFormats']
+  timeZone?: string
   localeKeyToCode?: Record<string, string>
   /**
    * Optional overrides (tests / advanced). Defaults come from `virtual:i18n-micro/*`
@@ -78,6 +82,9 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
           base: config.base,
           plural: options.plural,
           missingHandler: options.missingHandler,
+          numberFormats: options.numberFormats ?? config.numberFormats,
+          datetimeFormats: options.datetimeFormats ?? config.datetimeFormats,
+          timeZone: options.timeZone ?? config.timeZone,
         })
         byApp.set(ctx.app, installed)
       }

@@ -123,7 +123,9 @@ export const smokeVerifyCommand = defineCommand({
       const { res, body } = await get('/_locales/index/de/data.json')
       expect(res.ok, `HTTP ${res.status}`)
       const data = JSON.parse(body)
-      expect(data.title === 'Smoke Home DE', `unexpected payload: ${body.slice(0, 120)}`)
+      // a delta holds only what differs from its root
+      const root = data.__i18n_root ? JSON.parse((await get('/_locales/__root/de/data.json')).body) : {}
+      expect((data.title ?? root.title) === 'Smoke Home DE', `unexpected payload: ${body.slice(0, 120)}`)
       return `${body.length} bytes`
     })
 

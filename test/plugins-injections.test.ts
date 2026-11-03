@@ -1,0 +1,97 @@
+import type { BaseI18n } from '@i18n-micro/core'
+import type { CleanTranslation, DefineI18nRouteConfig, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
+import { readFileSync } from 'node:fs'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
+import type { NuxtHooks } from '@nuxt/schema'
+import type { NuxtApp, RuntimeNuxtHooks } from '#app'
+import type { ModuleRuntimeHooks } from '../src/module'
+import type { PluginsInjectionsWithAliases } from '../src/runtime/composables/useI18n'
+import type { NuxtAppOnlyInjections, PluginsInjections, TranslationFn } from '../src/runtime/plugins/01.plugin'
+import type { createNuxtI18nPluginApi, NuxtI18nPluginProvide } from '../src/runtime/utils/i18n-api'
+import type { NuxtI18n } from '../src/runtime/utils/nuxt-i18n'
+
+// Type contracts: these assert only under `vitest --typecheck` (the unit project enables it).
+type P = PluginsInjections
+
+describe('PluginsInjections typing', () => {
+  it('translation functions (#256, #257)', () => {
+    // $t / $_t → CleanTranslation, $ts / $_ts / $tc → string, every key a TranslationKey
+    expectTypeOf<P['$t']>().toEqualTypeOf<TranslationFn<CleanTranslation>>()
+    expectTypeOf<Parameters<P['$t']>[0]>().toEqualTypeOf<TranslationKey>()
+    expectTypeOf<ReturnType<P['$_t']>>().toEqualTypeOf<TranslationFn<CleanTranslation>>()
+    expectTypeOf<P['$ts']>().toEqualTypeOf<TranslationFn<string>>()
+    expectTypeOf<ReturnType<P['$_ts']>>().toEqualTypeOf<TranslationFn<string>>()
+    expectTypeOf<Parameters<P['$tc']>[0]>().toEqualTypeOf<TranslationKey>()
+    expectTypeOf<ReturnType<P['$tc']>>().toEqualTypeOf<string>()
+    // what <i18n-t> asks for to pick a form: the rule, and the tag it goes by
+    expectTypeOf<P['$pluralFunc']>().toEqualTypeOf<PluralFunc>()
+    expectTypeOf<P['$pluralLocale']>().toEqualTypeOf<() => string>()
+    expectTypeOf<NuxtI18nPluginProvide['pluralFunc']>().toEqualTypeOf<PluralFunc>()
+    // route-bound versions and the plugin API agree
+    expectTypeOf<NuxtI18n['tForRoute']>().returns.toEqualTypeOf<TranslationFn<CleanTranslation>>()
+    expectTypeOf<NuxtI18n['tsForRoute']>().returns.toEqualTypeOf<TranslationFn<string>>()
+    expectTypeOf<Parameters<NuxtI18nPluginProvide['ts']>[0]>().toEqualTypeOf<TranslationKey>()
+    expectTypeOf<ReturnType<NuxtI18nPluginProvide['ts']>>().toEqualTypeOf<string>()
+  })
+
+  it('$tdr options (#231), routes, translation memory', () => {
+    // $tdr takes RelativeTimeFormat options, not DateTimeFormat ones, same as BaseI18n.tdr
+    type TdrOptions = NonNullable<Parameters<P['$tdr']>[1]>
+    expectTypeOf<{ numeric: 'auto'; style: 'short' }>().toMatchTypeOf<TdrOptions>()
+    expectTypeOf<{ year: 'numeric'; month: 'long' }>().not.toMatchTypeOf<TdrOptions>()
+    expectTypeOf<TdrOptions>().toEqualTypeOf<NonNullable<Parameters<BaseI18n['tdr']>[1]>>()
+
+    // $getRouteName takes useRoute() (vue-router 5) and resolved routes, like $getLocale
+    type RouteArg = Parameters<P['$getRouteName']>[0]
+    expectTypeOf<RouteLocationNormalizedLoaded>().toMatchTypeOf<RouteArg>()
+    expectTypeOf<RouteLocationResolvedGeneric>().toMatchTypeOf<RouteArg>()
+    expectTypeOf<P['$getRouteName']>().returns.toBeString()
+    expectTypeOf<RouteArg>().toEqualTypeOf<Parameters<P['$getLocale']>[0]>()
+
+    expectTypeOf<P['$resolveTranslations']>().toEqualTypeOf<() => Translations>()
+    expectTypeOf<P['$setTranslation']>().parameters.toEqualTypeOf<[string, unknown]>()
+    expectTypeOf<P['$setTranslation']>().returns.toEqualTypeOf<void>()
+  })
+
+  // an accessor on nuxtApp, not a provide: Nuxt's inference from the plugin cannot see it
+  it('useNuxtApp() types $setI18nRouteParams', () => {
+    expectTypeOf<NuxtApp['$setI18nRouteParams']>().toEqualTypeOf<P['$setI18nRouteParams']>()
+  })
+
+  /**
+   * `NuxtAppOnlyInjections` describes `$defineI18nRoute`, provided by the loader plugin, and exists to
+   * generate the reference page: a drifted signature documents a call that does not compile.
+   */
+  it('NuxtAppOnlyInjections follows what is actually provided', () => {
+    expectTypeOf<NuxtAppOnlyInjections['$defineI18nRoute']>().toEqualTypeOf<(config: DefineI18nRouteConfig) => Promise<void>>()
+    expectTypeOf<keyof NuxtAppOnlyInjections>().toEqualTypeOf<'$defineI18nRoute'>()
+  })
+
+  // useI18n() is the plugin's object: it must say what that object holds, and navigation is awaitable
+  it('useI18n() types clearCache and promises for switchLocale / switchRoute', () => {
+    type PluginApi = ReturnType<typeof createNuxtI18nPluginApi>['provide']
+    expectTypeOf<PluginsInjectionsWithAliases['clearCache']>().toEqualTypeOf<PluginApi['clearCache']>()
+    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['switchLocale']>>().toEqualTypeOf<Promise<boolean>>()
+    expectTypeOf<ReturnType<PluginsInjectionsWithAliases['$switchRoute']>>().toEqualTypeOf<Promise<void>>()
+    expectTypeOf<PluginApi['switchLocale']>().returns.toMatchTypeOf<Promise<unknown>>()
+    expectTypeOf<PluginApi['switchRoute']>().returns.toMatchTypeOf<Promise<unknown>>()
+  })
+
+  // `i18n:register` is called by a runtime plugin (`nuxtApp.callHook`): it is an app hook,
+  // not a build-time `nuxt.hook` one.
+  it('i18n:register is a runtime (app) hook', () => {
+    expectTypeOf<RuntimeNuxtHooks['i18n:register']>().toEqualTypeOf<ModuleRuntimeHooks['i18n:register']>()
+    expectTypeOf<'i18n:register' extends keyof NuxtHooks ? true : false>().toEqualTypeOf<false>()
+  })
+
+  // the option's JSDoc feeds the generated options reference: it named two hooks nothing calls
+  it('the `hooks` option documents only hooks the loader plugin calls', () => {
+    const types = readFileSync(new URL('../packages/types/src/index.ts', import.meta.url), 'utf8')
+    const doc = types.slice(0, types.indexOf('hooks?: boolean')).split('/**').pop()!
+    const plugin = readFileSync(new URL('../src/runtime/utils/i18n-navigation.ts', import.meta.url), 'utf8')
+    const named = [...doc.matchAll(/`(i18n:[\w-]+)`/g)].map((match) => match[1])
+    expect(named).toEqual(['i18n:register'])
+    for (const hook of named) expect(plugin).toContain(`'${hook}'`)
+  })
+})

@@ -3,54 +3,41 @@
  * Redirect logic is handled by plugins and Vue Router redirect routes.
  */
 
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
-import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
-import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
-import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from 'h3'
+import { defineEventHandler } from 'h3'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import { getI18nConfig } from '#i18n-internal/strategy'
-import { useRuntimeConfig } from '#imports'
-import { loadTranslationsFromServer } from '../utils/server-loader'
+import { domains } from '#i18n-internal/strategy'
+import { useRuntimeConfig } from 'nitropack/runtime'
+import { requestURL } from '../../utils/request-url'
+import { detectRequestLocale, getI18nServerConfig } from '../utils/locale-detector'
+import { loadTranslationsFromServer, NO_FILE } from '../utils/server-loader'
+
+/** The page render loads its chunks through this, not through a local fetch of /_locales. `null`: the host has no file for it. */
+async function load(locale: string, routeName: string) {
+  const entry = await loadTranslationsFromServer(locale, routeName)
+  return entry === NO_FILE ? null : entry.data
+}
 
 export default defineEventHandler(async (event) => {
-  const appBaseURL = useRuntimeConfig(event).app.baseURL
-  const rawPath = getRequestURL(event).pathname
-  const path = withoutAppBaseURL(rawPath, appBaseURL)
+  const config = getI18nServerConfig(event)
+  const path = withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig().app.baseURL)
+  const { serverTranslationPreload } = getI18nPrivateConfig()
 
-  if (isInternalPath(path)) return
+  // internals only: excludePatterns mean "not localized, not redirected", and those pages still render with i18n
+  if (isInternalPath(path, undefined, config.apiBaseUrl)) {
+    // an error page renders through an internal path: it belongs to its host, and its chunks enter the process-wide
+    // cache, so it reads them the way every page does (a local fetch would answer them from the public copy)
+    event.context.i18n = (domains ? { load, config } : { load }) as typeof event.context.i18n
+    return
+  }
 
-  const config = resolveI18nConfigWithRuntimeOverrides(
-    getI18nConfig() as ModuleOptionsExtend,
-    useRuntimeConfig(event).public as Record<string, unknown>,
-  )
-  const privateConfig = getI18nPrivateConfig()
-  const validLocales = getEnabledLocaleCodes(config.locales)
-  const defaultLocale = config.defaultLocale || 'en'
+  // hash + prefix: `/` has no record and the server never sees the route in the hash, so the client renders it
+  if (config.hashMode && config.strategy === 'prefix' && path === '/') event.context.nuxt = { ...event.context.nuxt, noSSR: true }
 
-  const pathSegments = path.split('/').filter(Boolean)
-  const firstSegment = pathSegments[0]
-  const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment))
-
-  const cookieName = getLocaleCookieName(config)
-  const queryLocale = getQuery(event).locale ? String(getQuery(event).locale) : null
-  const cookieLocale = cookieName ? getCookie(event, cookieName) : null
-
-  const locale = resolveServerLocale({
-    defaultLocale,
-    validLocales,
-    autoDetectLanguage: config.autoDetectLanguage,
-    hasLocaleInUrl,
-    urlLocale: firstSegment ?? null,
-    queryLocale,
-    cookieLocale,
-    acceptLanguageHeader: getHeader(event, 'accept-language'),
-  })
+  const locale = detectRequestLocale(event, config, 'page', path)
 
   let translations = {}
-  if (privateConfig.serverTranslationPreload) {
+  if (serverTranslationPreload) {
     try {
       const loaded = await loadTranslationsFromServer(locale, 'index')
       translations = loaded.data
@@ -62,5 +49,8 @@ export default defineEventHandler(async (event) => {
   event.context.i18n = {
     locale,
     translations,
+    load,
+    // the render reuses this request's resolved config (runtime overrides applied once)
+    config,
   }
 })

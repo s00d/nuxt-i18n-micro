@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.16",
+  "version": "2.0.0",
   "description": "SolidJS bindings for i18n-micro — primitives, context, and UI components.",
   "keywords": [
     "i18n",
@@ -14,6 +14,11 @@
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
   "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
@@ -21,6 +26,7 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md",
     "LICENSE"
   ],
@@ -30,6 +36,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "solid": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
@@ -39,6 +46,18 @@
         "default": "./dist/index.cjs"
       },
       "default": "./dist/index.mjs"
+    },
+    "./router": {
+      "solid": "./src/router/index.ts",
+      "import": {
+        "types": "./dist/router.d.ts",
+        "default": "./dist/router.mjs"
+      },
+      "require": {
+        "types": "./dist/router.d.cts",
+        "default": "./dist/router.cjs"
+      },
+      "default": "./dist/router.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -50,11 +69,13 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "vitest run",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/runtime": "workspace:^",
     "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
@@ -68,17 +89,14 @@
   },
   "peerDependencies": {
     "@solidjs/router": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "^1.8.0"
   },
   "peerDependenciesMeta": {
-    "solid-js": {
-      "optional": false
-    },
     "@solidjs/router": {
       "optional": true
     }
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

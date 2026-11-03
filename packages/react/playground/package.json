@@ -7,17 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:ssr": "BENCH=1 node ../../../benchmark/integrations/ssr-server.mjs",
+    "build:ssr": "BENCH=1 vite build --outDir dist/client && BENCH=1 vite build --ssr src/entry-server --outDir dist/server",
+    "preview:ssr": "NODE_ENV=production node ../../../benchmark/integrations/ssr-server.mjs"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:^",
     "@i18n-micro/devtools-ui": "workspace:^",
     "@i18n-micro/react": "workspace:^",
     "@i18n-micro/types": "workspace:^",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "catalog:",
-    "use-sync-external-store": "catalog:"
+    "react-router-dom": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

@@ -1,38 +1,38 @@
 /**
- * test/use-i18n-head-generate.test.ts
- *
- * 1. Runs `nuxi generate` for the use-i18n-head fixture
- * 2. Verifies prerendered HTML contains expected SEO tags
- * 3. Serves static output and checks navigation, reload, and head tags in a real browser
+ * useI18nHead on a static site: `nuxi generate` of the seo fixture (SEO_VARIANT=use-i18n-head), then the prerendered
+ * HTML and the served site in a browser. The same scenarios on a server build (SSR head, SPA
+ * navigation, the client-fetched /reactive page) are the journey test/journeys/page-head-use-i18n-head.spec.ts.
  */
 
 import type { ChildProcess } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { stripVTControlCharacters } from 'node:util'
 import { rm } from 'node:fs/promises'
-import { chromium, expect as playwrightExpect } from '@playwright/test'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { chromium, firefox, webkit, expect as playwrightExpect } from '@playwright/test'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
 import { isolatedBuild } from './helpers/isolated-build'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
-const build = isolatedBuild('use-i18n-head', 'use-i18n-head-generate')
+const build = isolatedBuild('seo', 'use-i18n-head-generate')
 const FIXTURES = build.fixtureDir
 const OUTPUT_DIR = build.outputDir
 const OUTPUT_PUBLIC = build.publicDir
 const HOST = '127.0.0.1'
 
-function runGenerate(): Promise<void> {
+function runGenerate(): Promise<string> {
   return runCommand('npx', ['nuxi', 'generate'], {
     cwd: FIXTURES,
-    env: build.env,
+    env: { ...build.env, SEO_VARIANT: 'use-i18n-head' },
   })
 }
 
 function serveStatic(port: number): ChildProcess {
-  return spawnServer('npx', ['serve', OUTPUT_PUBLIC, '-p', String(port)], { cwd: FIXTURES })
+  // the binary itself: on Windows `npx` is a `.cmd`, and no shell stands between stopChild and the server
+  return spawnServer(process.execPath, [join(FIXTURES, 'node_modules/serve/build/main.js'), OUTPUT_PUBLIC, '-p', String(port)], { cwd: FIXTURES })
 }
 
 async function waitForServer(port: number, path = '/') {
@@ -53,6 +53,7 @@ async function waitForServer(port: number, path = '/') {
 describe('useI18nHead after nuxi generate', () => {
   let port = 0
   let server: ChildProcess | null = null
+  let generateLog = ''
 
   const stopServer = async () => {
     // stopChild kills the whole process group, so the port is released with it.
@@ -62,7 +63,7 @@ describe('useI18nHead after nuxi generate', () => {
 
   beforeAll(async () => {
     await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
-    await runGenerate()
+    generateLog = stripVTControlCharacters(await runGenerate())
     port = await getFreePort()
     server = serveStatic(port)
     await waitForServer(port, '/')
@@ -73,122 +74,67 @@ describe('useI18nHead after nuxi generate', () => {
     await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
   })
 
-  describe('prerendered HTML files', () => {
-    it('generates index.html with navigation links', () => {
-      const indexPath = staticHtmlPath(OUTPUT_PUBLIC, '/')
-      expect(existsSync(indexPath)).toBe(true)
-      const html = readFileSync(indexPath, 'utf-8')
-      expect(html).toContain('Post (slugs)')
-      expect(html).toContain('Canonical override')
-      expect(html).toMatch(/<meta[^>]*property="og:title"[^>]*content="Index page"/)
-    })
+  test('prerendered HTML carries every scenario head', () => {
+    // step 1: index with the scenario links and its own og:title
+    const index = readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/'), 'utf-8')
+    expect(index).toContain('Post (slugs)')
+    expect(index).toContain('Canonical override')
+    expect(index).toMatch(/<meta[^>]*property="og:title"[^>]*content="Index page"/)
 
-    it.each([...i18nHeadScenarios, ...i18nHeadStaticPages])('prerendered $name has expected SEO tags', (scenario) => {
+    // step 2: each scenario page is prerendered with its SEO tags; /reactive as a shell
+    for (const scenario of [...i18nHeadScenarios, ...i18nHeadStaticPages]) {
       const htmlPath = staticHtmlPath(OUTPUT_PUBLIC, scenario.path)
-      expect(existsSync(htmlPath), `missing ${htmlPath}`).toBe(true)
-      const html = readFileSync(htmlPath, 'utf-8')
-      expectHtmlScenario(html, scenario)
-    })
-
-    it('generates reactive page shell', () => {
-      const htmlPath = staticHtmlPath(OUTPUT_PUBLIC, '/reactive')
-      expect(existsSync(htmlPath), `missing ${htmlPath}`).toBe(true)
-      const html = readFileSync(htmlPath, 'utf-8')
-      expect(html).toContain('Reactive article')
-    })
-  })
-
-  describe('static site in browser', () => {
-    it('navigates via index links, verifies content and SEO, then survives reload', async () => {
-      const browser = await chromium.launch()
-      const context = await browser.newContext()
-      const page = await context.newPage()
-
-      try {
-        await page.goto(`http://${HOST}:${port}/`, { waitUntil: 'domcontentloaded' })
-        await playwrightExpect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Index page')
-
-        for (const scenario of [...i18nHeadScenarios, ...i18nHeadStaticPages]) {
-          await page.goto(`http://${HOST}:${port}/`, { waitUntil: 'domcontentloaded' })
-          await page.getByRole('link', { name: scenario.linkLabel }).click()
-          await page.waitForURL(`**${scenario.path}`)
-          await assertI18nHeadScenario(page, scenario)
-
-          await page.reload({ waitUntil: 'domcontentloaded' })
-          await assertI18nHeadScenario(page, scenario)
-        }
-      } finally {
-        await context.close()
-        await browser.close()
-      }
-    }, 120_000)
-
-    it('direct visit + hard reload keeps article SEO on post page', async () => {
-      const browser = await chromium.launch()
-      const page = await browser.newPage()
-
-      try {
-        const scenario = i18nHeadScenarios[0]!
-        await page.goto(`http://${HOST}:${port}${scenario.path}`, { waitUntil: 'domcontentloaded' })
-        await assertI18nHeadScenario(page, scenario)
-
-        await page.reload({ waitUntil: 'networkidle' })
-        await assertI18nHeadScenario(page, scenario)
-        await playwrightExpect(page.getByTestId('post-title')).toHaveText('Hello post')
-      } finally {
-        await browser.close()
-      }
-    })
-  })
-
-  describe('SSR production server', () => {
-    let ssrPort = 0
-    let ssrServer: ChildProcess | null = null
-
-    const stopSsr = async () => {
-      // stopChild kills the whole process group, so the port is released with it.
-      await stopChild(ssrServer)
-      ssrServer = null
+      expect(existsSync(htmlPath)).toBe(true)
+      expectHtmlScenario(readFileSync(htmlPath, 'utf-8'), scenario)
     }
+    expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/reactive'), 'utf-8')).toContain('Reactive article')
+  })
 
-    beforeAll(async () => {
-      await stopServer()
-      await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
+  test('route rules are localized once: prerendered and SPA pages in every locale', () => {
+    // step 1: the prerender rule reaches fr as /fr/prerendered, never /fr/fr (#218)
+    // was: generate-issue-218 › builds without /fr/fr prerender errors (it only checked the log)
+    expect(generateLog).toMatch(/├─ \/fr\/prerendered /)
+    expect(generateLog).not.toContain('/fr/fr')
+    expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/prerendered'), 'utf-8')).toContain('Prerendered page')
+    expect(readFileSync(staticHtmlPath(OUTPUT_PUBLIC, '/fr/prerendered'), 'utf-8')).toContain('Page prérendue')
+    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr'))).toBe(false)
 
-      await runCommand('npx', ['nuxi', 'build'], {
-        cwd: FIXTURES,
-        env: build.env,
-      })
+    // step 2: the ssr:false rule is localized too: /spa and /fr/spa are SPA shells
+    // was: async-components-production › the ssr:false pages are SPA shells in every locale
+    for (const path of ['/spa', '/fr/spa']) {
+      const html = readFileSync(staticHtmlPath(OUTPUT_PUBLIC, path), 'utf-8')
+      expect(html).toContain('<div id="__nuxt"></div>')
+      expect(html).toContain('data-ssr="false"')
+    }
+  })
 
-      ssrPort = await getFreePort()
-      ssrServer = spawnServer('node', [build.serverEntry], {
-        cwd: FIXTURES,
-        env: { PORT: String(ssrPort) },
-      })
-      await waitForServer(ssrPort, '/reactive')
-    }, 300_000)
+  test('static site in a browser: index links, reload, direct visit', { timeout: 120_000 }, async () => {
+    const browser = await { chromium, firefox, webkit }[(process.env.E2E_BROWSER as 'chromium') || 'chromium'].launch()
+    const page = await browser.newPage()
+    try {
+      // step 1: index head
+      await page.goto(`http://${HOST}:${port}/`, { waitUntil: 'domcontentloaded' })
+      await playwrightExpect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Index page')
 
-    afterAll(stopSsr)
-
-    it('client-loaded reactive page updates head after fetch and reload', async () => {
-      const browser = await chromium.launch()
-      const page = await browser.newPage()
-
-      try {
-        await page.goto(`http://${HOST}:${ssrPort}/reactive`, { waitUntil: 'domcontentloaded' })
-        await playwrightExpect(page.getByTestId('article-title')).toHaveText('Client-loaded article', { timeout: 10000 })
-        await playwrightExpect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Client-loaded article')
-        await playwrightExpect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
-          'href',
-          'https://example.com/articles/reactive-en',
-        )
-
+      // step 2: each scenario through its index link, then a reload of the static file
+      for (const scenario of [...i18nHeadScenarios, ...i18nHeadStaticPages]) {
+        await page.goto(`http://${HOST}:${port}/`, { waitUntil: 'domcontentloaded' })
+        await page.getByRole('link', { name: scenario.linkLabel }).click()
+        await page.waitForURL(`**${scenario.path}`)
+        await assertI18nHeadScenario(page, scenario)
         await page.reload({ waitUntil: 'domcontentloaded' })
-        await playwrightExpect(page.getByTestId('article-title')).toHaveText('Client-loaded article', { timeout: 10000 })
-        await playwrightExpect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Client-loaded article')
-      } finally {
-        await browser.close()
+        await assertI18nHeadScenario(page, scenario)
       }
-    }, 60_000)
+
+      // step 3: direct visit of the post + hard reload keeps the article head and content
+      const post = i18nHeadScenarios[0]!
+      await page.goto(`http://${HOST}:${port}${post.path}`, { waitUntil: 'domcontentloaded' })
+      await assertI18nHeadScenario(page, post)
+      await page.reload({ waitUntil: 'networkidle' })
+      await assertI18nHeadScenario(page, post)
+      await playwrightExpect(page.getByTestId('post-title')).toHaveText('Hello post')
+    } finally {
+      await browser.close()
+    }
   })
 })

@@ -1,13 +1,4 @@
-// Core utilities (pure functions)
-
+// The pure core. Framework adapters live in their own entries (`./client/vue`, `./client/react`,
+// `./client/preact`, `./client/svelte`): each needs its framework installed, and an island needs one.
 export type { I18nState } from './core'
 export { hasTranslation, translate } from './core'
-// Preact adapter
-export { I18nProvider as I18nProviderPreact, useAstroI18n as useAstroI18nPreact } from './preact'
-
-// React adapter
-export { I18nProvider, useAstroI18n as useAstroI18nReact } from './react'
-// Svelte adapter
-export { createI18nStore, useAstroI18n as useAstroI18nSvelte } from './svelte'
-// Vue adapter
-export { provideI18n, useAstroI18n as useAstroI18nVue } from './vue'

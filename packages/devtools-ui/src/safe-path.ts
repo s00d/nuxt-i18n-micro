@@ -1,5 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { isInsideDir, resolveTranslationFile as resolveInsideDir } from '@i18n-micro/utils/load-dir'
 
 function rejectInvalidSymlink(linkPath: string, originalPath: string): void {
   const linkTarget = fs.readlinkSync(linkPath)
@@ -61,4 +62,17 @@ export function safeResolvePath(projectRoot: string, filePath: string): string {
   }
 
   return resolvedPath
+}
+
+/**
+ * The real path of an existing `.json` file inside both `<projectRoot>/<translationDir>` and
+ * `projectRoot`, or null. `file` is relative to that dir (a leading `<translationDir>/` is dropped);
+ * `../`, absolute paths and symlinks out of either are refused: the rule of the Nuxt module's devtools save.
+ */
+export function resolveTranslationFile(projectRoot: string, translationDir: string, file: string): string | null {
+  const prefix = `${translationDir.replace(/\/+$/, '')}/`
+  const relative = file.startsWith(prefix) ? file.slice(prefix.length) : file
+  if (path.isAbsolute(relative)) return null
+  const real = resolveInsideDir(path.resolve(projectRoot, translationDir), relative)
+  return real && isInsideDir(real, fs.realpathSync(projectRoot)) ? real : null
 }

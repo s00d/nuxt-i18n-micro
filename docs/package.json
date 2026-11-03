@@ -3,22 +3,36 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "VitePress documentation site for nuxt-i18n-micro.",
+  "description": "Nuxt Content documentation site for nuxt-i18n-micro.",
   "scripts": {
     "generate": "pnpm -C ../scripts cli docs-generate",
-    "dev": "pnpm run generate && vitepress dev .",
-    "build": "pnpm run generate && vitepress build .",
-    "clean-dev": "pnpm run generate && vitepress dev . --clean-cache",
-    "preview": "vitepress preview ."
+    "dev": "pnpm run generate && nuxt dev",
+    "build": "pnpm run generate && nuxt generate",
+    "preview": "node preview.mjs",
+    "clean-dev": "pnpm run generate && nuxt dev --clear",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "catalog:",
+    "@iconify-json/simple-icons": "catalog:",
+    "@nuxt/content": "catalog:",
+    "@nuxt/image": "catalog:",
+    "@nuxt/ui": "catalog:",
+    "@takumi-rs/core": "catalog:",
+    "better-sqlite3": "catalog:",
+    "chart.js": "catalog:",
+    "nuxt": "catalog:",
+    "nuxt-llms": "catalog:",
+    "nuxt-og-image": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwind-variants": "catalog:",
+    "tailwindcss": "catalog:",
+    "ufo": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "axios": "catalog:",
-    "chart.js": "catalog:",
-    "mermaid": "catalog:",
-    "vitepress": "catalog:",
-    "vitepress-plugin-chartjs": "catalog:",
-    "vitepress-plugin-folder-tree": "catalog:",
-    "vitepress-plugin-llms": "catalog:",
-    "vitepress-plugin-mermaid": "catalog:"
+    "typescript": "catalog:",
+    "vue-tsc": "catalog:"
   }
 }

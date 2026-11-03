@@ -1,4 +1,13 @@
-import { isInternalPath, isStaticAssetPathname, resolveContainedRelPath, withoutAppBaseURL } from '../src/app-path'
+import {
+  forwardSlashes,
+  isInternalPath,
+  isStaticAssetPathname,
+  resolveContainedRelPath,
+  trimLeadingSlashes,
+  trimSlashes,
+  trimTrailingSlashes,
+  withoutAppBaseURL,
+} from '../src/app-path'
 import { describe, expect, it } from 'vitest'
 
 describe('withoutAppBaseURL', () => {
@@ -32,17 +41,6 @@ describe('isStaticAssetPathname', () => {
     expect(isStaticAssetPathname('/releases/1.0.0')).toBe(false)
     expect(isStaticAssetPathname('/en/about.html')).toBe(false)
   })
-
-  it('recognizes last-segment static extensions', () => {
-    expect(isStaticAssetPathname('/favicon.ico')).toBe(true)
-    expect(isStaticAssetPathname('/en/sitemap.xml')).toBe(true)
-    expect(isStaticAssetPathname('/assets/app.js')).toBe(true)
-    expect(isStaticAssetPathname('/logo.PNG')).toBe(true)
-    expect(isStaticAssetPathname('/logo.webp')).toBe(true)
-    expect(isStaticAssetPathname('/hero.avif')).toBe(true)
-    expect(isStaticAssetPathname('/bundle.js.map')).toBe(true)
-    expect(isStaticAssetPathname('/static/app.css/')).toBe(true)
-  })
 })
 
 describe('isInternalPath', () => {
@@ -64,6 +62,30 @@ describe('isInternalPath', () => {
   it('treats wildcard excludePatterns metacharacters as literals', () => {
     expect(isInternalPath('/blog/[slug]/extra', ['/blog/[slug]*'])).toBe(true)
     expect(isInternalPath('/blog/other', ['/blog/[slug]*'])).toBe(false)
+    expect(isInternalPath('/en/post/edit/', ['/en/*/edit'])).toBe(true)
+  })
+
+  it('stays linear on a path built to backtrack', () => {
+    const elapsed = (run: () => unknown) => {
+      const start = performance.now()
+      run()
+      return performance.now() - start
+    }
+    const n = 1 << 17
+    expect(elapsed(() => isInternalPath(`/x${'/'.repeat(n)}y`))).toBeLessThan(200)
+    expect(elapsed(() => isInternalPath(`/d/${'a/'.repeat(n)}x`, ['/d/*/*/*/*/end']))).toBeLessThan(200)
+  })
+
+  it('reads a glob as `*`, `?` and literal text, the whole path', () => {
+    expect(isInternalPath('/a.b/x', ['/a.b/*'])).toBe(true)
+    expect(isInternalPath('/aXb/x', ['/a.b/*'])).toBe(false)
+    expect(isInternalPath('/ab', ['/a?'])).toBe(true)
+    expect(isInternalPath('/abc', ['/a?'])).toBe(false)
+    expect(isInternalPath('/a/b/c/end', ['/a/*/*/end'])).toBe(true)
+    expect(isInternalPath('/a/end/x', ['/a/*/end'])).toBe(false)
+    expect(isInternalPath('/aaab', ['/*a*ab'])).toBe(true)
+    expect(isInternalPath('/x', ['/x*'])).toBe(true)
+    expect(isInternalPath('/x/', ['/x'])).toBe(true)
   })
 
   it('resets lastIndex on global excludePatterns regexes', () => {
@@ -90,5 +112,64 @@ describe('resolveContainedRelPath', () => {
 
   it('normalizes inner dots without escaping', () => {
     expect(resolveContainedRelPath('foo/./bar/../baz.json')).toBe('foo/baz.json')
+  })
+})
+
+describe('slash trimming', () => {
+  // a run of slashes that stops short of the end: quadratic for `/\/+$/`, 6 s at this size
+  const run = `${'/'.repeat(1 << 16)}x`
+
+  it('stays linear on a run of slashes', () => {
+    const start = performance.now()
+    expect(trimTrailingSlashes(run)).toBe(run)
+    expect(trimSlashes(run)).toBe('x')
+    expect(trimSlashes(`x${run}`)).toBe(`x${run}`)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
+  it('trims what the regexes trimmed', () => {
+    for (const [input, both, head] of [
+      ['', '', ''],
+      ['/', '', ''],
+      ['///', '', ''],
+      ['a', 'a', 'a'],
+      ['/a/', 'a', 'a/'],
+      ['//a//b//', 'a//b', 'a//b//'],
+    ] as const) {
+      expect(trimSlashes(input)).toBe(both)
+      expect(trimLeadingSlashes(input)).toBe(head)
+    }
+  })
+
+  it('turns every backslash into a slash', () => {
+    expect(forwardSlashes('a\\b\\\\c')).toBe('a/b//c')
+    expect(forwardSlashes('a/b')).toBe('a/b')
+  })
+})
+
+describe('isStaticAssetPathname, by extension of the last segment', () => {
+  it.each(['/a.json', '/a.JSON', '/a/b.png/', '/a.json//', '.json', '/.json', '/x.y.css', '/sitemap-0.xml', '/robots.txt', '/favicon.ico'])(
+    '%s is one',
+    (path) => {
+      expect(isStaticAssetPathname(path)).toBe(true)
+      expect(isInternalPath(path)).toBe(true)
+    },
+  )
+
+  it.each(['', '/', '/a', '/a.b/c', '/user/john.doe', '/a.html', '/a.htm', '/a.json/b', '/a.json\n', '/a.', '/json'])('%j is not', (path) => {
+    expect(isStaticAssetPathname(path)).toBe(false)
+  })
+
+  it.each([
+    '/sitemap.xml',
+    '/sitemap-news.xml/',
+    '/robots.txt/',
+    '/favicon.ico',
+    '/apple-touch-icon-120x120.png',
+    '/manifest.json',
+    '/sw.js',
+    '/workbox-abc.js',
+  ])('%s is internal without a list of its own', (path) => {
+    expect(isInternalPath(path)).toBe(true)
   })
 })

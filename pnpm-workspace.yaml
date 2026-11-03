@@ -1,143 +1,144 @@
 packages:
   - 'packages/*'
   - 'packages/*/playground'
-  - 'packages/*/playground-*'
   - 'client'
   - 'docs'
   - 'scripts'
   - 'playground'
+  - 'scripts/perf-fixtures/*'
   - 'test/fixtures/**/*'
 
 catalog:
   # Build & dev
   h3: ^1.15.11
-  publint: ^0.3.24
+  publint: ^0.3.25
   typedoc: ^0.28.20
-  vite: ^8.3.1
+  vite: ^8.3.5
   vue-docgen-api: ^4.79.2
   yaml: ^2.9.1
-  vite-plugin-dts: ^5.1.1
-  vite-plugin-solid: ^2.11.14
+  vite-plugin-dts: ^5.1.2
+  vite-plugin-solid: ^2.11.15
   vite-plugin-vue-devtools: ^8.2.1
-  '@vitejs/plugin-react': ^6.1.1
-  '@vitejs/plugin-vue': ^6.0.9
-  '@tailwindcss/vite': ^4.3.3
+  '@vitejs/plugin-react': ^6.2.1
+  '@vitejs/plugin-vue': ^6.0.10
+  '@tailwindcss/vite': ^4.3.4
   # Nuxt
-  nuxt: ^4.5.2
-  '@nuxt/kit': ^3.18.1 || ^4.5.2
-  '@nuxt/schema': ^3.18.1 || ^4.5.2
+  nuxt: ^4.6.4
+  # Wide on purpose: the module declares compatibility nuxt >=3.18.0. The monorepo pin is in catalogs.pin.
+  '@nuxt/kit': ^3.18.0 || ^4.0.0
+  '@nuxt/schema': ^3.18.0 || ^4.0.0
   '@nuxt/devtools': ^3.4.2
   '@nuxt/devtools-kit': ^3.4.2
   '@nuxt/devtools-ui-kit': ^3.4.2
   '@nuxt/module-builder': ^1.0.3
-  '@nuxt/test-utils': ^4.3.2
-  '@nuxt/content': 3.16.1
-  '@nuxtjs/sitemap': ^8.5.1
-  '@nuxtjs/seo': ^5.3.16
+  '@nuxt/test-utils': ^4.3.4
+  '@nuxt/content': 3.16.2
+  '@nuxt/image': ^2.2.1
+  '@nuxt/ui': ^4.12.0
+  '@nuxtjs/sitemap': ^9.1.0
+  '@nuxtjs/seo': ^6.0.1
+  # optional peers of @nuxt/content, db0 and @nuxtjs/seo 6: 12.x has prebuilt binaries for Node 20-26 on Windows, 13 does not
+  better-sqlite3: ^12.11.1
+  zod: ^4.6.7
   '@nuxtjs/i18n': ^10.6.0
-  '@nuxthub/core': ^0.10.8
+  nuxt-llms: ^0.3.1
+  nuxt-og-image: ^7.0.7
+  '@takumi-rs/core': ^2.19.0
+  '@iconify-json/lucide': ^1.2.150
+  '@iconify-json/simple-icons': ^1.2.101
   # Vue
-  vue: ^3.5.43
-  '@vue/compiler-sfc': ^3.5.43
-  vue-router: ^4.6.3 || ^5.0.0
-  vue-tsc: ^3.3.11
+  vue: ^3.5.44
+  '@vue/compiler-sfc': ^3.5.44
+  # Wide peer: Nuxt 3.18 ships ^4.5.1. Monorepo pin → catalogs.pin
+  vue-router: ^4.5.1 || ^5.0.0
+  vue-tsc: ^3.3.14
   '@vue/test-utils': ^2.5.1
   '@vue/devtools-api': ^8.1.5
-  '@vue/server-renderer': ^3.5.43
-  # React (широкий peer; monorepo pin → catalogs.pin)
-  react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  # React (wide peer; monorepo pin → catalogs.pin)
+  react: "^18.0.0 || ^19.0.0"
   react-dom: "^18.0.0 || ^19.0.0"
   '@types/react': ^19.3.0
   '@types/react-dom': ^19.3.0
-  react-router-dom: "^6.30.6 || ^7.0.0"
-  use-sync-external-store: ^1.7.0
+  react-router-dom: "^6.0.0 || ^7.0.0"
   # Preact (wide peer; monorepo pin → catalogs.pin)
-  preact: "^10.27.2 || ^11.0.0-0"
-  '@testing-library/preact': ^3.2.4
-  wouter-preact: ^3.11.1
+  preact: "^10.0.0 || ^11.0.0"
+  '@testing-library/preact': ^3.2.6
+  preact-render-to-string: ^6.8.2
+  wouter-preact: ^3.13.0
   '@preact/preset-vite': ^2.10.6
   # Solid
-  solid-js: ^1.9.15
+  solid-js: ^1.9.18
   '@solidjs/router': "^0.15.4 || ^1.0.0"
-  # Astro & Svelte (широкий peer; monorepo ставит latest matching)
+  # Astro & Svelte (wide peer; the monorepo installs the latest match)
   astro: "^5.0.0 || ^6.0.0 || ^7.0.0"
-  '@astrojs/check': ^0.9.6
-  '@astrojs/node': ^11.1.6
-  '@astrojs/vue': ^7.0.3
-  '@astrojs/react': ^7.0.0
-  '@astrojs/svelte': ^9.0.1
+  # 0.9.12 pulls a wasm runtime that does not resolve here, and `astro check` then waits on an install prompt
+  '@astrojs/check': 0.9.12
+  '@astrojs/node': ^11.1.9
+  '@astrojs/vue': ^7.1.2
+  '@astrojs/react': ^7.1.2
+  '@astrojs/svelte': ^9.1.2
   svelte: "^4.0.0 || ^5.0.0"
   # Testing
-  vitest: ^5.0.2
-  jsdom: ^30.1.1
-  '@playwright/test': ^1.63.0
+  vitest: ^5.1.0
+  jsdom: ^30.1.3
+  '@playwright/test': ^1.64.1
   '@testing-library/dom': ^10.4.1
-  '@testing-library/jest-dom': ^7.0.1
   '@testing-library/react': ^16.3.3
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
-  untestutils: ^0.7.1
-  '@untestutils/nuxt': ^0.7.1
-  '@untestutils/perf': ^0.7.1
+  fast-check: ^4.10.2
+  untestutils: ^0.8.1
+  '@stryker-mutator/core': ^10.1.1
+  '@stryker-mutator/vitest-runner': ^10.1.1
+  '@untestutils/nuxt': ^0.8.1
+  '@untestutils/perf': ^0.8.1
   # Exact only (no ^/~). Vue peer is `typescript: "*"`; caret/`npm i` pollution → TS7, then `pnpm i` "restores" 6.
   # Root `pnpm.overrides.typescript` must be the same literal — see deps-audit EXACT_CATALOG_PINS.
   typescript: 6.0.3
   '@types/node': ^22.19.0
   tsx: ^4.23.15
-  # Docs & lint
+  # Docs (@i18n-micro/vitepress package + lint)
   vitepress: ^2.0.0-alpha.20
-  vitepress-plugin-llms: ^1.14.0
-  vitepress-plugin-mermaid: ^2.0.17
-  vitepress-plugin-folder-tree: ^1.2.1
-  vitepress-plugin-chartjs: ^1.2.1
-  mermaid: ^11.16.1
-  chart.js: ^4.5.1
-  oxfmt: ^0.70.0
-  oxlint: ^1.85.0
+  chart.js: ^4.6.1
+  oxfmt: ^0.76.0
+  oxlint: ^1.90.0
   changelogen: ^0.6.2
   # Utils
   chokidar: ^5.0.0
   citty: ^0.2.2
-  semver: ^7.7.3
+  semver: ^7.8.6
   '@types/semver': ^7.7.1
   globby: ^16.2.4
-  glob: ^13.0.6
+  glob: ^14.0.3
   ufo: ^1.6.4
-  unplugin: ^1.16.1 || ^2.0.0 || ^3.4.0
   serve: ^14.2.6
-  wrangler: ^4.0.0
-  vue-final-modal: ^4.5.5
-  nitropack: 2.9.6
-  '@intlify/message-compiler': ^11.4.12
+  '@intlify/message-compiler': ^11.4.18
   # Pinned for pnpm.overrides (exact)
   '@unhead/vue': 3.4.0
   unhead: 3.4.0
   # Tailwind & CSS
-  tailwindcss: ^4.3.3
-  autoprefixer: ^10.6.1
-  postcss: ^8.5.23
-  # Docs: declare patched axios so vitepress/@vueuse/integrations peer resolves safely
-  axios: ^1.16.0
-  # Optional / misc
-  '@rollup/rollup-linux-x64-gnu': ^4.63.5
-  '@rollup/rollup-win32-x64-msvc': ^4.63.5
-  json-editor-vue: ^0.19.2
-  compression: ^1.8.2
-  express: ^5.2.1
+  tailwindcss: ^4.3.4
+  '@tailwindcss/typography': ^0.5.20
+  tailwind-variants: ^3.2.2
+  tailwind-merge: ^3.3.0
+  postcss: ^8.5.32
+  # VitePress package peer resolution
+  axios: ^1.21.0
+  # Misc
   sirv: ^3.0.2
 
-# Именованные каталоги: exact pins для pnpm.overrides (широкий peer остаётся в default catalog)
+# Named catalog: exact pins for pnpm.overrides (the wide peer range stays in the default catalog)
 catalogs:
   pin:
-    '@nuxt/kit': 4.5.2
-    '@nuxt/schema': 4.5.2
-    vite: 8.3.1
-    vue-router: 5.3.1
-    react: 19.3.0
-    react-dom: 19.3.0
-    react-router-dom: 7.18.4
+    '@nuxt/kit': 4.6.4
+    '@nuxt/schema': 4.6.4
+    vite: 8.3.5
+    vue-router: 5.4.0
+    react: 19.3.1
+    react-dom: 19.3.1
+    react-router-dom: 7.18.5
     preact: 10.29.8
-    '@solidjs/router': 1.0.0
+    '@solidjs/router': 1.0.1
 
 onlyBuiltDependencies:
   - better-sqlite3

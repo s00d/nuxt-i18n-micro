@@ -1,9 +1,11 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
-import { useCookie, useNuxtApp, useState } from '#app'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { explicitLocale } from '@i18n-micro/utils/resolve-locale'
+import { useCookie } from '#app/composables/cookie'
+import { useState } from '#app/composables/state'
+import { useNuxtApp } from '#app/nuxt'
+import { cookies } from '#build/i18n.strategy.mjs'
+import { useResolvedI18nConfig } from '../utils/i18n-config'
 
 type CookieRef = { value: string | null }
 
@@ -12,6 +14,10 @@ export type GetLocaleFromRoute = (route?: unknown) => string
 
 export interface ResolveInitialLocaleOptions {
   route: unknown
+  /** The locale the URL names, under a strategy that has one. */
+  urlLocale?: string | null
+  /** What to remember when the URL's locale is not the visitor's: under no_prefix a record names one. */
+  preference?: string | null
   serverLocale?: string | null
   getLocaleFromRoute: GetLocaleFromRoute
 }
@@ -22,7 +28,8 @@ export interface ResolveInitialLocaleOptions {
  */
 export function useI18nLocale() {
   const nuxtApp = useNuxtApp()
-  const i18nConfig = resolveI18nConfigWithRuntimeOverrides((nuxtApp.$getI18nConfig?.() ?? getI18nConfig()) as ModuleOptionsExtend)
+  // the same config the plugin routes with, runtime overrides included, even before the plugin provides it
+  const i18nConfig = useResolvedI18nConfig(nuxtApp)
   const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
 
   const localeState = useState<string | null>('i18n-locale', () => null)
@@ -30,9 +37,10 @@ export function useI18nLocale() {
   const localeCookieName = getLocaleCookieName(i18nConfig)
   const hashCookieName = getHashCookieName(i18nConfig)
 
-  const localeCookie = localeCookieName ? useCookie<string | null>(localeCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
+  const cookieRef = (name: string | null): CookieRef => (cookies && name ? useCookie<string | null>(name, getLocaleCookieOptions()) : { value: null })
 
-  const hashCookie = hashCookieName ? useCookie<string | null>(hashCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
+  const localeCookie = cookieRef(localeCookieName)
+  const hashCookie = cookieRef(hashCookieName)
 
   const syncLocale = (locale: string | null) => {
     if (!locale) return
@@ -47,18 +55,16 @@ export function useI18nLocale() {
     }
   }
 
-  const getPreferredLocale = (): string | null => {
-    const preferred = localeState.value ?? (i18nConfig.hashMode ? hashCookie.value : localeCookie.value)
-    return preferred && validLocales.includes(preferred) ? preferred : null
-  }
+  /** The preference cookie: the hash cookie under hashMode (as the server reads it). */
+  const preferenceCookie = i18nConfig.hashMode ? hashCookie : localeCookie
+
+  const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
+
+  /** The state or the cookie, whichever is first valid (an invalid state does not hide a valid cookie). */
+  const getPreferredLocale = (): string | null => explicitLocale({ validLocales, state: localeState.value, cookie: preferenceCookie.value })
 
   const getLocale = (): string | null => {
-    return localeState.value ?? (i18nConfig.hashMode ? hashCookie.value : localeCookie.value) ?? null
-  }
-
-  /** Locale with fallback to serverContext (for noPrefix initialization) */
-  const getLocaleWithServerFallback = (serverLocale?: string | null): string | null => {
-    return localeState.value ?? localeCookie.value ?? serverLocale ?? null
+    return localeState.value ?? preferenceCookie.value ?? null
   }
 
   /**
@@ -71,26 +77,25 @@ export function useI18nLocale() {
   }
 
   /**
-   * Resolves initial locale: localeState → serverContext → route.
-   * Syncs to localeState when needed.
+   * Resolves initial locale: URL → valid localeState → serverContext → route. The page renders
+   * the URL's locale, so a state set by a plugin must not load another locale's chunk for it.
+   * Syncs to localeState when it holds no valid locale.
    */
   const resolveInitialLocale = (options: ResolveInitialLocaleOptions): string => {
-    let locale = localeState.value
-    if (!locale && options.serverLocale) locale = options.serverLocale
-    if (!locale) locale = options.getLocaleFromRoute(options.route)
-    if (locale && !localeState.value) {
+    const state = isValidLocale(localeState.value) ? localeState.value : null
+    const locale = options.urlLocale || state || options.serverLocale || options.getLocaleFromRoute(options.route)
+    const remembered = options.preference ?? locale
+    if (remembered && !state) {
       // On server, avoid persisting cookie during initial resolution.
       // Redirect plugin owns cookie writes for redirect flows.
       if (import.meta.server) {
-        localeState.value = locale
+        localeState.value = remembered
       } else {
-        setLocale(locale)
+        setLocale(remembered)
       }
     }
     return locale ?? ''
   }
-
-  const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
 
   return {
     locale: localeState,
@@ -98,7 +103,6 @@ export function useI18nLocale() {
     hashCookie,
     getPreferredLocale,
     getLocale,
-    getLocaleWithServerFallback,
     getEffectiveLocale,
     resolveInitialLocale,
     setLocale,

@@ -1,22 +1,25 @@
 <template>
-  <div class="split-pane" @mouseup="stopResize" @mouseleave="stopResize">
-    <!-- Left pane -->
-    <div class="split-pane__left" :style="{ width: leftWidth }">
+  <div class="relative h-full w-full overflow-hidden">
+    <div class="absolute inset-y-0 left-0 overflow-hidden border-r border-line bg-subtle" :style="{ width: leftWidth }">
       <slot name="left" />
     </div>
 
-    <!-- Divider -->
-    <div class="split-pane__divider" :style="{ left: leftWidth }" @mousedown.prevent="startResize">
-      <div class="divider-handle" />
+    <div
+      class="group absolute inset-y-0 z-10 -ml-1.5 flex w-3 cursor-col-resize justify-center"
+      :style="{ left: leftWidth }"
+      role="separator"
+      aria-orientation="vertical"
+      @mousedown.prevent="startResize"
+    >
+      <div :class="['h-full w-px transition-colors group-hover:w-0.5 group-hover:bg-primary', isResizing ? 'w-0.5 bg-primary' : 'bg-transparent']" />
     </div>
 
-    <!-- Right pane -->
-    <div class="split-pane__right" :style="{ left: leftWidth, paddingLeft: '4px' }">
+    <div class="absolute inset-y-0 right-0 overflow-hidden" :style="{ left: leftWidth }">
       <slot name="right" />
     </div>
 
-    <!-- Overlay during resize (to prevent iframe/input from intercepting events) -->
-    <div v-if="isResizing" class="resize-overlay" />
+    <!-- Keeps inputs and iframes from swallowing mouse events while dragging -->
+    <div v-if="isResizing" class="fixed inset-0 z-50 cursor-col-resize" />
   </div>
 </template>
 
@@ -28,12 +31,10 @@ const props = withDefaults(
     storageKey?: string
     defaultLeftWidth?: string
     minLeftWidth?: number
-    minRightWidth?: number
   }>(),
   {
     defaultLeftWidth: '300px',
     minLeftWidth: 150,
-    minRightWidth: 300,
   },
 )
 
@@ -49,67 +50,19 @@ onMounted(() => {
 
 const startResize = () => {
   isResizing.value = true
-  document.body.style.cursor = 'col-resize'
   window.addEventListener('mousemove', handleResize)
   window.addEventListener('mouseup', stopResize)
 }
 
 const handleResize = (e: MouseEvent) => {
-  if (!isResizing.value) return
-
-  const splitPane = (e.target as HTMLElement).closest('.split-pane')
-  if (!splitPane) return
-
-  const newWidth = e.clientX
-
-  if (newWidth >= props.minLeftWidth) {
-    leftWidth.value = `${newWidth}px`
-  }
+  if (e.clientX >= props.minLeftWidth) leftWidth.value = `${e.clientX}px`
 }
 
 const stopResize = () => {
-  if (isResizing.value) {
-    isResizing.value = false
-    document.body.style.cursor = ''
-    if (props.storageKey) {
-      localStorage.setItem(`split-pane-${props.storageKey}`, leftWidth.value)
-    }
-    window.removeEventListener('mousemove', handleResize)
-    window.removeEventListener('mouseup', stopResize)
-  }
+  if (!isResizing.value) return
+  isResizing.value = false
+  if (props.storageKey) localStorage.setItem(`split-pane-${props.storageKey}`, leftWidth.value)
+  window.removeEventListener('mousemove', handleResize)
+  window.removeEventListener('mouseup', stopResize)
 }
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.split-pane {
-  @apply relative w-full h-full bg-white overflow-hidden;
-}
-
-.split-pane__left {
-  @apply absolute top-0 bottom-0 left-0 border-r border-slate-200 overflow-hidden bg-white z-0;
-}
-
-.split-pane__divider {
-  @apply absolute top-0 bottom-0 w-4 cursor-col-resize z-50 flex justify-center hover:bg-blue-50/50 transition-colors;
-  margin-left: -2px;
-}
-
-.divider-handle {
-  @apply w-[1px] h-full bg-slate-200 transition-colors;
-}
-
-.split-pane__divider:hover .divider-handle,
-.split-pane__divider:active .divider-handle {
-  @apply bg-blue-500 w-[2px];
-}
-
-.split-pane__right {
-  @apply absolute top-0 bottom-0 right-0 overflow-hidden bg-white z-0;
-}
-
-.resize-overlay {
-  @apply fixed inset-0 z-[100] cursor-col-resize;
-}
-</style>

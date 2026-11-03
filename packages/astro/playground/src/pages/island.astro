@@ -1,0 +1,8 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import Late from '../components/Late.astro'
+
+const { t, locale } = useI18n(Astro)
+---
+
+<html><body><i id="page">{locale}:{t('welcome')}</i><Late server:defer /></body></html>

@@ -1,6 +1,146 @@
 @import 'tailwindcss';
 
-/* Additional global styles for DevTools UI */
+/* Dark mode follows the `.dark` class App.ce.vue sets from the host theme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Tokens mirror the docs site (Nuxt UI, primary green #32ba8c, neutral zinc, Public Sans).
+ * Nuxt UI names are kept (`--ui-bg`, `--ui-text-muted`, …) so the two stay easy to compare.
+ */
+@theme static {
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --color-green-50: #ecfdf6;
+  --color-green-100: #d1fae8;
+  --color-green-200: #a7f3d4;
+  --color-green-300: #6ee7b7;
+  --color-green-400: #3ecf9a;
+  --color-green-500: #32ba8c;
+  --color-green-600: #249e74;
+  --color-green-700: #1c7f5d;
+  --color-green-800: #16644a;
+  --color-green-900: #134e3b;
+  --color-green-950: #0a2f24;
+}
+
+/* Semantic colors as utilities: `bg-surface`, `text-muted`, `border-line`, `text-primary`, … */
+@theme inline {
+  --color-primary: var(--ui-primary);
+  --color-warning: var(--ui-warning);
+  --color-error: var(--ui-error);
+  --color-info: var(--ui-info);
+  --color-default: var(--ui-text);
+  --color-highlighted: var(--ui-text-highlighted);
+  --color-muted: var(--ui-text-muted);
+  --color-dimmed: var(--ui-text-dimmed);
+  --color-surface: var(--ui-bg);
+  --color-subtle: var(--ui-bg-muted);
+  --color-elevated: var(--ui-bg-elevated);
+  --color-line: var(--ui-border);
+}
+
 .i18n-devtools {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ui-primary: var(--color-green-500);
+  --ui-warning: var(--color-amber-600);
+  --ui-error: var(--color-red-600);
+  --ui-info: var(--color-sky-600);
+
+  --ui-text: var(--color-zinc-700);
+  --ui-text-highlighted: var(--color-zinc-900);
+  --ui-text-muted: var(--color-zinc-500);
+  --ui-text-dimmed: var(--color-zinc-400);
+  --ui-bg: var(--color-white);
+  --ui-bg-muted: var(--color-zinc-50);
+  --ui-bg-elevated: var(--color-zinc-100);
+  --ui-border: var(--color-zinc-200);
+  --ui-ring: color-mix(in oklab, var(--color-green-500) 35%, transparent);
+  --ui-shadow-lg: 0 20px 48px -12px rgb(0 0 0 / 0.25);
+
+  font-family: var(--font-sans);
+  color: var(--ui-text);
+  background: var(--ui-bg);
+  color-scheme: light;
+}
+
+.i18n-devtools.dark {
+  --ui-primary: var(--color-green-400);
+  --ui-warning: var(--color-amber-400);
+  --ui-error: var(--color-red-400);
+  --ui-info: var(--color-sky-400);
+
+  --ui-text: var(--color-zinc-200);
+  --ui-text-highlighted: var(--color-white);
+  --ui-text-muted: var(--color-zinc-400);
+  --ui-text-dimmed: var(--color-zinc-500);
+  --ui-bg: var(--color-zinc-900);
+  --ui-bg-muted: color-mix(in oklab, var(--color-zinc-800) 45%, var(--color-zinc-900));
+  --ui-bg-elevated: var(--color-zinc-800);
+  --ui-border: var(--color-zinc-800);
+  --ui-shadow-lg: 0 20px 48px -12px rgb(0 0 0 / 0.7);
+
+  color-scheme: dark;
+}
+
+/*
+ * A shadow root ignores `@property`, so Tailwind's registered defaults never apply and e.g.
+ * `border` computes to `border-style: none`. Tailwind ships this fallback only behind an
+ * old-browser `@supports`; set the non-empty ones for every browser. (`initial` defaults
+ * need nothing: an unset variable falls back the same way.)
+ */
+@layer base {
+  :host,
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    --tw-border-style: solid;
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-translate-z: 0;
+    --tw-space-y-reverse: 0;
+    --tw-divide-y-reverse: 0;
+  }
+}
+
+/*
+ * Shared primitives. Tailwind's ring and shadow utilities rely on `@property`, which a shadow
+ * root ignores, so focus rings and shadows are spelled out with the tokens above.
+ */
+@layer components {
+  .field {
+    @apply w-full rounded-md border border-line bg-surface px-2.5 py-1.5 text-sm text-highlighted transition-colors outline-none placeholder:text-dimmed hover:border-zinc-300 dark:hover:border-zinc-700;
+  }
+
+  .field:focus,
+  .focus-ring:focus-visible {
+    border-color: var(--ui-primary);
+    box-shadow: 0 0 0 3px var(--ui-ring);
+    outline: none;
+  }
+
+  select.field {
+    @apply appearance-none pr-8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-highlighted;
+  }
+
+  .hint {
+    @apply mt-1.5 text-xs text-muted;
+  }
+
+  /* Inline code as a light tint, as in the docs */
+  .code {
+    @apply rounded bg-elevated px-1 py-px font-mono text-[0.8125rem] font-medium text-highlighted;
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-border) transparent;
+  }
 }

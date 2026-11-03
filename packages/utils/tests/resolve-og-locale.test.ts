@@ -6,12 +6,6 @@ describe('resolveOgLocale', () => {
     expect(resolveOgLocale({ code: 'en', iso: 'en-US', og: 'en_GB' })).toBe('en_GB')
   })
 
-  it('converts BCP 47 iso with region to OG format', () => {
-    expect(resolveOgLocale({ code: 'en', iso: 'en-US' })).toBe('en_US')
-    expect(resolveOgLocale({ code: 'ar', iso: 'ar-AE' })).toBe('ar_AE')
-    expect(resolveOgLocale({ code: 'de', iso: 'de-DE' })).toBe('de_DE')
-  })
-
   it('normalizes legacy underscore iso values', () => {
     expect(resolveOgLocale({ code: 'en', iso: 'en_EN' })).toBe('en_EN')
     expect(resolveOgLocale({ code: 'de', iso: 'de_DE' })).toBe('de_DE')
@@ -22,6 +16,16 @@ describe('resolveOgLocale', () => {
     expect(resolveOgLocale({ code: 'zh', iso: 'zh-Hans' })).toBeNull()
     expect(resolveOgLocale({ code: 'zh', iso: 'zh-Hans-CN' })).toBeNull()
     expect(resolveOgLocale({ code: 'en' })).toBeNull()
+  })
+
+  it.each(['en_12', 'de_ß1', 'e!-US', '12-US', 'e!_US', '12_US', 'e_n-US'])('%s is no language and region', (iso) => {
+    expect(resolveOgLocale({ code: 'x', iso })).toBeNull()
+  })
+
+  it('takes either separator, in any case', () => {
+    expect(resolveOgLocale({ code: 'x', iso: 'EN_us' })).toBe('en_US')
+    expect(resolveOgLocale({ code: 'x', iso: 'yue-hk' })).toBe('yue_HK')
+    expect(resolveOgLocale({ code: 'x', iso: 'a_US' })).toBeNull()
   })
 
   it('ignores empty og string', () => {

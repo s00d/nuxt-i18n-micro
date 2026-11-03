@@ -2,9 +2,9 @@ import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { connect } from 'node:net'
-import { setTimeout as sleep } from 'node:timers/promises'
 import { defineCommand } from 'citty'
 import { dirSize, walkFiles } from '../utils/fs-walk'
+import { waitForUrl } from '../utils/preset-runtime'
 import { repoRoot } from '../utils/workspace'
 
 export interface RouteMeasurement {
@@ -89,22 +89,6 @@ async function assertPortFree(port: number): Promise<void> {
   if (occupied) throw new Error(`something is already listening on port ${port}; stop it or pass --port`)
 }
 
-async function waitForServer(base: string, attempts = 90): Promise<void> {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      // Polling is sequential by definition: each attempt exists because the previous
-      // one failed, so there is nothing to run in parallel.
-      // oxlint-disable-next-line no-await-in-loop -- see above
-      await fetch(base, { signal: AbortSignal.timeout(2000) })
-      return
-    } catch {
-      // oxlint-disable-next-line no-await-in-loop -- see above
-      await sleep(1000)
-    }
-  }
-  throw new Error(`server did not answer at ${base}`)
-}
-
 async function measure(appDir: string, app: string, routes: string[], port: number): Promise<PayloadMeasurement> {
   const outputDir = join(appDir, '.output')
   const base = `http://127.0.0.1:${port}`
@@ -115,7 +99,7 @@ async function measure(appDir: string, app: string, routes: string[], port: numb
   })
 
   try {
-    await waitForServer(base, 60)
+    await waitForUrl(base, 60_000)
 
     const measured: RouteMeasurement[] = []
     for (const route of routes) {
@@ -156,11 +140,12 @@ export const payloadBudgetCommand = defineCommand({
     description: [
       'Build an app and fail when its hydration payload grows past an agreed budget.',
       '',
-      'The SSR payload carries the translation chunks a page loaded, so its size follows',
-      'what the app asks for. Nothing else notices when that changes: a payload that',
-      'doubled renders correctly and passes every test, it is just heavier. Hence a budget.',
+      'Dictionaries stay off the HTML: the client fetches its chunks from the translations',
+      'route, so `__NUXT_DATA__` holds a few hundred bytes of state. Nothing else notices when',
+      'a dictionary leaks back in: the page renders correctly and passes every test, it is',
+      'just heavier. Hence a budget.',
       '',
-      'The playground is the default target because its dictionary is deliberately huge, so',
+      'The playground is the default target because its generated dictionaries are huge, so',
       'a change in what the payload carries is unmissable rather than marginal. The numbers',
       'are a fixed point to compare against, not what a real application should expect.',
       '',
@@ -204,7 +189,7 @@ export const payloadBudgetCommand = defineCommand({
 
     if (!args.skipBuild) {
       console.log(`Building ${app} …`)
-      execFileSync('pnpm', ['exec', 'nuxt', 'build'], { cwd: appDir, stdio: 'inherit' })
+      execFileSync('pnpm', ['exec', 'nuxt', 'build'], { shell: process.platform === 'win32', cwd: appDir, stdio: 'inherit' })
     }
 
     await assertPortFree(port)

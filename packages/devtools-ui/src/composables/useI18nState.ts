@@ -20,29 +20,22 @@ export function createI18nState() {
   }
 
   // --- Methods ---
+  /** Listed files are keyed without a leading slash and with `/` separators. */
+  const normalizeFile = (file: string) => file.replace(/\\/g, '/').replace(/^\/+/, '')
+
+  /** The listed file under `key`, own keys only (`constructor.json` is not a file). */
+  const listed = (key: string) => (Object.prototype.hasOwnProperty.call(locales.value, key) ? locales.value[key] : undefined)
+
   const handleFileSelected = (file: string) => {
-    // Normalize path: remove leading slash and normalize separators
-    const normalizedPath = file.replace(/^\/+/, '').replace(/\\/g, '/')
+    // One key per file: saves and live updates write back under the same key the list shows.
+    const key = normalizeFile(file)
+    selectedFile.value = key
 
-    selectedFile.value = file
-
-    // Try to find by normalized path
-    let content = locales.value[normalizedPath]
-
-    // If not found, try to find by original path
-    if (!content) {
-      content = locales.value[file]
-    }
-
-    // If still not found, try to find by path without leading slash
-    if (!content && file.startsWith('/')) {
-      content = locales.value[file.slice(1)]
-    }
-
+    const content = listed(key)
     if (content) {
       selectedFileContent.value = { ...content } as TranslationContent
     } else {
-      console.warn('[i18n-state] No content found for file:', file, 'or normalized:', normalizedPath)
+      console.warn('[i18n-state] No content found for file:', file)
       selectedFileContent.value = {} as TranslationContent
     }
   }
@@ -75,38 +68,14 @@ export function createI18nState() {
     }
   }
 
+  /** The default-locale sibling of the open file: `pages/about/de.json` → `pages/about/en.json`. */
   const getDefaultLocaleTranslation = () => {
     const defaultLocale = configs.value.defaultLocale as string
     if (!defaultLocale) return {} as TranslationContent
 
-    // Normalize the selected file path
-    const normalizedSelected = selectedFile.value.replace(/^\/+/, '').replace(/\\/g, '/')
-
-    // Get the file name (e.g. de.json)
-    const currentFileName = normalizedSelected.split('/').pop() ?? ''
-
-    // Replace the locale in the file name with the default locale
-    const defaultFileName = currentFileName.replace(/^[^.]*\./, `${defaultLocale}.`)
-
-    // Try to find the file by different path variants
-    let defaultContent = locales.value[defaultFileName]
-
-    if (!defaultContent) {
-      // Try with leading slash
-      defaultContent = locales.value[`/${defaultFileName}`]
-    }
-
-    if (!defaultContent) {
-      // Try to find any file with the default locale
-      const defaultLocaleKey = Object.keys(locales.value).find(
-        (key) => key.includes(`${defaultLocale}.json`) || key.endsWith(`/${defaultLocale}.json`),
-      )
-      if (defaultLocaleKey) {
-        defaultContent = locales.value[defaultLocaleKey]
-      }
-    }
-
-    return defaultContent ?? ({} as TranslationContent)
+    // Swap the locale in the file name (`de.json`, `de.extra.json`), keep the folder
+    const defaultFile = normalizeFile(selectedFile.value).replace(/[^/]*?\.(?=[^/]*$)/, `${defaultLocale}.`)
+    return listed(defaultFile) ?? listed(`/${defaultFile}`) ?? ({} as TranslationContent)
   }
 
   const init = async () => {
@@ -128,9 +97,8 @@ export function createI18nState() {
       bridge.value.onLocalesUpdate((updatedLocales) => {
         locales.value = updatedLocales
         // Update selected file content if it's still selected
-        if (selectedFile.value && locales.value[selectedFile.value]) {
-          selectedFileContent.value = { ...locales.value[selectedFile.value] }
-        }
+        const content = listed(selectedFile.value)
+        if (content) selectedFileContent.value = { ...content }
       })
     } catch (error) {
       console.error('[i18n-devtools] Failed to initialize:', error)
@@ -144,11 +112,15 @@ export function createI18nState() {
 
   const saveCurrent = async () => {
     if (!bridge.value || !selectedFile.value || !selectedFileContent.value) return
+    const file = selectedFile.value
+    const draft = selectedFileContent.value
     try {
-      await bridge.value.saveTranslation(selectedFile.value, selectedFileContent.value)
+      await bridge.value.saveTranslation(file, draft)
       // Optimistic update
-      locales.value[selectedFile.value] = { ...selectedFileContent.value }
+      locales.value[file] = { ...draft }
     } catch (error) {
+      // The bridge rolled the app back and its update refreshed the open file: keep the edit to retry
+      if (selectedFile.value === file) selectedFileContent.value = draft
       console.error('Failed to save translation:', error)
       throw error
     }

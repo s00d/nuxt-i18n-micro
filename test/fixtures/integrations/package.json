@@ -1,0 +1,19 @@
+{
+  "name": "integrations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "nuxt": "catalog:"
+  },
+  "devDependencies": {
+    "@nuxt/content": "catalog:",
+    "@nuxtjs/seo": "catalog:",
+    "better-sqlite3": "catalog:",
+    "zod": "catalog:"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "lazy": {
+    "title": "Lazy",
+    "hello": "Lazy {name}"
+  }
+}

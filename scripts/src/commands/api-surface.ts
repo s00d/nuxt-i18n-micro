@@ -111,7 +111,7 @@ export const apiSurfaceCommand = defineCommand({
       for (const name of report.missingSnapshots) console.log(`  ? ${name} has no snapshot - run with --update`)
 
       if (report.breaking.length > 0) {
-        console.log(`\n${report.breaking.length} breaking change(s). If intended, describe them in docs/news and run --update.`)
+        console.log(`\n${report.breaking.length} breaking change(s). If intended, describe them in docs/content/news and run --update.`)
       } else {
         console.log(`\nNo breaking changes. Additions: ${report.additions.length}.`)
       }

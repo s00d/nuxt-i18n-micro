@@ -1,0 +1,42 @@
+name: oldest versions
+
+# Installs the packed packages on the oldest versions the peer ranges claim, then runs them: a range
+# that only holds on paper fails here. No release, no publish, no secrets.
+#
+# Nuxt runs the latest 3.18 patch with `nuxt build`. `nuxt generate` on a fresh 3.18.0 fails with
+# `[unstorage] Invalid key: "/"`, and plain Nuxt 3.18.0 fails the same way: upstream, not this module.
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: oldest-versions-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  floor:
+    name: ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [nuxt, vitepress, vue]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - name: Build the module
+        run: pnpm run prepack
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run on the oldest versions
+        run: pnpm run check:oldest --target "${{ matrix.target }}"

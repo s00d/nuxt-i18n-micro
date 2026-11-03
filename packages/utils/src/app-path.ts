@@ -21,72 +21,104 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
  * Last-segment static-asset check. Dotted slugs (`/en/user/john.doe`) stay as pages;
  * only the final segment is considered. `.html` / `.htm` stay as pages.
  */
-const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
+const STATIC_ASSET_EXT = new Set(
+  'xml txt ico json js css png jpg jpeg gif svg webp avif pdf wasm map mp4 webm mp3 zip gz woff woff2 ttf eot'.split(' '),
+)
 
 export function isStaticAssetPathname(pathname: string): boolean {
-  if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
-  const last = pathname.split('/').filter(Boolean).pop() ?? ''
-  return STATIC_ASSET_EXT.test(last)
+  if (pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
+  const path = trimTrailingSlashes(pathname)
+  const dot = path.lastIndexOf('.')
+  // a `/` after the dot: the last segment has no extension
+  return dot > path.lastIndexOf('/') && STATIC_ASSET_EXT.has(path.slice(dot + 1).toLowerCase())
 }
 
-const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
+const INTERNAL_PREFIXES = ['/api', '/_nuxt'] as const
 
-const DEFAULT_STATIC_PATTERNS = [
-  /^\/sitemap.*\.xml$/,
-  /^\/sitemap\.xml$/,
-  /^\/robots\.txt$/,
-  /^\/favicon\.ico$/,
-  /^\/apple-touch-icon.*\.png$/,
-  /^\/manifest\.json$/,
-  /^\/sw\.js$/,
-  /^\/workbox-.*\.js$/,
-]
+/** `path` is `prefix` or below it: `/admin` covers `/admin` and `/admin/x`, not `/administrator`. */
+function underPrefix(path: string, prefix: string): boolean {
+  const base = prefix.length > 1 && prefix.endsWith('/') ? prefix.slice(0, -1) : prefix
+  return path === base || path.startsWith(base === '/' ? '/' : `${base}/`)
+}
+
+/** `path` without the slashes it ends in. A loop: `/\/+$/` retries at every slash of a run that stops short of the end, quadratic on a request URL. */
+export function trimTrailingSlashes(path: string): string {
+  let end = path.length
+  while (path[end - 1] === '/') end--
+  return path.slice(0, end)
+}
+
+export function trimLeadingSlashes(path: string): string {
+  let start = 0
+  while (path[start] === '/') start++
+  return path.slice(start)
+}
+
+/** `path` without the slashes at either end. */
+export function trimSlashes(path: string): string {
+  let start = 0
+  let end = path.length
+  while (path[start] === '/') start++
+  while (end > start && path[end - 1] === '/') end--
+  return path.slice(start, end)
+}
+
+export const forwardSlashes = (path: string): string => (path.includes('\\') ? path.split('\\').join('/') : path)
+
+/**
+ * `*` (any run) and `?` (one character), the whole of `path`. Only the last `*` is ever retried, so
+ * a pattern of many stars stays linear in the path, where the same RegExp would backtrack through all of them.
+ */
+function globMatches(path: string, glob: string): boolean {
+  let at = 0
+  let next = 0
+  let star = -1
+  let resume = 0
+  while (at < path.length) {
+    if (glob[next] === '*') {
+      star = next++
+      resume = at
+    } else if (next < glob.length && (glob[next] === '?' || glob[next] === path[at])) {
+      at++
+      next++
+    } else if (star === -1) {
+      return false
+    } else {
+      next = star + 1
+      at = ++resume
+    }
+  }
+  while (glob[next] === '*') next++
+  return next === glob.length
+}
+
+const isGlob = (pattern: string) => pattern.includes('*') || pattern.includes('?')
+
+/** A trailing slash is the same page, as for a plain prefix. */
+const matchesGlob = (path: string, glob: string) => globMatches(path, glob) || (path.endsWith('/') && globMatches(path.slice(0, -1), glob))
+
+function matchesPattern(path: string, pattern: string | RegExp | object): boolean {
+  if (typeof pattern === 'string') return isGlob(pattern) ? matchesGlob(path, pattern) : underPrefix(path, pattern)
+  if (!(pattern instanceof RegExp)) return false
+  pattern.lastIndex = 0
+  const matches = pattern.test(path)
+  pattern.lastIndex = 0
+  return matches
+}
 
 /**
  * True for Nuxt/i18n internals, Content `__` routes, and static assets that must
  * skip locale detection / redirects. Lives in utils so client middleware can import
  * it without pulling `@nuxt/schema` (via route-strategy) into the browser bundle.
+ * `apiBaseUrl` is the translations route (`_locales` by default).
  */
-export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
-  for (const prefix of INTERNAL_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return true
-  }
+export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[], apiBaseUrl = '_locales'): boolean {
+  if (INTERNAL_PREFIXES.some((prefix) => underPrefix(path, prefix))) return true
+  if (apiBaseUrl && underPrefix(path, `/${trimSlashes(apiBaseUrl)}`)) return true
   // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
-  if (/(?:^|\/)__/.test(path)) {
-    return true
-  }
-  const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
-  for (const pattern of DEFAULT_STATIC_PATTERNS) {
-    if (pattern.test(pathForMatch)) {
-      return true
-    }
-  }
-  if (isStaticAssetPathname(path)) {
-    return true
-  }
-  if (excludePatterns) {
-    for (const pattern of excludePatterns) {
-      if (typeof pattern === 'string') {
-        if (pattern.includes('*') || pattern.includes('?')) {
-          const regex = new RegExp(
-            pattern
-              .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-              .replace(/\*/g, '.*')
-              .replace(/\?/g, '.'),
-          )
-          if (regex.test(path)) return true
-        } else if (path === pattern || path.startsWith(pattern)) {
-          return true
-        }
-      } else if (pattern instanceof RegExp) {
-        pattern.lastIndex = 0
-        const matches = pattern.test(path)
-        pattern.lastIndex = 0
-        if (matches) return true
-      }
-    }
-  }
-  return false
+  if (path.startsWith('__') || path.includes('/__')) return true
+  if (isStaticAssetPathname(path)) return true
+  return excludePatterns?.some((pattern) => matchesPattern(path, pattern)) ?? false
 }
 
 /**
@@ -94,7 +126,7 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
  * Callers must use the returned string (or skip the read when this returns `null`).
  */
 export function resolveContainedRelPath(relPath: string): string | null {
-  const cleaned = relPath.replace(/\\/g, '/').replace(/^\/+/, '')
+  const cleaned = trimLeadingSlashes(forwardSlashes(relPath))
   if (!cleaned || cleaned.includes('\0')) return null
 
   const parts: string[] = []

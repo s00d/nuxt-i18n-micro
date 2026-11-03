@@ -1,0 +1,9 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+
+const { t, locale, getRoute } = useI18n(Astro)
+---
+
+<b id="late">{locale}:{getRoute()}:{t('welcome')}</b>
+<I18nLink href="/about" id="late-link">about</I18nLink>

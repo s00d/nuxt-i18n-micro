@@ -1,0 +1,353 @@
+---
+title: '@i18n-micro/vitepress'
+description: 'Exported API of @i18n-micro/vitepress, generated from the source.'
+navigation:
+  title: 'vitepress'
+outline: 'deep'
+---
+
+# `@i18n-micro/vitepress`
+
+56 exports across 4 entry points.
+Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
+checks against the TypeScript sources.
+
+## `@i18n-micro/vitepress`
+
+```ts
+import { /* … */ } from '@i18n-micro/vitepress'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
+| `createI18n` | function | `(options: CreateI18nOptions) => CreateI18nResult` |
+| `CreateI18nOptions` | interface | 15 members |
+| `CreateI18nResult` | type | `I18nPlugin & PathMethods & { i18n: I18nPlugin['global'] & PathMethods; enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> \| VitePressSiteDataLike; }) => void; }` |
+| `defaultPlural` | const | `PluralFunc` |
+| `FormatService` | class | 21 members |
+| `getLocaleFromPath` | function | `(path: string, localeCodes: string[], defaultLocale: string, localeKeyToCode?: Record<string, string>, base?: string) => string` |
+| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
+| `I18nGroup` | const | `DefineComponent<I18nGroupProps, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, false, {}, any>` |
+| `I18nLink` | const | `DefineComponent<ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { activeStyle: CSSProperties; localeRoute: (to: I18nRouteTarget, locale?: string) => string \| { path?: string; }; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>` |
+| `I18nPlugin` | type | `Plugin_2 & { global: VueI18n; setRoutingStrategy: (strategy: I18nRoutingStrategy) => void; }` |
+| `I18nRoutingStrategy` | interface | 7 members |
+| `I18nSwitcher` | const | `DefineComponent<ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>, () => unknown, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { localeRoute: (to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }; customWrapperStyle: CSSProperties; customButtonStyle: CSSProperties; customDropdownStyle: CSSProperties; customItemStyle: CSSProperties; customLinkStyle: CSSProperties; customActiveLinkStyle: CSSProperties; customDisabledLinkStyle: CSSProperties; customIconStyle: CSSProperties; customLabels: Record<string, string>; locales: Locale[]; currentLocale: string \| (() => string); getLocaleName: () => string \| null; switchLocale: (locale: string) => void; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>` |
+| `I18nT` | const | `FunctionalComponent<I18nTProps, {}, any, {}> & { displayName: string; inheritAttrs: boolean; props: { keypath: { type: PropType<TranslationKey>; required: boolean; }; plural: { type: PropType<number \| string \| null>; }; tag: { type: StringConstructor; default: string; }; params: { type: PropType<Record<string, string \| number \| boolean>>; }; defaultValue: { type: StringConstructor; default: string; }; html: { type: BooleanConstructor; default: boolean; }; hideIfEmpty: { type: BooleanConstructor; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number \| string \| null>; }; date: { type: PropType<Date \| string \| number \| null>; }; relativeDate: { type: PropType<Date \| string \| number \| null>; }; }; }` |
+| `interpolate` | function | `(template: string, params: Params) => string` |
+| `Locale` | interface | 11 members |
+| `LocaleCode` | type | `string` |
+| `messagesFromGlob` | function | `(modules: Record<string, { default: Translations; } \| Translations>) => Record<string, Translations>` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
+| `PathMethods` | type | `Pick<VitePressRouterAdapter, 'localizePath' \| 'switchLocalePath' \| 'getLocaleFromPath' \| 'removeLocaleFromPath' \| 'routeNameFromPath'>` |
+| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
+| `routeNameFromPath` | function | `(path: string, localeCodes: string[], defaultLocale?: string, localeKeyToCode?: Record<string, string>, base?: string) => string` |
+| `stripSiteBase` | function | `(path: string, base?: string) => string` |
+| `Translations` | interface | 1 members |
+| `useI18n` | function | `(options?: UseI18nOptions) => { instance: VueI18n; locale: WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: I18nRouteTarget, localeCode?: string) => I18nRouteTarget; localePath: (to: I18nRouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeContext?: unknown) => boolean; resolveTranslations: (routeContext?: unknown) => Translations; setTranslation: (key: TranslationKey, value: unknown) => void; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Translations) => void; clearCache: () => void; }` |
+| `UseI18nOptions` | interface | 2 members |
+| `VirtualI18nConfig` | interface | 13 members |
+| `VitePressSiteDataLike` | interface | 1 members |
+| `VitePressUserConfigLike` | interface | 7 members |
+| `VueI18nOptions` | interface | 10 members |
+| `WithI18nOptions` | interface | 23 members |
+
+<details>
+<summary><code>CreateI18nOptions</code> — 15 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `base?` | `string \| undefined` |
+| `datetimeFormats?` | `import("@i18n-micro/core").DateTimeFormatsConfig \| undefined` |
+| `defaultLocale?` | `string \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+| `locales?` | `Locale[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `import("@i18n-micro/core").NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `syncWithVitePress?` | `boolean \| undefined` |
+| `timeZone?` | `string \| undefined` |
+
+</details>
+
+<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+
+<details>
+<summary><code>I18nRoutingStrategy</code> — 7 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `getCurrentPath` | `() => string` |
+| `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
+| `linkComponent?` | `string \| Component \| undefined` |
+| `push` | `(target: { path: string; }) => void` |
+| `replace` | `(target: { path: string; }) => void` |
+| `resolvePath?` | `((to: I18nRouteTarget, locale: string) => string \| { path?: string; }) \| undefined` |
+| `toHref?` | `((path: string) => string) \| undefined` |
+
+</details>
+
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
+<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
+<code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+
+<details>
+<summary><code>VirtualI18nConfig</code> — 13 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `base?` | `string \| undefined` |
+| `datetimeFormats?` | `import("@i18n-micro/core").DateTimeFormatsConfig \| undefined` |
+| `defaultLocale` | `string` |
+| `disablePageLocales` | `boolean` |
+| `fallbackLocale` | `string` |
+| `localeCodes` | `string[]` |
+| `localeKeyToCode` | `Record<string, string>` |
+| `locales` | `Locale[]` |
+| `missingWarn` | `boolean` |
+| `numberFormats?` | `import("@i18n-micro/core").NumberFormatsConfig \| undefined` |
+| `syncWithVitePress` | `boolean` |
+| `timeZone?` | `string \| undefined` |
+| `translationDir` | `string` |
+
+</details>
+
+<details>
+<summary><code>VitePressSiteDataLike</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `locales?` | `Record<string, { lang?: string; link?: string; label?: string; }> \| undefined` |
+
+</details>
+
+<details>
+<summary><code>VitePressUserConfigLike</code> — 7 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `unknown` |
+| `base?` | `string \| undefined` |
+| `locales?` | `Record<string, unknown> \| undefined` |
+| `themeConfig?` | `Record<string, unknown> \| null \| undefined` |
+| `transformHead?` | `((...args: any[]) => any) \| undefined` |
+| `transformPageData?` | `((...args: any[]) => any) \| undefined` |
+| `vite?` | `{ [key: string]: unknown; plugins?: Plugin[] \| Plugin[][]; ssr?: { noExternal?: string \| true \| Array<string \| RegExp>; [key: string]: unknown; }; } \| undefined` |
+
+</details>
+
+<details>
+<summary><code>VueI18nOptions</code> — 10 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `timeZone?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>WithI18nOptions</code> — 23 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `base?` | `string \| undefined` |
+| `canonicalQueryWhitelist?` | `string[] \| undefined` |
+| `datetimeFormats?` | `import("@i18n-micro/core").DateTimeFormatsConfig \| undefined` |
+| `defaultLocale?` | `string \| undefined` |
+| `disablePageLocales?` | `boolean \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `i18nRouting?` | `boolean \| undefined` |
+| `locale` | `string` |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+| `locales?` | `Locale[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `meta?` | `boolean \| undefined` |
+| `metaBaseUrl?` | `string \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `numberFormats?` | `import("@i18n-micro/core").NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `syncWithVitePress?` | `boolean \| undefined` |
+| `timeZone?` | `string \| undefined` |
+| `translationDir?` | `string \| undefined` |
+| `warnOnLocaleMismatch?` | `boolean \| undefined` |
+
+</details>
+## `@i18n-micro/vitepress/config`
+
+```ts
+import { /* … */ } from '@i18n-micro/vitepress/config'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `buildVitePressLocaleHead` | function | `(options: BuildVitePressLocaleHeadOptions) => VitePressLocaleHeadObject` |
+| `BuildVitePressLocaleHeadOptions` | interface | 12 members |
+| `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
+| `BuildVitePressLocalesOptions` | interface | 1 members |
+| `relativePathToRoutePath` | function | `(relativePath: string) => string` |
+| `VirtualI18nConfig` | interface | 13 members |
+| `VitePressHeadTuple` | type | `[ string, Record<string, string> ]` |
+| `VitePressLocaleEntry` | interface | 3 members |
+| `VitePressLocaleHeadObject` | interface | 2 members |
+| `VitePressUserConfigLike` | interface | 7 members |
+| `warnLocaleMismatch` | function | `(config: VitePressUserConfigLike, options: WithI18nOptions) => void` |
+| `withI18n` | function | `<T extends VitePressUserConfigLike>(config: T, options: WithI18nOptions) => T` |
+| `WithI18nOptions` | interface | 23 members |
+
+<details>
+<summary><code>BuildVitePressLocaleHeadOptions</code> — 12 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `addDirAttribute?` | `boolean \| undefined` |
+| `addSeoAttributes?` | `boolean \| undefined` |
+| `base?` | `string \| undefined` |
+| `canonicalQueryWhitelist?` | `string[] \| undefined` |
+| `defaultLocale` | `string` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
+| `identifierAttribute?` | `string \| undefined` |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+| `locales` | `Locale[]` |
+| `metaBaseUrl?` | `string \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `path` | `string` |
+
+</details>
+
+<details>
+<summary><code>BuildVitePressLocalesOptions</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+
+</details>
+
+<code>VirtualI18nConfig</code> — 13 members, identical to `VirtualI18nConfig` above.
+
+<details>
+<summary><code>VitePressLocaleEntry</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `label` | `string` |
+| `lang` | `string` |
+| `link?` | `string \| undefined` |
+
+</details>
+
+<details>
+<summary><code>VitePressLocaleHeadObject</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `head` | `VitePressHeadTuple[]` |
+| `htmlAttrs` | `{ lang?: string; dir?: "ltr" \| "rtl" \| "auto"; }` |
+
+</details>
+
+<code>VitePressUserConfigLike</code> — 7 members, identical to `VitePressUserConfigLike` above.
+
+<code>WithI18nOptions</code> — 23 members, identical to `WithI18nOptions` above.
+## `@i18n-micro/vitepress/node`
+
+```ts
+import { /* … */ } from '@i18n-micro/vitepress/node'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
+| `BuildVitePressLocalesOptions` | interface | 1 members |
+| `createI18n` | function | `(options: CreateI18nOptions) => NodeI18n` |
+| `CreateI18nOptions` | interface | 19 members |
+| `I18nOptions` | interface | 15 members |
+| `LoadedTranslations` | interface | 2 members |
+| `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
+| `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
+| `NodeI18n` | type | `I18n & PathMethods` |
+| `VitePressLocaleEntry` | interface | 3 members |
+
+<code>BuildVitePressLocalesOptions</code> — 1 members, identical to `BuildVitePressLocalesOptions` above.
+
+<details>
+<summary><code>CreateI18nOptions</code> — 19 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `base?` | `string \| undefined` |
+| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
+| `defaultLocale?` | `string \| undefined` |
+| `disablePageLocales?` | `boolean \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `localeIso?` | `Record<string, string> \| undefined` |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+| `locales?` | `Locale[] \| string[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn?` | `boolean \| undefined` |
+| `now?` | `(() => number) \| undefined` |
+| `numberFormats?` | `NumberFormatsConfig \| undefined` |
+| `parent?` | `I18n \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
+| `translationDir?` | `string \| undefined` |
+
+</details>
+
+<code>I18nOptions</code> — 15 members, identical to [`I18nOptions`](/api/packages/node).
+
+<code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
+
+<code>VitePressLocaleEntry</code> — 3 members, identical to `VitePressLocaleEntry` above.
+## `@i18n-micro/vitepress/theme`
+
+```ts
+import { /* … */ } from '@i18n-micro/vitepress/theme'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `defineI18nTheme` | function | `<T extends Theme>(base: T, options?: DefineI18nThemeOptions) => T` |
+| `DefineI18nThemeOptions` | interface | 10 members |
+
+<details>
+<summary><code>DefineI18nThemeOptions</code> — 10 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `config?` | `VirtualI18nConfig \| undefined` |
+| `datetimeFormats?` | `import("@i18n-micro/core").DateTimeFormatsConfig \| undefined` |
+| `enhanceApp?` | `((ctx: import("vitepress").EnhanceAppContext) => import("vitepress").Awaitable<void>) \| undefined` |
+| `localeKeyToCode?` | `Record<string, string> \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `numberFormats?` | `import("@i18n-micro/core").NumberFormatsConfig \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
+| `timeZone?` | `string \| undefined` |
+
+</details>
+
+Back to [all packages](/api/packages) · [Integration guides](/integrations/)

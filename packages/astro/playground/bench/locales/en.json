@@ -1,0 +1,29 @@
+{
+  "greeting": "Hello, {name}!",
+  "welcome": "Welcome",
+  "apples": "no apples | one apple | {count} apples",
+  "two": "{a} / {b} / {a}",
+  "html": "<b>{name}</b>",
+  "section": {
+    "title": "Section",
+    "deep": {
+      "er": {
+        "value": "deep en"
+      }
+    }
+  },
+  "stats": "n={number} d={date} r={relativeDate}",
+  "list": ["one", "two", "three"],
+  "dotted.key": "flat dotted key",
+  "only": {
+    "en": "only in en"
+  },
+  "marker": "=0 none | {count} item | {count} items",
+  "empty": "",
+  "zero": 0,
+  "off": false,
+  "constructor": "own constructor",
+  "unicode": "Ключ → {имя} 🎉",
+  "braces": "a { b } {c}",
+  "pipe": "solid | form"
+}

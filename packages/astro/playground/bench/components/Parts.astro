@@ -1,0 +1,37 @@
+---
+import I18nGroup from '@i18n-micro/astro/i18n-group'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
+import I18nT from '@i18n-micro/astro/i18n-t'
+
+const hourAgo = Date.now() - 3_600_000
+---
+
+<ul data-testid="page-components">
+  <li data-testid="it-basic"><I18nT keypath="welcome" /></li>
+  <li data-testid="it-params"><I18nT keypath="greeting" params={{ name: 'Ada' }} /></li>
+  <li data-testid="it-tag"><I18nT keypath="welcome" tag="h3" /></li>
+  <li data-testid="it-attrs"><I18nT keypath="welcome" class="c" title="t" /></li>
+  <li data-testid="it-plural-0"><I18nT keypath="apples" plural={0} /></li>
+  <li data-testid="it-plural-2"><I18nT keypath="apples" plural={2} /></li>
+  <li data-testid="it-plural-string"><I18nT keypath="apples" plural="3" /></li>
+  <li data-testid="it-plural-null"><I18nT keypath="welcome" plural={null} /></li>
+  <li data-testid="it-plural-fraction"><I18nT keypath="apples" plural={1.5} /></li>
+  <li data-testid="it-number"><I18nT keypath="stats" number={1234.5} params={{ date: 'd', relativeDate: 'r' }} /></li>
+  <li data-testid="it-date"><I18nT keypath="stats" date={0} params={{ number: 'n', relativeDate: 'r' }} /></li>
+  <li data-testid="it-relative"><I18nT keypath="stats" relativeDate={hourAgo} params={{ number: 'n', date: 'd' }} /></li>
+  <li data-testid="it-html"><I18nT keypath="html" params={{ name: '<i>x</i>' }} html /></li>
+  <li data-testid="it-no-html"><I18nT keypath="html" params={{ name: '<i>x</i>' }} /></li>
+  <li data-testid="it-missing"><I18nT keypath="no.such.key" /></li>
+  <li data-testid="it-missing-html"><I18nT keypath="no.<b>key" html /></li>
+  <li data-testid="it-default"><I18nT keypath="no.such.key" defaultValue="Default" /></li>
+  <li data-testid="it-hide-empty"><I18nT keypath="empty" hideIfEmpty /></li>
+  <li data-testid="it-hide-empty-default"><I18nT keypath="empty" hideIfEmpty defaultValue="Default" /></li>
+  <li data-testid="group-basic"><I18nGroup route="home" class="g">grouped</I18nGroup></li>
+  <li data-testid="link-string"><I18nLink href="/routing">string</I18nLink></li>
+  <li data-testid="link-locale"><I18nLink href="/routing" locale="de">locale</I18nLink></li>
+  <li data-testid="link-query"><I18nLink href="/routing?a=1#b">query</I18nLink></li>
+  <li data-testid="link-hash-only"><I18nLink href="#top">hash</I18nLink></li>
+  <li data-testid="link-external"><I18nLink href="https://example.test/x">external</I18nLink></li>
+  <li data-testid="switcher-labels"><I18nSwitcher customLabels={{ de: 'DE!' }} class="x" /></li>
+</ul>

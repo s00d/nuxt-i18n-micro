@@ -1,0 +1,108 @@
+import type { Page, Route } from '@playwright/test'
+import { describe, expect, test } from '../helpers/guarded-test.ts'
+
+const json = (body: string) => (route: Route) => route.fulfill({ status: 200, contentType: 'application/json', body })
+const status = (code: number) => (route: Route) => route.fulfill({ status: code, body: 'failed' })
+
+// The last column is the layout string after a switch to de: a failed load keeps the old texts, while a chunk that is
+// not there (a 404, or a 200 with no dictionary) gives the page the root dictionary of de.
+const FAILURES: [string, (route: Route) => Promise<void>, string][] = [
+  ['abort', (route) => route.abort(), 'My App'],
+  ['500', status(500), 'My App'],
+  ['404', status(404), 'Meine App'],
+  ['bad JSON', json('{ not json'), 'Meine App'],
+  ['array body', json('["a"]'), 'Meine App'],
+]
+
+// `strategy-prefix`: app.vue renders root keys around every page, so a layout string shows which dictionary is active.
+/** The console line of a blocked payload request, with the URL the guard adds; a failed asset still fails the test. */
+const FAILED_PAYLOAD = /Failed to load resource.*\/_locales\//
+
+/**
+ * `pattern` fails until the returned function is called. Not `unroute`: it turns interception off, and a
+ * request caught at that moment (a link's prefetch, right after hydration) never ends, so the navigation
+ * waiting on that module never does either.
+ */
+async function failUntilFixed(page: Page, pattern: string, fail: (route: Route) => Promise<void>) {
+  let failing = true
+  await page.route(pattern, (route) => (failing ? fail(route) : route.fallback()))
+  return () => {
+    failing = false
+  }
+}
+
+describe('J8 translation loading: a chunk fails on the client', () => {
+  test.override({ harness: 'strategy-prefix' })
+
+  test.for(FAILURES)('%s keeps the page readable, the next navigation loads the chunk', async ([, fail, switched], { page, goto, guard }) => {
+    guard.allow(FAILED_PAYLOAD)
+    const fixContact = await failUntilFixed(page, '**/_locales/contact/en/**', fail)
+    const fixDe = await failUntilFixed(page, '**/_locales/index/de/**', fail)
+
+    // step 1: open /en → layout string from the en chunk
+    await goto('/en', { waitUntil: 'hydration' })
+    await expect(page.locator('.layout-title')).toHaveText('My App')
+
+    // step 2: navigate to a page whose chunk fails → the navigation completes, the layout keeps its string
+    await page.click('#contact')
+    await expect(page).toHaveURL('/en/contact')
+    await expect(page.locator('.layout-title')).toHaveText('My App')
+
+    // step 3: back on / and on a working chunk, the dictionary is whole again
+    await page.goBack()
+    await expect(page).toHaveURL('/en')
+    await expect(page.locator('#content')).toHaveText('en')
+
+    // step 4: switching to a locale whose chunk fails moves the URL, the texts as the failure allows
+    await page.click('.language-switcher')
+    await page.click('a.switcher-locale-de')
+    await expect(page).toHaveURL('/de')
+    await expect(page.locator('.layout-title')).toHaveText(switched)
+
+    // step 5: the failure is not cached: once the chunk answers, a navigation loads de
+    fixContact()
+    fixDe()
+    await page.click('#contact')
+    await expect(page).toHaveURL('/de/kontakt')
+    await expect(page.locator('.layout-title')).toHaveText('Meine App')
+    await page.goBack()
+    await expect(page).toHaveURL('/de')
+    await expect(page.locator('#content')).toHaveText('de')
+  })
+
+  test('a failed first chunk is loaded again on the way back', async ({ page, goto, guard }) => {
+    // the server rendered the texts, the browser has none to hydrate them with
+    guard.allow(FAILED_PAYLOAD, /Hydration completed but contains mismatches/)
+    const fix = await failUntilFixed(page, '**/_locales/index/en/**', (route) => route.abort())
+
+    // step 1: open /en with its chunk failing → the browser has no dictionary for it
+    await goto('/en', { waitUntil: 'hydration' })
+
+    // step 2: the chunk answers again, leave and come back → translated
+    fix()
+    await page.click('#contact')
+    await expect(page).toHaveURL('/en/contact')
+    await page.goBack()
+    await expect(page).toHaveURL('/en')
+    await expect(page.locator('#content')).toHaveText('en')
+  })
+
+  test('the switcher tries a failed locale again', async ({ page, goto, guard }) => {
+    guard.allow(FAILED_PAYLOAD)
+    const fix = await failUntilFixed(page, '**/_locales/index/de/**', (route) => route.abort())
+
+    // step 1: switching to de fails → the URL moved, the texts stayed
+    await goto('/en', { waitUntil: 'hydration' })
+    await page.click('.language-switcher')
+    await page.click('a.switcher-locale-de')
+    await expect(page).toHaveURL('/de')
+    await expect(page.locator('.layout-title')).toHaveText('My App')
+
+    // step 2: the chunk answers again, the same link → de
+    fix()
+    await page.click('.language-switcher')
+    await page.click('a.switcher-locale-de')
+    await expect(page.locator('.layout-title')).toHaveText('Meine App')
+    await expect(page.locator('#content')).toHaveText('de')
+  })
+})

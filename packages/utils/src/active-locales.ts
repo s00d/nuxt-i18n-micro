@@ -9,5 +9,5 @@ export function getEnabledLocaleCodes(locales?: Locale[] | null): string[] {
 }
 
 export function isEnabledLocale(locales: Locale[] | null | undefined, code: string): boolean {
-  return getEnabledLocales(locales).some((locale) => locale.code === code)
+  return locales?.some((locale) => locale.code === code && !locale.disabled) ?? false
 }

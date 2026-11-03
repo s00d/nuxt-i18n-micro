@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
   if (!filePath.endsWith('index.d.ts')) {
@@ -24,15 +25,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // Важно: не бандлим зависимости, они должны ставиться через npm
-      external: [
-        '@i18n-micro/core',
-        '@i18n-micro/runtime',
-        '@i18n-micro/types',
-        '@i18n-micro/utils/parse-path',
-        'node:fs/promises',
-        'node:path',
-        'node:fs',
-      ],
+      external: [/^@i18n-micro\//, /^node:/],
     },
     // Для Node.js таргета
     target: 'node18',
@@ -47,6 +40,7 @@ export default defineConfig({
         }
       },
       bundleTypes: true,
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: 'tsconfig.json',
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

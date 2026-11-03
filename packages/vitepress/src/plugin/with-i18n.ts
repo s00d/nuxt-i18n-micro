@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { Locale, Translations } from '@i18n-micro/types'
+import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { classifyTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import type { Plugin } from 'vite'
 import type { CreateI18nOptions } from '../runtime/create'
@@ -83,6 +84,9 @@ export interface VirtualI18nConfig {
   localeKeyToCode: Record<string, string>
   /** VitePress `site.base` (normalized, trailing slash preserved from config). */
   base?: string
+  numberFormats?: CreateI18nOptions['numberFormats']
+  datetimeFormats?: CreateI18nOptions['datetimeFormats']
+  timeZone?: string
 }
 
 const VIRTUAL_CONFIG_ID = 'virtual:i18n-micro/config'
@@ -91,7 +95,7 @@ const VIRTUAL_MESSAGES_ID = 'virtual:i18n-micro/messages'
 const RESOLVED_MESSAGES_ID = `\0${VIRTUAL_MESSAGES_ID}`
 
 function toPosix(path: string): string {
-  return path.replace(/\\/g, '/')
+  return forwardSlashes(path)
 }
 
 function generateImportMessagesModule(rootDir: string, translationDir: string, disablePageLocales: boolean): string {
@@ -158,10 +162,15 @@ function createI18nVitePlugin(options: WithI18nOptions, siteBase?: string): Plug
     disablePageLocales,
     localeKeyToCode: options.localeKeyToCode ?? {},
     base: siteBase && siteBase !== '/' ? siteBase : undefined,
+    numberFormats: options.numberFormats,
+    datetimeFormats: options.datetimeFormats,
+    timeZone: options.timeZone,
   }
 
   let rootDir = process.cwd()
-  let useInline = Boolean(options.messages || options.routeMessages)
+  // Inline when caller passed messages and/or routeMessages.
+  // routeMessages alone still loads root dictionaries from translationDir.
+  const useInline = Boolean(options.messages || options.routeMessages)
   let inlineRoot = options.messages ?? {}
   let inlineRoutes = options.routeMessages ?? {}
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
@@ -187,18 +196,7 @@ function createI18nVitePlugin(options: WithI18nOptions, siteBase?: string): Plug
     name: 'vite-plugin-i18n-vitepress',
     configResolved(config) {
       rootDir = config.root
-      // Inline when caller passed messages and/or routeMessages.
-      // routeMessages alone still loads root dictionaries from translationDir.
-      useInline = Boolean(options.messages || options.routeMessages)
-      if (useInline) {
-        if (options.messages) inlineRoot = options.messages
-        if (options.routeMessages) inlineRoutes = options.routeMessages
-        if (needsDiskReload()) {
-          reloadInlineFromDisk()
-        }
-        if (options.messages) inlineRoot = options.messages
-        if (options.routeMessages) inlineRoutes = options.routeMessages
-      }
+      if (useInline) reloadInlineFromDisk()
     },
     configureServer(server) {
       // Both maps provided inline — nothing to watch on disk.
@@ -307,6 +305,15 @@ export function withI18n<T extends VitePressUserConfigLike>(config: T, options: 
   const locales = options.locales || []
   const prevTransformHead = config.transformHead
   const prevTransformPageData = config.transformPageData
+  const headOptions = {
+    locales,
+    defaultLocale,
+    localeKeyToCode: options.localeKeyToCode,
+    metaBaseUrl: options.metaBaseUrl,
+    hreflangBaseLanguage: options.hreflangBaseLanguage,
+    canonicalQueryWhitelist: options.canonicalQueryWhitelist,
+    missingWarn: options.missingWarn,
+  }
 
   const transformHead = metaEnabled
     ? async (ctx: {
@@ -321,15 +328,9 @@ export function withI18n<T extends VitePressUserConfigLike>(config: T, options: 
         const relativePath = ctx.pageData?.relativePath || 'index.md'
         const siteBase = (typeof config.base === 'string' ? config.base : undefined) ?? ctx.siteData?.base ?? ctx.siteConfig?.site?.base
         const built = buildVitePressLocaleHead({
+          ...headOptions,
           path: relativePathToRoutePath(relativePath),
-          locales,
-          defaultLocale,
-          localeKeyToCode: options.localeKeyToCode,
           base: siteBase,
-          metaBaseUrl: options.metaBaseUrl,
-          hreflangBaseLanguage: options.hreflangBaseLanguage,
-          canonicalQueryWhitelist: options.canonicalQueryWhitelist,
-          missingWarn: options.missingWarn,
         })
         return [...prevHead, ...built.head]
       }
@@ -349,15 +350,9 @@ export function withI18n<T extends VitePressUserConfigLike>(config: T, options: 
         if (pageData.frontmatter?.i18n?.disableMeta === true) return
 
         const built = buildVitePressLocaleHead({
+          ...headOptions,
           path: relativePathToRoutePath(pageData.relativePath || 'index.md'),
-          locales,
-          defaultLocale,
-          localeKeyToCode: options.localeKeyToCode,
           base: typeof config.base === 'string' ? config.base : undefined,
-          metaBaseUrl: options.metaBaseUrl,
-          hreflangBaseLanguage: options.hreflangBaseLanguage,
-          canonicalQueryWhitelist: options.canonicalQueryWhitelist,
-          missingWarn: options.missingWarn,
           addSeoAttributes: false,
         })
         if (built.htmlAttrs.lang) {

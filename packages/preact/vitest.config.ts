@@ -10,8 +10,7 @@ import { defineConfig } from 'vitest/config'
  * resolve to different files (CJS vs ESM, or `"source"` vs dist), hooks break.
  *
  * Pin every preact entry to the same ESM dist build and inline TL so imports
- * share one module cache. (Preact 11 ESM-only / require()-based aliases are a
- * follow-up once CI actually installs preact 11; monorepo stays on 10.x.)
+ * share one module cache. The monorepo stays on 10.x; 11 has other file names here.
  */
 const require = createRequire(import.meta.url)
 const preactDir = realpathSync(dirname(require.resolve('preact/package.json')))
@@ -29,9 +28,10 @@ export default defineConfig({
     // Prefer package "module"/"main"; never "source" (preact points source at src/).
     mainFields: ['module', 'main'],
     alias: [
-      { find: '@i18n-micro/core', replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
+      { find: '#host', replacement: fileURLToPath(new URL('./src/host.ts', import.meta.url)) },
+      { find: /^@i18n-micro\/core\/render$/, replacement: fileURLToPath(new URL('../core/src/render.ts', import.meta.url)) },
+      { find: /^@i18n-micro\/core$/, replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
       { find: '@i18n-micro/types', replacement: fileURLToPath(new URL('../types/src/index.ts', import.meta.url)) },
-      { find: '@i18n-micro/devtools-ui', replacement: fileURLToPath(new URL('./tests/mocks/devtools-ui-mock.ts', import.meta.url)) },
       { find: 'preact/hooks', replacement: esm('hooks', 'hooks.module.js') },
       { find: 'preact/compat', replacement: esm('compat', 'compat.module.js') },
       { find: 'preact/jsx-runtime', replacement: esm('jsx-runtime', 'jsxRuntime.module.js') },

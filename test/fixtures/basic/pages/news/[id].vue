@@ -56,11 +56,11 @@ const newsLink = computed(() =>
 )
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
-  const response = (await $fetch('/api/getNews', {
+  const response = await $fetch<{ metadata: { [key: string]: { id: string } } }>('/api/getNews', {
     query: {
       id: params.id,
     },
-  })) as { metadata: { [key: string]: { id: string } } }
+  })
   if (response?.metadata) {
     $setI18nRouteParams(response?.metadata)
   }

@@ -2,22 +2,18 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 const rootDir = import.meta.dirname
 
 const libEntries = {
   index: resolve(rootDir, 'src/index.ts'),
-  'prefix-strategy': resolve(rootDir, 'src/strategies/prefix.ts'),
-  'no-prefix-strategy': resolve(rootDir, 'src/strategies/no-prefix.ts'),
-  'prefix-except-default-strategy': resolve(rootDir, 'src/strategies/prefix-except-default.ts'),
-  'prefix-and-default-strategy': resolve(rootDir, 'src/strategies/prefix-and-default.ts'),
   types: resolve(rootDir, 'src/types.ts'),
 }
 
 function isPublishedDeclaration(filePath: string) {
   const normalized = filePath.replace(/\\/g, '/')
-  if (normalized.endsWith('/index.d.ts') || normalized.endsWith('/types.d.ts')) return true
-  return /\/strategies\/(prefix|no-prefix|prefix-except-default|prefix-and-default)\.d\.ts$/.test(normalized)
+  return normalized.endsWith('/index.d.ts') || normalized.endsWith('/types.d.ts')
 }
 
 function beforeWriteDeclaration(filePath: string, content: string) {
@@ -29,18 +25,6 @@ function beforeWriteDeclaration(filePath: string, content: string) {
   return { filePath, content }
 }
 
-/** Stable shared chunks (no content hash in file names). */
-function manualChunks(id: string): string | undefined {
-  const normalized = id.replace(/\\/g, '/')
-  if (normalized.includes('/strategies/base-strategy') || normalized.endsWith('base-strategy.ts')) {
-    return 'base-strategy'
-  }
-  if (normalized.includes('/strategies/common') || normalized.endsWith('strategies/common.ts')) {
-    return 'common'
-  }
-  return undefined
-}
-
 export default defineConfig({
   plugins: [
     dts({
@@ -50,6 +34,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(rootDir, 'tsconfig.build.json'),
       entryRoot: resolve(rootDir, 'src'),
       outDir: resolve(rootDir, 'dist'),
@@ -66,21 +51,19 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['@i18n-micro/types'],
+      external: ['@i18n-micro/core/helpers', '@i18n-micro/types'],
       output: [
         {
           format: 'es',
           entryFileNames: '[name].mjs',
           chunkFileNames: '[name].js',
           exports: 'named',
-          manualChunks,
         },
         {
           format: 'cjs',
           entryFileNames: '[name].cjs',
           chunkFileNames: '[name].cjs',
           exports: 'named',
-          manualChunks,
         },
       ],
       onwarn(warning, warn) {

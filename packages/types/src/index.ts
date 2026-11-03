@@ -83,14 +83,17 @@ export interface Locale {
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */
   displayName?: string
   /**
-   * Per-locale base URL for SEO meta tags.
-   * Useful for multi-domain setups where each locale lives on its own domain
-   * (e.g. `'https://en.example.com'`).
+   * Origin of this locale's own domain (e.g. `'https://de.example.com'`), plus `app.baseURL` when
+   * the app has one. One build then serves every domain: a request for that host gets this locale,
+   * the other locales of the host and the locales with no `baseUrl`. Links into a locale of another
+   * domain (`$localePath`, `$switchLocalePath`, the switcher, `hreflang`) become absolute URLs on
+   * its origin, and switching to it navigates there. Any other host gets the build config.
    */
   baseUrl?: string
   /**
-   * When `true`, this locale is treated as the "base default" for the domain
-   * specified in `baseUrl`. Affects canonical URL generation in multi-domain setups.
+   * With `baseUrl`: this locale is the default of its host, unprefixed there, and links to it from
+   * other domains drop `/<code>`, because the domain already names the locale
+   * (`https://de.example.com/about`, not `…/de/about`). `prefix` keeps the prefix in both.
    */
   baseDefault?: boolean
   /**
@@ -103,7 +106,7 @@ export interface Locale {
 }
 
 /**
- * Per-page i18n configuration declared via `defineI18nRoute()` in page components.
+ * Per-page i18n configuration declared via `$defineI18nRoute()` in page components.
  */
 export interface DefineI18nRouteConfig {
   /**
@@ -206,6 +209,13 @@ export interface ModuleOptions {
   metaTrustForwardedProto?: boolean
 
   /**
+   * Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of
+   * `Host`. Enable it only behind a proxy that overwrites that header.
+   * @default false
+   */
+  trustForwardedHost?: boolean
+
+  /**
    * Also emit a bare-language `hreflang` derived from each locale's `iso`
    * (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims
    * the bare tag for that language. Routing `code` is never used — only `iso || code`.
@@ -214,15 +224,17 @@ export interface ModuleOptions {
   hreflangBaseLanguage?: boolean
 
   /**
-   * Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls.
+   * Provide `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages
+   * either way.
    * @default true
    */
   define?: boolean
 
   /**
-   * Enable automatic locale-based redirects.
-   * When `true`, visitors are redirected to their preferred locale (detected from cookie,
-   * `Accept-Language` header, or the default) on the first visit.
+   * Enable automatic locale redirects (server plugin and client route middleware).
+   * When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale
+   * comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise
+   * the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths).
    * @default true
    */
   redirects?: boolean
@@ -235,8 +247,7 @@ export interface ModuleOptions {
   plugin?: boolean
 
   /**
-   * Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
-   * / `i18n:afterLocaleSwitch` app-level hooks.
+   * Call the `i18n:register` app hook on load and on navigation so plugins can add translations.
    * @default true
    */
   hooks?: boolean
@@ -257,7 +268,7 @@ export interface ModuleOptions {
 
   /**
    * The locale to use when no locale can be determined from URL or user preferences.
-   * Also used as the fallback locale for missing translations when `fallbackLocale` is not set.
+   * It is not a translation fallback: set `fallbackLocale` for that.
    * @default 'en'
    */
   defaultLocale?: string
@@ -328,9 +339,11 @@ export interface ModuleOptions {
    * - `'no_prefix'` — only paths without a locale prefix
    * - `'*'` — every path, including rewriting an explicit locale prefix
    *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
-   * - any other string — exact path match (e.g. `'/welcome'`)
+   * - any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
    *
-   * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
+   * Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default
+   * locale's form (`/about` → `/en/about`). The default locale with a prefix under
+   * `prefix_except_default` (`/en`) is a 404, not a redirect.
    * @default '/'
    */
   autoDetectPath?: string
@@ -365,7 +378,7 @@ export interface ModuleOptions {
    * For the Nuxt module the function is serialized with `.toString()` into
    * `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
    * A file path string is **not** supported.
-   * @default built-in pluralization (form index by count)
+   * @default built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)
    */
   plural?: PluralFunc
 
@@ -379,8 +392,8 @@ export interface ModuleOptions {
 
   /**
    * Global fallback locale code.
-   * When a translation key is missing in the active locale, the module looks it up
-   * in this locale before returning the key itself.
+   * Keys missing in a locale are taken from this locale (merged into each payload when it is
+   * built or loaded); without it a missing key renders as the key itself.
    * @default undefined (no fallback; returns the raw key)
    */
   fallbackLocale?: string
@@ -388,7 +401,8 @@ export interface ModuleOptions {
   /**
    * Cookie name for persisting the user's locale preference across sessions.
    * Set to `null` to disable cookie-based persistence.
-   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided.
+   * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
+   * `null` in the `i18n` config block keeps it off there too.
    * @default null
    */
   localeCookie?: string | null
@@ -418,14 +432,17 @@ export interface ModuleOptions {
 
   /**
    * Custom regular expression (or its string source) for matching locale codes in URL segments.
-   * All locale codes defined in `locales` must match this pattern, or a warning is emitted.
+   * Every locale code in `locales` must match the whole pattern, without its flags, or the build fails.
    * @default undefined (uses built-in pattern based on locale codes)
    */
   customRegexMatcher?: string | RegExp
 
   /**
-   * For `no_prefix` strategy: enable redirect from a locale-prefixed URL
-   * (e.g. `/en/about`) to the unprefixed version (`/about`).
+   * For `no_prefix` strategy: when the default locale has a custom path for a page
+   * (`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to the custom
+   * path of the visitor's locale, the default locale's otherwise (e.g. `/about` → `/about-us`).
+   * A locale with no custom path of its own stays on the original path. Pages with dynamic
+   * segments are not redirected.
    * @default false
    */
   noPrefixRedirect?: boolean
@@ -446,9 +463,11 @@ export interface ModuleOptions {
   trailingSlash?: 'append' | 'remove'
 
   /**
-   * URL patterns (strings or RegExp) to exclude from i18n processing entirely.
-   * Matching routes won't get locale prefixes, redirects, or translation loading.
-   * Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.
+   * Paths to leave out of i18n routing: a string is a path prefix (`/admin` covers `/admin/x`)
+   * or a `*` / `?` glob; a RegExp is tested against the path. Matching pages get no locale
+   * variants, no locale redirect or 404, and are dropped from prerender; they still render with
+   * translations. `/api`, `/_nuxt`, `/__*`, the translations route and common static files
+   * (sitemap, robots.txt, favicon, assets by extension) are always excluded.
    * @default undefined
    */
   excludePatterns?: (string | RegExp)[]
@@ -461,21 +480,21 @@ export interface ModuleOptions {
   localizedRouteNamePrefix?: string
 
   /**
-   * Per-route locale restrictions, extracted from `defineI18nRoute()` calls.
+   * Per-route locale restrictions, extracted at build time from `$defineI18nRoute()` calls.
    * Maps a route path (e.g. `'/about'`) to an array of allowed locale codes.
    * Routes not listed have no restrictions (all locales allowed).
    */
   routeLocales?: Record<string, string[]>
 
   /**
-   * Per-route meta tag disabling, extracted from `defineI18nRoute()` calls.
-   * Maps a route path to `true` (disable all meta) or an array of locale codes
-   * for which meta should be disabled.
+   * Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array
+   * of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()`
+   * calls at build time are added to it.
    */
   routeDisableMeta?: Record<string, boolean | string[]>
 
   /**
-   * Show console warnings when a translation key is missing.
+   * Show console warnings when a translation key is missing (development build, in the browser).
    * @default true
    */
   missingWarn?: boolean
@@ -489,18 +508,31 @@ export interface ModuleOptions {
   hmr?: boolean
 
   /**
-   * Maximum number of entries in the in-memory translation cache.
-   * `0` means no limit.
+   * Maximum number of entries in the in-memory translation caches. The fetch and server caches
+   * drop the least recently used entry; the browser's dictionary map drops the oldest one (FIFO).
+   * `0` means no limit in the browser; server caches keep at most 1000 entries then, so request
+   * URLs naming made-up pages cannot grow server memory.
    * @default 0
    */
   cacheMaxSize?: number
 
   /**
-   * Time-to-live (in seconds) for cached translation entries.
-   * `0` means entries never expire.
+   * Time-to-live (in seconds) of the fetch and server translation caches, counted from when an
+   * entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at
+   * least that often. The browser's active dictionaries are not expired by it. `0` means entries
+   * never expire.
    * @default 0
    */
   cacheTtl?: number
+
+  /**
+   * Name of a Nitro storage mount (`nitro.storage`, e.g. `'redis'`) that several server instances
+   * share as a dictionary cache, read after the in-process cache and before the source. Pays off
+   * mostly with `apiBaseServerHost`: one fetch from the backend instead of one per instance.
+   * Entries are keyed by build and expire after `cacheTtl`, or after one day when it is `0`.
+   * Off in dev and prerender. A failing storage falls back to the source. Unset: no shared cache.
+   */
+  cacheStorage?: string
 
   /**
    * Named number formats per locale (Vue I18n-compatible).
@@ -513,6 +545,13 @@ export interface ModuleOptions {
    * }
    */
   numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
+
+  /**
+   * IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+   * the server and in every browser; a named format's own `timeZone` wins.
+   * @default the runtime's zone
+   */
+  timeZone?: string
 
   /**
    * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
@@ -530,7 +569,8 @@ export interface ModuleOptions {
    * HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`.
    *
    * Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default:
-   * the response is then `public, max-age=…, immutable` and safe for browsers and CDNs.
+   * the response is then `private, max-age=…, immutable`: a browser pins it, and a CDN that ignores the query cannot
+   * (`public` with `httpCacheControl: false`).
    *
    * - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the
    *   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an
@@ -547,11 +587,22 @@ export interface ModuleOptions {
   httpCacheDuration?: number
 
   /**
+   * `Cache-Control` of a payload file answered by a host or by a path-wide rule, which cannot see `?v=`.
+   * On a Node server a response to the current `?v=` is pinned for `httpCacheDuration` and any other revalidates;
+   * with `source`, `cacheTtl` or `apiBaseServerHost`, where a dictionary changes with no build, every response takes this header.
+   * `false` keeps every file on `max-age=0, must-revalidate`.
+   * @default 'public, max-age=60'
+   */
+  httpCacheControl?: string | false
+
+  /**
    * Value used for cache-busting translation requests (`?v=...`).
    *
-   * When not provided, the module falls back to `Date.now()` (non-deterministic).
-   * For reproducible/rolling deployments, set this to a stable value
-   * (e.g. a git SHA or build number).
+   * When not provided, the module uses a hash of the translation files, so the value changes
+   * only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns
+   * cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself.
+   * `NUXT_I18N_DATE_BUILD` or `runtimeConfig.public.i18nRuntime.dateBuild` replaces it at runtime, after a dictionary
+   * was replaced in place: pinned URLs are left behind, with no rebuild.
    *
    * @example
    * i18n: { dateBuild: 'e3b0c442' }
@@ -618,6 +669,14 @@ export interface TranslationPayloadOptions {
   publicDir?: string
 
   /**
+   * Write one root file per locale, and in each page file only what differs from it. The client and SSR merge them;
+   * a whole chunk still works wherever a file is read. `false` keeps a whole dictionary in every page file.
+   * `premerged` only, and off with `disablePageLocales`.
+   * @default true
+   */
+  rootDelta?: boolean
+
+  /**
    * Warn during build when generated payload file count exceeds this threshold.
    * @default 500
    */
@@ -639,8 +698,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   dateBuild: string | number
   /** Whether the Nuxt app uses hash-based routing (`router.options.hashMode`). */
   hashMode: boolean
-  /** Whether the current build is a static site generation (SSG / `nuxi generate`). */
-  isSSG: boolean
+  /** @deprecated No longer set at runtime. Kept so code typed against the released module still compiles. */
+  isSSG?: boolean
   /** Resolved translations API base URL (after env variable / config merging). */
   apiBaseUrl: string
   /** Resolved flag: whether per-page translations are disabled. */
@@ -649,15 +708,43 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   redirects?: boolean
   /** Resolved translation payload loading strategy. */
   translationPayloadMode?: 'premerged' | 'source'
+  /** Premerged files are in `public/`, so they can sit on `app.cdnURL`. */
+  publicPayloads?: boolean
+  /** A page's file needs its root: the browser loads the two together. */
+  rootDelta?: boolean
+  /** Nuxt's `features.noScripts` is on: no page runs a script, so none preloads a dictionary. */
+  noScripts?: boolean
+  /** Host this config was resolved for (`locales[].baseUrl`); unset on any other host. */
+  domain?: string
+  /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */
+  linkLocales?: Locale[]
+  /** With `domain`: the build's `defaultLocale`, the same on every host (`x-default`). `defaultLocale` is the host's. */
+  linkDefaultLocale?: string
 }
+
+/** The keys `buildFullConfig` always sets: read at runtime with no default of their own. */
+type ResolvedI18nConfigKey =
+  | 'apiBaseUrl'
+  | 'autoDetectPath'
+  | 'cacheMaxSize'
+  | 'cacheTtl'
+  | 'canonicalQueryWhitelist'
+  | 'defaultLocale'
+  | 'hreflangBaseLanguage'
+  | 'locales'
+  | 'missingWarn'
+  | 'strategy'
+
+/** The config the build writes, as `getI18nConfig()` and `$getI18nConfig()` give it. */
+export type ResolvedI18nConfig = Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>
 
 /**
  * Private (server-only) module options passed to Nitro plugins and server middleware.
  * Extends `ModuleOptions` with resolved root paths and directory info.
  */
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
-  /** Absolute path to the Nuxt project root directory. */
-  rootDir: string
+  /** Nuxt's `buildId`: `cacheStorage` keys of two builds never meet. */
+  cacheStorageBuild?: string
   /**
    * Absolute Nuxt layer roots in merge order (extends first, project last).
    * Used by live/HMR translation reads so layers match build-time merge.
@@ -667,18 +754,8 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   debug: boolean
   /** Resolved path to the translations directory. */
   translationDir: string
-  /** Resolved fallback locale code. */
-  fallbackLocale: string
-  /** Resolved translations API base URL. */
-  apiBaseUrl: string
-  /** Resolved client-side host override. */
-  apiBaseClientHost?: string
   /** Resolved server-side host override. */
   apiBaseServerHost?: string
-  /** Resolved custom regex matcher (RegExp is serialized to its `.source` string). */
-  customRegexMatcher?: string | RegExp
-  /** Resolved route-to-route translation sharing map. */
-  routesLocaleLinks?: { [key: string]: string }
   /** Preload index translations in Nitro global middleware. */
   serverTranslationPreload?: boolean
   /**
@@ -752,3 +829,17 @@ export interface I18nHeadInput {
 const init = () => {}
 
 export { init }
+
+/** `meta.i18n` that route-strategy puts on every localized record, and path-strategy reads at runtime. */
+export interface RouteI18nMeta {
+  /** Base route name of the page (its translation key and the name `localeRoute({ name })` takes). */
+  name: string
+  /** Locales this record serves. */
+  locales: string[]
+  /** `disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones. */
+  noMeta?: boolean | string[]
+  /** On the default locale's record: the path of a page with a custom default path, where it is no record of its own. A link can still name the page by it. */
+  original?: string
+  /** `noPrefixRedirect`, on the page's original path: the custom path of each locale. The locale is the visitor's, so the runtime redirects. */
+  paths?: Record<string, string>
+}

@@ -13,18 +13,8 @@ import {
   resolvePerfArgs,
 } from '../src/perf/config'
 import { PERF_FIXTURES, resolveFixtureSelection } from '../src/perf/fixtures'
-import {
-  I18N_LOAD_PHASES,
-  LOAD_PROFILES,
-  artilleryKnobsFromProfile,
-  loadPathsFromProfile,
-  parseLoadProfile,
-} from '../src/perf/load'
-import {
-  MODULE_PACKAGE_SRC_DIRS,
-  buildHashInputs,
-  isJitiModuleStub,
-} from '../src/perf/artifact'
+import { I18N_LOAD_PHASES, LOAD_PROFILES, artilleryKnobsFromProfile, loadPathsFromProfile, parseLoadProfile } from '../src/perf/load'
+import { MODULE_PACKAGE_SRC_DIRS, buildHashInputs, isJitiModuleStub } from '../src/perf/artifact'
 
 describe('perf config', () => {
   it('maps keys to a clamped branch at depth 5', () => {
@@ -150,7 +140,7 @@ export default _module
   it('includes module + package src in hashInputs', () => {
     const inputs = buildHashInputs('/tmp/fixture')
     expect(inputs[0]).toBe('/tmp/fixture')
-    expect(inputs.some((p) => p.endsWith('/src'))).toBe(true)
+    expect(inputs.some((p) => p.replace(/\\/g, '/').endsWith('/src'))).toBe(true)
     for (const dir of MODULE_PACKAGE_SRC_DIRS) {
       expect(inputs.some((p) => p.replace(/\\/g, '/').endsWith(dir))).toBe(true)
     }

@@ -1,6 +1,6 @@
 import type { Locale, PluralFunc, Translations } from '@i18n-micro/types'
-import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
-import { createI18n as createVueI18n, type I18nPlugin } from '@i18n-micro/vue'
+
+import { createI18n as createVueI18n, type I18nPlugin, type VueI18nOptions } from '@i18n-micro/vue'
 import type { App, Ref } from 'vue'
 import { createVitePressRouterAdapter, type PathMethods, type VitePressRouterAdapter, type VitePressRouterLike } from '../router/adapter'
 
@@ -19,6 +19,9 @@ export interface CreateI18nOptions {
   routeMessages?: Record<string, Record<string, Translations>>
   plural?: PluralFunc
   missingWarn?: boolean
+  numberFormats?: VueI18nOptions['numberFormats']
+  datetimeFormats?: VueI18nOptions['datetimeFormats']
+  timeZone?: string
   missingHandler?: (locale: string, key: string, routeName: string) => void
   /**
    * Sync i18n locale from the VitePress URL path on every navigation.
@@ -47,6 +50,12 @@ export type CreateI18nResult = I18nPlugin &
     enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> | VitePressSiteDataLike }) => void
   }
 
+// VitePress before 1.6 calls only `onAfterRouteChanged`; 1.6 prefers `onAfterRouteChange`, and 2 knows only that one.
+// No version calls both, so sync runs once per navigation.
+const ROUTE_HOOKS = ['onAfterRouteChange', 'onAfterRouteChanged'] as const
+type RouteHook = (typeof ROUTE_HOOKS)[number]
+type RouteHandler = (to: string) => unknown
+
 function applyRouteMessages(
   plugin: I18nPlugin,
   root: Record<string, Translations> | undefined,
@@ -55,7 +64,7 @@ function applyRouteMessages(
   if (!routeMessages) return
   for (const [routeName, byLocale] of Object.entries(routeMessages)) {
     for (const [locale, translations] of Object.entries(byLocale)) {
-      plugin.global.addRouteTranslations(locale, routeName, mergeRouteTranslationsWithRoot(root?.[locale], translations), false)
+      plugin.global.addRouteTranslations(locale, routeName, translations, false)
     }
   }
 }
@@ -76,6 +85,9 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
     plural: options.plural,
     missingWarn: options.missingWarn,
     missingHandler: options.missingHandler,
+    numberFormats: options.numberFormats,
+    datetimeFormats: options.datetimeFormats,
+    timeZone: options.timeZone,
     locales,
     defaultLocale,
   })
@@ -103,8 +115,8 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
     object,
     {
       adapter: VitePressRouterAdapter
-      boundSyncHandler: ((to: string) => unknown) | null
-      chainedPrevious: ((to: string) => unknown) | undefined
+      boundSyncHandlers: Partial<Record<RouteHook, RouteHandler>>
+      chainedPrevious: Partial<Record<RouteHook, RouteHandler>>
     }
   >()
 
@@ -127,7 +139,7 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
 
       app.use(plugin)
       plugin.setRoutingStrategy(adapter)
-      state = { adapter, boundSyncHandler: null, chainedPrevious: undefined }
+      state = { adapter, boundSyncHandlers: {}, chainedPrevious: {} }
       byApp.set(app, state)
     }
 
@@ -139,29 +151,31 @@ export function createI18n(options: CreateI18nOptions): CreateI18nResult {
       if (plugin.global.getLocale() !== nextLocale) {
         plugin.global.locale = nextLocale
       }
+      // the route is a page's name only when it has a dictionary (root keys resolve either way)
       const derived = adapter.routeNameFromPath(path)
       plugin.global.setRoute(pageRouteNames.has(derived) ? derived : 'index')
     }
 
     sync()
 
-    const current = router.onAfterRouteChange
-    if (current !== state.boundSyncHandler) {
-      state.chainedPrevious = typeof current === 'function' ? current : undefined
-    }
-    state.boundSyncHandler = async (to: string) => {
-      if (typeof state.chainedPrevious === 'function') {
-        await state.chainedPrevious(to)
+    for (const hook of ROUTE_HOOKS) {
+      const current = router[hook]
+      if (current !== state.boundSyncHandlers[hook]) {
+        state.chainedPrevious[hook] = typeof current === 'function' ? current : undefined
       }
-      const path = to.startsWith('http')
-        ? (() => {
-            const url = new URL(to)
-            return url.pathname + url.search + url.hash
-          })()
-        : to
-      sync(path)
+      const handler = async (to: string) => {
+        await state.chainedPrevious[hook]?.(to)
+        const path = to.startsWith('http')
+          ? (() => {
+              const url = new URL(to)
+              return url.pathname + url.search + url.hash
+            })()
+          : to
+        sync(path)
+      }
+      state.boundSyncHandlers[hook] = handler
+      router[hook] = handler
     }
-    router.onAfterRouteChange = state.boundSyncHandler
   }
 
   return Object.assign(plugin, pathMethods, {

@@ -41,18 +41,17 @@ function adapter(router: Router): RouterAdapter {
         hash: r.hash || '',
       }
     },
+    getRoutes: () => router.getRoutes(),
   }
 }
 
-function strategyFor(strategy: Strategy, router: Router, rules: Rules) {
+function strategyFor(strategy: Strategy, router: Router) {
   const ctx: PathStrategyContext = {
     strategy,
     defaultLocale: DEFAULT_LOCALE,
     locales: LOCALES,
-    localeCodes: LOCALE_CODES,
     localizedRouteNamePrefix: 'localized-',
     router: adapter(router),
-    globalLocaleRoutes: rules,
   }
   return createPathStrategy(ctx)
 }
@@ -76,7 +75,7 @@ describe('path-strategy runtime matches the generated routes', () => {
       for (const shape of Object.keys(SHAPES)) {
         for (const { label, rules } of configs) {
           const router = createAppRouter(generate(strategy, shape, rules))
-          const i18n = strategyFor(strategy, router, rules)
+          const i18n = strategyFor(strategy, router)
           for (const locale of LOCALE_CODES) {
             const expected = routerUrl(strategy, locale, router)
             if (!expected) continue
@@ -95,7 +94,7 @@ describe('path-strategy runtime matches the generated routes', () => {
               if (!fromUrl || routeNameFor(strategy, from, router) === undefined) continue
               await router.push(fromUrl)
               warnings.length = 0
-              const switched = i18n.switchLocaleRoute(from, locale, router.currentRoute.value as never, {})
+              const switched = i18n.switchLocaleRoute(locale, router.currentRoute.value as never, {})
               const actual = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
               if (actual !== expected) problems.push(`${id} | switch from ${from}: ${actual}, expected ${expected}`)
               if (warnings.length) problems.push(`${id} | switch from ${from}: ${warnings[0]}`)
@@ -125,7 +124,7 @@ describe('path-strategy from a page opened through its alias URL', () => {
       for (const shape of Object.keys(ALIAS_SHAPES)) {
         for (const { label, rules } of configs) {
           const router = createAppRouter(generate(strategy, shape, rules, ALIAS_SHAPES))
-          const i18n = strategyFor(strategy, router, rules)
+          const i18n = strategyFor(strategy, router)
           for (const from of LOCALE_CODES) {
             const mainUrl = routerUrl(strategy, from, router)
             const parentUrl = routerUrl(strategy, from, router, 'about') ?? ''
@@ -138,7 +137,7 @@ describe('path-strategy from a page opened through its alias URL', () => {
               if (!expected) continue
               const id = `${shape} | ${label} | ${from} alias ${aliasUrl} -> ${to}`
               warnings.length = 0
-              const switched = i18n.switchLocaleRoute(from, to, router.currentRoute.value as never, {})
+              const switched = i18n.switchLocaleRoute(to, router.currentRoute.value as never, {})
               const viaSwitch = typeof switched === 'string' ? switched : switched.path || router.resolve(switched as never).path
               const viaLocaleRoute = pathOf(i18n.localeRoute(to, { name: 'about-team' }))
               // the switch may stay on the alias of the target locale; both must reach the target's record

@@ -1,5 +1,8 @@
 /**
- * CacheControl — O(1) LRU cache with optional sliding TTL.
+ * CacheControl — O(1) LRU cache with an optional TTL.
+ *
+ * TTL counts from when an entry was stored, not from its last read: a hot entry still expires,
+ * so data behind it (a remote `apiBaseServerHost`) is refreshed at least every `ttl` seconds.
  *
  * Map is created internally — no external references, no desync risk.
  *
@@ -27,13 +30,36 @@ export class CacheControl<T> {
     if (options) this.configure(options)
   }
 
-  /** Update limits at runtime. Last call wins. */
+  /**
+   * Update limits at runtime. Last call wins, and the same limits again cost nothing: the server calls this per request.
+   * A smaller size applies at once. A TTL applies to what is stored from then on and to entries that have none;
+   * an entry that already expires keeps its time, and no TTL clears them all.
+   */
   configure(options: CacheControlOptions): void {
-    this.maxSize = options.maxSize ?? 0
-    this.ttlMs = (options.ttl ?? 0) * 1000
+    const maxSize = options.maxSize ?? 0
+    const ttlMs = (options.ttl ?? 0) * 1000
+    if (maxSize === this.maxSize && ttlMs === this.ttlMs) return
+    this.maxSize = maxSize
+    this.ttlMs = ttlMs
     if (this.ttlMs === 0) {
       this.expiry.clear()
+    } else {
+      this.stampUnexpiring()
     }
+    this.evictOverSize()
+  }
+
+  /** An entry stored while no TTL was set counts from now. */
+  private stampUnexpiring(): void {
+    const expires = Date.now() + this.ttlMs
+    for (const key of this.cache.keys()) {
+      if (!this.expiry.has(key)) this.expiry.set(key, expires)
+    }
+  }
+
+  private evictOverSize(): void {
+    if (this.maxSize === 0) return
+    while (this.cache.size > this.maxSize) this.delete(this.cache.keys().next().value!)
   }
 
   get(key: string): T | undefined {
@@ -46,7 +72,6 @@ export class CacheControl<T> {
         this.delete(key)
         return undefined
       }
-      this.expiry.set(key, Date.now() + this.ttlMs)
     }
 
     // Recency only decides who gets evicted. Without a size limit nothing is ever

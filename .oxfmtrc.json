@@ -17,7 +17,13 @@
     "**/.cache/**",
     "**/.git/**",
     "**/.astro/**",
-    "**/.fixture-builds/**"
+    "**/.fixture-builds/**",
+    "**/.bench/**",
+    "playground/locales/pages/huge-*/**",
+    "**/__golden__/**",
+    "**/_locales_hashes/**",
+    "test/fixtures/**/content/**/*.md",
+    "test/fixtures/basic/edge/**"
   ],
   "overrides": [
     {

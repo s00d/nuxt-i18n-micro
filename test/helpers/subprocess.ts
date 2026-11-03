@@ -18,23 +18,24 @@ function shellQuote(arg: string): string {
 }
 
 /**
- * Run a one-shot command inside a Vitest worker.
+ * Run a one-shot command inside a Vitest worker; resolves to its stdout + stderr.
  * Uses exec (buffered) so nuxi/npm cannot deadlock on a full stdout pipe.
  */
 export async function runCommand(
   command: string,
   args: readonly string[],
   options: { cwd: string; env?: NodeJS.ProcessEnv; timeoutMs?: number },
-): Promise<void> {
+): Promise<string> {
   const cmd = [command, ...args].map(shellQuote).join(' ')
 
   try {
-    await exec(cmd, {
+    const { stdout, stderr } = await exec(cmd, {
       cwd: options.cwd,
       env: productionEnv(options.env),
       maxBuffer: 20 * 1024 * 1024,
       timeout: options.timeoutMs ?? 300_000,
     })
+    return stdout + stderr
   } catch (err: unknown) {
     const e = err as { code?: number | string; killed?: boolean; signal?: string; stdout?: string; stderr?: string; message?: string }
     const tail = ((e.stdout || '') + (e.stderr || '')).trim().slice(-2000)

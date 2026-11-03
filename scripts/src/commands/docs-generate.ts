@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { defineCommand } from 'citty'
-import { parse as parseComponent } from 'vue-docgen-api'
 import { indexSnapshot } from '../utils/api-surface'
+import { parseComponent } from '../utils/component-docs'
 import { BLOCK_START, MissingBlockError, cell, code, replaceBlock, summarise, table } from '../utils/markdown'
 import { type ModuleOption, readModuleOptions } from '../utils/module-options'
 import { type DocSymbol, readInterface, readModules } from '../utils/typedoc-model'
@@ -120,17 +121,6 @@ function openListsWithABlankLine(text: string): string {
   }
 
   return out.join('\n')
-}
-
-/** The compact index used inside the Configuration guide. */
-function optionsIndex(options: ModuleOption[]): string {
-  const rows = options.map((option) => [
-    `[\`${option.path}\`](/api/module-options)`,
-    code(option.type),
-    code(option.default),
-    summarise(option.description),
-  ])
-  return table(['Option', 'Type', 'Default', 'Purpose'], rows)
 }
 
 /* ------------------------------------------------------------------------------ symbols */
@@ -343,7 +333,8 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
       '',
       table(['Export', 'Kind', 'Signature'], rows),
       '',
-      ...details,
+      // a blank line between blocks: a line right after `</details>` is parsed as raw HTML
+      details.join('\n\n'),
     ].join('\n')
   })
 
@@ -351,13 +342,16 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
     '---',
     `title: '${pkg.name}'`,
     `description: 'Exported API of ${pkg.name}, generated from the source.'`,
+    // The sidebar group is already "Package APIs": drop the scope so long names fit.
+    'navigation:',
+    `  title: '${pkg.name.replace(/^@i18n-micro\//, '')}'`,
     "outline: 'deep'",
     '---',
     '',
     `# \`${pkg.name}\``,
     '',
     `${pkg.exportCount} exports across ${pkg.entryPoints.length} entry point${pkg.entryPoints.length === 1 ? '' : 's'}.`,
-    'Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)',
+    'Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)',
     'checks against the TypeScript sources.',
     '',
     ...sections,
@@ -374,6 +368,99 @@ function packagesIndex(packages: ApiPackage[]): string {
     String(pkg.exportCount),
   ])
   return table(['Package', 'Entry points', 'Exports'], rows)
+}
+
+/* ------------------------------------------------------------------------------- CLI */
+
+interface CliArg {
+  type: 'string' | 'boolean' | 'positional'
+  description: string
+  default?: string | boolean
+  required?: boolean
+  values?: readonly string[]
+  defaultHint?: string
+}
+
+interface CliCommand {
+  description: string
+  group: string
+  args: Record<string, CliArg>
+  examples?: string[]
+}
+
+interface CliSpec {
+  COMMAND_GROUPS: readonly string[]
+  commands: Record<string, CliCommand>
+  CHECK_TYPES: readonly string[]
+  LINT_RULES: ReadonlyArray<{ name: string; description: string; fixable: boolean }>
+  EXIT_CODES: ReadonlyArray<readonly [number, string]>
+  CONFIG_FILES: ReadonlyArray<readonly [string, string]>
+  ENVIRONMENT: ReadonlyArray<readonly [string, string]>
+  REMOVED_COMMANDS: Record<string, string>
+}
+
+/** On every command, so the reference states them once. */
+const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug'])
+
+const cliFlag = (name: string, arg: CliArg): string => code(arg.type === 'positional' ? `<${name}>` : `--${name}`) + (arg.required ? ' **\\***' : '')
+
+function cliDefault(arg: CliArg): string {
+  if (arg.defaultHint) return cell(arg.defaultHint)
+  if (arg.default === undefined || arg.default === '') return '—'
+  return code(String(arg.default))
+}
+
+const cliDescription = (arg: CliArg): string => cell(arg.values ? `${arg.description}: ${arg.values.join(', ')}` : arg.description)
+
+const cliFlagTable = (args: [string, CliArg][]): string =>
+  table(
+    ['Flag', 'Default', 'Description'],
+    args.map(([name, arg]) => [cliFlag(name, arg), cliDefault(arg), cliDescription(arg)]),
+  )
+
+function cliCommandBlock(name: string, command: CliCommand): string {
+  const flags = Object.entries(command.args).filter(([flag]) => !CLI_COMMON_FLAGS.has(flag))
+  const parts = [`### \`${name}\``, '', command.description, '']
+  if (flags.length > 0) parts.push(cliFlagTable(flags), '')
+  if (flags.some(([, arg]) => arg.required)) parts.push('**\\*** required.', '')
+  if (command.examples?.length) parts.push('```bash', ...command.examples, '```', '')
+  return parts.join('\n').trim()
+}
+
+/**
+ * The command table of `@i18n-micro/cli`, read from its source.
+ *
+ * Through a computed path: this package has no dependency on the CLI, and a static import
+ * would pull every command's parser into the type-check of the tooling.
+ */
+export async function cliReference(): Promise<string> {
+  const spec = (await import(/* @vite-ignore */ pathToFileURL(join(repoRoot, 'packages/cli/src/spec.ts')).href)) as CliSpec
+  const { COMMAND_GROUPS, commands, LINT_RULES, EXIT_CODES, CONFIG_FILES, ENVIRONMENT, REMOVED_COMMANDS } = spec
+  const entries = Object.entries(commands)
+  const common = entries.flatMap(([, command]) => Object.entries(command.args)).filter(([name]) => CLI_COMMON_FLAGS.has(name))
+  const uniqueCommon = [...new Map(common).entries()]
+
+  const groups = COMMAND_GROUPS.map((group) => {
+    const members = entries.filter(([, command]) => command.group === group)
+    return [`## ${group}`, '', ...members.flatMap(([name, command]) => [cliCommandBlock(name, command), ''])].join('\n').trim()
+  })
+
+  const reference: Array<[string, string[], string[][]]> = [
+    [
+      'Lint rules',
+      ['Rule', 'Finds', 'Fixed by `--fix`'],
+      LINT_RULES.map(({ name, description, fixable }) => [code(name), description, fixable ? 'yes' : 'no']),
+    ],
+    ['Exit codes', ['Code', 'Meaning'], EXIT_CODES.map(([exit, meaning]) => [code(String(exit)), meaning])],
+    ['Configuration files', ['File', 'Used by'], CONFIG_FILES.map(([file, purpose]) => [code(file), purpose])],
+    ['Environment variables', ['Name', 'Used for'], ENVIRONMENT.map(([name, purpose]) => [code(name), purpose])],
+    ['Removed commands', ['Command', 'Instead'], Object.entries(REMOVED_COMMANDS).map(([name, replacement]) => [code(name), replacement])],
+  ]
+  const tables = reference.map(([title, head, rows]) => [`## ${title}`, '', table(head, rows)].join('\n'))
+
+  return ['## Common flags', '', cliFlagTable(uniqueCommon), '', ...groups.flatMap((group) => [group, '']), ...tables.flatMap((block) => [block, ''])]
+    .join('\n')
+    .trim()
 }
 
 /* -------------------------------------------------------------------------------- budget */
@@ -399,7 +486,7 @@ function budgetTable(): string {
     '',
     table(['Measurement', 'Size'], rows),
     '',
-    'The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real',
+    'The playground is a test bench with generated dictionaries of up to 100k keys, so these are not figures to expect from a real',
     'application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,',
     'which is how an accidental change to what the payload carries gets noticed.',
   ]
@@ -419,8 +506,9 @@ export const docsGenerateCommand = defineCommand({
       'except a browser.',
       '',
       'Sources: vue-docgen-api for the components, TypeDoc for the composables and the',
-      'injected helpers, the `ModuleOptions` type for the option reference, and the',
-      'artifacts `api-surface` and `payload-budget` already produce.',
+      'injected helpers, the `ModuleOptions` type for the option reference, the command',
+      'table of @i18n-micro/cli, and the artifacts `api-surface` and `payload-budget`',
+      'already produce.',
       '',
       'Examples:',
       '  pnpm -C scripts cli docs-generate',
@@ -465,12 +553,11 @@ export const docsGenerateCommand = defineCommand({
 
     // --- module options ---------------------------------------------------------------
     const options = readModuleOptions()
-    inBlock('docs/api/module-options.md', 'module-options', groupedOptions(options))
-    inBlock('docs/guide/configuration.md', 'options-index', optionsIndex(options))
-
-    // Any page may give an option a section of its own — the Configuration guide does for
-    // most, the Strategy guide for `strategy` — and each takes its facts from the type.
-    const optionPages = ['docs/guide/configuration.md', 'docs/guide/strategy.md']
+    inBlock('docs/content/api/module-options.md', 'module-options', groupedOptions(options))
+    // Any page may give an option a section of its own — the option details on the
+    // reference page do for most, the Strategy guide for `strategy` — and each takes its
+    // facts from the type.
+    const optionPages = ['docs/content/api/module-options.md', 'docs/content/guide/strategy.md']
     for (const page of optionPages) {
       const body = readFileSync(join(repoRoot, page), 'utf8')
       for (const option of options) {
@@ -481,25 +568,25 @@ export const docsGenerateCommand = defineCommand({
 
     // --- runtime helpers and composables ----------------------------------------------
     const methods = await readInterface('src/runtime/plugins/01.plugin.ts', 'PluginsInjections')
-    const methodsPage = readFileSync(join(repoRoot, 'docs/api/methods.md'), 'utf8')
+    const methodsPage = readFileSync(join(repoRoot, 'docs/content/api/methods.md'), 'utf8')
     const documented = new Set(methods.filter((method) => methodsPage.includes(BLOCK_START(`method:${method.name}`))).map((method) => method.name))
 
-    inBlock('docs/api/methods.md', 'methods-index', methodsIndex(methods, documented))
+    inBlock('docs/content/api/methods.md', 'methods-index', methodsIndex(methods, documented))
     for (const name of documented) {
-      inBlock('docs/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
+      inBlock('docs/content/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
     }
 
-    // `$defineI18nRoute` and `$clearCache` reach an app through `useNuxtApp()` only, so
-    // they are not in `PluginsInjections` — and were the last helpers described by hand.
+    // `$defineI18nRoute` reaches an app through `useNuxtApp()` only, so it is not in
+    // `PluginsInjections` — and was the last helper described by hand.
     const appOnly = await readInterface('src/runtime/plugins/01.plugin.ts', 'NuxtAppOnlyInjections')
     for (const symbol of appOnly) {
       const id = `method:${symbol.name}`
-      if (methodsPage.includes(BLOCK_START(id))) inBlock('docs/api/methods.md', id, symbolBlock(symbol))
+      if (methodsPage.includes(BLOCK_START(id))) inBlock('docs/content/api/methods.md', id, symbolBlock(symbol))
     }
 
     const composables = (await readModules('src/runtime/composables')).flatMap((module) => module.symbols)
     for (const symbol of composables.filter((entry) => entry.name.startsWith('use'))) {
-      const page = `docs/composables/${symbol.name}.md`
+      const page = `docs/content/composables/${symbol.name}.md`
       if (existsSync(join(repoRoot, page))) inBlock(page, `symbol:${symbol.name}`, symbolBlock(symbol))
     }
 
@@ -508,7 +595,7 @@ export const docsGenerateCommand = defineCommand({
     if (existsSync(componentsDir)) {
       for (const file of readdirSync(componentsDir).filter((name) => name.endsWith('.vue'))) {
         const tag = file.replace(/\.vue$/, '')
-        const page = `docs/components/${tag}.md`
+        const page = `docs/content/components/${tag}.md`
         if (!existsSync(join(repoRoot, page))) continue
         // oxlint-disable-next-line no-await-in-loop -- four files, and each compiles an SFC
         inBlock(page, `component:${tag}`, await componentBlock(join(componentsDir, file)))
@@ -517,9 +604,9 @@ export const docsGenerateCommand = defineCommand({
 
     // --- packages ---------------------------------------------------------------------
     const packages = readPackages()
-    inBlock('docs/api/packages.md', 'packages-index', packagesIndex(packages))
+    inBlock('docs/content/api/packages.md', 'packages-index', packagesIndex(packages))
 
-    const packagesDir = join(repoRoot, 'docs/api/packages')
+    const packagesDir = join(repoRoot, 'docs/content/api/packages')
     // Ordered so the package that owns a type documents it: types first, then core,
     // then the rest — a later page links back rather than repeating the table.
     const ownership = ['types', 'core', 'utils']
@@ -529,7 +616,7 @@ export const docsGenerateCommand = defineCommand({
     })
 
     const memberIndex: MemberIndex = { seen: new Map() }
-    for (const pkg of byOwnership) emit(`docs/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
+    for (const pkg of byOwnership) emit(`docs/content/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
 
     // A package removed from the workspace must lose its page too — and `--check` has to
     // say so, or a stale page passes CI forever.
@@ -537,13 +624,16 @@ export const docsGenerateCommand = defineCommand({
       const expected = new Set(packages.map((pkg) => `${pkg.slug}.md`))
       for (const file of readdirSync(packagesDir)) {
         if (!file.endsWith('.md') || expected.has(file)) continue
-        if (args.check) report.stale.push(`docs/api/packages/${file}`)
+        if (args.check) report.stale.push(`docs/content/api/packages/${file}`)
         else rmSync(join(packagesDir, file))
       }
     }
 
+    // --- CLI ---------------------------------------------------------------------------
+    inBlock('docs/content/api/cli.md', 'cli-commands', await cliReference())
+
     // --- payload budget ---------------------------------------------------------------
-    inBlock('docs/guide/performance.md', 'payload-budget', budgetTable())
+    inBlock('docs/content/guide/performance.md', 'payload-budget', budgetTable())
 
     if (args.json) {
       console.log(JSON.stringify(report, null, 2))

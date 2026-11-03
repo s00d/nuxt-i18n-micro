@@ -2,5 +2,16 @@
   "key0": "de",
   "generic": {
     "welcome": "Willkommen auf der Seite!"
+  },
+  "shared": "Shared DE",
+  "layout": {
+    "title": "Meine App",
+    "nav": {
+      "home": "Startseite",
+      "about": "Über uns"
+    }
+  },
+  "page": {
+    "welcome": "Willkommen auf unserer Seite"
   }
 }

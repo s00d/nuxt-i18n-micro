@@ -1,0 +1,71 @@
+- `plain` → <span>Hello</span>
+- `missing` → <span>nope</span>
+- `missing + defaultValue` → <span>dv</span>
+- `nested` → <span>Deep 1</span>
+- `object value` → <span>[object Object]</span>
+- `number value` → <span>7</span>
+- `tag + attrs` → <p id="x" class="c">Hello</p>
+- `params` → <span>Hello, Z!</span>
+- `param missing` → <span>Hello, {name}!</span>
+- `param looks like a slot` → <span>{b} then <i>B</i></span>
+- `param and slot same name` → <span><b>A</b> then {b}</span>
+- `slots in order` → <span><b>A</b> then <i>B</i></span>
+- `slots reordered` → <span><i>B</i> then <b>A</b></span>
+- `slots repeated` → <span><b>A</b> and <b>A</b></span>
+- `slots at the edges` → <span><b>A</b><i>B</i></span>
+- `unknown slot` → <span>{a} then {b}</span>
+- `default slot` → <span><u>Hello, Z!</u></span>
+- `unicode names, params` → <span>И F</span>
+- `unicode names, slots` → <span><b>A</b> <i>B</i></span>
+- `proto, no params` → <span>{__proto__} {constructor} {toString}</span>
+- `proto, slots object has no such slot` → <span>{__proto__} {constructor} {toString}</span>
+- `html` → <span><b>3</b> new</span>
+- `html, hostile param` → <span>Hello, &lt;img src=x onerror=alert(1)&gt;!</span>
+- `text, hostile param` → <span>Hello, &lt;img src=x&gt;!</span>
+- `html ignores slots` → <span>{a} then {b}</span>
+- `innerHTML attr` → <span>Hello</span>
+- `dangerouslySetInnerHTML attr` → <span>Hello</span>
+- `textContent attr` → <span>Hello</span>
+- `hideIfEmpty blank` → (nothing)
+- `hideIfEmpty blank + default` → dv
+- `hideIfEmpty empty` → (nothing)
+- `hideIfEmpty number` → (nothing)
+- `hideIfEmpty plural` → (nothing)
+- `blank shown` → <span>   </span>
+- `plural 0` → <span>no apples</span>
+- `plural 1` → <span>one apple</span>
+- `plural 5` → <span>5 apples</span>
+- `plural "2"` → <span>2 apples</span>
+- `plural 1.5` → <span>1.5 apples</span>
+- `plural "abc"` → <span>NaN apples</span>
+- `plural null` → <span>no apples | one apple | {count} apples</span>
+- `plural + slot` → <span>2 items in <b>A</b></span>
+- `plural + html` → <span><b>&lt;i&gt;</b> new</span>
+- `plural missing + default` → <span>dv</span>
+- `plural ru 1` → <span>яблока</span>
+- `plural ru 2` → <span>яблок</span>
+- `plural ru 5` → <span>яблок</span>
+- `plural ru 21` → <span>яблок</span>
+- `plural ru zero-first 0` → <span>нет яблок</span>
+- `plural ru zero-first 1` → <span>одно яблоко</span>
+- `plural ru zero-first 21` → <span>21 яблок</span>
+- `plural ru marked 0` → <span>нет</span>
+- `plural ru marked 21` → <span>21 яблоко</span>
+- `plural ru marked 22` → <span>22 яблока</span>
+- `customPluralRule marked` → <span>ru:1:=0 нет | {count} яблоко | {count} яблока | {count} яблок:{}</span>
+- `customPluralRule` → <span>en:4:no apples | one apple | {count} apples:{"p":1}</span>
+- `customPluralRule null` → <span></span>
+- `customPluralRule miss` → <span>en:4:nope:{}</span>
+- `customPluralRule fraction` → <span>en:1.5:no apples | one apple | {count} apples:{}</span>
+- `customPluralRule html` → <span><b>x</b></span>
+- `number` → <span>n=1,500</span>
+- `number string` → <span>n=1,500</span>
+- `number null` → <span>Hello</span>
+- `number + same-name param` → <span>n=5</span>
+- `number + slot` → <span>n=5 <b>A</b></span>
+- `date` → <span>d=1/15/2024</span>
+- `date null` → <span>Hello</span>
+- `date + same-name param` → <span>d=1/15/2024</span>
+- `relativeDate` → <span>r=2 hours ago</span>
+- `relativeDate null` → <span>Hello</span>
+- `precedence number over plural` → <span>n=2</span>

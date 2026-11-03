@@ -13,7 +13,7 @@ contact_links:
     about: Check frequently asked questions before opening an issue
 
   - name: 🚀 Examples
-    url: https://s00d.github.io/nuxt-i18n-micro/examples
+    url: https://s00d.github.io/nuxt-i18n-micro/api/methods
     about: View code examples and common use cases
 
   - name: 📝 Changelog

@@ -1,40 +1,70 @@
 <template>
-  <div class="translation-editor">
-    <!-- List (Scrollable) -->
-    <div class="translation-list-container">
-      <div class="search-box">
-        <input v-model="searchQuery" placeholder="Search keys or values..." class="search-input" />
+  <div class="flex h-full w-full flex-col overflow-hidden">
+    <div class="flex shrink-0 items-center gap-2 border-b border-line px-4 py-2">
+      <div class="relative max-w-md flex-1">
+        <Icon name="search" class="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-dimmed" />
+        <input v-model="searchQuery" type="search" placeholder="Search keys or values…" aria-label="Search keys or values" class="field pl-8" />
       </div>
-
-      <div class="translation-list">
-        <div v-for="key in filteredKeys" :key="key" class="translation-item" :class="{ missing: !flattenedContent[key]?.trim() }">
-          <div class="key-header">
-            <span class="key-label" :title="key">{{ key }}</span>
-            <button v-if="selectedDriver !== 'disabled'" class="translate-btn" @click="translateText(key, defaultLocaleFlatContent[key] || '')">
-              <svg class="translate-icon" viewBox="0 0 24 24">
-                <path
-                  d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"
-                />
-              </svg>
-            </button>
-          </div>
-          <div class="default-value">
-            {{ defaultLocaleFlatContent[key] || 'No default value' }}
-          </div>
-          <textarea
-            v-model="flattenedContent[key]"
-            class="translation-input"
-            :placeholder="defaultLocaleFlatContent[key]"
-            rows="1"
-            @input="handleInputChange"
-          />
-        </div>
+      <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-default select-none">
+        <input v-model="missingOnly" type="checkbox" class="size-3.5 accent-[var(--ui-primary)]" />
+        Missing only
+      </label>
+      <div class="ml-auto flex items-center gap-1.5 text-xs text-muted">
+        <Badge v-if="missingCount" color="warning" dot>{{ missingCount }} missing</Badge>
+        <Badge>{{ allKeys.length }} keys</Badge>
       </div>
     </div>
 
-    <!-- Pagination (Fixed at bottom) -->
-    <div class="pagination-wrapper">
-      <Pagination v-if="!searchQuery" :current-page="currentPage" :total-pages="totalPages" @update:page="goToPage" />
+    <div class="scroll-thin min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div
+        v-for="key in visibleKeys"
+        :key="key"
+        :class="[
+          'grid gap-x-4 gap-y-1.5 border-b border-line px-4 py-2.5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]',
+          isMissing(key) ? 'border-l-2 border-l-warning bg-warning/5 pl-[14px]' : '',
+        ]"
+      >
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <code class="code truncate select-all" :title="key">{{ key }}</code>
+            <Badge v-if="isMissing(key)" color="warning">missing</Badge>
+          </div>
+          <p class="mt-1 line-clamp-2 text-sm break-words text-muted" :title="defaultLocaleFlatContent[key]">
+            {{ defaultLocaleFlatContent[key] || 'No default value' }}
+          </p>
+        </div>
+        <div class="flex items-start gap-1.5">
+          <textarea
+            v-model="flattenedContent[key]"
+            class="field min-h-8 resize-y [field-sizing:content]"
+            :placeholder="defaultLocaleFlatContent[key]"
+            :aria-label="`Translation for ${key}`"
+            rows="1"
+            @input="handleInputChange"
+          />
+          <Button
+            v-if="selectedDriver !== 'disabled'"
+            variant="ghost"
+            square
+            icon="languages"
+            title="Translate from the default locale"
+            aria-label="Translate from the default locale"
+            @click="translateText(key, defaultLocaleFlatContent[key] || '')"
+          />
+        </div>
+      </div>
+
+      <EmptyState
+        v-if="!visibleKeys.length"
+        icon="search"
+        :title="allKeys.length ? 'Nothing matches' : 'No keys'"
+        :description="allKeys.length ? 'Try another search or turn off “Missing only”.' : 'The default locale has no keys for this file.'"
+      />
+    </div>
+
+    <div v-if="totalPages > 1" class="flex shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-1.5">
+      <span class="text-xs text-muted tabular-nums">{{ rangeLabel }}</span>
+      <Pagination :current-page="currentPage" :total-pages="totalPages" @update:page="goToPage" />
     </div>
   </div>
 </template>
@@ -44,7 +74,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18nState } from '../../composables/useI18nState'
 import type { TranslationContent } from '../../types'
 import { flattenTranslations, unflattenTranslations } from '../../util/i18nUtils'
-import { type DriverType, Translator } from '../../util/Translator'
+import { type DriverType, loadTranslationSettings, Translator } from '../../util/Translator'
+import Badge from '../ui/Badge.vue'
+import Button from '../ui/Button.vue'
+import EmptyState from '../ui/EmptyState.vue'
+import Icon from '../ui/Icon.vue'
 import Pagination from '../ui/Pagination.vue'
 
 const props = defineProps<{
@@ -55,10 +89,10 @@ const emit = defineEmits<(e: 'update:modelValue', value: TranslationContent) => 
 
 const { selectedFile, configs, getDefaultLocaleTranslation } = useI18nState()
 
-// Reactive data
 const flattenedContent = ref(flattenTranslations(props.modelValue))
 const defaultLocaleFlatContent = ref<Record<string, string>>({})
 const searchQuery = ref('')
+const missingOnly = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = 30
 
@@ -67,29 +101,35 @@ const selectedDriver = ref('disabled')
 const apiToken = ref('')
 const driverOptions = ref<{ [key: string]: string | number | boolean }>({})
 
-// Computed properties
-const filteredKeys = computed(() => {
-  const keys = Object.keys(defaultLocaleFlatContent.value)
-  if (!searchQuery.value.trim()) return paginatedKeys.value
+/** Rows follow the default locale's keys. */
+const allKeys = computed(() => Object.keys(defaultLocaleFlatContent.value))
+const isMissing = (key: string) => !flattenedContent.value[key]?.trim()
+const missingCount = computed(() => allKeys.value.filter(isMissing).length)
 
-  const query = searchQuery.value.toLowerCase()
-  return keys.filter((key) => key.toLowerCase().includes(query) || defaultLocaleFlatContent.value[key]?.toLowerCase().includes(query))
+/** Missing keys when the filter was turned on: a row stays put while it is being filled in. */
+const missingAtFilter = ref(new Set<string>())
+const snapshotMissing = () => {
+  missingAtFilter.value = new Set(allKeys.value.filter(isMissing))
+}
+
+const matchedKeys = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  return allKeys.value.filter(
+    (key) =>
+      (!missingOnly.value || missingAtFilter.value.has(key)) &&
+      (!query || key.toLowerCase().includes(query) || defaultLocaleFlatContent.value[key]?.toLowerCase().includes(query)),
+  )
 })
 
-const totalPages = computed(() => {
-  return Math.ceil(Object.keys(defaultLocaleFlatContent.value).length / itemsPerPage)
+const totalPages = computed(() => Math.ceil(matchedKeys.value.length / itemsPerPage))
+const visibleKeys = computed(() => matchedKeys.value.slice((currentPage.value - 1) * itemsPerPage, currentPage.value * itemsPerPage))
+const rangeLabel = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage + 1
+  return `${start}–${start + visibleKeys.value.length - 1} of ${matchedKeys.value.length}`
 })
 
-const paginatedKeys = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return Object.keys(defaultLocaleFlatContent.value).slice(start, end)
-})
-
-// Methods
 const initializeDefaultLocale = () => {
-  const defaultContent = getDefaultLocaleTranslation()
-  defaultLocaleFlatContent.value = flattenTranslations(defaultContent)
+  defaultLocaleFlatContent.value = flattenTranslations(getDefaultLocaleTranslation())
 }
 
 const handleInputChange = () => {
@@ -97,9 +137,7 @@ const handleInputChange = () => {
 }
 
 const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-  }
+  if (page >= 1 && page <= totalPages.value) currentPage.value = page
 }
 
 const translateText = async (key: string, text: string) => {
@@ -115,106 +153,34 @@ const translateText = async (key: string, text: string) => {
   }
 }
 
-const loadSettings = () => {
-  const saved = localStorage.getItem('translationSettings')
-  if (saved) {
-    try {
-      const settings = JSON.parse(saved)
-      selectedDriver.value = settings.driver || 'disabled'
-      apiToken.value = settings.token || ''
-      driverOptions.value = settings.options || {}
-    } catch {
-      localStorage.removeItem('translationSettings')
-    }
-  }
-}
-
 onMounted(() => {
   initializeDefaultLocale()
-  loadSettings()
+  loadTranslationSettings(selectedDriver, apiToken, driverOptions)
 })
 
 watch(
   () => props.modelValue,
   (newVal) => {
     flattenedContent.value = flattenTranslations(newVal)
-    // Update defaultLocaleFlatContent when modelValue changes
     initializeDefaultLocale()
   },
 )
 
 watch(selectedFile, () => {
   initializeDefaultLocale()
+  // the snapshot belongs to the previous file
+  missingOnly.value = false
+  currentPage.value = 1
+})
+
+watch(missingOnly, snapshotMissing)
+
+watch([searchQuery, missingOnly], () => {
   currentPage.value = 1
 })
 
 watch(
   () => configs.value.defaultLocale,
-  () => {
-    // Update defaultLocaleFlatContent when default locale changes
-    initializeDefaultLocale()
-  },
+  () => initializeDefaultLocale(),
 )
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.translation-editor {
-  @apply flex flex-col h-full w-full overflow-hidden bg-gray-50;
-}
-
-.translation-list-container {
-  @apply flex-1 flex flex-col min-h-0 overflow-hidden;
-}
-
-.search-box {
-  @apply bg-white p-2 border-b border-gray-200 shrink-0;
-}
-
-.search-input {
-  @apply w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500;
-}
-
-.translation-list {
-  @apply flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-3;
-  overscroll-behavior: contain;
-}
-
-.translation-item {
-  @apply p-3 bg-white rounded-lg shadow-sm border border-gray-200;
-}
-
-.translation-item.missing {
-  @apply border-l-4 border-l-yellow-500 bg-yellow-50/30;
-}
-
-.key-header {
-  @apply flex justify-between items-center mb-1;
-}
-
-.key-label {
-  @apply font-mono text-xs font-semibold text-slate-700 truncate select-all;
-}
-
-.default-value {
-  @apply text-xs text-gray-500 mb-2 truncate opacity-80;
-}
-
-.translation-input {
-  @apply w-full p-2 border border-gray-300 rounded text-sm min-h-[38px]
-  focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
-}
-
-.translate-btn {
-  @apply p-1 text-gray-400 hover:text-blue-600 transition-colors rounded hover:bg-gray-100;
-}
-
-.translate-icon {
-  @apply w-4 h-4 fill-current;
-}
-
-.pagination-wrapper {
-  @apply shrink-0 p-2 border-t border-gray-200 bg-white;
-}
-</style>

@@ -1,0 +1,36 @@
+---
+import { getDefaultLocale, getI18n, getI18nProps, getLocale, getLocaleRewritePath, getLocales, useI18n } from '@i18n-micro/astro'
+import { row } from '../../../../../benchmark/integrations/catalogue'
+
+const i18n = useI18n(Astro)
+const raw = getI18n(Astro)
+const list: Array<[string, () => unknown]> = [
+  ['get-locale', () => getLocale(Astro)],
+  ['get-default', () => getDefaultLocale(Astro)],
+  ['get-locales', () => getLocales(Astro).map((item) => item.code)],
+  ['locale-rewrite-path', () => getLocaleRewritePath(Astro)],
+  ['route-name', () => i18n.getRouteName()],
+  ['route-name-path', () => i18n.getRouteName('/de/a/b')],
+  ['locale-from-path', () => i18n.getLocaleFromPath('/fr/x')],
+  ['locale-from-path-none', () => i18n.getLocaleFromPath('/x')],
+  ['switch-path', () => i18n.switchLocalePath('de')],
+  ['switch-path-default', () => i18n.switchLocalePath('en')],
+  ['localize-path', () => i18n.localizePath('/x')],
+  ['localize-path-de', () => i18n.localizePath('/x', 'de')],
+  ['localize-query', () => i18n.localizePath('/x?a=1#b', 'de')],
+  ['base-path', () => i18n.getBasePath()],
+  ['base-path-url', () => i18n.getBasePath(new URL('http://x/de/y'))],
+  ['client-props', () => Object.keys(getI18nProps(Astro)).sort()],
+  ['client-props-keys', () => getI18nProps(Astro, ['welcome', 'section.title', 'no.such']).translations],
+  ['add-translations', () => (i18n.addTranslations(i18n.locale, { added: 'yes' }), i18n.t('added'))],
+  ['add-route', () => (i18n.addRouteTranslations(i18n.locale, 'routing', { routed: 'yes' }), i18n.t('routed'))],
+  ['merge', () => (i18n.mergeTranslations(i18n.locale, 'routing', { merged: 'yes' }), i18n.t('merged'))],
+  ['fork', () => raw.fork('de').t('welcome')],
+  ['clear-cache', () => (i18n.clearCache(), i18n.t('welcome'))],
+]
+const rows = list.map(([id, run]) => ({ id, value: row(run) }))
+---
+
+<ul data-testid="page-routing">
+  {rows.map(({ id, value }) => <li data-testid={id}>{value}</li>)}
+</ul>

@@ -1,0 +1,17 @@
+{
+  "greeting": "Hallo, {name}!",
+  "welcome": "Willkommen",
+  "apples": "keine Äpfel | ein Apfel | {count} Äpfel",
+  "two": "{a} / {b} / {a}",
+  "html": "<b>{name}</b>",
+  "section": {
+    "title": "Abschnitt",
+    "deep": {
+      "er": {
+        "value": "tief de"
+      }
+    }
+  },
+  "stats": "n={number} d={date} r={relativeDate}",
+  "list": ["eins", "zwei", "drei"]
+}

@@ -1,13 +1,12 @@
-import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ResolvedI18nConfig } from '@i18n-micro/types'
+import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
-import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
-import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
-import { computed, watch } from 'vue'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
-import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useState } from '#imports'
-import { useI18nHead } from '../composables/useI18nHead'
+import { joinURL } from 'ufo'
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
+import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
+import { usePageHead } from '../utils/page-head'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import type { PluginsInjections } from './01.plugin'
 
 function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } }): string | undefined {
   // Soft probe: only present when nuxt-site-config (via @nuxtjs/seo etc.) is installed.
@@ -21,85 +20,80 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
   }
 }
 
+/** The request's origin, or '' for no absolute URLs: a client writes these headers, and one that does not parse must not cost the page. */
+function requestOrigin(i18nConfig: ResolvedI18nConfig): string {
+  const xForwardedProto = i18nConfig.metaTrustForwardedProto !== false
+  try {
+    return useRequestURL({ xForwardedHost: i18nConfig.metaTrustForwardedHost !== false, xForwardedProto }).origin
+  } catch {
+    try {
+      return useRequestURL({ xForwardedProto }).origin
+    } catch {
+      return ''
+    }
+  }
+}
+
 /**
- * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin.
+ * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin plus `app.baseURL`.
  * `useRequestURL` (and X-Forwarded-*) is only used when both configured origins
  * are missing — that fallback trusts proxy headers when the corresponding
  * `metaTrustForwarded*` flags are true (the published default).
  */
-function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | undefined): string {
+function resolveSeoBaseUrl(i18nConfig: ResolvedI18nConfig, siteUrl: string | undefined): string {
   const configured = i18nConfig.metaBaseUrl || siteUrl
-  if (configured) return configured.replace(/\/+$/, '')
+  if (configured) return trimTrailingSlashes(configured)
 
-  const url = useRequestURL({
-    xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
-    xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
-  })
-  return url.origin.replace(/\/+$/, '')
+  return trimTrailingSlashes(joinURL(requestOrigin(i18nConfig), useRuntimeConfig().app.baseURL))
 }
+
+/** Once per process: the warning names a setting, not a request. */
+let warnedCachedRender = false
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
-  const localeState = useState<string | null>('i18n-locale', () => null)
-  const { pageHead } = useI18nHead()
-  const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
-  const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
-    (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
-  )
+  const pageHead = usePageHead()
+  const i18nConfig = nuxtApp.$getI18nConfig()
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
-  // routeDisableMeta is evaluated in useLocaleHead.updateMeta so client navigations
+  // disableMeta is evaluated on every head render so client navigations
   // can enable/disable tags per page — a one-shot check here would freeze the first route.
 
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
   const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
+  // Nitro renders a `swr` or `cache` route on a copy of the request with no host: the origin read there is
+  // `http://localhost`, in every visitor's page. Only a configured origin is right, and only the app can set it.
+  // A rule whose `cache.varies` keeps `host` renders with it, and needs nothing.
+  const event = nuxtApp.ssrContext?.event as { context?: { cache?: unknown }; node?: { req?: { headers?: Record<string, unknown> } } } | undefined
+  const hostless = event?.context?.cache && !event.node?.req?.headers?.host
+  if (import.meta.server && !warnedCachedRender && hostless && !i18nConfig.metaBaseUrl && !siteUrl) {
+    warnedCachedRender = true
+    console.warn(
+      '[i18n] A route cached by `swr` or `cache` renders without the request host, so canonical and hreflang URLs point to http://localhost. Set `i18n.metaBaseUrl` or `site.url`.',
+    )
+  }
 
-  const { metaObject, updateMeta } = useLocaleHead({
-    addDirAttribute: true,
-    identifierAttribute: 'id',
-    addSeoAttributes: true,
+  const { build } = useLocaleHead({
     baseUrl,
     autoUpdate: false,
   })
 
-  const mergedHead = computed(() => {
-    const { $getLocales, $getLocale } = nuxtApp as typeof nuxtApp & Pick<PluginsInjections, '$getLocales' | '$getLocale'>
-    const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
-    const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
-
-    // Keep page-defined i18n head out when the route disables meta — matching the
-    // previous plugin short-circuit that suppressed all head output for that route.
-    if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, i18nConfig.localizedRouteNamePrefix || 'localized-')) {
-      return { htmlAttrs: {}, link: [], meta: [] }
-    }
-
-    return mergeI18nHead(metaObject.value, pageHead.value, {
+  // A getter: unhead resolves it when the head renders (SSR: after the app rendered, so tags a
+  // page set while rendering are in; client: again whenever what it read changes — the route,
+  // the locale, i18nRouteParams through $switchLocalePath, pageHead). No watchers to keep in sync.
+  useHead(() => {
+    const { $getLocales, $getLocale } = nuxtApp
+    const allLocales = $getLocales()
+    const locale = $getLocale() || i18nConfig.defaultLocale
+    // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
+    type Head = ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
+    const head = build()
+    // a route that disables meta drops the page-defined i18n head too: `build` left only `lang` and `dir`
+    if (!pageHead.value || nuxtApp.$i18nStrategy.isMetaDisabled(route, locale)) return head as unknown as Head
+    return mergeI18nHead(head, pageHead.value, {
       identifierAttribute: 'id',
       locales: allLocales as Locale[],
       currentLocale: locale,
-    })
+    }) as unknown as Head
   })
-
-  // unhead's UseHeadInput does not model our merged i18n head shape; the runtime
-  // accepts a ComputedRef of it just fine.
-  useHead(mergedHead as unknown as Parameters<typeof useHead>[0])
-
-  const refreshMeta = () => updateMeta()
-
-  if (import.meta.server) {
-    nuxtApp.hook('app:rendered', refreshMeta)
-  } else {
-    refreshMeta()
-    nuxtApp.hook('page:finish', refreshMeta)
-  }
-
-  watch(() => i18nRouteParams.value, refreshMeta, { deep: true, flush: 'post' })
-
-  // Locale is included: no_prefix / hashMode / setLocale can change locale without a route change.
-  watch(() => [route.fullPath, route.name, route.matched.length, localeState.value] as const, refreshMeta, {
-    flush: 'post',
-  })
-
-  watch(pageHead, refreshMeta, { deep: true, flush: 'post' })
 })

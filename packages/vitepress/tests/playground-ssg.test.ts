@@ -16,6 +16,7 @@ function html(rel: string): string {
 
 beforeAll(() => {
   execFileSync('pnpm', ['exec', 'vitepress', 'build', 'playground'], {
+    shell: process.platform === 'win32',
     cwd: pkgRoot,
     stdio: 'pipe',
     timeout: 120_000,

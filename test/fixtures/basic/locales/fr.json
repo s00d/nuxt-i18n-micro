@@ -1,3 +1,5 @@
 {
-  "lang": "Français"
+  "lang": "Français",
+  "hello": "Bonjour le monde",
+  "welcome": "Bienvenue sur notre site"
 }

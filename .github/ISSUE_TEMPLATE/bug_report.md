@@ -91,5 +91,5 @@ Paste errors here
 
 💡 **Common issues:**
 
-- **Translations not working after deploy?** → See [Firebase Guide](https://s00d.github.io/nuxt-i18n-micro/guide/firebase)
+- **Translations not working after deploy?** → See [Deployment guide](https://s00d.github.io/nuxt-i18n-micro/guide/deployment#firebase)
 - **Build errors?** → Run `pnpm dev:prepare`

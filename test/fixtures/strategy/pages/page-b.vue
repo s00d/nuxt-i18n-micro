@@ -1,0 +1,30 @@
+<template>
+  <div id="page-b">
+    <h1 id="page-b-title">{{ $t('pageB.title') }}</h1>
+    <p id="page-b-body">{{ $t('pageB.body') }}</p>
+    <p id="page-b-shared">{{ $t('shared') }}</p>
+    <p id="page-b-common">{{ $t('common.fromB') }}</p>
+    <i18n-link id="go-to-a" :to="{ name: 'page-a' }">Go to A</i18n-link>
+  </div>
+</template>
+
+<script setup>
+import { definePageMeta, useNuxtApp } from '#imports'
+
+// Per-page transition (was app.pageTransition in the old transition-merge fixture).
+definePageMeta({ pageTransition: { name: 'page', mode: 'default' } })
+
+const { $t } = useNuxtApp()
+</script>
+
+<style>
+/* 1.5 s simultaneous cross-fade, so the leaving and the entering page coexist in the DOM */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 1.5s ease;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+</style>

@@ -46,6 +46,50 @@ export interface CreateBridgeOptions {
   locales?: Locale[]
   defaultLocale?: string
   translationDir?: string
+  /** The dev server's API base, the plugin's `base` option (default `'/__i18n_api'`). */
+  base?: string
+}
+
+/** A chunk with saves in flight: they run one by one, so `committed` is what the disk holds. */
+interface ChunkSaves {
+  committed: TranslationContent | undefined
+  latest: number
+  tail: Promise<void>
+}
+
+/** A static host (preview build) answers a POST to a missing endpoint with one of these. */
+const NO_ENDPOINT = new Set([404, 405])
+
+/** Keeps the edit in localStorage when there is no dev server to write it; without localStorage the error stands. */
+function saveLocally(filePath: string, content: TranslationContent, reason: unknown): void {
+  if (typeof localStorage === 'undefined') throw reason
+  console.warn('[i18n-bridge] No save endpoint, keeping the edit in localStorage:', reason)
+  localStorage.setItem(`i18n_save_${filePath}`, JSON.stringify(content, null, 2))
+}
+
+/**
+ * POST the file to the dev server's save endpoint. Only an unreachable server or a missing endpoint
+ * falls back to localStorage; an error the endpoint reports (rejected path, write failure) is thrown.
+ */
+async function saveToDisk(base: string, realFilePath: string, content: TranslationContent, filePath: string): Promise<void> {
+  let response: Response
+  try {
+    response = await fetch(`${base}/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: realFilePath, content }),
+    })
+  } catch (networkError) {
+    return saveLocally(filePath, content, networkError)
+  }
+  if (response.ok) {
+    console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
+    return
+  }
+  const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+  const error = new Error(errorData?.error || `Network response was not ok: ${response.statusText}`)
+  if (NO_ENDPOINT.has(response.status)) return saveLocally(filePath, content, error)
+  throw error
 }
 
 /**
@@ -54,6 +98,9 @@ export interface CreateBridgeOptions {
  */
 export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
   const { adapter, locales = [], defaultLocale = 'en', translationDir = 'src/locales' } = options
+  // no trailing slash: `/` + `/save` would be `//save`, a protocol-relative URL
+  const base = (options.base ?? '/__i18n_api').replace(/\/+$/, '')
+  const chunkSaves = new Map<string, ChunkSaves>()
 
   // Helper function to build locale data from cache
   const buildLocaleData = (): LocaleData => {
@@ -80,6 +127,53 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
     return data
   }
 
+  /** How a translation file maps onto the instance: its `locale:route` cache key and its writer. */
+  const hotWriter = (relativePath: string) => {
+    const parsed = parseTranslationRelativePath(relativePath)
+    if (parsed.type === 'page') {
+      return {
+        cacheKey: `${parsed.locale}:${parsed.pageName}`,
+        apply: (content: TranslationContent) => adapter.addRouteTranslations(parsed.locale, parsed.pageName, content, false),
+      }
+    }
+    if (parsed.type === 'root') {
+      return { cacheKey: `${parsed.locale}:index`, apply: (content: TranslationContent) => adapter.addTranslations(parsed.locale, content, false) }
+    }
+    return null
+  }
+
+  /**
+   * Hot-updates the chunk, then saves after the chunk's earlier saves. Only the newest edit of a
+   * failed run rolls back, to the last save that reached the disk; an older failure leaves it alone.
+   */
+  const applyAndSave = async (
+    write: NonNullable<ReturnType<typeof hotWriter>>,
+    content: TranslationContent,
+    persist: () => Promise<void>,
+  ): Promise<void> => {
+    const chunk = chunkSaves.get(write.cacheKey) ?? { committed: adapter.getRouteCache()[write.cacheKey], latest: 0, tail: Promise.resolve() }
+    chunkSaves.set(write.cacheKey, chunk)
+    const save = ++chunk.latest
+    write.apply(content)
+
+    const saved = chunk.tail.then(persist)
+    chunk.tail = saved
+      .then(
+        () => {
+          chunk.committed = content
+        },
+        () => {
+          if (chunk.latest === save) write.apply(chunk.committed ?? {})
+        },
+      )
+      .then(() => {
+        // idle again: the next edit starts from the live cache, which HMR may have changed
+        if (chunk.latest === save) chunkSaves.delete(write.cacheKey)
+      })
+    await chunk.tail
+    await saved
+  }
+
   return {
     async getLocalesAndTranslations(): Promise<LocaleData> {
       return buildLocaleData()
@@ -96,53 +190,14 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
 
     async saveTranslation(filePath: string, content: TranslationContent): Promise<void> {
       try {
-        // 1. Update state in memory (Hot Update)
         // Normalize path: remove leading / and extra slashes
         const normalizedPath = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
+        const write = hotWriter(normalizedPath)
+        if (!write) throw new Error(`Unknown file path format: ${filePath}`)
 
-        const parsedPath = parseTranslationRelativePath(normalizedPath)
-
-        if (parsedPath.type === 'page') {
-          adapter.addRouteTranslations(parsedPath.locale, parsedPath.pageName, content, false)
-        } else if (parsedPath.type === 'root') {
-          adapter.addTranslations(parsedPath.locale, content, false)
-        } else {
-          throw new Error(`Unknown file path format: ${filePath}`)
-        }
-
-        // 2. Send request to server to save file to disk
-        // Build real path relative to project root
+        // The app must not keep an edit that is neither on disk nor in localStorage
         const realFilePath = translationDir ? `${translationDir}/${normalizedPath}` : normalizedPath
-
-        try {
-          const response = await fetch('/__i18n_api/save', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              file: realFilePath,
-              content,
-            }),
-          })
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-            throw new Error(errorData.error || `Network response was not ok: ${response.statusText}`)
-          }
-
-          console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
-        } catch (serverError) {
-          // Fallback: Save to localStorage if server is unavailable (e.g., in production preview)
-          if (typeof localStorage !== 'undefined') {
-            console.warn('[i18n-bridge] Server save failed, falling back to localStorage:', serverError)
-            const storageKey = `i18n_save_${filePath}`
-            localStorage.setItem(storageKey, JSON.stringify(content, null, 2))
-          } else {
-            // If no server and no localStorage, throw error
-            throw serverError
-          }
-        }
+        await applyAndSave(write, content, () => saveToDisk(base, realFilePath, content, filePath))
       } catch (error) {
         throw new Error(`Failed to save: ${error instanceof Error ? error.message : String(error)}`)
       }

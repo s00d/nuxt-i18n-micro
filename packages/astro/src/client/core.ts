@@ -1,52 +1,37 @@
-import { interpolate } from '@i18n-micro/core'
-import type { Params, Translations } from '@i18n-micro/types'
+import { convertible, defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
+import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { I18nClientProps } from '../utils'
 
 /**
  * I18n state for client islands
  */
 export interface I18nState {
   locale: string
+  /** The tag plurals go by, when it is not `locale`. */
+  pluralLocale?: string
+  /** Tags of the codes that have one: `setLocale` finds the new locale's here. */
+  localeIso?: Record<string, string>
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
 }
 
-// Helper function to find a translation in a Translations object
-// Returns the value as-is, including objects (for nested translations)
-function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
-  if (translations === null || typeof key !== 'string') {
-    return null
-  }
+type Value = string | number | boolean | Translations
 
-  let value: string | number | boolean | Translations | unknown | null = translations
-
-  // Direct key access
-  if (translations[key]) {
-    value = translations[key]
-  } else {
-    // Search by nested keys (e.g. "nested.message")
-    const parts = key.toString().split('.')
-    for (const part of parts) {
-      if (value && typeof value === 'object' && value !== null && part in value) {
-        value = (value as Translations)[part]
-      } else {
-        return null
-      }
-    }
-  }
-
-  // Return value as-is (can be string, number, boolean, object, or null)
-  // This matches CleanTranslation type which allows objects
-  return (value as T) ?? null
+/**
+ * The value at `key` in the route's dictionary, or null. Own keys only (core's `resolveTranslation`):
+ * `toString` or `__proto__` is a missing key, not `Object.prototype`'s.
+ */
+function lookup(state: I18nState, key: string, routeName?: string): Value | null {
+  const route = routeName || state.currentRoute
+  const translations = Object.prototype.hasOwnProperty.call(state.translations, route) ? state.translations[route] : undefined
+  return (resolveTranslation(translations, key) as Value | null) ?? null
 }
 
 /**
- * Pure function to get a translation from state
- *
- * Note: This is a simplified version optimized for client-side islands.
- * It supports basic translation lookup and interpolation.
- * Returns CleanTranslation which can be string, number, boolean, object, or null.
- * For advanced features like Linked Messages (@:path.to.key), use the server-side i18n instance.
+ * Pure function to get a translation from state, answering as the server's `t()` does over the
+ * same keys. `getI18nProps` already merged the root and fallback dictionaries into the state.
+ * For Linked Messages (@:path.to.key), use the server-side i18n instance.
  */
 export function translate(
   state: I18nState,
@@ -55,41 +40,121 @@ export function translate(
   defaultValue?: string | null,
   routeName?: string,
 ): string | number | boolean | Translations | null {
-  if (!key) {
-    return defaultValue || key || ''
-  }
-
-  const route = routeName || state.currentRoute
-  let value: string | number | boolean | Translations | null = null
-
-  if (state.translations[route]) {
-    value = findTranslation<string | number | boolean | Translations>(state.translations[route], key)
-  }
-
-  // If not found, use defaultValue or key
-  if (!value) {
-    value = defaultValue === undefined ? key : defaultValue || key
-  }
-
-  if (typeof value === 'string' && params) {
-    return interpolate(value, params)
-  }
-  return value
+  if (!key) return ''
+  // `??`: 0, false and '' are values, as on the server
+  const value = lookup(state, key, routeName) ?? (defaultValue || key)
+  if (typeof value === 'object') return convertible(value)
+  return typeof value === 'string' && params ? interpolate(value, params) : value
 }
 
 /**
- * Checks if a translation exists in the state
+ * `tc` of every island adapter, as the server's `BaseI18n.tc`: a missing key gives `defaultValue`
+ * (else the key), because the getter reports the miss to `defaultPlural` instead of the key.
+ */
+export function translatePlural(state: I18nState, key: TranslationKey, count: number | Params, defaultValue?: string): string {
+  const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
+  if (countValue === undefined || countValue === null) return defaultValue ?? key
+  const getter: Getter = (k, p, dv) => {
+    const raw = lookup(state, k)
+    if (raw === null) return dv === undefined ? undefined : dv || k
+    return p && typeof raw === 'string' ? interpolate(raw, p) : raw
+  }
+  return defaultPlural(key, Number(countValue), params, state.pluralLocale ?? state.locale, getter) ?? defaultValue ?? key
+}
+
+/**
+ * Checks if a translation exists in the state: a subtree counts, as on the server
  */
 export function hasTranslation(state: I18nState, key: string, routeName?: string): boolean {
-  const route = routeName || state.currentRoute
-  const routeTranslations = state.translations[route]
+  return lookup(state, key, routeName) !== null
+}
 
-  if (routeTranslations) {
-    const value = findTranslation(routeTranslations, key)
-    if (value !== null && typeof value !== 'object') {
-      return true
+/** `state` in another locale, with that locale's plural tag. */
+export const withLocale = (state: I18nState, locale: string): I18nState => ({
+  ...state,
+  locale,
+  pluralLocale: state.localeIso && (ownValue(state.localeIso, locale) as string | undefined),
+})
+
+const formatter = /*#__PURE__*/ new FormatService()
+
+const isoTag = (state: I18nState): string => state.pluralLocale ?? state.locale
+
+/** What every island adapter returns, over the state it reads at each call. */
+export function createIslandApi(getState: () => I18nState) {
+  const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation =>
+    translate(getState(), key as string, params, defaultValue, routeName)
+
+  return {
+    t,
+    ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
+      textOf(t(key, params, defaultValue, routeName)) ?? defaultValue ?? (key as string),
+    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(getState(), key, count, defaultValue),
+    tn: (value: number, options?: Intl.NumberFormatOptions): string => formatter.formatNumber(value, isoTag(getState()), options),
+    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => formatter.formatDate(value, isoTag(getState()), options),
+    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string =>
+      formatter.formatRelativeTime(value, isoTag(getState()), options),
+    has: (key: TranslationKey, routeName?: string): boolean => hasTranslation(getState(), key as string, routeName),
+    getRoute: (): string => getState().currentRoute,
+  }
+}
+
+type SetI18nState = (update: I18nState | ((current: I18nState) => I18nState)) => void
+
+export interface I18nContextValue {
+  state: I18nState
+  setState: SetI18nState
+}
+
+/** What an island binding needs of its library: core stays free of framework imports. */
+interface IslandLibrary<Children, Element, Context extends { Provider: unknown }> {
+  createContext: (value: I18nContextValue | null) => Context
+  createElement: (type: Context['Provider'], props: { value: I18nContextValue }, children: Children) => Element
+  useCallback: <T extends (arg: string) => void>(callback: T, deps: unknown[]) => T
+  useContext: (context: Context) => I18nContextValue | null
+  useMemo: <T>(factory: () => T, deps: unknown[]) => T
+  useState: <T>(initial: T) => [T, (update: T | ((current: T) => T)) => void]
+}
+
+/** The provider and hook of an island library (Preact and React have one API). */
+export function createIslandBinding<Children, Element, Context extends { Provider: unknown }>(lib: IslandLibrary<Children, Element, Context>) {
+  const { createContext, createElement, useCallback, useContext, useMemo, useState } = lib
+  const I18nContext = createContext(null)
+
+  /** A new `value` (an island with `transition:persist`) replaces the state. */
+  function I18nProvider({ children, value }: { children: Children; value: I18nClientProps }): Element {
+    const [state, setState] = useState<I18nState>(value)
+    const [seen, setSeen] = useState(value)
+    if (seen !== value) {
+      setSeen(value)
+      setState(value)
+    }
+    const context = useMemo(() => ({ state, setState }), [state])
+    return createElement(I18nContext.Provider, { value: context }, children)
+  }
+
+  function useAstroI18n() {
+    const context = useContext(I18nContext)
+    if (!context) {
+      throw new Error('useAstroI18n must be used within an I18nProvider')
+    }
+    const { state, setState } = context
+    const api = useMemo(() => createIslandApi(() => state), [state])
+    const setLocale = useCallback((locale: string) => setState((current) => withLocale(current, locale)), [setState])
+    const setRoute = useCallback((currentRoute: string) => setState((current) => ({ ...current, currentRoute })), [setState])
+
+    return {
+      ...api,
+
+      // Locale state
+      locale: state.locale,
+      fallbackLocale: state.fallbackLocale,
+      currentRoute: state.currentRoute,
+
+      setLocale,
+      setRoute,
     }
   }
 
-  return false
+  return { I18nProvider, useAstroI18n }
 }

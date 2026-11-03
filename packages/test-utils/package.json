@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/test-utils",
-  "version": "1.2.19",
+  "version": "2.0.0",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
   "keywords": [
     "i18n",
@@ -26,14 +26,13 @@
   },
   "files": [
     "dist",
-    "src/publish-smoke.ts",
     "README.md",
     "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
@@ -45,13 +44,6 @@
         "default": "./dist/index.cjs"
       },
       "default": "./dist/index.mjs"
-    },
-    "./publish-smoke": {
-      "import": {
-        "types": "./src/publish-smoke.ts",
-        "default": "./src/publish-smoke.ts"
-      },
-      "default": "./src/publish-smoke.ts"
     },
     "./package.json": "./package.json"
   },
@@ -66,7 +58,8 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:^"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "publint": "catalog:",
@@ -75,6 +68,6 @@
     "vitest": "catalog:"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

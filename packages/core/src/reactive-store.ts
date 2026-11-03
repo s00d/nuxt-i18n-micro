@@ -24,11 +24,26 @@ export function createReactiveI18nStore(options: ReactiveI18nStoreOptions): Reac
   let fallbackLocale = options.fallbackLocale ?? options.locale
   let currentRoute = options.route ?? 'index'
   let revision = 0
+  // read once per render per component: built on change, not per read
+  let snapshot = `${locale}:${currentRoute}:${revision}`
   const listeners = new Set<() => void>()
 
+  // Over a copy: a listener that resubscribes runs once per notify, one removed by an earlier
+  // listener does not run, and one that throws does not stop the rest (the first error is
+  // rethrown after all have run).
   const notify = () => {
     revision++
-    listeners.forEach((listener) => listener())
+    snapshot = `${locale}:${currentRoute}:${revision}`
+    let failure: { error: unknown } | undefined
+    for (const listener of [...listeners]) {
+      if (!listeners.has(listener)) continue
+      try {
+        listener()
+      } catch (error) {
+        failure ??= { error }
+      }
+    }
+    if (failure) throw failure.error
   }
 
   return {
@@ -37,7 +52,7 @@ export function createReactiveI18nStore(options: ReactiveI18nStoreOptions): Reac
       return () => listeners.delete(listener)
     },
     getSnapshot() {
-      return `${locale}:${currentRoute}:${revision}`
+      return snapshot
     },
     getLocale() {
       return locale

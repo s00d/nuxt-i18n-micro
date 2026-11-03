@@ -23,7 +23,7 @@ describe('buildVitePressLocaleHead', () => {
       defaultLocale: 'en',
     })
     expect(built.htmlAttrs.lang).toBe('fr-FR')
-    expect(built.htmlAttrs.dir).toBe('auto')
+    expect(built.htmlAttrs.dir).toBeUndefined()
     expect(built.head).toEqual([])
   })
 
@@ -41,9 +41,9 @@ describe('buildVitePressLocaleHead', () => {
     expect(canonical?.[1].href).toBe('https://example.com/docs/fr/guide')
 
     const alternates = byRel.filter((t) => t[1].rel === 'alternate')
-    expect(alternates.some((t) => t[1].hreflang === 'en-US' && t[1].href === 'https://example.com/docs/guide')).toBe(true)
-    expect(alternates.some((t) => t[1].hreflang === 'fr-FR' && t[1].href === 'https://example.com/docs/fr/guide')).toBe(true)
-    expect(alternates.some((t) => t[1].hreflang === 'x-default' && t[1].href === 'https://example.com/docs/guide')).toBe(true)
+    expect(alternates.map((t) => t[1])).toContainEqual(expect.objectContaining({ hreflang: 'en-US', href: 'https://example.com/docs/guide' }))
+    expect(alternates.map((t) => t[1])).toContainEqual(expect.objectContaining({ hreflang: 'fr-FR', href: 'https://example.com/docs/fr/guide' }))
+    expect(alternates.map((t) => t[1])).toContainEqual(expect.objectContaining({ hreflang: 'x-default', href: 'https://example.com/docs/guide' }))
 
     const ogLocale = built.head.find((t) => t[0] === 'meta' && t[1].property === 'og:locale')
     expect(ogLocale?.[1].content).toBe('fr_FR')

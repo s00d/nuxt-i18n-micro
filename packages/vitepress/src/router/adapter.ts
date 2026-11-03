@@ -1,5 +1,7 @@
+import { isPlainClick, pathSegments } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
-import type { I18nRoutingStrategy } from '@i18n-micro/vue'
+import type { I18nRoutingStrategy, I18nRouteTarget } from '@i18n-micro/vue'
+import { joinBase, queryString } from '@i18n-micro/utils/locale-head'
 import { defineComponent, h, type Component, type PropType } from 'vue'
 
 export interface VitePressRouterLike {
@@ -10,6 +12,8 @@ export interface VitePressRouterLike {
   }
   go: (to: string, options?: { initialLoad?: boolean; replace?: boolean }) => void | Promise<void>
   onAfterRouteChange?: (to: string) => unknown
+  /** The only name VitePress calls before 1.6. */
+  onAfterRouteChanged?: (to: string) => unknown
 }
 
 export type VitePressGo = (href: string, options?: { replace?: boolean }) => void | Promise<void>
@@ -161,10 +165,11 @@ export function routeNameFromPath(
     }
   }
   if (segments.length === 0) return 'index'
-  return segments.join('-').replace(/\.html$/, '')
+  const name = segments.join('-')
+  return name.endsWith('.html') ? name.slice(0, -5) : name
 }
 
-function createVitePressLinkComponent(go?: VitePressGo): Component {
+function createVitePressLinkComponent(toHref: (path: string) => string, go?: VitePressGo): Component {
   return defineComponent({
     name: 'VitePressI18nLink',
     props: {
@@ -172,26 +177,26 @@ function createVitePressLinkComponent(go?: VitePressGo): Component {
       style: { type: Object as PropType<Record<string, string>>, default: undefined },
     },
     setup(props, { slots }) {
-      return () =>
-        h(
+      return () => {
+        const href = toHref(props.to)
+        return h(
           'a',
           {
-            href: props.to,
+            href,
             style: props.style,
             onClick: (e: MouseEvent) => {
-              if (e.defaultPrevented) return
-              if (e.button !== 0) return
-              if (e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) return
+              if (!isPlainClick(e)) return
               e.preventDefault()
               if (go) {
-                void go(props.to)
+                void go(href)
               } else if (typeof window !== 'undefined') {
-                window.location.assign(props.to)
+                window.location.assign(href)
               }
             },
           },
           slots.default?.(),
         )
+      }
     },
   })
 }
@@ -208,6 +213,8 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
   const prefixToCode = buildUrlPrefixToCode(localeCodes, defaultLocale, localeKeyToCodeSnapshot)
   const urlPrefixes = [...prefixToCode.keys()]
   const siteBase = base && base !== '/' ? base : undefined
+  /** Our paths are relative to the site base; VitePress `go` and the address bar are not. */
+  const toHref = (path: string): string => (siteBase ? joinBase(siteBase, path) : path)
 
   const codeFromLocaleKey = (localeKey: string): string => {
     if (localeKeyToCodeSnapshot[localeKey]) return localeKeyToCodeSnapshot[localeKey]!
@@ -231,7 +238,7 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
 
   const stripPrefix = (pathname: string): { segments: string[]; hadTrailingSlash: boolean } => {
     const hadTrailingSlash = pathname === '/' || pathname.endsWith('/')
-    const segments = pathname.split('/').filter(Boolean)
+    const segments = pathSegments(pathname)
     const first = segments[0]
     if (first !== undefined && prefixToCode.has(first)) {
       segments.shift()
@@ -261,12 +268,13 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
     return localizePath(path, newLocale)
   }
 
-  const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : to.path || '/'
+  const resolvePath = (to: I18nRouteTarget, locale: string): string => {
+    const path = typeof to === 'string' ? to : `${to.path || '/'}${queryString(to.query)}${to.hash ?? ''}`
     return localizePath(path, locale)
   }
 
-  const navigate = (href: string, replace = false) => {
+  const navigate = (path: string, replace = false) => {
+    const href = toHref(path)
     if (go) {
       void go(href, { replace })
       return
@@ -301,7 +309,8 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
     localizePath,
     removeLocaleFromPath,
     routeNameFromPath: (path: string) => routeNameFromPath(path, localeCodes, defaultLocale, localeKeyToCodeSnapshot, siteBase),
-    linkComponent: createVitePressLinkComponent(go),
+    linkComponent: createVitePressLinkComponent(toHref, go),
+    toHref,
     getCurrentPath: () => stripSiteBase(currentFullPath(), siteBase),
     push: (target: { path: string }) => {
       navigate(target.path, false)

@@ -3,7 +3,7 @@
 export { I18nGroup } from './components/i18n-group'
 export { I18nLink } from './components/i18n-link'
 export { I18nSwitcher } from './components/i18n-switcher'
-export { I18nT } from './components/i18n-t'
+export { I18nT, type I18nTProps } from './components/i18n-t'
 export type { UseLocaleHeadOptions } from './composables/use-locale-head'
 // Composables
 export { useLocaleHead } from './composables/use-locale-head'
@@ -18,4 +18,4 @@ export { defaultPlural, FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
 export type { CleanTranslation, Getter, Locale, LocaleCode, Params, PluralFunc, Translations } from '@i18n-micro/types'
 // Router abstraction (vue-router adapter lives in `@i18n-micro/vue/router`)
-export type { I18nRoutingStrategy } from './router/types'
+export type { I18nRoutingStrategy, I18nRouteTarget } from './router/types'

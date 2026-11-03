@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readdirSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, symlinkSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -39,66 +39,60 @@ describe('package publish checks', () => {
     execSync('publint', { cwd: packageRoot, stdio: 'pipe', encoding: 'utf8' })
   })
 
-  it('npm pack tarball contains self-contained dist entrypoints', async () => {
+  it('npm pack tarball contains working dist entrypoints', async () => {
     const packDir = mkdtempSync(join(tmpdir(), 'path-strategy-pack-'))
+    // under `pnpm publish --dry-run` (prepublishOnly) npm would inherit the flag and write no tarball
     const output = execSync(`npm pack --json --pack-destination ${JSON.stringify(packDir)}`, {
       cwd: packageRoot,
       encoding: 'utf8',
+      env: { ...process.env, npm_config_dry_run: 'false' },
     })
     const { filename, files } = parseNpmPackJson(output)
     const tarballPath = join(packDir, filename)
     expect(existsSync(tarballPath)).toBe(true)
 
     const packedPaths = new Set(files.map((f: { path: string }) => f.path.replace(/\\/g, '/')))
-    const required = [
-      'package.json',
-      'dist/index.mjs',
-      'dist/index.cjs',
-      'dist/prefix-except-default-strategy.mjs',
-      'dist/prefix-except-default-strategy.cjs',
-    ]
+    const required = ['package.json', 'dist/index.mjs', 'dist/index.cjs', 'dist/index.d.ts', 'dist/index.d.cts', 'dist/types.d.ts']
     for (const file of required) {
       expect(packedPaths.has(file), `missing in tarball: ${file}`).toBe(true)
     }
 
     const extractDir = mkdtempSync(join(tmpdir(), 'path-strategy-extract-'))
-    execSync(`tar -xzf ${JSON.stringify(tarballPath)} -C ${JSON.stringify(extractDir)}`, {
-      encoding: 'utf8',
-    })
+    // by name from its folder, with `/`: GNU tar reads `C:` as a remote host and `\` as an escape
+    execSync(`tar -xzf ${JSON.stringify(filename)} -C ${JSON.stringify(extractDir.replaceAll('\\', '/'))}`, { cwd: packDir, encoding: 'utf8' })
     const packageDir = join(extractDir, 'package')
-    const esm = await import(pathToFileURL(join(packageDir, 'dist/prefix-except-default-strategy.mjs')).href)
-    const PrefixExceptDefaultPathStrategy = esm.PrefixExceptDefaultPathStrategy as new (ctx: {
-      defaultLocale: string
-      locales: { code: string }[]
-      localeCodes: string[]
-      localizedRouteNamePrefix: string
-      router: { hasRoute: () => boolean; resolve: (to: string) => { path: string; fullPath: string; params: object; query: object; hash: string } }
-      globalLocaleRoutes: Record<string, false>
-      routeLocales: Record<string, string[]>
-      strategy: string
-    }) => { shouldReturn404(path: string): string | null }
-
-    const strategy = new PrefixExceptDefaultPathStrategy({
+    // its dependencies, as an install would bring them
+    symlinkSync(join(packageRoot, 'node_modules'), join(packageDir, 'node_modules'), 'junction')
+    const routes = [
+      { name: 'about', path: '/about', meta: { i18n: { name: 'about', locales: ['en'] } } },
+      { name: 'localized-about', path: '/:locale(zh)/about', meta: { i18n: { name: 'about', locales: ['zh'] } } },
+      { name: 'pricing', path: '/pricing' },
+    ]
+    const ctx = {
       strategy: 'prefix_except_default',
       defaultLocale: 'en',
       locales: [{ code: 'en' }, { code: 'zh' }],
-      localeCodes: ['en', 'zh'],
-      localizedRouteNamePrefix: 'localized-',
       router: {
-        hasRoute: () => false,
-        resolve: (to) => ({ path: to, fullPath: to, params: {}, query: {}, hash: '' }),
+        hasRoute: (name: string) => routes.some((r) => r.name === name),
+        resolve: (to: string | { path?: string }) => {
+          const path = typeof to === 'string' ? to : (to.path ?? '/')
+          const name = path === '/pricing' ? 'pricing' : path === '/about' ? 'about' : null
+          return { name, path, fullPath: path, params: {}, query: {}, hash: '' }
+        },
+        getRoutes: () => routes,
       },
-      globalLocaleRoutes: { pricing: false },
-      routeLocales: { account: ['en'] },
-    })
+    }
+    const esm = await import(pathToFileURL(join(packageDir, 'dist/index.mjs')).href)
+    expect(esm.createPathStrategy(ctx).shouldReturn404('/zh/pricing')).toBe('Unlocalized route cannot have locale prefix')
+    expect(new esm.I18nPathStrategy(ctx).getRouteBaseName({ name: 'localized-about' })).toBe('about')
 
-    expect(strategy.shouldReturn404('/zh/pricing')).toBe('Unlocalized route cannot have locale prefix')
-
-    const packedDist = readdirSync(join(packageDir, 'dist')).filter((n) => /\.(?:mjs|cjs|js)$/.test(n))
-    const hashedChunks = packedDist.filter((n) => /^base-strategy-[A-Za-z0-9_-]+\./.test(n))
-    expect(hashedChunks).toEqual([])
-
-    const cjs = createRequire(import.meta.url)(join(packageDir, 'dist/prefix-except-default-strategy.cjs'))
-    expect(cjs.PrefixExceptDefaultPathStrategy).toBeTypeOf('function')
+    const cjs = createRequire(import.meta.url)(join(packageDir, 'dist/index.cjs'))
+    expect(cjs.createPathStrategy(ctx).getRouteBaseName({ name: 'localized-about' })).toBe('about')
+    expect(readdirSync(join(packageDir, 'dist')).filter((n) => /\.(?:mjs|cjs|js)$/.test(n))).toEqual([
+      'index.cjs',
+      'index.mjs',
+      'types.cjs',
+      'types.mjs',
+    ])
   })
 })

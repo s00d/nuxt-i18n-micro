@@ -42,8 +42,8 @@ export function resolveExportTargets(pkg: { exports?: unknown }, targets: Export
     for (const condition of conditions) {
       const rel = resolveExportCondition(entry, condition)
       if (!rel) continue
-      if (!/\.(?:mjs|cjs|js)$/.test(rel)) continue
-      const filePath = resolve(packageRoot, rel.replace(/^\.\//, ''))
+      if (!rel.endsWith('.js') && !rel.endsWith('.mjs') && !rel.endsWith('.cjs')) continue
+      const filePath = resolve(packageRoot, rel.startsWith('./') ? rel.slice(2) : rel)
       resolved.push({ subpath: target.subpath, condition, filePath, relPath: rel })
     }
   }

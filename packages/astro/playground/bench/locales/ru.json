@@ -1,0 +1,17 @@
+{
+  "greeting": "Привет, {name}!",
+  "welcome": "Добро пожаловать",
+  "apples": "{count} яблоко | {count} яблока | {count} яблок",
+  "two": "{a} / {b} / {a}",
+  "html": "<b>{name}</b>",
+  "section": {
+    "title": "Раздел",
+    "deep": {
+      "er": {
+        "value": "глубоко"
+      }
+    }
+  },
+  "stats": "n={number} d={date} r={relativeDate}",
+  "list": ["раз", "два", "три"]
+}

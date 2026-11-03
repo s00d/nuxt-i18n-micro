@@ -1,133 +1,39 @@
-import React from 'react'
-import { useI18n } from '../context'
-import { useI18nRouter } from '../injection'
+import { externalLinkHref, isActiveLink, isPlainClick } from '@i18n-micro/core'
+import { h, type HostAnchorAttrs, type HostElement, type HostMouseEvent, type HostNode, type HostStyle, mergeStyles } from '#host'
+import { routePath, useI18n } from '../context'
+import { type RouteTarget, useI18nRouter } from '../injection'
 
-export interface I18nLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  to: string | { path?: string }
-  activeStyle?: React.CSSProperties
-  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
+// a type, not an interface: Preact 11's anchor attributes are a union alias
+export type I18nLinkProps = HostAnchorAttrs<HTMLAnchorElement> & {
+  to: RouteTarget
+  activeStyle?: HostStyle
+  localeRoute?: (to: RouteTarget, locale?: string) => RouteTarget
+  children?: HostNode
 }
 
-export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
+export const I18nLink = (props: I18nLinkProps): HostElement => {
   const i18n = useI18n()
   const router = useI18nRouter()
-  const { to, activeStyle, localeRoute: localeRouteProp, children, ...restProps } = props
+  const { to, activeStyle, localeRoute = i18n.localeRoute, style, onClick, children, ...restProps } = props
 
-  // Use prop if provided, otherwise fallback to useI18n
-  const localeRoute = localeRouteProp || i18n.localeRoute
-
-  const isExternalLink = (): boolean => {
-    if (typeof to === 'string') {
-      return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(to)
-    }
-    return false
+  const externalHref = externalLinkHref(to)
+  if (externalHref !== undefined) {
+    return h('a', { target: '_blank', rel: 'noopener noreferrer', ...restProps, onClick, style, href: externalHref }, children)
   }
 
-  const externalHref = (): string | undefined => {
-    if (isExternalLink() && typeof to === 'string') {
-      if (!/^https?:\/\//.test(to)) {
-        return `https://${to}`
-      }
-      return to
-    }
-    return undefined
+  const href = routePath(localeRoute(to))
+  // The current, default and fallback locale count too, so a provider without `locales` still knows its own root.
+  const codes = () => [i18n.locale, i18n.defaultLocale(), i18n.fallbackLocale, ...i18n.getLocales().map((l) => l.code)]
+  const active = activeStyle && router && isActiveLink(router.getCurrentPath(), href, codes())
+  const linkProps = { ...restProps, href, style: active ? mergeStyles(style as HostStyle, activeStyle) : style }
+
+  if (router?.linkComponent) return h(router.linkComponent as never, { ...linkProps, onClick }, children)
+
+  const handleClick = (event: HostMouseEvent<HTMLAnchorElement>) => {
+    onClick?.(event as never)
+    if (!router || !isPlainClick(event as unknown as MouseEvent)) return
+    event.preventDefault()
+    router.push({ path: href })
   }
-
-  const targetPath = (): string => {
-    if (isExternalLink()) {
-      if (typeof to === 'string') {
-        return to
-      }
-      const toObj = to as { path?: string }
-      return toObj?.path || '/'
-    }
-
-    if (localeRoute) {
-      const res = localeRoute(to)
-      return typeof res === 'string' ? res : res.path || '/'
-    }
-
-    if (!router?.resolvePath) {
-      return typeof to === 'string' ? to : to.path || '/'
-    }
-
-    const res = router.resolvePath(to, i18n.locale)
-    return typeof res === 'string' ? res : res.path || '/'
-  }
-
-  const isActive = (): boolean => {
-    if (isExternalLink() || !router) {
-      return false
-    }
-
-    const currentPath = router.getCurrentPath()
-    const linkPath = targetPath()
-
-    // Normalize paths (remove trailing slashes)
-    const normalizedCurrent = currentPath.replace(/\/$/, '')
-    const normalizedLink = linkPath.replace(/\/$/, '')
-
-    // Exact match (ignoring query params and hash)
-    if (normalizedCurrent === normalizedLink) {
-      return true
-    }
-
-    // Partial match: check if current path starts with link path
-    // This allows parent routes to be marked as active
-    if (normalizedCurrent.startsWith(`${normalizedLink}/`)) {
-      return true
-    }
-
-    return false
-  }
-
-  const computedStyle: React.CSSProperties = isActive() ? activeStyle || {} : {}
-  const toValue = targetPath()
-
-  if (isExternalLink()) {
-    return React.createElement(
-      'a',
-      {
-        ...restProps,
-        href: externalHref(),
-        style: computedStyle,
-        target: '_blank',
-        rel: 'noopener noreferrer',
-      },
-      children,
-    )
-  }
-
-  // Use router linkComponent if available
-  if (router?.linkComponent) {
-    const LinkComponent = router.linkComponent
-    return React.createElement(
-      LinkComponent,
-      {
-        ...restProps,
-        href: toValue,
-        style: computedStyle,
-      },
-      children,
-    )
-  }
-
-  // Fallback to anchor with onClick handler
-  return React.createElement(
-    'a',
-    {
-      ...restProps,
-      href: toValue,
-      style: computedStyle,
-      onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault()
-        if (router) {
-          router.push({ path: toValue })
-        } else {
-          window.location.href = toValue
-        }
-      },
-    },
-    children,
-  )
+  return h('a', { ...linkProps, onClick: handleClick }, children)
 }

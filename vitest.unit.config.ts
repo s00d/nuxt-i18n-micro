@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 
@@ -10,8 +11,24 @@ import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
  * test/setup/heavy-tests.ts for the shared list).
  */
 export default defineConfig({
+  plugins: [
+    {
+      // Nuxt's two constants, off unless a plugin test picks a side (test/unit/plugin-harness.ts). A transform: Vitest
+      // turns `define` into globals, and `import.meta` is per module
+      name: 'nuxt-side',
+      enforce: 'pre',
+      transform(code, id) {
+        if (!id.includes('/src/runtime/')) return
+        return code
+          .replaceAll('import.meta.server', "(globalThis.__i18nSide === 'server')")
+          .replaceAll('import.meta.prerender', '(globalThis.__i18nPrerender === true)')
+          .replaceAll('import.meta.client', "(globalThis.__i18nSide === 'client' || globalThis.__i18nSide === 'spa')")
+      },
+    },
+  ],
   test: {
     name: 'unit',
+    alias: [{ find: /^#(app(\/.*)?|imports|i18n-internal\/.*|build\/i18n\.(?:strategy|plural)\.mjs)$/, replacement: fileURLToPath(new URL('./test/unit/nuxt-app.stub.ts', import.meta.url)) }],
     include: ['test/**/*.test.ts'],
     exclude: [...INTEGRATION_TESTS, 'test/fixtures/**'],
     // `expectTypeOf` compiles to nothing, so a type test only asserts anything when a

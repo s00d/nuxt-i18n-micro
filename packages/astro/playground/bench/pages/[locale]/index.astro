@@ -1,0 +1,9 @@
+---
+import Cases from '../../components/Cases.astro'
+import Bench from '../../layouts/Bench.astro'
+import { localePaths } from '../../paths'
+
+export const getStaticPaths = localePaths
+---
+
+<Bench><Cases /></Bench>

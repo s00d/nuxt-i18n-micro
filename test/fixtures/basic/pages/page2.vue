@@ -4,6 +4,7 @@
       {{ $t('page.content') }}
     </p>
     <p id="locale">Current Locale: {{ $getLocale() }}</p>
+    <NuxtLink id="unlocalized" :to="$localeRoute({ name: 'unlocalized' })"> unlocalized </NuxtLink>
 
     <!-- Display additional info for testing -->
     <p id="locales">

@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
+  # every PR, whatever its base (stacked PRs target the previous branch, not main)
   pull_request:
-    branches:
-      - main
     types: [opened, synchronize, reopened, ready_for_review, closed]
 
 # Single workflow: soft checks continue after failure, Job Summary + sticky
@@ -21,10 +20,6 @@ permissions:
 
 env:
   CI: true
-  # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
-  # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
-  # tests killing processes by port, not by memory pressure).
-  FIXTURE_BUILD_CONCURRENCY: 4
   CI_SUMMARY_MAX_LINES: '40'
   CI_SUMMARY_MAX_CHARS: '8000'
   CI_SUMMARY_MAX_TOTAL_CHARS: '28000'
@@ -32,35 +27,34 @@ env:
 jobs:
   ci:
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      FIXTURE_BUILD_CONCURRENCY: ${{ matrix.os == 'windows-latest' && 2 || 4 }}
     # `cmd | tee log` must fail the step when cmd fails (bash default uses tee's 0).
     defaults:
       run:
         shell: bash --noprofile --norc -euo pipefail {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: check:versions diffs against the PR merge-base / last tag.
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+      - uses: actions/cache@v6
         with:
-          version: 9.14.2
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - uses: actions/cache@v4
-        with:
+          # builds only: the run registry and locks (test/.untestutils/run) are per run
           path: |
-            test/.untestutils
+            test/.untestutils/builds
           # Source-only globs: broad test/fixtures/** also matches .output-shared
           # after e2e and hashFiles fails when saving the cache at job end.
           key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
           restore-keys: |
             e2e-shared-${{ runner.os }}-
 
-      - run: pnpm install
+      - uses: ./.github/actions/setup
 
       - name: Prepare CI log dir
         run: |
@@ -70,7 +64,7 @@ jobs:
       # Sticky PR comment: diff audit only (no deploy / test-run commands).
       # Same-repo only: fork PRs get a read-only token and must not hard-fail before checks.
       - name: PR diff comment
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,10 +122,15 @@ jobs:
       # changed package whose version was not bumped), so it runs early.
       - name: Check versions
         id: versions
+        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
-          pnpm run check:versions 2>&1 | tee "$CI_LOG_DIR/versions.log"
+          # PRs compare with main, not the PR base: a stacked PR's base is the previous step, and
+          # every step would need a new bump of every dependent. The command reads this variable;
+          # on a push it is empty and the baseline stays the last tag. --npm rejects published versions.
+          if [ -n "$GITHUB_BASE_REF" ]; then export GITHUB_BASE_REF=main; fi
+          pnpm run check:versions -- --npm 2>&1 | tee "$CI_LOG_DIR/versions.log"
           exit "${PIPESTATUS[0]}"
 
       # Memory headroom on the runner, for the record: ubuntu-latest gives
@@ -140,13 +139,18 @@ jobs:
       # by port (lsof + SIGKILL), not memory — so no extra swap is provisioned.
       # If a step ever does run out of memory, print `free -h` here first to
       # confirm it before adding any.
-      - name: Lint
+      # `release:*` runs format:check before publishing: an unformatted file stops the release
+      - name: Lint and format
         id: lint
+        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
           pnpm run lint 2>&1 | tee "$CI_LOG_DIR/lint.log"
-          exit "${PIPESTATUS[0]}"
+          lint="${PIPESTATUS[0]}"
+          pnpm run format:check 2>&1 | tee -a "$CI_LOG_DIR/lint.log"
+          format="${PIPESTATUS[0]}"
+          exit $(( lint || format ))
 
       # Monorepo (pinia / nuxt-devtools style): packages build before root
       # `dev:prepare` because prepare loads @i18n-micro/* from package dist.
@@ -161,14 +165,18 @@ jobs:
 
       - name: Typecheck
         id: typecheck
+        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
-          pnpm run typecheck 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
+          # type tests of test/ run here, not in "Test unit", so test counts are runtime tests only
+          # both run even if the first fails, so one failure does not hide the other
+          { pnpm run typecheck; a=$?; pnpm run test:unit:types; b=$?; exit $((a || b)); } 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
           exit "${PIPESTATUS[0]}"
 
       # integration + e2e both drive a real browser (chromium.launch / createPage)
-      - run: pnpm exec playwright install chromium
+      # Windows runs Chromium only: the three engines run on Linux, and Windows is there for paths, builds and files
+      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps chromium firefox webkit' || 'chromium' }}
 
       - name: Test packages
         id: test-packages
@@ -183,7 +191,7 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run test:unit 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
+          pnpm run test:unit --typecheck.enabled=false 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
           exit "${PIPESTATUS[0]}"
 
       - name: Test integration
@@ -199,11 +207,25 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          pnpm run test:e2e 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
-          exit "${PIPESTATUS[0]}"
+          if [ "$RUNNER_OS" != Windows ]; then
+            pnpm run test:e2e:browsers 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
+            exit "${PIPESTATUS[0]}"
+          fi
+          # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
+          # heap of that one process in bounds, it passed 4 GB on the whole set. The retry is for the runner: a socket out of
+          # buffers (`ERR_NO_BUFFER_SPACE`), an aborted manifest fetch. Each hit one test in 552, never the same one.
+          # Chromium only here (Firefox and WebKit run on Linux): the three engines in a row took 28 of Windows' 42 minutes.
+          rc=0
+          for shard in 1 2 3; do
+            echo "== chromium $shard/3"
+            E2E_BROWSER=chromium pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
+            [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
+          done
+          exit $rc
 
       - name: Verify packages
         id: verify-packages
+        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
@@ -223,10 +245,23 @@ jobs:
       # download that only feeds informational diffs. Full comparison runs on release.
       - name: Compare published
         id: compare-published
+        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
           pnpm run compare:published -- --local-only --changed-only 2>&1 | tee "$CI_LOG_DIR/compare-published.log"
+          exit "${PIPESTATUS[0]}"
+
+      # Reads the tarballs as a user does; the repository's own builds set skipLibCheck: true.
+      # The root needs a real build for this, so it replaces the dev stub: keep this step last.
+      - name: Consumer types
+        id: consumer-types
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          set +e
+          { pnpm exec nuxt-module-build build && pnpm run check:consumer; } 2>&1 | tee "$CI_LOG_DIR/consumer-types.log"
           exit "${PIPESTATUS[0]}"
 
       - name: CI summary
@@ -242,6 +277,7 @@ jobs:
           VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
           TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
           COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
         run: |
           set +e
           out="$(mktemp)"
@@ -258,7 +294,7 @@ jobs:
           exit "$code"
 
       - name: CI PR comment
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
           VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
@@ -271,6 +307,7 @@ jobs:
           VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
           TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
           COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

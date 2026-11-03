@@ -1,67 +1,51 @@
 import { describe, expect, it } from 'vitest'
-import { deepMergeTranslations, deepMergeTranslationsRecursive } from '../src/deep-merge'
+import { deepMergeTranslationsRecursive } from '../src/deep-merge'
 
-/**
- * Two merges ship here and they are not interchangeable, which is the whole point of
- * these assertions: `deepMergeTranslations` descends exactly one level and then replaces,
- * `deepMergeTranslationsRecursive` descends all the way. Swapping one for the other loses
- * translations without failing anything, so the difference is pinned rather than implied.
- */
-describe('deepMergeTranslations', () => {
-  it('merges the first level of nesting', () => {
-    expect(deepMergeTranslations({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })
-  })
-
-  it('replaces below the first level — use the recursive variant for real locale trees', () => {
-    expect(deepMergeTranslations({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' } } })).toEqual({
-      page: { index: { extra: 'E' } },
-    })
-  })
-
-  it('lets the source win on a conflict', () => {
-    expect(deepMergeTranslations({ a: '1' }, { a: '2' })).toEqual({ a: '2' })
-  })
-
-  it('merges a key named constructor like any other', () => {
-    expect(deepMergeTranslations({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
-  })
-
-  it('ignores keys that would reach the prototype chain', () => {
-    const merged = deepMergeTranslations({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
-    expect(merged).toEqual({ a: '1', b: '2' })
-    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+describe('nested __proto__', () => {
+  it.each([
+    ['onto an empty target', {}],
+    ['onto a target without the node', { other: 'x' }],
+    ['onto a scalar', { n: 'x' }],
+    ['onto the node', { n: { o: 1 } }],
+  ])('is dropped %s', (_name, target) => {
+    const merged = deepMergeTranslationsRecursive(target, JSON.parse('{"n":{"__proto__":{"evil":1},"k":"v"}}'))
+    expect(Object.keys(merged.n as object)).not.toContain('__proto__')
   })
 })
 
 describe('deepMergeTranslationsRecursive', () => {
-  it('merges at every depth', () => {
-    expect(deepMergeTranslationsRecursive({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' } } })).toEqual({
-      page: { index: { title: 'T', sub: 'S', extra: 'E' } },
-    })
+  it('merges the first level of nesting', () => {
+    expect(deepMergeTranslationsRecursive({ nav: { about: 'About' } }, { nav: { home: 'Home' } })).toEqual({ nav: { about: 'About', home: 'Home' } })
   })
 
-  it('replaces an array rather than merging it', () => {
-    // Locale values are occasionally arrays (plural forms); merging them index-wise would
-    // produce a form nobody wrote.
+  it('merges below the second level as well', () => {
+    expect(deepMergeTranslationsRecursive({ a: { b: { c: '1' } } }, { a: { b: { d: '2' } } })).toEqual({ a: { b: { c: '1', d: '2' } } })
+  })
+
+  it('lets the source win, and replaces arrays rather than merging them index-wise', () => {
+    expect(deepMergeTranslationsRecursive({ a: '1' }, { a: '2' })).toEqual({ a: '2' })
     expect(deepMergeTranslationsRecursive({ items: ['a', 'b'] }, { items: ['c'] })).toEqual({ items: ['c'] })
-  })
-
-  it('replaces an object with a primitive and back', () => {
-    expect(deepMergeTranslationsRecursive({ a: { b: '1' } }, { a: 'flat' })).toEqual({ a: 'flat' })
-    expect(deepMergeTranslationsRecursive({ a: 'flat' }, { a: { b: '1' } })).toEqual({ a: { b: '1' } })
-  })
-
-  it('copies the source when the target is empty', () => {
-    expect(deepMergeTranslationsRecursive({}, { a: '1' })).toEqual({ a: '1' })
   })
 
   it('merges a key named constructor like any other', () => {
     expect(deepMergeTranslationsRecursive({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
   })
 
-  it('ignores keys that would reach the prototype chain', () => {
-    const merged = deepMergeTranslationsRecursive({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
-    expect(merged).toEqual({ a: '1', b: '2' })
-    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+  // a locale file is JSON: `__proto__` arrives as an own key, at any depth, and the spread would keep it
+  it('drops __proto__ at every depth, so a locale file cannot replace a prototype', () => {
+    const payload = JSON.parse('{"__proto__":{"polluted":true},"b":"2","nested":{"__proto__":{"polluted":true},"c":"3"}}') as Record<string, unknown>
+    const merged = deepMergeTranslationsRecursive({ a: '1', nested: { d: '4' } }, payload)
+
+    expect(merged).toEqual({ a: '1', b: '2', nested: { c: '3', d: '4' } })
+    expect(Object.getPrototypeOf(merged)).toBe(Object.prototype)
+    expect(Object.getPrototypeOf(merged.nested)).toBe(Object.prototype)
+    expect((merged as { polluted?: unknown }).polluted).toBeUndefined()
+    expect((merged.nested as { polluted?: unknown }).polluted).toBeUndefined()
+    expect(({} as { polluted?: unknown }).polluted).toBeUndefined()
+  })
+
+  it('replaces an object with a primitive and back', () => {
+    expect(deepMergeTranslationsRecursive({ a: { b: '1' } }, { a: 'flat' })).toEqual({ a: 'flat' })
+    expect(deepMergeTranslationsRecursive({ a: 'flat' }, { a: { b: '1' } })).toEqual({ a: { b: '1' } })
   })
 })

@@ -24,10 +24,38 @@ describe('resolveHreflangAlternates (#243)', () => {
     expect(hreflangs).toEqual(['en', 'de'])
   })
 
-  it('does not duplicate when iso equals code', () => {
-    const hreflangs = resolveHreflangAlternates([{ code: 'en-US', iso: 'en-US' }]).map((t) => t.hreflang)
+  it('emits one tag when iso equals code, with or without the bare language', () => {
+    const plain = resolveHreflangAlternates([{ code: 'en-US', iso: 'en-US' }])
+    const withBase = resolveHreflangAlternates([{ code: 'en-US', iso: 'en-US' }], { hreflangBaseLanguage: true })
 
-    expect(hreflangs).toEqual(['en-US'])
+    expect(plain.map((t) => t.hreflang)).toEqual(['en-US'])
+    expect(withBase.map((t) => t.hreflang)).toEqual(['en', 'en-US'])
+    // two locales sharing one tag still produce it once
+    expect(
+      resolveHreflangAlternates(
+        [
+          { code: 'a', iso: 'de' },
+          { code: 'b', iso: 'de' },
+        ],
+        { hreflangBaseLanguage: true },
+      ),
+    ).toEqual([{ hreflang: 'de', localeCode: 'a' }])
+  })
+
+  it('the first regional locale in the list claims the bare language tag', () => {
+    const tags = resolveHreflangAlternates(
+      [
+        { code: 'mx', iso: 'es-MX' },
+        { code: 'es', iso: 'es-ES' },
+      ],
+      { hreflangBaseLanguage: true },
+    )
+
+    expect(tags).toEqual([
+      { hreflang: 'es', localeCode: 'mx' },
+      { hreflang: 'es-MX', localeCode: 'mx' },
+      { hreflang: 'es-ES', localeCode: 'es' },
+    ])
   })
 
   it('opt-in bare language is derived from iso, not code', () => {
@@ -35,18 +63,5 @@ describe('resolveHreflangAlternates (#243)', () => {
 
     expect(hreflangs).toEqual(['en', 'en-US', 'es', 'es-ES', 'es-MX'])
     expect(hreflangs).not.toContain('mx')
-  })
-
-  it('first regional locale in list claims the bare language tag', () => {
-    const tags = resolveHreflangAlternates(
-      [
-        { code: 'es', iso: 'es-ES' },
-        { code: 'mx', iso: 'es-MX' },
-      ],
-      { hreflangBaseLanguage: true },
-    )
-
-    expect(tags.map((t) => t.hreflang)).toEqual(['es', 'es-ES', 'es-MX'])
-    expect(tags.find((t) => t.hreflang === 'es')?.localeCode).toBe('es')
   })
 })

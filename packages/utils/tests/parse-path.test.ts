@@ -1,6 +1,5 @@
 import {
   classifyTranslationRelativePath,
-  mergeRouteTranslationsWithRoot,
   pagePathSegmentsToRouteName,
   parseTranslationRelativePath,
   storeLoadedTranslationFile,
@@ -9,14 +8,6 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('parseTranslationRelativePath', () => {
-  it('parses root locale files', () => {
-    expect(parseTranslationRelativePath('en.json')).toEqual({ type: 'root', locale: 'en' })
-  })
-
-  it('parses flat page locale files', () => {
-    expect(parseTranslationRelativePath('pages/about/en.json')).toEqual({ type: 'page', pageName: 'about', locale: 'en' })
-  })
-
   it('parses nested page locale files', () => {
     expect(parseTranslationRelativePath('pages/user/profile/en.json')).toEqual({
       type: 'page',
@@ -31,17 +22,7 @@ describe('parseTranslationRelativePath', () => {
   })
 })
 
-describe('classifyTranslationRelativePath', () => {
-  it('treats page files as root when page locales are disabled', () => {
-    expect(classifyTranslationRelativePath('pages/about/en.json', true)).toEqual({ type: 'root', locale: 'en' })
-  })
-})
-
 describe('pagePathSegmentsToRouteName', () => {
-  it('joins nested segments with dashes', () => {
-    expect(pagePathSegmentsToRouteName(['user', 'profile'])).toBe('user-profile')
-  })
-
   it('returns null for empty segments', () => {
     expect(pagePathSegmentsToRouteName([])).toBeNull()
   })
@@ -58,24 +39,46 @@ describe('storeLoadedTranslationFile', () => {
     expect(buckets.routes.about?.en).toEqual({ title: 'About' })
   })
 
-  it('stores page files in root when page locales are disabled', () => {
+  it('keeps pages and locales named after Object.prototype members', () => {
     const buckets: TranslationFileBuckets<{ title?: string }> = { root: {}, routes: {} }
 
-    storeLoadedTranslationFile(buckets, 'pages/about/en.json', { title: 'About' }, true)
+    for (const path of [
+      'constructor.json',
+      'pages/constructor/en.json',
+      'pages/toString/valueOf.json',
+      '__proto__.json',
+      'pages/__proto__/en.json',
+      'pages/about/__proto__.json',
+    ]) {
+      storeLoadedTranslationFile(buckets, path, { title: path })
+    }
 
-    expect(buckets.root.en).toEqual({ title: 'About' })
-    expect(buckets.routes).toEqual({})
+    expect(Object.hasOwn(buckets.root, 'constructor')).toBe(true)
+    expect(buckets.root.constructor).toEqual({ title: 'constructor.json' })
+    expect(Object.hasOwn(buckets.routes, 'constructor')).toBe(true)
+    expect(buckets.routes.constructor?.en).toEqual({ title: 'pages/constructor/en.json' })
+    expect(buckets.routes.toString?.valueOf).toEqual({ title: 'pages/toString/valueOf.json' })
+    expect(Object.keys(buckets.root)).toEqual(['constructor'])
+    expect(Object.getPrototypeOf(buckets.routes)).toBe(Object.prototype)
+    expect((Object as unknown as Record<string, unknown>).en).toBeUndefined()
+    expect(({} as Record<string, unknown>).en).toBeUndefined()
   })
 })
 
-describe('mergeRouteTranslationsWithRoot', () => {
-  it('deep merges route translations over root translations', () => {
-    const merged = mergeRouteTranslationsWithRoot({ common: 'root', page: { a: 1 } }, { page: { b: 2 }, extra: true })
+describe('parseTranslationRelativePath, by position, not by pattern', () => {
+  it('a line end in a name is part of the name', () => {
+    expect(parseTranslationRelativePath('pages/a\nb/en.json')).toEqual({ type: 'page', pageName: 'a\nb', locale: 'en' })
+    expect(parseTranslationRelativePath('pages/a/e\nn.json')).toEqual({ type: 'page', pageName: 'a', locale: 'e\nn' })
+  })
 
-    expect(merged).toEqual({
-      common: 'root',
-      page: { a: 1, b: 2 },
-      extra: true,
-    })
+  it.each(['.json', 'pages/.json', 'pages/en.json', 'pages//en.json', 'pages/a/.json', 'a/en.json', 'pages/a/__proto__.json', '__proto__.json'])(
+    '%s is ignored',
+    (path) => {
+      expect(parseTranslationRelativePath(path)).toEqual({ type: 'ignore' })
+    },
+  )
+
+  it('a Windows path reads as a plain one', () => {
+    expect(parseTranslationRelativePath('pages\\a\\en.json')).toEqual({ type: 'page', pageName: 'a', locale: 'en' })
   })
 })

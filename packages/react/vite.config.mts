@@ -1,11 +1,14 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
-  if (!filePath.endsWith('index.d.ts')) {
+  // only the entry declarations at the top of the output dir (index.d.ts, router.d.ts)
+  const entry = ['index.d.ts', 'router.d.ts', 'server.d.ts'].includes(basename(filePath))
+  if (!entry || resolve(dirname(filePath)) !== resolve(import.meta.dirname, 'dist/react')) {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -14,7 +17,16 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
   return { filePath, content }
 }
 
+const output = (format: 'es' | 'cjs', extension: string) => ({
+  format,
+  exports: 'named' as const,
+  chunkFileNames: `[name]-[hash].${extension}`,
+  // RSC: hooks and context live behind this boundary; `server` must stay outside it
+  banner: (chunk: { isEntry: boolean; name: string }) => (chunk.isEntry && chunk.name !== 'server' ? "'use client';" : ''),
+})
+
 export default defineConfig({
+  resolve: { alias: { '#host': resolve(import.meta.dirname, 'src/host.ts') } },
   plugins: [
     react(),
     dts({
@@ -27,6 +39,7 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist/react',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.build.json'),
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['tests/**/*'],
@@ -35,10 +48,14 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        router: resolve(import.meta.dirname, 'src/router/index.ts'),
+        server: resolve(import.meta.dirname, 'src/server.ts'),
+      },
       name: 'I18nMicroReact',
       formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
       // Для React сборки мы помечаем все зависимости как внешние
@@ -48,14 +65,11 @@ export default defineConfig({
         'react/jsx-runtime',
         'react-router-dom',
         '@i18n-micro/core',
+        '@i18n-micro/core/render',
         '@i18n-micro/runtime',
         '@i18n-micro/types',
-        'use-sync-external-store',
-        'use-sync-external-store/shim',
       ],
-      output: {
-        exports: 'named',
-      },
+      output: [output('es', 'mjs'), output('cjs', 'cjs')],
     },
     outDir: 'dist/react',
     emptyOutDir: true,

@@ -1,3 +1,5 @@
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
 import type { Params } from '@i18n-micro/types'
 import { watch } from 'vue'
@@ -31,7 +33,7 @@ export default defineNuxtPlugin({
     }
 
     const notifyCurrentLoad = () => {
-      const locale = bridge.i18n.getCurrentLocale()
+      const locale = bridge.i18n.getLocale()
       const routeName = bridge.i18n.getCurrentRouteName() || 'index'
       notifier.notifyLoad(locale, routeName, countLoadedTranslationKeys(bridge.i18n, locale, routeName))
     }

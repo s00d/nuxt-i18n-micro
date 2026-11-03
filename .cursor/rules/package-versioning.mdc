@@ -12,20 +12,20 @@ Any edit under `packages/<name>/` (source, tests that change public API, `packag
 ## Workflow (once per push/PR, not per commit)
 
 1. Finish the logical change set on the branch.
-2. **Before push**, for each affected **workspace** package, bump `version` in `packages/<name>/package.json` **one patch** (`1.2.3` → `1.2.4`).
+2. **Before push**, bump each affected **workspace** package once: `pnpm run bump --level patch --packages <names>` (`1.2.3` → `1.2.4`). The level is the owner's call: patch unless the owner says minor or major.
 3. Rebuild every bumped package that has a build step:
    ```bash
    pnpm --filter @i18n-micro/utils build
    pnpm --filter @i18n-micro/core build
    # …same for each touched package
    ```
-4. Include in the commit: source + `package.json` version + updated `dist/` (when published).
+4. Include in the commit: source + `package.json` version. `dist/` is gitignored; `prepack` rebuilds it for a release.
 
 ## Root module (`nuxt-i18n-micro`)
 
 - **Do not** change root `package.json` `version` or `CHANGELOG.md` by hand.
-- Those files move **only** through `pnpm run release:*` / `pnpm -C scripts cli release` (`ensure-release-source` fails otherwise).
-- Unreleased `src/` work: leave root version at the last release tag. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
+- Those files move **only** through `pnpm run release:patch|minor|major` / `pnpm -C scripts cli release --bump <level>` (`ensure-release-source` fails otherwise).
+- Unreleased `src/` work: leave root version at the last release tag. **Do not** edit `docs/content/news/index.md` unless the user explicitly asks.
 
 ## Do not
 
@@ -35,5 +35,5 @@ Any edit under `packages/<name>/` (source, tests that change public API, `packag
 
 ## Release vs day-to-day
 
-- **Day-to-day**: patch bump only in affected `packages/*/package.json`, rebuild, push.
-- **Formal release**: root version/changelog via `pnpm run release:*` / changelogen. News in `docs/news/index.md` only when the user asks.
+- **Day-to-day**: `pnpm run bump --level patch --packages <names>` for affected packages, rebuild, push.
+- **Formal release**: root version/changelog via `pnpm run release:patch|minor|major`; packages alone via `pnpm run release:packages`. News in `docs/content/news/index.md` only when the user asks.

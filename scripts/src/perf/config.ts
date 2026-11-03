@@ -29,7 +29,7 @@ export const DEFAULT_KEYS = 10_000
 /** Consecutive build+load repetitions for published means (CLI default). */
 export const DEFAULT_RUNS = 3
 /**
- * Default load profile after A/B (see docs/guide/performance-methodology.md).
+ * Default load profile after A/B (see docs/content/contributing/performance-methodology.md).
  * `short` wins when ranking matches `full`; use `--load full` for docs regen.
  */
 export const DEFAULT_LOAD: LoadProfileId = 'short'
@@ -149,6 +149,6 @@ export function fixtureProfileMarkdown(profile: PerfRuntimeProfile): string {
 | Secondary pages | depth **${profile.secondaryDepth}**, branch **${profile.secondaryBranch}** → **${secondaryLeaves.toLocaleString('en-US')}** leaf keys / page / locale |
 | Goal | Default CLI profile (\`--locales 4 --keys 10000\`); raise knobs for regression-radar loads |
 
-Dictionaries come from \`test/fixtures/perf-shared/runtime.json\` (written by the CLI) so all three fixtures stay aligned.
+Dictionaries come from \`scripts/perf-fixtures/perf-shared/runtime.json\` (written by the CLI) so all three fixtures stay aligned.
 `
 }

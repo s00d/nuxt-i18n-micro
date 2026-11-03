@@ -1,71 +1,83 @@
 import { describe, expect, test } from 'vitest'
-import { PAYLOAD_ROUTE_CACHE_MAX_AGE, buildTranslationPayloadRouteRule, shouldLocalizeRouteRulePath } from '../src/route-rules'
+import { RouteGenerator } from '@i18n-micro/route-strategy'
+import { buildTranslationPayloadRouteRule, localizeRouteRules, shouldLocalizeRouteRulePath, varyRouteCacheByHost } from '../src/route-rules'
 
-describe('routeRules localization', () => {
-  test.each(['/', '/about', '/products/**', '/blog/:slug', '/tools/_assets', '/apiary', '/apiary/**'])(
-    'localizes public route rule %s',
-    (routeRulePath) => {
-      expect(shouldLocalizeRouteRulePath(routeRulePath)).toBe(true)
-    },
-  )
-
-  test.each(['/api', '/api/users', '/api/**', '/_nuxt/**', '/_locales/**', '/__nuxt_content/**', '/__sitemap__/**'])(
-    'skips internal route rule %s',
-    (routeRulePath) => {
-      expect(shouldLocalizeRouteRulePath(routeRulePath)).toBe(false)
-    },
-  )
-
-  test('localizes root path', () => {
-    expect(shouldLocalizeRouteRulePath('/')).toBe(true)
-  })
-})
-
-describe('translation payload route rule', () => {
-  const immutable = 'public, max-age=31536000, immutable'
-  const revalidate = 'public, max-age=0, must-revalidate'
-
-  test('caches nothing in dev, so HMR is not answered from a cache', () => {
-    expect(buildTranslationPayloadRouteRule({ dev: true, hasCacheBuster: true, cacheControl: immutable })).toEqual({ cors: true })
-  })
-
-  test('caches server-side only while ?v= makes each URL unique to its content', () => {
-    // The header the module passes here is the conservative one — see the next test.
-    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: revalidate })).toEqual({
-      cors: true,
-      cache: { maxAge: PAYLOAD_ROUTE_CACHE_MAX_AGE, swr: true },
-      headers: { 'Cache-Control': revalidate },
+describe('routeRules', () => {
+  test('a page rule reaches its localized URLs; a redirect, an api rule and a restricted locale do not', () => {
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+      routeLocales: { '/de-only': ['de'] },
+      noPrefixRedirect: false,
     })
-  })
-
-  test('passes through whatever policy it is given, including an immutable one', () => {
-    // The rule itself takes no view; the caller decides, because only the handler can see
-    // whether the request carried `?v=`.
-    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: immutable }).headers).toEqual({
-      'Cache-Control': immutable,
+    const target: Record<string, object> = { '/de/old': { headers: {} } }
+    const copied: string[] = []
+    localizeRouteRules(
+      {
+        '/old': { swr: 60, redirect: '/new' },
+        '/gone': { redirect: '/new' },
+        '/api/**': { cors: true },
+        '/de-only': { swr: 1 },
+      },
+      target,
+      generator,
+      (path) => copied.push(path),
+    )
+    expect(target).toEqual({
+      '/de/old': { headers: {}, swr: 60 },
+      '/fr/old': { swr: 60 },
+      '/de/de-only': { swr: 1 },
     })
+    expect(copied).toEqual(['/de/old', '/fr/old', '/de/de-only'])
   })
 
-  test('does not cache a stable URL, which would defeat its own must-revalidate', () => {
-    // The header says the content behind this URL can change; a 60s stale-while-revalidate
-    // entry would answer from the old one anyway.
-    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: false, cacheControl: revalidate })).toEqual({
-      cors: true,
-      headers: { 'Cache-Control': revalidate },
+  test('with no documents under a prefix a prerender rule stays on its path: nothing writes the payload a link would fetch', () => {
+    const generator = new RouteGenerator({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix',
+      globalLocaleRoutes: {},
+      noPrefixRedirect: false,
     })
+    const rules: Record<string, { prerender?: boolean; swr?: number }> = { '/page': { prerender: true }, '/cached': { prerender: true, swr: 60 } }
+    const target: typeof rules = {}
+    localizeRouteRules(rules, target, generator, () => {}, true)
+    expect(target).toEqual({ '/en/cached': { swr: 60 }, '/de/cached': { swr: 60 } })
   })
 
-  test('sets no header when caching is switched off entirely', () => {
-    // `null` from the builder already means "no header" — the caller must not re-derive it.
-    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: null })).toEqual({
-      cors: true,
-      cache: { maxAge: PAYLOAD_ROUTE_CACHE_MAX_AGE, swr: true },
+  test('a cached rule of a domain build keys on the host, one that caches nothing stays as written', () => {
+    expect(varyRouteCacheByHost({ swr: 60 }, false)).toEqual({ swr: 60, cache: { varies: ['host'] } })
+    expect(varyRouteCacheByHost({ cache: { varies: ['cookie', 'host'] } }, true)).toEqual({
+      cache: { varies: ['cookie', 'host', 'x-forwarded-host'] },
     })
+    for (const rule of [{}, { swr: false }, { swr: 60, cache: false as const }]) expect(varyRouteCacheByHost(rule, true)).toBe(rule)
   })
 
-  test('always allows cross-origin reads, so a CDN host can serve the payloads', () => {
-    for (const dev of [true, false]) {
-      expect(buildTranslationPayloadRouteRule({ dev, hasCacheBuster: false, cacheControl: null }).cors).toBe(true)
+  test('page rules are localized, internal ones are not; the payload rule carries only the given policy', () => {
+    // step 1: user pages (prefix look-alikes such as /apiary included) get a localized copy
+    for (const path of ['/', '/about', '/products/**', '/blog/:slug', '/tools/_assets', '/apiary', '/apiary/**']) {
+      expect(shouldLocalizeRouteRulePath(path)).toBe(true)
     }
+
+    // step 2: api, build assets, payloads and other modules' internals stay as written
+    for (const path of ['/api', '/api/users', '/api/**', '/_nuxt/**', '/_locales/**', '/__nuxt_content/**', '/__sitemap__/**']) {
+      expect(shouldLocalizeRouteRulePath(path)).toBe(false)
+    }
+
+    // a rule already under a locale prefix: a copy per locale would be /fr/de/prerendered, a 404 in prerender
+    for (const path of ['/de', '/de/prerendered', '/de/**']) expect(shouldLocalizeRouteRulePath(path, ['en', 'de'])).toBe(false)
+    for (const path of ['/about', '/delivery/**']) expect(shouldLocalizeRouteRulePath(path, ['en', 'de'])).toBe(true)
+
+    // step 3: the `_locales` rule: no header in dev (HMR must not be answered from a cache),
+    // the configured Cache-Control in production, none when none is configured
+    const revalidate = 'public, max-age=0, must-revalidate'
+    expect(buildTranslationPayloadRouteRule({ dev: true, cacheControl: 'public, max-age=31536000, immutable' })).toEqual({ cors: true })
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: null })).toEqual({ cors: true })
+    expect(buildTranslationPayloadRouteRule({ dev: false, cacheControl: revalidate })).toEqual({
+      cors: true,
+      headers: { 'Cache-Control': revalidate },
+    })
   })
 })

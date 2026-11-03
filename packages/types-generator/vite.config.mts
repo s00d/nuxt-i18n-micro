@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
   if (!filePath.endsWith('index.d.ts') && !filePath.endsWith('nuxt.d.ts')) {
@@ -26,7 +27,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/types', 'globby', 'chokidar', 'unplugin', '@nuxt/kit', 'node:fs', 'node:path'],
+      external: [/^@i18n-micro\//, '@nuxt/kit', /^node:/],
       output: {
         exports: 'named',
       },
@@ -47,6 +48,7 @@ export default defineConfig({
       insertTypesEntry: true,
       copyDtsFiles: true,
       outDir: 'dist',
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

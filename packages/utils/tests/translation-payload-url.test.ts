@@ -1,5 +1,6 @@
 import {
   buildTranslationPayloadCacheControl,
+  resolveTranslationPayloadCachePolicy,
   buildTranslationPayloadFetchRequest,
   buildTranslationPayloadPath,
   resolveTranslationPayloadBaseURL,
@@ -12,60 +13,38 @@ describe('resolveTranslationPayloadPage', () => {
     expect(resolveTranslationPayloadPage(undefined)).toBe('index')
     expect(resolveTranslationPayloadPage('')).toBe('index')
   })
-
-  it('applies routesLocaleLinks aliases', () => {
-    expect(
-      resolveTranslationPayloadPage('contact-alias', {
-        'contact-alias': 'contact',
-      }),
-    ).toBe('contact')
-  })
 })
 
 describe('buildTranslationPayloadPath', () => {
-  it('builds the canonical data.json path', () => {
-    expect(buildTranslationPayloadPath('_locales', 'index', 'en')).toBe('/_locales/index/en/data.json')
-    expect(buildTranslationPayloadPath('_locales', 'settings-profile', 'de')).toBe('/_locales/settings-profile/de/data.json')
-  })
-
   it('normalizes duplicate slashes in apiBaseUrl', () => {
     expect(buildTranslationPayloadPath('/_locales/', 'index', 'en')).toBe('/_locales/index/en/data.json')
   })
 })
 
 describe('resolveTranslationPayloadBaseURL', () => {
-  it('uses external hosts per runtime side', () => {
-    expect(
-      resolveTranslationPayloadBaseURL({
-        isServer: true,
-        baseURL: 'https://app.example.com',
-        apiBaseClientHost: 'https://cdn.example.com',
-        apiBaseServerHost: 'https://internal.example.com',
-      }),
-    ).toBe('https://internal.example.com')
+  const hosts = {
+    baseURL: 'https://app.example.com',
+    apiBaseClientHost: 'https://cdn.example.com',
+    apiBaseServerHost: 'https://internal.example.com',
+  }
 
-    expect(
-      resolveTranslationPayloadBaseURL({
-        isServer: false,
-        baseURL: 'https://app.example.com',
-        apiBaseClientHost: 'https://cdn.example.com',
-        apiBaseServerHost: 'https://internal.example.com',
-      }),
-    ).toBe('https://cdn.example.com')
-  })
-
-  it('falls back to app baseURL when external host is missing', () => {
-    expect(
-      resolveTranslationPayloadBaseURL({
-        isServer: true,
-        baseURL: 'https://app.example.com',
-      }),
-    ).toBe('https://app.example.com')
+  it('picks the host of the side that fetches and falls back to baseURL on either side', () => {
+    expect(resolveTranslationPayloadBaseURL({ ...hosts, isServer: true })).toBe('https://internal.example.com')
+    expect(resolveTranslationPayloadBaseURL({ ...hosts, isServer: false })).toBe('https://cdn.example.com')
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, isServer: true })).toBe(hosts.baseURL)
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, isServer: false })).toBe(hosts.baseURL)
+    // the other side's host is no fallback: a browser cannot reach the internal one
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, apiBaseServerHost: hosts.apiBaseServerHost, isServer: false })).toBe(
+      hosts.baseURL,
+    )
+    expect(resolveTranslationPayloadBaseURL({ baseURL: hosts.baseURL, apiBaseClientHost: hosts.apiBaseClientHost, isServer: true })).toBe(
+      hosts.baseURL,
+    )
   })
 })
 
 describe('buildTranslationPayloadFetchRequest', () => {
-  it('builds client fetch target from apiBaseClientHost', () => {
+  it('sends the browser to the client host, with dateBuild as the cache buster', () => {
     expect(
       buildTranslationPayloadFetchRequest({
         apiBaseUrl: '_locales',
@@ -74,13 +53,10 @@ describe('buildTranslationPayloadFetchRequest', () => {
         isServer: false,
         baseURL: 'https://app.example.com',
         apiBaseClientHost: 'https://cdn.example.com',
+        apiBaseServerHost: 'https://internal.example.com',
         dateBuild: 123,
       }),
-    ).toEqual({
-      path: '/_locales/index/en/data.json',
-      baseURL: 'https://cdn.example.com',
-      params: { v: 123 },
-    })
+    ).toEqual({ path: '/_locales/index/en/data.json', baseURL: 'https://cdn.example.com', params: { v: 123 } })
   })
 
   it('resolves routesLocaleLinks before building the path', () => {
@@ -120,5 +96,38 @@ describe('buildTranslationPayloadCacheControl', () => {
     expect(buildTranslationPayloadCacheControl(Number.NaN)).toBeNull()
     expect(buildTranslationPayloadCacheControl(Number.POSITIVE_INFINITY)).toBeNull()
     expect(buildTranslationPayloadCacheControl(1e21)).toBeNull()
+  })
+})
+
+describe('resolveTranslationPayloadCachePolicy', () => {
+  const short = 'public, max-age=60'
+  const revalidate = 'public, max-age=0, must-revalidate'
+  const pinned = 'private, max-age=31536000, immutable'
+  const base = { httpCacheDuration: 31536000, dateBuild: 'abc' }
+
+  it('pins the current v, revalidates the rest, and keeps a path-wide header short', () => {
+    expect(resolveTranslationPayloadCachePolicy(base)).toEqual({ file: short, current: pinned, stale: revalidate })
+  })
+
+  it('pins nothing a CDN could hand to the next v', () => {
+    expect(resolveTranslationPayloadCachePolicy(base).current).not.toContain('public')
+  })
+
+  it('pins nothing that can change with no build', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, live: true })).toEqual({ file: short, current: short, stale: short })
+  })
+
+  it('takes a header of its own', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheControl: 'public, max-age=5' }).file).toBe('public, max-age=5')
+  })
+
+  it('false keeps the old policy, no v revalidates, 0 sends nothing', () => {
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheControl: false })).toEqual({
+      file: revalidate,
+      current: 'public, max-age=31536000, immutable',
+      stale: revalidate,
+    })
+    expect(resolveTranslationPayloadCachePolicy({ ...base, dateBuild: 0 })).toEqual({ file: revalidate, current: revalidate, stale: revalidate })
+    expect(resolveTranslationPayloadCachePolicy({ ...base, httpCacheDuration: 0 })).toEqual({ file: null, current: null, stale: null })
   })
 })

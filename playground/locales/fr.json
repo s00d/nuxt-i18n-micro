@@ -1,1 +1,8 @@
-{}
+{
+  "title": "Banc",
+  "welcome": "Bienvenue, {name} !",
+  "nav": {
+    "home": "Accueil"
+  },
+  "apples": "pas de pommes | une pomme | {count} pommes"
+}

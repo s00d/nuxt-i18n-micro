@@ -21,6 +21,7 @@ describe('fetchTranslationPayloadFromHost', () => {
     expect(fetcher).toHaveBeenCalledWith('/_locales/index/en/data.json', {
       baseURL: 'https://cdn.example.com',
       params: { v: 42 },
+      timeout: 60_000,
     })
   })
 
@@ -30,18 +31,32 @@ describe('fetchTranslationPayloadFromHost', () => {
     expect(fetcher).not.toHaveBeenCalled()
   })
 
-  it('returns empty object when fetch fails', async () => {
-    const fetcher = vi.fn().mockRejectedValue(new Error('404'))
-    await expect(
-      fetchTranslationPayloadFromHost(
-        {
-          apiBaseUrl: '_locales',
-          apiBaseServerHost: 'https://cdn.example.com',
-        },
-        'en',
-        'index',
-        fetcher,
-      ),
-    ).resolves.toEqual({})
+  const fetchWith = (fetcher: never) =>
+    fetchTranslationPayloadFromHost({ apiBaseUrl: '_locales', apiBaseServerHost: 'https://cdn.example.com' }, 'en', 'index', fetcher)
+
+  it('reads a 404 as null: the host has no such file, which an empty dictionary is not', async () => {
+    const fetcher = vi.fn().mockRejectedValue(Object.assign(new Error('not found'), { status: 404 }))
+    await expect(fetchWith(fetcher as never)).resolves.toBeNull()
+  })
+
+  it.each([
+    ['a 502', Object.assign(new Error('bad gateway'), { status: 502 })],
+    ['a network error', new Error('ECONNREFUSED')],
+  ])('rethrows %s: a failed load must reach no cache', async (_name, error) => {
+    await expect(fetchWith(vi.fn().mockRejectedValue(error) as never)).rejects.toBe(error)
+  })
+
+  it.each([
+    ['an HTML fallback', '<!doctype html>'],
+    ['an array', ['x']],
+    ['null', null],
+    ['false', false],
+    ['0', 0],
+  ])('rejects a 200 with %s', async (_name, body) => {
+    await expect(fetchWith(vi.fn().mockResolvedValue(body) as never)).rejects.toThrow('Invalid translation payload')
+  })
+
+  it.each([undefined, ''])('reads an empty 200 (%j) as an empty dictionary', async (body) => {
+    await expect(fetchWith(vi.fn().mockResolvedValue(body) as never)).resolves.toEqual({})
   })
 })

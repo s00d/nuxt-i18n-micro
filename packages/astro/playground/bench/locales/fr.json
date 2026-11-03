@@ -1,0 +1,17 @@
+{
+  "greeting": "Bonjour, {name}!",
+  "welcome": "Bienvenue",
+  "apples": "pas de pomme | une pomme | {count} pommes",
+  "two": "{a} / {b} / {a}",
+  "html": "<b>{name}</b>",
+  "section": {
+    "title": "Section fr",
+    "deep": {
+      "er": {
+        "value": "profond fr"
+      }
+    }
+  },
+  "stats": "n={number} d={date} r={relativeDate}",
+  "list": ["un", "deux", "trois"]
+}

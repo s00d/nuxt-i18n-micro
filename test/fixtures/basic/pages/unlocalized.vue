@@ -36,6 +36,8 @@
     <div id="locale-links">
       <NuxtLink id="link-en" :to="$localeRoute({ name: 'page' }, 'en')"> Switch to English </NuxtLink>
       <NuxtLink id="link-de" :to="$localeRoute({ name: 'page' }, 'de')"> Switch to German </NuxtLink>
+      <NuxtLink id="link-page2-en" :to="$localeRoute({ name: 'page2' }, 'en')"> Page 2 in English </NuxtLink>
+      <NuxtLink id="link-page2-de" :to="$localeRoute({ name: 'page2' }, 'de')"> Page 2 in German </NuxtLink>
     </div>
   </div>
 </template>

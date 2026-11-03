@@ -239,7 +239,12 @@ export const verifyPackagesCommand = defineCommand({
 
     function runPublintForPackage(pkgName: string, pkgDir: string): void {
       try {
-        execFileSync('pnpm', ['exec', 'publint'], { cwd: pkgDir, encoding: 'utf8', stdio: ['pipe', 'pipe', 'inherit'] })
+        execFileSync('pnpm', ['exec', 'publint'], {
+          shell: process.platform === 'win32',
+          cwd: pkgDir,
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'inherit'],
+        })
         report.ok.push(pkgName)
       } catch (error) {
         const err = error as { stdout?: Buffer; stderr?: Buffer; message?: string }

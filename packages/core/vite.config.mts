@@ -3,13 +3,14 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { writeNodeDeclarations } from '../../scripts/src/utils/node-dts.ts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
   const base = filePath
     .split('/')
     .pop()
     ?.replace(/\.d\.ts$/, '')
-  if (base !== 'index' && base !== 'helpers' && base !== 'devtools') {
+  if (base !== 'index' && base !== 'helpers' && base !== 'devtools' && base !== 'render') {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -23,7 +24,8 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
-        helpers: resolve(import.meta.dirname, 'src/helpers-entry.ts'),
+        helpers: resolve(import.meta.dirname, 'src/helpers.ts'),
+        render: resolve(import.meta.dirname, 'src/render.ts'),
         devtools: resolve(import.meta.dirname, 'src/devtools-entry.ts'),
       },
       formats: ['cjs', 'es'],
@@ -44,6 +46,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
+      afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: 'tsconfig.json',
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

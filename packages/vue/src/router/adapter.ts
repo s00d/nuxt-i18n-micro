@@ -1,7 +1,8 @@
+import { localizedPath } from '@i18n-micro/core'
 import type { Locale } from '@i18n-micro/types'
-import type { Router } from 'vue-router'
+import type { RouteLocationRaw, Router } from 'vue-router'
 import { RouterLink } from 'vue-router'
-import type { I18nRoutingStrategy } from './types'
+import type { I18nRoutingStrategy, I18nRouteTarget } from './types'
 
 /**
  * Factory for Vue Router adapter
@@ -11,29 +12,16 @@ import type { I18nRoutingStrategy } from './types'
 export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
   const localeCodes = locales.map((loc) => loc.code)
 
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
+  /** A target as a URL: a location goes through the router, so `name`, `query` and `hash` count. */
+  const urlOf = (to: I18nRouteTarget): string => {
+    // `{}` names no target: the router would answer this page
+    if (typeof to !== 'string') return to.path || to.name || to.params || to.query || to.hash ? router.resolve(to as RouteLocationRaw).fullPath : '/'
+    // `#top`, `?x=1`: relative to this page
+    return to[0] === '?' || to[0] === '#' ? `${router.currentRoute.value.path}${to}` : to
   }
+
+  /** As in the other router bindings: the query and hash stay as they are. */
+  const resolvePath = (to: I18nRouteTarget, locale: string): string => localizedPath(urlOf(to), locale, localeCodes, defaultLocale)
 
   return {
     linkComponent: RouterLink,
@@ -51,7 +39,7 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
       router.replace(target.path).catch(() => {})
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath,
 
     getRoute: () => ({
       fullPath: router.currentRoute.value.fullPath,

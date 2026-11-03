@@ -6,7 +6,7 @@ import {
   parseInspectorNodeId,
   type I18nDevtoolsStateSnapshot,
 } from '@i18n-micro/core/devtools'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ResolvedI18nConfig } from '@i18n-micro/types'
 import type { App } from 'vue'
 import type { I18nContextChangeReason, NuxtI18n } from '../utils/nuxt-i18n'
 
@@ -17,7 +17,7 @@ const TIMELINE_LAYER_ID = 'i18n-micro'
 export interface VueI18nDevtoolsContext {
   app: App
   i18n: NuxtI18n
-  i18nConfig: ModuleOptionsExtend
+  i18nConfig: ResolvedI18nConfig
   onContextChange: (listener: (reason: I18nContextChangeReason) => void) => () => void
   onMissingKey: (listener: (locale: string, key: string, routeName: string) => void) => () => void
 }
@@ -45,9 +45,9 @@ function toInspectorState(snapshot: I18nDevtoolsStateSnapshot) {
   return state
 }
 
-function createSnapshot(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend): I18nDevtoolsStateSnapshot {
+function createSnapshot(i18n: NuxtI18n, i18nConfig: ResolvedI18nConfig): I18nDevtoolsStateSnapshot {
   return {
-    locale: i18n.getCurrentLocale(),
+    locale: i18n.getLocale(),
     routeName: i18n.getCurrentRouteName() || 'index',
     strategy: i18nConfig.strategy,
     defaultLocale: i18nConfig.defaultLocale,
@@ -61,7 +61,7 @@ function createSnapshot(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend): I18nDe
   }
 }
 
-function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId: string): Record<string, Array<{ key: string; value: unknown }>> {
+function buildNodeState(i18n: NuxtI18n, i18nConfig: ResolvedI18nConfig, nodeId: string): Record<string, Array<{ key: string; value: unknown }>> {
   const parsed = parseInspectorNodeId(nodeId)
 
   if (parsed.kind === 'active') {
@@ -92,7 +92,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
         { key: 'code', value: locale },
         { key: 'displayName', value: configured?.displayName ?? locale },
         { key: 'disabled', value: Boolean(configured?.disabled) },
-        { key: 'isActive', value: i18n.getCurrentLocale() === locale },
+        { key: 'isActive', value: i18n.getLocale() === locale },
         { key: 'loadedChunks', value: chunks.length },
       ],
       Chunks: chunks.length ? chunks : [{ key: '—', value: 'No translation chunks loaded for this locale yet' }],
@@ -120,7 +120,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
         { key: 'keys', value: countTranslationKeys(chunk) },
         {
           key: 'isActive',
-          value: i18n.getCurrentLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName,
+          value: i18n.getLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName,
         },
       ],
       Translations: entries.length ? entries : [{ key: '—', value: 'Chunk is loaded but empty' }],
@@ -131,7 +131,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
     const routeName = parsed.routeName || 'index'
     const segments = parsed.segments ?? []
     const chunk = i18n.storage.translations.get(`${parsed.locale}:${routeName}`) as Record<string, unknown> | undefined
-    const isActive = i18n.getCurrentLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName
+    const isActive = i18n.getLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName
     const source = isActive ? (i18n.resolveTranslations() as Record<string, unknown>) : (chunk ?? {})
     const value = segments.length ? getByInspectorPath(source, segments) : source
 
@@ -245,7 +245,7 @@ export async function setupVueI18nDevtools(ctx: VueI18nDevtoolsContext): Promise
             nodeId: 'root',
             storage: ctx.i18n.storage,
             configuredLocales: ctx.i18nConfig.locales ?? [],
-            activeLocale: ctx.i18n.getCurrentLocale(),
+            activeLocale: ctx.i18n.getLocale(),
             activeRouteName: ctx.i18n.getCurrentRouteName() || 'index',
             activeTranslations: ctx.i18n.resolveTranslations() as Record<string, unknown>,
           }) as never

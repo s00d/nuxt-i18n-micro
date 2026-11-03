@@ -17,7 +17,7 @@ import { describeLoadProfile } from './load'
 import type { FixtureId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const require = createRequire(import.meta.url)
-export const resultsFilePath = join(repoRoot, 'docs/guide/performance-results.md')
+export const resultsFilePath = join(repoRoot, 'docs/content/guide/performance-results.md')
 
 function getInstalledVersion(packageName: string, fromDir: string): string {
   try {
@@ -93,9 +93,9 @@ outline: "deep"
 
 ## Project Information
 
-- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
-- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
-- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
+- **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/plain-nuxt)**: ./scripts/perf-fixtures/plain-nuxt
+- **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n-micro)**: ./scripts/perf-fixtures/i18n-micro
+- **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/perf-fixtures/i18n)**: ./scripts/perf-fixtures/i18n
 - **CLI**: \`pnpm test:performance\`
 
 ### Description
@@ -107,7 +107,7 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 ### Methodology notes
 
 - Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
-- **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [performance-methodology.md](./performance-methodology.md).
+- **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [benchmark methodology](/contributing/performance-methodology).
 - **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 - Load profile \`--load ${load}\`: ${loadLabel}.
@@ -121,7 +121,7 @@ All metrics below are **means across ${runs} runs**.
 `
       append(`\n${fixtureProfileMarkdown(profile)}\n`)
 
-      const i18nFixtureDir = join(repoRoot, 'test/fixtures/i18n')
+      const i18nFixtureDir = join(repoRoot, 'scripts/perf-fixtures/i18n')
       const rootPackagePath = join(repoRoot, 'package.json')
       const nuxtVersion = getInstalledVersion('nuxt', i18nFixtureDir)
       const dependencies = {
@@ -172,7 +172,7 @@ export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
     onEnd({ results }) {
       writeDocsReport(md.write, results, args.runs, args.profile)
       md.commit()
-      console.log('Wrote docs report: docs/guide/performance-results.md')
+      console.log('Wrote docs report: docs/content/guide/performance-results.md')
     },
   }
 }
@@ -197,7 +197,7 @@ function writeBuildSection(write: (c: string) => void, result: PerfTargetResult)
   const b = result.build
   const bundle = b.bundle
   write(`
-## Build Performance for test/fixtures/${result.id}
+## Build Performance for scripts/perf-fixtures/${result.id}
 
 - **Build Time**: ${b.buildTimeSec.toFixed(2)} seconds
 - **Bundle Size**: ${formatBytes(bundle?.total || 0)} (code: ${formatBytes(bundle?.code || 0)}, translations: ${formatBytes(bundle?.asset || 0)})

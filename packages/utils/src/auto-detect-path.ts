@@ -5,7 +5,7 @@
  * - `'/'` (default) — only `/`
  * - `'no_prefix'` — any path without a locale prefix
  * - `'*'` — every path (also enables aggressive prefixed-URL rewrites in the plugin)
- * - any other string — exact path match
+ * - any other string — that path, trailing slashes ignored
  *
  * Does not gate strategy / `localeRoutes` canonicalization: when preference is denied on an
  * unprefixed path, the plugin still runs `getClientRedirect` with the default locale.
@@ -24,6 +24,8 @@ export function shouldAttemptLocaleRedirect(path: string, options: { autoDetectP
     return normalized === '/'
   }
 
-  const target = mode.startsWith('/') ? mode : `/${mode}`
+  const slashed = mode.startsWith('/') ? mode : `/${mode}`
+  // `/welcome/` and `/welcome` name the same page
+  const target = slashed.length > 1 && slashed.endsWith('/') ? slashed.slice(0, -1) : slashed
   return normalized === target || normalized === `${target}/`
 }

@@ -1,8 +1,22 @@
 import type { Locale } from '@i18n-micro/types'
-import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
+import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { DEFAULT_COOKIE_MAX_AGE } from '@i18n-micro/utils/cookie'
+import { resolveLocale } from '@i18n-micro/utils/resolve-locale'
 import type { MiddlewareHandler } from 'astro'
 import type { AstroI18n } from './composer'
-import { getGlobalRoutingStrategy, runWithRoutingStrategy } from './routing-context'
+import {
+  asksForPage,
+  header,
+  isPageView,
+  isSwitch,
+  localeOfPath,
+  normalizeBase,
+  resolveRequest,
+  withBase,
+  type I18nRequest,
+  type I18nRouting,
+} from './request'
+import { createAstroRouterAdapter } from './router/adapter'
 import type { I18nRoutingStrategy } from './router/types'
 // Import shim to ensure App.Locals is available
 import './env.d'
@@ -12,106 +26,77 @@ export interface I18nMiddlewareOptions {
   defaultLocale: string
   locales: string[]
   localeObjects?: Locale[]
+  /** `/` redirects to the locale the cookie / Accept-Language prefer (default `true`); pages keep the URL's locale. */
   autoDetect?: boolean
+  /**
+   * `/` also redirects when nothing prefers another locale: to the home `routingStrategy` resolves
+   * for the default locale (default `false`). Without one `/` stays: it is the default locale's page.
+   */
   redirectToDefault?: boolean
   routingStrategy?: I18nRoutingStrategy
+  /** Cookie holding the visitor's locale (default `'i18n-locale'`); `null` disables it. */
+  localeCookie?: string | null
+  /** Astro's `base`, `config.base` of the virtual config. */
+  base?: string
 }
 
-/**
- * Create Astro middleware for i18n locale detection
- */
-export function createI18nMiddleware(options: I18nMiddlewareOptions): MiddlewareHandler {
-  const {
-    i18n: globalI18n, // This is the global singleton with cache
-    defaultLocale,
-    locales,
-    localeObjects,
-    autoDetect: _autoDetect = true,
-    redirectToDefault: _redirectToDefault = false,
-    routingStrategy,
-  } = options
+export const DEFAULT_ASTRO_LOCALE_COOKIE = 'i18n-locale'
 
-  // Get routing strategy from options or global context
-  const strategy = routingStrategy || getGlobalRoutingStrategy()
+interface CookieReader {
+  get: (name: string) => { value: string } | undefined
+}
 
-  return async (context, next) => {
-    // FIX: If locale is already preserved in locals (e.g. during Astro.rewrite),
-    // skip redetection to prevent overwriting with default locale.
-    if (context.locals.locale && context.locals.i18n) {
-      return next()
-    }
-
-    const url = context.url
-    const pathname = url.pathname
-
-    // If no routing strategy, use basic fallback
-    if (!strategy) {
-      // Basic fallback: just set route name from path
-      const requestI18n = globalI18n.clone(defaultLocale)
-      const routeName = pathname === '/' || pathname === '' ? 'index' : pathname.split('/').filter(Boolean).join('-')
-      requestI18n.setRoute(routeName)
-
-      // @ts-ignore private property mismatch between src and dist types
-      context.locals.i18n = requestI18n
-      context.locals.locale = defaultLocale
-      context.locals.defaultLocale = defaultLocale
-      context.locals.locales = localeObjects || locales.map((code) => ({ code }))
-      context.locals.currentUrl = url
-
-      return next()
-    }
-
-    // Create context-aware routing strategy with current URL
-    const contextStrategy: I18nRoutingStrategy = {
-      ...strategy,
-      getCurrentPath: () => pathname,
-      getRoute: () => ({
-        fullPath: url.pathname + url.search,
-        query: Object.fromEntries(url.searchParams),
-      }),
-    }
-
-    // 1. Check if locale is in path
-    const pathSegments = pathname.split('/').filter(Boolean)
-    const firstSegment = pathSegments[0]
-    const hasLocalePrefix = firstSegment !== undefined && locales.includes(firstSegment)
-
-    // 2. Determine locale
-    let detectedLocale: string
-
-    if (hasLocalePrefix && firstSegment) {
-      detectedLocale = firstSegment
-    } else {
-      // Use routing strategy if available, otherwise fallback
-      if (contextStrategy.getLocaleFromPath) {
-        detectedLocale = contextStrategy.getLocaleFromPath(pathname, defaultLocale, locales)
-      } else {
-        detectedLocale = defaultLocale
-      }
-    }
-
-    // 3. Create per-request instance sharing the cache
-    const requestI18n = globalI18n.clone(detectedLocale)
-
-    // 4. Set route name using routing strategy
-    const routeName = contextStrategy.getRouteName ? contextStrategy.getRouteName(pathname, locales) : 'index'
-    requestI18n.setRoute(routeName)
-
-    // 5. Store in locals (Type-safe now thanks to astro-shim.d.ts)
-    // @ts-ignore private property mismatch between src and dist types
-    context.locals.i18n = requestI18n
-    context.locals.locale = detectedLocale
-    context.locals.defaultLocale = defaultLocale
-    context.locals.locales = localeObjects || locales.map((code) => ({ code }))
-    context.locals.currentUrl = url
-    context.locals.routingStrategy = contextStrategy
-
-    return runWithRoutingStrategy(contextStrategy, () => next())
+function cookie(cookies: CookieReader, name: string | null): string | null {
+  if (name === null) return null
+  try {
+    return cookies.get(name)?.value ?? null
+  } catch {
+    return null
   }
 }
 
 /**
- * Detect locale from request
+ * Every path method a strategy leaves out comes from the default adapter. The strategy's own stay
+ * bound to it: a class with methods on its prototype or `#private` fields works.
+ */
+function completeStrategy(strategy: I18nRoutingStrategy | null | undefined, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+  const fallback = createAstroRouterAdapter(locales, defaultLocale)
+  if (!strategy) return fallback
+  const source = strategy as unknown as Record<string, unknown>
+  const complete: Record<string, unknown> = {}
+  for (const [name, method] of Object.entries(fallback)) {
+    const own = source[name]
+    complete[name] = typeof own === 'function' ? own.bind(strategy) : method
+  }
+  return complete as unknown as I18nRoutingStrategy
+}
+
+interface PreferenceInput {
+  cookies: CookieReader
+  headers: Headers
+  localeCookie: string | null
+  autoDetect: boolean
+}
+
+/** Precedence of a visitor's preference over a routing that is already complete. */
+function preferredLocale(
+  pathname: string,
+  routing: Omit<I18nRouting, 'base'>,
+  { cookies, headers, localeCookie, autoDetect }: PreferenceInput,
+): string {
+  return resolveLocale({
+    defaultLocale: routing.defaultLocale,
+    validLocales: routing.locales,
+    autoDetectLanguage: autoDetect,
+    url: localeOfPath(pathname, routing),
+    cookie: autoDetect ? cookie(cookies, localeCookie) : null,
+    acceptLanguage: autoDetect ? header({ request: { headers } }, 'accept-language') : null,
+  })
+}
+
+/**
+ * Locale a visitor prefers: URL prefix → cookie → Accept-Language → default, the one precedence of
+ * `resolveLocale`. An explicit prefix always wins; `autoDetect: false` leaves only the URL.
  */
 export function detectLocale(
   pathname: string,
@@ -119,44 +104,113 @@ export function detectLocale(
   headers: Headers,
   defaultLocale: string,
   locales: string[],
-  localeCookie: string | null = 'i18n-locale',
+  localeCookie: string | null = DEFAULT_ASTRO_LOCALE_COOKIE,
   routingStrategy?: I18nRoutingStrategy | null,
+  autoDetect = true,
 ): string {
-  const strategy = routingStrategy ?? getGlobalRoutingStrategy()
+  const strategy = completeStrategy(
+    routingStrategy,
+    locales.map((code) => ({ code })),
+    defaultLocale,
+  )
+  return preferredLocale(pathname, { defaultLocale, locales, strategy }, { cookies, headers, localeCookie, autoDetect })
+}
 
-  // 1. Try path
-  let locale = defaultLocale
-  if (strategy?.getLocaleFromPath) {
-    locale = strategy.getLocaleFromPath(pathname, defaultLocale, locales)
-  } else {
-    // Fallback: check if first segment is a locale
-    const segments = pathname.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    if (firstSegment && locales.includes(firstSegment)) {
-      locale = firstSegment
-    }
+let warnedTwice = false
+
+/** Two middlewares made by this function: the first wins, the second one's options would be lost silently. */
+function warnTwice(): void {
+  if (warnedTwice) return
+  warnedTwice = true
+  console.warn('[i18n-micro] i18nIntegration already installs the middleware: pass `middleware: false` to it to use your own createI18nMiddleware.')
+}
+
+/** Create Astro middleware for i18n locale detection */
+export function createI18nMiddleware(options: I18nMiddlewareOptions): MiddlewareHandler {
+  const { i18n: globalI18n, defaultLocale, localeObjects, autoDetect = true } = options
+  const localeCookie = options.localeCookie === undefined ? DEFAULT_ASTRO_LOCALE_COOKIE : options.localeCookie
+  const allLocales = localeObjects ?? options.locales.map((code) => ({ code }))
+  const base = normalizeBase(options.base)
+  const routing: I18nRouting = {
+    defaultLocale,
+    base,
+    locales: getEnabledLocaleCodes(allLocales).filter((code) => options.locales.includes(code)),
+    strategy: completeStrategy(options.routingStrategy, allLocales, defaultLocale),
   }
+  const cookieOptions = { path: base || '/', maxAge: DEFAULT_COOKIE_MAX_AGE, sameSite: 'lax' as const }
+  const varyOn = localeCookie === null ? 'Accept-Language' : 'Cookie, Accept-Language'
 
-  // 2. Try cookie (skip if localeCookie is null)
-  if (localeCookie !== null && locale === defaultLocale && cookies.get(localeCookie)) {
-    const cookieLocale = cookies.get(localeCookie)?.value
-    if (cookieLocale && locales.includes(cookieLocale)) {
-      locale = cookieLocale
+  const handler: MiddlewareHandler = async (context, next) => {
+    // A locale already in locals (Astro.rewrite) is kept, not redetected.
+    if (context.locals.locale && context.locals.i18n) {
+      if (context.locals.i18nHandler && context.locals.i18nHandler !== handler) warnTwice()
+      return next()
     }
-  }
 
-  // 3. Try Accept-Language
-  if (locale === defaultLocale) {
-    try {
-      const detectedFromHeader = detectLocaleFromAcceptLanguage(headers.get('accept-language') ?? undefined, locales)
-      if (detectedFromHeader) {
-        locale = detectedFromHeader
-      }
-    } catch {
-      // Headers may be unavailable in static mode
-      // Fallback to default locale
-    }
-  }
+    const request = resolveRequest(context, routing)
+    const { path, url, locale, partOfPage } = request
 
-  return locale
+    // Coming from a page of another locale is the visitor's choice, whatever link took them here:
+    // no landing to redirect, or a switcher could never reach `/`.
+    const page = asksForPage(context, request)
+    const switched = page && isSwitch(context, request, routing)
+
+    // autoDetect is a redirect hint on the home page only (as the Nuxt module's autoDetectPath '/'):
+    // a visitor whose cookie / Accept-Language prefers another locale is sent to that locale's home.
+    // Only a page view: a redirect in answer to a server island would put a whole page in its slot.
+    const home = page && path === '/'
+    const hinted = autoDetect && home && !switched
+    // only here: reading the headers of a prerendered page makes Astro warn
+    const preferred = hinted
+      ? preferredLocale(path, routing, { cookies: context.cookies, headers: context.request.headers, localeCookie, autoDetect: true })
+      : locale
+    // the home page is a redirect or not depending on the cookie and the header, a part of a page and a switch on the Referer: shared caches key on them
+    const vary = [partOfPage || switched ? 'Referer' : '', autoDetect && home ? varyOn : ''].filter(Boolean).join(', ') || null
+    const target = preferred !== locale || (home && options.redirectToDefault) ? homeOf(preferred, routing) : path
+    if (target !== path) return withVary(context.redirect(withBase(target, base) + url.search, 302), vary)
+
+    Object.assign(context.locals, requestLocals(globalI18n, request, routing, allLocales, handler))
+    const response = await next()
+    // Remembered once it is a page the visitor saw: an endpoint they only fetched is no choice.
+    if (switched && localeCookie !== null && isPageView(context, response)) context.cookies.set(localeCookie, locale, cookieOptions)
+    return withVary(response, vary)
+  }
+  return handler
+}
+
+/** What a page reads: a per-request instance sharing the global dictionaries, and the request's model. */
+function requestLocals(globalI18n: AstroI18n, request: I18nRequest, routing: I18nRouting, locales: Locale[], handler: MiddlewareHandler) {
+  const { url, path, locale, route } = request
+  const i18n = globalI18n.fork(locale)
+  i18n.setRoute(route)
+  const strategy = Object.create(routing.strategy) as I18nRoutingStrategy
+  strategy.getCurrentPath = () => path
+  strategy.getRoute = () => ({ fullPath: path + url.search, query: Object.fromEntries(url.searchParams) })
+  return {
+    i18n,
+    locale,
+    defaultLocale: routing.defaultLocale,
+    locales,
+    currentUrl: url,
+    routingStrategy: strategy,
+    i18nBase: routing.base,
+    i18nHandler: handler,
+  }
+}
+
+/** A locale's home: the strategy's path for `/` in that locale, else `/<locale>` (an unprefixed URL is the default locale's). */
+function homeOf(locale: string, { strategy, defaultLocale }: I18nRouting): string {
+  const resolved = strategy.resolvePath!('/', locale)
+  const path = typeof resolved === 'string' ? resolved : resolved.path
+  return path || (locale === defaultLocale ? '/' : `/${locale}`)
+}
+
+function withVary(response: Response, vary: string | null): Response {
+  if (vary === null) return response
+  try {
+    response.headers.append('Vary', vary)
+  } catch {
+    // immutable headers (a fetched Response): left as they are
+  }
+  return response
 }

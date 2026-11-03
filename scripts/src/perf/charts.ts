@@ -273,91 +273,80 @@ export function generateAndSaveChart(name: string, artillery: ArtilleryResult): 
   return generateChartMarkdown(name, ordered)
 }
 
+const GRID = { color: 'rgba(255, 255, 255, 0.1)' }
+
+interface Dataset {
+  label: string
+  data: number[]
+  backgroundColor: string | string[]
+  borderColor: string | string[]
+  borderWidth: number
+}
+
+function barChart(labels: string[], datasets: Dataset[], title: string, axis: string, stacked?: boolean) {
+  return {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: title, font: { size: 16, weight: 'bold' } },
+        legend: datasets.length > 1 ? { position: 'bottom', labels: { usePointStyle: true } } : { display: false },
+      },
+      scales: {
+        y: { beginAtZero: true, ...(stacked && { stacked }), title: { display: true, text: axis }, grid: GRID },
+        x: { ...(stacked && { stacked }), grid: GRID },
+      },
+    },
+  }
+}
+
+/** One dataset with a color per bar. */
+const coloredBars = (label: string, data: number[], colors: string[]): Dataset => ({
+  label,
+  data,
+  backgroundColor: colors,
+  borderColor: colors,
+  borderWidth: 2,
+})
+
+/** One series of a grouped chart, `rgb` as `75, 192, 192`. */
+const series = (label: string, data: number[], rgb: string, borderWidth: number): Dataset => ({
+  label,
+  data,
+  backgroundColor: `rgba(${rgb}, 0.8)`,
+  borderColor: `rgb(${rgb})`,
+  borderWidth,
+})
+
 export function generateComparisonCharts(results: { name: string; load?: LoadMetrics }[]): {
   rpsConfig: object
   latencyConfig: object
 } {
   const labels = results.map((r) => r.name)
   const colors = results.map((_, i) => [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro][i % 3])
+  const metric = (key: keyof LoadMetrics) => results.map((r) => Math.round(Number(r.load?.[key]) || 0))
 
-  const rpsConfig = {
-    type: 'bar',
-    data: {
+  return {
+    rpsConfig: barChart(
       labels,
-      datasets: [
-        {
-          label: 'Requests per Second',
-          data: results.map((r) => Math.round(r.load?.requestsPerSecond || 0)),
-          backgroundColor: colors,
-          borderColor: colors,
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Requests per Second - Artillery (higher is better)', font: { size: 16, weight: 'bold' } },
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'RPS' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
-  }
-
-  const latencyConfig = {
-    type: 'bar',
-    data: {
+      [coloredBars('Requests per Second', metric('requestsPerSecond'), colors)],
+      'Requests per Second - Artillery (higher is better)',
+      'RPS',
+    ),
+    latencyConfig: barChart(
       labels,
-      datasets: [
-        {
-          label: 'Avg',
-          data: results.map((r) => Math.round(r.load?.responseTimeAvg || 0)),
-          backgroundColor: 'rgba(75, 192, 192, 0.8)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 1,
-        },
-        {
-          label: 'P50',
-          data: results.map((r) => Math.round(r.load?.responseTimeP50 || 0)),
-          backgroundColor: 'rgba(255, 206, 86, 0.8)',
-          borderColor: 'rgb(255, 206, 86)',
-          borderWidth: 1,
-        },
-        {
-          label: 'P95',
-          data: results.map((r) => Math.round(r.load?.responseTimeP95 || 0)),
-          backgroundColor: 'rgba(255, 159, 64, 0.8)',
-          borderColor: 'rgb(255, 159, 64)',
-          borderWidth: 1,
-        },
-        {
-          label: 'P99',
-          data: results.map((r) => Math.round(r.load?.responseTimeP99 || 0)),
-          backgroundColor: 'rgba(255, 99, 132, 0.8)',
-          borderColor: 'rgb(255, 99, 132)',
-          borderWidth: 1,
-        },
+      [
+        series('Avg', metric('responseTimeAvg'), '75, 192, 192', 1),
+        series('P50', metric('responseTimeP50'), '255, 206, 86', 1),
+        series('P95', metric('responseTimeP95'), '255, 159, 64', 1),
+        series('P99', metric('responseTimeP99'), '255, 99, 132', 1),
       ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Latency Percentiles (lower is better)', font: { size: 16, weight: 'bold' } },
-        legend: { position: 'bottom', labels: { usePointStyle: true } },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'Latency (ms)' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
+      'Latency Percentiles (lower is better)',
+      'Latency (ms)',
+    ),
   }
-
-  return { rpsConfig, latencyConfig }
 }
 
 export function generateBuildComparisonCharts(
@@ -369,102 +358,23 @@ export function generateBuildComparisonCharts(
 ): { buildTimeConfig: object; bundleSizeConfig: object; translationsConfig: object; totalBundleConfig: object } {
   const colors = labels.map((_, i) => [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro][i % 3])
 
-  const buildTimeConfig = {
-    type: 'bar',
-    data: {
+  return {
+    buildTimeConfig: barChart(labels, [coloredBars('Build Time (seconds)', buildTimes, colors)], 'Build Time (lower is better)', 'Seconds'),
+    bundleSizeConfig: barChart(
       labels,
-      datasets: [{ label: 'Build Time (seconds)', data: buildTimes, backgroundColor: colors, borderColor: colors, borderWidth: 2 }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Build Time (lower is better)', font: { size: 16, weight: 'bold' } },
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'Seconds' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
-  }
-
-  const bundleSizeConfig = {
-    type: 'bar',
-    data: {
+      [series('Code Bundle (MB)', codeBundleSizesMB, '75, 192, 192', 2), series('Translations (MB)', translationSizesMB, '255, 206, 86', 2)],
+      'Bundle Size: Code vs Translations (lower is better)',
+      'MB',
+      true,
+    ),
+    translationsConfig: barChart(labels, [coloredBars('Translations (MB)', translationSizesMB, colors)], 'Translations Size (lower is better)', 'MB'),
+    totalBundleConfig: barChart(
       labels,
-      datasets: [
-        {
-          label: 'Code Bundle (MB)',
-          data: codeBundleSizesMB,
-          backgroundColor: 'rgba(75, 192, 192, 0.8)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 2,
-        },
-        {
-          label: 'Translations (MB)',
-          data: translationSizesMB,
-          backgroundColor: 'rgba(255, 206, 86, 0.8)',
-          borderColor: 'rgb(255, 206, 86)',
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Bundle Size: Code vs Translations (lower is better)', font: { size: 16, weight: 'bold' } },
-        legend: { position: 'bottom', labels: { usePointStyle: true } },
-      },
-      scales: {
-        y: { beginAtZero: true, stacked: true, title: { display: true, text: 'MB' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { stacked: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
+      [coloredBars('Total Bundle (MB)', totalBundleSizesMB, colors)],
+      'Total Deployable Output (lower is better)',
+      'MB',
+    ),
   }
-
-  const translationsConfig = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Translations (MB)', data: translationSizesMB, backgroundColor: colors, borderColor: colors, borderWidth: 2 }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Translations Size (lower is better)', font: { size: 16, weight: 'bold' } },
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'MB' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
-  }
-
-  const totalBundleConfig = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Total Bundle (MB)', data: totalBundleSizesMB, backgroundColor: colors, borderColor: colors, borderWidth: 2 }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Total Deployable Output (lower is better)', font: { size: 16, weight: 'bold' } },
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'MB' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
-  }
-
-  return { buildTimeConfig, bundleSizeConfig, translationsConfig, totalBundleConfig }
 }
 
 export function generateComparisonMarkdown(results: { name: string; load?: LoadMetrics }[]): string {

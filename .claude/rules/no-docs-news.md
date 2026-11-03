@@ -1,15 +1,15 @@
 
-# docs/news — hands off
+# docs/content/news — hands off
 
-**Never** create, edit, delete, or "optionally update" `docs/news/index.md` (or any file under `docs/news/`).
+**Never** create, edit, delete, or "optionally update" `docs/content/news/index.md` (or any file under `docs/content/news/`).
 
 Allowed **only** when the user explicitly asks in that message (e.g. "добавь в news", "update docs/news").
 
 Do **not** treat as permission:
 
 - finishing a feature / fix / package bump
-- updating other docs (`docs/guide/`, README, API)
-- AGENTS / .cursorrules wording about "unreleased notes"
+- updating other docs (`docs/content/guide/`, README, API)
+- AGENTS wording about "unreleased notes"
 - "document user-facing changes"
 
 If release notes seem useful, mention it in chat — do not write the file.

@@ -1,0 +1,35 @@
+---
+import { getLocales, useI18n, useLocaleHead } from '@i18n-micro/astro'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
+import { dirOf, pagePaths } from '../../../../../benchmark/integrations/catalogue'
+
+const { t, locale, getRoute, switchLocalePath } = useI18n(Astro)
+const head = useLocaleHead(Astro, { baseUrl: 'https://bench.test' })
+const lang = (head.htmlAttrs?.lang as string | undefined) ?? locale
+---
+
+<!doctype html>
+<html lang={lang} dir={dirOf(locale)}>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{t('welcome')}</title>
+    {head.link.map((link) => <link {...link} />)}
+    {head.meta.map((meta) => <meta {...meta} />)}
+  </head>
+  <body>
+    <header data-testid="locale-state">
+      <span data-testid="current-locale">{locale}</span>
+      <span data-testid="current-route">{getRoute()}</span>
+    </header>
+    <nav>
+      {getLocales(Astro).filter((item) => !item.disabled).map(({ code }) => <a data-testid={`switch-${code}`} href={switchLocalePath(code)}>{code}</a>)}
+      {pagePaths.filter((path) => path !== '/dictionaries').map((path) => <I18nLink href={path} data-testid={`link-${path}`}>{path}</I18nLink>)}
+      <I18nLink href="/islands" data-testid="link-/islands">/islands</I18nLink>
+      <I18nLink href="/nothing/here" data-testid="link-404">404</I18nLink>
+      <I18nSwitcher />
+    </nav>
+    <main><slot /></main>
+    <p data-testid="head">{JSON.stringify(head)}</p>
+  </body>
+</html>

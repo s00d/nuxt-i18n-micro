@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.27",
+  "version": "2.0.0",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -25,7 +25,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
@@ -75,21 +76,6 @@
       },
       "default": "./dist/source-loader.mjs"
     },
-    "./payload-config": {
-      "production": {
-        "types": "./dist/payload-config.d.ts",
-        "default": "./dist/payload-config.mjs"
-      },
-      "import": {
-        "types": "./dist/payload-config.d.ts",
-        "default": "./dist/payload-config.mjs"
-      },
-      "require": {
-        "types": "./dist/payload-config.d.cts",
-        "default": "./dist/payload-config.cjs"
-      },
-      "default": "./dist/payload-config.mjs"
-    },
     "./payload-url": {
       "production": {
         "types": "./dist/payload-url.d.ts",
@@ -119,21 +105,6 @@
         "default": "./dist/payload-fetch.cjs"
       },
       "default": "./dist/payload-fetch.mjs"
-    },
-    "./payload-stats": {
-      "production": {
-        "types": "./dist/payload-stats.d.ts",
-        "default": "./dist/payload-stats.mjs"
-      },
-      "import": {
-        "types": "./dist/payload-stats.d.ts",
-        "default": "./dist/payload-stats.mjs"
-      },
-      "require": {
-        "types": "./dist/payload-stats.d.cts",
-        "default": "./dist/payload-stats.cjs"
-      },
-      "default": "./dist/payload-stats.mjs"
     },
     "./accept-language": {
       "production": {
@@ -225,6 +196,21 @@
       },
       "default": "./dist/resolve-hreflang.mjs"
     },
+    "./locale-head": {
+      "production": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "import": {
+        "types": "./dist/locale-head.d.ts",
+        "default": "./dist/locale-head.mjs"
+      },
+      "require": {
+        "types": "./dist/locale-head.d.cts",
+        "default": "./dist/locale-head.cjs"
+      },
+      "default": "./dist/locale-head.mjs"
+    },
     "./merge-i18n-head": {
       "production": {
         "types": "./dist/merge-i18n-head.d.ts",
@@ -254,6 +240,21 @@
         "default": "./dist/active-locales.cjs"
       },
       "default": "./dist/active-locales.mjs"
+    },
+    "./domains": {
+      "production": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "import": {
+        "types": "./dist/domains.d.ts",
+        "default": "./dist/domains.mjs"
+      },
+      "require": {
+        "types": "./dist/domains.d.cts",
+        "default": "./dist/domains.cjs"
+      },
+      "default": "./dist/domains.mjs"
     },
     "./cookie": {
       "production": {
@@ -300,36 +301,6 @@
       },
       "default": "./dist/parse-path.mjs"
     },
-    "./route-pattern": {
-      "production": {
-        "types": "./dist/route-pattern.d.ts",
-        "default": "./dist/route-pattern.mjs"
-      },
-      "import": {
-        "types": "./dist/route-pattern.d.ts",
-        "default": "./dist/route-pattern.mjs"
-      },
-      "require": {
-        "types": "./dist/route-pattern.d.cts",
-        "default": "./dist/route-pattern.cjs"
-      },
-      "default": "./dist/route-pattern.mjs"
-    },
-    "./route": {
-      "production": {
-        "types": "./dist/route.d.ts",
-        "default": "./dist/route.mjs"
-      },
-      "import": {
-        "types": "./dist/route.d.ts",
-        "default": "./dist/route.mjs"
-      },
-      "require": {
-        "types": "./dist/route.d.cts",
-        "default": "./dist/route.cjs"
-      },
-      "default": "./dist/route.mjs"
-    },
     "./runtime-config": {
       "production": {
         "types": "./dist/runtime-config.d.ts",
@@ -360,21 +331,6 @@
       },
       "default": "./dist/normalize.mjs"
     },
-    "./build": {
-      "production": {
-        "types": "./dist/build.d.ts",
-        "default": "./dist/build.mjs"
-      },
-      "import": {
-        "types": "./dist/build.d.ts",
-        "default": "./dist/build.mjs"
-      },
-      "require": {
-        "types": "./dist/build.d.cts",
-        "default": "./dist/build.cjs"
-      },
-      "default": "./dist/build.mjs"
-    },
     "./app-path": {
       "production": {
         "types": "./dist/app-path.d.ts",
@@ -389,6 +345,21 @@
         "default": "./dist/app-path.cjs"
       },
       "default": "./dist/app-path.mjs"
+    },
+    "./load-dir": {
+      "production": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "import": {
+        "types": "./dist/load-dir.d.ts",
+        "default": "./dist/load-dir.mjs"
+      },
+      "require": {
+        "types": "./dist/load-dir.d.cts",
+        "default": "./dist/load-dir.cjs"
+      },
+      "default": "./dist/load-dir.mjs"
     },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
@@ -405,11 +376,9 @@
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/types": "workspace:^",
-    "globby": "catalog:"
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "workspace:^",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

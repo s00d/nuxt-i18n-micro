@@ -1,0 +1,17 @@
+---
+import { getI18nProps } from '@i18n-micro/astro'
+import ReactIsland from '../islands/ReactIsland'
+import SvelteIsland from '../islands/SvelteIsland.svelte'
+import VueIsland from '../islands/VueIsland.vue'
+
+const keys = ['welcome', 'greeting', 'apples', 'section.title']
+const i18n = getI18nProps(Astro, keys)
+const everything = getI18nProps(Astro)
+---
+
+<ul data-testid="page-islands">
+  <li><VueIsland client:load i18n={i18n} /></li>
+  <li><ReactIsland client:load i18n={i18n} /></li>
+  <li><SvelteIsland client:load i18n={i18n} /></li>
+  <li data-testid="island-all-keys">{Object.keys(everything.translations[everything.currentRoute] ?? {}).length > 0}</li>
+</ul>

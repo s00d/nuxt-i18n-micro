@@ -26,14 +26,25 @@ describe('release', () => {
     // thousands of lines long.
     execFileSync.mockClear()
     await runCli(releaseCommand, { bump: 'patch' })
-    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--from', 'v3.21.4', '--patch'])
+    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--no-github', '--from', 'v3.21.4', '--patch'])
   })
 
-  it('lets changelogen infer the bump for --bump auto', async () => {
+  // before the push a GitHub release would tag the remote default branch, or open a URL with the whole changelog
+  it('leaves the GitHub release for after the push', async () => {
     execFileSync.mockClear()
-    await runCli(releaseCommand, { bump: 'auto' })
-    expect(changelogenArgs()).not.toContain('--auto')
-    expect(changelogenArgs()).toEqual(['exec', 'changelogen', '--release', '--from', 'v3.21.4'])
+    await runCli(releaseCommand, { bump: 'major' })
+    expect(changelogenArgs()).toContain('--no-github')
+  })
+
+  it('never lets changelogen pick the level from commits', async () => {
+    for (const bump of [undefined, 'auto']) {
+      execFileSync.mockClear()
+      // oxlint-disable-next-line no-await-in-loop
+      const { exitCode, stderr } = await runCli(releaseCommand, { bump })
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('--bump patch | minor | major')
+      expect(execFileSync).not.toHaveBeenCalled()
+    }
   })
 
   it('passes minor and major straight through', async () => {

@@ -15,7 +15,8 @@
     "declarationMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "#host": ["./src/host.ts"]
     },
     "types": ["react", "react-dom"],
     "ignoreDeprecations": "6.0"

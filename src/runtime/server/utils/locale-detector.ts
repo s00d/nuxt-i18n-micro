@@ -1,11 +1,79 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ResolvedI18nConfig } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
-import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
-import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
+import { getPreferenceCookieName } from '@i18n-micro/utils/cookie'
+import { configForHost } from '@i18n-micro/utils/domains'
+import { firstQueryValue, localeFromPath, resolveLocale } from '@i18n-micro/utils/resolve-locale'
+import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
-import { getCookie, getQuery, getRequestURL } from 'h3'
-import { useRuntimeConfig } from '#imports'
+import { getCookie, getHeader, getQuery, getRequestHost } from 'h3'
+import { domains, getI18nConfig } from '#i18n-internal/strategy'
+import { useRuntimeConfig } from 'nitropack/runtime'
+import { requestURL } from '../../utils/request-url'
+
+// ponytail: env is read once per process (Nitro's env does not change while it runs); a
+// runtime env switch needs a restart, as for the rest of runtimeConfig.
+const resolveConfig = createI18nConfigResolver()
+
+/** The host of a process that serves one domain, and of `nuxt generate`, which has no real request. */
+function fixedHost(): string | undefined {
+  try {
+    return process.env.NUXT_I18N_DOMAIN
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * The module config with runtime overrides (`runtimeConfig.public.i18nRuntime`, then env), resolved
+ * once: every caller of a request, and every request with the same overrides and host, gets the
+ * same object (so override warnings are logged once). Read-only: deep-frozen in dev.
+ */
+export function getI18nServerConfig(event?: H3Event): ResolvedI18nConfig {
+  const config = resolveConfig(getI18nConfig(), useRuntimeConfig().public as Record<string, unknown>)
+  if (!domains) return config
+  const host = fixedHost() || (event && getRequestHost(event, { xForwardedHost: config.trustForwardedHost === true }))
+  return host ? configForHost(config, host) : config
+}
+
+type DetectionConfig = Pick<ResolvedI18nConfig, 'defaultLocale' | 'localeCookie' | 'autoDetectLanguage' | 'strategy' | 'hashMode'> & {
+  locales?: { code: string; disabled?: boolean }[]
+}
+
+/**
+ * - `page`: what the page render shows. The URL decides wherever the router does: a prefix, or the
+ *   default locale for an unprefixed URL under prefix_except_default and prefix_and_default (a cookie
+ *   must not render `de` on the `en` page). `?locale=` counts only under no_prefix, where no URL
+ *   locale exists.
+ * - `api`: server API helpers — `?locale=`, a `[locale]` route param or prefix, cookie, header.
+ */
+export type RequestLocaleMode = 'page' | 'api'
+
+/** The one server detection: i18n.global stores it in `event.context.i18n.locale`, the helpers reuse it. */
+export function detectRequestLocale(event: H3Event, config: DetectionConfig, mode: RequestLocaleMode, path?: string): string {
+  const validLocales = getEnabledLocaleCodes(config.locales as Locale[])
+  const defaultLocale = config.defaultLocale
+  const urlless = config.strategy === 'no_prefix' || Boolean(config.hashMode)
+  const unprefixedIsDefault = config.strategy === 'prefix_except_default' || config.strategy === 'prefix_and_default'
+  const cookieName = getPreferenceCookieName(config as ResolvedI18nConfig)
+  return resolveLocale({
+    defaultLocale,
+    validLocales,
+    autoDetectLanguage: config.autoDetectLanguage,
+    url: urlless && mode === 'page' ? null : urlLocale(event, mode, path, validLocales, unprefixedIsDefault ? defaultLocale : null),
+    query: mode === 'api' || config.strategy === 'no_prefix' ? firstQueryValue(getQuery(event).locale) : null,
+    queryFirst: mode === 'api',
+    cookie: cookieName ? getCookie(event, cookieName) : null,
+    acceptLanguage: getHeader(event, 'accept-language'),
+  })
+}
+
+function urlLocale(event: H3Event, mode: RequestLocaleMode, path: string | undefined, validLocales: string[], unprefixed: string | null) {
+  const param = firstQueryValue(event.context.params?.locale)
+  if (mode === 'api' && param && validLocales.includes(param)) return param
+  const prefix = localeFromPath(path ?? withoutAppBaseURL(requestURL(event).pathname, useRuntimeConfig().app.baseURL), validLocales)
+  return prefix ?? (mode === 'page' ? unprefixed : null)
+}
 
 export interface DetectCurrentLocaleConfig {
   fallbackLocale?: string
@@ -16,36 +84,18 @@ export interface DetectCurrentLocaleConfig {
 }
 
 /**
- * Detects the current locale based on various sources (server-only).
- * Thin wrapper around `resolveServerLocale` with configured cookie name.
+ * Detects the current locale of a server API request: `detectRequestLocale` with the `api` rules.
+ * @deprecated use `useLocaleServerMiddleware(event).current`, which applies the same rules.
  */
 export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleConfig, defaultLocale?: string): string => {
-  const { fallbackLocale, defaultLocale: configDefaultLocale, locales, localeCookie, autoDetectLanguage } = config
+  return detectRequestLocale(event, { ...config, defaultLocale: defaultLocale || config.defaultLocale } as DetectionConfig, 'api')
+}
 
-  const resolvedDefault = defaultLocale || configDefaultLocale || 'en'
-  const validLocales = getEnabledLocaleCodes(locales ?? [])
-
-  const url = getRequestURL(event)
-  const rawPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
-  const cleanPath = withoutAppBaseURL(rawPath, useRuntimeConfig(event).app.baseURL)
-  const firstSegment = cleanPath.split('/').filter(Boolean)[0] ?? ''
-  const fromParams = event.context.params?.locale?.toString()
-  const urlLocale = (fromParams && validLocales.includes(fromParams) ? fromParams : firstSegment) || null
-  const hasLocaleInUrl = Boolean(urlLocale && validLocales.includes(urlLocale))
-  const queryLocale = getQuery(event)?.locale ? String(getQuery(event).locale) : null
-  const cookieName = getLocaleCookieName({ localeCookie } as ModuleOptionsExtend)
-  const cookieLocale = cookieName ? getCookie(event, cookieName) : null
-
-  const locale = resolveServerLocale({
-    defaultLocale: resolvedDefault,
-    validLocales,
-    autoDetectLanguage,
-    hasLocaleInUrl,
-    urlLocale,
-    queryLocale,
-    cookieLocale,
-    acceptLanguageHeader: event.headers.get('accept-language'),
-  })
-
-  return locale || fallbackLocale || resolvedDefault
+/**
+ * This request's locale for server API helpers, with the documented API order (query → route
+ * param / prefix → cookie → Accept-Language) on every route, `/api` or not — never the page
+ * render's locale, which ignores `?locale` under the prefix strategies.
+ */
+export function getRequestLocale(event: H3Event, config: ResolvedI18nConfig, defaultLocale?: string): string {
+  return detectRequestLocale(event, defaultLocale ? { ...config, defaultLocale } : config, 'api')
 }

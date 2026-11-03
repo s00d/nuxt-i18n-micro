@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parse } from 'vue-docgen-api'
+import { declaredSlots, parseComponent as parse } from '../src/utils/component-docs'
 import { repoRoot } from '../src/utils/workspace'
 
 /**
@@ -24,6 +25,28 @@ describe('component reference sources', () => {
     const doc = await parse(componentFile(tag))
     const undocumented = (doc.slots ?? []).filter((slot) => !slot.description).map((slot) => slot.name)
     expect(undocumented, `${tag} slots without a <!-- @slot --> comment`).toEqual([])
+  })
+
+  it('a render-function component documents its slots in SlotsType', () => {
+    const source = readFileSync(componentFile('i18n-switcher'), 'utf8')
+    const slots = declaredSlots(source)
+    expect(slots.map((slot) => slot.name)).toEqual(expect.arrayContaining(['before-button', 'before-item', 'after-dropdown']))
+    expect(slots.find((slot) => slot.name === 'before-button')).toEqual({
+      name: 'before-button',
+      bindings: [],
+      description: 'Content before the button that opens the dropdown.',
+    })
+    expect(slots.find((slot) => slot.name === 'before-item')?.bindings).toEqual([{ name: 'locale' }])
+  })
+
+  it('reads a functional component and its props', async () => {
+    const doc = await parse(componentFile('i18n-t'))
+    expect(doc.props?.map((prop) => prop.name)).toEqual(expect.arrayContaining(['keypath', 'plural', 'html']))
+  })
+
+  it('shows a default as a value, not as the name of a local helper', async () => {
+    const doc = await parse(componentFile('i18n-switcher'))
+    expect(doc.props?.find((prop) => prop.name === 'customLabels')?.defaultValue?.value).toContain('{}')
   })
 
   it('reads scoped slot bindings, which a page needs to be usable', async () => {

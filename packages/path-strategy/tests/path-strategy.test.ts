@@ -524,6 +524,19 @@ describe('a host of a domain build', () => {
     expect(i18n.getCurrentLocale(at('/en-ru'), 'de')).toBe('ru')
   })
 
+  // under prefix the en path lives only as `/en/about-us`, a URL of a.test: the page is still known by it here
+  test("prefix: a path in another domain's form leads to this host's page", () => {
+    const { i18n } = onB('prefix')
+    expect(i18n.localeRoute('de', '/about-us').path).toBe('/de/ueber-uns')
+    expect(i18n.localeRoute('de', '/en/about-us').path).toBe('/de/ueber-uns')
+    expect(i18n.localeRoute('en', '/about-us').path).toBe('https://a.test/en/about-us')
+    expect(i18n.getClientRedirect('/about-us', 'de')).toBe('/de/ueber-uns')
+    expect(i18n.switchLocaleRoute('de', { name: null, path: '/about-us', fullPath: '/about-us' })).toMatchObject({ path: '/de/ueber-uns' })
+    // knowing the page by that form serves nothing: the other domain's URL stays a 404 here
+    expect(i18n.shouldReturn404('/en/about-us')).toBe('Locale on another domain')
+    expect(i18n.shouldReturn404('/about-us')).toBeNull()
+  })
+
   test('a real page on a foreign segment stays, a foreign prefix is a 404', () => {
     const { i18n } = onB('prefix_except_default')
     expect(i18n.shouldReturn404('/en/about-us')).toBe('Locale on another domain')

@@ -48,19 +48,19 @@ Every URL is resolved with `?q=1#top`.
 
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
-| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en/de?q=1#top [null] | null | null | en,de,nl,fr |
-| /de/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/de/blog/hello-world?q=1#top [null] | null | null | en,de,nl,fr |
-| /de/de-only | /en [localized-index] |  | /en [localized-index] | /en/de/de-only?q=1#top [null] | null | null | de |
-| /de/ueber-uns | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/de/ueber-uns?q=1#top [null] | null | null | en,nl,de,fr |
+| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,nl,fr |
+| /de/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
+| /de/de-only | /en [localized-index] |  | /en [localized-index] | /en [localized-index] | null | null | de |
+| /de/ueber-uns | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,nl,de,fr |
 | /en | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,nl,fr |
 | /en/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,nl,de,fr |
 | /en/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
 | /fr | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,nl,fr |
 | /fr/a-propos | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | /en/about | en,nl,de,fr |
 | /fr/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | null | /en/blog/hello-world | en,de,nl,fr |
-| /nl | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en/nl?q=1#top [null] | null | null | en,de,nl,fr |
-| /nl/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/nl/about?q=1#top [null] | null | null | en,nl,de,fr |
-| /nl/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/nl/blog/hello-world?q=1#top [null] | null | null | en,de,nl,fr |
+| /nl | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,nl,fr |
+| /nl/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,nl,de,fr |
+| /nl/blog/hello-world | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world-en?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | /en/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
 | / | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en | /en | en,de,nl,fr |
 | /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,nl,fr |
 | /fr/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,nl,fr |
@@ -75,19 +75,19 @@ Every URL is resolved with `?q=1#top`.
 
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
-| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr/de?q=1#top [null] | null | null | en,de,nl,fr |
-| /de/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/de/blog/hello-world?q=1#top [null] | null | null | en,de,nl,fr |
-| /de/de-only | /fr [localized-index] |  | /fr [localized-index] | /fr/de/de-only?q=1#top [null] | null | null | de |
-| /de/ueber-uns | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/de/ueber-uns?q=1#top [null] | null | null | en,nl,de,fr |
+| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,nl,fr |
+| /de/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
+| /de/de-only | /fr [localized-index] |  | /fr [localized-index] | /fr [localized-index] | null | null | de |
+| /de/ueber-uns | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | null | en,nl,de,fr |
 | /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,nl,fr |
 | /en/about | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | /fr/a-propos | en,nl,de,fr |
 | /en/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | /fr/blog/hello-world | en,de,nl,fr |
 | /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,nl,fr |
 | /fr/a-propos | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | null | en,nl,de,fr |
 | /fr/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
-| /nl | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr/nl?q=1#top [null] | null | null | en,de,nl,fr |
-| /nl/about | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/nl/about?q=1#top [null] | null | null | en,nl,de,fr |
-| /nl/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/nl/blog/hello-world?q=1#top [null] | null | null | en,de,nl,fr |
+| /nl | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,nl,fr |
+| /nl/about | /fr/a-propos?q=1#top [localized-about-fr] |  | /fr/a-propos?q=1#top [localized-about-fr] | /fr/a-propos?q=1#top [localized-about-fr] | null | null | en,nl,de,fr |
+| /nl/blog/hello-world | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world-fr?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | /fr/blog/hello-world?q=1#top [localized-blog-slug] | null | null | en,de,nl,fr |
 | / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | /fr | en,de,nl,fr |
 | /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,nl,fr |
 | /fr/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,nl,fr |
@@ -102,19 +102,19 @@ Every URL is resolved with `?q=1#top`.
 
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
-| /de | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de/de?q=1#top [—] | null | null | en,de,nl,fr |
-| /de/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /de/de-only | external https://example.de/de/de-only?q=1#top |  | https://example.de/de/de-only?q=1#top [—] | https://example.de/de/de/de-only?q=1#top [—] | null | null | de |
-| /de/ueber-uns | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
+| /de | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
+| /de/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
+| /de/de-only | external https://example.de/de/de-only?q=1#top |  | https://example.de/de/de-only?q=1#top [—] | https://example.de/de/de-only?q=1#top [—] | null | null | de |
+| /de/ueber-uns | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
 | /en | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/about | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
 | /en/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr/a-propos | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
 | /fr/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /nl | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de/nl?q=1#top [—] | null | null | en,de,nl,fr |
-| /nl/about | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
-| /nl/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
+| /nl | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
+| /nl/about | external https://example.de/de/ueber-uns?q=1#top |  | https://example.de/de/ueber-uns?q=1#top [—] | https://example.de/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
+| /nl/blog/hello-world | external https://example.de/de/blog/hello-world?q=1#top | external https://example.de/de/blog/hello-world?q=1#top | https://example.de/de/blog/hello-world?q=1#top [—] | https://example.de/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
 | / | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/ | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr/ | external https://example.de/de?q=1#top |  | https://example.de/de?q=1#top [—] | https://example.de/de?q=1#top [—] | null | null | en,de,nl,fr |
@@ -129,19 +129,19 @@ Every URL is resolved with `?q=1#top`.
 
 | url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
 |---|---|---|---|---|---|---|---|
-| /de | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl/de?q=1#top [—] | null | null | en,de,nl,fr |
-| /de/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/de/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /de/de-only | external https://example.de/nl |  | https://example.de/nl [—] | https://example.de/nl/de/de-only?q=1#top [—] | null | null | de |
-| /de/ueber-uns | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/de/ueber-uns?q=1#top [—] | null | null | en,nl,de,fr |
+| /de | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
+| /de/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
+| /de/de-only | external https://example.de/nl |  | https://example.de/nl [—] | https://example.de/nl [—] | null | null | de |
+| /de/ueber-uns | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /en | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/about | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /en/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr/a-propos | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
 | /fr/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
-| /nl | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl/nl?q=1#top [—] | null | null | en,de,nl,fr |
-| /nl/about | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
-| /nl/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
+| /nl | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
+| /nl/about | external https://example.de/nl/about?q=1#top |  | https://example.de/nl/about?q=1#top [—] | https://example.de/nl/about?q=1#top [—] | null | null | en,nl,de,fr |
+| /nl/blog/hello-world | external https://example.de/nl/blog/hello-world?q=1#top | external https://example.de/nl/blog/hello-world?q=1#top | https://example.de/nl/blog/hello-world?q=1#top [—] | https://example.de/nl/blog/hello-world?q=1#top [—] | null | null | en,de,nl,fr |
 | / | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
 | /en/ | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |
 | /fr/ | external https://example.de/nl?q=1#top |  | https://example.de/nl?q=1#top [—] | https://example.de/nl?q=1#top [—] | null | null | en,de,nl,fr |

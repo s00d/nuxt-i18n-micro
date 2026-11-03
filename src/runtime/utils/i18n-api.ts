@@ -48,6 +48,8 @@ const URL_SCHEME = /^(?:https?:|mailto:|tel:)/i
 
 /** `NavigationFailureType.duplicated`. */
 const DUPLICATED = 16
+/** `NavigationFailureType.aborted`. */
+const ABORTED = 4
 
 /** Never a page, and no request can send a visitor elsewhere with one. */
 const APP_SCHEME = /^(?:mailto:|tel:)/i
@@ -147,7 +149,11 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
    */
   const settleSwitch = (toLocale: string, failure: unknown) => {
     const type = failure instanceof Error ? (failure as Error & { type?: number }).type : undefined
-    if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getLocale())
+    // a URL with no page: Nuxt 4.6 (`experimental.serverPathFallback`) aborts the navigation and loads it from the
+    // server, which writes no cookie on a 404. The choice is made, so it is stored before the page goes
+    const reloaded = type === ABORTED && !i18nStrategy.probe(provide.switchLocalePath(toLocale))?.matched?.length
+    if (reloaded) setLocale(toLocale)
+    else if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getLocale())
     else if (type === DUPLICATED || i18n.getLocale() === toLocale) setLocale(toLocale)
   }
 

@@ -186,7 +186,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "onFail": "error"
+      "onFail": "warn"
     }
   },
   "packageManager": "pnpm@9.14.2",
@@ -209,13 +209,6 @@
     "peerDependencyRules": {
       "allowedVersions": {
         "@nuxt/module-builder>typescript": "6"
-      }
-    },
-    "packageExtensions": {
-      "@nuxt/vite-builder@4": {
-        "dependencies": {
-          "unplugin": "^3.0.0"
-        }
       }
     }
   },

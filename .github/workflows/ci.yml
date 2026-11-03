@@ -175,7 +175,8 @@ jobs:
           exit "${PIPESTATUS[0]}"
 
       # integration + e2e both drive a real browser (chromium.launch / createPage)
-      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps' || '' }} chromium firefox webkit
+      # Windows runs Chromium only: the three engines run on Linux, and Windows is there for paths, builds and files
+      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps chromium firefox webkit' || 'chromium' }}
 
       - name: Test packages
         id: test-packages
@@ -213,13 +214,12 @@ jobs:
           # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
           # heap of that one process in bounds, it passed 4 GB on the whole set. The retry is for the runner: a socket out of
           # buffers (`ERR_NO_BUFFER_SPACE`), an aborted manifest fetch. Each hit one test in 552, never the same one.
+          # Chromium only here (Firefox and WebKit run on Linux): the three engines in a row took 28 of Windows' 42 minutes.
           rc=0
-          for browser in chromium firefox webkit; do
-            for shard in 1 2 3; do
-              echo "== $browser $shard/3"
-              E2E_BROWSER=$browser pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
-              [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
-            done
+          for shard in 1 2 3; do
+            echo "== chromium $shard/3"
+            E2E_BROWSER=chromium pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
+            [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
           done
           exit $rc
 

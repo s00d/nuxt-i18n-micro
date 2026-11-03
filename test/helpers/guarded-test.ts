@@ -33,6 +33,19 @@ function watchErrors(context: BrowserContext) {
   return issues
 }
 
+/** The last console messages and the failed or non-2xx requests, for the report of a failed test. */
+function watchTrail(context: BrowserContext, keep = 30) {
+  const consoleLines: string[] = []
+  const requests: string[] = []
+  const push = (list: string[], line: string) => list.push(line) > keep && list.shift()
+  context.on('console', (msg) => push(consoleLines, `${msg.type()}: ${msg.text()}`))
+  context.on('response', (res) => {
+    if (res.status() < 200 || res.status() >= 300) push(requests, `${res.status()} ${res.request().method()} ${res.url()}`)
+  })
+  context.on('requestfailed', (req) => push(requests, `failed (${req.failure()?.errorText}) ${req.method()} ${req.url()}`))
+  return { consoleLines, requests }
+}
+
 /**
  * The journeys' `test`: a browser error fails the test even when its own assertions pass
  * (a 500 page still hydrates, and `not.toBeAttached` passes on it).
@@ -44,10 +57,33 @@ export const test = base
     const patterns = [...guardAllow]
     return { patterns, allow: (...more) => patterns.push(...more) }
   })
-  .extend('page', ({ page, guard }, { onCleanup }) => {
+  .extend('page', ({ page, guard, task }, { onCleanup }) => {
     const issues = watchErrors(page.context())
-    onCleanup(() => {
-      expect(issues.filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))).toEqual([])
+    const trail = watchTrail(page.context())
+    onCleanup(async () => {
+      const unexpected = issues.filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))
+      // runs before the page closes, and only when the test failed: a passing test prints nothing
+      if (task.result?.state === 'fail' || unexpected.length) {
+        const locale = page.isClosed()
+          ? null
+          : await page
+              .locator('#locale')
+              .first()
+              .textContent({ timeout: 500 })
+              .catch(() => null)
+        console.error(
+          [
+            `[journey failed] ${task.name}`,
+            `url: ${page.url()}`,
+            `#locale: ${locale ?? '(absent)'}`,
+            `requests failed or non-2xx (last ${trail.requests.length}):`,
+            ...trail.requests.map((line) => `  ${line}`),
+            `console (last ${trail.consoleLines.length}):`,
+            ...trail.consoleLines.map((line) => `  ${line}`),
+          ].join('\n'),
+        )
+      }
+      expect(unexpected).toEqual([])
     })
     return page
   })

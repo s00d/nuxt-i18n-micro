@@ -61,8 +61,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
   // Nitro renders a `swr` or `cache` route on a copy of the request with no host: the origin read there is
   // `http://localhost`, in every visitor's page. Only a configured origin is right, and only the app can set it.
-  const event = nuxtApp.ssrContext?.event as { context?: { cache?: unknown } } | undefined
-  if (import.meta.server && !warnedCachedRender && event?.context?.cache && !i18nConfig.metaBaseUrl && !siteUrl) {
+  // A rule whose `cache.varies` keeps `host` renders with it, and needs nothing.
+  const event = nuxtApp.ssrContext?.event as { context?: { cache?: unknown }; node?: { req?: { headers?: Record<string, unknown> } } } | undefined
+  const hostless = event?.context?.cache && !event.node?.req?.headers?.host
+  if (import.meta.server && !warnedCachedRender && hostless && !i18nConfig.metaBaseUrl && !siteUrl) {
     warnedCachedRender = true
     console.warn(
       '[i18n] A route cached by `swr` or `cache` renders without the request host, so canonical and hreflang URLs point to http://localhost. Set `i18n.metaBaseUrl` or `site.url`.',

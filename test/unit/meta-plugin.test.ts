@@ -69,15 +69,16 @@ describe('02.meta', () => {
     expect(app.head!().link.find((link) => link.rel === 'canonical')?.href).toBe(canonical)
   })
 
-  test('a cached render with no configured origin warns once; with one, never', () => {
+  test('a cached render with no host and no configured origin warns once; with either, never', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const side = globalThis as unknown as { __i18nSide?: string }
     side.__i18nSide = 'server'
     try {
-      const cachedRender = (noBaseUrl: boolean) => {
-        setup({ noBaseUrl, ssrContext: { event: { context: { cache: {} } } } })
+      const cachedRender = (noBaseUrl: boolean, headers: object = {}) => {
+        setup({ noBaseUrl, ssrContext: { event: { context: { cache: {} }, node: { req: { headers } } } } })
       }
       cachedRender(false)
+      cachedRender(true, { host: 'example.com' })
       expect(warn).not.toHaveBeenCalled()
       cachedRender(true)
       cachedRender(true)

@@ -14,7 +14,13 @@ const codes = (c: ModuleOptionsExtend) => c.locales!.map((l) => l.code)
 describe('configForHost', () => {
   test('a configured host: its default, its locales, every locale with no domain, its origin', () => {
     const de = configForHost(config, 'example.de')
-    expect(de).toMatchObject({ domain: 'example.de', defaultLocale: 'de', metaBaseUrl: 'https://example.de', linkLocales: locales })
+    expect(de).toMatchObject({
+      domain: 'example.de',
+      defaultLocale: 'de',
+      linkDefaultLocale: 'en',
+      metaBaseUrl: 'https://example.de',
+      linkLocales: locales,
+    })
     expect(codes(de)).toEqual(['de', 'nl', 'fr'])
     expect(configForHost(config, 'example.com').metaBaseUrl).toBe('https://example.com')
   })

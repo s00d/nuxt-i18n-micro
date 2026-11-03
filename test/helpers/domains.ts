@@ -32,9 +32,12 @@ export function onHost(baseURL: string, path: string, host: string, headers: Rec
 export const contentOn = (html: string) => /id="content"[^>]*>\s*([^<]*?)\s*</.exec(html)?.[1]
 export const canonicalOf = (html: string) =>
   /<link[^>]*id="i18n-can"[^>]*href="([^"]*)"/.exec(html)?.[1] ?? /<link[^>]*href="([^"]*)"[^>]*id="i18n-can"/.exec(html)?.[1]
-export const alternateOf = (html: string, id: string) =>
-  new RegExp(`<link[^>]*id="i18n-alternate-${id}"[^>]*href="([^"]*)"`).exec(html)?.[1] ??
-  new RegExp(`<link[^>]*href="([^"]*)"[^>]*id="i18n-alternate-${id}"`).exec(html)?.[1]
+const linkHref = (html: string, id: string) =>
+  new RegExp(`<link[^>]*id="${id}"[^>]*href="([^"]*)"`).exec(html)?.[1] ?? new RegExp(`<link[^>]*href="([^"]*)"[^>]*id="${id}"`).exec(html)?.[1]
+
+export const alternateOf = (html: string, id: string) => linkHref(html, `i18n-alternate-${id}`)
+
+export const xDefaultOf = (html: string) => linkHref(html, 'i18n-xd')
 
 /** WebKit fails a fetch cut off by `page.goto` and the leaving page still runs: leave a page only once it hydrated. */
 export const hydrated = (page: Page) =>

@@ -64,6 +64,7 @@ function buildHostConfigs(config: ModuleOptionsExtend): Map<string, ModuleOption
       domain: host,
       locales: served,
       linkLocales: locales,
+      linkDefaultLocale: config.defaultLocale,
       // every locale of the host disabled: it serves nothing, and still not another domain's
       defaultLocale: hostDefault(own, served, config.defaultLocale) ?? config.defaultLocale,
       // the configured origin, never the request's

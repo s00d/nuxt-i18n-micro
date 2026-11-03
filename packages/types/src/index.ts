@@ -718,6 +718,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   domain?: string
   /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */
   linkLocales?: Locale[]
+  /** With `domain`: the build's `defaultLocale`, the same on every host (`x-default`). `defaultLocale` is the host's. */
+  linkDefaultLocale?: string
 }
 
 /** The keys `buildFullConfig` always sets: read at runtime with no default of their own. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '../helpers/guarded-test.ts'
-import { alternateOf, canonicalOf, contentOn, hydrated, onHost, routeDomains } from '../helpers/domains.ts'
+import { alternateOf, canonicalOf, contentOn, hydrated, onHost, routeDomains, xDefaultOf } from '../helpers/domains.ts'
 
 import type { Page } from '@playwright/test'
 
@@ -86,6 +86,9 @@ describe('journey: one build, two domains — prefix_except_default', () => {
     expect(alternateOf(html, 'en_EN')).toBe('https://example.com/contact')
     expect(alternateOf(html, 'ru_RU')).toBe('https://example.de/ru/contact')
     expect(alternateOf((await onHost(baseURL, '/contact', COM)).html, 'de_DE')).toBe('https://example.de/kontakt')
+    // one x-default for the group: the build default's URL on every host, not each host's own
+    expect(xDefaultOf(html)).toBe('https://example.com/contact')
+    expect(xDefaultOf((await onHost(baseURL, '/contact', COM)).html)).toBe('https://example.com/contact')
   })
 
   test('a cookie or Accept-Language cannot pick a locale of another domain', async ({ baseURL }) => {
@@ -169,12 +172,15 @@ describe('journey: one build, two domains — prefix', () => {
     expect([root.status, root.location]).toEqual([302, '/de'])
     expect((await onHost(baseURL, '/', COM)).location).toBe('/en')
     expect((await onHost(baseURL, '/kontakt', DE)).location).toBe('/de/kontakt')
+    // the en path is a URL of the other domain only (`/en/contact`): here it still names the page
+    expect((await onHost(baseURL, '/contact', DE)).location).toBe('/de/kontakt')
 
     const page = await onHost(baseURL, '/de/kontakt', DE)
     expect(contentOn(page.html)).toBe('contact')
     expect(canonicalOf(page.html)).toBe('https://example.de/de/kontakt')
     // a link lands on the page, not on a redirect
     expect(alternateOf(page.html, 'en_EN')).toBe('https://example.com/en/contact')
+    expect(xDefaultOf(page.html)).toBe('https://example.com/en/contact')
 
     expect((await onHost(baseURL, '/en', DE)).status).toBe(404)
     expect((await onHost(baseURL, '/de', COM)).status).toBe(404)

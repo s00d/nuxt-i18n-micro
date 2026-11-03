@@ -81,7 +81,8 @@ export const useLocaleHead = ({
     }
 
     const hrefOf = (code: string): string => toSeoHref($switchLocalePath(code))
-    const defaultLocale = i18nConfig.defaultLocale
+    // one x-default for the whole hreflang group: on a domain build every host names the build default, not its own
+    const defaultLocale = i18nConfig.linkDefaultLocale ?? i18nConfig.defaultLocale
     const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
     const noPrefix = isNoPrefixStrategy(strategy)
     // x-default only when the page exists in the default locale (else it would point at another page)

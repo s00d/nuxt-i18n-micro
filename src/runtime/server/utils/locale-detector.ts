@@ -8,7 +8,7 @@ import { createI18nConfigResolver } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
 import { getCookie, getHeader, getQuery, getRequestHost } from 'h3'
 import { domains, getI18nConfig } from '#i18n-internal/strategy'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from 'nitropack/runtime'
 import { requestURL } from '../../utils/request-url'
 
 // ponytail: env is read once per process (Nitro's env does not change while it runs); a

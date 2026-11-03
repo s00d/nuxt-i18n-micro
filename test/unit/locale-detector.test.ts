@@ -5,7 +5,8 @@ import { expect, test, vi } from 'vitest'
 import { detectCurrentLocale, getI18nServerConfig } from '../../src/runtime/server/utils/locale-detector'
 
 const { useRuntimeConfig } = vi.hoisted(() => ({ useRuntimeConfig: vi.fn((_event?: unknown) => ({ app: { baseURL: '/' }, public: {} })) }))
-vi.mock('#imports', () => ({ useRuntimeConfig, getI18nConfig: () => ({}), domains: null }))
+vi.mock('nitropack/runtime', () => ({ useRuntimeConfig }))
+vi.mock('#imports', () => ({ getI18nConfig: () => ({}), domains: null }))
 
 function request(url: string, headers: Record<string, string> = {}) {
   const req = new IncomingMessage(new Socket())

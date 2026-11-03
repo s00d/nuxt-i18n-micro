@@ -24,11 +24,11 @@ vi.mock('../../src/runtime/server/utils/locale-detector', () => ({
 // every `#...` alias is one stub, so one mock answers for all of them
 vi.mock('#i18n-internal/config', () => ({
   getI18nPrivateConfig: () => state.privateConfig,
-  useRuntimeConfig: () => ({ app: { baseURL: '/' } }),
   get domains() {
     return state.domains
   },
 }))
+vi.mock('nitropack/runtime', () => ({ useRuntimeConfig: () => ({ app: { baseURL: '/' } }) }))
 
 function event(url: string, params?: Record<string, string>): H3Event {
   const req = new IncomingMessage(new Socket())

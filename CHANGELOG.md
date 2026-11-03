@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v4.0.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.3...v4.0.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Rewrite of nuxt-i18n-micro for the next major ([#308](https://github.com/s00d/nuxt-i18n-micro/pull/308))
+- **scripts:** Publish --skip-tests skips the local tests without a CI check ([6726878d](https://github.com/s00d/nuxt-i18n-micro/commit/6726878d))
+
+### 🩹 Fixes
+
+- Install and type-check cleanly on a fresh clone ([904ad5de](https://github.com/s00d/nuxt-i18n-micro/commit/904ad5de))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Rewrite of nuxt-i18n-micro for the next major ([#308](https://github.com/s00d/nuxt-i18n-micro/pull/308))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.30.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.2...v3.30.3)

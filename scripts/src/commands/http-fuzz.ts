@@ -295,7 +295,7 @@ export const httpFuzzCommand = defineCommand({
       packWorkspace(join(root, 'tarballs'), { ignoreScripts: true }).map(({ name, tarball }) => [name, `file:${tarball}`]),
     )
     cpSync(join(repoRoot, 'test/deploy-smoke'), app, { recursive: true, filter: (from) => !/node_modules|\.nuxt|\.output/.test(from) })
-    writeConsumerProject(app, { nuxt: '^4.5.2', vue: '^3.5.43', 'vue-router': '^5.0.0', 'nuxt-i18n-micro': ours['nuxt-i18n-micro']! }, ours)
+    writeConsumerProject(app, { nuxt: '^4.6.4', vue: '^3.5.43', 'vue-router': '^5.0.0', 'nuxt-i18n-micro': ours['nuxt-i18n-micro']! }, ours)
 
     const step = (command: string, stepArgs: string[], env: NodeJS.ProcessEnv = {}) => {
       const result = spawnSync(command, stepArgs, { cwd: app, stdio: 'inherit', timeout: 280_000, env: { ...process.env, CI: '1', ...env } })

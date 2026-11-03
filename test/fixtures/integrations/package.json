@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "@nuxt/content": "catalog:",
-    "@nuxtjs/seo": "catalog:"
+    "@nuxtjs/seo": "catalog:",
+    "better-sqlite3": "catalog:",
+    "zod": "catalog:"
   }
 }

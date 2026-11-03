@@ -56,7 +56,8 @@ describe('serverless: translation payloads through a serialized route cache', as
     expect(fr).toMatchObject({ pageTitle: "Page d'accueil" })
     // written after the response, as in step 1: a check right after it races the write
     // and a failure prints what is on disk
-    for (const locale of ['de', 'fr']) await expect.poll(cacheFiles).toEqual(expect.arrayContaining([expect.stringContaining(`_localescache${locale}`)]))
+    for (const locale of ['de', 'fr'])
+      await expect.poll(cacheFiles).toEqual(expect.arrayContaining([expect.stringContaining(`_localescache${locale}`)]))
 
     // step 4: an unknown locale is a 404, not a crash
     await expect(payload('unknown-locale')).rejects.toMatchObject({ statusCode: 404, statusMessage: expect.stringContaining('Locale not found') })

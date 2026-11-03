@@ -139,14 +139,18 @@ jobs:
       # by port (lsof + SIGKILL), not memory — so no extra swap is provisioned.
       # If a step ever does run out of memory, print `free -h` here first to
       # confirm it before adding any.
-      - name: Lint
+      # `release:*` runs format:check before publishing: an unformatted file stops the release
+      - name: Lint and format
         id: lint
         if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
           pnpm run lint 2>&1 | tee "$CI_LOG_DIR/lint.log"
-          exit "${PIPESTATUS[0]}"
+          lint="${PIPESTATUS[0]}"
+          pnpm run format:check 2>&1 | tee -a "$CI_LOG_DIR/lint.log"
+          format="${PIPESTATUS[0]}"
+          exit $(( lint || format ))
 
       # Monorepo (pinia / nuxt-devtools style): packages build before root
       # `dev:prepare` because prepare loads @i18n-micro/* from package dist.

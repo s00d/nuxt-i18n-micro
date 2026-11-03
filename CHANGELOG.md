@@ -3,37 +3,20 @@
 
 ## v4.0.0
 
-[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.3...v4.0.0) · [release notes](https://s00d.github.io/nuxt-i18n-micro/news/v4.0.0) · [upgrading from v3](https://s00d.github.io/nuxt-i18n-micro/guide/upgrade)
-
-A rewrite of routing, the translation core, dictionary files, locale detection and every framework package ([#308](https://github.com/s00d/nuxt-i18n-micro/pull/308)). Options, `$t`, `$localePath`, `$switchLocale`, the components and the composables keep their names; behaviour changes, mostly bugs that are gone.
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.3...v4.0.0)
 
 ### 🚀 Enhancements
 
-- **Domains:** one build for every domain. `locales[].baseUrl` and `baseDefault` route requests under all four strategies and in `nuxt generate`; `trustForwardedHost` and `NUXT_I18N_DOMAIN` added.
-- **Routing:** links, the switcher, `hreflang` and redirects come from the routes the build generated. `$switchLocale` resolves `true` or `false`; hash mode works under `prefix`.
-- **Detection:** one order on the server, in the browser, in server API helpers and in Astro. `Accept-Language` honours `q` values; runtime `NUXT_I18N_DEFAULT_LOCALE` and `disabledLocales` reach routing.
-- **Dictionaries:** the same dictionary in premerged builds, `mode: 'source'` and dev. Page files hold only what differs from the locale root; URLs are versioned and cacheable; SSR pages preload them.
-- **`<i18n-t>`, plurals, formats:** slots with `plural`, `number`, `date` and `relativeDate`; one renderer across all frameworks; explicit `=0` form; `timeZone` option.
-- **Framework packages 2.0:** rich text in React, Preact and Solid; React Server Components; an edge-ready Astro integration; `fork()` and `run()` for per-request instances; a dependency-free types generator; a redesigned DevTools panel.
-- **`@i18n-micro/cli` 2.0:** replaces `nuxt-i18n-micro-cli`, 16 commands, `check` as a CI gate with `--json` and exit codes.
-- **Docs:** a new static site on Nuxt Content and Nuxt UI; the v3 docs stay under `/v3`.
-- **scripts:** `publish --skip-tests` skips the local tests without a CI check ([6726878d](https://github.com/s00d/nuxt-i18n-micro/commit/6726878d)).
-
-### 🔥 Performance
-
-- A server render reads dictionaries directly; `dir="auto"` is no longer the default; `serverTranslationPreload` and `i18n:register` no longer slow every request.
-- Test app against v3.30.3 (12 locales, 100k catalog): 362–370 → 578–580 requests per second, p95 115–117 → 72–73 ms, client JS 105.1 → 93.9 KB gzip.
+- ⚠️  Rewrite of nuxt-i18n-micro for the next major ([#308](https://github.com/s00d/nuxt-i18n-micro/pull/308))
+- **scripts:** Publish --skip-tests skips the local tests without a CI check ([6726878d](https://github.com/s00d/nuxt-i18n-micro/commit/6726878d))
 
 ### 🩹 Fixes
 
-- Safer defaults: `<i18n-t html>` escapes params, links never leave the origin by accident, the server translation cache is bounded, the DevTools save endpoints accept only existing translation files.
-- Install and type-check cleanly on a fresh clone ([904ad5de](https://github.com/s00d/nuxt-i18n-micro/commit/904ad5de)).
+- Install and type-check cleanly on a fresh clone ([904ad5de](https://github.com/s00d/nuxt-i18n-micro/commit/904ad5de))
 
 #### ⚠️ Breaking Changes
 
-- Requires Nuxt 3.18+, Node 20+, and React 18+ for `@i18n-micro/react`.
-- Every `@i18n-micro/*` package is at 2.0.0 and must be updated together with the module. `@i18n-micro/hmr` is removed (HMR is built in); `nuxt-i18n-micro-cli` is replaced by `@i18n-micro/cli`.
-- Some URLs, SEO tags (`hreflang`, `x-default`, canonical), config keys, hooks and framework package APIs changed. The full list: [breaking changes](https://s00d.github.io/nuxt-i18n-micro/news/v4.0.0#breaking-changes) and [upgrading](https://s00d.github.io/nuxt-i18n-micro/guide/upgrade).
+- ⚠️  Rewrite of nuxt-i18n-micro for the next major ([#308](https://github.com/s00d/nuxt-i18n-micro/pull/308))
 
 ### ❤️ Contributors
 

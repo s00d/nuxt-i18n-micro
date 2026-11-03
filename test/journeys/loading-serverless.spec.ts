@@ -16,12 +16,15 @@ describe('J8 translation loading: serverless with cache', () => {
 
     // step 2: /de/cache → de
     // was: serverless › warm cache; › all locales have correct translations
+    // Nuxt fetches the app manifest after hydration: leaving before it lands logs NUXT_E5002
+    await page.waitForLoadState('networkidle')
     await goto('/de/cache', { waitUntil: 'hydration' })
     await expect(page.locator('#locale')).toHaveText('de')
     await expect(page.locator('#hello')).toHaveText('Hallo Welt')
     await expect(page.locator('#pageTitle')).toHaveText('Startseite')
 
     // step 3: /fr/cache → fr
+    await page.waitForLoadState('networkidle')
     await goto('/fr/cache', { waitUntil: 'hydration' })
     await expect(page.locator('#locale')).toHaveText('fr')
     await expect(page.locator('#hello')).toHaveText('Bonjour le monde')
@@ -29,6 +32,7 @@ describe('J8 translation loading: serverless with cache', () => {
     // step 4: /cache three more times (warm cache) → en each time
     // was: serverless › translations work after multiple page loads
     for (let i = 0; i < 3; i++) {
+      await page.waitForLoadState('networkidle')
       await goto('/cache', { waitUntil: 'hydration' })
       await expect(page.locator('#hello')).toHaveText('Hello World')
       await expect(page.locator('#pageTitle')).toHaveText('Home Page')

@@ -123,3 +123,60 @@ export function buildFileTree(files: string[]): TreeNode[] {
   }
   return sortTree(root.children)
 }
+
+/**
+ * The tree cut down to the files whose path contains `query` (case-insensitive) and the folders
+ * above them; the whole tree for a blank query. Pruned from the full tree, so a match keeps its parents.
+ */
+export function filterTree(nodes: TreeNode[], query: string): TreeNode[] {
+  const needle = query.trim().toLowerCase()
+  if (!needle) return nodes
+  return nodes.flatMap((node) => {
+    if (node.isFile) return node.fullPath.toLowerCase().includes(needle) ? [node] : []
+    const children = filterTree(node.children, needle)
+    return children.length ? [{ ...node, children }] : []
+  })
+}
+
+/** Files under a node (itself, for a file). */
+export const countFiles = (node: TreeNode): number => (node.isFile ? 1 : node.children.reduce((sum, child) => sum + countFiles(child), 0))
+
+/** One visible row of the tree: only children of open folders are listed. */
+export interface TreeRow {
+  node: TreeNode
+  depth: number
+  /** `fullPath` of the parent folder, `null` at the top level. */
+  parent: string | null
+}
+
+export function flattenTree(
+  nodes: TreeNode[],
+  isOpen: (folder: TreeNode) => boolean,
+  depth = 0,
+  parent: string | null = null,
+  rows: TreeRow[] = [],
+): TreeRow[] {
+  for (const node of nodes) {
+    rows.push({ node, depth, parent })
+    if (!node.isFile && isOpen(node)) flattenTree(node.children, isOpen, depth + 1, node.fullPath, rows)
+  }
+  return rows
+}
+
+/** The folders, outermost first, that hold the node with `fullPath`; empty when it is not in the tree. */
+export function ancestorPaths(nodes: TreeNode[], fullPath: string): string[] {
+  for (const node of nodes) {
+    if (node.fullPath === fullPath) return []
+    if (node.isFile) continue
+    const below = ancestorPaths(node.children, fullPath)
+    if (below.length || node.children.some((child) => child.fullPath === fullPath)) return [node.fullPath, ...below]
+  }
+  return []
+}
+
+/** `text` split around the first case-insensitive match of `query`: `[before, match, after]`, or `null`. */
+export function splitMatch(text: string, query: string): [string, string, string] | null {
+  const needle = query.trim().toLowerCase()
+  const at = needle ? text.toLowerCase().indexOf(needle) : -1
+  return at === -1 ? null : [text.slice(0, at), text.slice(at, at + needle.length), text.slice(at + needle.length)]
+}

@@ -1,67 +1,44 @@
 <template>
-  <div class="tabs">
-    <button v-for="tab in tabs" :key="tab.value" :class="['tab', { active: activeTab === tab.value }]" @click="activeTab = tab.value">
-      <span v-if="tab.icon" class="tab-icon">
-        <component :is="typeof tab.icon === 'string' ? 'span' : tab.icon" v-if="typeof tab.icon !== 'string'" />
-        <span v-else v-html="tab.icon" />
-      </span>
-      <span class="tab-label">{{ tab.label }}</span>
+  <nav class="flex items-center gap-1" role="tablist" @keydown.left.prevent="move(-1)" @keydown.right.prevent="move(1)">
+    <button
+      v-for="tab in tabs"
+      :key="tab.value"
+      :ref="(el) => (buttons[tab.value] = el as HTMLButtonElement)"
+      role="tab"
+      :aria-selected="modelValue === tab.value"
+      :tabindex="modelValue === tab.value ? 0 : -1"
+      :class="[
+        'focus-ring relative inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors',
+        modelValue === tab.value ? 'bg-primary/10 text-primary' : 'text-muted hover:bg-elevated hover:text-highlighted',
+      ]"
+      @click="emit('update:modelValue', tab.value)"
+    >
+      <Icon v-if="tab.icon" :name="tab.icon" />
+      {{ tab.label }}
     </button>
-  </div>
+  </nav>
 </template>
 
 <script setup lang="ts">
-import { type Component, ref, watch } from 'vue'
+import Icon, { type IconName } from './Icon.vue'
 
 interface Tab {
   label: string
   value: string
-  icon?: string | Component
+  icon?: IconName
 }
 
-const props = defineProps<{
-  modelValue: string // Active tab
-  tabs: Tab[] // List of tabs
-}>()
+const props = defineProps<{ modelValue: string; tabs: Tab[] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
-const emit = defineEmits(['update:modelValue'])
+const buttons: Record<string, HTMLButtonElement> = {}
 
-const activeTab = ref(props.modelValue)
-
-// Watch for active tab changes
-watch(activeTab, (newValue) => {
-  emit('update:modelValue', newValue)
-})
+/** Arrow keys walk the tabs (WAI-ARIA tabs pattern). */
+function move(step: number) {
+  const index = props.tabs.findIndex((tab) => tab.value === props.modelValue)
+  const next = props.tabs[(index + step + props.tabs.length) % props.tabs.length]
+  if (!next) return
+  emit('update:modelValue', next.value)
+  buttons[next.value]?.focus()
+}
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.tabs {
-  @apply flex border-b border-slate-200 bg-white sticky top-0 z-10;
-}
-
-.tab {
-  @apply flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600
-  border-b-2 border-transparent transition-all duration-200 hover:text-slate-800 hover:bg-slate-50;
-}
-
-.tab.active {
-  @apply text-blue-600 border-blue-500 bg-blue-50;
-}
-
-.tab-icon {
-  @apply text-base flex items-center;
-  width: 16px;
-  height: 16px;
-}
-
-.tab-icon :deep(svg) {
-  width: 100%;
-  height: 100%;
-}
-
-.tab-label {
-  @apply whitespace-nowrap;
-}
-</style>

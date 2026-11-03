@@ -71,6 +71,24 @@ describe('publish', () => {
     expect(stdout).toContain('Skipping local tests: CI passed on abc123.')
   })
 
+  it('--skip-tests drops the tests without asking gh', async () => {
+    await runCli(publishCommand, { bump: 'major' })
+    const all = steps()
+    execFileSync.mockClear()
+
+    const { stdout } = await runCli(publishCommand, { bump: 'major', skipTests: true })
+    expect(runCapture).not.toHaveBeenCalled()
+    expect(steps()).toEqual(all.filter((s) => s !== 'pnpm run test'))
+    expect(stdout).toContain('Skipping local tests: --skip-tests, CI not checked.')
+  })
+
+  it('--skip-tests with --ci-passed is refused', async () => {
+    const { exitCode, stderr } = await runCli(publishCommand, { skipTests: true, ciPassed: true })
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('pick one')
+    expect(steps()).toEqual([])
+  })
+
   it('without --bump leaves the root alone', async () => {
     await runCli(publishCommand, {})
     expect(steps().some((s) => s.includes('cli release'))).toBe(false)

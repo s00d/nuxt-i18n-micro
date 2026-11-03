@@ -178,6 +178,12 @@ pnpm run release:minor --ci-passed --force
 
 `--force` does not override a failed run. In that case run the release without `--ci-passed`, which runs the tests here.
 
+To publish without the tests and without asking CI, for example when the change since the last green run cannot affect them, use `--skip-tests`. It is your call: nothing checks it. The build, `dist`, version and packaging checks still run.
+
+```bash
+pnpm run release:major --skip-tests
+```
+
 ### CI
 
 | Workflow | Starts on | Publishes |

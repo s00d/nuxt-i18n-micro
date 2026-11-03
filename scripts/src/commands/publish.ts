@@ -97,10 +97,14 @@ export const publishCommand = defineCommand({
       'job skipped (a closed PR). When `gh` cannot answer, `--force` is your confirmation;',
       'it does not override a failed run.',
       '',
+      "`--skip-tests` skips the tests with no CI check at all: the owner's call, e.g. when",
+      'the change since the last green run cannot affect them. Everything else still runs.',
+      '',
       'Examples:',
       '  pnpm -C scripts cli publish --bump minor',
       '  pnpm -C scripts cli publish --bump minor --ci-passed',
       '  pnpm -C scripts cli publish --ci-passed',
+      '  pnpm -C scripts cli publish --bump major --skip-tests',
       '  pnpm -C scripts cli publish --check-only',
     ].join('\n'),
   },
@@ -108,22 +112,29 @@ export const publishCommand = defineCommand({
     bump: { type: 'string', description: `Root version bump: ${BUMP_LEVELS.join(' | ')}. Omit to publish packages only` },
     ciPassed: { type: 'boolean', default: false, description: 'Skip local tests: CI already passed on HEAD (checked with gh)' },
     force: { type: 'boolean', default: false, description: 'With --ci-passed: confirm by hand when gh cannot check' },
+    skipTests: { type: 'boolean', default: false, description: 'Skip local tests without checking CI' },
     checkOnly: { type: 'boolean', default: false, description: 'Stop after the checks: no bump, no publish, no push' },
   },
   setup({ args }) {
-    const { bump, ciPassed, force, checkOnly } = args
+    const { bump, ciPassed, force, checkOnly, skipTests } = args
     if (bump !== undefined) requireBumpLevel(bump, 'bump', ', or no --bump for packages only')
     if (force && !ciPassed) {
       console.error('--force only confirms --ci-passed')
       process.exit(1)
     }
 
+    if (skipTests && ciPassed) {
+      console.error('--skip-tests and --ci-passed both skip the tests: pick one')
+      process.exit(1)
+    }
+
     if (ciPassed) assertCiPassed(force)
+    if (skipTests) console.log('Skipping local tests: --skip-tests, CI not checked.')
 
     if (!checkOnly) step(['run', 'release:auth'])
     step(['run', 'prepack'])
     for (const check of CHECKS) step(['run', ...check])
-    if (!ciPassed) step(['run', 'test'])
+    if (!ciPassed && !skipTests) step(['run', 'test'])
     if (checkOnly) return
 
     // `pnpm publish` refuses a dirty tree, and by then the bump commit and the tag would exist

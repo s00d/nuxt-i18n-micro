@@ -9,7 +9,7 @@ const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
 const moduleSrc = fileURLToPath(new URL('../src', import.meta.url))
 
 /** `I18N_NUXT5=1`: every build with Nuxt 5 defaults and the early 404 matcher, to see what the next major changes. */
-const nuxt5 = process.env.I18N_NUXT5 ? { future: { compatibilityVersion: 5 }, experimental: { early404: true } } : undefined
+const nuxt5 = process.env.I18N_NUXT5 ? { future: { compatibilityVersion: 5 as const }, experimental: { early404: true } } : undefined
 
 /**
  * One production build of `test/fixtures/<dir>`. `env` reaches nuxt.config at build time and the server at start;

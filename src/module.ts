@@ -207,6 +207,7 @@ function registerI18nTemplates(
   privateConfig: ReturnType<typeof buildPrivateConfig>,
   disabledLocales: Locale[],
   dev: boolean,
+  serverPathFallback: boolean,
 ) {
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
@@ -236,6 +237,9 @@ export const cookies = ${fullConfig.localeCookie !== null || fullConfig.hashMode
 // constants too, so a build with these options off drops their code from the loader plugin
 export const hooks = ${options.hooks !== false}
 export const defineRoute = ${options.define !== false}
+
+// Nuxt 4.6+: a client navigation to a URL with no record becomes a document load (experimental.serverPathFallback)
+export const serverPathFallback = ${serverPathFallback}
 
 // vue-router's Router is the adapter as is: no wrapper copying every resolve result.
 // config: the config with runtime overrides (defaultLocale, disabledLocales) — routing follows them.
@@ -516,6 +520,7 @@ export default defineNuxtModule<ModuleOptions>({
       privateConfig,
       routeGenerator.disabledLocales,
       nuxt.options.dev,
+      (nuxt.options.experimental as { serverPathFallback?: boolean }).serverPathFallback === true && !nuxt.options.router?.options?.hashMode,
     )
 
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -677,6 +682,7 @@ export {}
   export const cookies: boolean
   export const hooks: boolean
   export const defineRoute: boolean
+  export const serverPathFallback: boolean
   export function getI18nConfig(): ResolvedI18nConfig
   export function createI18nStrategy(router: I18nStrategyRouter, config?: ModuleOptionsExtend): PathStrategy
 `

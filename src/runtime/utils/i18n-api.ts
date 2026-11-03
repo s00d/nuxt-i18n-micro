@@ -12,7 +12,7 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import { domains, defineRoute } from '#build/i18n.strategy.mjs'
+import { domains, defineRoute, serverPathFallback } from '#build/i18n.strategy.mjs'
 import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
 import { usePageRoute } from './page-head'
@@ -151,7 +151,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     const type = failure instanceof Error ? (failure as Error & { type?: number }).type : undefined
     // a URL with no page: Nuxt 4.6 (`experimental.serverPathFallback`) aborts the navigation and loads it from the
     // server, which writes no cookie on a 404. The choice is made, so it is stored before the page goes
-    const reloaded = type === ABORTED && !i18nStrategy.probe(provide.switchLocalePath(toLocale))?.matched?.length
+    const reloaded = serverPathFallback && type === ABORTED && !i18nStrategy.probe(provide.switchLocalePath(toLocale))?.matched?.length
     if (reloaded) setLocale(toLocale)
     else if (failure instanceof Error && type !== DUPLICATED) setLocaleState(i18n.getLocale())
     else if (type === DUPLICATED || i18n.getLocale() === toLocale) setLocale(toLocale)

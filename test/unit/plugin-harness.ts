@@ -122,6 +122,8 @@ export const stub = {
   // read at runtime here, unlike the build's constants: a test turns them off
   hooks: true,
   defineRoute: true,
+  // this router never loads a document: an aborted navigation is just aborted
+  serverPathFallback: false,
   plural: (_key: string, count: number, _params: unknown, _locale: string, t: (key: string) => unknown) => t(count === 1 ? 'one' : 'many'),
 }
 

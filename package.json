@@ -204,7 +204,8 @@
       "@solidjs/router": "catalog:pin",
       "typescript": "6.0.3",
       "@unhead/vue": "catalog:",
-      "unhead": "catalog:"
+      "unhead": "catalog:",
+      "better-sqlite3": "catalog:"
     },
     "peerDependencyRules": {
       "allowedVersions": {

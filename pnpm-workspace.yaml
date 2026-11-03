@@ -35,8 +35,8 @@ catalog:
   '@nuxt/content': 3.16.2
   '@nuxtjs/sitemap': ^9.1.0
   '@nuxtjs/seo': ^6.0.1
-  # optional peers of @nuxt/content and @nuxtjs/seo 6 (integrations fixture): the versions they declare
-  better-sqlite3: ^13.0.3
+  # optional peers of @nuxt/content, db0 and @nuxtjs/seo 6: 12.x has prebuilt binaries for Node 20-26 on Windows, 13 does not
+  better-sqlite3: ^12.11.1
   zod: ^4.6.7
   '@nuxtjs/i18n': ^10.6.0
   # Vue
@@ -130,7 +130,7 @@ catalogs:
     react: 19.3.1
     react-dom: 19.3.1
     react-router-dom: 7.18.5
-    preact: 11.1.1
+    preact: 10.29.8
     '@solidjs/router': 1.0.1
 
 onlyBuiltDependencies:

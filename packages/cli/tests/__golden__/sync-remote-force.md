@@ -5,13 +5,14 @@
 ## Output
 
 ```
-New:
-  - de remote.only
+◇ New (1)
+  de remote.only
 
-Replaced:
-  - de common.save
-Pulled 1 new and 1 replaced values.
-Global files only: 2 page scopes are not exchanged.
+◇ Replaced (1)
+  de common.save
+
+◆ Pulled 1 new and 1 replaced values.
+▲ Global files only: 2 page scopes are not exchanged.
 ```
 
 ## Files

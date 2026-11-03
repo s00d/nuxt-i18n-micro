@@ -215,7 +215,7 @@ describe('engine', () => {
 
   it('fails when a service returns the wrong number of strings', async () => {
     respond = (_req, res) => json(res, { translatedText: ['only one'] })
-    await expect(translate('libretranslate', '')).rejects.toThrow('returned 1 translations for 2 strings')
+    await expect(translate('libretranslate', '')).rejects.toThrow('returned 1 translation for 2 strings')
   })
 
   it('retries 429 after the Retry-After delay, not its own', async () => {

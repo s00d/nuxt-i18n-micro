@@ -227,7 +227,7 @@
     }
   ]
 }
-Check failed: 6 missing, 2 empty, 1 extra, 3 undefined, 22 unused.
+■ Check failed: 6 missing, 2 empty, 1 extra, 3 undefined, 22 unused.
 ```
 
 ## Files

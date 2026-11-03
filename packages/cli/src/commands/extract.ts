@@ -1,5 +1,5 @@
 import { relativePath, splitList } from '../fs'
-import { log } from '../log'
+import { log, plural } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { type ScopedRef, isOwnSource, scanProject } from '../source'
 
@@ -38,7 +38,9 @@ export default async function run(args: ExtractArgs): Promise<void> {
 
   log.list(
     `Need a text in ${config.defaultLocale}`,
-    untexted.map((ref) => `${ref.key} (${relativePath(config.rootDir, ref.file)}:${ref.line})`),
+    untexted.map((ref) => [ref.key, `${relativePath(config.rootDir, ref.file)}:${ref.line}`]),
   )
-  log.success(`Scanned ${scan.files} files: ${added.length} keys added, ${untexted.length} without text, ${written.length} files updated.`)
+  log.success(
+    `Scanned ${plural(scan.files, 'file')}: ${plural(added.length, 'key')} added, ${untexted.length} without text, ${plural(written.length, 'file')} updated.`,
+  )
 }

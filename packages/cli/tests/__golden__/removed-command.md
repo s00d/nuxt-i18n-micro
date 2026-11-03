@@ -5,7 +5,7 @@
 ## Output
 
 ```
-The validate command was removed. Use check.
+■ The validate command was removed. Use check.
 ```
 
 ## Files

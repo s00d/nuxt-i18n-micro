@@ -1,8 +1,9 @@
-import { type ArgsDef, type CommandDef, defineCommand, runCommand, showUsage } from 'citty'
+import { type ArgsDef, type CommandDef, defineCommand, runCommand } from 'citty'
 import { name, version as packageVersion } from '../package.json'
 import { reportError, usageError, validationError } from './errors'
 import { ownValue } from './json'
-import { closePrompts, log } from './log'
+import { commandUsage, rootUsage } from './help'
+import { closePrompts, formatDuration, isInteractive, log, spinner, style } from './log'
 import { type ArgSpec, type CommandSpec, REMOVED_COMMANDS, commands } from './spec'
 
 // plain strings: a re-export would leave `../package.json` in the published declarations, where it does not resolve
@@ -13,8 +14,7 @@ type ParsedArgs = Record<string, unknown>
 
 function citty(spec: ArgSpec): ArgsDef[string] {
   const { type, description, default: fallback, required, alias } = spec
-  const shown = spec.defaultHint ? `${description} (default: ${spec.defaultHint.replaceAll('`', '')})` : description
-  return { type, description: shown, default: fallback, required, alias } as ArgsDef[string]
+  return { type, description, default: fallback, required, alias } as ArgsDef[string]
 }
 
 function convert(name: string, spec: ArgSpec, value: unknown): unknown {
@@ -98,6 +98,9 @@ function toCommand(name: string, spec: CommandSpec): CommandDef {
     async run({ args: parsed, rawArgs }) {
       assertKnownArgs(name, spec, rawArgs)
       log.setSilent(parsed.logLevel === 'silent')
+      // A terminal only: a pipe, a CI log and `--json` keep their exact text.
+      if (isInteractive() && !parsed.json) log.info(`${style('green', `i18n-micro ${style('bold', `v${version}`)}`)} ${style('gray', `· ${name}`)}`)
+      spinner.start(`Running ${name}`)
       const handler = await spec.load()
       await handler.default(validated(spec, parsed) as never)
     },
@@ -108,6 +111,12 @@ export const main = defineCommand({
   meta: { name: 'i18n-micro', version, description: 'Command-line tools for nuxt-i18n-micro' },
   subCommands: Object.fromEntries(Object.entries(commands).map(([name, spec]) => [name, toCommand(name, spec)])),
 })
+
+/** How long the command took, as nuxi ends a build: on a terminal only, where it cannot unsettle a diff of the output. */
+function footer(started: number, rawArgs: string[]): void {
+  if (isInteractive() && !rawArgs.some((arg) => arg === '--json' || arg.startsWith('--json=')))
+    log.info(style('gray', `\nDone in ${formatDuration(performance.now() - started)}`))
+}
 
 /** Run the CLI. Failures set `process.exitCode`; nothing here throws. */
 export async function runCli(rawArgs: string[]): Promise<void> {
@@ -122,15 +131,18 @@ export async function runCli(rawArgs: string[]): Promise<void> {
     if (replacement) throw usageError(`The ${first} command was removed. Use ${replacement}.`)
     if (rawArgs.length === 0 || rawArgs.includes('--help') || rawArgs.includes('-h')) {
       const spec = ownValue(commands, first)
-      const target = spec ? toCommand(first, spec) : main
-      await showUsage(target, target === main ? undefined : main)
+      log.info(spec ? commandUsage(first, spec, version) : rootUsage(version))
       return
     }
     // The parser takes the first word as the command, so `--dryRun clean` would lose its flag.
     if (first.startsWith('-')) throw usageError('Flags go after the command.')
     if (!ownValue(commands, first)) throw usageError(`Unknown command ${first}`, ['See i18n-micro --help'])
+    const started = performance.now()
     await runCommand(main, { rawArgs })
+    spinner.stop()
+    footer(started, rawArgs)
   } catch (error) {
+    spinner.stop()
     reportError(error, rawArgs.includes('--debug'))
   } finally {
     closePrompts()

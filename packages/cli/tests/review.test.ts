@@ -138,7 +138,7 @@ describe('sync-remote', () => {
   it('counts page scopes of every locale', async () => {
     project({ ...FILES, 'locales/pages/only/de.json': { p: 'q' } })
     remote()
-    expect((await runCli(['sync-remote'], { cwd: dir })).stderr).toContain('Global files only: 1 page scopes')
+    expect((await runCli(['sync-remote'], { cwd: dir })).stderr).toContain('Global files only: 1 page scope is')
   })
 
   it('a blocked path is not something --force resolves, and the hint says so', async () => {
@@ -470,7 +470,7 @@ describe('check', () => {
     )
     const result = await runCli(['check', '--only', 'duplicates'], { cwd: dir })
     expect(result.stdout).not.toContain('l1')
-    expect(result.stdout).toContain('b [en.json]')
+    expect(result.stdout).toMatch(/ b +en\.json/)
     expect(result.stderr).not.toContain('i18n-micro translate')
     expect(result.stderr).not.toContain('i18n-micro sync')
   })
@@ -492,8 +492,8 @@ describe('text-to-i18n', () => {
       'pages/b.vue': `<script>\nexport default { data: () => ({ title: 'Plain script words' }) }\n</script>\n`,
     })
     const { stdout } = await runCli(['text-to-i18n'], { cwd: dir })
-    expect(stdout).toContain('pages/a.vue:4 Hello there world')
-    expect(stdout).toContain('pages/b.vue:2 Plain script words')
+    expect(stdout).toMatch(/pages\/a\.vue:4 +Hello there world/)
+    expect(stdout).toMatch(/pages\/b\.vue:2 +Plain script words/)
   })
 
   it('an upper-case extension is a Vue file', async () => {

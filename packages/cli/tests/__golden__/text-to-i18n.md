@@ -5,12 +5,13 @@
 ## Output
 
 ```
-Found 7 files to process.
+● Found 7 files to process.
 
-Text in code, not rewritten: `$t` may not be in scope there:
-  - plugins/notify.ts:2 Saved successfully
-Found 3 new translations.
-Updated 2 files and locales/en.json.
+◇ Text in code, not rewritten: `$t` may not be in scope there (1)
+  plugins/notify.ts:2  Saved successfully
+
+● Found 3 new translations.
+◆ Updated 2 files and locales/en.json.
 ```
 
 ## Files

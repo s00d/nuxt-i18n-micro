@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { parseCsv } from '../csv'
 import { findingsError, notFoundError, validationError } from '../errors'
 import { readText, relativePath, walkFiles } from '../fs'
-import { log } from '../log'
+import { log, pick, plural } from '../log'
 import { parsePo } from '../po'
 import { GLOBAL_SCOPE, Project } from '../project'
 import { defaultExchangeDir, readManifest } from './export'
@@ -50,7 +50,7 @@ function readPo(project: Project, dir: string): Entry[] {
     }
     const { messages, fuzzy } = parsePo(readText(file))
     const guesses = Object.keys(fuzzy)
-    if (guesses.length > 0) log.warn(`Skipping ${guesses.length} fuzzy entries in ${file}: ${guesses.join(', ')}`)
+    if (guesses.length > 0) log.warn(`Skipping ${plural(guesses.length, 'fuzzy entry', 'fuzzy entries')} in ${file}: ${guesses.join(', ')}`)
     const scope = poScope(file, dir)
     if (scope !== GLOBAL_SCOPE) assertExported(file, dir, exported)
     return Object.entries(messages).map(([key, value]) => ({ code, scope, key, value }))
@@ -108,7 +108,9 @@ export default async function run(args: ImportArgs): Promise<void> {
 
   if (!args.dryRun) project.save()
   log.list('Not imported', conflicts)
-  log.success(`${args.dryRun ? 'Dry run: would import' : 'Imported'} ${imported} translations.`)
+  log.success(`${args.dryRun ? 'Dry run: would import' : 'Imported'} ${plural(imported, 'translation')}.`)
   if (conflicts.length > 0)
-    throw findingsError(`${conflicts.length} entries were not imported.`, ['Rename the key or remove the value that blocks it.'])
+    throw findingsError(`${plural(conflicts.length, 'entry', 'entries')} ${pick(conflicts.length, 'was', 'were')} not imported.`, [
+      'Rename the key or remove the value that blocks it.',
+    ])
 }

@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Key renamed: common.save -> actions.save
-Locales: 3, source files: 1, source replacements: 1
+◆ Key renamed: common.save -> actions.save
+● Locales: 3, source files: 1, source replacements: 1
 ```
 
 ## Files

@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path'
 import { validationError } from '../errors'
 import { relativePath, writeFileAtomic } from '../fs'
 import { type JsonObject, flattenStrings, isObject, ownValue } from '../json'
-import { log } from '../log'
+import { type Style, log, style } from '../log'
 import { GLOBAL_SCOPE, Project } from '../project'
 
 export interface StatsArgs {
@@ -164,7 +164,13 @@ export default async function run(args: StatsArgs): Promise<void> {
   }
 
   log.section('Completion Summary')
-  log.rows(locales.map(({ code, translatedKeys, totalKeys, completion }) => [code, `${translatedKeys}/${totalKeys} (${percent(completion)})`]))
+  const tone = (completion: number): Style => (completion >= 100 ? 'green' : completion >= 50 ? 'yellow' : 'red')
+  log.rows(
+    locales.map(({ code, translatedKeys, totalKeys, completion }) => [
+      code,
+      `${translatedKeys}/${totalKeys} (${style(tone(completion), percent(completion))})`,
+    ]),
+  )
   if (diff) {
     log.section(`Diff vs ${diff.baseRef}`)
     log.rows(diff.locales.map(({ code, completionDelta }) => [code, `${completionDelta >= 0 ? '+' : ''}${percent(completionDelta)}`]))

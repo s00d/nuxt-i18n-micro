@@ -157,10 +157,10 @@ export default async function run(args: RenameArgs): Promise<void> {
   }
 
   warnLeftovers(scan, rename, skipped)
-  if (dryRun) log.info('Dry run: no files were modified.')
+  if (dryRun) log.note('Dry run: no files were modified.')
   else {
     writeFilesAtomic([...project.pendingFiles(), ...sourceChanges])
     log.success(`Key renamed: ${from} -> ${to}`)
   }
-  log.info(`Locales: ${localesUpdated}, source files: ${sourceChanges.length}, source replacements: ${replaced}`)
+  log.note(`Locales: ${localesUpdated}, source files: ${sourceChanges.length}, source replacements: ${replaced}`)
 }

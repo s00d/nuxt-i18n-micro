@@ -49,5 +49,5 @@ export default async function run(args: PseudoArgs): Promise<void> {
 
   project.save()
   log.success(`Pseudo locale generated: ${sourceCode} -> ${args.targetLocale}`)
-  log.info(`Updated keys: ${updated}, skipped keys: ${skipped}`)
+  log.note(`Updated keys: ${updated}, skipped keys: ${skipped}`)
 }

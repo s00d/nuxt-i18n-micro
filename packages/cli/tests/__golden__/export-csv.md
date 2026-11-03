@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Exported 3 CSV files to <project>/csv_exports
+◆ Exported 3 CSV files to <project>/csv_exports
 ```
 
 ## Files

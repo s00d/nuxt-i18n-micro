@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Pseudo locale generated: en -> de
-Updated keys: 12, skipped keys: 0
+◆ Pseudo locale generated: en -> de
+● Updated keys: 12, skipped keys: 0
 ```
 
 ## Files

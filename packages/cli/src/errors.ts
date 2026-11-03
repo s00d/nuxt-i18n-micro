@@ -1,4 +1,4 @@
-import { log } from './log'
+import { isInteractive, log, style, symbols } from './log'
 
 export interface CliErrorOptions {
   code: string
@@ -51,11 +51,16 @@ function normalize(error: unknown): CliError {
   return new CliError(message, { code: 'COMMAND_FAILED', hints: ['Run with --debug for a stack trace.'], cause: error })
 }
 
+/** nuxi's look: a red ` ERROR ` badge on a terminal, the clack error symbol in a log; hints after an arrow. */
 export function reportError(error: unknown, debug: boolean): void {
   const normalized = normalize(error)
-  log.error(normalized.message)
-  for (const [label, value] of Object.entries(normalized.details)) log.error(`  ${label}: ${value}`)
-  for (const hint of normalized.hints) log.error(`  ${hint}`)
-  if (debug) log.error(String((normalized.cause as Error | undefined)?.stack ?? normalized.stack))
-  process.exitCode = normalized.code === 'FINDINGS' ? 1 : 2
+  const findings = normalized.code === 'FINDINGS'
+  const badge = isInteractive(process.stderr)
+    ? style(findings ? ['bgYellow', 'black'] : ['bgRed', 'black'], findings ? ' FAIL ' : ' ERROR ')
+    : style(findings ? 'yellow' : 'red', symbols.error)
+  log.raw(`${log.gap()}${badge} ${normalized.message}`)
+  for (const [label, value] of Object.entries(normalized.details)) log.raw(`  ${style('gray', `${label}:`)} ${value}`)
+  for (const hint of normalized.hints) log.raw(`  ${style('cyan', symbols.arrow)} ${hint}`)
+  if (debug) log.raw(style('gray', String((normalized.cause as Error | undefined)?.stack ?? normalized.stack)))
+  process.exitCode = findings ? 1 : 2
 }

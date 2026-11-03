@@ -5,8 +5,8 @@
 ## Output
 
 ```
-Dry run: no files were modified.
-Locales: 3, source files: 1, source replacements: 1
+● Dry run: no files were modified.
+● Locales: 3, source files: 1, source replacements: 1
 ```
 
 ## Files

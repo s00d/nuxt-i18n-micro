@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path'
 import { parseCsv, stringifyCsv } from '../csv'
 import { findingsError } from '../errors'
 import { readJsonIfExists, readLoose, relativePath, stringifyJson, writeFilesAtomic } from '../fs'
-import { log } from '../log'
+import { log, pick } from '../log'
 import { type PoMessage, compilePo, parsePo } from '../po'
 import { Project, relativeFile } from '../project'
 
@@ -107,5 +107,5 @@ export default async function run(args: ExportArgs): Promise<void> {
   // This format's list is replaced whole: `import` goes by it, and a page that is gone must not stay on it.
   const others = Object.fromEntries(Object.entries(manifest).filter(([name]) => !name.endsWith(`.${args.format}`)))
   writeFilesAtomic([...files, [join(dir, MANIFEST), stringifyJson({ ...others, ...written })]], { overwrite: true })
-  log.success(`Exported ${files.length} ${args.format.toUpperCase()} files to ${dir}`)
+  log.success(`Exported ${files.length} ${args.format.toUpperCase()} ${pick(files.length, 'file', 'files')} to ${dir}`)
 }

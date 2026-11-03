@@ -1,7 +1,7 @@
 import { findingsError } from '../errors'
 import { splitList } from '../fs'
 import { getPath } from '../json'
-import { log } from '../log'
+import { log, pick, plural } from '../log'
 import { type LocaleSet, Project, relativeFile } from '../project'
 import { scanProject, usageIndex } from '../source'
 import { assertScanned, deletionDoubts } from './clean'
@@ -67,13 +67,13 @@ export default async function run(args: SyncArgs): Promise<void> {
     throw findingsError('Cannot prove these keys are extra, so nothing was removed.', ['Review the list with --dryRun, then rerun with --force.'])
   }
 
-  const removed = removable.map(({ code, scope, key }) => `${relativeFile(code, scope)} ${key}`)
+  const removed = removable.map(({ code, scope, key }) => [relativeFile(code, scope), key])
   log.list(args.dryRun ? 'Would remove' : 'Removed', removed)
   if (args.dryRun) {
-    log.info(`Dry run: ${removed.length} keys would be removed.${doubts.length > 0 ? ' Without --force, none would be.' : ''}`)
+    log.note(`Dry run: ${plural(removed.length, 'key')} would be removed.${doubts.length > 0 ? ' Without --force, none would be.' : ''}`)
     return
   }
   for (const { code, scope, key } of removable) project.locale(code).delete(key, scope)
   project.save()
-  log.success(`Translations have been synchronized: ${removed.length} extra keys removed.`)
+  log.success(`Translations have been synchronized: ${plural(removed.length, 'extra key')} removed.`)
 }

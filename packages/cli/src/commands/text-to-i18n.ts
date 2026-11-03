@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path'
 import { notFoundError, usageError, validationError } from '../errors'
 import { isUnder, readJsonIfExists, readUtf8, relativePath, splitList, stringifyLike, writeFilesAtomic } from '../fs'
 import { type JsonObject, flattenStrings, isWritableKey, setPath } from '../json'
-import { ask, choose, log } from '../log'
+import { ask, choose, log, plural } from '../log'
 import { type ProjectConfig, loadProjectConfig } from '../nuxt'
 import { isCodeFile, isOwnSource, isTestFile, projectFiles } from '../source'
 import { type Conversion, type Hardcoded, KeyRegistry, type NewTranslation, convertSource } from '../text-to-i18n'
@@ -28,7 +28,7 @@ const VALID_KEY = /^[\p{L}\p{N}_.-]+$/u
 /** A layer or an alias target serves other apps too, and the new keys would land in this one only. */
 function ownFiles(config: ProjectConfig, files: string[]): string[] {
   const own = files.filter((file) => isOwnSource(config, file))
-  if (own.length < files.length) log.warn(`Left ${files.length - own.length} files of layers and folders outside the project alone.`)
+  if (own.length < files.length) log.warn(`Left ${plural(files.length - own.length, 'file')} of layers and folders outside the project alone.`)
   return own
 }
 
@@ -111,7 +111,7 @@ async function collectDecisions(created: Map<string, NewTranslation>, existing: 
 function report(title: string, items: Hardcoded[], rootDir: string): void {
   log.list(
     title,
-    items.map(({ file, line, text }) => `${relativePath(rootDir, file)}:${line} ${text}`),
+    items.map(({ file, line, text }) => [`${relativePath(rootDir, file)}:${line}`, text]),
   )
 }
 
@@ -128,24 +128,23 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
     result = convertAll(files, args, translations, await collectDecisions(result.created, flattenStrings(translations)))
   }
 
-  log.info(`Found ${files.length} files to process.`)
+  log.note(`Found ${plural(files.length, 'file')} to process.`)
   report('Mixed text, not rewritten: wrap the sentence in one key by hand', result.mixed, config.rootDir)
   report('Text in code, not rewritten: `$t` may not be in scope there', result.code, config.rootDir)
   report('Skipped: the key would overwrite a value, or cannot be written in a template', result.blocked, config.rootDir)
 
   if (result.created.size === 0 && result.changes.length === 0) {
-    log.info('No new translations found.')
+    log.note('No new translations found.')
     return
   }
-  log.info(`Found ${result.created.size} new translations.`)
+  log.note(`Found ${plural(result.created.size, 'new translation')}.`)
 
   if (args.dryRun) {
-    log.info('Dry run: no files were modified.')
-    let index = 0
-    for (const { key, value, file, line } of result.created.values()) {
-      index += 1
-      log.info(`[${index}] ${key}: "${value}" (${relativePath(config.rootDir, file)}:${line})`)
-    }
+    log.list(
+      'Would add',
+      [...result.created.values()].map(({ key, value, file, line }) => [key, `"${value}"`, `${relativePath(config.rootDir, file)}:${line}`]),
+    )
+    log.note('Dry run: no files were modified.')
     return
   }
 
@@ -153,5 +152,5 @@ export default async function run(args: TextToI18nArgs): Promise<void> {
   const previous = existsSync(translationFile) ? readFileSync(translationFile, 'utf8') : undefined
   // One step: rewritten sources must not exist without the keys they call.
   writeFilesAtomic([...result.changes, [translationFile, stringifyLike(previous, translations)]])
-  log.success(`Updated ${result.changes.length} files and ${relativePath(config.rootDir, translationFile)}.`)
+  log.success(`Updated ${plural(result.changes.length, 'file')} and ${relativePath(config.rootDir, translationFile)}.`)
 }

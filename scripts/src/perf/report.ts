@@ -17,7 +17,7 @@ import { describeLoadProfile } from './load'
 import type { FixtureId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const require = createRequire(import.meta.url)
-export const resultsFilePath = join(repoRoot, 'docs/guide/performance-results.md')
+export const resultsFilePath = join(repoRoot, 'docs/content/guide/performance-results.md')
 
 function getInstalledVersion(packageName: string, fromDir: string): string {
   try {
@@ -172,7 +172,7 @@ export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
     onEnd({ results }) {
       writeDocsReport(md.write, results, args.runs, args.profile)
       md.commit()
-      console.log('Wrote docs report: docs/guide/performance-results.md')
+      console.log('Wrote docs report: docs/content/guide/performance-results.md')
     },
   }
 }

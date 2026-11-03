@@ -342,6 +342,9 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
     '---',
     `title: '${pkg.name}'`,
     `description: 'Exported API of ${pkg.name}, generated from the source.'`,
+    // The sidebar group is already "Package APIs": drop the scope so long names fit.
+    'navigation:',
+    `  title: '${pkg.name.replace(/^@i18n-micro\//, '')}'`,
     "outline: 'deep'",
     '---',
     '',
@@ -550,11 +553,11 @@ export const docsGenerateCommand = defineCommand({
 
     // --- module options ---------------------------------------------------------------
     const options = readModuleOptions()
-    inBlock('docs/api/module-options.md', 'module-options', groupedOptions(options))
+    inBlock('docs/content/api/module-options.md', 'module-options', groupedOptions(options))
     // Any page may give an option a section of its own — the option details on the
     // reference page do for most, the Strategy guide for `strategy` — and each takes its
     // facts from the type.
-    const optionPages = ['docs/api/module-options.md', 'docs/guide/strategy.md']
+    const optionPages = ['docs/content/api/module-options.md', 'docs/content/guide/strategy.md']
     for (const page of optionPages) {
       const body = readFileSync(join(repoRoot, page), 'utf8')
       for (const option of options) {
@@ -565,12 +568,12 @@ export const docsGenerateCommand = defineCommand({
 
     // --- runtime helpers and composables ----------------------------------------------
     const methods = await readInterface('src/runtime/plugins/01.plugin.ts', 'PluginsInjections')
-    const methodsPage = readFileSync(join(repoRoot, 'docs/api/methods.md'), 'utf8')
+    const methodsPage = readFileSync(join(repoRoot, 'docs/content/api/methods.md'), 'utf8')
     const documented = new Set(methods.filter((method) => methodsPage.includes(BLOCK_START(`method:${method.name}`))).map((method) => method.name))
 
-    inBlock('docs/api/methods.md', 'methods-index', methodsIndex(methods, documented))
+    inBlock('docs/content/api/methods.md', 'methods-index', methodsIndex(methods, documented))
     for (const name of documented) {
-      inBlock('docs/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
+      inBlock('docs/content/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
     }
 
     // `$defineI18nRoute` reaches an app through `useNuxtApp()` only, so it is not in
@@ -578,12 +581,12 @@ export const docsGenerateCommand = defineCommand({
     const appOnly = await readInterface('src/runtime/plugins/01.plugin.ts', 'NuxtAppOnlyInjections')
     for (const symbol of appOnly) {
       const id = `method:${symbol.name}`
-      if (methodsPage.includes(BLOCK_START(id))) inBlock('docs/api/methods.md', id, symbolBlock(symbol))
+      if (methodsPage.includes(BLOCK_START(id))) inBlock('docs/content/api/methods.md', id, symbolBlock(symbol))
     }
 
     const composables = (await readModules('src/runtime/composables')).flatMap((module) => module.symbols)
     for (const symbol of composables.filter((entry) => entry.name.startsWith('use'))) {
-      const page = `docs/composables/${symbol.name}.md`
+      const page = `docs/content/composables/${symbol.name}.md`
       if (existsSync(join(repoRoot, page))) inBlock(page, `symbol:${symbol.name}`, symbolBlock(symbol))
     }
 
@@ -592,7 +595,7 @@ export const docsGenerateCommand = defineCommand({
     if (existsSync(componentsDir)) {
       for (const file of readdirSync(componentsDir).filter((name) => name.endsWith('.vue'))) {
         const tag = file.replace(/\.vue$/, '')
-        const page = `docs/components/${tag}.md`
+        const page = `docs/content/components/${tag}.md`
         if (!existsSync(join(repoRoot, page))) continue
         // oxlint-disable-next-line no-await-in-loop -- four files, and each compiles an SFC
         inBlock(page, `component:${tag}`, await componentBlock(join(componentsDir, file)))
@@ -601,9 +604,9 @@ export const docsGenerateCommand = defineCommand({
 
     // --- packages ---------------------------------------------------------------------
     const packages = readPackages()
-    inBlock('docs/api/packages.md', 'packages-index', packagesIndex(packages))
+    inBlock('docs/content/api/packages.md', 'packages-index', packagesIndex(packages))
 
-    const packagesDir = join(repoRoot, 'docs/api/packages')
+    const packagesDir = join(repoRoot, 'docs/content/api/packages')
     // Ordered so the package that owns a type documents it: types first, then core,
     // then the rest — a later page links back rather than repeating the table.
     const ownership = ['types', 'core', 'utils']
@@ -613,7 +616,7 @@ export const docsGenerateCommand = defineCommand({
     })
 
     const memberIndex: MemberIndex = { seen: new Map() }
-    for (const pkg of byOwnership) emit(`docs/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
+    for (const pkg of byOwnership) emit(`docs/content/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
 
     // A package removed from the workspace must lose its page too — and `--check` has to
     // say so, or a stale page passes CI forever.
@@ -621,16 +624,16 @@ export const docsGenerateCommand = defineCommand({
       const expected = new Set(packages.map((pkg) => `${pkg.slug}.md`))
       for (const file of readdirSync(packagesDir)) {
         if (!file.endsWith('.md') || expected.has(file)) continue
-        if (args.check) report.stale.push(`docs/api/packages/${file}`)
+        if (args.check) report.stale.push(`docs/content/api/packages/${file}`)
         else rmSync(join(packagesDir, file))
       }
     }
 
     // --- CLI ---------------------------------------------------------------------------
-    inBlock('docs/api/cli.md', 'cli-commands', await cliReference())
+    inBlock('docs/content/api/cli.md', 'cli-commands', await cliReference())
 
     // --- payload budget ---------------------------------------------------------------
-    inBlock('docs/guide/performance.md', 'payload-budget', budgetTable())
+    inBlock('docs/content/guide/performance.md', 'payload-budget', budgetTable())
 
     if (args.json) {
       console.log(JSON.stringify(report, null, 2))

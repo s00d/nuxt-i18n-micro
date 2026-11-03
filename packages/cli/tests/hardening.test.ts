@@ -677,7 +677,7 @@ describe('second review: a t declared in the file', () => {
     ['a minified file elsewhere', 'assets/lib.min.js', '!function(e,t){t(e)}(1,function(a){});\n'],
     ['a long-line bundle', 'assets/bundle.js', `!function(e,t){t(e)}(1,function(a){});${'var a=1;'.repeat(400)}\n`],
     ['a built package', 'packages/ui/dist/index.js', 'export const f = (t, e) => t(e)\n'],
-    ['VitePress output', 'docs/.vitepress/dist/assets/app.js', 'export const f = (t, e) => t(e)\n'],
+    ['Nuxt docs output', 'docs/.output/public/_nuxt/app.js', 'export const f = (t, e) => t(e)\n'],
     ['Storybook output', 'storybook-static/a.js', 'export const f = (t, e) => t(e)\n'],
   ])('%s does not stop clean', async (_name, file, content) => {
     project({ ...LIVE, 'pages/index.vue': "<template>{{ $t('used') }}{{ $t('live.a') }}{{ $t('live.b') }}</template>\n", [file]: content })

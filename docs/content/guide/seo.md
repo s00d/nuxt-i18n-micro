@@ -1,0 +1,160 @@
+---
+title: SEO
+description: The lang, hreflang, canonical and og:locale tags the module adds, how their base URL is chosen, and how to override them per page.
+outline: [2, 3]
+navigation:
+  order: 140
+  group: SEO and domains
+---
+
+# SEO
+
+With `meta: true` (the default) every localized page gets `<html lang dir>`, a canonical link, `hreflang` alternates, `x-default` and Open Graph locale tags. You need this page when you want to set the public origin, tune which locales appear in the tags, or override them for one page. Most sites only need a `site.url` or `metaBaseUrl` and correct `iso` codes.
+
+## Minimal setup
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', dir: 'ltr' },
+      { code: 'de', iso: 'de-DE', dir: 'ltr' },
+      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+    ],
+    defaultLocale: 'en',
+    metaBaseUrl: 'https://example.com',
+  },
+})
+```
+
+`/de/about` then renders:
+
+```html
+<html lang="de-DE" dir="ltr">
+<link rel="canonical" href="https://example.com/de/about">
+<link rel="alternate" hreflang="en-US" href="https://example.com/about">
+<link rel="alternate" hreflang="de-DE" href="https://example.com/de/about">
+<link rel="alternate" hreflang="ar-SA" href="https://example.com/ar/about">
+<link rel="alternate" hreflang="x-default" href="https://example.com/about">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://example.com/de/about">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="ar_SA">
+```
+
+## Text direction
+
+`<html dir>` comes from the locale's `dir`. Without one, a language written right to left gets `rtl`, read from `iso` (or `code`): Arabic, Hebrew, Persian, Urdu and a few others, and any tag with an RTL script such as `az-Arab`. Every other locale gets no `dir` attribute, which browsers read as `ltr`.
+
+::warning
+**`dir: 'auto'` costs parse time on large pages** — `auto` on `<html>` makes the browser work out the direction from the content while it parses. In Chromium that cost grows faster than the page: about 100 ms at 5,000 elements and 1 s at 20,000. Use it only for a small page whose language you cannot know.
+::
+## Which tags you get
+
+- **hreflang**: one tag per locale that serves the page, value `iso` (or `code` when `iso` is missing), its URL with the same query as the canonical. A page restricted with [Page config](/guide/per-component-translations) or `routeLocales` lists only its locales. [`hreflangBaseLanguage: true`](/api/module-options#hreflangbaselanguage) also adds the bare language (`es-ES` → `es`) for the first regional locale.
+- **x-default**: the default locale's URL, only when the default locale serves the page.
+- **og:locale**: derived from `iso` (`en-US` → `en_US`). Set `og` on the locale when the mapping is not direct, for example `{ code: 'zh', iso: 'zh-Hans', og: 'zh_CN' }`; without either, no `og:locale` is written and dev mode warns.
+- **canonical / og:url**: the current URL without query parameters, except those in [`canonicalQueryWhitelist`](/api/module-options#canonicalquerywhitelist) (default `page`, `sort`, `filter`, `search`, `q`, `query`, `tag`).
+
+By strategy:
+
+| Strategy | hreflang and x-default | canonical, og:url, og:locale, html attrs |
+| --- | --- | --- |
+| `prefix`, `prefix_except_default`, `prefix_and_default` | yes | yes |
+| `no_prefix` | no (one URL serves every locale) | yes |
+
+## Set the public origin
+
+Absolute URLs use the first of:
+
+1. [`metaBaseUrl`](/api/module-options#metabaseurl);
+2. `site.url` from `nuxt-site-config` (installed by `@nuxtjs/seo`);
+3. the request origin, with `app.baseURL` appended.
+
+Pin one of the first two.
+
+::warning
+The request-origin fallback reads `X-Forwarded-Host` and `X-Forwarded-Proto`, because [`metaTrustForwardedHost`](/api/module-options#metatrustforwardedhost) and `metaTrustForwardedProto` default to `true`. That is only safe behind a proxy that overwrites those headers; otherwise a client can choose the host in your canonical links, and a cache can pass that page on.
+
+If the app is reachable directly, pin `metaBaseUrl`: unlike setting both options to `false`, it also ignores a forged `Host`. See [Behind a proxy or CDN](/guide/deployment#behind-a-proxy-or-cdn).
+::
+
+The fallback is useful for one deployment answering several domains: `https://site-a.com/en/about` and `https://site-b.com/en/about` each get their own origin.
+
+With `baseUrl` on the locales, a known host uses its own `baseUrl`, over `metaBaseUrl` and `site.url`, so canonical and `og:url` stay on that domain and `hreflang` points each locale at its domain. Any other host uses `metaBaseUrl`, else the default locale's `baseUrl`, else `site.url`, so a spoofed `Host` cannot reach your tags. If none of those is set, the request-origin fallback stays, and the build warns. See [Layers and domains](/guide/layers#multiple-domains).
+
+## Leave locales or pages out
+
+```ts
+i18n: {
+  locales: [
+    { code: 'en', iso: 'en-US' },
+    { code: 'ru', iso: 'ru-RU', seo: false }, // routable, but not in hreflang / og:locale:alternate
+    { code: 'fr', iso: 'fr-FR', disabled: true }, // no routes, no switching, no tags
+  ],
+}
+```
+
+If the default locale has `seo: false`, no `x-default` is written. To turn the tags off for one page, use `disableMeta` in [Page config](/guide/per-component-translations#turn-off-seo-tags), or [`routeDisableMeta`](/api/module-options#routedisablemeta) in the config.
+
+## Override tags on one page
+
+For CMS content where only some translations exist, or URLs come from an API, replace the generated tags with [`useI18nHead`](/composables/useI18nHead):
+
+```vue
+<script setup lang="ts">
+const { data: article } = await useFetch('/api/articles/hello')
+// article.value.urls = { en: 'https://example.com/blog/hello', de: 'https://example.com/de/artikel/hallo' }
+
+useI18nHead(() => ({
+  meta: [{ property: 'og:title', content: article.value?.title ?? '' }],
+  replace: {
+    hreflang: Object.entries(article.value?.urls ?? {}).map(([locale, href]) => ({ rel: 'alternate', hreflang: locale, href })),
+    ogAlternates: Object.keys(article.value?.urls ?? {}),
+  },
+}))
+</script>
+```
+
+`replace` can also set or remove `canonical`, `xDefault`, `ogLocale` and `ogUrl`; `disable` drops whole groups (`'hreflang'`, `'x-default'`, `'canonical'`, `'og'`, `'og-alternates'`, `'html'`). Pass a getter so values recompute after a locale switch. For per-locale slugs, set `$setI18nRouteParams` first ([Localized paths](/guide/custom-locale-routes#per-locale-slugs)) and the generated alternates already use them.
+
+## Trailing slash
+
+`$localePath`, `$switchLocalePath`, the route object of `$switchLocaleRoute`, `<i18n-link>`, `<i18n-switcher>`, locale redirects and the SEO URLs follow one slash rule: `experimental.defaults.nuxtLink.trailingSlash` by default, or [`trailingSlash`](/api/module-options) in the i18n config when i18n paths should differ.
+
+## Nuxt SEO
+
+[`@nuxtjs/seo`](https://nuxtseo.com/) (sitemap, robots, schema.org) works with this module through `nuxt-site-config` 4+. List `nuxt-i18n-micro` first so site config can read the locales, and set `site.url` once — it also feeds the tags above.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro', '@nuxtjs/seo'],
+  site: { url: 'https://example.com', name: 'My Site' },
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+    ],
+  },
+})
+```
+
+A translated site name and description come from the `nuxtSiteConfig.name` / `nuxtSiteConfig.description` keys in your locale files. The error `Plugin nuxt-seo:defaults depends on nuxt-site-config:i18n but they are not registered` means `@nuxtjs/seo` is older than 3; upgrade it ([#133](https://github.com/s00d/nuxt-i18n-micro/issues/133)).
+
+## Related
+
+::card-group
+  :::card{title="useI18nHead" icon="i-lucide-braces" to="/composables/useI18nHead"}
+  :::
+  :::card{title="useLocaleHead" icon="i-lucide-braces" to="/composables/useLocaleHead"}
+  :::
+  :::card{title="Page config" icon="i-lucide-book-open" to="/guide/per-component-translations"}
+  :::
+  :::card{title="Localized paths" icon="i-lucide-book-open" to="/guide/custom-locale-routes"}
+  :::
+  :::card{title="Layers and domains" icon="i-lucide-book-open" to="/guide/layers"}
+  :::
+::

@@ -4,12 +4,10 @@ permissions:
   contents: write
 
 on:
-  # trigger deployment on every push to main branch, but only if docs folder has changes
   push:
     branches: [main]
     paths:
       - 'docs/**'
-  # trigger deployment when a new release is published
   release:
     types: [published]
   workflow_dispatch:
@@ -21,7 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # fetch all commits to get last updated time or other git log info
           fetch-depth: 0
 
       - uses: ./.github/actions/setup
@@ -31,25 +28,19 @@ jobs:
         # root `.nuxt/tsconfig.json`). `prepack` already builds `./packages/*` only.
         run: pnpm run prepack
 
-      # run build script
-      - name: Build VitePress site
+      - name: Build docs (Nuxt generate)
         env:
           NODE_OPTIONS: --max_old_space_size=8192
         run: pnpm run docs:build
 
       - name: Add nojekyll
         run: |-
-          > docs/.vitepress/dist/.nojekyll
+          > docs/.output/public/.nojekyll
 
-      # please check out the docs of the workflow for more details
-      # @see https://github.com/crazy-max/ghaction-github-pages
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v4
         with:
-          # deploy to gh-pages branch
           target_branch: gh-pages
-          # the default output dir of VitePress
-          build_dir: docs/.vitepress/dist
+          build_dir: docs/.output/public
         env:
-          # @see https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

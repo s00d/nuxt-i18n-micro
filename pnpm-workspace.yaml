@@ -33,12 +33,19 @@ catalog:
   '@nuxt/module-builder': ^1.0.3
   '@nuxt/test-utils': ^4.3.4
   '@nuxt/content': 3.16.2
+  '@nuxt/image': ^2.2.1
+  '@nuxt/ui': ^4.12.0
   '@nuxtjs/sitemap': ^9.1.0
   '@nuxtjs/seo': ^6.0.1
   # optional peers of @nuxt/content, db0 and @nuxtjs/seo 6: 12.x has prebuilt binaries for Node 20-26 on Windows, 13 does not
   better-sqlite3: ^12.11.1
   zod: ^4.6.7
   '@nuxtjs/i18n': ^10.6.0
+  nuxt-llms: ^0.3.1
+  nuxt-og-image: ^7.0.7
+  '@takumi-rs/core': ^2.19.0
+  '@iconify-json/lucide': ^1.2.150
+  '@iconify-json/simple-icons': ^1.2.101
   # Vue
   vue: ^3.5.44
   '@vue/compiler-sfc': ^3.5.44
@@ -90,11 +97,8 @@ catalog:
   typescript: 6.0.3
   '@types/node': ^22.19.0
   tsx: ^4.23.15
-  # Docs & lint
+  # Docs (@i18n-micro/vitepress package + lint)
   vitepress: ^2.0.0-alpha.20
-  vitepress-plugin-llms: ^1.14.0
-  vitepress-plugin-folder-tree: ^1.2.1
-  vitepress-plugin-chartjs: ^1.2.1
   chart.js: ^4.6.1
   oxfmt: ^0.76.0
   oxlint: ^1.90.0
@@ -114,8 +118,11 @@ catalog:
   unhead: 3.4.0
   # Tailwind & CSS
   tailwindcss: ^4.3.4
+  '@tailwindcss/typography': ^0.5.20
+  tailwind-variants: ^3.2.2
+  tailwind-merge: ^3.3.0
   postcss: ^8.5.32
-  # Docs: declare patched axios so vitepress/@vueuse/integrations peer resolves safely
+  # VitePress package peer resolution
   axios: ^1.21.0
   # Misc
   sirv: ^3.0.2

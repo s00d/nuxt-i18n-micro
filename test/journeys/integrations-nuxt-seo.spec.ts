@@ -13,10 +13,13 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
     await expect(page).toHaveURL('/en')
     await expect(page.locator('#locale')).toHaveText('en')
     await expect(page.locator('#hello')).toHaveText('Hello')
+    // the app manifest loads after hydration: a goto while it is in flight cancels it, and Nuxt logs NUXT_E5002
+    await page.waitForLoadState('networkidle')
     await goto('/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
     await expect(page.locator('#locale')).toHaveText('de')
     await expect(page.locator('#hello')).toHaveText('Hallo')
+    await page.waitForLoadState('networkidle')
 
     // step 2: /en → #about-link → /en/company → #home-link → /en
     // was: nuxt-seo › client navigation between localized routes works with i18n-link

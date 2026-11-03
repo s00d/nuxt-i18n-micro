@@ -1,111 +1,75 @@
 <template>
-  <div class="config-view">
+  <div class="scroll-thin h-full overflow-auto">
     <Loader v-if="isLoading" />
 
-    <div v-else class="space-y-6">
-      <!-- General Settings Card -->
-      <ConfigCard title="General Configuration">
-        <template #icon>
-          <SettingsIcon />
-        </template>
-        <div class="settings-grid">
-          <div class="config-row">
-            <span class="config-label">Default Locale</span>
-            <span class="config-value">{{ configs.defaultLocale || '—' }}</span>
-          </div>
-          <div class="config-row">
-            <span class="config-label">Routing Strategy</span>
-            <span class="config-value capitalize">{{ configs.strategy || '—' }}</span>
-          </div>
-          <div class="config-row">
-            <span class="config-label">Fallback Locale</span>
-            <span class="config-value">{{ configs.fallbackLocale || '—' }}</span>
-          </div>
-          <div class="config-row">
-            <span class="config-label">Debug Mode</span>
-            <StatusIndicator :status="configs.debug ? 'enabled' : 'disabled'" :label="configs.debug ? 'Active' : 'Inactive'" />
-          </div>
-        </div>
-      </ConfigCard>
+    <div v-else class="mx-auto max-w-[90rem] space-y-4 p-4">
+      <div class="grid gap-4 lg:grid-cols-2">
+        <Card title="General" icon="settings">
+          <dl class="divide-y divide-line text-sm">
+            <div v-for="row in general" :key="row.label" class="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0">
+              <dt class="text-muted">{{ row.label }}</dt>
+              <dd class="text-right text-highlighted">
+                <Badge v-if="typeof row.value === 'boolean'" :color="row.value ? 'primary' : 'neutral'" dot>{{
+                  row.value ? 'Enabled' : 'Disabled'
+                }}</Badge>
+                <code v-else-if="row.value" class="code">{{ row.value }}</code>
+                <span v-else class="text-dimmed">—</span>
+              </dd>
+            </div>
+          </dl>
+        </Card>
 
-      <!-- Locales Table Card -->
-      <ConfigCard title="Configured Locales">
-        <template #icon>
-          <GlobeIcon />
-        </template>
-        <LocaleTable :locales="configs.locales || []" />
-      </ConfigCard>
+        <Card title="Advanced" icon="server">
+          <dl class="divide-y divide-line text-sm">
+            <div v-for="row in advanced" :key="row.label" class="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0">
+              <dt class="shrink-0 text-muted">{{ row.label }}</dt>
+              <dd class="min-w-0 truncate text-right text-highlighted">
+                <Badge v-if="typeof row.value === 'boolean'" :color="row.value ? 'primary' : 'neutral'" dot>{{
+                  row.value ? 'Enabled' : 'Disabled'
+                }}</Badge>
+                <code v-else-if="row.value" class="code" :title="row.value">{{ row.value }}</code>
+                <span v-else class="text-dimmed">—</span>
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      </div>
 
-      <!-- Advanced Settings Card -->
-      <ConfigCard title="Advanced Configuration">
-        <template #icon>
-          <ServerIcon />
-        </template>
-        <div class="settings-grid">
-          <div class="config-row">
-            <span class="config-label">Auto Language Detection</span>
-            <StatusIndicator
-              :status="configs.autoDetectLanguage ? 'enabled' : 'disabled'"
-              :label="configs.autoDetectLanguage ? 'Enabled' : 'Disabled'"
-            />
-          </div>
-          <div class="config-row">
-            <span class="config-label">Translation Directory</span>
-            <span class="config-value font-mono text-sm">
-              {{ configs.translationDir || '—' }}
-            </span>
-          </div>
-          <div class="config-row">
-            <span class="config-label">API Base URL</span>
-            <span class="config-value font-mono text-sm text-blue-600">
-              {{ configs.apiBaseUrl || '—' }}
-            </span>
-          </div>
-          <div class="config-row">
-            <span class="config-label">Locale Cookie</span>
-            <span class="config-value font-mono text-sm">
-              {{ configs.localeCookie || '—' }}
-            </span>
-          </div>
-        </div>
-      </ConfigCard>
+      <Card title="Locales" icon="globe" :description="`${configs.locales?.length ?? 0} configured`" flush>
+        <LocaleTable :locales="configs.locales || []" :default-locale="configs.defaultLocale" />
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ConfigCard from '../components/config/ConfigCard.vue'
+import { computed } from 'vue'
 import LocaleTable from '../components/data/LocaleTable.vue'
-import GlobeIcon from '../components/ui/icons/GlobeIcon.vue'
-import ServerIcon from '../components/ui/icons/ServerIcon.vue'
-import SettingsIcon from '../components/ui/icons/SettingsIcon.vue'
+import Badge from '../components/ui/Badge.vue'
+import Card from '../components/ui/Card.vue'
 import Loader from '../components/ui/Loader.vue'
-import StatusIndicator from '../components/ui/StatusIndicator.vue'
 import { useI18nState } from '../composables/useI18nState'
 
 const { isLoading, configs } = useI18nState()
+
+interface Row {
+  label: string
+  value: string | boolean | undefined
+}
+
+const text = (value: unknown) => (value === null || value === undefined || value === '' ? undefined : String(value))
+
+const general = computed<Row[]>(() => [
+  { label: 'Default locale', value: text(configs.value.defaultLocale) },
+  { label: 'Routing strategy', value: text(configs.value.strategy) },
+  { label: 'Fallback locale', value: text(configs.value.fallbackLocale) },
+  { label: 'Debug mode', value: !!configs.value.debug },
+])
+
+const advanced = computed<Row[]>(() => [
+  { label: 'Auto language detection', value: !!configs.value.autoDetectLanguage },
+  { label: 'Translation directory', value: text(configs.value.translationDir) },
+  { label: 'API base URL', value: text(configs.value.apiBaseUrl) },
+  { label: 'Locale cookie', value: text(configs.value.localeCookie) },
+])
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.config-view {
-  @apply h-full overflow-auto p-4;
-}
-
-.settings-grid {
-  @apply grid gap-3;
-}
-
-.config-row {
-  @apply flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors;
-}
-
-.config-label {
-  @apply text-sm font-medium text-gray-600;
-}
-
-.config-value {
-  @apply text-sm text-gray-800;
-}
-</style>

@@ -1,94 +1,51 @@
 <template>
-  <div class="translation-controls">
-    <div class="translation-controls__content">
-      <!-- Service Selection -->
-      <div class="control-group">
-        <label class="control-label">
-          <span class="control-icon">🔧</span>
-          Translation Service
-        </label>
-        <div class="control-select">
-          <select v-model="selectedDriver" class="select-input">
-            <option value="" disabled hidden>Select a translation driver</option>
-            <option v-for="current_driver in translationDrivers" :key="current_driver.value" :value="current_driver.value">
-              {{ current_driver.label }}
-            </option>
-          </select>
-          <div class="select-arrow">▼</div>
-        </div>
-      </div>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label class="label" for="i18n-driver">Translation service</label>
+      <select id="i18n-driver" v-model="selectedDriver" class="field">
+        <option value="" disabled hidden>Select a translation driver</option>
+        <option v-for="current_driver in translationDrivers" :key="current_driver.value" :value="current_driver.value">
+          {{ current_driver.label }}
+        </option>
+      </select>
+      <p class="hint">Used by “Translate missing” and the per-key translate button in the editor.</p>
+    </div>
 
-      <!-- API Token -->
-      <transition name="fade-slide">
-        <div v-if="selectedDriver !== 'disabled'" class="control-group">
-          <label class="control-label">
-            <span class="control-icon">🔑</span>
-            API Authorization
-          </label>
-          <input v-model="localApiToken" type="password" placeholder="Enter your secure API token" class="styled-input" />
-        </div>
-      </transition>
+    <div v-if="selectedDriver !== 'disabled'">
+      <label class="label" for="i18n-token">API token</label>
+      <input id="i18n-token" v-model="localApiToken" type="password" autocomplete="off" placeholder="Enter your API token" class="field" />
+      <p class="hint">Kept in this browser's localStorage only.</p>
+    </div>
 
-      <!-- Driver Specific Options -->
-      <transition name="fade-slide">
-        <div v-if="selectedDriver !== 'disabled'" class="driver-options">
-          <!-- Yandex Cloud Options -->
-          <div v-if="selectedDriver === 'yandex-cloud'" class="control-group">
-            <label class="control-label">
-              <span class="control-icon">📁</span>
-              Cloud Folder ID
-            </label>
-            <input v-model="localDriverOptions.folderId" type="text" placeholder="Yandex Cloud folder identifier" class="styled-input" />
-          </div>
+    <div v-if="selectedDriver === 'yandex-cloud'">
+      <label class="label" for="i18n-folder">Cloud folder ID</label>
+      <input id="i18n-folder" v-model="localDriverOptions.folderId" type="text" placeholder="Yandex Cloud folder identifier" class="field" />
+    </div>
 
-          <!-- DeepL Options -->
-          <div v-if="selectedDriver === 'deepl'" class="control-group">
-            <label class="control-label">
-              <span class="control-icon">🎚️</span>
-              Tone Formality
-            </label>
-            <div class="control-select">
-              <select v-model="localDriverOptions.formality" class="select-input">
-                <option value="default">Neutral (Default)</option>
-                <option value="more">Formal Tone</option>
-                <option value="less">Casual Tone</option>
-              </select>
-              <div class="select-arrow">▼</div>
-            </div>
-          </div>
+    <div v-if="selectedDriver === 'deepl'">
+      <label class="label" for="i18n-formality">Tone formality</label>
+      <select id="i18n-formality" v-model="localDriverOptions.formality" class="field">
+        <option value="default">Neutral (default)</option>
+        <option value="more">Formal</option>
+        <option value="less">Casual</option>
+      </select>
+    </div>
 
-          <!-- OpenAI Models -->
-          <div v-if="selectedDriver === 'openai'" class="control-group">
-            <label class="control-label">
-              <span class="control-icon">🤖</span>
-              AI Model Selection
-            </label>
-            <div class="control-select">
-              <select v-model="localDriverOptions.model" class="select-input">
-                <option v-for="model in openAIModels" :key="model" :value="model">
-                  {{ model }}
-                </option>
-              </select>
-              <div class="select-arrow">▼</div>
-            </div>
-          </div>
+    <div v-if="selectedDriver === 'openai'">
+      <label class="label" for="i18n-openai-model">Model</label>
+      <select id="i18n-openai-model" v-model="localDriverOptions.model" class="field">
+        <option v-for="model in openAIModels" :key="model" :value="model">
+          {{ model }}
+        </option>
+      </select>
+    </div>
 
-          <!-- DeepSeek Models -->
-          <div v-if="selectedDriver === 'deepseek'" class="control-group">
-            <label class="control-label">
-              <span class="control-icon">🧠</span>
-              Reasoning Model
-            </label>
-            <div class="control-select">
-              <select v-model="localDriverOptions.model" class="select-input">
-                <option value="deepseek-chat">Chat Optimized</option>
-                <option value="deepseek-reasoner">Advanced Reasoning</option>
-              </select>
-              <div class="select-arrow">▼</div>
-            </div>
-          </div>
-        </div>
-      </transition>
+    <div v-if="selectedDriver === 'deepseek'">
+      <label class="label" for="i18n-deepseek-model">Model</label>
+      <select id="i18n-deepseek-model" v-model="localDriverOptions.model" class="field">
+        <option value="deepseek-chat">Chat optimized</option>
+        <option value="deepseek-reasoner">Advanced reasoning</option>
+      </select>
     </div>
   </div>
 </template>
@@ -275,60 +232,3 @@ const openAIModels = [
   'gpt-3.5-turbo-0125',
 ]
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.translation-controls {
-  @apply space-y-4;
-}
-
-.translation-controls__content {
-  @apply space-y-4;
-}
-
-.control-group {
-  @apply space-y-2;
-}
-
-.control-label {
-  @apply flex items-center text-sm font-medium text-slate-600;
-}
-
-.control-icon {
-  @apply mr-2;
-}
-
-.control-select {
-  @apply relative rounded-lg border border-slate-200 transition-all duration-200 hover:border-blue-400;
-}
-
-.select-input {
-  @apply w-full px-3 py-2 pr-8 bg-transparent outline-hidden appearance-none text-slate-700 rounded-lg text-sm;
-}
-
-.select-arrow {
-  @apply absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs;
-}
-
-.styled-input {
-  @apply w-full px-3 py-2 rounded-lg border border-slate-200 outline-hidden transition-all duration-200
-  focus:ring-2 focus:ring-blue-200 focus:border-blue-400 placeholder-slate-400 text-sm;
-}
-
-.driver-options {
-  @apply pl-4 border-l-2 border-blue-100 ml-2 space-y-3;
-}
-
-/* Animations */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(10px);
-}
-</style>

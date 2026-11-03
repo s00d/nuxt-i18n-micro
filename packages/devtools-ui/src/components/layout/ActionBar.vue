@@ -1,43 +1,20 @@
 <template>
-  <div class="action-bar">
-    <div class="action-bar__left">
-      <Button class="action-btn action-btn--export" title="Export" variant="ghost" @click="emit('export')">
-        <span class="action-btn__icon">📤</span>
-      </Button>
-
-      <Button class="action-btn action-btn--import" title="Import" variant="ghost" @click="emit('import')">
-        <span class="action-btn__icon">📥</span>
-      </Button>
-
-      <Button class="action-btn action-btn--stats" title="Stats" variant="ghost" @click="emit('show-stats')">
-        <span class="action-btn__icon">📊</span>
-      </Button>
-
-      <Button
-        v-if="showTranslateButton"
-        class="action-btn action-btn--translate"
-        title="Translate"
-        variant="ghost"
-        @click="emit('translate-missing')"
-      >
-        <span class="action-btn__icon">🌐</span>
-      </Button>
-    </div>
-
-    <Button class="action-btn action-btn--save" title="Save" variant="primary" @click="emit('save')">
-      <span class="action-btn__icon">💾</span>
-    </Button>
+  <div class="flex items-center gap-1">
+    <Button variant="ghost" icon="download" title="Export" @click="emit('export')">Export</Button>
+    <Button variant="ghost" icon="upload" title="Import" @click="emit('import')">Import</Button>
+    <Button variant="ghost" icon="chart" title="Statistics" @click="emit('show-stats')">Stats</Button>
+    <Button v-if="showTranslateButton" variant="ghost" icon="sparkles" title="Translate missing keys" @click="emit('translate-missing')"
+      >Translate missing</Button
+    >
+    <span class="mx-1 h-5 w-px bg-line" />
+    <Button variant="primary" icon="save" title="Save (Ctrl/⌘ + S)" @click="emit('save')">Save</Button>
   </div>
 </template>
 
 <script setup lang="ts">
 import Button from '../ui/Button.vue'
 
-interface Props {
-  showTranslateButton?: boolean
-}
-
-defineProps<Props>()
+defineProps<{ showTranslateButton?: boolean }>()
 
 const emit = defineEmits<{
   export: []
@@ -47,24 +24,3 @@ const emit = defineEmits<{
   save: []
 }>()
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.action-bar {
-  @apply flex items-center justify-between p-3 bg-white border-b border-slate-200;
-}
-
-.action-bar__left {
-  @apply flex items-center gap-2 flex-wrap;
-}
-
-/* Action Buttons */
-.action-btn {
-  @apply flex items-center gap-1.5;
-}
-
-.action-btn__icon {
-  @apply text-sm;
-}
-</style>

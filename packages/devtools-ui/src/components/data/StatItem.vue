@@ -1,54 +1,30 @@
 <template>
-  <div
-    class="p-3 bg-gray-50 rounded-lg transition-all duration-200 hover:bg-gray-100"
-    :class="stacked ? 'block' : 'flex items-center justify-between'"
-  >
-    <template v-if="!stacked">
-      <span class="text-sm font-medium text-gray-600 truncate">
-        {{ label }}
-      </span>
-      <span :class="['font-semibold min-w-[60px] text-right', $attrs.class]">
-        {{ formattedValue }}
-        <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
-      </span>
-    </template>
-
-    <template v-else>
-      <div class="flex flex-col">
-        <span class="text-sm font-medium text-gray-600">
-          {{ label }}
-        </span>
-        <span :class="['font-semibold mt-1', $attrs.class]">
-          {{ formattedValue }}
-          <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
-        </span>
-      </div>
-    </template>
+  <div class="min-w-0 rounded-md border border-line bg-surface px-3 py-2.5">
+    <div class="truncate text-xs text-muted" :title="label">{{ label }}</div>
+    <div
+      :class="['mt-0.5 truncate font-semibold text-highlighted tabular-nums', mono ? 'font-mono text-sm' : 'text-lg', TONES[tone]]"
+      :title="String(formattedValue)"
+    >
+      {{ formattedValue }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  label: String,
-  value: [String, Number],
-  trend: Number,
-  stacked: {
-    type: Boolean,
-    default: false,
-  },
-})
+const TONES = { default: '', primary: 'text-primary', warning: 'text-warning', error: 'text-error' }
 
-const formattedValue = computed(() => {
-  if (typeof props.value === 'number') {
-    return props.value.toLocaleString()
-  }
-  return props.value
-})
+const props = withDefaults(
+  defineProps<{
+    label: string
+    value: string | number
+    tone?: keyof typeof TONES
+    /** The value is a key or code, not a number. */
+    mono?: boolean
+  }>(),
+  { tone: 'default' },
+)
 
-const trendClass = computed(() => {
-  if (!props.trend) return ''
-  return props.trend > 0 ? 'text-green-500' : 'text-red-500'
-})
+const formattedValue = computed(() => (typeof props.value === 'number' ? props.value.toLocaleString() : props.value))
 </script>

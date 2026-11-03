@@ -1,18 +1,17 @@
 <template>
-  <div class="settings-view">
-    <div class="space-y-6">
-      <!-- Translation Engine -->
-      <SettingsCard title="Auto-Translation Engine" icon="🌐">
+  <div class="scroll-thin h-full overflow-auto">
+    <div class="mx-auto max-w-3xl p-4">
+      <Card title="Auto-translation" icon="sparkles" description="for missing keys in the editor">
         <TranslationControls v-model:driver="selectedDriver" v-model:api-token="apiToken" v-model:options="driverOptions" />
-      </SettingsCard>
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue'
-import SettingsCard from '../components/config/SettingsCard.vue'
 import TranslationControls from '../components/editor/TranslationControls.vue'
+import Card from '../components/ui/Card.vue'
 
 // Auto-translation settings
 const selectedDriver = ref('disabled')
@@ -50,11 +49,3 @@ watch(
   { deep: true },
 )
 </script>
-
-<style scoped>
-@reference "tailwindcss";
-
-.settings-view {
-  @apply h-full overflow-auto p-4;
-}
-</style>

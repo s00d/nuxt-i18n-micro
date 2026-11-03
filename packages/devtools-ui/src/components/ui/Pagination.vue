@@ -1,119 +1,69 @@
 <template>
-  <div class="pagination">
-    <!-- "Previous" button -->
-    <button :disabled="currentPage === 1" class="pagination-button" @click="goToPage(currentPage - 1)">Previous</button>
-
-    <!-- First pages -->
-    <template v-if="currentPage > 3">
-      <button v-for="page in firstPages" :key="page" class="pagination-button" @click="goToPage(page)">
+  <nav class="flex items-center gap-1" aria-label="Pagination">
+    <Button
+      variant="ghost"
+      size="sm"
+      square
+      icon="chevron-left"
+      title="Previous page"
+      aria-label="Previous page"
+      :disabled="currentPage <= 1"
+      @click="goToPage(currentPage - 1)"
+    />
+    <template v-for="(page, i) in pages" :key="i">
+      <span v-if="page === 0" class="px-1 text-xs text-dimmed">…</span>
+      <Button
+        v-else
+        :variant="page === currentPage ? 'primary' : 'ghost'"
+        size="sm"
+        class="min-w-7"
+        :aria-current="page === currentPage ? 'page' : undefined"
+        @click="goToPage(page)"
+      >
         {{ page }}
-      </button>
-      <span v-if="currentPage > 4" class="pagination-ellipsis">...</span>
+      </Button>
     </template>
-
-    <!-- Current page range -->
-    <button v-for="page in visiblePages" :key="page" :class="['pagination-button', { active: currentPage === page }]" @click="goToPage(page)">
-      {{ page }}
-    </button>
-
-    <!-- Last pages -->
-    <template v-if="currentPage < totalPages - 2">
-      <span v-if="currentPage < totalPages - 3" class="pagination-ellipsis">...</span>
-      <button v-for="page in lastPages" :key="page" class="pagination-button" @click="goToPage(page)">
-        {{ page }}
-      </button>
-    </template>
-
-    <!-- "Next" button -->
-    <button :disabled="currentPage === totalPages || totalPages === 0" class="pagination-button" @click="goToPage(currentPage + 1)">Next</button>
-  </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      square
+      icon="chevron-right"
+      title="Next page"
+      aria-label="Next page"
+      :disabled="currentPage >= totalPages"
+      @click="goToPage(currentPage + 1)"
+    />
+  </nav>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import Button from './Button.vue'
 
-const props = defineProps<{
-  currentPage: number
-  totalPages: number
-}>()
+const props = defineProps<{ currentPage: number; totalPages: number }>()
+const emit = defineEmits<{ 'update:page': [page: number] }>()
 
-const emit = defineEmits<(event: 'update:page', page: number) => void>()
-
-// First two pages
-const firstPages = computed(() => {
-  return [1, 2].filter((page) => page <= props.totalPages)
+/** First, last and two around the current page; `0` marks a gap. */
+const pages = computed(() => {
+  const shown = [
+    ...new Set([
+      1,
+      2,
+      props.currentPage - 2,
+      props.currentPage - 1,
+      props.currentPage,
+      props.currentPage + 1,
+      props.currentPage + 2,
+      props.totalPages - 1,
+      props.totalPages,
+    ]),
+  ]
+    .filter((page) => page >= 1 && page <= props.totalPages)
+    .sort((a, b) => a - b)
+  return shown.flatMap((page, i) => (i > 0 && page - shown[i - 1]! > 1 ? [0, page] : [page]))
 })
 
-// Last two pages
-const lastPages = computed(() => {
-  return [props.totalPages - 1, props.totalPages].filter((page) => page >= 1)
-})
-
-// Visible pages around the current one
-const visiblePages = computed(() => {
-  const pages = []
-  const startPage = Math.max(1, props.currentPage - 2)
-  const endPage = Math.min(props.totalPages, props.currentPage + 2)
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i)
-  }
-  return pages
-})
-
-// Navigate to page
 const goToPage = (page: number) => {
-  if (page >= 1 && page <= props.totalPages) {
-    emit('update:page', page)
-  }
+  if (page >= 1 && page <= props.totalPages) emit('update:page', page)
 }
 </script>
-
-<style scoped>
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.pagination-button {
-  padding: 6px 12px;
-  min-width: 32px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f9fa;
-  cursor: pointer;
-  font-size: 13px;
-  color: #333;
-  text-align: center;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
-}
-
-.pagination-button:hover:not(:disabled) {
-  background-color: #e9ecef;
-  border-color: #bbb;
-}
-
-.pagination-button:disabled {
-  background-color: #e9ecef;
-  cursor: not-allowed;
-  color: #999;
-}
-
-.pagination-button.active {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: #fff;
-}
-
-.pagination-ellipsis {
-  padding: 6px 12px;
-  font-size: 13px;
-  color: #666;
-}
-</style>

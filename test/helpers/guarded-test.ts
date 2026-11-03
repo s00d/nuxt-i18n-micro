@@ -16,9 +16,20 @@ const isCutOffFetch = (message: string, pageUrl = '') => {
   return host !== undefined && pageUrl.includes(`//${host}/`)
 }
 
-/** Every document >= 500, uncaught error, console error and hydration warning of a test's browser context. */
+/** Nuxt fetches the app manifest after hydration; a navigation while it loads cuts the request off. */
+const isManifest = (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url)
+const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
+
+/**
+ * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
+ * NUXT_E5002 (manifest fetch failed) counts only when no manifest request was cut off by a navigation.
+ */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
+  let manifestCutOff = false
+  context.on('requestfailed', (req) => {
+    if (isManifest(req.url()) && isAborted(req.failure()?.errorText)) manifestCutOff = true
+  })
   context.on('response', (res) => {
     if (res.request().resourceType() === 'document' && res.status() >= 500) issues.push(`document ${res.status()}: ${res.url()}`)
   })
@@ -30,7 +41,7 @@ function watchErrors(context: BrowserContext) {
     if (msg.type() === 'error' || (msg.type() === 'warning' && isHydrationText(text)))
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
-  return issues
+  return () => (manifestCutOff ? issues.filter((issue) => !issue.includes('[NUXT_E5002]')) : issues)
 }
 
 /** The last console messages and the failed or non-2xx requests, for the report of a failed test. */
@@ -58,10 +69,10 @@ export const test = base
     return { patterns, allow: (...more) => patterns.push(...more) }
   })
   .extend('page', ({ page, guard, task }, { onCleanup }) => {
-    const issues = watchErrors(page.context())
+    const issuesOf = watchErrors(page.context())
     const trail = watchTrail(page.context())
     onCleanup(async () => {
-      const unexpected = issues.filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))
+      const unexpected = issuesOf().filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))
       // runs before the page closes, and only when the test failed: a passing test prints nothing
       if (task.result?.state === 'fail' || unexpected.length) {
         const locale = page.isClosed()

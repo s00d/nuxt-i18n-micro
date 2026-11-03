@@ -9,7 +9,8 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
     return { filePath, content }
   }
   let next = content
-  if (filePath.endsWith('index.d.ts') || filePath.endsWith('node.d.ts') || filePath.endsWith('config.d.ts') || filePath.endsWith('theme.d.ts')) {
+  // entries at the dist root only: a suffix match also caught plugin/virtual-stubs/config and runtime/define-theme
+  if (/[\\/]dist[\\/](index|node|config|theme)\.d\.ts$/.test(filePath)) {
     if (filePath.endsWith('index.d.ts') && !next.includes('@i18n-micro/vitepress/client')) {
       next = `/// <reference types="@i18n-micro/vitepress/client" />\n${next}`
     }

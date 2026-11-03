@@ -68,7 +68,7 @@ describe('journey: basic app', () => {
     await page.click('#page-link')
     await expect(page).toHaveURL('/page')
     // a link in view loads its chunk: it may be in before the click
-    expect(fetched.some((url) => url.includes('/data.json') && url.includes('v=12345'))).toBe(true)
+    expect(fetched).toContainEqual(expect.stringMatching(/^(?=.*\/data\.json)(?=.*v=12345)/))
     await page.click('#page-link')
     await expect(page).toHaveURL('/')
     await page.click('#page-link')
@@ -580,6 +580,6 @@ describe('journey: basic app', () => {
     expect(unknown.status()).toBe(200)
     const root = await unknown.json()
     expect(Object.keys(root).length).toBeGreaterThan(0)
-    expect(Object.keys(root).every((key) => key in index)).toBe(true)
+    expect(Object.keys(index)).toEqual(expect.arrayContaining(Object.keys(root)))
   })
 })

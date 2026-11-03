@@ -136,7 +136,7 @@ describe('J6 seo head', () => {
     // was: seo-auto › client: alternate hreflang links use emulated domain
     await expect(page.locator('link[rel="alternate"]')).toHaveCount(6)
     const alternateHrefs = await page.locator('link[rel="alternate"]').evaluateAll((els) => els.map((el) => el.getAttribute('href')))
-    for (const href of alternateHrefs) expect(href!.startsWith(`${domain}/`)).toBe(true)
+    expect(alternateHrefs.filter((href) => !href!.startsWith(`${domain}/`))).toEqual([])
 
     // step 7: open /de/a-propos → x-default points at the default-locale page on the domain
     // was: seo-auto › client: x-default hreflang link uses emulated domain and points to default locale

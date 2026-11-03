@@ -55,9 +55,9 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
       const locs = extractSitemapLocs(body)
       expect(locs.length).toBeGreaterThan(0)
       expect(
-        locs.some((loc) => /\/(en|de|cs)(\/|$)/.test(new URL(loc).pathname)),
+        locs.map((loc) => new URL(loc).pathname),
         path,
-      ).toBe(true)
+      ).toContainEqual(expect.stringMatching(/\/(en|de|cs)(\/|$)/))
     }
 
     // step 3: GET /en/company → html lang, hreflangs on site.url, translated title and description
@@ -65,9 +65,9 @@ describe('J9 integrations: @nuxtjs/seo (#133)', () => {
     const enHtml = await (await request.get('/en/company')).text()
     expect(enHtml).toMatch(/<html[^>]*lang="en-US"/)
     const alternates = parseSeoHead(enHtml).hreflangs
-    expect(alternates.some((link) => link.hreflang === 'en-US' && link.href.startsWith('https://example.com/'))).toBe(true)
-    expect(alternates.some((link) => link.hreflang === 'de-DE' && link.href.startsWith('https://example.com/'))).toBe(true)
-    expect(alternates.some((link) => link.hreflang === 'x-default')).toBe(true)
+    expect(alternates).toContainEqual(expect.objectContaining({ hreflang: 'en-US', href: expect.stringMatching(/^https:\/\/example\.com\//) }))
+    expect(alternates).toContainEqual(expect.objectContaining({ hreflang: 'de-DE', href: expect.stringMatching(/^https:\/\/example\.com\//) }))
+    expect(alternates).toContainEqual(expect.objectContaining({ hreflang: 'x-default' }))
     expect(enHtml).toContain('<title>Site EN</title>')
     expect(enHtml).toMatch(/<meta[^>]*name="description"[^>]*content="English site description"/)
 

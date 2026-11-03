@@ -301,7 +301,7 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     show(i18n, 'en', 'page-19', i18n.getChunk('en', 'page-19'))
     for (let n = 0; n < 10; n++) i18n.installChunk('en', `extra-${n}`, { title: `Extra ${n}` })
     expect(i18n.storage.translations.size).toBeLessThanOrEqual(3)
-    expect(i18n.storage.translations.has(i18n.getCacheKey('en', 'page-19'))).toBe(true)
+    expect([...i18n.storage.translations.keys()]).toContain(i18n.getCacheKey('en', 'page-19'))
     expect(i18n.t('title')).toBe('Page 19')
 
     // step 2: bound 1 → one entry across navigations; a prefetch wins the slot, the view keeps B
@@ -310,10 +310,10 @@ describe('NuxtI18n: what a visitor sees while navigating', () => {
     expect(one.storage.translations.size).toBe(1)
     show(one, 'en', 'page-b', { title: 'B' })
     expect(one.storage.translations.size).toBe(1)
-    expect(one.storage.translations.has(one.getCacheKey('en', 'page-b'))).toBe(true)
+    expect([...one.storage.translations.keys()]).toContain(one.getCacheKey('en', 'page-b'))
     one.installChunk('en', 'page-c', { title: 'C' })
     expect(one.storage.translations.size).toBe(1)
-    expect(one.storage.translations.has(one.getCacheKey('en', 'page-c'))).toBe(true)
+    expect([...one.storage.translations.keys()]).toContain(one.getCacheKey('en', 'page-c'))
     expect(one.t('title')).toBe('B')
 
     // step 3: bound 0 is no bound

@@ -17,7 +17,7 @@ describe('buildI18nPluralTemplate', () => {
       return typeof raw === 'string' ? (interpolate as (t: string, p: Record<string, unknown>) => string)(raw, { ...params, count }) : null
     }) as PluralFunc
     const out = buildI18nPluralTemplate(custom, helpersPath)
-    expect(out.startsWith(`import { interpolate } from '${helpersPath}'\n`)).toBe(true)
+    expect(out.split('\n')[0]).toBe(`import { interpolate } from '${helpersPath}'`)
     expect(out).toContain('export const plural =')
     expect(out).toContain('getter(key)')
     expect(out).toContain('interpolate')

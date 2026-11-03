@@ -49,7 +49,7 @@ describe('Nitro export conditions and file trace (#233)', () => {
     // step 3: tracing from that seed pulls cookie.mjs and never cookie.cjs
     const { fileList } = await nodeFileTrace([seed], { base: rootDir, processCwd: rootDir, exportsOnly: true, conditions: nitroTraceConditions })
     const files = [...fileList]
-    expect(files.some((f) => f.endsWith('cookie.mjs'))).toBe(true)
-    expect(files.some((f) => f.endsWith('cookie.cjs'))).toBe(false)
+    expect(files).toContainEqual(expect.stringMatching(/cookie\.mjs$/))
+    expect(files).not.toContainEqual(expect.stringMatching(/cookie\.cjs$/))
   })
 })

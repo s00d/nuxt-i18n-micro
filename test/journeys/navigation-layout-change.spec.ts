@@ -88,7 +88,7 @@ describe('journey: a layout change keeps the leaving page readable (prefix)', ()
     await expect(page.locator('#layout-fade')).toBeAttached()
     await expect(page.locator('#layout-source')).toHaveCount(0)
     // the old page has to be seen beside the new one, or the leave never ran and this test proves nothing
-    expect(await page.evaluate(() => window.__frames.some((text) => text.includes('Source page EN') && text.includes('fade')))).toBe(true)
+    expect(await page.evaluate(() => window.__frames)).toContainEqual(expect.stringMatching(/^(?=[\s\S]*Source page EN)(?=[\s\S]*fade)/))
     expect(await rawKeys(page)).toBe(0)
   })
 

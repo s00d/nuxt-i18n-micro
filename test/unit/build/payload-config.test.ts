@@ -118,7 +118,7 @@ describe('translationPayloads build options', () => {
     const nothingLocal = { serverAssets: false, serverHandler: false, publicAssets: false, prerenderRoutes: false }
 
     // step 1: no server or public copy → SSR needs apiBaseServerHost; no local output at all → both hosts
-    expect(warn({ serverAssets: false, publicAssets: false }).some((w) => w.includes('apiBaseServerHost'))).toBe(true)
+    expect(warn({ serverAssets: false, publicAssets: false })).toContainEqual(expect.stringContaining('apiBaseServerHost'))
     expect(warn(nothingLocal)).toEqual(
       expect.arrayContaining([expect.stringContaining('apiBaseServerHost'), expect.stringContaining('apiBaseClientHost')]),
     )

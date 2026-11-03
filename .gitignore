@@ -73,8 +73,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 test-results
-docs/.vitepress/cache
-docs/.vitepress/dist
 benchmark/artillery-output.json
 artillery-output.json
 combined.cjs

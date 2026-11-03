@@ -106,7 +106,7 @@ export async function pagesFalseCookieCases(page: Page, goto: Goto, baseURL: str
   await expect(page.locator('#greeting')).toHaveText('Hello')
 }
 
-/** `$switchLocale` on Nuxt's stub router, as `docs/guide/strategy.md` promises for `pages: false`. */
+/** `$switchLocale` on Nuxt's stub router, as `docs/content/guide/strategy.md` promises for `pages: false`. */
 export async function pagesFalseSwitch(page: Page, goto: Goto, targets: { link: string; path: string; url: string }) {
   // step 1: the helpers answer without a record
   await page.context().clearCookies()

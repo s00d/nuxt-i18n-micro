@@ -1,6 +1,6 @@
 /**
  * Model of routing on real tables: pages through RouteGenerator into vue-router, then the strategy. The
- * reference is a URL table written from `docs/guide/strategy.md`, plus a fresh instance with cold caches.
+ * reference is a URL table written from `docs/content/guide/strategy.md`, plus a fresh instance with cold caches.
  * Fixed seed, so a failure repeats.
  */
 import { RouteGenerator } from '@i18n-micro/route-strategy'

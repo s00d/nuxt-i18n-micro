@@ -57,7 +57,7 @@ How a package (or an area) is rewritten in this repo: routing (`route-strategy` 
 
 - Breaking API or behaviour → major bump (agreed for routing and core). Otherwise one patch bump per changed package.
 - Every dependent of a bumped package gets a patch bump so publish rewrites its pin. `check:versions -- --npm` lists them.
-- Regenerate API docs and api-surface snapshots in this order: `pnpm run api:surface:update`, then `pnpm run docs:generate`. Rewrite stale READMEs. Never touch `docs/news/`.
+- Regenerate API docs and api-surface snapshots in this order: `pnpm run api:surface:update`, then `pnpm run docs:generate`. Rewrite stale READMEs. Never touch `docs/content/news/`.
 - Before every push, run the full list in [pre-push-checks](pre-push-checks.md), plus `pnpm run test` and `pnpm run test:e2e`.
 - Write full logs to files and read them with grep. Never truncate a log.
 

@@ -10,7 +10,7 @@ The same job as cubic, on this machine. It costs tokens, not CI, and edits nothi
 ## 1. The diff
 
 - Base: the ref in the args, or `main`. Review `git diff <base>...HEAD`, plus uncommitted changes.
-- Leave out of the review, as cubic does: `**/__tests__/**`, `**/*.spec.*`, `**/*.test.*`. Also `dist/`, `pnpm-lock.yaml`, generated `docs/api/`, `scripts/api-surface/` and `test/routing-characterization/__golden__/`.
+- Leave out of the review, as cubic does: `**/__tests__/**`, `**/*.spec.*`, `**/*.test.*`. Also `dist/`, `pnpm-lock.yaml`, generated `docs/content/api/`, `scripts/api-surface/` and `test/routing-characterization/__golden__/`.
 - The test agent in step 2 still reads test files.
 - Empty diff: say so and stop.
 

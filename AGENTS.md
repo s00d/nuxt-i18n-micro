@@ -15,7 +15,7 @@ Deeper agent rules: [`.cursor/rules/`](./.cursor/rules) · [`.claude/rules/`](./
 - Routing: `packages/route-strategy` (build) + `packages/path-strategy` (runtime)
 - Framework bindings: `vue`, `react`, `preact`, `solid`, `astro`, `node`, `vitepress`
 - Tooling: `devtools-ui`, `types-generator`, `test-utils` (dev HMR lives in the root module)
-- Local apps: `playground/` (the Nuxt test bench: every feature, one page each), `client/` (devtools UI), `docs/` (VitePress)
+- Local apps: `playground/` (the Nuxt test bench: every feature, one page each), `client/` (devtools UI), `docs/` (Nuxt Content + Nuxt UI, static via `nuxt generate`)
 
 Priorities: small bundles, fast builds, low runtime cost. Prefer reusing `@i18n-micro/utils/*` and core over duplicating logic in framework packages.
 
@@ -70,7 +70,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Locale route generation | `packages/route-strategy/` |
 | Runtime path strategies | `packages/path-strategy/` |
 | Vue SPA bindings | `packages/vue/` (`/` and `/router` entries) |
-| User docs | `docs/` (guide, API). **Do not** edit `docs/news/` unless the user explicitly asks |
+| User docs | `docs/` (guide, API). **Do not** edit `docs/content/news/` unless the user explicitly asks |
 | E2E / fixtures | `test/` · `test/fixtures/` |
 | Package unit / dist tests | `packages/*/tests/` |
 
@@ -96,7 +96,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Build packages (no playgrounds) | `pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |
 | Full module pack | `pnpm run prepack` |
 | Regenerate API docs | `pnpm run docs:generate` |
-| Release gate helpers | `pnpm run preflight` · see `docs/contributing/maintenance-commands.md` |
+| Release gate helpers | `pnpm run preflight` · see `docs/content/contributing/maintenance-commands.md` |
 
 Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
@@ -108,11 +108,11 @@ When `packages/<name>/` changes ship:
 2. Rebuild that package so `dist/` matches source: `pnpm --filter @i18n-micro/<name> build`.
 3. Commit source + version together. `dist/` is gitignored; `prepack` rebuilds it for a release.
 
-**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:patch|minor|major` / `pnpm -C scripts cli release --bump <level>`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
+**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:patch|minor|major` / `pnpm -C scripts cli release --bump <level>`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/content/news/index.md` unless the user explicitly asks.
 
 Do **not** bump workspace versions on every intermediate commit in the same PR.
 
-The level is the owner's call: patch unless the owner says minor or major, and nothing picks it from commits. Details: `.cursor/rules/package-versioning.mdc`. Publishing: `docs/contributing/maintenance-commands.md`.
+The level is the owner's call: patch unless the owner says minor or major, and nothing picks it from commits. Details: `.cursor/rules/package-versioning.mdc`. Publishing: `docs/content/contributing/maintenance-commands.md`.
 
 ## Agent do / don't
 
@@ -144,9 +144,9 @@ pnpm --filter @i18n-micro/<name> build
 
 ## Further reading
 
-- Architecture: `docs/contributing/architecture.md`
-- Routing strategies: `docs/guide/strategy.md`
-- Locales layout: `docs/guide/translations.md`
-- Maintenance / audits: `docs/contributing/maintenance-commands.md`
+- Architecture: `docs/content/contributing/architecture.md`
+- Routing strategies: `docs/content/guide/strategy.md`
+- Locales layout: `docs/content/guide/translations.md`
+- Maintenance / audits: `docs/content/contributing/maintenance-commands.md`
 - Package READMEs: `packages/*/README.md`
 - CI build order: `.github/workflows/ci.yml`

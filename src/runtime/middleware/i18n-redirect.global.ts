@@ -9,6 +9,8 @@ import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { decodeCookieValue, getPreferenceCookieName } from '@i18n-micro/utils/cookie'
 import { redirectLocale } from '@i18n-micro/utils/resolve-locale'
 import { applyTrailingSlash } from '../utils/trailing-slash'
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp, useState } from '#imports'
 
 function readCookie(name: string | null): string | null {

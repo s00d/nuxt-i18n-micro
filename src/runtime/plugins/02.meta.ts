@@ -2,6 +2,8 @@ import type { Locale, ResolvedI18nConfig } from '@i18n-micro/types'
 import { trimTrailingSlashes } from '@i18n-micro/utils/app-path'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { joinURL } from 'ufo'
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'
 import { useLocaleHead } from '../composables/useLocaleHead'

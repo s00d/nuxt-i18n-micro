@@ -1,3 +1,5 @@
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
 import type { Params } from '@i18n-micro/types'
 import { watch } from 'vue'

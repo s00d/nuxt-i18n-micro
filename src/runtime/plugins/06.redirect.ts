@@ -13,6 +13,8 @@ import { preferenceCounts, redirectLocale } from '@i18n-micro/utils/resolve-loca
 import { appendResponseHeader, getCookie, getHeader, setCookie } from 'h3'
 import { requestURL } from '../utils/request-url'
 import { applyTrailingSlash } from '../utils/trailing-slash'
+// names the default export's type in the declaration (TS2883): see 01.plugin.ts
+import type {} from 'nuxt/app'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRouter, useRuntimeConfig, useState } from '#imports'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'

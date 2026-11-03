@@ -30,7 +30,7 @@ import type { NuxtApp } from '#app/nuxt'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, domains } from '#build/i18n.strategy.mjs'
 // Every plugin and middleware default export is typed through `nuxt/dist/app`, which a declaration cannot name (TS2883,
-// an empty `.d.ts`). `nuxt/app` is its public name: one import of it in the build is what tells the emit.
+// an empty `.d.ts`). `nuxt/app` is its public name: an import of it tells the emit. Since Nuxt 4.6 each such file needs its own.
 import type {} from 'nuxt/app'
 import { createError, defineNuxtPlugin, injectHead, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { usePageHead } from '../utils/page-head'

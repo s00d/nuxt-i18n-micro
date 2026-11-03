@@ -660,7 +660,7 @@ describe('redirects: false', () => {
   test('under prefix the original URL has no redirect record', () => {
     const list = pages()
     generator('prefix', { globalLocaleRoutes: rules, redirects: false }).extendPages(list)
-    expect(list.some((page) => page.redirect)).toBe(false)
+    expect(list.filter((page) => page.redirect)).toEqual([])
   })
 
   test('by default it has', () => {

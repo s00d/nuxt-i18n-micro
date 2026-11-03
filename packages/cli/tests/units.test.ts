@@ -268,10 +268,10 @@ describe('formatting', () => {
   })
 
   it('globs', () => {
-    expect(globToRegExp('tests/**').test('tests/a/b.ts')).toBe(true)
-    expect(globToRegExp('*.spec.ts').test('src/a.spec.ts')).toBe(true)
-    expect(globToRegExp('gen').test('a/gen/b.ts')).toBe(true)
-    expect(globToRegExp('src/*.ts').test('src/a/b.ts')).toBe(false)
+    expect('tests/a/b.ts').toMatch(globToRegExp('tests/**'))
+    expect('src/a.spec.ts').toMatch(globToRegExp('*.spec.ts'))
+    expect('a/gen/b.ts').toMatch(globToRegExp('gen'))
+    expect('src/a/b.ts').not.toMatch(globToRegExp('src/*.ts'))
   })
 })
 

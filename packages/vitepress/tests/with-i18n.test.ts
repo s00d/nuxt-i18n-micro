@@ -75,7 +75,7 @@ describe('withI18n', () => {
     const canonical = head.find((t: [string, Record<string, string>]) => t[0] === 'link' && t[1].rel === 'canonical')
     expect(canonical?.[1].href).toBe('https://example.com/docs/fr/guide')
     const alt = head.filter((t: [string, Record<string, string>]) => t[0] === 'link' && t[1].rel === 'alternate')
-    expect(alt.some((t: [string, Record<string, string>]) => t[1].hreflang === 'x-default')).toBe(true)
+    expect(alt.map((t: [string, Record<string, string>]) => t[1])).toContainEqual(expect.objectContaining({ hreflang: 'x-default' }))
   })
 
   it('leaves the head alone when meta is false', () => {

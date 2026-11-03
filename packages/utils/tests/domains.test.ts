@@ -61,7 +61,7 @@ describe('configForHost', () => {
     const hosted = configForHost(none, 'example.de')
     expect(hosted.domain).toBe('example.de')
     expect(codes(hosted)).toEqual(['de'])
-    expect(hosted.locales!.every((l) => l.disabled)).toBe(true)
+    expect(hosted.locales!.filter((l) => !l.disabled)).toEqual([])
     const broken = { locales: [{ code: 'de', baseUrl: 'example.de' }], defaultLocale: 'de' } as ModuleOptionsExtend
     expect(configForHost(broken, 'example.de')).toBe(broken)
   })

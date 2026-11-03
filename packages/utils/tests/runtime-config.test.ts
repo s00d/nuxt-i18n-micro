@@ -52,7 +52,7 @@ describe('createI18nConfigResolver', () => {
     const base = createBaseConfig()
     const config = createI18nConfigResolver(warn)(base, { i18nRuntime: { disabledLocales: ['en', 'fr', 'de'] } })
 
-    expect(config.locales?.every((locale) => !locale.disabled)).toBe(true)
+    expect(config.locales?.filter((locale) => locale.disabled)).toEqual([])
     expect(config.defaultLocale).toBe('en')
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('would disable all locales'))
   })

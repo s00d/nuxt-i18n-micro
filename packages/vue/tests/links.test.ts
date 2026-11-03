@@ -223,7 +223,7 @@ describe('useLocaleHead', () => {
       }),
       { global: { plugins: [router, i18n] } },
     )
-    expect(head.metaObject.value.link.some((tag) => tag.hreflang === 'x-default')).toBe(false)
+    expect(head.metaObject.value.link).not.toContainEqual(expect.objectContaining({ hreflang: 'x-default' }))
   })
 
   test('a strategy whose current path holds a query does not double it', async () => {

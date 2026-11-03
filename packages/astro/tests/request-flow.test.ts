@@ -97,7 +97,7 @@ test('integration publishes its config as a virtual module', () => {
     expect(id).toBe('\0virtual:i18n-micro/config')
     expect(plugin.load('virtual:i18n-micro/config')).toBeUndefined()
     const code: string = plugin.load(id)
-    expect(code.startsWith('export const config = ')).toBe(true)
+    expect(code).toMatch(/^export const config = /)
     return JSON.parse(code.slice('export const config = '.length))
   }
 

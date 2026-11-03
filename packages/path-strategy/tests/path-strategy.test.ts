@@ -744,7 +744,7 @@ describe('redirects', () => {
 
   test('redirects: false adds no record for the original URL', () => {
     const { router } = setup('prefix', {}, LOCALES, { redirects: false })
-    expect(router.getRoutes().some((record) => record.path === '/page2')).toBe(false)
+    expect(router.getRoutes().map((record) => record.path)).not.toContain('/page2')
     expect(
       setup('prefix')
         .router.getRoutes()

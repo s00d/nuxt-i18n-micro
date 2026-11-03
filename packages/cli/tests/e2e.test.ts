@@ -68,7 +68,7 @@ describe('entry points', () => {
 
   it('both bin names point at the built file', () => {
     expect(pkg.bin).toEqual({ 'i18n-micro': './dist/cli.mjs', 'i18n-micro-cli': './dist/cli.mjs' })
-    expect(read(join(import.meta.dirname, '..'), 'dist/cli.mjs').startsWith('#!/usr/bin/env node')).toBe(true)
+    expect(read(join(import.meta.dirname, '..'), 'dist/cli.mjs')).toMatch(/^#!\/usr\/bin\/env node/)
   })
 
   it.each(Object.keys(commands))('%s --help describes its flags, --debug included', async (name) => {

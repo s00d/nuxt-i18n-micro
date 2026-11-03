@@ -113,7 +113,7 @@ describe('generateTypes', () => {
     expect(content).toContain('"real": string;')
     expect(content).not.toContain('"0": string;')
     expect(content).not.toContain('"1": string;')
-    expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('expected a JSON object'))).toBe(true)
+    expect(errorSpy.mock.calls.map((c) => String(c[0]))).toContainEqual(expect.stringContaining('expected a JSON object'))
     assertValidDts(content)
     errorSpy.mockRestore()
   })
@@ -129,7 +129,7 @@ describe('generateTypes', () => {
     const content = readFileSync(outputFile, 'utf-8')
     expect(content).toContain('"real": string;')
     assertValidDts(content)
-    expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('Failed to load') && String(c[0]).includes('en.json'))).toBe(true)
+    expect(errorSpy.mock.calls.map((c) => String(c[0]))).toContainEqual(expect.stringMatching(/^(?=[\s\S]*Failed to load)(?=[\s\S]*en\.json)/))
     errorSpy.mockRestore()
   })
 

@@ -131,7 +131,7 @@ test('translate missing keys: the default-locale file fills the gaps of the sele
     rows: [{ label: 'DE( :count items)' }, { label: 'DE( :user left)' }],
   })
   expect(query(sent[0]!)).toMatchObject({ client: 'gtx', sl: 'en', tl: 'de', hl: 'en', dt: 't', ie: 'UTF-8', oe: 'UTF-8' })
-  expect(sent[0]!.url.startsWith('https://translate.google.com/translate_a/single?')).toBe(true)
+  expect(sent[0]!.url).toMatch(/^https:\/\/translate\.google\.com\/translate_a\/single\?/)
   expect(sent.map((s) => query(s).tk).slice(0, 3)).toEqual(['754895.754895', '57935.57935', '134671.134671'])
   expect(await translator.translate('Привет 世界', 'ru', 'en')).toBe('DE(Привет 世界)')
   expect(query(sent.at(-1)!).tk).toBe('178063.178063')
@@ -170,7 +170,7 @@ test('paid drivers send the API key and text the way each provider expects, and 
       fail: { error: { message: 'bad key' } },
       error: 'Google Translate error: bad key',
       check: (s) => {
-        expect(s.url.startsWith('https://translation.googleapis.com/language/translate/v2?')).toBe(true)
+        expect(s.url).toMatch(/^https:\/\/translation\.googleapis\.com\/language\/translate\/v2\?/)
         expect(query(s)).toEqual({ q: 'Hello  _r0_World _r1_', target: 'de', key: 'KEY', format: 'text', source: 'en' })
       },
     },

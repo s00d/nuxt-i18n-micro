@@ -36,6 +36,7 @@ describe('readModuleOptions', () => {
       description: 'Generate SEO meta tags automatically.',
       optional: true,
       deprecated: null,
+      examples: [],
     })
   })
 

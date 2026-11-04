@@ -23,6 +23,7 @@ export interface ExportMap {
 export interface PackageManifest {
   name?: string
   version?: string
+  description?: string
   private?: boolean
   type?: 'module' | 'commonjs'
   license?: string

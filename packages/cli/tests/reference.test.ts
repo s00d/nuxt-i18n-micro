@@ -20,7 +20,8 @@ describe('docs/content/api/cli.md', () => {
 
   it('Common flags holds only flags of every command', async () => {
     const common = (await cliReference()).split('\n## ')[0]!
-    const flags = [...common.matchAll(/^\| `--(\w+)`/gm)].map((match) => match[1]!)
+    // each flag is a `::field` with `name: "--flag"`
+    const flags = [...common.matchAll(/^name: "--(\w+)"/gm)].map((match) => match[1]!)
     expect(flags.length).toBeGreaterThan(0)
     for (const spec of Object.values(commands)) expect(Object.keys(spec.args)).toEqual(expect.arrayContaining(flags))
   })

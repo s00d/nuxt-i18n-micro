@@ -48,6 +48,6 @@ test('locale cookie options characterization', async () => {
 test('the options object is not mutated and a call does not leak into the next', () => {
   const options = Object.freeze({ domain: '.example.com', secure: true })
   expect(getLocaleCookieOptions(options).domain).toBe('.example.com')
-  expect(getLocaleCookieOptions()).not.toHaveProperty('domain')
-  expect(getLocaleCookieOptions()).not.toHaveProperty('secure')
+  expect(getLocaleCookieOptions().domain).toBeUndefined()
+  expect(getLocaleCookieOptions().secure).toBeUndefined()
 })

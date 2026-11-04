@@ -43,7 +43,6 @@ export function decodeCookieValue(value: string): string | null {
  * Returns options for locale/hash cookies: `localeCookieOptions` over the defaults. `decode` keeps a
  * malformed cookie from throwing in Nuxt's `useCookie`, and hands it back as it came: a value that
  * changed would be written at the end of the request, and that delete would replace the locale a page just stored.
- * `domain` and `secure` appear only when set, so the defaults stay the same object as before the option.
  */
 export function getLocaleCookieOptions(options: LocaleCookieOptions = {}) {
   const maxAge = options.maxAge ?? DEFAULT_COOKIE_MAX_AGE
@@ -56,8 +55,9 @@ export function getLocaleCookieOptions(options: LocaleCookieOptions = {}) {
     path: options.path ?? '/',
     watch: true,
     sameSite: options.sameSite ?? ('lax' as const),
-    ...(options.domain ? { domain: options.domain } : {}),
-    ...(options.secure ? { secure: true } : {}),
+    // undefined is no attribute: cookie-es (h3 setCookie, Nuxt useCookie) writes neither then
+    domain: options.domain,
+    secure: options.secure,
     decode: (value: string) => decodeCookieValue(value) ?? value,
   }
 }

@@ -66,7 +66,7 @@ describe('useI18nLocale cookie options', () => {
     refs.cookieCalls.length = 0
     useI18nLocale()
     expect(refs.cookieCalls[0]).toEqual(['user-locale', expect.objectContaining({ path: '/', sameSite: 'lax', maxAge: 31536000 })])
-    expect(refs.cookieCalls[0]![1]).not.toHaveProperty('domain')
+    expect(refs.cookieCalls[0]![1].domain).toBeUndefined()
     const config = refs.config
     refs.config = { ...config, localeCookieOptions: { domain: '.example.com', secure: true, sameSite: 'none', maxAge: 60 } }
     try {

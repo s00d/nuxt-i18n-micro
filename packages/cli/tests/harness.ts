@@ -104,6 +104,8 @@ export function normalize(text: string, projectDir: string, port = 0): string {
       .replace(/<project>\S*/g, (path) => path.replace(/\\+/g, '/'))
       .replaceAll(`127.0.0.1:${port}`, '<mock>')
       .replace(ISO_STAMP, '<timestamp>')
+      // the CLI prints its own version: a bump is no change of output
+      .replace(/\(i18n-micro v\d+\.\d+\.\d+[^)]*\)/g, '(i18n-micro v<version>)')
       // oxlint-disable-next-line no-control-regex -- ANSI colors are what this strips
       .replace(/\u001B\[[0-9;]*m/g, '')
       .replace(/[ \t]+$/gm, '')

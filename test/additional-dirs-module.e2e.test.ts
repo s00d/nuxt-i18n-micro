@@ -50,5 +50,8 @@ describe('additionalTranslationDirs from a module listed after i18n', () => {
     // the folder's files are in the `?v=`: an edit there moves it, as an edit of `locales/` does
     expect(dateBuild(after.strategy)).not.toBe(dateBuild(alone.strategy))
     expect(dateBuild(after.strategy)).toBe(dateBuild(before.strategy))
+    // a fingerprint, not a timestamp, whatever adds the folder
+    expect(dateBuild(alone.strategy)).toMatch(/^[0-9a-f]{16}$/)
+    expect(dateBuild(after.strategy)).toMatch(/^[0-9a-f]{16}$/)
   })
 })

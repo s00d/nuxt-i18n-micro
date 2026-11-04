@@ -127,11 +127,10 @@ function buildFullConfig(params: {
   apiConfig: NormalizedApiConfig
   translationPayloadMode: TranslationPayloadMode
   locales: ModuleOptionsExtend['locales']
-  translationsHash: string | null
   publicPayloads: boolean
   rootDelta: boolean
 }): ResolvedI18nConfig {
-  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, publicPayloads, rootDelta } = params
   // as Nuxt reads it for `NUXT_NO_SCRIPTS`
   const noScripts = nuxt.options.features.noScripts
 
@@ -153,9 +152,9 @@ function buildFullConfig(params: {
     autoDetectLanguage: options.autoDetectLanguage,
     autoDetectPath: options.autoDetectPath || '/',
     strategy: options.strategy!,
-    // the `?v=` of payload URLs: a fingerprint of the translations, as a timestamp would make clients re-download
-    // what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
-    dateBuild: options.dateBuild ?? translationsHash ?? Date.now(),
+    // the `?v=` of payload URLs: a fingerprint of the translations (set at modules:done), as a timestamp would make
+    // clients re-download what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
+    dateBuild: options.dateBuild ?? Date.now(),
     hashMode: nuxt.options?.router?.options?.hashMode ?? false,
     trailingSlash:
       options.trailingSlash ??
@@ -398,8 +397,6 @@ export default defineNuxtModule<ModuleOptions>({
             JSON.stringify([options.fallbackLocale, options.disablePageLocales, (options.locales ?? []).map((l) => [l.code, l.fallbackLocale])]),
           )
         : null
-    const translationsHash = fingerprint()
-    const hashedDirs = extraDirs.length
     const translationPayloads = resolveTranslationPayloadOptions(options)
     // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
     const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
@@ -530,15 +527,14 @@ export default defineNuxtModule<ModuleOptions>({
         !options.disablePageLocales &&
         (translationPayloads.publicAssets || Boolean(options.apiBaseClientHost)),
       locales: routeGenerator.locales ?? [],
-      translationsHash,
     })
 
     // A module listed after this one may add its own folder (`nuxt.options.i18n.additionalTranslationDirs.push(dir)`):
-    // once every module ran, the list is final. Same array, so the build and the servers read it; the `?v=` follows.
+    // once every module ran, the list is final. Same array, so the build and the servers read it; the `?v=` is
+    // fingerprinted here, once, over the final list.
     nuxt.hook('modules:done', () => {
       for (const dir of (nuxt.options as { i18n?: ModuleOptions }).i18n?.additionalTranslationDirs ?? [])
         if (!extraDirs.includes(dir)) extraDirs.push(dir)
-      if (extraDirs.length === hashedDirs) return
       fullConfig.dateBuild = fingerprint() ?? fullConfig.dateBuild
     })
 

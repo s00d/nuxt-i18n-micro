@@ -10,6 +10,8 @@ describe('affectsPublishedArtifact', () => {
     'example/x.ts',
     'README.md',
     'vitest.config.ts',
+    'vite.config.mts',
+    'vite.config.ts',
     'CHANGELOG.md',
   ])('ignores %s — it cannot change what ships', (path) => {
     expect(affectsPublishedArtifact(path)).toBe(false)
@@ -23,5 +25,6 @@ describe('affectsPublishedArtifact', () => {
     // The rules anchor at the package root: `src/test/helper.ts` still ships.
     expect(affectsPublishedArtifact('src/test/helper.ts')).toBe(true)
     expect(affectsPublishedArtifact('src/docs.md')).toBe(false)
+    expect(affectsPublishedArtifact('src/vite.config.ts')).toBe(true)
   })
 })

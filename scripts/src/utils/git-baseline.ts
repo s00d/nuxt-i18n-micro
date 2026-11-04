@@ -131,6 +131,9 @@ export function affectsPublishedArtifact(relPath: string): boolean {
     /^examples?\//,
     /\.md$/i,
     /^vitest\..*\.?config\.[cm]?[jt]s$/,
+    // build config: a change that alters the output shows in the tarball, which `compare:published` checks
+    // at release; a config cleanup with the same dist (warnings, comments) is no new version
+    /^vite\.config\.[cm]?[jt]s$/,
     /^jest\..*config\./,
     /^CHANGELOG/i,
   ]

@@ -97,7 +97,10 @@ describe('localeCookie option', () => {
     const warn = vi.spyOn(process.stderr, 'write')
     try {
       expect(await strategySource({ redirectStatusCode: 200 })).not.toContain('redirectStatusCode')
-      expect(warn.mock.calls.some((args) => String(args[0]).includes('redirectStatusCode 200 is no redirect status'))).toBe(true)
+      expect(warn.mock.calls.some((args) => String(args[0]).includes('redirectStatusCode 200 is none of 301, 302, 303, 307, 308'))).toBe(true)
+      // inside 300-399, and still no move a browser follows
+      expect(await strategySource({ redirectStatusCode: 304 })).not.toContain('redirectStatusCode')
+      expect(await strategySource({ redirectStatusCode: 308 })).toContain('"redirectStatusCode":308')
     } finally {
       warn.mockRestore()
     }

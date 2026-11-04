@@ -73,9 +73,11 @@ export default defineNuxtPlugin({
     const served = i18nConfig.strategy !== 'no_prefix' && (router.getRoutes().length === 0 || router.currentRoute.value.matched.length > 0)
     // A prefixed URL is the visitor's choice, unless `'*'` may still move it to the preferred locale.
     if (urlLocale && served && !(redirects && anyPath)) writeCookie(urlLocale)
+    // one status for every move the plugin answers: the hash move below as much as the locale redirect
+    const redirectCode = i18nConfig.redirectStatusCode ?? 302
     // Under hash + prefix a document holds no route: it moves into the hash, the client takes it from there.
     if (i18nConfig.hashMode && alwaysPrefixed)
-      return navigateTo(`/#${applyTrailingSlash(path, i18nConfig.trailingSlash)}${url.search}`, { redirectCode: 302 }) as Promise<void>
+      return navigateTo(`/#${applyTrailingSlash(path, i18nConfig.trailingSlash)}${url.search}`, { redirectCode }) as Promise<void>
     // Under hashMode the locale lives in the hash and the hash cookie: `/` keeps its document URL.
     if (!redirects || i18nConfig.hashMode) return
 
@@ -98,9 +100,7 @@ export default defineNuxtPlugin({
     if (!target) return
     if (anyPath && urlLocale) writeCookie(preferred)
     if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, target, preferred })
-    return navigateTo(applyTrailingSlash(target, i18nConfig.trailingSlash) + url.search + url.hash, {
-      redirectCode: i18nConfig.redirectStatusCode ?? 302,
-    }) as Promise<void>
+    return navigateTo(applyTrailingSlash(target, i18nConfig.trailingSlash) + url.search + url.hash, { redirectCode }) as Promise<void>
   },
 })
 

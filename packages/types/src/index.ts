@@ -441,10 +441,11 @@ export interface ModuleOptions {
   fallbackLocale?: string
 
   /**
-   * HTTP status of the server's locale redirects (the preferred locale from the cookie or
-   * `Accept-Language`, a prefix in another case). `301` and `308` are cached by browsers: a visitor
-   * who later changes the preference is still sent where the first answer said. A value that is
-   * no redirect status (300-399) is ignored with a warning at build.
+   * HTTP status of every redirect the server answers for the module: the preferred locale (cookie,
+   * `Accept-Language`), a prefix in another case, and under `hashMode` + `prefix` the move into the
+   * hash. `301` and `308` are cached by browsers: a visitor who later changes the preference is still
+   * sent where the first answer said. One of 301, 302, 303, 307, 308; any other value warns at build
+   * and 302 is used.
    * @default 302
    */
   redirectStatusCode?: number

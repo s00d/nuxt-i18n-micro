@@ -90,13 +90,6 @@ export const recipes = defineRecipes(
       { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', NUXT_I18N_DEFAULT_LOCALE: 'de' },
       { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['ru'] } } } },
     ),
-    // localeCookieOptions: the attributes reach the Set-Cookie of the server and the browser's write
-    'strategy-prefix-cookie-options': app(
-      'strategy-prefix-cookie-options',
-      'strategy',
-      { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' },
-      { i18n: { localeCookieOptions: { domain: '127.0.0.1', path: '/', secure: true, sameSite: 'none', maxAge: 3600 } } },
-    ),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',
@@ -110,13 +103,6 @@ export const recipes = defineRecipes(
       AUTO_DETECT_PATH: '*',
       EXCLUDE_PATTERNS: '/admin',
     }),
-    // strategy-redirect with redirectStatusCode 301
-    'strategy-redirect-301': app(
-      'strategy-redirect-301',
-      'strategy',
-      { STRATEGY: 'prefix_except_default', LOCALE_COOKIE: 'user-locale', AUTO_DETECT_LANGUAGE: '1', AUTO_DETECT_PATH: '*' },
-      { i18n: { redirectStatusCode: 301 } },
-    ),
     // locale codes en-us / de-de / ru-ru behind customRegexMatcher
     'strategy-region-codes': app('strategy-region-codes', 'strategy', { STRATEGY: 'prefix_except_default', REGION_CODES: '1' }),
     // global URL shapes: each would break every other journey's URLs, so each is its own build

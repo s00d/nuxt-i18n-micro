@@ -104,7 +104,8 @@ declare module '#app' {
 export {}`
 }
 
-const isRedirectStatus = (code: unknown): code is number => Number.isInteger(code) && (code as number) >= 300 && (code as number) <= 399
+/** The statuses a browser follows to `Location`: 300, 304, 305 do not move a visitor. */
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
 
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 
@@ -362,8 +363,8 @@ export default defineNuxtModule<ModuleOptions>({
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }
     // a code Nitro would send as no redirect (or not at all) breaks every redirect of the app
-    if (options.redirectStatusCode !== undefined && !isRedirectStatus(options.redirectStatusCode)) {
-      logger.warn(`redirectStatusCode ${options.redirectStatusCode} is no redirect status (300-399); 302 is used.`)
+    if (options.redirectStatusCode !== undefined && !REDIRECT_STATUSES.has(options.redirectStatusCode)) {
+      logger.warn(`redirectStatusCode ${options.redirectStatusCode} is none of 301, 302, 303, 307, 308; 302 is used.`)
       options.redirectStatusCode = undefined
     }
     // browsers drop a `SameSite=None` cookie without `Secure`: the locale would never be remembered

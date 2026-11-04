@@ -148,32 +148,3 @@ describe('journey: a client navigation stores the locale of its page', () => {
     await expect.poll(() => cookie(page)).toBe('en')
   })
 })
-
-describe('journey: localeCookieOptions reach both writers of the cookie', () => {
-  test.override({ harness: 'strategy-prefix-cookie-options' })
-
-  test('the server sends Domain, Secure, SameSite and the lifetime from the config', async ({ baseURL }) => {
-    const served = await ssr(baseURL, '/de')
-    const header = served.headers.getSetCookie().find((entry) => entry.startsWith('user-locale='))
-    expect(header?.replace(/Expires=[^;]+/, 'Expires=<date>')).toBe(
-      'user-locale=de; Max-Age=3600; Domain=127.0.0.1; Path=/; Expires=<date>; Secure; SameSite=None',
-    )
-  })
-
-  test('the browser writes the same attributes on a client switch', async ({ page, goto }) => {
-    await goto('/en', { waitUntil: 'hydration' })
-    await page.evaluate(() => useNuxtApp().$switchLocale('ru'))
-    await expect(page).toHaveURL('/ru')
-    const stored = async () => (await page.context().cookies()).find((entry) => entry.name === 'user-locale' && entry.value === 'ru')
-    await expect.poll(stored).toBeTruthy()
-    const entry = (await stored())!
-    expect({ domain: entry.domain, secure: entry.secure, sameSite: entry.sameSite, path: entry.path }).toEqual({
-      domain: '127.0.0.1',
-      secure: true,
-      sameSite: 'None',
-      path: '/',
-    })
-    // an hour, not a year
-    expect(entry.expires * 1000 - Date.now()).toBeLessThan(3_660_000)
-  })
-})

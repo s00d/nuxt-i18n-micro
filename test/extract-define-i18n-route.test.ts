@@ -198,9 +198,9 @@ describe('$defineI18nRoute(false) and localeRoutes: false', () => {
     expect(merged.globalLocaleRoutes).toEqual({ raw: false })
   })
 
-  it('localeRoutes: false is the same', () => {
+  it('one way only: localeRoutes: false is no exclusion (globalLocaleRoutes or $defineI18nRoute(false))', () => {
     const merged = mergeDefineI18nRouteMeta([{ routePath: 'raw', config: { localeRoutes: false } as never }], {})
-    expect(merged.globalLocaleRoutes).toEqual({ raw: false })
+    expect(merged.globalLocaleRoutes).toEqual({})
   })
 
   it('the config entry of the page still wins', () => {

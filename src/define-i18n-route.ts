@@ -28,7 +28,7 @@ export function mergeDefineI18nRouteMeta(
   const fromPages: PageRouteConfig['globalLocaleRoutes'] = {}
   for (const { routePath, config: page } of entries) {
     // one route, no locale: the same exclusion the config makes, and nothing else of the page counts
-    if (page === false || page.localeRoutes === false) {
+    if (page === false) {
       fromPages[routePath] = false
       continue
     }

@@ -72,7 +72,7 @@ With `prefix_except_default` and `defaultLocale: 'en'` this produces `/welcome` 
 $defineI18nRoute(false)
 ```
 
-The page gets one route, with no locale prefix and no locale variants, as with [`globalLocaleRoutes: { page: false }`](/api/module-options#globallocaleroutes) (`localeRoutes: false` does the same). An entry for the page in `globalLocaleRoutes` still wins.
+The page gets one route, with no locale prefix and no locale variants, as with [`globalLocaleRoutes: { page: false }`](/api/module-options#globallocaleroutes). An entry for the page in `globalLocaleRoutes` still wins.
 
 ## Turn off SEO tags
 

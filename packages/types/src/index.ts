@@ -115,11 +115,8 @@ export interface DefineI18nRouteConfig {
    * - `Record<LocaleCode, Translations>` — allowed locales with inline translation overrides.
    */
   locales?: string[] | Record<LocaleCode, Translations>
-  /**
-   * Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`).
-   * `false` keeps the page out of localization, as `globalLocaleRoutes: { page: false }` (so does `$defineI18nRoute(false)`).
-   */
-  localeRoutes?: Record<LocaleCode, string> | false
+  /** Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`). */
+  localeRoutes?: Record<LocaleCode, string>
   /**
    * Disable SEO meta tag generation for this page.
    * - `true` — disable all meta tags.

@@ -178,7 +178,7 @@ describe('a persisted island gets new props', () => {
     expect(el.innerHTML).toBe('<b>fr:Über</b>')
     await act(async () => root.render(createElement(I18nProvider, { value: next() }, createElement(Island))))
     expect(el.innerHTML).toBe('<b>en:About</b>')
-    root.unmount()
+    await act(async () => root.unmount())
   })
 
   test('Preact: the same', async () => {

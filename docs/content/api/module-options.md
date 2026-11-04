@@ -357,6 +357,23 @@ Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` â
 
 <!-- /generated:option:additionalTranslationDirs -->
 
+A Nuxt module can ship translations of its own: it adds its folder by absolute path, listed before or after `nuxt-i18n-micro`. The folder is read once (not per layer), its files are part of the payload fingerprint (`?v=`), and in dev they hot-reload like the app's.
+
+```ts [my-module/src/module.ts]
+import { createResolver, defineNuxtModule } from '@nuxt/kit'
+
+export default defineNuxtModule({
+  meta: { name: 'my-module' },
+  setup(_options, nuxt) {
+    const { resolve } = createResolver(import.meta.url)
+    const i18n = ((nuxt.options as { i18n?: { additionalTranslationDirs?: string[] } }).i18n ??= {})
+    ;(i18n.additionalTranslationDirs ??= []).push(resolve('./runtime/locales'))
+  },
+})
+```
+
+The module's `runtime/locales/en.json` then sits under the app's files: an app key with the same name wins.
+
 #### `disablePageLocales`
 
 <!-- generated:option:disablePageLocales â€” do not edit; run `pnpm run docs:generate` -->

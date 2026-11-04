@@ -376,17 +376,21 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const sourceLocalesDir = resolve(nuxt.options.buildDir, 'i18n-source')
     const translationDirName = options.translationDir || 'locales'
+    // one array for the whole build: the private config and devtools hold it, and modules:done adds to it
+    const extraDirs = (options.additionalTranslationDirs ??= [])
     // Fingerprint only when `dateBuild` is unset. Explicit `0`/`''` opts out of busting and
     // must not pay for a full JSON walk (`??` keeps those values).
-    const translationsHash =
+    const fingerprint = () =>
       options.dateBuild === undefined
         ? hashTranslationSources(
             rootDirs,
             translationDirName,
-            options.additionalTranslationDirs,
+            extraDirs,
             JSON.stringify([options.fallbackLocale, options.disablePageLocales, (options.locales ?? []).map((l) => [l.code, l.fallbackLocale])]),
           )
         : null
+    const translationsHash = fingerprint()
+    const hashedDirs = extraDirs.length
     const translationPayloads = resolveTranslationPayloadOptions(options)
     // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
     const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
@@ -520,6 +524,15 @@ export default defineNuxtModule<ModuleOptions>({
       translationsHash,
     })
 
+    // A module listed after this one may add its own folder (`nuxt.options.i18n.additionalTranslationDirs.push(dir)`):
+    // once every module ran, the list is final. Same array, so the build and the servers read it; the `?v=` follows.
+    nuxt.hook('modules:done', () => {
+      for (const dir of (nuxt.options as { i18n?: ModuleOptions }).i18n?.additionalTranslationDirs ?? [])
+        if (!extraDirs.includes(dir)) extraDirs.push(dir)
+      if (extraDirs.length === hashedDirs) return
+      fullConfig.dateBuild = fingerprint() ?? fullConfig.dateBuild
+    })
+
     // `nuxt generate` has no real request: this variable is the host of the run
     const generateDomain = process.env.NUXT_I18N_DOMAIN
     const buildConfig = generateDomain ? configForHost(fullConfig as ModuleOptionsExtend, generateDomain) : (fullConfig as ModuleOptionsExtend)
@@ -635,16 +648,15 @@ export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () =>
       // A translation file is imported by nothing, so Vite would full-reload on every edit: swallow
       // the update and tell the client plugin to reload its dictionaries (the dev server reads the
       // live files). Same roots as the Nitro watcher: every layer's translationDir + additional dirs.
-      const translationDirs = resolveLiveTranslationDirs({
-        rootDirs,
-        translationDir: translationDirName,
-        additionalTranslationDirs: options.additionalTranslationDirs,
-      })
+      // read on the first edit: by then modules:done has the final list of folders
+      let translationDirs: ReturnType<typeof resolveLiveTranslationDirs> | undefined
+      const liveDirs = () =>
+        (translationDirs ??= resolveLiveTranslationDirs({ rootDirs, translationDir: translationDirName, additionalTranslationDirs: extraDirs }))
       addVitePlugin(
         {
           name: 'i18n-micro:translations-hmr',
           hotUpdate({ file }) {
-            if (this.environment.name !== 'client' || !translationRelativePath(file, translationDirs)) return
+            if (this.environment.name !== 'client' || !translationRelativePath(file, liveDirs())) return
             this.environment.hot.send({ type: 'custom', event: TRANSLATIONS_HMR_EVENT })
             return []
           },

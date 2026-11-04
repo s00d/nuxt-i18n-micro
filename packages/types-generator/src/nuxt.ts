@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, resolve } from 'node:path'
-import { isInsideDir } from '@i18n-micro/utils/load-dir'
+import { additionalTranslationRoots, isInsideDir } from '@i18n-micro/utils/load-dir'
 import { addTypeTemplate, defineNuxtModule } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 import { getTypesString } from './core/generator'
@@ -29,7 +29,7 @@ function translationDirs(nuxt: Nuxt, own?: string): { dirs: string[]; additional
   return {
     dirs: roots.map((root) => join(root, translationDir)),
     // most layers have no such folder, and that is no warning
-    additionalDirs: additionalTranslationDirs.flatMap((dir) => roots.map((root) => resolve(root, dir))).filter((dir) => existsSync(dir)),
+    additionalDirs: additionalTranslationRoots(roots, additionalTranslationDirs).filter((dir) => existsSync(dir)),
   }
 }
 

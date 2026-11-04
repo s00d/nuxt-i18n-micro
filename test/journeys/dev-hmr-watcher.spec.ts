@@ -10,6 +10,7 @@ const PRISTINE: PayloadValue[] = [
   ['index', 'en', 'hello', 'Hello EN'],
   ['index', 'en', 'sharedRoot', 'Shared EN'],
   ['index', 'en', 'fromCommon', 'From Common EN'],
+  ['index', 'en', 'fromVendor', 'From Vendor EN'],
   ['about', 'en', 'aboutTitle', 'About EN'],
   ['about', 'de', 'aboutTitle', 'About DE'],
 ]
@@ -110,5 +111,11 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
     await expect(page.locator('#deep-x')).toHaveText('1')
     await expect(page.locator('#deep-y')).toHaveText('77')
     await expect(page.locator('#deep-z')).toHaveText('8')
+
+    // step 4: the absolute folder a module listed after i18n added: merged, and hot-reloaded like `common`
+    await expect(page.locator('#from-vendor')).toHaveText('From Vendor EN')
+    files.patchFixtureFile('vendor/locales/en.json', (current) => ({ ...current, fromVendor: 'From Vendor EN HMR' }))
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'fromVendor', 'From Vendor EN HMR')
+    await gotoSettled(page, goto, baseURL!, '/en', '#from-vendor', 'From Vendor EN HMR')
   })
 })

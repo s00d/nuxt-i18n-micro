@@ -4,7 +4,7 @@ import { isAbsolute, join, relative, resolve } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
-import { parseJsonFile } from '@i18n-micro/utils/load-dir'
+import { additionalTranslationRoots, parseJsonFile } from '@i18n-micro/utils/load-dir'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
 import { type ParsedTranslationRelativePath, parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 
@@ -66,14 +66,8 @@ export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translat
   additionalRoots: string[]
 } {
   const translationRoots = input.rootDirs.map((root) => resolve(root, input.translationDir))
-  // Same nest order as `mergeAdditionalRootLocaleFiles`: dir outer, layer root inner.
-  const additionalRoots: string[] = []
-  for (const dir of input.additionalTranslationDirs ?? []) {
-    for (const root of input.rootDirs) {
-      additionalRoots.push(resolve(root, dir))
-    }
-  }
-  return { translationRoots, additionalRoots }
+  // Same order as `mergeAdditionalRootLocaleFiles`: dir outer, layer root inner; an absolute dir once.
+  return { translationRoots, additionalRoots: additionalTranslationRoots(input.rootDirs, input.additionalTranslationDirs) }
 }
 
 /**

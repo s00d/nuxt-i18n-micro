@@ -2,7 +2,14 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync }
 import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { isInsideDir, listTranslationFiles, loadTranslationDir, loadTranslationDirAsync, resolveTranslationFile } from '../src/load-dir'
+import {
+  additionalTranslationRoots,
+  isInsideDir,
+  listTranslationFiles,
+  loadTranslationDir,
+  loadTranslationDirAsync,
+  resolveTranslationFile,
+} from '../src/load-dir'
 
 let dir: string
 const write = (file: string, data: string) => {
@@ -156,5 +163,18 @@ describe('resolveTranslationFile', () => {
       expect(resolveTranslationFile(base, file)).toBeNull()
     }
     expect(resolveTranslationFile(join(dir, 'no-such-dir'), 'en.json')).toBeNull()
+  })
+})
+
+describe('additionalTranslationRoots', () => {
+  test('a relative dir in every root, an absolute one once, dir order outer, nothing twice', () => {
+    const roots = ['/app/layer', '/app']
+    expect(additionalTranslationRoots(roots, [])).toEqual([])
+    expect(additionalTranslationRoots(roots)).toEqual([])
+    expect(additionalTranslationRoots(roots, ['common', '/vendor/locales', 'common', '/vendor/locales/'])).toEqual([
+      '/app/layer/common',
+      '/app/common',
+      '/vendor/locales',
+    ])
   })
 })

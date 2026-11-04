@@ -327,11 +327,13 @@ export interface ModuleOptions {
   translationDir?: string
 
   /**
-   * Extra directories (relative to the project root / each Nuxt layer root) whose top-level
-   * `{locale}.json` files are deep-merged into the global dictionary before `translationDir`.
+   * Extra directories whose top-level `{locale}.json` files are deep-merged into the global
+   * dictionary before `translationDir`. A relative path is read in the project root and in each
+   * Nuxt layer root; an absolute path (a Nuxt module's own folder) is read once.
    *
    * Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
    * Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+   * Entries other modules add to `nuxt.options.i18n.additionalTranslationDirs` count, whatever their order.
    *
    * Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
    * @default []

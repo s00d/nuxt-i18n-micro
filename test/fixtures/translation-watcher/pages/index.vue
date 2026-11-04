@@ -3,6 +3,7 @@
     <p id="hello">{{ $t('hello') }}</p>
     <p id="index-title">{{ $t('indexTitle') }}</p>
     <p id="shared-root">{{ $t('sharedRoot') }}</p>
+    <p id="from-vendor">{{ $t('fromVendor', {}, 'missing') }}</p>
     <p id="from-common">{{ $t('fromCommon') }}</p>
     <p id="only-common">{{ $t('onlyCommon', {}, 'missing') }}</p>
     <p id="deep-x">{{ $t('deep.a.x') }}</p>

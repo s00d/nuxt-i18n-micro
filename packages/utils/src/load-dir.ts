@@ -1,8 +1,17 @@
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { join, relative, resolve, sep } from 'node:path'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { forwardSlashes, trimTrailingSlashes } from './app-path'
 import { storeLoadedTranslationFile, type TranslationFileBuckets } from './parse-path'
+
+/**
+ * The folders of `additionalTranslationDirs`, in merge order: each entry in turn, a relative one in
+ * every root (`rootDirs` order), an absolute one (a module's own folder) once. A folder named twice is read once.
+ */
+export function additionalTranslationRoots(rootDirs: string[], dirs: readonly string[] = []): string[] {
+  const roots = dirs.flatMap((dir) => (isAbsolute(dir) ? [resolve(dir)] : rootDirs.map((root) => resolve(root, dir))))
+  return [...new Set(roots)]
+}
 
 /**
  * The one reader of a locales directory. Node only: never import it from a browser or edge entry.

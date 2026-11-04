@@ -119,6 +119,7 @@ With [`linkedMessages: true`](/api/module-options#linkedmessages) a message can 
 | Only root files, no `pages/` folders | [`disablePageLocales: true`](/api/module-options#disablepagelocales) |
 | Two pages read one page folder | [`routesLocaleLinks`](/api/module-options#routeslocalelinks): `{ 'about-us': 'about' }` |
 | Shared root files in another folder | [`additionalTranslationDirs`](/api/module-options#additionaltranslationdirs): `['common']` (the main `translationDir` wins) |
+| Keys shipped by a Nuxt module | the module adds its absolute folder to `additionalTranslationDirs`, see [for module authors](/api/module-options#additionaltranslationdirs) |
 | Keys from a Nuxt layer | Layers' files merge, the project's own files win. See [Layers](/guide/layers) |
 | Keys added at runtime | the [`i18n:register`](/api/events) hook, `$mergeTranslations`, `$setTranslation` |
 | Keys inline in a page component | `$defineI18nRoute({ locales: { en: { … } } })`, see [Page config](/guide/per-component-translations) |

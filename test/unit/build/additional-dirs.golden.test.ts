@@ -47,7 +47,9 @@ test('additional dirs characterization', async () => {
     run(`mergeAdditionalRootLocaleFiles(${show(dirs)}, en)`, () => mergeAdditionalRootLocaleFiles(rootDirs, dirs, 'en', { app: 'A' }))
     run(`mergeAdditionalRootLocaleFiles(${show(dirs)}, fr)`, () => mergeAdditionalRootLocaleFiles(rootDirs, dirs, 'fr'))
     run(`hashTranslationSources(${show(dirs)})`, () => hashTranslationSources(rootDirs, 'locales', dirs))
-    run(`resolveLiveTranslationDirs(${show(dirs)})`, () => resolveLiveTranslationDirs({ rootDirs, translationDir: 'locales', additionalTranslationDirs: dirs }))
+    run(`resolveLiveTranslationDirs(${show(dirs)})`, () =>
+      resolveLiveTranslationDirs({ rootDirs, translationDir: 'locales', additionalTranslationDirs: dirs }),
+    )
   }
   await expect(`${lines.join('\n')}\n`).toMatchFileSnapshot('../__golden__/additional-dirs.md')
 })

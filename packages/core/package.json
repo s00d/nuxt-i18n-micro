@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/core",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Core utilities for translations, formatting, and locale routing in Nuxt I18n Micro.",
   "keywords": [
     "formatting",

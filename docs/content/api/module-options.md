@@ -120,6 +120,12 @@ Parts of the module you can switch off.
 | `hreflangBaseLanguage` | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims the bare tag for that language. Routing `code` is never used — only `iso \|\| code`. |
 | `prefixCaseRedirect` | `boolean` | `true` | Redirect a locale prefix in another case or encoding to the page in its own spelling (`/DE/about` → `/de/about`, `/EN/about` → `/about` under `prefix_except_default`). The router matches the prefix case-insensitively, so without the redirect such a URL would show the page under a second address. When `false`, or when `redirects` is `false`, the URL is a 404. A URL with no page behind it in its own spelling is a 404 either way. |
 | `additionalTranslationDirs` | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts). Only root `{locale}.json` files are read — `pages/` under these dirs is ignored. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`. |
+| `localeCookieOptions` | `LocaleCookieOptions` | `{}` | Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year, no `Domain`, no `Secure`. Build config only: no request decides them. |
+| `localeCookieOptions.domain` | `string` | — | `Domain`: e.g. `.example.com` to share the cookie across subdomains. Unset: the host only. |
+| `localeCookieOptions.path` | `string` | `'/'` | `Path`. |
+| `localeCookieOptions.secure` | `boolean` | `false` | `Secure`: sent over HTTPS only. Required by browsers with `sameSite: 'none'`. |
+| `localeCookieOptions.sameSite` | `'lax' \| 'strict' \| 'none'` | `'lax'` | `SameSite`. `'none'` (e.g. an app inside an iframe) needs `secure: true`. |
+| `localeCookieOptions.maxAge` | `number` | `31536000 (one year)` | Lifetime in seconds (`Max-Age` and `Expires`). |
 | `vueDevtools` | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). Separate from the Nuxt DevTools custom tab. |
 | `trailingSlash` | `'append' \| 'remove'` | `undefined (inherit from Nuxt)` | Trailing slash for `$localePath` / `$switchLocalePath` (NuxtLink parity). Defaults to `experimental.defaults.nuxtLink.trailingSlash` when unset. Set explicitly to override Nuxt's link default for i18n path helpers. |
 | `localizedRouteNamePrefix` | `string` | `'localized-'` | Prefix prepended to localized route names (e.g. `'localized-index'`). Used internally to distinguish original routes from generated locale variants. |
@@ -780,6 +786,30 @@ Automatically set to `'user-locale'` for the `no_prefix` strategy if not provide
 <!-- /generated:option:localeCookie -->
 
 Without a cookie, `Accept-Language` still drives redirects; the cookie remembers a choice across visits.
+
+#### `localeCookieOptions`
+
+<!-- generated:option:localeCookieOptions — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `LocaleCookieOptions` · **Default** `{}`
+
+Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and
+the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year,
+no `Domain`, no `Secure`. Build config only: no request decides them.
+
+<!-- /generated:option:localeCookieOptions -->
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  i18n: {
+    localeCookie: 'user-locale',
+    // one preference on example.com, de.example.com and app.example.com, also inside an iframe
+    localeCookieOptions: { domain: '.example.com', secure: true, sameSite: 'none' },
+  },
+})
+```
+
+`sameSite: 'none'` without `secure: true` is rejected by browsers, and the build warns about it. The attributes come from the build config only: no request sets `Domain` or `Secure`. They apply to the `hash-locale` cookie under `hashMode` too.
 
 #### `noPrefixRedirect`
 

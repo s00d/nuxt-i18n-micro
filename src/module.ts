@@ -142,6 +142,8 @@ function buildFullConfig(params: {
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
+    // only a build that writes a cookie ships its attributes
+    localeCookieOptions: options.localeCookie || nuxt.options?.router?.options?.hashMode ? options.localeCookieOptions : undefined,
     autoDetectLanguage: options.autoDetectLanguage,
     autoDetectPath: options.autoDetectPath || '/',
     strategy: options.strategy!,
@@ -349,6 +351,10 @@ export default defineNuxtModule<ModuleOptions>({
     if (options.strategy === 'no_prefix' && !options.localeCookie && !cookieOptOut) {
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
+    }
+    // browsers drop a `SameSite=None` cookie without `Secure`: the locale would never be remembered
+    if (options.localeCookieOptions?.sameSite === 'none' && !options.localeCookieOptions.secure) {
+      logger.warn("localeCookieOptions: sameSite 'none' needs secure: true, or browsers reject the locale cookie.")
     }
     // info, not warn: this is the default configuration, so a warning fired for every app
     if (options.strategy !== 'no_prefix' && options.redirects !== false && !options.localeCookie) {

@@ -59,7 +59,7 @@ export default defineNuxtPlugin({
     const urlLocale = i18nStrategy.getLocaleFromPath(path)
     const writeCookie = (locale: string) => {
       if (!cookieName) return
-      const { watch: _watch, decode: _decode, ...options } = getLocaleCookieOptions()
+      const { watch: _watch, decode: _decode, ...options } = getLocaleCookieOptions(i18nConfig.localeCookieOptions)
       setCookie(event, cookieName, locale, options)
     }
 

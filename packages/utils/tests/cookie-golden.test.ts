@@ -26,6 +26,28 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers())
 
 test('locale cookie options characterization', async () => {
-  const calls: [string, () => unknown][] = [['getLocaleCookieOptions()', () => getLocaleCookieOptions()]]
+  const calls: [string, () => unknown][] = [
+    ['getLocaleCookieOptions()', () => getLocaleCookieOptions()],
+    ['getLocaleCookieOptions({})', () => getLocaleCookieOptions({})],
+    ['getLocaleCookieOptions({ domain: ".example.com" })', () => getLocaleCookieOptions({ domain: '.example.com' })],
+    ['getLocaleCookieOptions({ domain: "" })', () => getLocaleCookieOptions({ domain: '' })],
+    ['getLocaleCookieOptions({ path: "/app" })', () => getLocaleCookieOptions({ path: '/app' })],
+    ['getLocaleCookieOptions({ secure: true })', () => getLocaleCookieOptions({ secure: true })],
+    ['getLocaleCookieOptions({ secure: false })', () => getLocaleCookieOptions({ secure: false })],
+    ['getLocaleCookieOptions({ sameSite: "strict" })', () => getLocaleCookieOptions({ sameSite: 'strict' })],
+    ['getLocaleCookieOptions({ sameSite: "none", secure: true })', () => getLocaleCookieOptions({ sameSite: 'none', secure: true })],
+    ['getLocaleCookieOptions({ maxAge: 3600 })', () => getLocaleCookieOptions({ maxAge: 3600 })],
+    [
+      'getLocaleCookieOptions(all)',
+      () => getLocaleCookieOptions({ domain: '.example.com', path: '/app', secure: true, sameSite: 'none', maxAge: 60 }),
+    ],
+  ]
   await expect(report(calls)).toMatchFileSnapshot('./__golden__/cookie.md')
+})
+
+test('the options object is not mutated and a call does not leak into the next', () => {
+  const options = Object.freeze({ domain: '.example.com', secure: true })
+  expect(getLocaleCookieOptions(options).domain).toBe('.example.com')
+  expect(getLocaleCookieOptions()).not.toHaveProperty('domain')
+  expect(getLocaleCookieOptions()).not.toHaveProperty('secure')
 })

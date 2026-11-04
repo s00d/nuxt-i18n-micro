@@ -37,6 +37,12 @@ member Locale.og?: string | undefined
 member Locale.seo?: boolean | undefined
 member Locale.[string]: unknown
 type LocaleCode: string
+interface LocaleCookieOptions
+member LocaleCookieOptions.domain?: string | undefined
+member LocaleCookieOptions.maxAge?: number | undefined
+member LocaleCookieOptions.path?: string | undefined
+member LocaleCookieOptions.sameSite?: "lax" | "strict" | "none" | undefined
+member LocaleCookieOptions.secure?: boolean | undefined
 type MissingHandler: (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
 interface ModuleOptions
 member ModuleOptions.additionalTranslationDirs?: string[] | undefined
@@ -68,6 +74,7 @@ member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
+member ModuleOptions.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptions.locales?: Locale[] | undefined
 member ModuleOptions.localizedRouteNamePrefix?: string | undefined
 member ModuleOptions.meta?: boolean | undefined
@@ -128,6 +135,7 @@ member ModuleOptionsExtend.isSSG?: boolean | undefined
 member ModuleOptionsExtend.linkDefaultLocale?: string | undefined
 member ModuleOptionsExtend.linkLocales?: Locale[] | undefined
 member ModuleOptionsExtend.localeCookie?: string | null | undefined
+member ModuleOptionsExtend.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptionsExtend.locales?: Locale[] | undefined
 member ModuleOptionsExtend.localizedRouteNamePrefix?: string | undefined
 member ModuleOptionsExtend.meta?: boolean | undefined
@@ -188,6 +196,7 @@ member ModulePrivateOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModulePrivateOptionsExtend.httpCacheControl?: string | false | undefined
 member ModulePrivateOptionsExtend.httpCacheDuration?: number | undefined
 member ModulePrivateOptionsExtend.localeCookie?: string | null | undefined
+member ModulePrivateOptionsExtend.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModulePrivateOptionsExtend.locales?: Locale[] | undefined
 member ModulePrivateOptionsExtend.localizedRouteNamePrefix?: string | undefined
 member ModulePrivateOptionsExtend.meta?: boolean | undefined

@@ -8,7 +8,7 @@ outline: 'deep'
 
 # `@i18n-micro/types`
 
-28 exports across 1 entry point.
+29 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -33,10 +33,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `init` | const | `() => void` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
+| `LocaleCookieOptions` | interface | 5 members |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 54 members |
-| `ModuleOptionsExtend` | interface | 63 members |
-| `ModulePrivateOptionsExtend` | interface | 58 members |
+| `ModuleOptions` | interface | 55 members |
+| `ModuleOptionsExtend` | interface | 64 members |
+| `ModulePrivateOptionsExtend` | interface | 59 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -123,7 +124,20 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 54 members</summary>
+<summary><code>LocaleCookieOptions</code> — 5 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `domain?` | `string \| undefined` |
+| `maxAge?` | `number \| undefined` |
+| `path?` | `string \| undefined` |
+| `sameSite?` | `"lax" \| "strict" \| "none" \| undefined` |
+| `secure?` | `boolean \| undefined` |
+
+</details>
+
+<details>
+<summary><code>ModuleOptions</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -156,6 +170,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
+| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `meta?` | `boolean \| undefined` |
@@ -185,7 +200,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 63 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 64 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -223,6 +238,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `linkDefaultLocale?` | `string \| undefined` |
 | `linkLocales?` | `Locale[] \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
+| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `meta?` | `boolean \| undefined` |
@@ -256,7 +272,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 58 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 59 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -290,6 +306,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
+| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `meta?` | `boolean \| undefined` |

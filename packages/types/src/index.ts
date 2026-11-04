@@ -158,6 +158,20 @@ export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'pre
  */
 export type MissingHandler = (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
 
+/** Attributes of the locale cookie (`localeCookieOptions`). */
+export interface LocaleCookieOptions {
+  /** `Domain`: e.g. `.example.com` to share the cookie across subdomains. Unset: the host only. */
+  domain?: string
+  /** `Path`. @default '/' */
+  path?: string
+  /** `Secure`: sent over HTTPS only. Required by browsers with `sameSite: 'none'`. @default false */
+  secure?: boolean
+  /** `SameSite`. `'none'` (e.g. an app inside an iframe) needs `secure: true`. @default 'lax' */
+  sameSite?: 'lax' | 'strict' | 'none'
+  /** Lifetime in seconds (`Max-Age` and `Expires`). @default 31536000 (one year) */
+  maxAge?: number
+}
+
 export interface ModuleOptions {
   /**
    * List of supported locales.
@@ -416,6 +430,14 @@ export interface ModuleOptions {
    * @default null
    */
   localeCookie?: string | null
+
+  /**
+   * Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and
+   * the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year,
+   * no `Domain`, no `Secure`. Build config only: no request decides them.
+   * @default {}
+   */
+  localeCookieOptions?: LocaleCookieOptions
 
   /**
    * Enable verbose debug logging for locale detection, route generation, and translation loading.

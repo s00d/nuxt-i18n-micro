@@ -90,6 +90,13 @@ export const recipes = defineRecipes(
       { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', NUXT_I18N_DEFAULT_LOCALE: 'de' },
       { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['ru'] } } } },
     ),
+    // localeCookieOptions: the attributes reach the Set-Cookie of the server and the browser's write
+    'strategy-prefix-cookie-options': app(
+      'strategy-prefix-cookie-options',
+      'strategy',
+      { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale' },
+      { i18n: { localeCookieOptions: { domain: '127.0.0.1', path: '/', secure: true, sameSite: 'none', maxAge: 3600 } } },
+    ),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
       STRATEGY: 'prefix_and_default',
       LOCALE_COOKIE: 'user-locale',

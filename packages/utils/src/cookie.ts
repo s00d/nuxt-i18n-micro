@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { LocaleCookieOptions, ModuleOptionsExtend } from '@i18n-micro/types'
 
 export const DEFAULT_COOKIE_NAME = 'user-locale'
 export const DEFAULT_HASH_COOKIE_NAME = 'hash-locale'
@@ -40,20 +40,24 @@ export function decodeCookieValue(value: string): string | null {
 }
 
 /**
- * Returns standard options for locale/hash cookies. `decode` keeps a malformed cookie from
- * throwing in Nuxt's `useCookie`, and hands it back as it came: a value that changed would be
- * written at the end of the request, and that delete would replace the locale a page just stored.
+ * Returns options for locale/hash cookies: `localeCookieOptions` over the defaults. `decode` keeps a
+ * malformed cookie from throwing in Nuxt's `useCookie`, and hands it back as it came: a value that
+ * changed would be written at the end of the request, and that delete would replace the locale a page just stored.
+ * `domain` and `secure` appear only when set, so the defaults stay the same object as before the option.
  */
-export function getLocaleCookieOptions() {
+export function getLocaleCookieOptions(options: LocaleCookieOptions = {}) {
+  const maxAge = options.maxAge ?? DEFAULT_COOKIE_MAX_AGE
   const date = new Date()
-  date.setTime(date.getTime() + DEFAULT_COOKIE_MAX_AGE * 1000)
+  date.setTime(date.getTime() + maxAge * 1000)
 
   return {
     expires: date,
-    maxAge: DEFAULT_COOKIE_MAX_AGE,
-    path: '/',
+    maxAge,
+    path: options.path ?? '/',
     watch: true,
-    sameSite: 'lax' as const,
+    sameSite: options.sameSite ?? ('lax' as const),
+    ...(options.domain ? { domain: options.domain } : {}),
+    ...(options.secure ? { secure: true } : {}),
     decode: (value: string) => decodeCookieValue(value) ?? value,
   }
 }

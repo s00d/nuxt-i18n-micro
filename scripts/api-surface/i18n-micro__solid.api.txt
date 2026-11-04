@@ -1944,6 +1944,7 @@ member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
+member ModuleOptions.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptions.locales?: Locale[] | undefined
 member ModuleOptions.localizedRouteNamePrefix?: string | undefined
 member ModuleOptions.meta?: boolean | undefined

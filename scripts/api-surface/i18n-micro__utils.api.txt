@@ -48,7 +48,7 @@ const DEFAULT_COOKIE_NAME: "user-locale"
 const DEFAULT_HASH_COOKIE_NAME: "hash-locale"
 function getHashCookieName: (config: ModuleOptionsExtend) => string | null
 function getLocaleCookieName: (config: ModuleOptionsExtend) => string | null
-function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string; }
+function getLocaleCookieOptions: (options?: LocaleCookieOptions) => { decode: (value: string) => string; secure?: boolean | undefined; domain?: string | undefined; expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" | "strict" | "none"; }
 function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 
 # ./deep-merge (src/deep-merge.ts)

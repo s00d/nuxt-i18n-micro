@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { loadNuxt } from '@nuxt/kit'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 
 const moduleEntry = fileURLToPath(new URL('../src/module.ts', import.meta.url))
 // inside the repo: Nuxt is resolved from the app's directory
@@ -66,6 +66,29 @@ describe('localeCookie option', () => {
   it('the runtime config carries no option that only the build reads', async () => {
     const source = await strategySource({ routeLocales: { about: ['en'] }, routeDisableMeta: { about: true }, noPrefixRedirect: true, hmr: true })
     for (const key of ['isSSG', 'routeLocales', 'routeDisableMeta', 'noPrefixRedirect', 'hmr', 'hooks']) expect(source).not.toContain(`"${key}":`)
+  })
+
+  it('ships localeCookieOptions only to a build that writes a cookie', async () => {
+    const options = { domain: '.example.com', secure: true, sameSite: 'none' }
+    expect(await strategySource({ strategy: 'prefix', localeCookie: 'x', localeCookieOptions: options })).toContain(
+      '"localeCookieOptions":{"domain":".example.com","secure":true,"sameSite":"none"}',
+    )
+    expect(await strategySource({ strategy: 'prefix', localeCookieOptions: options })).not.toContain('localeCookieOptions')
+    expect(await strategySource({ strategy: 'prefix', localeCookie: 'x' })).not.toContain('localeCookieOptions')
+  })
+
+  it("warns at build about sameSite 'none' without secure", async () => {
+    // the module logs through consola, which writes to the stream, not through console.warn
+    const warn = vi.spyOn(process.stderr, 'write')
+    const seen = () => warn.mock.calls.some((args) => String(args[0]).includes("sameSite 'none' needs secure"))
+    try {
+      await strategySource({ localeCookie: 'x', localeCookieOptions: { sameSite: 'none', secure: true } })
+      expect(seen()).toBe(false)
+      await strategySource({ localeCookie: 'x', localeCookieOptions: { sameSite: 'none' } })
+      expect(seen()).toBe(true)
+    } finally {
+      warn.mockRestore()
+    }
   })
 
   it('keeps useCookie in the build only when a cookie can be used', async () => {

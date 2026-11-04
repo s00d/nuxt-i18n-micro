@@ -123,7 +123,7 @@ import { /* … */ } from '@i18n-micro/utils/cookie'
 | `DEFAULT_HASH_COOKIE_NAME` | const | `"hash-locale"` |
 | `getHashCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 | `getLocaleCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
-| `getLocaleCookieOptions` | function | `() => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; decode: (value: string) => string; }` |
+| `getLocaleCookieOptions` | function | `(options?: LocaleCookieOptions) => { decode: (value: string) => string; secure?: boolean \| undefined; domain?: string \| undefined; expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" \| "strict" \| "none"; }` |
 | `getPreferenceCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 
 

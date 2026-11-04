@@ -17,17 +17,28 @@ const formatLatency = (ms: number) => (ms >= 1000 ? `${(ms / 1000).toFixed(1)} s
 const maxBuild = Math.max(...fixtures.map((f) => f.build))
 const maxRps = Math.max(...fixtures.map((f) => f.rps))
 
-/** Packets per lane scale with throughput; faster setups also move them faster. */
-function packetsFor(rps: number) {
-  const share = rps / maxRps
-  const count = Math.max(2, Math.round(share * 8))
-  const duration = 1 + (1 - share) * 1.6
+/** The longest build takes this long on screen; every row finishes in proportion to its build time. */
+const BUILD_MS = 2200
+/** Once a row has built, its req/s counter climbs for this long. */
+const RAMP_MS = 1200
+const buildEndMs = fixtures.map((f) => (BUILD_MS * f.build) / maxBuild)
+
+/**
+ * Packets per lane follow throughput (req/s); their crossing time follows p95, on a log scale, since
+ * p95 spans 100 ms to 12 s. A setup with seconds of p95 queues: its packets wait at the start of the
+ * lane, then cross (an ease-in), where the fast one flows at a steady pace.
+ */
+function packetsFor(rps: number, latencyMs: number) {
+  const count = Math.max(2, Math.round((rps / maxRps) * 8))
+  const duration = 0.7 + Math.log10(Math.max(latencyMs, 100) / 100) * 1.2
+  const queued = latencyMs >= 1000
   const lanes = ['30%', '50%', '70%']
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     top: lanes[i % lanes.length]!,
     delay: `${((i * duration) / count).toFixed(2)}s`,
-    duration: `${(duration * (0.85 + (i % 3) * 0.1)).toFixed(2)}s`,
+    duration: `${(duration * (0.9 + (i % 3) * 0.08)).toFixed(2)}s`,
+    easing: queued ? 'cubic-bezier(0.8, 0, 0.9, 1)' : 'linear',
   }))
 }
 
@@ -60,10 +71,12 @@ const sceneTv = tv({
 })
 
 const ui = sceneTv()
+type RowPhase = 'build' | 'load'
 const phase = ref<'build' | 'load' | 'done'>('build')
+const rowPhase = ref<RowPhase[]>(fixtures.map(() => 'build'))
 const buildPct = ref(fixtures.map(() => 0))
 const displayRps = ref(fixtures.map(() => 0))
-const packetsByFixture = fixtures.map((f) => packetsFor(f.rps))
+const packetsByFixture = fixtures.map((f) => packetsFor(f.rps, f.latency))
 let raf = 0
 let timer = 0
 let run = 0
@@ -88,25 +101,26 @@ async function play() {
   cancelAnimationFrame(raf)
   run++
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    rowPhase.value = fixtures.map(() => 'load')
     buildPct.value = fixtures.map(() => 100)
     displayRps.value = fixtures.map((f) => f.rps)
     phase.value = 'done'
     return
   }
   phase.value = 'build'
+  rowPhase.value = fixtures.map(() => 'build')
   buildPct.value = fixtures.map(() => 0)
   displayRps.value = fixtures.map(() => 0)
-  // Build bars race in proportion to the measured build times.
-  const built = await animate(2200, (t) => {
-    buildPct.value = fixtures.map((f) => Math.min(100, ((t * maxBuild) / f.build) * 100))
+  // One clock for all rows: a row starts serving the moment its own build ends, as a real server would.
+  const total = Math.max(...buildEndMs) + RAMP_MS
+  const finished = await animate(total, (t) => {
+    const ms = t * total
+    buildPct.value = buildEndMs.map((end) => Math.min(100, (ms / end) * 100))
+    rowPhase.value = buildEndMs.map((end): RowPhase => (ms >= end ? 'load' : 'build'))
+    displayRps.value = fixtures.map((f, i) => Math.round(f.rps * (1 - (1 - Math.min(1, Math.max(0, ms - buildEndMs[i]!) / RAMP_MS)) ** 3)))
+    phase.value = rowPhase.value.every((p) => p === 'load') ? 'load' : 'build'
   })
-  if (!built) return
-  phase.value = 'load'
-  const loaded = await animate(1200, (t) => {
-    const eased = 1 - (1 - t) ** 3
-    displayRps.value = fixtures.map((f) => Math.round(f.rps * eased))
-  })
-  if (loaded) phase.value = 'done'
+  if (finished) phase.value = 'done'
 }
 
 onMounted(() => {
@@ -128,7 +142,7 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
     <div :class="ui.header()">
       <div>
         <p :class="ui.title()">One app, three setups</p>
-        <p :class="ui.subtitle()">nuxi build, then the same load test</p>
+        <p :class="ui.subtitle()">Each one serves as soon as its build ends</p>
       </div>
       <UBadge v-if="phase !== 'done'" color="neutral" variant="subtle" size="sm" :label="phaseLabel" />
       <UButton v-else icon="i-lucide-rotate-ccw" color="neutral" variant="ghost" size="xs" label="Replay" @click="play" />
@@ -142,7 +156,7 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
         </div>
 
         <div :class="f.win ? ui.laneWin() : ui.lane()" aria-hidden="true">
-          <div v-if="phase === 'build'" :class="f.win ? ui.fillWin() : ui.fill()" :style="{ width: `${buildPct[i]}%` }" />
+          <div v-if="rowPhase[i] === 'build'" :class="f.win ? ui.fillWin() : ui.fill()" :style="{ width: `${buildPct[i]}%` }" />
           <template v-else>
             <!-- Throughput share stays visible as a bar; packets add the motion (none with reduced motion). -->
             <div :class="f.win ? ui.fillWin() : ui.fill()" :style="{ width: `${(displayRps[i]! / maxRps) * 100}%` }" />
@@ -150,20 +164,20 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
               v-for="pkt in packetsByFixture[i]"
               :key="pkt.id"
               :class="f.win ? ui.packetWin() : ui.packet()"
-              :style="{ top: pkt.top, animationDuration: pkt.duration, animationDelay: pkt.delay }"
+              :style="{ top: pkt.top, animationDuration: pkt.duration, animationDelay: pkt.delay, animationTimingFunction: pkt.easing }"
             />
           </template>
         </div>
 
         <div :class="ui.value()">
-          <p :class="f.win ? ui.rpsWin() : ui.rps()">{{ phase === 'build' ? '—' : displayRps[i] }} <span :class="ui.unit()">req/s</span></p>
+          <p :class="f.win ? ui.rpsWin() : ui.rps()">{{ rowPhase[i] === 'build' ? '—' : displayRps[i] }} <span :class="ui.unit()">req/s</span></p>
           <p :class="ui.meta()">p95 {{ formatLatency(f.latency) }}</p>
         </div>
       </div>
     </div>
 
     <figcaption :class="ui.footer()">
-      <span>Artillery, mean of three runs. Higher req/s is better.</span>
+      <span>Artillery, mean of three runs. Packets: count follows req/s, speed follows p95.</span>
       <NuxtLink to="/guide/performance-results" :class="ui.link()">
         Benchmark report
         <UIcon name="i-lucide-arrow-right" :class="ui.linkIcon()" />
@@ -193,7 +207,6 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
   left: 0;
   transform: translate3d(-2rem, -50%, 0);
   animation-name: landing-packet;
-  animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 

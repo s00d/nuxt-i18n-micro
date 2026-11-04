@@ -111,7 +111,7 @@ declare module '#i18n-internal/strategy' {
 }
 
 declare module '#i18n-internal/plural' {
-  export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
+  export const plural: import('@i18n-micro/types').PluralFunc
 }
 
 declare module '#i18n-internal/payload-source' {

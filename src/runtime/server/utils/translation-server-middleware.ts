@@ -61,16 +61,9 @@ class DictionaryI18n extends BaseI18n {
   }
 }
 
-export interface ServerTranslate {
-  (key: string, params?: Params, defaultValue?: string): string
-  tc: BaseI18n['tc']
-  tn: BaseI18n['tn']
-  td: BaseI18n['td']
-  tdr: BaseI18n['tdr']
-  has: (key: string) => boolean
-}
+type Helpers = Pick<BaseI18n, 'tc' | 'tn' | 'td' | 'tdr' | 'has'>
 
-export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string): Promise<ServerTranslate> => {
+export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
   const config = getI18nServerConfig(event)
   const locale = currentLocale || getRequestLocale(event, config, defaultLocale)
   const translations = await dictionaryOf(event, locale)
@@ -84,12 +77,18 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     return params ? interpolate(str, params) : str
   }
 
-  const i18n = new DictionaryI18n(locale, translations, config)
-  return Object.assign(t, {
-    tc: i18n.tc.bind(i18n),
-    tn: i18n.tn.bind(i18n) as BaseI18n['tn'],
-    td: i18n.td.bind(i18n) as BaseI18n['td'],
-    tdr: i18n.tdr.bind(i18n),
-    has: (key: string) => i18n.has(key),
-  })
+  // made on the first helper call: a route that only calls `t` pays for no instance
+  let i18n: DictionaryI18n | undefined
+  const own = () => (i18n ??= new DictionaryI18n(locale, translations, config))
+  const helpers: Helpers = {
+    tc: (...args) => own().tc(...args),
+    tn: ((...args: Parameters<BaseI18n['tn']>) => own().tn(...args)) as BaseI18n['tn'],
+    td: ((...args: Parameters<BaseI18n['td']>) => own().td(...args)) as BaseI18n['td'],
+    tdr: (...args) => own().tdr(...args),
+    has: (...args) => own().has(...args),
+  }
+  return Object.assign(t, helpers)
 }
+
+/** `t` of `useTranslationServerMiddleware`, with the page's `tc`, `tn`, `td`, `tdr` and `has`. */
+export type ServerTranslate = Awaited<ReturnType<typeof useTranslationServerMiddleware>>

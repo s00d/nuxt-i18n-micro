@@ -1,4 +1,4 @@
-import type { Params, PluralFunc } from '@i18n-micro/types'
+import type { ListParams, Params, PluralFunc } from '@i18n-micro/types'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { BaseI18n, defaultPlural, escapeHtml, FormatService, interpolate, pluralForm, resolveText, tokenize } from '../src/index'
 
@@ -559,15 +559,16 @@ describe('<i18n-t> with a translation equal to NUL', () => {
 })
 
 describe('list params: `{0}` from an array', () => {
-  it('t, ts and interpolate read an array by index; the type takes it', () => {
+  it('t, ts and interpolate read an array by index; the type of t takes it', () => {
     const i18n = new TestI18n('en', { pair: '{0} and {1}', named: 'Hi {name}' })
-    const list: Params = ['Ann', 2]
+    const list: ListParams = ['Ann', 2]
     expect(i18n.t('pair', list)).toBe('Ann and 2')
     expect(i18n.ts('pair', ['x', true] as const)).toBe('x and true')
     expect(interpolate('{0}/{1}/{2}', ['a', 'b'])).toBe('a/b/{2}')
     expect(i18n.t('missing', ['x'], 'D {0}')).toBe('D x')
-    expect(resolveText(i18n, { keypath: 'pair', params: ['a', 'b'] }).template).toBe('{0} and {1}')
-    expectTypeOf<readonly ['a', 1]>().toMatchTypeOf<Params>()
-    expectTypeOf<string[]>().toMatchTypeOf<Params>()
+    expectTypeOf<readonly ['a', 1]>().toMatchTypeOf<ListParams>()
+    expectTypeOf<string[]>().toMatchTypeOf<ListParams>()
+    // Params stays the named record a custom plural reads by name
+    expectTypeOf<Params>().toEqualTypeOf<Record<string, string | number | boolean>>()
   })
 })

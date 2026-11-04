@@ -1,4 +1,4 @@
-import type { CleanTranslation, Getter, MissingHandler, NamedParams, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, Getter, ListParams, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
 import { isProduction } from './helpers'
 import { type TranslationStorage, TranslationHelper } from './storage'
@@ -193,7 +193,7 @@ export abstract class BaseI18n {
     this.warnDev(`Not found '${key}' ${kind} format in '${locale}' locale. Falling back to default Intl options.`)
   }
 
-  public t(key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown): CleanTranslation {
+  public t(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown): CleanTranslation {
     if (!key) return ''
     this.touch()
     const value = this.resolveLookup(key, routeContext)
@@ -208,11 +208,11 @@ export abstract class BaseI18n {
     return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
 
-  public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown): string {
+  public ts(key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown): string {
     return textOf(this.t(key, params, defaultValue, routeContext)) ?? defaultValue ?? key
   }
 
-  public tc(key: TranslationKey, count: number | NamedParams, defaultValue?: string): string {
+  public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
     this.touch()
     const values = typeof count === 'number' ? { count } : count
     const { count: countValue, ...params } = values

@@ -131,11 +131,11 @@ export interface DefineI18nRouteConfig {
 /** Locale-specific route params for `$switchLocalePath` and `<i18n-link>`. */
 export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
-/** Named interpolation parameters: `{name}` reads `params.name`. What `tc()` takes besides a count. */
-export type NamedParams = Record<string, string | number | boolean>
+/** Interpolation parameters passed to the `t()` function. */
+export type Params = Record<string, string | number | boolean>
 
-/** Interpolation parameters passed to the `t()` function: named (`{name}`), or a list for `{0}`, `{1}`. */
-export type Params = NamedParams | readonly (string | number | boolean)[]
+/** A list for `{0}`, `{1}`: what `t()` takes besides `Params`. */
+export type ListParams = readonly (string | number | boolean)[]
 
 /** Getter function signature used by pluralization to resolve nested keys. */
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown

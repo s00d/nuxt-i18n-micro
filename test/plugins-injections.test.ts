@@ -3,6 +3,7 @@ import type {
   CleanTranslation,
   DefineI18nRouteConfig,
   I18nBeforeLocaleSwitchContext,
+  Params,
   PluralFunc,
   TranslationKey,
   Translations,
@@ -104,6 +105,20 @@ describe('PluginsInjections typing', () => {
 })
 
 describe('types of the newer surface', () => {
+  it('a custom plural and a helper over Params still compile: Params stays the named record', () => {
+    // as a user writes them (docs): getter(key, params), params.name
+    const plural: PluralFunc = (key, count, params, _locale, getter) => {
+      const text = getter(key, params)
+      const name = params.name
+      return typeof text === 'string' ? `${text}${count}${name}` : null
+    }
+    const wrap = (p: Params) => ({ ...p, extra: 1 })
+    const read = (p: Params) => p.name
+    expectTypeOf(plural).toBeFunction()
+    expectTypeOf(wrap({ a: 1 }).extra).toEqualTypeOf<number>()
+    expectTypeOf(read).returns.toEqualTypeOf<string | number | boolean | undefined>()
+  })
+
   it('$t takes a list for `{0}`; $tc a count or named params', () => {
     type T = PluginsInjections['$t']
     expectTypeOf<T>().toBeCallableWith('key', ['a', 1])

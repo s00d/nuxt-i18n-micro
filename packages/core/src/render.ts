@@ -48,8 +48,7 @@ function elementAttrs(api: RenderApi, props: I18nTRenderProps, attrs: Record<str
 export function foldTemplate(
   renderSlot: (slot: RenderSlot, key: string) => unknown,
   template: string,
-  // named or a list: read by own key, `{0}` too
-  params: object,
+  params: Record<string, unknown>,
   slots: RenderSlots,
   textChild: (text: string) => unknown = (text) => text,
 ): unknown {

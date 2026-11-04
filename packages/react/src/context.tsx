@@ -1,6 +1,6 @@
 import { localeIsoMap } from '@i18n-micro/core'
 import { createI18n, type I18n, type I18nOptions } from '@i18n-micro/runtime'
-import type { CleanTranslation, Locale, NamedParams, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { h, type HostElement, type HostNode, useContext, useEffect, useMemo, useRef, useState, useStore } from '#host'
 import { type I18nConfig, I18nConfigContext, I18nContext, type I18nRoutingStrategy, type RouteTarget, useI18nContext } from './injection'
 
@@ -57,7 +57,7 @@ export interface UseI18nReturn {
   // Translation methods
   t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
   ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
-  tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+  tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
   tn: (value: number, options?: Intl.NumberFormatOptions) => string
   td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string

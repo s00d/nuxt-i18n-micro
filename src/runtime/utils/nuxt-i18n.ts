@@ -7,12 +7,12 @@ import {
   type BaseI18nOptions,
   type TranslationStorage,
 } from '@i18n-micro/core'
-import type { CleanTranslation, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, ListParams, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import { PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import { type ShallowRef, shallowRef, triggerRef } from 'vue'
 import { type LoadOptions, translationStorage } from './storage'
 
-export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
+export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null) => T
 
 export interface RouteTranslationContext {
   locale: string

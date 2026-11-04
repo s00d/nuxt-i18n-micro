@@ -1,5 +1,5 @@
 import { convertible, defaultPlural, FormatService, interpolate, ownValue, resolveTranslation, textOf } from '@i18n-micro/core'
-import type { CleanTranslation, Getter, NamedParams, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, Getter, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import type { I18nClientProps } from '../utils'
 
 /**
@@ -51,7 +51,7 @@ export function translate(
  * `tc` of every island adapter, as the server's `BaseI18n.tc`: a missing key gives `defaultValue`
  * (else the key), because the getter reports the miss to `defaultPlural` instead of the key.
  */
-export function translatePlural(state: I18nState, key: TranslationKey, count: number | NamedParams, defaultValue?: string): string {
+export function translatePlural(state: I18nState, key: TranslationKey, count: number | Params, defaultValue?: string): string {
   const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
   if (countValue === undefined || countValue === null) return defaultValue ?? key
   const getter: Getter = (k, p, dv) => {
@@ -89,7 +89,7 @@ export function createIslandApi(getState: () => I18nState) {
     t,
     ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
       textOf(t(key, params, defaultValue, routeName)) ?? defaultValue ?? (key as string),
-    tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string): string => translatePlural(getState(), key, count, defaultValue),
+    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => translatePlural(getState(), key, count, defaultValue),
     tn: (value: number, options?: Intl.NumberFormatOptions): string => formatter.formatNumber(value, isoTag(getState()), options),
     td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => formatter.formatDate(value, isoTag(getState()), options),
     tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string =>

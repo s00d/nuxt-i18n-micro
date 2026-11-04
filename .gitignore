@@ -105,3 +105,6 @@ test/deploy-smoke/pnpm-lock.yaml
 
 # Playwright MCP screenshots and snapshots
 .playwright-mcp/
+
+# Local release playbook, not part of the repo
+RELEASE-PLAYBOOK.md

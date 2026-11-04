@@ -54,11 +54,10 @@ export default defineConfig({
         server: resolve(import.meta.dirname, 'src/server.ts'),
       },
       name: 'I18nMicroReact',
-      formats: ['es', 'cjs'],
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      // Для React сборки мы помечаем все зависимости как внешние
+      // every dependency stays external
       external: [
         'react',
         'react-dom',

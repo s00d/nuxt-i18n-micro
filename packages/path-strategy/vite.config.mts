@@ -48,7 +48,6 @@ export default defineConfig({
     minify: 'esbuild',
     lib: {
       entry: libEntries,
-      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['@i18n-micro/core/helpers', '@i18n-micro/types'],

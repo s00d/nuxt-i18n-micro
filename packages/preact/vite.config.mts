@@ -19,8 +19,8 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
 export default defineConfig({
   resolve: { alias: { '#host': resolve(import.meta.dirname, 'src/host.ts') } },
   esbuild: {
-    // Используем современный (automatic) JSX трансформ
-    // Это позволяет не импортировать 'h' в каждом файле
+    // the automatic JSX runtime:
+    // no `h` import in every file
     jsx: 'automatic',
     jsxImportSource: 'preact',
   },
@@ -40,7 +40,7 @@ export default defineConfig({
       afterBuild: () => writeNodeDeclarations(resolve(import.meta.dirname, 'dist')),
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       compilerOptions: {
-        // Убеждаемся, что типы генерируются с учетом preact
+        // declarations resolve against preact
         rootDir: resolve(import.meta.dirname, '..'),
         jsx: 4 as const, // JsxEmit.ReactJSX
         jsxImportSource: 'preact' as const,
@@ -63,7 +63,7 @@ export default defineConfig({
       external: [
         'preact',
         'preact/hooks',
-        // ВАЖНО: Добавляем jsx-runtime, чтобы он не попал в бандл
+        // jsx-runtime stays external, out of the bundle
         'preact/jsx-runtime',
         '@i18n-micro/core',
         '@i18n-micro/core/render',

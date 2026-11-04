@@ -17,7 +17,7 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
 export default defineConfig({
   build: {
     lib: {
-      // Точки входа
+      // entry points
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
         middleware: resolve(import.meta.dirname, 'src/auto-middleware.ts'),
@@ -28,10 +28,9 @@ export default defineConfig({
         'client/preact': resolve(import.meta.dirname, 'src/client/preact.tsx'),
         'client/svelte': resolve(import.meta.dirname, 'src/client/svelte.ts'),
       },
-      // УДАЛЕНО: formats: ['es', 'cjs'] — вызывает предупреждение, так как перекрывается rollupOptions
     },
     rollupOptions: {
-      // Внешние зависимости
+      // dependencies stay external
       external: [
         /^@i18n-micro\//,
         /^node:/,
@@ -45,20 +44,20 @@ export default defineConfig({
         'preact/hooks',
         'preact/jsx-runtime',
       ],
-      // Массив output заменяет собой formats
+      // the output array sets the formats: no lib.formats (Vite would ignore it and warn)
       output: [
-        // 1. ESM Сборка (Основная + Клиент)
+        // 1. ESM: server and client entries
         {
           format: 'es',
           entryFileNames: (chunkInfo) => {
-            // Основной серверный файл — .mjs
+            // the server entry: .mjs
             if (chunkInfo.name === 'index') return 'index.mjs'
-            // Клиентские файлы — .js (для совместимости с бандлерами)
+            // client files: .js, for bundlers
             return '[name].js'
           },
           exports: 'named',
         },
-        // 2. CJS Сборка (Только серверная часть)
+        // 2. CJS: server entry only
         {
           format: 'cjs',
           entryFileNames: '[name].cjs',

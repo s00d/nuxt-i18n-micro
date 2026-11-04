@@ -24,10 +24,10 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      // Важно: не бандлим зависимости, они должны ставиться через npm
+      // dependencies are not bundled: npm installs them
       external: [/^@i18n-micro\//, /^node:/],
     },
-    // Для Node.js таргета
+    // Node target
     target: 'node18',
     outDir: 'dist',
   },

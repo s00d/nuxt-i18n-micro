@@ -29,6 +29,7 @@ const libEntries = {
   normalize: resolve(rootDir, 'src/normalize.ts'),
   'app-path': resolve(rootDir, 'src/app-path.ts'),
   'load-dir': resolve(rootDir, 'src/load-dir.ts'),
+  'linked-messages': resolve(rootDir, 'src/linked-messages.ts'),
 } as const
 
 const publishedEntryNames = new Set(Object.keys(libEntries))

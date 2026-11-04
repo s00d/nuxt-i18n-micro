@@ -423,6 +423,16 @@ export interface ModuleOptions {
   fallbackLocale?: string
 
   /**
+   * Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`)
+   * in each built dictionary, so the runtime never parses them. A link to a missing key, or a
+   * cycle, leaves the message as written and warns at build. Translations added at runtime
+   * (`$mergeTranslations`, `i18n:register`, inline `$defineI18nRoute`) are not resolved.
+   * Off by default: `@:` may already be plain text in your messages.
+   * @default false
+   */
+  linkedMessages?: boolean
+
+  /**
    * Cookie name for persisting the user's locale preference across sessions.
    * Set to `null` to disable cookie-based persistence.
    * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit

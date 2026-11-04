@@ -29,6 +29,8 @@ export default defineNuxtConfig({
     // meta off app-wide: the head of /manual-head comes only from useLocaleHead + useHead
     meta: false,
     ...(sourcePayloads ? { translationPayloads: { mode: 'source' as const } } : {}),
+    // LINKED_MESSAGES=1: the `translation-watcher-linked*` recipes (linked-messages.spec.ts)
+    linkedMessages: process.env.LINKED_MESSAGES === '1',
     routesLocaleLinks: {
       'about-alias': 'about',
     },

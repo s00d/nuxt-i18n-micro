@@ -8,6 +8,7 @@
     <p id="deep-x">{{ $t('deep.a.x') }}</p>
     <p id="deep-y">{{ $t('deep.a.y') }}</p>
     <p id="deep-z">{{ $t('deep.a.z') }}</p>
+    <p id="linked-root">{{ $t('linkedRoot') }}</p>
     <p id="leak">{{ $t('leak', {}, 'missing') }}</p>
     <NuxtLink id="go-about" to="/en/about">About</NuxtLink>
   </div>

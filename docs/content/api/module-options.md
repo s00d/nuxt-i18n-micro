@@ -381,6 +381,13 @@ built or loaded); without it a missing key renders as the key itself.
 
 <!-- /generated:option:fallbackLocale -->
 
+#### `linkedMessages`
+
+<!-- generated:option:linkedMessages — do not edit; run `pnpm run docs:generate` -->
+<!-- /generated:option:linkedMessages -->
+
+Syntax and limits: [Linked messages](/guide/translations#linked-messages).
+
 #### `routesLocaleLinks`
 
 <!-- generated:option:routesLocaleLinks — do not edit; run `pnpm run docs:generate` -->

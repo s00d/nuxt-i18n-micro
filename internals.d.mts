@@ -12,6 +12,8 @@ interface I18nPrivateConfig {
   debug: boolean
   translationDir: string
   additionalTranslationDirs?: string[]
+  /** `linkedMessages`, for servers that merge source files. */
+  linkedMessages?: boolean
   fallbackLocale?: string
   apiBaseUrl: string
   apiBaseClientHost?: string

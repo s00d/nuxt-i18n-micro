@@ -9,6 +9,7 @@ import { createTranslationDirReader, mergeDevTranslations, resolveLiveTranslatio
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { toTranslations } from '@i18n-micro/utils/normalize'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
+import { warnOnce } from '../utils/warn-once'
 
 export async function loadLiveDevTranslations(locale: string, pageName: string, config: ModuleOptionsExtend): Promise<Translations> {
   const privateConfig = getI18nPrivateConfig()
@@ -27,6 +28,8 @@ export async function loadLiveDevTranslations(locale: string, pageName: string, 
     fallbackLocale: config.fallbackLocale,
     disablePageLocales: config.disablePageLocales,
     readLocaleFile,
+    linkedMessages: privateConfig.linkedMessages,
+    warn: warnOnce,
   })
 
   return toTranslations(merged)

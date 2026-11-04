@@ -9,6 +9,7 @@ import { readTranslationFile } from '../runtime/server/internal/translation-watc
 export interface PreMergeLocaleInfo {
   code: string
   fallbackLocale?: string
+  iso?: string
 }
 
 /**
@@ -141,6 +142,9 @@ export interface PreMergeOptions {
   additionalTranslationDirs?: string[]
   routeNames?: string[]
   rootDelta?: boolean
+  /** Resolve `@:key` links in every chunk; each warning once per build. */
+  linkedMessages?: boolean
+  warn?: (message: string) => void
 }
 
 /**
@@ -155,7 +159,13 @@ export async function preMergeLocales(options: PreMergeOptions): Promise<void> {
 
 async function writeChunks(options: PreMergeOptions): Promise<void> {
   const { rootDirs, translationDirName, outputDir, locales, globalFallbackLocale, disablePageLocales, additionalTranslationDirs } = options
-  const { routeNames = [], rootDelta = false } = options
+  const { routeNames = [], rootDelta = false, linkedMessages = false } = options
+  const warned = new Set<string>()
+  const warn = (message: string) => {
+    if (warned.has(message)) return
+    warned.add(message)
+    options.warn?.(message)
+  }
   const merged = await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)
 
   // the same read source mode and dev do (fallback chain, root under page): one model, three modes
@@ -170,6 +180,9 @@ async function writeChunks(options: PreMergeOptions): Promise<void> {
       globalFallbackLocale,
       disablePageLocales,
       readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
+      // the root and every page resolved alike: a delta is taken between the resolved trees
+      linkedMessages,
+      warn,
     })
   const write = (page: string, locale: string, data: Tree) => {
     const targetPath = join(outputDir, page, locale, 'data.json')

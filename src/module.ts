@@ -199,6 +199,8 @@ function buildPrivateConfig(
     additionalTranslationDirs: options.additionalTranslationDirs ?? [],
     apiBaseServerHost: apiConfig.apiBaseServerHost,
     serverTranslationPreload: options.serverTranslationPreload ?? false,
+    // read where a server merges source files (mode 'source', dev): set only when on
+    linkedMessages: options.linkedMessages || undefined,
     cacheStorage: options.cacheStorage,
     cacheStorageBuild: nuxt.options.buildId,
     payloadFsDir,
@@ -418,12 +420,13 @@ export default defineNuxtModule<ModuleOptions>({
       localeInfosByCode.set(locale.code, {
         code: locale.code,
         fallbackLocale: prev?.fallbackLocale ?? locale.fallbackLocale,
+        iso: prev?.iso ?? locale.iso,
         disabled: prev?.disabled ?? locale.disabled,
       })
     }
     const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]
       .filter((locale) => !locale.disabled)
-      .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
+      .map(({ code, fallbackLocale, iso }) => ({ code, fallbackLocale, iso }))
 
     /** Every named page, children too: each asks for a chunk under its own name. */
     let routeNames: string[] = []
@@ -446,6 +449,8 @@ export default defineNuxtModule<ModuleOptions>({
           routeNames,
           // dev reads live files, and a prerender merges what it reads like any server
           rootDelta: !nuxt.options.dev && translationPayloads.rootDelta,
+          linkedMessages: options.linkedMessages,
+          warn: (message) => logger.warn(message),
         })
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }

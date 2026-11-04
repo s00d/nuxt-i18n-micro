@@ -30,6 +30,7 @@ import { getI18nServerConfig } from './locale-detector'
 import { getOrCreateServerTranslationCache, type ServerTranslationCacheEntry } from '../internal/server-translation-cache'
 import { readSharedChunk, sharedChunkKey, writeSharedChunk } from '../internal/shared-cache'
 import { takeRootMark, toEntry } from '../../utils/translation-entry'
+import { warnOnce } from './warn-once'
 
 const EMPTY: ServerTranslationCacheEntry = { data: {}, json: '{}' }
 /** The host has no such file. By identity: a host's own empty file is a dictionary, and stays cached. */
@@ -157,6 +158,8 @@ async function load(locale: string, page: string, config: ResolvedI18nConfig): P
         locales: normalizeConfiguredLocales(config.linkLocales ?? config.locales),
         globalFallbackLocale: config.fallbackLocale,
         disablePageLocales: config.disablePageLocales,
+        linkedMessages: getI18nPrivateConfig().linkedMessages,
+        warn: warnOnce,
       },
     )
     return { entry: toEntry(data) }

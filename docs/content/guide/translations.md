@@ -87,6 +87,31 @@ export default defineNuxtConfig({
 
 Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a warning in the browser console in dev ([`missingWarn`](/api/module-options#missingwarn)).
 
+### Linked messages
+
+With [`linkedMessages: true`](/api/module-options#linkedmessages) a message can reuse another one, with the vue-i18n syntax:
+
+```json [locales/en.json]
+{
+  "brand": "Acme",
+  "title": "Welcome to @:brand",
+  "shout": "@.upper:brand",
+  "intro": "@.capitalize:{'nav.home'}.",
+  "greet": "Hi @:withName",
+  "withName": "{name}!",
+  "nav": { "home": "home" }
+}
+```
+
+`title` reads `Welcome to Acme`, `shout` reads `ACME`, `intro` reads `Home.` and `$t('greet', { name: 'Ada' })` reads `Hi Ada!`.
+
+- `@:key` inserts the text of `key`; `@.upper:`, `@.lower:` and `@.capitalize:` change its case, by the locale's `iso` (so `@.upper:` of `i` is `İ` in Turkish).
+- A bare key runs to a space or one of `{ } @ % | ( )`, dots included: `@:nav.home`. A key that ends a sentence or holds other characters goes in a literal: `@:{'nav.home'}.`.
+- Links are resolved when the dictionaries are built (and when a server merges them in `mode: 'source'` or in dev), in the page's whole dictionary: its root keys, its fallback locales. `$t` reads plain text, so this costs nothing at runtime. `{name}` params in a linked text stay, and `$t` interpolates them.
+- A link to a missing key, to an object, or in a cycle leaves the whole message as written, and the build warns once. So does an unknown modifier. Dynamic keys (`@:{name}`) and the old `@:(key)` form are not links.
+- Messages added at runtime (`$mergeTranslations`, `$setTranslation`, the `i18n:register` hook, inline `$defineI18nRoute` locales) are not resolved.
+- It is off by default: `@:` may already be plain text in your messages. Framework packages can resolve a dictionary with `resolveLinkedMessages(tree, { locale })` from `@i18n-micro/utils/linked-messages`.
+
 ## Sharing and other sources
 
 | Need | Option |

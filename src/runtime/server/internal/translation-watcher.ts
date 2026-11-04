@@ -20,6 +20,8 @@ export interface DevTranslationMergeInput {
   fallbackLocale?: string
   disablePageLocales?: boolean
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
+  linkedMessages?: boolean
+  warn?: (message: string) => void
 }
 
 export interface HandleTranslationWatchChangeInput {
@@ -134,6 +136,8 @@ export async function mergeDevTranslations(input: DevTranslationMergeInput): Pro
     globalFallbackLocale: input.fallbackLocale,
     disablePageLocales: input.disablePageLocales,
     readLocaleFile: input.readLocaleFile,
+    linkedMessages: input.linkedMessages,
+    warn: input.warn,
   })
 }
 

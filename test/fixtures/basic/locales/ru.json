@@ -6,5 +6,6 @@
     "welcome": "Добро пожаловать на страницу!",
     "example": "example ru"
   },
-  "name": "ru"
+  "name": "ru",
+  "server_apples": "нет яблок | {count} яблоко | {count} яблока | {count} яблок"
 }

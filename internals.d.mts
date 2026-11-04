@@ -108,6 +108,10 @@ declare module '#i18n-internal/strategy' {
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
 }
 
+declare module '#i18n-internal/plural' {
+  export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
+}
+
 declare module '#i18n-internal/payload-source' {
   export const embeddedPayloads: boolean
   export function readPayload(relPath: string): Promise<Record<string, unknown>>

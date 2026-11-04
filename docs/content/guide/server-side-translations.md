@@ -28,6 +28,17 @@ curl 'http://localhost:3000/api/greeting?locale=de'
 
 `useTranslationServerMiddleware(event, defaultLocale?, locale?)` is async and returns `t(key, params?, defaultValue?)`. `t` returns the string, interpolates `{name}` params, and returns a non-empty `defaultValue`, otherwise the key, when the key is missing.
 
+`t` also carries the page's plural, format and lookup helpers, with the same rules (the build's `plural`, `numberFormats`, `datetimeFormats`, `timeZone`, each locale's `iso`):
+
+```ts
+const t = await useTranslationServerMiddleware(event)
+t.tc('apples', 5) // '5 apples', as $tc
+t.tn(1234.5, 'currency') // a named number format, as $tn
+t.td(new Date(), 'short') // a named date format, as $td
+t.tdr(Date.now() - 86_400_000) // '1 day ago', as $tdr
+t.has('apples') // true when the locale defines the key, as $has
+```
+
 `t` sees the `index` chunk only: the root files (`locales/<locale>.json`) plus `locales/pages/index/` when it exists (root files only with `disablePageLocales`). Keys of other pages are not loaded. For those, load the chunk yourself:
 
 ```ts

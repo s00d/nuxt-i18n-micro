@@ -1,6 +1,8 @@
-import { interpolate, resolveTranslation } from '@i18n-micro/core'
-import type { Params, Translations } from '@i18n-micro/types'
+import { BaseI18n, interpolate, localeIsoMap, resolveTranslation, translationCacheKey } from '@i18n-micro/core'
+import type { Params, ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import type { H3Event } from 'h3'
+import { plural } from '#i18n-internal/plural'
+import { formatterFor } from '../../utils/formatter'
 import { getI18nServerConfig, getRequestLocale } from './locale-detector'
 import { loadTranslationsFromServer } from './server-loader'
 
@@ -26,8 +28,51 @@ async function dictionaryOf(event: H3Event, locale: string): Promise<Translation
   return (loaded[locale] = chunk.data)
 }
 
-export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
-  const locale = currentLocale || getRequestLocale(event, getI18nServerConfig(event), defaultLocale)
+/**
+ * `BaseI18n` over the one dictionary the server helper loads: `tc`, `tn`, `td`, `tdr` and `has` answer
+ * as on the page, with the build's plural rule and the config's shared formatters. No vue.
+ * The dictionary is premerged (its fallback keys are in it), so the locale is its own fallback.
+ */
+class DictionaryI18n extends BaseI18n {
+  constructor(
+    private readonly locale: string,
+    translations: Translations,
+    config: ResolvedI18nConfig,
+  ) {
+    super({
+      storage: { translations: new Map([[translationCacheKey(locale, 'index'), translations]]) },
+      plural,
+      formatter: formatterFor(config),
+      missingWarn: false,
+      localeIso: localeIsoMap(config.linkLocales ?? config.locales),
+    })
+  }
+
+  getLocale(): string {
+    return this.locale
+  }
+
+  getFallbackLocale(): string {
+    return this.locale
+  }
+
+  getRoute(): string {
+    return 'index'
+  }
+}
+
+export interface ServerTranslate {
+  (key: string, params?: Params, defaultValue?: string): string
+  tc: BaseI18n['tc']
+  tn: BaseI18n['tn']
+  td: BaseI18n['td']
+  tdr: BaseI18n['tdr']
+  has: (key: string) => boolean
+}
+
+export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string): Promise<ServerTranslate> => {
+  const config = getI18nServerConfig(event)
+  const locale = currentLocale || getRequestLocale(event, config, defaultLocale)
   const translations = await dictionaryOf(event, locale)
 
   function t(key: string, params?: Params, defaultValue?: string): string {
@@ -39,5 +84,12 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     return params ? interpolate(str, params) : str
   }
 
-  return t
+  const i18n = new DictionaryI18n(locale, translations, config)
+  return Object.assign(t, {
+    tc: i18n.tc.bind(i18n),
+    tn: i18n.tn.bind(i18n) as BaseI18n['tn'],
+    td: i18n.td.bind(i18n) as BaseI18n['td'],
+    tdr: i18n.tdr.bind(i18n),
+    has: (key: string) => i18n.has(key),
+  })
 }

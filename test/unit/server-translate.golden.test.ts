@@ -101,3 +101,27 @@ test('server t characterization', async () => {
   })
   await expect(`${lines.join('\n')}\n`).toMatchFileSnapshot('./__golden__/server-translate.md')
 })
+
+test('the helpers on t answer as the page does: tc, tn, td, tdr, has', async () => {
+  const { useTranslationServerMiddleware } = await import('../../src/runtime/server/utils/translation-server-middleware')
+  const t = await useTranslationServerMiddleware(event())
+  expect([0, 1, 5].map((count) => t.tc('apples', count))).toEqual(['no apples', 'one apple', '5 apples'])
+  expect(t.tc('apples', { count: 3 })).toBe('3 apples')
+  expect(t.tc('miss', 2)).toBe('miss')
+  expect(t.tc('miss', 2, 'D {count}')).toBe('D 2')
+  expect(t.tn(1234.5)).toBe('1,234.5')
+  expect(t.tn(12, 'currency')).toBe('$12.00')
+  expect(t.td(Date.UTC(2026, 0, 2), 'short')).toBe('Jan 2, 2026')
+  expect(t.tdr(Date.now() - 2 * 86_400_000)).toBe('2 days ago')
+  expect([t.has('hello'), t.has('nested.a'), t.has('miss'), t.has('__proto__'), t.has('')]).toEqual([true, true, false, false, false])
+
+  // another locale: its own plural rules (ru has four forms)
+  const ru = await useTranslationServerMiddleware(event(), undefined, 'ru')
+  expect([0, 1, 2, 5].map((count) => ru.tc('apples', count))).toEqual(['нет яблок', '1 яблоко', '2 яблока', '5 яблок'])
+  expect(ru.tn(1234.5)).toBe(new Intl.NumberFormat('ru').format(1234.5))
+})
+
+test('requests share the formatters of one config', async () => {
+  const { formatterFor } = await import('../../src/runtime/utils/formatter')
+  expect(formatterFor(state.config as never)).toBe(formatterFor(state.config as never))
+})

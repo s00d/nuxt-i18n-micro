@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { effect } from 'vue'
-import { formatterFor, NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { formatterFor } from '../src/runtime/utils/formatter'
+import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { ServerNuxtI18n } from '../src/runtime/utils/nuxt-i18n-server'
 import { translationStorage } from '../src/runtime/utils/storage'
 

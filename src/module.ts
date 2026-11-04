@@ -87,8 +87,8 @@ async function resolveEntry(specifier: string): Promise<string> {
   } catch {
     absolutePath = await resolvePath(specifier)
   }
-  // A plain path, which Vite and Nitro resolve on every platform (a `file:///D:/...` URL Nitro leaves
-  // external). The packages are in `build.transpile`, so the dev server never hands it to Node's import.
+  // A plain path, which Vite and Nitro resolve on every platform (Nitro leaves a `file:///D:/...` URL
+  // unresolved and external). Node never reads it: Nitro bundles these templates in dev too (`nitro:config`).
   return forwardSlashes(absolutePath)
 }
 
@@ -457,9 +457,6 @@ export default defineNuxtModule<ModuleOptions>({
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
     } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
 
-    // the generated templates import these by absolute path: transpiled, the dev server runs them through
-    // Vite like the app's own code instead of Node's import, which rejects a Windows path
-    nuxt.options.build.transpile.push('@i18n-micro/path-strategy', '@i18n-micro/core')
     const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
     const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
 
@@ -775,6 +772,11 @@ declare module '#i18n-internal/payload-source' {
       nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
+      // Nuxt inlines its build dir into the server bundle for a build only: in dev Node would load these
+      // two as they are, and their absolute imports are no valid Node specifier on Windows (`D:/...`).
+      // Bundled, Nitro resolves those imports and writes its own externals as file URLs.
+      nitroConfig.externals = nitroConfig.externals || {}
+      nitroConfig.externals.inline = [...(nitroConfig.externals.inline || []), pluralTemplate.dst, strategyTemplate.dst]
 
       // Read public/ via fs (no Rollup raw:). Also what dev and the prerenderer use: it is rebuilt
       // from this config. `nitro:init` switches the deployed server once the preset is resolved.

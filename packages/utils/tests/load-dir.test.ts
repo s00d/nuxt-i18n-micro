@@ -1,6 +1,6 @@
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   additionalTranslationRoots,
@@ -171,10 +171,11 @@ describe('additionalTranslationRoots', () => {
     const roots = ['/app/layer', '/app']
     expect(additionalTranslationRoots(roots, [])).toEqual([])
     expect(additionalTranslationRoots(roots)).toEqual([])
+    // platform paths: `D:\app\layer\common` on Windows
     expect(additionalTranslationRoots(roots, ['common', '/vendor/locales', 'common', '/vendor/locales/'])).toEqual([
-      '/app/layer/common',
-      '/app/common',
-      '/vendor/locales',
+      resolve('/app/layer', 'common'),
+      resolve('/app', 'common'),
+      resolve('/vendor/locales'),
     ])
   })
 })

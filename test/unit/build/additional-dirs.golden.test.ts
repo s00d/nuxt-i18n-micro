@@ -29,7 +29,9 @@ write('vendor/locales/fr.json', { vendor: 'V fr' })
 
 const rootDirs = [join(base, 'layer'), join(base, 'app')]
 const absolute = join(base, 'vendor/locales')
-const show = (value: unknown) => JSON.stringify(value).replaceAll(base, '<root>')
+// `/` on every platform: Windows paths come back with `\` (doubled in JSON) and the temp dir's own spelling
+const slashed = (text: string) => text.replaceAll('\\\\', '/').replaceAll('\\', '/')
+const show = (value: unknown) => slashed(JSON.stringify(value)).replaceAll(slashed(base), '<root>')
 
 test('additional dirs characterization', async () => {
   const lines: string[] = []
@@ -40,7 +42,7 @@ test('additional dirs characterization', async () => {
     } catch (error) {
       out = `throws ${(error as Error).name}`
     }
-    lines.push(`- \`${label.replaceAll(base, '<root>')}\` → ${out}`)
+    lines.push(`- \`${slashed(label).replaceAll(slashed(base), '<root>')}\` → ${out}`)
   }
   for (const dirs of [[], ['common'], [absolute], ['common', absolute]]) {
     run(`listAdditionalRootLocales(${show(dirs)})`, () => listAdditionalRootLocales(rootDirs, dirs).sort())

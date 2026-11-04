@@ -1,4 +1,4 @@
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
 
 export interface RuntimeI18nOverrides {
   defaultLocale?: string
@@ -85,8 +85,16 @@ export function readI18nRuntimeOverrides(runtimePublic?: Record<string, unknown>
     strategy: toNonEmptyString(runtime.strategy),
     dateBuild: toNonEmptyString(runtime.dateBuild),
     metaBaseUrl: toNonEmptyString(runtime.metaBaseUrl),
-    localeBaseUrls: parseBaseUrls(runtime.localeBaseUrls),
   }
+}
+
+/**
+ * `runtimeConfig.public.i18nRuntime.localeBaseUrls`. Apart from `readI18nRuntimeOverrides`: only a build with
+ * locale domains reads it, so a browser bundle without them drops the parser.
+ */
+export function readLocaleBaseUrls(runtimePublic?: Record<string, unknown>): Record<string, string> | undefined {
+  const raw = runtimePublic?.i18nRuntime
+  return raw && typeof raw === 'object' ? parseBaseUrls((raw as Record<string, unknown>).localeBaseUrls) : undefined
 }
 
 /** `primary`'s values, `secondary`'s where `primary` has none. */
@@ -130,18 +138,17 @@ export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
 
   const overrides = pinDefault(baseConfig, requested, warn)
   const disabledSet = new Set(overrides.disabledLocales ?? [])
-  const located = withBaseUrls(baseConfig.locales ?? [], overrides.localeBaseUrls, warn)
-  let locales = located.map((locale) => (disabledSet.has(locale.code) ? Object.assign({}, locale, { disabled: true }) : locale))
+  let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? Object.assign({}, locale, { disabled: true }) : locale))
   if (disabledSet.size > 0 && !locales.some((locale) => !locale.disabled)) {
     warn('[nuxt-i18n-micro] runtime disabledLocales override would disable all locales; override ignored.')
-    locales = located
+    locales = baseConfig.locales ?? []
   }
 
   const enabledCodes = new Set(locales.filter((locale) => !locale.disabled).map((locale) => locale.code))
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
   const dateBuild = overrides.dateBuild ?? baseConfig.dateBuild
-  const metaBaseUrl = overrides.metaBaseUrl ?? derivedMetaBaseUrl(baseConfig, located)
+  const metaBaseUrl = overrides.metaBaseUrl ?? baseConfig.metaBaseUrl
   const same =
     defaultLocale === baseConfig.defaultLocale &&
     fallbackLocale === baseConfig.fallbackLocale &&
@@ -151,40 +158,43 @@ export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
   return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild, metaBaseUrl } as T
 }
 
-const isUrl = (value: string) => {
+const isUrl = (value: string | undefined) => {
   try {
-    return Boolean(new URL(value).host)
+    return Boolean(value && new URL(value).host)
   } catch {
     return false
   }
 }
 
 /**
- * `locales` with the runtime `baseUrl`s. A build without locale domains has no routing for them
- * (the path strategy is chosen at build), so there they are ignored, like `strategy`.
+ * `config` with the runtime `locales[].baseUrl`s, after `applyI18nRuntimeOverrides`. A build without
+ * locale domains has no routing for them (the path strategy is chosen at build): ignored there, like
+ * `strategy`. Apart, so that a browser bundle without domains drops it. A `metaBaseUrl` the build took
+ * from the default locale's `baseUrl` follows it, unless one is set at runtime.
  */
-function withBaseUrls(locales: Locale[], urls: Record<string, string> | undefined, warn: (m: string) => void): Locale[] {
-  if (!urls) return locales
+export function applyLocaleBaseUrls<T extends ModuleOptionsExtend>(
+  config: T,
+  overrides: RuntimeI18nOverrides,
+  warn: (message: string) => void = defaultWarn,
+): T {
+  const urls = overrides.localeBaseUrls
+  const locales = config.locales ?? []
+  if (!urls) return config
   if (!locales.some((locale) => locale.baseUrl)) {
-    warn('[nuxt-i18n-micro] runtime localeBaseUrls override is ignored: the build has no locales[].baseUrl. Build with locale domains.')
-    return locales
+    warn('[nuxt-i18n-micro] runtime localeBaseUrls ignored: the build has no locales[].baseUrl.')
+    return config
   }
-  const codes = new Set(locales.map((locale) => locale.code))
-  const unknown = Object.keys(urls).filter((code) => !codes.has(code))
-  if (unknown.length) warn(`[nuxt-i18n-micro] runtime localeBaseUrls: no locale ${unknown.map((code) => `"${code}"`).join(', ')}; ignored.`)
-  const invalid = Object.keys(urls).filter((code) => codes.has(code) && !isUrl(urls[code]!))
-  if (invalid.length)
-    warn(`[nuxt-i18n-micro] runtime localeBaseUrls: not an absolute URL for ${invalid.map((code) => `"${code}"`).join(', ')}; ignored.`)
-  return locales.map((locale) => {
-    const url = Object.prototype.hasOwnProperty.call(urls, locale.code) ? urls[locale.code] : undefined
-    return url && url !== locale.baseUrl && isUrl(url) ? Object.assign({}, locale, { baseUrl: url }) : locale
+  const own = (code: string) => (Object.prototype.hasOwnProperty.call(urls, code) ? urls[code] : undefined)
+  const ignored = Object.keys(urls).filter((code) => !locales.some((locale) => locale.code === code) || !isUrl(urls[code]))
+  if (ignored.length) warn(`[nuxt-i18n-micro] runtime localeBaseUrls ignored for ${ignored.join(', ')}: no such locale, or no absolute URL.`)
+  const moved = locales.map((locale) => {
+    const url = own(locale.code)
+    return isUrl(url) && url !== locale.baseUrl ? Object.assign({}, locale, { baseUrl: url }) : locale
   })
-}
-
-/** The build took `metaBaseUrl` from the default locale's `baseUrl` (none was set): it follows that `baseUrl`. */
-function derivedMetaBaseUrl(base: ModuleOptionsExtend, locales: Locale[]): string | undefined {
-  if (!base.metaBaseUrlFromLocale) return base.metaBaseUrl
-  return locales.find((locale) => locale.code === base.defaultLocale)?.baseUrl ?? base.metaBaseUrl
+  if (moved.every((locale, i) => locale === locales[i])) return config
+  const derived = config.metaBaseUrlFromLocale && overrides.metaBaseUrl === undefined
+  const metaBaseUrl = derived ? (moved.find((locale) => locale.code === config.defaultLocale)?.baseUrl ?? config.metaBaseUrl) : config.metaBaseUrl
+  return { ...config, locales: moved, metaBaseUrl }
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])
@@ -259,10 +269,10 @@ export function createI18nConfigResolver(
   let memo: { base: ModuleOptionsExtend; key: string; config: ModuleOptionsExtend } | undefined
   return <T extends ModuleOptionsExtend>(base: T, runtimePublic?: Record<string, unknown>): T => {
     env ??= readI18nEnvOverrides()
-    const overrides = mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), env)
+    const overrides = mergeI18nOverrides({ ...readI18nRuntimeOverrides(runtimePublic), localeBaseUrls: readLocaleBaseUrls(runtimePublic) }, env)
     const key = i18nOverridesKey(overrides)
     if (memo && memo.base === base && memo.key === key) return memo.config as T
-    const config = applyI18nRuntimeOverrides(base, overrides, warn)
+    const config = applyLocaleBaseUrls(applyI18nRuntimeOverrides(base, overrides, warn), overrides, warn)
     memo = { base, key, config: isDev() ? deepFreeze(config) : config }
     return memo.config as T
   }

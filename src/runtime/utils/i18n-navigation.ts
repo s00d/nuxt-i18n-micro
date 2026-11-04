@@ -81,6 +81,32 @@ function createRegister(nuxtApp: NuxtApp, { mergeTranslation }: NuxtI18nPluginAp
 }
 
 /**
+ * `i18n:beforeLocaleSwitch` for a navigation into another locale, on the client once the app runs (a first load
+ * shows its URL's locale, no switch). Under no_prefix and in hash mode `$switchLocale` asks first: the dictionary
+ * has moved before it navigates, so here the locales are the same and nothing is asked twice.
+ */
+function createSwitchVerdict(
+  { nuxtApp, i18n, api, locale: { isValidLocale } }: I18nNavigationDeps,
+  targetLocale: (to: RouteLocationNormalizedGeneric) => string,
+) {
+  /** The locale the hook sent a navigation to: that navigation is the same switch, and asks no one again. */
+  let redirectedTo: string | null = null
+  return async (to: RouteLocationNormalizedGeneric) => {
+    const from = i18n.getLocale()
+    const locale = targetLocale(to)
+    const redirected = redirectedTo === locale
+    redirectedTo = null
+    if (!import.meta.client || nuxtApp.isHydrating || !from || locale === from || redirected) return undefined
+    const ctx = await beforeLocaleSwitch(nuxtApp, from, locale)
+    if (!ctx) return undefined
+    if (ctx.cancel) return false
+    if (ctx.to === locale || !isValidLocale(ctx.to)) return undefined
+    redirectedTo = ctx.to
+    return api.provide.localeRoute(to as unknown as RouteLocationResolvedGeneric, ctx.to)
+  }
+}
+
+/**
  * Translations follow navigations: a guard loads what the target shows, and it is applied when the navigation commits.
  * A guard is too early: a later guard can abort, and the router cancels a pending navigation for a duplicate of the
  * current page without running one.
@@ -101,26 +127,8 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
   const targetLocale = (to: RouteLocationNormalizedGeneric): string =>
     (i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null) || api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)
 
-  /** The locale the hook sent a navigation to: that navigation is the same switch, and asks no one again. */
-  let redirectedTo: string | null = null
-  /**
-   * `i18n:beforeLocaleSwitch` for a navigation into another locale, on the client once the app runs (a first load
-   * shows its URL's locale, no switch). Under no_prefix and in hash mode `$switchLocale` asks first: the dictionary
-   * has moved before it navigates, so here the locales are the same and nothing is asked twice.
-   */
-  const switchVerdict = async (to: RouteLocationNormalizedGeneric) => {
-    const from = i18n.getLocale()
-    const locale = targetLocale(to)
-    const redirected = redirectedTo === locale
-    redirectedTo = null
-    if (!import.meta.client || nuxtApp.isHydrating || !from || locale === from || redirected) return undefined
-    const ctx = await beforeLocaleSwitch(nuxtApp, from, locale)
-    if (!ctx) return undefined
-    if (ctx.cancel) return false
-    if (ctx.to === locale || !isValidLocale(ctx.to)) return undefined
-    redirectedTo = ctx.to
-    return api.provide.localeRoute(to as unknown as RouteLocationResolvedGeneric, ctx.to)
-  }
+  // a function of its own, made only under `hooks`: a build with `hooks: false` drops it
+  const switchVerdict = hooks ? createSwitchVerdict(deps, targetLocale) : undefined
 
   const loadTarget = async (to: RouteLocationNormalizedGeneric): Promise<NavigationTarget | undefined> => {
     try {
@@ -142,10 +150,8 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
     const customPath = paths?.[api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)]
     if (customPath) return { path: customPath, query: to.query, hash: to.hash }
 
-    if (hooks) {
-      const verdict = await switchVerdict(to)
-      if (verdict !== undefined) return verdict
-    }
+    const verdict = switchVerdict && (await switchVerdict(to))
+    if (verdict !== undefined) return verdict
 
     // a navigation is newer than any `$switchLocale` still loading
     loader.invalidatePendingSwitches()

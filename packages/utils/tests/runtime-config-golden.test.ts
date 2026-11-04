@@ -6,10 +6,12 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { expect, test } from 'vitest'
 import {
   applyI18nRuntimeOverrides,
+  applyLocaleBaseUrls,
   i18nOverridesKey,
   mergeI18nOverrides,
   readI18nEnvOverrides,
   readI18nRuntimeOverrides,
+  readLocaleBaseUrls,
 } from '../src/runtime-config'
 import { configForHost } from '../src/domains'
 
@@ -84,7 +86,9 @@ function report(): string {
     { i18nRuntime: { localeBaseUrls: { de: 'https://de.example.net' } } },
   ]
   section('readI18nRuntimeOverrides')
-  for (const input of runtimeInputs) run(`read(${show(input)})`, () => readI18nRuntimeOverrides(input))
+  // the domains' urls apart (readLocaleBaseUrls), merged into one line as the server reads them
+  for (const input of runtimeInputs)
+    run(`read(${show(input)})`, () => ({ ...readI18nRuntimeOverrides(input), localeBaseUrls: readLocaleBaseUrls(input) }))
 
   section('readI18nEnvOverrides')
   const envs: Record<string, string>[] = [
@@ -140,7 +144,9 @@ function report(): string {
       run(`apply(${name}, ${show(requested)})`, () => {
         const warnings: string[] = []
         const from = make()
-        const config = applyI18nRuntimeOverrides(from, requested as never, (message) => warnings.push(message))
+        const warn = (message: string) => warnings.push(message)
+        // the server's order: the overrides, then the locale domains (as createI18nConfigResolver)
+        const config = applyLocaleBaseUrls(applyI18nRuntimeOverrides(from, requested as never, warn), requested as never, warn)
         return { ...summary(config, from), warnings }
       })
     }
@@ -155,8 +161,9 @@ function report(): string {
   for (const requested of domainOverrides) {
     for (const host of ['example.com', 'example.de', 'de.example.net', 'example.net', 'evil.test']) {
       run(`host(${show(requested)}, ${host})`, () => {
+        const applied = applyI18nRuntimeOverrides(bases['domains+derived']!(), requested as never, () => {})
         const config = configForHost(
-          applyI18nRuntimeOverrides(bases['domains+derived']!(), requested as never, () => {}),
+          applyLocaleBaseUrls(applied, requested as never, () => {}),
           host,
         )
         return { domain: config.domain, defaultLocale: config.defaultLocale, metaBaseUrl: config.metaBaseUrl }

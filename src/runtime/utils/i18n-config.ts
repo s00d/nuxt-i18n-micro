@@ -1,6 +1,8 @@
 import type { ModuleOptionsExtend, ResolvedI18nConfig } from '@i18n-micro/types'
 import {
   applyI18nRuntimeOverrides,
+  applyLocaleBaseUrls,
+  readLocaleBaseUrls,
   createI18nConfigResolver,
   readI18nRuntimeOverrides,
   type RuntimeI18nOverrides,
@@ -74,10 +76,15 @@ function resolve(nuxtApp: NuxtApp): ResolvedI18nConfig {
   }
   // a server-rendered page: exactly what the server applied (it already warned); a client-only one resolves itself
   if (nuxtApp.payload.serverRendered) {
-    const config = shipped.value ? applyI18nRuntimeOverrides(base, shipped.value, silent) : base
+    const applied = shipped.value ? applyI18nRuntimeOverrides(base, shipped.value, silent) : base
+    // a build with no locale domains has no baseUrl to move: `domains` drops the code
+    const config = domains && shipped.value ? applyLocaleBaseUrls(applied, shipped.value, silent) : applied
     return domains && shipped.value?.domain ? configForHost(config, shipped.value.domain) : config
   }
-  const config = applyI18nRuntimeOverrides(base, readI18nRuntimeOverrides(nuxtApp.$config.public as Record<string, unknown>))
+  const runtimePublic = nuxtApp.$config.public as Record<string, unknown>
+  const overrides = readI18nRuntimeOverrides(runtimePublic)
+  const applied = applyI18nRuntimeOverrides(base, overrides)
+  const config = domains ? applyLocaleBaseUrls(applied, { ...overrides, localeBaseUrls: readLocaleBaseUrls(runtimePublic) }) : applied
   return domains ? configForHost(config, location.host) : config
 }
 

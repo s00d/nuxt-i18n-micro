@@ -201,9 +201,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       void loader.reload()
     },
     switchLocalePath: (toLocale: string) => applyTrailingSlash(switchedPath(switchedLink(toLocale)), i18nConfig.trailingSlash),
-    switchLocale: async (requested: string) => {
-      if (!isValidLocale(requested)) {
-        if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] Invalid locale '${requested}'`)
+    switchLocale: async (toLocale: string) => {
+      if (!isValidLocale(toLocale)) {
+        if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] Invalid locale '${toLocale}'`)
         return false
       }
 
@@ -211,11 +211,12 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
       const urlless = isNoPrefix || i18nConfig.hashMode
       // Without a URL the dictionary moves before the navigation, which no guard can undo: ask here, once.
-      // With one, the router guard asks (i18n-navigation), as for a link.
-      const ctx =
-        hooks && urlless && nuxtApp && requested !== i18n.getLocale() ? await beforeLocaleSwitch(nuxtApp, i18n.getLocale(), requested) : null
-      if (ctx?.cancel) return false
-      const toLocale = ctx && isValidLocale(ctx.to) ? ctx.to : requested
+      // With one, the router guard asks (i18n-navigation), as for a link. A block of its own: `hooks: false` drops it.
+      if (hooks && urlless && nuxtApp && toLocale !== i18n.getLocale()) {
+        const ctx = await beforeLocaleSwitch(nuxtApp, i18n.getLocale(), toLocale)
+        if (ctx?.cancel) return false
+        if (ctx && isValidLocale(ctx.to)) toLocale = ctx.to
+      }
       const retry = getCurrentLocale() === toLocale && i18n.getLocale() !== toLocale
       const route = router.currentRoute.value
       const loaded = urlless || retry ? await loader.switchContext(toLocale, i18nStrategy.getPluginRouteName(route, toLocale)) : null

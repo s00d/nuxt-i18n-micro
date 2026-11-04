@@ -29,6 +29,12 @@ describe('journey: only a served page writes the locale cookie', () => {
     expect(served.headers.get('set-cookie')).toContain('user-locale=de')
   })
 
+  test('the locale cookie keeps its default attributes: Path=/, SameSite=Lax, a year, no Domain or Secure', async ({ baseURL }) => {
+    const served = await ssr(baseURL, '/de')
+    const header = served.headers.getSetCookie().find((entry) => entry.startsWith('user-locale='))
+    expect(header?.replace(/Expires=[^;]+/, 'Expires=<date>')).toBe('user-locale=de; Max-Age=31536000; Path=/; Expires=<date>; SameSite=Lax')
+  })
+
   test('a malformed cookie is ignored: it does not stop a page storing its locale, and a 404 stores nothing', async ({ baseURL }) => {
     const malformed = { cookie: 'user-locale=%E0%A4%A' }
     const served = await ssr(baseURL, '/de', malformed)

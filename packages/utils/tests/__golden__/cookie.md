@@ -1,0 +1,1 @@
+- `getLocaleCookieOptions()` → keys ["expires","maxAge","path","watch","sameSite","decode"] · {"expires":"2027-01-01T00:00:00.000Z","maxAge":31536000,"path":"/","watch":true,"sameSite":"lax","decode":"[function]"}

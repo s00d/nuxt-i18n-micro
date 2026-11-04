@@ -971,6 +971,15 @@ describe('an unknown URL and the preference', () => {
     expect(setup('prefix_except_default').i18n.getClientRedirect('/nonexistent', 'de')).toBe('/de/nonexistent')
   })
 
+  test('a two-segment dynamic page does not make a one-segment URL a page in prefixed form', () => {
+    // `/en/nope` matches the unprefixed `/:spec/:page`, not a record of `en`: `/nope` is still a 404
+    const dynamic: NuxtPage[] = [...pages, { path: '/:spec()/:page()', name: 'spec-page', file: 'pages/[spec]/[page].vue' }]
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages: dynamic })
+    expect(i18n.getClientRedirect('/nope', 'en')).toBeNull()
+    expect(i18n.getClientRedirect('/nope', 'de')).toBeNull()
+    expect(i18n.getClientRedirect('/spec/page', 'de')).toBe('/de/spec/page')
+  })
+
   test('no routes at all (pages: false): nothing can be missing', () => {
     const empty = createPathStrategy({
       strategy: 'prefix_except_default',

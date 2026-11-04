@@ -24,6 +24,8 @@ interface Entry {
   keys: string[]
   /** Catch-all record: other pages win over it when a URL is looked up. */
   catchAll: boolean
+  /** The path starts with a locale prefix (`/:locale(...)` or `/de/...`): an unprefixed URL tried in a locale's form can only mean it. */
+  prefixed: boolean
 }
 
 interface Index {
@@ -292,6 +294,8 @@ export class I18nPathStrategy {
       if (form === path && (unlocalized.has(name) || route?.meta?.i18nStub)) return UNLOCALIZED
       const entry = records.get(name)
       if (!entry) continue
+      // `/de/nope` tried for `/nope` that lands on an unprefixed `/:a/:b` reads `de` as a param, not a prefix
+      if (form !== path && !locale && !entry.prefixed) continue
       const { locale: urlLocale, ...params } = route!.params ?? {}
       // a custom matcher takes any segment for a locale: `/go` is a page in another form, not the home of `go`
       if (urlLocale && !this.codes.has(String(urlLocale)) && !others.has(String(urlLocale))) continue
@@ -659,9 +663,11 @@ function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>, codes: stri
       continue
     }
     const keys = Array.from(record.path.matchAll(/:(\w+)/g), (m) => m[1]!)
-    index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)') })
+    const own = i18n.locales.filter((code) => record.path === `/${code}` || record.path.startsWith(`/${code}/`))
+    const prefixed = keys.includes('locale') || own.length > 0
+    index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)'), prefixed })
     if (keys.includes('locale')) for (const code of i18n.locales) memberships.get(code)?.push(name)
-    for (const code of i18n.locales) if (record.path === `/${code}` || record.path.startsWith(`/${code}/`)) ownRecords.add(code)
+    for (const code of own) ownRecords.add(code)
     if (i18n.noMeta !== undefined) index.noMeta.set(i18n.name, i18n.noMeta)
     if (i18n.original) index.originals.set(i18n.original, i18n.name)
     let byLocale = index.pages.get(i18n.name)

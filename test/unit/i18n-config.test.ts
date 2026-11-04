@@ -14,3 +14,25 @@ test('the payload carries overrides only when the server resolved something the 
   expect(shippedOverrides({ ...build(), fallbackLocale: undefined }, build())).toMatchObject({ fallbackLocale: undefined })
   expect(shippedOverrides({ ...build(), domain: 'de.example.com' }, build())).toMatchObject({ domain: 'de.example.com' })
 })
+
+test('a host config ships its domain and the overrides, never its host origin', () => {
+  const domains = () =>
+    ({
+      defaultLocale: 'en',
+      dateBuild: 'b1',
+      metaBaseUrl: 'https://example.com',
+      locales: [
+        { code: 'en', baseUrl: 'https://example.com' },
+        { code: 'de', baseUrl: 'https://example.de' },
+      ],
+    }) as ModuleOptionsExtend
+  const host = { ...domains(), domain: 'example.de', defaultLocale: 'de', metaBaseUrl: 'https://example.de', locales: [{ code: 'de', baseUrl: 'https://example.de' }] }
+  expect(shippedOverrides(host, domains())).toEqual({
+    defaultLocale: 'de',
+    fallbackLocale: undefined,
+    disabledLocales: [],
+    domain: 'example.de',
+    dateBuild: 'b1',
+  })
+  expect(shippedOverrides({ ...build(), metaBaseUrl: 'https://cdn.example' }, build())).toBeNull()
+})

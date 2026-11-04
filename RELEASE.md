@@ -1,28 +1,33 @@
 # Releasing
 
-## Patch
+## Before the merge
 
-Before the merge, if `packages/*` changed:
+If `packages/*` changed, bump them (`patch`, `minor` or `major`, same as the release):
 
 ```bash
 pnpm run bump --level patch --packages core,vue
 pnpm run check:versions -- --npm   # bump what it lists, until OK
 ```
 
-After the merge:
+## After the merge
 
 ```bash
 git checkout main && git pull && pnpm install --frozen-lockfile
-pnpm run release:patch --ci-passed
-GH_TOKEN="$(gh auth token)" pnpm exec changelogen gh release X.Y.Z
 ```
 
-Minor / major: `release:minor` / `release:major`.
-
-## Packages only
+Then one of:
 
 ```bash
-pnpm run release:packages --ci-passed
+pnpm run release:patch --ci-passed      # 4.0.0 → 4.0.1, fixes
+pnpm run release:minor --ci-passed      # 4.0.0 → 4.1.0, new features, nothing breaks
+pnpm run release:major --ci-passed      # 4.0.0 → 5.0.0, breaking changes
+pnpm run release:packages --ci-passed   # only bumped packages, the module stays
+```
+
+GitHub release (not for `release:packages`):
+
+```bash
+GH_TOKEN="$(gh auth token)" pnpm exec changelogen gh release X.Y.Z
 ```
 
 ## v3

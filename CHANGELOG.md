@@ -1,6 +1,48 @@
 # Changelog
 
 
+## v4.0.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.0.0...v4.0.1)
+
+### 🚀 Enhancements
+
+- **path-strategy:** A locale prefix in another case redirects to its own spelling ([a6b0095a](https://github.com/s00d/nuxt-i18n-micro/commit/a6b0095a))
+
+### 🩹 Fixes
+
+- **path-strategy:** An unprefixed URL is no page through another record's param ([eaa5516d](https://github.com/s00d/nuxt-i18n-micro/commit/eaa5516d))
+- **module:** Import generated entries by path on Windows too ([61811809](https://github.com/s00d/nuxt-i18n-micro/commit/61811809))
+- **module:** Keep the file URL for the Windows dev server ([1a5e6af8](https://github.com/s00d/nuxt-i18n-micro/commit/1a5e6af8))
+- **module:** Transpile the packages the templates import, not a Windows split ([bc371ea7](https://github.com/s00d/nuxt-i18n-micro/commit/bc371ea7))
+- **module:** Bundle the two templates into the Nitro dev server too ([2ffc2db4](https://github.com/s00d/nuxt-i18n-micro/commit/2ffc2db4))
+
+### 📖 Documentation
+
+- Release guide in the repo root, v4.0.0 changelog and news date ([1556dc75](https://github.com/s00d/nuxt-i18n-micro/commit/1556dc75))
+- Move the rewritten v4.0.0 changelog into its own release commit ([ee179ce4](https://github.com/s00d/nuxt-i18n-micro/commit/ee179ce4))
+- **perf:** V4.0.0 benchmark results, and a report generator for the Nuxt docs ([966adc25](https://github.com/s00d/nuxt-i18n-micro/commit/966adc25))
+- Ask AI widget on the current Mintlify widget API ([cc200e7c](https://github.com/s00d/nuxt-i18n-micro/commit/cc200e7c))
+- Landing animation serves as soon as each build ends, packets follow p95 ([a4e99df8](https://github.com/s00d/nuxt-i18n-micro/commit/a4e99df8))
+- Rewrite RELEASE.md around the release a change needs ([897ec142](https://github.com/s00d/nuxt-i18n-micro/commit/897ec142))
+- Cut RELEASE.md down to the commands ([60a4e8af](https://github.com/s00d/nuxt-i18n-micro/commit/60a4e8af))
+- Every release level in RELEASE.md ([b828287a](https://github.com/s00d/nuxt-i18n-micro/commit/b828287a))
+
+### 🏡 Chore
+
+- **release:** V4.0.0 ([7f3e3e93](https://github.com/s00d/nuxt-i18n-micro/commit/7f3e3e93))
+- Ignore the local release playbook, fix a typo in the $switchLocaleRoute doc ([#310](https://github.com/s00d/nuxt-i18n-micro/pull/310))
+- Bump @i18n-micro/types and its dependents for prefixCaseRedirect ([01ac8276](https://github.com/s00d/nuxt-i18n-micro/commit/01ac8276))
+- Bump @i18n-micro/cli for its updated dependencies ([1ab98c1b](https://github.com/s00d/nuxt-i18n-micro/commit/1ab98c1b))
+
+### ✅ Tests
+
+- **cli:** Mask the CLI version in the goldens ([d7fd5cee](https://github.com/s00d/nuxt-i18n-micro/commit/d7fd5cee))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.0.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.3...v4.0.0) · [release notes](https://s00d.github.io/nuxt-i18n-micro/news/v4.0.0) · [upgrading from v3](https://s00d.github.io/nuxt-i18n-micro/guide/upgrade)

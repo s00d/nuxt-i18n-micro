@@ -3,174 +3,968 @@ title: '@i18n-micro/vue'
 description: 'Exported API of @i18n-micro/vue, generated from the source.'
 navigation:
   title: 'vue'
-outline: 'deep'
 ---
 
 # `@i18n-micro/vue`
 
-30 exports across 2 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
+Vue 3 bindings for i18n-micro — composables, components, and routing helpers.
+
+Entry points: `@i18n-micro/vue`, `@i18n-micro/vue/router`.
 
 ## `@i18n-micro/vue`
 
+### Components
+
+#### `I18nGroup`
+
 ```ts
-import { /* … */ } from '@i18n-micro/vue'
+const I18nGroup: DefineComponent
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createI18n` | function | `(options: CreateI18nOptions) => I18nPlugin` |
-| `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 21 members |
-| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nDefaultLocaleKey` | const | `InjectionKey<string>` |
-| `I18nGroup` | const | `import("vue").DefineComponent<I18nGroupProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>` |
-| `I18nInjectionKey` | const | `InjectionKey<VueI18n>` |
-| `I18nLink` | const | `import("vue").DefineComponent<import("vue").ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>, () => import("vue").VNode<import("vue").RendererNode, import("vue").RendererElement, { [key: string]: any; }>, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{ to: { type: PropType<I18nRouteTarget>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: I18nRouteTarget, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { activeStyle: CSSProperties; localeRoute: (to: I18nRouteTarget, locale?: string) => string \| { path?: string; }; }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>` |
-| `I18nLocalesKey` | const | `InjectionKey<Locale[]>` |
-| `I18nPlugin` | type | `Plugin & { global: VueI18n; setRoutingStrategy: (strategy: I18nRoutingStrategy) => void; }` |
-| `I18nRouteTarget` | type | `string \| { path?: string; name?: string \| symbol; params?: object; query?: object; hash?: string; }` |
-| `I18nRoutingStrategy` | interface | 7 members |
-| `I18nSwitcher` | const | `import("vue").DefineComponent<import("vue").ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>, () => unknown, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { localeRoute: (to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }; customWrapperStyle: CSSProperties; customButtonStyle: CSSProperties; customDropdownStyle: CSSProperties; customItemStyle: CSSProperties; customLinkStyle: CSSProperties; customActiveLinkStyle: CSSProperties; customDisabledLinkStyle: CSSProperties; customIconStyle: CSSProperties; customLabels: Record<string, string>; locales: Locale[]; currentLocale: string \| (() => string); getLocaleName: () => string \| null; switchLocale: (locale: string) => void; }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>` |
-| `I18nT` | const | `FunctionalComponent<I18nTProps, {}, any, {}> & { displayName: string; inheritAttrs: boolean; props: { keypath: { type: PropType<TranslationKey>; required: boolean; }; plural: { type: PropType<number \| string \| null>; }; tag: { type: StringConstructor; default: string; }; params: { type: PropType<Record<string, string \| number \| boolean>>; }; defaultValue: { type: StringConstructor; default: string; }; html: { type: BooleanConstructor; default: boolean; }; hideIfEmpty: { type: BooleanConstructor; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number \| string \| null>; }; date: { type: PropType<Date \| string \| number \| null>; }; relativeDate: { type: PropType<Date \| string \| number \| null>; }; }; }` |
-| `I18nTProps` | interface | 11 members |
-| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
-| `Locale` | interface | 11 members |
-| `LocaleCode` | type | `string` |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `Translations` | interface | 1 members |
-| `useI18n` | function | `(options?: UseI18nOptions) => { instance: VueI18n; locale: import("vue").WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: I18nRouteTarget, localeCode?: string) => I18nRouteTarget; localePath: (to: I18nRouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params \| import("@i18n-micro/types").ListParams, defaultValue?: string \| null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params \| import("@i18n-micro/types").ListParams, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations) => void; clearCache: () => void; }` |
-| `UseI18nOptions` | interface | 2 members |
-| `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue").Ref<{ htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: ({ [x: string]: string \| undefined; rel: "canonical"; href: string; } \| { [x: string]: string \| undefined; rel: "alternate"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }, LocaleHead \| { htmlAttrs: { [x: string]: string \| undefined; lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: ({ [x: string]: string \| undefined; rel: "canonical"; href: string; } \| { [x: string]: string \| undefined; rel: "alternate"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
-| `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 60 members |
-| `VueI18nOptions` | interface | 10 members |
+::field-group
+:::field
+---
+name: "prefix"
+type: "string"
+required: true
+---
 
-<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+:::
+:::field
+---
+name: "groupClass"
+type: "string"
+---
+**Default** `''`
+:::
+::
 
-<code>I18nRoutingStrategy</code> — 7 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
+#### `I18nLink`
 
-<details>
-<summary><code>I18nTProps</code> — 11 members</summary>
+```ts
+const I18nLink: DefineComponent
+```
 
-| Member | Type |
-| --- | --- |
-| `customPluralRule?` | `PluralFunc \| null \| undefined` |
-| `date?` | `string \| number \| Date \| null \| undefined` |
-| `defaultValue?` | `string \| undefined` |
-| `hideIfEmpty?` | `boolean \| undefined` |
-| `html?` | `boolean \| undefined` |
-| `keypath` | `string` |
-| `number?` | `string \| number \| null \| undefined` |
-| `params?` | `Record<string, string \| number \| boolean> \| undefined` |
-| `plural?` | `string \| number \| null \| undefined` |
-| `relativeDate?` | `string \| number \| Date \| null \| undefined` |
-| `tag?` | `string \| undefined` |
+::field-group
+:::field
+---
+name: "to"
+type: "I18nRouteTarget"
+required: true
+---
 
-</details>
+:::
+:::field
+---
+name: "activeStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+:::
+:::field
+---
+name: "localeRoute"
+type: "(to: I18nRouteTarget, locale?: string) => string | { path?: string; }"
+---
 
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/react).
+:::
+::
 
-<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+#### `I18nSwitcher`
 
-<code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+```ts
+const I18nSwitcher: DefineComponent
+```
 
-<details>
-<summary><code>UseLocaleHeadOptions</code> — 5 members</summary>
+::collapsible{name="14 props"}
+:::field-group
+::::field
+---
+name: "customLabels"
+type: "Record<string, string>"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customWrapperStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customButtonStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customDropdownStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customItemStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customLinkStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customActiveLinkStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "customDisabledLinkStyle"
+type: "CSSProperties"
+---
+**Default** `{}` · Inline style applied to the switcher button when the *current* locale is
+marked as `disabled: true` in the locale config. Note: disabled locales are omitted from the dropdown list, but the current
+locale label is still shown on the button.
+::::
+::::field
+---
+name: "customIconStyle"
+type: "CSSProperties"
+---
+**Default** `{}`
+::::
+::::field
+---
+name: "locales"
+type: "Locale[]"
+---
 
-| Member | Type |
-| --- | --- |
-| `addDirAttribute?` | `boolean \| undefined` |
-| `addSeoAttributes?` | `boolean \| undefined` |
-| `baseUrl?` | `string \| (() => string) \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-| `identifierAttribute?` | `string \| undefined` |
+::::
+::::field
+---
+name: "currentLocale"
+type: "string | (() => string)"
+---
 
-</details>
+::::
+::::field
+---
+name: "getLocaleName"
+type: "() => string | null"
+---
 
-<details>
-<summary><code>VueI18n</code> — 60 members</summary>
+::::
+::::field
+---
+name: "switchLocale"
+type: "(locale: string) => void"
+---
 
-| Member | Type |
-| --- | --- |
-| `_currentRoute` | `private Ref<string, string>` |
-| `_fallbackLocale` | `private Ref<string, string>` |
-| `_locale` | `private Ref<string, string>` |
-| `_revision` | `private Ref<number, number>` |
-| `activeKey` | `private any` |
-| `activeRootKey` | `private any` |
-| `addLocaleIso` | `(localeIso: Record<string, string>) => void` |
-| `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
-| `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
-| `clearCache` | `() => void` |
-| `currentRoute` | `Ref<string, string>` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<VueI18n & M>) => VueI18n & M` |
-| `fallbackKey` | `private any` |
-| `fallbackLocale` | `Ref<string, string>` |
-| `fallbackRootKey` | `private any` |
-| `formatArgs` | `private any` |
-| `formatter` | `FormatService` |
-| `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
-| `getFallbackLocale` | `() => string` |
-| `getLocale` | `() => string` |
-| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
-| `getRoute` | `() => string` |
-| `getRouteCache` | `() => Record<string, Translations>` |
-| `getStorage` | `() => TranslationStorage` |
-| `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `TranslationHelper` |
-| `isoTag` | `private any` |
-| `listeners` | `private Set<() => void>` |
-| `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `locale` | `Ref<string, string>` |
-| `localeIso` | `protected Record<string, string>` |
-| `lookupLocale` | `private any` |
-| `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn` | `boolean` |
-| `new` | `(options: VueI18nOptions): VueI18n` |
-| `notifyListeners` | `private () => void` |
-| `onTranslationsChanged` | `protected () => void` |
-| `ownsFormatter` | `private any` |
-| `pluralFunc` | `PluralFunc` |
-| `pluralLocale` | `() => string` |
-| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `setRoute` | `(routeName: string) => void` |
-| `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
-| `storage` | `TranslationStorage` |
-| `subscribeToChanges` | `(cb: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
-| `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
-| `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
-| `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `protected (message: string) => void` |
-| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+::::
+::::field
+---
+name: "localeRoute"
+type: "(to: string | { path?: string; }, locale?: string) => string | { path?: string; }"
+---
 
-</details>
+::::
+:::
+::
 
-<code>VueI18nOptions</code> — 10 members, identical to [`VueI18nOptions`](/api/packages/vitepress).
+#### `I18nT`
+
+```ts
+function I18nT(props: I18nTProps): any
+```
+
+**See** [`I18nTProps`](#i18ntprops)
+
+### Composables
+
+#### `useI18n`
+
+Get the i18n instance from the Vue app context
+Returns the same instance that was created with createI18n()
+
+```ts
+function useI18n(options?: UseI18nOptions): { … }
+```
+
+::collapsible{name="24 properties"}
+:::field-group
+::::field
+---
+name: "instance"
+type: "VueI18n"
+required: true
+---
+
+::::
+::::field
+---
+name: "locale"
+type: "WritableComputedRef<string, string>"
+required: true
+---
+
+::::
+::::field
+---
+name: "getLocales"
+type: "() => Locale[]"
+required: true
+---
+
+::::
+::::field
+---
+name: "defaultLocale"
+type: "() => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "getLocaleName"
+type: "() => string | null"
+required: true
+---
+
+::::
+::::field
+---
+name: "localeRoute"
+type: "(to: I18nRouteTarget, localeCode?: string) => I18nRouteTarget"
+required: true
+---
+
+::::
+::::field
+---
+name: "localePath"
+type: "(to: I18nRouteTarget, locale?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "switchLocale"
+type: "(newLocale: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
+required: true
+---
+
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tn"
+type: "{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }"
+required: true
+---
+
+::::
+::::field
+---
+name: "td"
+type: "{ (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }"
+required: true
+---
+
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeContext?: unknown) => boolean"
+required: true
+---
+
+::::
+::::field
+---
+name: "resolveTranslations"
+type: "(routeContext?: unknown) => Translations"
+required: true
+---
+
+::::
+::::field
+---
+name: "setTranslation"
+type: "(key: TranslationKey, value: unknown) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(routeName: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "getLocale"
+type: "() => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "addTranslations"
+type: "(locale: string, translations: Translations, merge?: boolean) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "addRouteTranslations"
+type: "(locale: string, routeName: string, translations: Translations, merge?: boolean) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "mergeTranslations"
+type: "(locale: string, routeName: string, translations: Translations) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "clearCache"
+type: "() => void"
+required: true
+---
+
+::::
+:::
+::
+
+**See** [`UseI18nOptions`](#usei18noptions)
+
+#### `useLocaleHead`
+
+```ts
+function useLocaleHead(options?: UseLocaleHeadOptions): { … }
+```
+
+::field-group
+:::field
+---
+name: "metaObject"
+type: "Ref<{ htmlAttrs: { [x: string]: string | undefined; lang?: string | undefined; dir?: \"ltr\" | \"rtl\" | \"auto\" | undefined; }; link: ({ [x: string]: string | undefined; rel: \"canonical\"; href: string; } | { [x: string]: string | undefined; rel: \"alternate\"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }, LocaleHead | { htmlAttrs: { [x: string]: string | undefined; lang?: string | undefined; dir?: \"ltr\" | \"rtl\" | \"auto\" | undefined; }; link: ({ [x: string]: string | undefined; rel: \"canonical\"; href: string; } | { [x: string]: string | undefined; rel: \"alternate\"; href: string; hreflang: string; })[]; meta: { [x: string]: string; property: string; content: string; }[]; }>"
+required: true
+---
+
+:::
+:::field
+---
+name: "updateMeta"
+type: "(canonicalQueryWhitelist?: string[]) => void"
+required: true
+---
+
+:::
+::
+
+**See** [`UseLocaleHeadOptions`](#uselocaleheadoptions)
+
+### Functions
+
+#### `createI18n`
+
+```ts
+function createI18n(options: CreateI18nOptions): I18nPlugin
+```
+
+**See** [`CreateI18nOptions`](/api/packages/vitepress#createi18noptions) · [`I18nPlugin`](#i18nplugin)
+
+### Classes
+
+#### `VueI18n`
+
+```ts
+class VueI18n extends BaseI18n {
+  constructor(options: VueI18nOptions)
+}
+```
+
+::collapsible{name="16 members"}
+:::field-group
+::::field
+---
+name: "readonly storage"
+type: "TranslationStorage"
+---
+
+::::
+::::field
+---
+name: "locale"
+type: "Ref<string>"
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "Ref<string>"
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "Ref<string>"
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(routeName: string) => void"
+---
+
+::::
+::::field
+---
+name: "getLocale"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "getFallbackLocale"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "addTranslations"
+type: "(locale: string, translations: Translations, merge = true) => void"
+---
+
+::::
+::::field
+---
+name: "addRouteTranslations"
+type: "(locale: string, routeName: string, translations: Translations, merge = true) => void"
+---
+
+::::
+::::field
+---
+name: "mergeTranslations"
+type: "(locale: string, routeName: string, translations: Translations) => void"
+---
+
+::::
+::::field
+---
+name: "protected touch"
+type: "() => void"
+---
+Every read depends on the revision, so `computed(() => t(key))` re-runs after a write.
+::::
+::::field
+---
+name: "protected onTranslationsChanged"
+type: "() => void"
+---
+Called after every write (load, merge, set, clear): the one place adapters bump their reactivity.
+`locale` is set when one locale's chunk was written, unset when anything may have changed.
+::::
+::::field
+---
+name: "subscribeToChanges"
+type: "(cb: () => void) => () => void"
+---
+
+::::
+::::field
+---
+name: "getStorage"
+type: "() => TranslationStorage"
+---
+
+::::
+::::field
+---
+name: "getRouteCache"
+type: "() => Record<string, Translations>"
+---
+
+::::
+:::
+::
+
+**See** [`BaseI18n`](/api/packages/core#basei18n) · [`VueI18nOptions`](#vuei18noptions)
+
+### Constants
+
+#### `I18nDefaultLocaleKey`
+
+```ts
+const I18nDefaultLocaleKey: InjectionKey<string>
+```
+
+#### `I18nInjectionKey`
+
+```ts
+const I18nInjectionKey: InjectionKey<VueI18n>
+```
+
+**See** [`VueI18n`](#vuei18n)
+
+#### `I18nLocalesKey`
+
+```ts
+const I18nLocalesKey: InjectionKey<Locale[]>
+```
+
+**See** [`Locale`](/api/packages/types#locale)
+
+### Types
+
+#### `I18nPlugin`
+
+```ts
+type I18nPlugin = Plugin & { … }
+```
+
+::field-group
+:::field
+---
+name: "global"
+type: "VueI18n"
+required: true
+---
+
+:::
+:::field
+---
+name: "setRoutingStrategy"
+type: "(strategy: I18nRoutingStrategy) => void"
+required: true
+---
+
+:::
+::
+
+#### `I18nRouteTarget`
+
+A link target: a path with its query and hash, or a location (a named one needs a router that resolves names).
+
+```ts
+type I18nRouteTarget = string | {
+  path?: string;
+  name?: string | symbol;
+  params?: object;
+  query?: object;
+  hash?: string;
+}
+```
+
+#### `I18nRoutingStrategy`
+
+Routing strategy interface for i18n
+Implement this interface to integrate with any router library
+
+```ts
+interface I18nRoutingStrategy
+```
+
+::field-group
+:::field
+---
+name: "getCurrentPath"
+type: "() => string"
+required: true
+---
+Returns current path (without locale prefix if needed, or full path)
+Used for determining active classes in links
+:::
+:::field
+---
+name: "linkComponent"
+type: "string | Component"
+---
+Component to use for rendering links (e.g., RouterLink)
+:::
+:::field
+---
+name: "push"
+type: "(target: { path: string; }) => void"
+required: true
+---
+Function to navigate to another route/locale
+:::
+:::field
+---
+name: "replace"
+type: "(target: { path: string; }) => void"
+required: true
+---
+Function to replace current route
+:::
+:::field
+---
+name: "resolvePath"
+type: "(to: I18nRouteTarget, locale: string) => string | { path?: string; }"
+---
+Generate path for specific locale
+:::
+:::field
+---
+name: "toHref"
+type: "(path: string) => string"
+---
+`href` of a path from `resolvePath`, for a router that navigates by something else
+(VitePress: paths are relative to the site base, the address bar is not)
+:::
+:::field
+---
+name: "getRoute"
+type: "() => { fullPath: string; query: Record<string, unknown>; }"
+---
+(Optional) Get current route object for SEO/Meta tags
+:::
+::
+
+#### `I18nTProps`
+
+```ts
+interface I18nTProps
+```
+
+::collapsible{name="11 properties"}
+:::field-group
+::::field
+---
+name: "keypath"
+type: "TranslationKey"
+required: true
+---
+
+::::
+::::field
+---
+name: "plural"
+type: "number | string | null"
+---
+
+::::
+::::field
+---
+name: "tag"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "params"
+type: "Record<string, string | number | boolean>"
+---
+
+::::
+::::field
+---
+name: "defaultValue"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "html"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "hideIfEmpty"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "customPluralRule"
+type: "PluralFunc | null"
+---
+
+::::
+::::field
+---
+name: "number"
+type: "number | string | null"
+---
+
+::::
+::::field
+---
+name: "date"
+type: "Date | string | number | null"
+---
+
+::::
+::::field
+---
+name: "relativeDate"
+type: "Date | string | number | null"
+---
+
+::::
+:::
+::
+
+#### `UseI18nOptions`
+
+```ts
+interface UseI18nOptions
+```
+
+::field-group
+:::field
+---
+name: "locales"
+type: "Locale[]"
+---
+
+:::
+:::field
+---
+name: "defaultLocale"
+type: "string"
+---
+
+:::
+::
+
+#### `UseLocaleHeadOptions`
+
+```ts
+interface UseLocaleHeadOptions
+```
+
+::field-group
+:::field
+---
+name: "addDirAttribute"
+type: "boolean"
+---
+
+:::
+:::field
+---
+name: "identifierAttribute"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "addSeoAttributes"
+type: "boolean"
+---
+
+:::
+:::field
+---
+name: "baseUrl"
+type: "string | (() => string)"
+---
+
+:::
+:::field
+---
+name: "hreflangBaseLanguage"
+type: "boolean"
+---
+**Default** `false` · Also emit bare-language `hreflang` tags derived from `iso` (never from routing `code`).
+:::
+::
+
+#### `VueI18nOptions`
+
+```ts
+interface VueI18nOptions
+```
+
+::collapsible{name="10 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "messages"
+type: "Record<string, Translations>"
+---
+
+::::
+::::field
+---
+name: "plural"
+type: "PluralFunc"
+---
+
+::::
+::::field
+---
+name: "missingWarn"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "missingHandler"
+type: "(locale: string, key: string, routeName: string) => void"
+---
+
+::::
+::::field
+---
+name: "numberFormats"
+type: "NumberFormatsConfig"
+---
+Named number formats per locale (`tn(n, 'currency')`).
+::::
+::::field
+---
+name: "datetimeFormats"
+type: "DateTimeFormatsConfig"
+---
+Named datetime formats per locale (`td(d, 'short')`).
+::::
+::::field
+---
+name: "timeZone"
+type: "string"
+---
+IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date.
+::::
+::::field
+---
+name: "localeIso"
+type: "Record<string, string>"
+---
+BCP 47 tag per locale code, for plurals of a code that is no language tag. `createI18n` fills it from `locales`.
+::::
+:::
+::
+
+### Re-exports
+
+Declared in another package of this repository and documented on its page.
+
+- From [`@i18n-micro/core`](/api/packages/core): [`defaultPlural`](/api/packages/core#defaultplural) · [`interpolate`](/api/packages/core#interpolate) · [`FormatService`](/api/packages/core#formatservice)
+- From [`@i18n-micro/types`](/api/packages/types): [`CleanTranslation`](/api/packages/types#cleantranslation) · [`Getter`](/api/packages/types#getter) · [`Locale`](/api/packages/types#locale) · [`LocaleCode`](/api/packages/types#localecode) · [`Params`](/api/packages/types#params) · [`PluralFunc`](/api/packages/types#pluralfunc) · [`Translations`](/api/packages/types#translations)
+
 ## `@i18n-micro/vue/router`
 
+Also exports, as `@i18n-micro/vue` does: [`I18nRoutingStrategy`](#i18nroutingstrategy).
+
+### Functions
+
+#### `createVueRouterAdapter`
+
+Factory for Vue Router adapter
+Implements routing utilities for Vue Router
+Uses vue-router APIs for navigation and path resolution
+
 ```ts
-import { /* … */ } from '@i18n-micro/vue/router'
+function createVueRouterAdapter(
+  router: Router,
+  locales: Locale[],
+  defaultLocale: string,
+): I18nRoutingStrategy
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `createVueRouterAdapter` | function | `(router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
-| `I18nRoutingStrategy` | interface | 7 members |
+**See** [`Locale`](/api/packages/types#locale) · [`I18nRoutingStrategy`](#i18nroutingstrategy)
 
-<code>I18nRoutingStrategy</code> — 7 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
+---
 
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

@@ -19,10 +19,14 @@ The module calls two runtime (app) hooks. `i18n:register` adds translations that
 ) => HookResult
 ```
 
-| Argument | Description |
-| --- | --- |
-| `register(translations, locale?)` | Deep-merges `translations` into the page chunk of the route being loaded, for `locale` (default: the hook's `locale`). Keys already there are overridden. |
-| `locale` | The locale of the route being loaded. |
+::field-group
+:::field{name="register" type="(translations: unknown, locale?: string) => void"}
+Deep-merges `translations` into the page chunk of the route being loaded, for `locale` (default: the hook's `locale`). Keys already there are overridden.
+:::
+:::field{name="locale" type="string"}
+The locale of the route being loaded.
+:::
+::
 
 The hook is typed through `RuntimeNuxtHooks`, so `nuxtApp.hook('i18n:register', …)` needs no cast.
 
@@ -55,11 +59,17 @@ This is a runtime hook: register it with `nuxtApp.hook` in a plugin, not with `n
 'i18n:beforeLocaleSwitch': (ctx: { from: string; to: string; cancel: boolean }) => HookResult
 ```
 
-| Field | Description |
-| --- | --- |
-| `from` | The locale the page shows now. |
-| `to` | The locale it switches to. Set another enabled locale to switch there instead; a locale that is not enabled is ignored. |
-| `cancel` | Set `true` to stay: the page, its dictionary and the stored preference do not change. |
+::field-group
+:::field{name="from" type="string"}
+The locale the page shows now.
+:::
+:::field{name="to" type="string"}
+The locale it switches to. Set another enabled locale to switch there instead; a locale that is not enabled is ignored.
+:::
+:::field{name="cancel" type="boolean"}
+Set `true` to stay: the page, its dictionary and the stored preference do not change.
+:::
+::
 
 ```ts
 // plugins/confirm-locale.client.ts

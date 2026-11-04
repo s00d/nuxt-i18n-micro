@@ -3,144 +3,381 @@ title: '@i18n-micro/runtime'
 description: 'Exported API of @i18n-micro/runtime, generated from the source.'
 navigation:
   title: 'runtime'
-outline: 'deep'
 ---
 
 # `@i18n-micro/runtime`
 
-17 exports across 1 entry point.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
-
-## `@i18n-micro/runtime`
+Framework-agnostic i18n runtime for vanilla TypeScript/JavaScript (browser and Node).
 
 ```ts
-import { /* … */ } from '@i18n-micro/runtime'
+import { … } from '@i18n-micro/runtime'
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createI18n` | function | `(options: I18nOptions) => I18n` |
-| `fetchJsonTranslations` | function | `(url: string, init?: RequestInit) => Promise<Translations>` |
-| `FormatService` | class | 21 members |
-| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 64 members |
-| `I18nOptions` | interface | 13 members |
-| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
-| `LoadFromUrlEntry` | interface | 4 members |
-| `LoadFromUrlOptions` | interface | 3 members |
-| `Locale` | interface | 11 members |
-| `LocaleCode` | type | `string` |
-| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `Translations` | interface | 1 members |
-| `TranslationStorage` | interface | 1 members |
+## Functions
 
-<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+### `createI18n`
 
-<details>
-<summary><code>I18n</code> — 64 members</summary>
+```ts
+function createI18n(options: I18nOptions): I18n
+```
 
-| Member | Type |
-| --- | --- |
-| `activeKey` | `private any` |
-| `activeRootKey` | `private any` |
-| `addFetched` | `private (locale: string, routeName: string, translations: Translations) => void` |
-| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
-| `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
-| `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
-| `borrowsLocaleIso` | `private boolean` |
-| `clear` | `() => void` |
-| `clearCache` | `() => void` |
-| `currentRoute` | `string` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M` |
-| `fallbackKey` | `private any` |
-| `fallbackLocale` | `string` |
-| `fallbackRootKey` | `private any` |
-| `fork` | `(locale?: string) => I18n` |
-| `formatArgs` | `private any` |
-| `formatter` | `FormatService` |
-| `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
-| `getFallbackLocale` | `() => string` |
-| `getLocale` | `() => string` |
-| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
-| `getRoute` | `() => string` |
-| `getSnapshot` | `() => string` |
-| `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `TranslationHelper` |
-| `isoTag` | `private any` |
-| `isReadable` | `private (locale: string) => boolean` |
-| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
-| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
-| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `locale` | `string` |
-| `localeIso` | `protected Record<string, string>` |
-| `lookupLocale` | `private any` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn` | `boolean` |
-| `new` | `(options: I18nOptions): I18n` |
-| `onTranslationsChanged` | `protected (locale?: string) => void` |
-| `ownLocaleIso` | `private () => void` |
-| `ownsFormatter` | `private any` |
-| `ownStore` | `protected ReactiveI18nStore` |
-| `pluralFunc` | `PluralFunc` |
-| `pluralLocale` | `() => string` |
-| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `setRoute` | `(routeName: string) => void` |
-| `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
-| `storage` | `TranslationStorage` |
-| `store` | `protected ReactiveI18nStore` |
-| `subscribe` | `(listener: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
-| `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
-| `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
-| `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `protected (message: string) => void` |
-| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+**See** [`I18nOptions`](#i18noptions) · [`I18n`](#i18n)
 
-</details>
+### `fetchJsonTranslations`
 
-<code>I18nOptions</code> — 13 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+Fetch a JSON translation document from a URL (browser or any fetch-capable runtime).
 
-<details>
-<summary><code>LoadFromUrlEntry</code> — 4 members</summary>
+```ts
+function fetchJsonTranslations(url: string, init?: RequestInit): Promise<Translations>
+```
 
-| Member | Type |
-| --- | --- |
-| `init?` | `RequestInit \| undefined` |
-| `locale` | `string` |
-| `routeName?` | `string \| undefined` |
-| `url` | `string` |
+**See** [`Translations`](/api/packages/types#translations)
 
-</details>
+## Classes
 
-<details>
-<summary><code>LoadFromUrlOptions</code> — 3 members</summary>
+### `I18n`
 
-| Member | Type |
-| --- | --- |
-| `init?` | `RequestInit \| undefined` |
-| `locale?` | `string \| undefined` |
-| `routeName?` | `string \| undefined` |
+```ts
+class I18n extends BaseI18n {
+  constructor(options: I18nOptions)
+}
+```
 
-</details>
+::collapsible{name="22 members"}
+:::field-group
+::::field
+---
+name: "protected readonly ownStore"
+type: "ReactiveI18nStore"
+---
 
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+::::
+::::field
+---
+name: "storage"
+type: "TranslationStorage"
+---
+The chunks of this instance. Handing them out detaches a fork: what the caller does with them stays here.
+::::
+::::field
+---
+name: "protected store"
+type: "ReactiveI18nStore"
+---
+The locale, fallback and route state in force. An adapter with per-request state answers its own.
+::::
+::::field
+---
+name: "fork"
+type: "(locale: string = this.getLocale()) => this"
+---
+A cheap instance for one request or task: own locale, fallback and route, the same dictionaries,
+formatters and rules. It sees writes to the parent until its first own write; its writes stay in it.
+Forking a fork counts as that fork's first write.
+::::
+::::field
+---
+name: "subscribe"
+type: "(listener: () => void) => () => void"
+---
 
-<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+::::
+::::field
+---
+name: "getSnapshot"
+type: "() => string"
+---
 
-<code>TranslationStorage</code> — 1 members, identical to [`TranslationStorage`](/api/packages/core).
+::::
+::::field
+---
+name: "locale"
+type: "string"
+---
 
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(routeName: string) => void"
+---
+
+::::
+::::field
+---
+name: "getLocale"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "getFallbackLocale"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+---
+
+::::
+::::field
+---
+name: "loadMessages"
+type: "(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void"
+---
+Load root and optional route-scoped translation maps into the instance. A route chunk holds
+the route's own keys; root keys resolve from the root chunk (also ones added later).
+::::
+::::field
+---
+name: "addLocaleIso"
+type: "(localeIso: Record<string, string>, notify = true) => void"
+---
+Text on screen follows a new plural tag. A render passes `notify: false`: it must not wake other components.
+::::
+::::field
+---
+name: "loadFromUrl"
+type: "(url: string, options: LoadFromUrlOptions = {}) => Promise<void>"
+---
+
+::::
+::::field
+---
+name: "loadFromUrls"
+type: "(entries: LoadFromUrlEntry[]) => Promise<void>"
+---
+All or nothing: a failed fetch leaves the dictionaries as they were. Merged in entry order.
+::::
+::::field
+---
+name: "addTranslations"
+type: "(locale: string, translations: Translations, merge = true) => void"
+---
+
+::::
+::::field
+---
+name: "addRouteTranslations"
+type: "(locale: string, routeName: string, translations: Translations, merge = true) => void"
+---
+
+::::
+::::field
+---
+name: "hasTranslation"
+type: "(key: TranslationKey) => boolean"
+---
+
+::::
+::::field
+---
+name: "clear"
+type: "() => void"
+---
+
+::::
+::::field
+---
+name: "protected onTranslationsChanged"
+type: "(locale?: string) => void"
+---
+Called after every write (load, merge, set, clear): the one place adapters bump their reactivity.
+`locale` is set when one locale's chunk was written, unset when anything may have changed.
+::::
+:::
+::
+
+**See** [`BaseI18n`](/api/packages/core#basei18n) · [`I18nOptions`](#i18noptions)
+
+## Types
+
+### `I18nOptions`
+
+```ts
+interface I18nOptions
+```
+
+::collapsible{name="13 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "messages"
+type: "Record<string, Translations>"
+---
+Root translations keyed by locale code.
+::::
+::::field
+---
+name: "routeMessages"
+type: "Record<string, Record<string, Translations>>"
+---
+Route-specific translations: routeName → locale → messages.
+::::
+::::field
+---
+name: "plural"
+type: "PluralFunc"
+---
+
+::::
+::::field
+---
+name: "missingWarn"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "missingHandler"
+type: "(locale: string, key: string, routeName: string) => void"
+---
+
+::::
+::::field
+---
+name: "numberFormats"
+type: "NumberFormatsConfig"
+---
+Named number formats per locale (`tn(n, 'currency')`).
+::::
+::::field
+---
+name: "datetimeFormats"
+type: "DateTimeFormatsConfig"
+---
+Named datetime formats per locale (`td(d, 'short')`).
+::::
+::::field
+---
+name: "timeZone"
+type: "string"
+---
+IANA zone for dates (`Europe/Berlin`): set it so server and browser render one date.
+::::
+::::field
+---
+name: "now"
+type: "() => number"
+---
+The clock of relative dates: hand hydration the server's time so both render one text.
+::::
+::::field
+---
+name: "localeIso"
+type: "Record<string, string>"
+---
+BCP 47 tag per locale code (`iso`), for a code that is no language tag: `ua` → `uk-UA`. `localeIsoMap(locales)` builds it.
+::::
+::::field
+---
+name: "parent"
+type: "I18n"
+---
+Set by `fork()`: the instance whose dictionaries, formatters and rules this one shares.
+::::
+:::
+::
+
+### `LoadFromUrlEntry`
+
+```ts
+interface LoadFromUrlEntry extends LoadFromUrlOptions
+```
+
+::field-group
+:::field
+---
+name: "url"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+:::
+::
+
+**See** [`LoadFromUrlOptions`](#loadfromurloptions)
+
+### `LoadFromUrlOptions`
+
+```ts
+interface LoadFromUrlOptions
+```
+
+::field-group
+:::field
+---
+name: "locale"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "routeName"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "init"
+type: "RequestInit"
+---
+
+:::
+::
+
+## Re-exports
+
+Declared in another package of this repository and documented on its page.
+
+- From [`@i18n-micro/core`](/api/packages/core): [`interpolate`](/api/packages/core#interpolate) · [`localeIsoMap`](/api/packages/core#localeisomap) · [`FormatService`](/api/packages/core#formatservice) · [`TranslationStorage`](/api/packages/core#translationstorage)
+- From [`@i18n-micro/types`](/api/packages/types): [`CleanTranslation`](/api/packages/types#cleantranslation) · [`Getter`](/api/packages/types#getter) · [`Locale`](/api/packages/types#locale) · [`LocaleCode`](/api/packages/types#localecode) · [`Params`](/api/packages/types#params) · [`PluralFunc`](/api/packages/types#pluralfunc) · [`Translations`](/api/packages/types#translations)
+
+---
+
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

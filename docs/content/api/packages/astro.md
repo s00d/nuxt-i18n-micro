@@ -3,351 +3,1527 @@ title: '@i18n-micro/astro'
 description: 'Exported API of @i18n-micro/astro, generated from the source.'
 navigation:
   title: 'astro'
-outline: 'deep'
 ---
 
 # `@i18n-micro/astro`
 
-50 exports across 8 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
+Astro integration for i18n-micro — translations, routing, and islands.
+
+Entry points: `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue`, `@i18n-micro/astro/middleware`, `@i18n-micro/astro/node`.
 
 ## `@i18n-micro/astro`
 
+### Composables
+
+#### `useI18n`
+
+Use i18n in Astro pages/components
+Returns helper functions for translations
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro'
+function useI18n(astro: Astro): { … }
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `AstroI18n` | class | 70 members |
-| `AstroI18nOptions` | type | `I18nOptions` |
-| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
-| `createI18n` | function | `(options: AstroI18nOptions) => AstroI18n` |
-| `createI18nMiddleware` | function | `(options: I18nMiddlewareOptions) => MiddlewareHandler` |
-| `defaultPlural` | const | `PluralFunc` |
-| `detectLocale` | function | `(pathname: string, cookies: { get: (name: string) => { value: string; } \| undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string \| null, routingStrategy?: I18nRoutingStrategy \| null, autoDetect?: boolean) => string` |
-| `FormatService` | class | 21 members |
-| `getDefaultLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
-| `getI18n` | function | `(astro: Pick<AstroGlobal, "locals">) => AstroI18n` |
-| `getI18nProps` | function | `(astro: Pick<AstroGlobal, "locals">, keys?: string[]) => I18nClientProps` |
-| `getLocale` | function | `(astro: Pick<AstroGlobal, "locals">) => string` |
-| `getLocaleRewritePath` | function | `(astro: Astro) => string` |
-| `getLocales` | function | `(astro: Pick<AstroGlobal, "locals">) => Locale[]` |
-| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nClientProps` | interface | 6 members |
-| `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
-| `I18nIntegrationOptions` | interface | 10 members |
-| `I18nMiddlewareOptions` | interface | 9 members |
-| `I18nRoutingStrategy` | interface | 10 members |
-| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
-| `Locale` | interface | 11 members |
-| `LocaleCode` | type | `string` |
-| `LocaleHeadOptions` | interface | 4 members |
-| `LocaleHeadResult` | type | `LocaleHead` |
-| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `prepareLocaleRewrite` | function | `(astro: Astro & Pick<AstroGlobal, "params">) => Response \| string` |
-| `Translations` | interface | 1 members |
-| `useI18n` | function | `(astro: Astro) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params \| import("@i18n-micro/types").ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation; ts: (key: TranslationKey, params?: Params \| import("@i18n-micro/types").ListParams, defaultValue?: string, routeContext?: unknown) => string; tc: (key: TranslationKey, count: number \| Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeContext?: unknown) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Translations) => void; clearCache: () => void; }` |
-| `useLocaleHead` | function | `(astro: Astro, options?: LocaleHeadOptions) => LocaleHeadResult` |
+::collapsible{name="21 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
 
-<details>
-<summary><code>AstroI18n</code> — 70 members</summary>
+::::
+::::field
+---
+name: "defaultLocale"
+type: "string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `activeKey` | `private any` |
-| `activeRootKey` | `private any` |
-| `addFetched` | `private any` |
-| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
-| `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
-| `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
-| `borrowsLocaleIso` | `private any` |
-| `clear` | `() => void` |
-| `clearCache` | `() => void` |
-| `currentRoute` | `string` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<AstroI18n & M>) => AstroI18n & M` |
-| `fallbackKey` | `private any` |
-| `fallbackLocale` | `string` |
-| `fallbackRootKey` | `private any` |
-| `fork` | `(locale?: string) => AstroI18n` |
-| `formatArgs` | `private any` |
-| `formatter` | `FormatService` |
-| `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
-| `getFallbackLocale` | `() => string` |
-| `getLocale` | `() => string` |
-| `getLocaleIso` | `() => Record<string, string>` |
-| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
-| `getRoute` | `() => string` |
-| `getRouteTranslations` | `(locale: string, routeName: string) => Translations \| null` |
-| `getSnapshot` | `() => string` |
-| `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `TranslationHelper` |
-| `initialMessages` | `private Record<string, Translations>` |
-| `initialRouteMessages` | `private Record<string, Record<string, Translations>>` |
-| `isoTag` | `private any` |
-| `isReadable` | `private any` |
-| `keepMessages` | `(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void` |
-| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
-| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
-| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `locale` | `string` |
-| `localeIso` | `protected Record<string, string>` |
-| `lookupLocale` | `private any` |
-| `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn` | `boolean` |
-| `new` | `(options: I18nOptions): AstroI18n` |
-| `onTranslationsChanged` | `protected (locale?: string) => void` |
-| `ownLocaleIso` | `private any` |
-| `ownsFormatter` | `private any` |
-| `ownStore` | `protected ReactiveI18nStore` |
-| `pluralFunc` | `PluralFunc` |
-| `pluralLocale` | `() => string` |
-| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `setRoute` | `(routeName: string) => void` |
-| `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
-| `storage` | `TranslationStorage` |
-| `store` | `protected ReactiveI18nStore` |
-| `subscribe` | `(listener: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
-| `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
-| `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
-| `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `protected (message: string) => void` |
-| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+::::
+::::field
+---
+name: "locales"
+type: "Locale[]"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
+required: true
+---
 
-<details>
-<summary><code>FormatService</code> — 21 members</summary>
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `clearCache` | `() => void` |
-| `dateCache` | `private any` |
-| `datetimeFormats` | `private any` |
-| `formatDate` | `(value: Date \| number \| string, locale: string, options?: Intl.DateTimeFormatOptions) => string` |
-| `formatNumber` | `(value: number, locale: string, options?: Intl.NumberFormatOptions) => string` |
-| `formatRelativeTime` | `(value: Date \| number \| string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string` |
-| `getDateTimeFormats` | `() => DateTimeFormatsConfig` |
-| `getDateTimeFormatter` | `(locale: string, options?: Intl.DateTimeFormatOptions) => Intl.DateTimeFormat` |
-| `getNumberFormats` | `() => NumberFormatsConfig` |
-| `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
-| `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
-| `new` | `(options?: FormatServiceOptions \| undefined): FormatService` |
-| `now?` | `private any` |
-| `numberCache` | `private any` |
-| `numberFormats` | `private any` |
-| `relativeCache` | `private any` |
-| `resolveDateTimeFormat` | `(locale: string, key: string) => Intl.DateTimeFormatOptions \| undefined` |
-| `resolveNumberFormat` | `(locale: string, key: string) => Intl.NumberFormatOptions \| undefined` |
-| `setDateTimeFormats` | `(formats: DateTimeFormatsConfig) => void` |
-| `setNumberFormats` | `(formats: NumberFormatsConfig) => void` |
-| `timeZone?` | `private any` |
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "tn"
+type: "{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }"
+required: true
+---
 
-<details>
-<summary><code>I18nClientProps</code> — 6 members</summary>
+::::
+::::field
+---
+name: "td"
+type: "{ (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `currentRoute` | `string` |
-| `fallbackLocale` | `string` |
-| `locale` | `string` |
-| `localeIso?` | `Record<string, string> \| undefined` |
-| `pluralLocale?` | `string \| undefined` |
-| `translations` | `Record<string, Translations>` |
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeContext?: unknown) => boolean"
+required: true
+---
 
-<details>
-<summary><code>I18nIntegrationOptions</code> — 10 members</summary>
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `autoDetect?` | `boolean \| undefined` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `locale` | `string` |
-| `localeCookie?` | `string \| null \| undefined` |
-| `locales?` | `Locale[] \| undefined` |
-| `middleware?` | `boolean \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `redirectToDefault?` | `boolean \| undefined` |
-| `translationDir?` | `string \| undefined` |
+::::
+::::field
+---
+name: "getRouteName"
+type: "(path?: string) => string"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "getLocaleFromPath"
+type: "(path?: string) => string"
+required: true
+---
 
-<details>
-<summary><code>I18nMiddlewareOptions</code> — 9 members</summary>
+::::
+::::field
+---
+name: "switchLocalePath"
+type: "(newLocale: string) => string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `autoDetect?` | `boolean \| undefined` |
-| `base?` | `string \| undefined` |
-| `defaultLocale` | `string` |
-| `i18n` | `AstroI18n` |
-| `localeCookie?` | `string \| null \| undefined` |
-| `localeObjects?` | `Locale[] \| undefined` |
-| `locales` | `string[]` |
-| `redirectToDefault?` | `boolean \| undefined` |
-| `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
+::::
+::::field
+---
+name: "localizePath"
+type: "(path: string, targetLocale?: string) => string"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "getI18n"
+type: "() => AstroI18n"
+required: true
+---
 
-<details>
-<summary><code>I18nRoutingStrategy</code> — 10 members</summary>
+::::
+::::field
+---
+name: "getBasePath"
+type: "(url?: URL) => string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `getCurrentPath` | `() => string` |
-| `getLocaleFromPath?` | `((path: string, defaultLocale: string, locales: string[]) => string) \| undefined` |
-| `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
-| `getRouteName?` | `((path: string, locales: string[], routePattern?: string) => string) \| undefined` |
-| `localizePath?` | `((path: string, locale: string, locales: string[], defaultLocale?: string) => string) \| undefined` |
-| `push?` | `((target: { path: string; }) => void) \| undefined` |
-| `removeLocaleFromPath?` | `((path: string, locales: string[]) => string) \| undefined` |
-| `replace?` | `((target: { path: string; }) => void) \| undefined` |
-| `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
-| `switchLocalePath?` | `((path: string, newLocale: string, locales: string[], defaultLocale?: string) => string) \| undefined` |
+::::
+::::field
+---
+name: "addTranslations"
+type: "(locale: string, translations: Translations, merge?: boolean) => void"
+required: true
+---
 
-</details>
+::::
+::::field
+---
+name: "addRouteTranslations"
+type: "(locale: string, routeName: string, translations: Translations, merge?: boolean) => void"
+required: true
+---
 
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+::::
+::::field
+---
+name: "mergeTranslations"
+type: "(locale: string, routeName: string, translations: Translations) => void"
+required: true
+---
 
-<details>
-<summary><code>LocaleHeadOptions</code> — 4 members</summary>
+::::
+::::field
+---
+name: "clearCache"
+type: "() => void"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `addDirAttribute?` | `boolean \| undefined` |
-| `addSeoAttributes?` | `boolean \| undefined` |
-| `baseUrl?` | `string \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
+::::
+:::
+::
 
-</details>
+#### `useLocaleHead`
 
-<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+```ts
+function useLocaleHead(astro: Astro, options?: LocaleHeadOptions): LocaleHeadResult
+```
+
+**See** [`LocaleHeadOptions`](#localeheadoptions) · [`LocaleHeadResult`](#localeheadresult)
+
+### Functions
+
+#### `createAstroRouterAdapter`
+
+Prefix-except-default routing over plain paths. Paths here never carry Astro's `base`: the
+middleware strips it from what comes in and adds it to what goes out.
+
+```ts
+function createAstroRouterAdapter(
+  locales: Locale[],
+  defaultLocale: string,
+  getCurrentUrl?: () => URL,
+): I18nRoutingStrategy
+```
+
+**See** [`Locale`](/api/packages/types#locale) · [`I18nRoutingStrategy`](#i18nroutingstrategy)
+
+#### `createI18n`
+
+Create an i18n instance (for a `src/middleware.ts` of your own).
+
+```ts
+function createI18n(options: AstroI18nOptions): AstroI18n
+```
+
+**See** [`AstroI18nOptions`](#astroi18noptions) · [`AstroI18n`](#astroi18n)
+
+#### `createI18nMiddleware`
+
+Create Astro middleware for i18n locale detection
+
+```ts
+function createI18nMiddleware(options: I18nMiddlewareOptions): MiddlewareHandler
+```
+
+**See** [`I18nMiddlewareOptions`](#i18nmiddlewareoptions)
+
+#### `detectLocale`
+
+Locale a visitor prefers: URL prefix → cookie → Accept-Language → default, the one precedence of
+`resolveLocale`. An explicit prefix always wins; `autoDetect: false` leaves only the URL.
+
+```ts
+function detectLocale(
+  pathname: string,
+  cookies: { get: (name: string) => { value: string; } | undefined; },
+  headers: Headers,
+  defaultLocale: string,
+  locales: string[],
+  localeCookie?: string | null,
+  routingStrategy?: I18nRoutingStrategy | null,
+  autoDetect?: boolean,
+): string
+```
+
+**See** [`I18nRoutingStrategy`](#i18nroutingstrategy)
+
+#### `getDefaultLocale`
+
+Get default locale from Astro context
+
+```ts
+function getDefaultLocale(astro: Pick<AstroGlobal, 'locals'>): string
+```
+
+#### `getI18n`
+
+Get i18n instance from Astro context
+
+```ts
+function getI18n(astro: Pick<AstroGlobal, 'locals'>): AstroI18n
+```
+
+**See** [`AstroI18n`](#astroi18n)
+
+#### `getI18nProps`
+
+Props for a client island: what `t()` can answer on this page (route, root and fallback keys),
+or only `keys` of that, which is the way to keep the page small. Stored trees are shared, an
+island must not write into them.
+
+```ts
+function getI18nProps(
+  astro: Pick<AstroGlobal, 'locals'>,
+  keys?: string[],
+): I18nClientProps
+```
+
+**See** [`I18nClientProps`](#i18nclientprops)
+
+#### `getLocale`
+
+Get current locale from Astro context
+
+```ts
+function getLocale(astro: Pick<AstroGlobal, 'locals'>): string
+```
+
+#### `getLocaleRewritePath`
+
+Strip locale prefix from the current URL for `Astro.rewrite()` on `/[locale]/*` routes.
+
+```ts
+function getLocaleRewritePath(astro: Astro): string
+```
+
+#### `getLocales`
+
+Get all locales from Astro context
+
+```ts
+function getLocales(astro: Pick<AstroGlobal, 'locals'>): Locale[]
+```
+
+**See** [`Locale`](/api/packages/types#locale)
+
+#### `i18nIntegration`
+
+Astro integration for i18n-micro: publishes the config and dictionaries, and installs the middleware.
+
+```ts
+function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration
+```
+
+**See** [`I18nIntegrationOptions`](#i18nintegrationoptions)
+
+#### `prepareLocaleRewrite`
+
+Validate `:locale`, sync i18n/locals, and return the base path for `Astro.rewrite()`.
+Returns a `Response` when the locale param is invalid.
+
+```ts
+function prepareLocaleRewrite(
+  astro: Astro & Pick<AstroGlobal, 'params'>,
+): Response | string
+```
+
+### Classes
+
+#### `AstroI18n`
+
+The runtime instance, plus what Astro pages use on top: per-route reads and a reset that keeps `messages`.
+
+```ts
+class AstroI18n extends I18n {
+  constructor(options: AstroI18nOptions)
+}
+```
+
+::field-group
+:::field
+---
+name: "keepMessages"
+type: "(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void"
+---
+Dictionaries loaded after the constructor that `clearCache` keeps too: a directory read at runtime.
+:::
+:::field
+---
+name: "getLocaleIso"
+type: "() => Record<string, string>"
+---
+The `localeIso` option: what an island needs to plural in another locale.
+:::
+:::field
+---
+name: "getRouteTranslations"
+type: "(locale: string, routeName: string) => Translations | null"
+---
+
+:::
+:::field
+---
+name: "mergeTranslations"
+type: "(locale: string, routeName: string, translations: Translations) => void"
+---
+
+:::
+:::field
+---
+name: "clearCache"
+type: "() => void"
+---
+Clear translation and formatter caches.
+:::
+::
+
+**See** [`I18n`](/api/packages/node#i18n) · [`AstroI18nOptions`](#astroi18noptions)
+
+### Types
+
+#### `AstroI18nOptions`
+
+```ts
+type AstroI18nOptions = I18nOptions
+```
+
+**See** [`I18nOptions`](/api/packages/node#i18noptions)
+
+#### `I18nClientProps`
+
+Props to pass to client islands (Vue, React, Svelte, Preact)
+
+```ts
+interface I18nClientProps
+```
+
+::field-group
+:::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "pluralLocale"
+type: "string"
+---
+The tag plurals go by: the locale's `iso` when it has one.
+:::
+:::field
+---
+name: "localeIso"
+type: "Record<string, string>"
+---
+Tags of the codes that have one, for `setLocale`. Absent when there are none.
+:::
+:::field
+---
+name: "fallbackLocale"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "translations"
+type: "Record<string, Translations>"
+required: true
+---
+
+:::
+:::field
+---
+name: "currentRoute"
+type: "string"
+required: true
+---
+
+:::
+::
+
+#### `I18nIntegrationOptions`
+
+```ts
+interface I18nIntegrationOptions
+```
+
+::collapsible{name="10 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "locales"
+type: "Locale[]"
+---
+
+::::
+::::field
+---
+name: "missingWarn"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "localeCookie"
+type: "string | null"
+---
+
+::::
+::::field
+---
+name: "autoDetect"
+type: "boolean"
+---
+
+::::
+::::field
+---
+name: "redirectToDefault"
+type: "boolean"
+---
+`/` also redirects when nothing prefers another locale: see `createI18nMiddleware`.
+::::
+::::field
+---
+name: "translationDir"
+type: "string"
+---
+Bundled into the server at build time, relative to the project root.
+::::
+::::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+Page files (`pages/about/de.json`) count as root translations.
+::::
+::::field
+---
+name: "middleware"
+type: "boolean"
+---
+`false`: no middleware from the integration. Write `src/middleware.ts` with `createI18nMiddleware`
+for what cannot cross from the Astro config to the server bundle: `plural`, `missingHandler`, a strategy.
+::::
+:::
+::
+
+#### `I18nMiddlewareOptions`
+
+```ts
+interface I18nMiddlewareOptions
+```
+
+::collapsible{name="9 properties"}
+:::field-group
+::::field
+---
+name: "i18n"
+type: "AstroI18n"
+required: true
+---
+
+::::
+::::field
+---
+name: "defaultLocale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "locales"
+type: "string[]"
+required: true
+---
+
+::::
+::::field
+---
+name: "localeObjects"
+type: "Locale[]"
+---
+
+::::
+::::field
+---
+name: "autoDetect"
+type: "boolean"
+---
+`/` redirects to the locale the cookie / Accept-Language prefer (default `true`); pages keep the URL's locale.
+::::
+::::field
+---
+name: "redirectToDefault"
+type: "boolean"
+---
+`/` also redirects when nothing prefers another locale: to the home `routingStrategy` resolves
+for the default locale (default `false`). Without one `/` stays: it is the default locale's page.
+::::
+::::field
+---
+name: "routingStrategy"
+type: "I18nRoutingStrategy"
+---
+
+::::
+::::field
+---
+name: "localeCookie"
+type: "string | null"
+---
+Cookie holding the visitor's locale (default `'i18n-locale'`); `null` disables it.
+::::
+::::field
+---
+name: "base"
+type: "string"
+---
+Astro's `base`, `config.base` of the virtual config.
+::::
+:::
+::
+
+#### `I18nRoutingStrategy`
+
+Routing strategy interface for i18n in Astro
+Implement this interface to integrate with any routing logic
+Matches Vue/Solid/React package interface for consistency
+Adapted for Astro SSR context (push/replace are optional)
+
+```ts
+interface I18nRoutingStrategy
+```
+
+::collapsible{name="10 properties"}
+:::field-group
+::::field
+---
+name: "getCurrentPath"
+type: "() => string"
+required: true
+---
+Returns current path (without locale prefix if needed, or full path)
+Used for determining active classes in links
+::::
+::::field
+---
+name: "resolvePath"
+type: "(to: string | { path?: string; }, locale: string) => string | { path?: string; }"
+---
+Generate path for specific locale
+::::
+::::field
+---
+name: "getRouteName"
+type: "(path: string, locales: string[], routePattern?: string) => string"
+---
+Get route name from path (e.g., /en/about -> about)
+Used in middleware to set route name. `routePattern` is the page's pattern (`/blog/[slug]`), with
+a `[locale]` param already replaced by its value: use it to give every URL of a page one name.
+::::
+::::field
+---
+name: "getLocaleFromPath"
+type: "(path: string, defaultLocale: string, locales: string[]) => string"
+---
+Get locale from path
+Checks if first segment is a locale code
+::::
+::::field
+---
+name: "switchLocalePath"
+type: "(path: string, newLocale: string, locales: string[], defaultLocale?: string) => string"
+---
+Switch locale in path
+Replaces or adds locale prefix to path
+::::
+::::field
+---
+name: "localizePath"
+type: "(path: string, locale: string, locales: string[], defaultLocale?: string) => string"
+---
+Localize path with locale prefix
+::::
+::::field
+---
+name: "removeLocaleFromPath"
+type: "(path: string, locales: string[]) => string"
+---
+Remove locale from path
+::::
+::::field
+---
+name: "push"
+type: "(target: { path: string; }) => void"
+---
+(Optional) Function to navigate to another route/locale
+Not used in SSR, but can be used in client-side islands
+::::
+::::field
+---
+name: "replace"
+type: "(target: { path: string; }) => void"
+---
+(Optional) Function to replace current route
+Not used in SSR, but can be used in client-side islands
+::::
+::::field
+---
+name: "getRoute"
+type: "() => { fullPath: string; query: Record<string, unknown>; }"
+---
+(Optional) Get current route object for SEO/Meta tags
+::::
+:::
+::
+
+#### `LocaleHeadOptions`
+
+Generate locale head meta tags for SEO
+
+```ts
+interface LocaleHeadOptions
+```
+
+::field-group
+:::field
+---
+name: "baseUrl"
+type: "string"
+---
+Origin of the absolute URLs. Default: `site` from the Astro config, else root-relative URLs.
+:::
+:::field
+---
+name: "addDirAttribute"
+type: "boolean"
+---
+
+:::
+:::field
+---
+name: "addSeoAttributes"
+type: "boolean"
+---
+
+:::
+:::field
+---
+name: "hreflangBaseLanguage"
+type: "boolean"
+---
+**Default** `false` · Also emit bare-language `hreflang` tags derived from `iso` (never from routing `code`).
+:::
+::
+
+#### `LocaleHeadResult`
+
+```ts
+type LocaleHeadResult = LocaleHead
+```
+
+**See** [`LocaleHead`](/api/packages/utils#localehead)
+
+### Re-exports
+
+Declared in another package of this repository and documented on its page.
+
+- From [`@i18n-micro/core`](/api/packages/core): [`defaultPlural`](/api/packages/core#defaultplural) · [`interpolate`](/api/packages/core#interpolate) · [`localeIsoMap`](/api/packages/core#localeisomap) · [`FormatService`](/api/packages/core#formatservice)
+- From [`@i18n-micro/types`](/api/packages/types): [`CleanTranslation`](/api/packages/types#cleantranslation) · [`Getter`](/api/packages/types#getter) · [`Locale`](/api/packages/types#locale) · [`LocaleCode`](/api/packages/types#localecode) · [`Params`](/api/packages/types#params) · [`PluralFunc`](/api/packages/types#pluralfunc) · [`Translations`](/api/packages/types#translations)
+
 ## `@i18n-micro/astro/client`
 
+### Functions
+
+#### `hasTranslation`
+
+Checks if a translation exists in the state: a subtree counts, as on the server
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/client'
+function hasTranslation(state: I18nState, key: string, routeName?: string): boolean
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `hasTranslation` | function | `(state: I18nState, key: string, routeName?: string) => boolean` |
-| `I18nState` | interface | 6 members |
-| `translate` | function | `(state: I18nState, key: string, params?: Params, defaultValue?: string \| null, routeName?: string) => string \| number \| boolean \| Translations \| null` |
+**See** [`I18nState`](#i18nstate)
 
-<code>I18nState</code> — 6 members, identical to `I18nClientProps` above.
+#### `translate`
+
+Pure function to get a translation from state, answering as the server's `t()` does over the
+same keys. `getI18nProps` already merged the root and fallback dictionaries into the state.
+For Linked Messages (@:path.to.key), use the server-side i18n instance.
+
+```ts
+function translate(
+  state: I18nState,
+  key: string,
+  params?: Params,
+  defaultValue?: string | null,
+  routeName?: string,
+): string | number | boolean | Translations | null
+```
+
+**See** [`I18nState`](#i18nstate) · [`Params`](/api/packages/types#params) · [`Translations`](/api/packages/types#translations)
+
+### Types
+
+#### `I18nState`
+
+I18n state for client islands
+
+```ts
+interface I18nState
+```
+
+::field-group
+:::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "pluralLocale"
+type: "string"
+---
+The tag plurals go by, when it is not `locale`.
+:::
+:::field
+---
+name: "localeIso"
+type: "Record<string, string>"
+---
+Tags of the codes that have one: `setLocale` finds the new locale's here.
+:::
+:::field
+---
+name: "fallbackLocale"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "translations"
+type: "Record<string, Translations>"
+required: true
+---
+
+:::
+:::field
+---
+name: "currentRoute"
+type: "string"
+required: true
+---
+
+:::
+::
+
 ## `@i18n-micro/astro/client/preact`
 
+### Components
+
+#### `I18nProvider`
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/client/preact'
+function I18nProvider(
+  props: {
+    children: ComponentChildren;
+    value: I18nClientProps;
+  },
+): VNode<{}>
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `I18nProvider` | const | `({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => VNode<{}>` |
-| `useAstroI18n` | const | `() => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+**See** [`I18nClientProps`](#i18nclientprops)
 
+### Composables
+
+#### `useAstroI18n`
+
+```ts
+function useAstroI18n(): { … }
+```
+
+::collapsible{name="13 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "setLocale"
+type: "(locale: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(currentRoute: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation"
+required: true
+---
+
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tn"
+type: "(value: number, options?: Intl.NumberFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "td"
+type: "(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeName?: string) => boolean"
+required: true
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
+
+::::
+:::
+::
 
 ## `@i18n-micro/astro/client/react`
 
+### Components
+
+#### `I18nProvider`
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/client/react'
+function I18nProvider(
+  props: {
+    children: ReactNode;
+    value: I18nClientProps;
+  },
+): ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `I18nProvider` | const | `({ children, value }: { children: ReactNode; value: I18nClientProps; }) => ReactElement<unknown, string \| import("react").JSXElementConstructor<any>>` |
-| `useAstroI18n` | const | `() => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+**See** [`I18nClientProps`](#i18nclientprops)
 
+### Composables
+
+#### `useAstroI18n`
+
+```ts
+function useAstroI18n(): { … }
+```
+
+::collapsible{name="13 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "setLocale"
+type: "(locale: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(currentRoute: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation"
+required: true
+---
+
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tn"
+type: "(value: number, options?: Intl.NumberFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "td"
+type: "(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeName?: string) => boolean"
+required: true
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
+
+::::
+:::
+::
 
 ## `@i18n-micro/astro/client/svelte`
 
+### Composables
+
+#### `useAstroI18n`
+
+Hook for using i18n in Svelte components
+Use in the component's <script> block
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/client/svelte'
+function useAstroI18n(store: Writable<I18nState>): { … }
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `createI18nStore` | function | `(props: I18nClientProps) => Writable<I18nState>` |
-| `useAstroI18n` | function | `(store: Writable<I18nState>) => { locale: string; fallbackLocale: string; currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; store: Writable<I18nState>; }` |
+::collapsible{name="14 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "string"
+required: true
+---
 
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "setLocale"
+type: "(locale: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(routeName: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation"
+required: true
+---
+
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tn"
+type: "(value: number, options?: Intl.NumberFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "td"
+type: "(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeName?: string) => boolean"
+required: true
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "store"
+type: "Writable<I18nState>"
+required: true
+---
+
+::::
+:::
+::
+
+**See** [`I18nState`](#i18nstate)
+
+### Functions
+
+#### `createI18nStore`
+
+Creates a Svelte store for i18n state. An island kept by `transition:persist` follows its new
+props with `$: store.set(i18n)` (`$effect(() => store.set(i18n))` with runes).
+
+```ts
+function createI18nStore(props: I18nClientProps): Writable<I18nState>
+```
+
+**See** [`I18nClientProps`](#i18nclientprops) · [`I18nState`](#i18nstate)
 
 ## `@i18n-micro/astro/client/vue`
 
+### Composables
+
+#### `useAstroI18n`
+
+Hook for using i18n in Vue components
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/client/vue'
+function useAstroI18n(): { … }
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `provideI18n` | function | `(props: MaybeRefOrGetter<I18nClientProps>) => Ref<I18nState>` |
-| `useAstroI18n` | function | `() => { locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (currentRoute: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeName?: string) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeName?: string) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeName?: string) => boolean; getRoute: () => string; }` |
+::collapsible{name="13 properties"}
+:::field-group
+::::field
+---
+name: "locale"
+type: "WritableComputedRef<string, string>"
+required: true
+---
 
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "ComputedRef<string>"
+required: true
+---
+
+::::
+::::field
+---
+name: "currentRoute"
+type: "WritableComputedRef<string, string>"
+required: true
+---
+
+::::
+::::field
+---
+name: "setLocale"
+type: "(locale: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "setRoute"
+type: "(currentRoute: string) => void"
+required: true
+---
+
+::::
+::::field
+---
+name: "t"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation"
+required: true
+---
+
+::::
+::::field
+---
+name: "ts"
+type: "(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tc"
+type: "(key: TranslationKey, count: number | Params, defaultValue?: string) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tn"
+type: "(value: number, options?: Intl.NumberFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "td"
+type: "(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "tdr"
+type: "(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string"
+required: true
+---
+
+::::
+::::field
+---
+name: "has"
+type: "(key: TranslationKey, routeName?: string) => boolean"
+required: true
+---
+
+::::
+::::field
+---
+name: "getRoute"
+type: "() => string"
+required: true
+---
+
+::::
+:::
+::
+
+### Functions
+
+#### `provideI18n`
+
+Initializes the i18n provider for a Vue island. Call in the island's root component, with a
+getter (`() => props.i18n`) so an island kept by `transition:persist` follows its new props.
+`shallowRef`: translations are never edited in place, and deep tracking costs 11× on every `t`.
+
+```ts
+function provideI18n(props: MaybeRefOrGetter<I18nClientProps>): Ref<I18nState>
+```
+
+**See** [`I18nClientProps`](#i18nclientprops) · [`I18nState`](#i18nstate)
 
 ## `@i18n-micro/astro/middleware`
 
+### Functions
+
+#### `onRequest`
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/middleware'
+function onRequest(
+  context: APIContext<Record<string, any>, Record<string, string | undefined>>,
+  next: MiddlewareNext,
+): void | Response | Promise<Response> | Promise<void>
 ```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `onRequest` | const | `import("astro").MiddlewareHandler` |
-
 
 ## `@i18n-micro/astro/node`
 
+### Functions
+
+#### `loadTranslationsFromDir`
+
+Load all translations from a directory: flat (`en.json`) and nested (`pages/home/en.json`).
+
 ```ts
-import { /* … */ } from '@i18n-micro/astro/node'
+function loadTranslationsFromDir(options: LoadTranslationsOptions): LoadedTranslations
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `LoadedTranslations` | interface | 2 members |
-| `loadTranslationsFromDir` | function | `(options: LoadTranslationsOptions) => LoadedTranslations` |
-| `loadTranslationsIntoI18n` | function | `(i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; keepMessages?: (messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void; }, options: LoadTranslationsOptions) => void` |
-| `LoadTranslationsOptions` | interface | 3 members |
-| `readTranslationDir` | function | `(options: { translationDir: string; rootDir: URL; disablePageLocales?: boolean; }) => { messages: TranslationFileBuckets<Translations>; files: string[]; }` |
+**See** [`LoadTranslationsOptions`](#loadtranslationsoptions) · [`LoadedTranslations`](#loadedtranslations)
 
-<details>
-<summary><code>LoadedTranslations</code> — 2 members</summary>
+#### `loadTranslationsIntoI18n`
 
-| Member | Type |
-| --- | --- |
-| `root` | `Record<string, import("@i18n-micro/types").Translations>` |
-| `routes` | `Record<string, Record<string, import("@i18n-micro/types").Translations>>` |
+Load a directory into an instance, replacing the chunks it finds.
 
-</details>
+```ts
+function loadTranslationsIntoI18n(
+  i18n: {
+    addTranslations: (locale: string, translations: Translations, merge?: boolean) => void;
+    addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void;
+    keepMessages?: (messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>) => void;
+  },
+  options: LoadTranslationsOptions,
+): void
+```
 
-<details>
-<summary><code>LoadTranslationsOptions</code> — 3 members</summary>
+**See** [`Translations`](/api/packages/types#translations) · [`LoadTranslationsOptions`](#loadtranslationsoptions)
 
-| Member | Type |
-| --- | --- |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `rootDir?` | `string \| undefined` |
-| `translationDir` | `string` |
+#### `readTranslationDir`
 
-</details>
+The directory's dictionaries and the files they came from, for the integration's build.
 
+```ts
+function readTranslationDir(
+  options: { translationDir: string; rootDir: URL; disablePageLocales?: boolean; },
+): { … }
+```
+
+::field-group
+:::field
+---
+name: "messages"
+type: "TranslationFileBuckets<Translations>"
+required: true
+---
+
+:::
+:::field
+---
+name: "files"
+type: "string[]"
+required: true
+---
+
+:::
+::
+
+### Types
+
+#### `LoadedTranslations`
+
+```ts
+interface LoadedTranslations extends TranslationFileBuckets<Translations>
+```
+
+**See** [`TranslationFileBuckets`](/api/packages/utils#translationfilebuckets) · [`Translations`](/api/packages/types#translations)
+
+#### `LoadTranslationsOptions`
+
+```ts
+interface LoadTranslationsOptions
+```
+
+::field-group
+:::field
+---
+name: "translationDir"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "rootDir"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+
+:::
+::
+
+---
+
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

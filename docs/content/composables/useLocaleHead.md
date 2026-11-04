@@ -24,9 +24,16 @@ The SEO head tags for the current route: `hreflang` alternates for every locale 
 Only needed when `meta` is disabled or the defaults need adjusting — with `meta: true`
 the module registers the same tags itself.
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `options` | `UseLocaleHeadOptions` |  |
+::field-group
+:::field
+---
+name: "options"
+type: "UseLocaleHeadOptions"
+required: true
+---
+
+:::
+::
 
 **Returns** — `metaObject`, a ref holding the head object ready to pass to `useHead`; `updateMeta` refreshes it; `build` computes the head object from the current route (reactive when read in a getter, e.g. `useHead(() => build())`)
 

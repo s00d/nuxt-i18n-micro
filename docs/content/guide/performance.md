@@ -72,7 +72,7 @@ So the cap trades 8 to 10 % of throughput for the memory. A catalog of ordinary 
 
 ## Shared cache for several instances
 
-With several instances of one build, [`cacheStorage`](/api/module-options#other) gives them one dictionary cache in any Nitro storage, on the connection your app configures in `nitro.storage`. The module adds no connector and no dependency.
+With several instances of one build, [`cacheStorage`](/api/module-options#cachestorage) gives them one dictionary cache in any Nitro storage, on the connection your app configures in `nitro.storage`. The module adds no connector and no dependency.
 
 **It is a cache, not a source.** Translations come from the embedded or public payloads, or from `apiBaseServerHost`. Only what came from the source is written, and keys carry the build, so a store you fill by hand is not read. To serve translations from KV or a database, put a small route that reads it at `apiBaseServerHost`.
 

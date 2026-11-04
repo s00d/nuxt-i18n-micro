@@ -33,7 +33,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
+| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `Translations` | interface | 1 members |
 | `TranslationStorage` | interface | 1 members |
@@ -100,7 +100,7 @@ import { /* … */ } from '@i18n-micro/runtime'
 | `store` | `protected ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
+| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |

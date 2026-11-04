@@ -972,6 +972,7 @@ member ModuleOptions.hooks?: boolean | undefined
 member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
+member ModuleOptions.linkedMessages?: boolean | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptions.locales?: Locale[] | undefined
@@ -987,6 +988,7 @@ member ModuleOptions.plugin?: boolean | undefined
 member ModuleOptions.plural?: PluralFunc | undefined
 member ModuleOptions.prefixCaseRedirect?: boolean | undefined
 member ModuleOptions.redirects?: boolean | undefined
+member ModuleOptions.redirectStatusCode?: number | undefined
 member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
@@ -999,7 +1001,7 @@ member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
-type Params: Record<string, string | number | boolean>
+type Params: NamedParams | readonly (string | number | boolean)[]
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class ReactI18n
 member ReactI18n.activeKey: private any
@@ -1056,7 +1058,7 @@ member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
@@ -1109,7 +1111,7 @@ member UseI18nReturn.setLocale: (locale: string) => void
 member UseI18nReturn.setRoute: (routeName: string) => void
 member UseI18nReturn.switchLocale: (locale: string) => void
 member UseI18nReturn.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-member UseI18nReturn.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member UseI18nReturn.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member UseI18nReturn.td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
 member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
@@ -2092,6 +2094,7 @@ member ModuleOptions.hooks?: boolean | undefined
 member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
+member ModuleOptions.linkedMessages?: boolean | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptions.locales?: Locale[] | undefined
@@ -2107,6 +2110,7 @@ member ModuleOptions.plugin?: boolean | undefined
 member ModuleOptions.plural?: PluralFunc | undefined
 member ModuleOptions.prefixCaseRedirect?: boolean | undefined
 member ModuleOptions.redirects?: boolean | undefined
+member ModuleOptions.redirectStatusCode?: number | undefined
 member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
@@ -2119,7 +2123,7 @@ member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
-type Params: Record<string, string | number | boolean>
+type Params: NamedParams | readonly (string | number | boolean)[]
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class ReactI18n
 member ReactI18n.activeKey: private any
@@ -2176,7 +2180,7 @@ member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
@@ -2229,7 +2233,7 @@ member UseI18nReturn.setLocale: (locale: string) => void
 member UseI18nReturn.setRoute: (routeName: string) => void
 member UseI18nReturn.switchLocale: (locale: string) => void
 member UseI18nReturn.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-member UseI18nReturn.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member UseI18nReturn.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member UseI18nReturn.td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
 member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
@@ -2331,7 +2335,7 @@ member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
 member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }

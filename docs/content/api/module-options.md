@@ -119,7 +119,9 @@ Parts of the module you can switch off.
 | `trustForwardedHost` | `boolean` | `false` | Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of `Host`. Enable it only behind a proxy that overwrites that header. |
 | `hreflangBaseLanguage` | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims the bare tag for that language. Routing `code` is never used — only `iso \|\| code`. |
 | `prefixCaseRedirect` | `boolean` | `true` | Redirect a locale prefix in another case or encoding to the page in its own spelling (`/DE/about` → `/de/about`, `/EN/about` → `/about` under `prefix_except_default`). The router matches the prefix case-insensitively, so without the redirect such a URL would show the page under a second address. When `false`, or when `redirects` is `false`, the URL is a 404. A URL with no page behind it in its own spelling is a 404 either way. |
-| `additionalTranslationDirs` | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts). Only root `{locale}.json` files are read — `pages/` under these dirs is ignored. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`. |
+| `additionalTranslationDirs` | `string[]` | `[]` | Extra directories whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. A relative path is read in the project root and in each Nuxt layer root; an absolute path (a Nuxt module's own folder) is read once. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts). Only root `{locale}.json` files are read — `pages/` under these dirs is ignored. Entries other modules add to `nuxt.options.i18n.additionalTranslationDirs` count, whatever their order. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`. |
+| `redirectStatusCode` | `number` | `302` | HTTP status of the server's locale redirects (the preferred locale from the cookie or `Accept-Language`, a prefix in another case). `301` and `308` are cached by browsers: a visitor who later changes the preference is still sent where the first answer said. A value that is no redirect status (300-399) is ignored with a warning at build. |
+| `linkedMessages` | `boolean` | `false` | Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`) in each built dictionary, so the runtime never parses them. A link to a missing key, or a cycle, leaves the message as written and warns at build. Translations added at runtime (`$mergeTranslations`, `i18n:register`, inline `$defineI18nRoute`) are not resolved. Off by default: `@:` may already be plain text in your messages. |
 | `localeCookieOptions` | `LocaleCookieOptions` | `{}` | Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year, no `Domain`, no `Secure`. Build config only: no request decides them. |
 | `localeCookieOptions.domain` | `string` | — | `Domain`: e.g. `.example.com` to share the cookie across subdomains. Unset: the host only. |
 | `localeCookieOptions.path` | `string` | `'/'` | `Path`. |
@@ -347,11 +349,13 @@ Relative to each layer's root, not to `app/` (`'app/locales'` for a Nuxt 4 layou
 
 **Type** `string[]` · **Default** `[]`
 
-Extra directories (relative to the project root / each Nuxt layer root) whose top-level
-`{locale}.json` files are deep-merged into the global dictionary before `translationDir`.
+Extra directories whose top-level `{locale}.json` files are deep-merged into the global
+dictionary before `translationDir`. A relative path is read in the project root and in each
+Nuxt layer root; an absolute path (a Nuxt module's own folder) is read once.
 
 Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
 Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+Entries other modules add to `nuxt.options.i18n.additionalTranslationDirs` count, whatever their order.
 
 Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
 
@@ -401,6 +405,15 @@ built or loaded); without it a missing key renders as the key itself.
 #### `linkedMessages`
 
 <!-- generated:option:linkedMessages — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `boolean` · **Default** `false`
+
+Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`)
+in each built dictionary, so the runtime never parses them. A link to a missing key, or a
+cycle, leaves the message as written and warns at build. Translations added at runtime
+(`$mergeTranslations`, `i18n:register`, inline `$defineI18nRoute`) are not resolved.
+Off by default: `@:` may already be plain text in your messages.
+
 <!-- /generated:option:linkedMessages -->
 
 Syntax and limits: [Linked messages](/guide/translations#linked-messages).
@@ -767,6 +780,14 @@ With `false` the client redirect middleware is not registered. The server plugin
 #### `redirectStatusCode`
 
 <!-- generated:option:redirectStatusCode — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `number` · **Default** `302`
+
+HTTP status of the server's locale redirects (the preferred locale from the cookie or
+`Accept-Language`, a prefix in another case). `301` and `308` are cached by browsers: a visitor
+who later changes the preference is still sent where the first answer said. A value that is
+no redirect status (300-399) is ignored with a warning at build.
+
 <!-- /generated:option:redirectStatusCode -->
 
 Keep `302` (or `307`) for redirects that depend on the visitor: a browser caches a `301` or `308` and goes straight to the first answer, even after the visitor switched the locale. The client redirects of a single-page navigation are router moves and have no status.

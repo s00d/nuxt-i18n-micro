@@ -470,7 +470,7 @@ $getRouteName() // 'about' on /de/about
 <!-- generated:method:$defineI18nRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(routeDefinition: DefineI18nRouteConfig) => Promise<void>
+(routeDefinition: DefineI18nRouteConfig | false) => Promise<void>
 ```
 
 Register per-page locale configuration and translations from inside a component.

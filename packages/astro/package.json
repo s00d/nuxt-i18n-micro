@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/astro",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Astro integration for i18n-micro — translations, routing, and islands.",
   "keywords": [
     "astro",

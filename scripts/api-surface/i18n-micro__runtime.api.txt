@@ -80,7 +80,7 @@ member I18n.storage: TranslationStorage
 member I18n.store: protected ReactiveI18nStore
 member I18n.subscribe: (listener: () => void) => () => void
 member I18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member I18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member I18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
 member I18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member I18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member I18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
@@ -128,7 +128,7 @@ member Locale.seo?: boolean | undefined
 member Locale.[string]: unknown
 type LocaleCode: string
 const localeIsoMap: (locales: readonly { code: string; iso?: string; }[]) => Record<string, string>
-type Params: Record<string, string | number | boolean>
+type Params: NamedParams | readonly (string | number | boolean)[]
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface Translations
 member Translations.[string]: unknown

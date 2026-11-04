@@ -2,12 +2,16 @@
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
 interface DefineI18nRouteConfig
 member DefineI18nRouteConfig.disableMeta?: boolean | string[] | undefined
-member DefineI18nRouteConfig.localeRoutes?: Record<string, string> | undefined
+member DefineI18nRouteConfig.localeRoutes?: false | Record<string, string> | undefined
 member DefineI18nRouteConfig.locales?: string[] | Record<string, Translations> | undefined
 interface DefineLocaleMessage
 member DefineLocaleMessage.__augmentation?: undefined
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 type GlobalLocaleRoutes: Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
+interface I18nBeforeLocaleSwitchContext
+member I18nBeforeLocaleSwitchContext.cancel: boolean
+member I18nBeforeLocaleSwitchContext.from: string
+member I18nBeforeLocaleSwitchContext.to: string
 type I18nHeadDisableGroup: 'hreflang' | 'x-default' | 'canonical' | 'og' | 'og-alternates' | 'html'
 interface I18nHeadInput
 member I18nHeadInput.disable?: I18nHeadDisableGroup[] | undefined
@@ -73,6 +77,7 @@ member ModuleOptions.hooks?: boolean | undefined
 member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheControl?: string | false | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
+member ModuleOptions.linkedMessages?: boolean | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModuleOptions.locales?: Locale[] | undefined
@@ -88,6 +93,7 @@ member ModuleOptions.plugin?: boolean | undefined
 member ModuleOptions.plural?: PluralFunc | undefined
 member ModuleOptions.prefixCaseRedirect?: boolean | undefined
 member ModuleOptions.redirects?: boolean | undefined
+member ModuleOptions.redirectStatusCode?: number | undefined
 member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
@@ -133,6 +139,7 @@ member ModuleOptionsExtend.httpCacheControl?: string | false | undefined
 member ModuleOptionsExtend.httpCacheDuration?: number | undefined
 member ModuleOptionsExtend.isSSG?: boolean | undefined
 member ModuleOptionsExtend.linkDefaultLocale?: string | undefined
+member ModuleOptionsExtend.linkedMessages?: boolean | undefined
 member ModuleOptionsExtend.linkLocales?: Locale[] | undefined
 member ModuleOptionsExtend.localeCookie?: string | null | undefined
 member ModuleOptionsExtend.localeCookieOptions?: LocaleCookieOptions | undefined
@@ -140,6 +147,7 @@ member ModuleOptionsExtend.locales?: Locale[] | undefined
 member ModuleOptionsExtend.localizedRouteNamePrefix?: string | undefined
 member ModuleOptionsExtend.meta?: boolean | undefined
 member ModuleOptionsExtend.metaBaseUrl?: string | undefined
+member ModuleOptionsExtend.metaBaseUrlFromLocale?: boolean | undefined
 member ModuleOptionsExtend.metaTrustForwardedHost?: boolean | undefined
 member ModuleOptionsExtend.metaTrustForwardedProto?: boolean | undefined
 member ModuleOptionsExtend.missingWarn?: boolean | undefined
@@ -151,6 +159,7 @@ member ModuleOptionsExtend.plural?: PluralFunc | undefined
 member ModuleOptionsExtend.prefixCaseRedirect?: boolean | undefined
 member ModuleOptionsExtend.publicPayloads?: boolean | undefined
 member ModuleOptionsExtend.redirects?: boolean | undefined
+member ModuleOptionsExtend.redirectStatusCode?: number | undefined
 member ModuleOptionsExtend.rootDelta?: boolean | undefined
 member ModuleOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
@@ -195,6 +204,7 @@ member ModulePrivateOptionsExtend.hooks?: boolean | undefined
 member ModulePrivateOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModulePrivateOptionsExtend.httpCacheControl?: string | false | undefined
 member ModulePrivateOptionsExtend.httpCacheDuration?: number | undefined
+member ModulePrivateOptionsExtend.linkedMessages?: boolean | undefined
 member ModulePrivateOptionsExtend.localeCookie?: string | null | undefined
 member ModulePrivateOptionsExtend.localeCookieOptions?: LocaleCookieOptions | undefined
 member ModulePrivateOptionsExtend.locales?: Locale[] | undefined
@@ -212,6 +222,7 @@ member ModulePrivateOptionsExtend.plugin?: boolean | undefined
 member ModulePrivateOptionsExtend.plural?: PluralFunc | undefined
 member ModulePrivateOptionsExtend.prefixCaseRedirect?: boolean | undefined
 member ModulePrivateOptionsExtend.redirects?: boolean | undefined
+member ModulePrivateOptionsExtend.redirectStatusCode?: number | undefined
 member ModulePrivateOptionsExtend.rootDirs: string[]
 member ModulePrivateOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | undefined
@@ -225,7 +236,8 @@ member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOption
 member ModulePrivateOptionsExtend.trustForwardedHost?: boolean | undefined
 member ModulePrivateOptionsExtend.types?: boolean | undefined
 member ModulePrivateOptionsExtend.vueDevtools?: boolean | undefined
-type Params: Record<string, string | number | boolean>
+type NamedParams: Record<string, string | number | boolean>
+type Params: NamedParams | readonly (string | number | boolean)[]
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface PluralTranslations
 member PluralTranslations.plural: string

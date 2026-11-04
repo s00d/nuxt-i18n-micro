@@ -58,7 +58,14 @@ function deepMergeTranslationsRecursive: (target: Record<string, unknown>, sourc
 function configForHost: <T extends ModuleOptionsExtend>(config: T, host: string) => T
 function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
 
+# ./linked-messages (src/linked-messages.ts)
+interface LinkedMessagesOptions
+member LinkedMessagesOptions.locale?: string | undefined
+member LinkedMessagesOptions.warn?: ((message: string) => void) | undefined
+function resolveLinkedMessages: (tree: Tree, options?: LinkedMessagesOptions) => Tree
+
 # ./load-dir (src/load-dir.ts)
+function additionalTranslationRoots: (rootDirs: string[], dirs?: readonly string[]) => string[]
 function isInsideDir: (file: string, dir: string) => boolean
 function listTranslationFiles: (directory: string) => TranslationFile[]
 function loadTranslationDir: <T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>
@@ -131,10 +138,12 @@ function mergeSourceTranslations: (input: MergeSourceTranslationsInput) => Promi
 interface MergeSourceTranslationsInput
 member MergeSourceTranslationsInput.disablePageLocales?: boolean | undefined
 member MergeSourceTranslationsInput.globalFallbackLocale?: string | undefined
+member MergeSourceTranslationsInput.linkedMessages?: boolean | undefined
 member MergeSourceTranslationsInput.locale: string
 member MergeSourceTranslationsInput.locales: SourceLocaleInfo[]
 member MergeSourceTranslationsInput.pageName: string
 member MergeSourceTranslationsInput.readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
+member MergeSourceTranslationsInput.warn?: ((message: string) => void) | undefined
 function mergeTranslationsFromFallbackChainAsync: (chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>
 function normalizeConfiguredLocales: (locales: Array<string | Locale> | undefined) => SourceLocaleInfo[]
 const PREMERGED_ROOT_MARK: "__i18n_root"
@@ -143,6 +152,7 @@ function resolveSourcePageName: (pageName: string, disablePageLocales?: boolean)
 interface SourceLocaleInfo
 member SourceLocaleInfo.code: string
 member SourceLocaleInfo.fallbackLocale?: string | undefined
+member SourceLocaleInfo.iso?: string | undefined
 function toPremergedStorageKey: (pageName: string, locale: string) => string
 function toSourceStorageKey: (relativePath: string) => string
 
@@ -243,16 +253,20 @@ member WarnUnresolvedOgLocaleOptions.tag?: "og:locale" | "og:locale:alternate" |
 
 # ./runtime-config (src/runtime-config.ts)
 function applyI18nRuntimeOverrides: <T extends ModuleOptionsExtend>(baseConfig: T, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => T
+function applyLocaleBaseUrls: <T extends ModuleOptionsExtend>(config: T, overrides: RuntimeI18nOverrides, warn?: (message: string) => void) => T
 function createI18nConfigResolver: (warn?: (message: string) => void) => <T extends ModuleOptionsExtend>(baseConfig: T, runtimePublic?: Record<string, unknown>) => T
 function i18nOverridesKey: (overrides: RuntimeI18nOverrides) => string
 function mergeI18nOverrides: (primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides
 function readI18nEnvOverrides: () => RuntimeI18nOverrides
 function readI18nRuntimeOverrides: (runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides
+function readLocaleBaseUrls: (runtimePublic?: Record<string, unknown>) => Record<string, string> | undefined
 interface RuntimeI18nOverrides
 member RuntimeI18nOverrides.dateBuild?: string | undefined
 member RuntimeI18nOverrides.defaultLocale?: string | undefined
 member RuntimeI18nOverrides.disabledLocales?: string[] | undefined
 member RuntimeI18nOverrides.fallbackLocale?: string | undefined
+member RuntimeI18nOverrides.localeBaseUrls?: Record<string, string> | undefined
+member RuntimeI18nOverrides.metaBaseUrl?: string | undefined
 member RuntimeI18nOverrides.strategy?: string | undefined
 
 # ./source-loader (src/source-loader.ts)

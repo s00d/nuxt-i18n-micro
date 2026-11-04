@@ -8,7 +8,7 @@ outline: 'deep'
 
 # `@i18n-micro/types`
 
-29 exports across 1 entry point.
+31 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -25,6 +25,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `DefineLocaleMessage` | interface | 1 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `GlobalLocaleRoutes` | type | `Record<string, Record<LocaleCode, string> \| false \| boolean> \| null \| undefined` |
+| `I18nBeforeLocaleSwitchContext` | interface | 3 members |
 | `I18nHeadDisableGroup` | type | `'hreflang' \| 'x-default' \| 'canonical' \| 'og' \| 'og-alternates' \| 'html'` |
 | `I18nHeadInput` | interface | 5 members |
 | `I18nHeadLink` | interface | 4 members |
@@ -35,10 +36,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `LocaleCode` | type | `string` |
 | `LocaleCookieOptions` | interface | 5 members |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 55 members |
-| `ModuleOptionsExtend` | interface | 64 members |
-| `ModulePrivateOptionsExtend` | interface | 59 members |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
+| `ModuleOptions` | interface | 57 members |
+| `ModuleOptionsExtend` | interface | 67 members |
+| `ModulePrivateOptionsExtend` | interface | 61 members |
+| `NamedParams` | type | `Record<string, string \| number \| boolean>` |
+| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
 | `ResolvedI18nConfig` | type | `Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>` |
@@ -56,7 +58,7 @@ import { /* … */ } from '@i18n-micro/types'
 | Member | Type |
 | --- | --- |
 | `disableMeta?` | `boolean \| string[] \| undefined` |
-| `localeRoutes?` | `Record<string, string> \| undefined` |
+| `localeRoutes?` | `false \| Record<string, string> \| undefined` |
 | `locales?` | `string[] \| Record<string, Translations> \| undefined` |
 
 </details>
@@ -67,6 +69,17 @@ import { /* … */ } from '@i18n-micro/types'
 | Member | Type |
 | --- | --- |
 | `__augmentation?` | `undefined` |
+
+</details>
+
+<details>
+<summary><code>I18nBeforeLocaleSwitchContext</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `cancel` | `boolean` |
+| `from` | `string` |
+| `to` | `string` |
 
 </details>
 
@@ -137,7 +150,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 55 members</summary>
+<summary><code>ModuleOptions</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -169,6 +182,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
+| `linkedMessages?` | `boolean \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -184,6 +198,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `plural?` | `PluralFunc \| undefined` |
 | `prefixCaseRedirect?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
+| `redirectStatusCode?` | `number \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
@@ -200,7 +215,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 64 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 67 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -236,6 +251,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `httpCacheDuration?` | `number \| undefined` |
 | `isSSG?` | `boolean \| undefined` |
 | `linkDefaultLocale?` | `string \| undefined` |
+| `linkedMessages?` | `boolean \| undefined` |
 | `linkLocales?` | `Locale[] \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
@@ -243,6 +259,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `meta?` | `boolean \| undefined` |
 | `metaBaseUrl?` | `string \| undefined` |
+| `metaBaseUrlFromLocale?` | `boolean \| undefined` |
 | `metaTrustForwardedHost?` | `boolean \| undefined` |
 | `metaTrustForwardedProto?` | `boolean \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
@@ -254,6 +271,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `prefixCaseRedirect?` | `boolean \| undefined` |
 | `publicPayloads?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
+| `redirectStatusCode?` | `number \| undefined` |
 | `rootDelta?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
@@ -272,7 +290,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 59 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 61 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -305,6 +323,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
+| `linkedMessages?` | `boolean \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -322,6 +341,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `plural?` | `PluralFunc \| undefined` |
 | `prefixCaseRedirect?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
+| `redirectStatusCode?` | `number \| undefined` |
 | `rootDirs` | `string[]` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |

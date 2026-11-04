@@ -8,7 +8,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-113 exports across 22 entry points.
+118 exports across 23 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -150,6 +150,26 @@ import { /* … */ } from '@i18n-micro/utils/domains'
 | `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
+## `@i18n-micro/utils/linked-messages`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/linked-messages'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `LinkedMessagesOptions` | interface | 2 members |
+| `resolveLinkedMessages` | function | `(tree: Tree, options?: LinkedMessagesOptions) => Tree` |
+
+<details>
+<summary><code>LinkedMessagesOptions</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `locale?` | `string \| undefined` |
+| `warn?` | `((message: string) => void) \| undefined` |
+
+</details>
 ## `@i18n-micro/utils/load-dir`
 
 ```ts
@@ -158,6 +178,7 @@ import { /* … */ } from '@i18n-micro/utils/load-dir'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `additionalTranslationRoots` | function | `(rootDirs: string[], dirs?: readonly string[]) => string[]` |
 | `isInsideDir` | function | `(file: string, dir: string) => boolean` |
 | `listTranslationFiles` | function | `(directory: string) => TranslationFile[]` |
 | `loadTranslationDir` | function | `<T extends Dictionary = Dictionary>(dir: string, disablePageLocales?: boolean) => TranslationFileBuckets<T>` |
@@ -317,37 +338,40 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `buildSourceRootPath` | function | `(localeCode: string) => string` |
 | `mergeOverRoot` | function | `(root: Record<string, unknown>, delta: Record<string, unknown>) => Record<string, unknown>` |
 | `mergeSourceTranslations` | function | `(input: MergeSourceTranslationsInput) => Promise<Record<string, unknown>>` |
-| `MergeSourceTranslationsInput` | interface | 6 members |
+| `MergeSourceTranslationsInput` | interface | 8 members |
 | `mergeTranslationsFromFallbackChainAsync` | function | `(chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>` |
 | `normalizeConfiguredLocales` | function | `(locales: Array<string \| Locale> \| undefined) => SourceLocaleInfo[]` |
 | `PREMERGED_ROOT_MARK` | const | `"__i18n_root"` |
 | `PREMERGED_ROOT_PAGE` | const | `"__root"` |
 | `resolveSourcePageName` | function | `(pageName: string, disablePageLocales?: boolean) => string` |
-| `SourceLocaleInfo` | interface | 2 members |
+| `SourceLocaleInfo` | interface | 3 members |
 | `toPremergedStorageKey` | function | `(pageName: string, locale: string) => string` |
 | `toSourceStorageKey` | function | `(relativePath: string) => string` |
 
 <details>
-<summary><code>MergeSourceTranslationsInput</code> — 6 members</summary>
+<summary><code>MergeSourceTranslationsInput</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `disablePageLocales?` | `boolean \| undefined` |
 | `globalFallbackLocale?` | `string \| undefined` |
+| `linkedMessages?` | `boolean \| undefined` |
 | `locale` | `string` |
 | `locales` | `SourceLocaleInfo[]` |
 | `pageName` | `string` |
 | `readLocaleFile` | `(relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>` |
+| `warn?` | `((message: string) => void) \| undefined` |
 
 </details>
 
 <details>
-<summary><code>SourceLocaleInfo</code> — 2 members</summary>
+<summary><code>SourceLocaleInfo</code> — 3 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `code` | `string` |
 | `fallbackLocale?` | `string \| undefined` |
+| `iso?` | `string \| undefined` |
 
 </details>
 ## `@i18n-micro/utils/normalize`
@@ -578,15 +602,17 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `applyI18nRuntimeOverrides` | function | `<T extends ModuleOptionsExtend>(baseConfig: T, requested: RuntimeI18nOverrides, warn?: (message: string) => void) => T` |
+| `applyLocaleBaseUrls` | function | `<T extends ModuleOptionsExtend>(config: T, overrides: RuntimeI18nOverrides, warn?: (message: string) => void) => T` |
 | `createI18nConfigResolver` | function | `(warn?: (message: string) => void) => <T extends ModuleOptionsExtend>(baseConfig: T, runtimePublic?: Record<string, unknown>) => T` |
 | `i18nOverridesKey` | function | `(overrides: RuntimeI18nOverrides) => string` |
 | `mergeI18nOverrides` | function | `(primary: RuntimeI18nOverrides, secondary: RuntimeI18nOverrides) => RuntimeI18nOverrides` |
 | `readI18nEnvOverrides` | function | `() => RuntimeI18nOverrides` |
 | `readI18nRuntimeOverrides` | function | `(runtimePublic?: Record<string, unknown>) => RuntimeI18nOverrides` |
-| `RuntimeI18nOverrides` | interface | 5 members |
+| `readLocaleBaseUrls` | function | `(runtimePublic?: Record<string, unknown>) => Record<string, string> \| undefined` |
+| `RuntimeI18nOverrides` | interface | 7 members |
 
 <details>
-<summary><code>RuntimeI18nOverrides</code> — 5 members</summary>
+<summary><code>RuntimeI18nOverrides</code> — 7 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -594,6 +620,8 @@ import { /* … */ } from '@i18n-micro/utils/runtime-config'
 | `defaultLocale?` | `string \| undefined` |
 | `disabledLocales?` | `string[] \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
+| `localeBaseUrls?` | `Record<string, string> \| undefined` |
+| `metaBaseUrl?` | `string \| undefined` |
 | `strategy?` | `string \| undefined` |
 
 </details>

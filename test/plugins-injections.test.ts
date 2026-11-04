@@ -1,5 +1,13 @@
 import type { BaseI18n } from '@i18n-micro/core'
-import type { CleanTranslation, DefineI18nRouteConfig, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
+import type {
+  CleanTranslation,
+  DefineI18nRouteConfig,
+  I18nBeforeLocaleSwitchContext,
+  Params,
+  PluralFunc,
+  TranslationKey,
+  Translations,
+} from '@i18n-micro/types'
 import { readFileSync } from 'node:fs'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
@@ -64,7 +72,7 @@ describe('PluginsInjections typing', () => {
    * generate the reference page: a drifted signature documents a call that does not compile.
    */
   it('NuxtAppOnlyInjections follows what is actually provided', () => {
-    expectTypeOf<NuxtAppOnlyInjections['$defineI18nRoute']>().toEqualTypeOf<(config: DefineI18nRouteConfig) => Promise<void>>()
+    expectTypeOf<NuxtAppOnlyInjections['$defineI18nRoute']>().toEqualTypeOf<(config: DefineI18nRouteConfig | false) => Promise<void>>()
     expectTypeOf<keyof NuxtAppOnlyInjections>().toEqualTypeOf<'$defineI18nRoute'>()
   })
 
@@ -93,5 +101,33 @@ describe('PluginsInjections typing', () => {
     const named = [...doc.matchAll(/`(i18n:[\w-]+)`/g)].map((match) => match[1])
     expect(named).toEqual(['i18n:register'])
     for (const hook of named) expect(plugin).toContain(`'${hook}'`)
+  })
+})
+
+describe('types of the newer surface', () => {
+  it('a custom plural and a helper over Params still compile: Params stays the named record', () => {
+    // as a user writes them (docs): getter(key, params), params.name
+    const plural: PluralFunc = (key, count, params, _locale, getter) => {
+      const text = getter(key, params)
+      const name = params.name
+      return typeof text === 'string' ? `${text}${count}${name}` : null
+    }
+    const wrap = (p: Params) => ({ ...p, extra: 1 })
+    const read = (p: Params) => p.name
+    expectTypeOf(plural).toBeFunction()
+    expectTypeOf(wrap({ a: 1 }).extra).toEqualTypeOf<number>()
+    expectTypeOf(read).returns.toEqualTypeOf<string | number | boolean | undefined>()
+  })
+
+  it('$t takes a list for `{0}`; $tc a count or named params', () => {
+    type T = PluginsInjections['$t']
+    expectTypeOf<T>().toBeCallableWith('key', ['a', 1])
+    expectTypeOf<T>().toBeCallableWith('key', { name: 'a' })
+    expectTypeOf<PluginsInjections['$tc']>().toBeCallableWith('key', { count: 2 })
+  })
+
+  it('i18n:beforeLocaleSwitch is a typed runtime hook', () => {
+    expectTypeOf<Parameters<ModuleRuntimeHooks['i18n:beforeLocaleSwitch']>[0]>().toEqualTypeOf<I18nBeforeLocaleSwitchContext>()
+    expectTypeOf<RuntimeNuxtHooks['i18n:beforeLocaleSwitch']>().toEqualTypeOf<ModuleRuntimeHooks['i18n:beforeLocaleSwitch']>()
   })
 })

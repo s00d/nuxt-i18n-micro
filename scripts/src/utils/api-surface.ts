@@ -71,7 +71,7 @@ function kindOf(symbol: ts.Symbol): string {
 }
 
 /** `export * from './x'` re-exports arrive as aliases; the real symbol carries the kind. */
-function resolveAlias(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Symbol {
+export function resolveAlias(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Symbol {
   return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
 }
 
@@ -263,13 +263,10 @@ export function entryPoints(pkgDir: string, pkg: PackageManifest): Map<string, s
   return found
 }
 
-/** Exported symbols of every entry point, sorted for a stable snapshot. */
-export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSurface[] {
-  const entryFiles = [...entryPoints(pkgDir, pkg)].sort(([a], [b]) => a.localeCompare(b))
-  if (entryFiles.length === 0) return []
-
-  const program = ts.createProgram(
-    entryFiles.map(([, file]) => join(pkgDir, file)),
+/** The TypeScript program both the snapshot and the reference pages read a package through. */
+export function createSurfaceProgram(pkgDir: string, files: string[]): ts.Program {
+  return ts.createProgram(
+    files.map((file) => join(pkgDir, file)),
     {
       target: ts.ScriptTarget.ESNext,
       module: ts.ModuleKind.ESNext,
@@ -284,6 +281,17 @@ export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSur
       // the React and Preact sources are one: each package answers this import with its own file
       paths: { '#host': [join(pkgDir, 'src/host.ts')] },
     },
+  )
+}
+
+/** Exported symbols of every entry point, sorted for a stable snapshot. */
+export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSurface[] {
+  const entryFiles = [...entryPoints(pkgDir, pkg)].sort(([a], [b]) => a.localeCompare(b))
+  if (entryFiles.length === 0) return []
+
+  const program = createSurfaceProgram(
+    pkgDir,
+    entryFiles.map(([, file]) => file),
   )
   const checker = program.getTypeChecker()
 

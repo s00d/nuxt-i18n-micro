@@ -6,7 +6,7 @@ import type { ModuleOptions } from '@i18n-micro/types'
 import { addCustomTab, extendServerRpc, onDevToolsInitialized, startSubprocess } from '@nuxt/devtools-kit'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
-import { isInsideDir, resolveTranslationFile } from '@i18n-micro/utils/load-dir'
+import { additionalTranslationRoots, isInsideDir, resolveTranslationFile } from '@i18n-micro/utils/load-dir'
 import { defineEventHandler, fromNodeMiddleware, proxyRequest } from 'h3'
 import { joinURL } from 'ufo'
 
@@ -138,9 +138,13 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
           : undefined
         if (file.startsWith('additional:') && !extraDir) throw new Error(`Not a configured additional translation directory: ${file}`)
         const relativeFile = extraDir ? file.slice(`additional:${extraDir}/`.length) : file
-        const target = [...rootDirs]
+        // an additional dir in every layer, or a module's absolute one; the translationDir in every layer
+        const dirs = extraDir
+          ? additionalTranslationRoots(rootDirs, [extraDir])
+          : rootDirs.map((rootDir) => path.join(rootDir, options.translationDir || 'locales'))
+        const target = dirs
           .reverse()
-          .map((rootDir) => resolveTranslationFile(path.join(rootDir, extraDir ?? (options.translationDir || 'locales')), relativeFile))
+          .map((dir) => resolveTranslationFile(dir, relativeFile))
           .find((candidate) => candidate !== null)
         if (!target) throw new Error(`File not found in the translation directories: ${file}`)
         fs.writeFileSync(target, JSON.stringify(content, null, 2), 'utf-8')
@@ -181,16 +185,14 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
           // Both relative to localesDir. The second is not a repeat: `lstat` does not enter a symlink, so a linked `pages` is read only here.
           processDirectory(localesDir, localesDir)
           processDirectory(pagesDir, localesDir)
+        }
 
-          // Surface additional root `{locale}.json` under `additional:<dir>/…` (pages/ ignored).
-          for (const extra of options.additionalTranslationDirs ?? []) {
-            const extraDir = path.join(rootDir, extra)
-            if (!fs.existsSync(extraDir)) continue
+        // Surface additional root `{locale}.json` under `additional:<dir>/…` (pages/ ignored); an absolute dir once.
+        for (const extra of options.additionalTranslationDirs ?? []) {
+          for (const extraDir of additionalTranslationRoots(rootDirs, [extra]).filter((dir) => fs.existsSync(dir))) {
             for (const name of fs.readdirSync(extraDir)) {
-              if (!name.endsWith('.json')) continue
               const filePath = path.join(extraDir, name)
-              if (!fs.statSync(filePath).isFile()) continue
-              readFile(`additional:${extra}/${name}`, filePath)
+              if (name.endsWith('.json') && fs.statSync(filePath).isFile()) readFile(`additional:${extra}/${name}`, filePath)
             }
           }
         }
@@ -202,8 +204,10 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
     const rpc = extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, functions)
 
     // The open tab follows edits made on disk, and its own saves
-    const directories = [options.translationDir || 'locales', ...(options.additionalTranslationDirs ?? [])]
-    const roots = rootDirs.flatMap((root) => directories.map((dir) => resolve(root, dir)))
+    const roots = [
+      ...rootDirs.map((root) => resolve(root, options.translationDir || 'locales')),
+      ...additionalTranslationRoots(rootDirs, options.additionalTranslationDirs),
+    ]
     let timer: ReturnType<typeof setTimeout> | undefined
     nuxt.hook('builder:watch', (_event, watched) => {
       // Nuxt reports a path relative to `srcDir`, the folders are relative to the root

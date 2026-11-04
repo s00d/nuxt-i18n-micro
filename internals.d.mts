@@ -12,6 +12,8 @@ interface I18nPrivateConfig {
   debug: boolean
   translationDir: string
   additionalTranslationDirs?: string[]
+  /** `linkedMessages`, for servers that merge source files. */
+  linkedMessages?: boolean
   fallbackLocale?: string
   apiBaseUrl: string
   apiBaseClientHost?: string
@@ -106,6 +108,10 @@ declare module '#i18n-internal/strategy' {
   export const domains: boolean
   export function getI18nConfig(): unknown
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
+}
+
+declare module '#i18n-internal/plural' {
+  export const plural: import('@i18n-micro/types').PluralFunc
 }
 
 declare module '#i18n-internal/payload-source' {

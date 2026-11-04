@@ -4,7 +4,9 @@ import MyModule from '../../../src/module'
 const sourcePayloads = process.env.TRANSLATION_PAYLOADS === 'source'
 
 export default defineNuxtConfig({
-  modules: [MyModule],
+  // after the i18n module, by a path in the app (`~`): its folder reaches the build only through modules:done.
+  // A string, not an import: a temp copy for the HMR journeys then loads its own copy of the module.
+  modules: [MyModule, '~/vendor/module'],
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
 
@@ -29,6 +31,8 @@ export default defineNuxtConfig({
     // meta off app-wide: the head of /manual-head comes only from useLocaleHead + useHead
     meta: false,
     ...(sourcePayloads ? { translationPayloads: { mode: 'source' as const } } : {}),
+    // LINKED_MESSAGES=1: the `translation-watcher-linked*` recipes (linked-messages.spec.ts)
+    linkedMessages: process.env.LINKED_MESSAGES === '1',
     routesLocaleLinks: {
       'about-alias': 'about',
     },

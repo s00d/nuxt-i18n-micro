@@ -14,33 +14,154 @@ navigation:
 
 <!-- generated:component:i18n-switcher — do not edit; run `pnpm run docs:generate` -->
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `customLabels` | `Record<string, string>` | `() => ({})` | Display name per locale code, overriding the `displayName` from the locale config. |
-| `customWrapperStyle` | `CSSProperties` | `() => ({})` | Inline style for the outer wrapper. |
-| `customButtonStyle` | `CSSProperties` | `() => ({})` | Inline style for the button that opens the dropdown. |
-| `customDropdownStyle` | `CSSProperties` | `() => ({})` | Inline style for the dropdown panel. |
-| `customItemStyle` | `CSSProperties` | `() => ({})` | Inline style for each item in the dropdown. |
-| `customLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link inside an item. |
-| `customActiveLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link of the currently active locale. |
-| `customDisabledLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the *current* locale button when it is `disabled: true` in config. |
-| `customIconStyle` | `CSSProperties` | `() => ({})` | Inline style for the caret icon on the button. |
+::collapsible{name="9 props"}
+:::field-group
+::::field
+---
+name: "customLabels"
+type: "Record<string, string>"
+---
+**Default** `() => ({})` · Display name per locale code, overriding the `displayName` from the locale config.
+::::
+::::field
+---
+name: "customWrapperStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the outer wrapper.
+::::
+::::field
+---
+name: "customButtonStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the button that opens the dropdown.
+::::
+::::field
+---
+name: "customDropdownStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the dropdown panel.
+::::
+::::field
+---
+name: "customItemStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for each item in the dropdown.
+::::
+::::field
+---
+name: "customLinkStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the link inside an item.
+::::
+::::field
+---
+name: "customActiveLinkStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the link of the currently active locale.
+::::
+::::field
+---
+name: "customDisabledLinkStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the *current* locale button when it is `disabled: true` in config.
+::::
+::::field
+---
+name: "customIconStyle"
+type: "CSSProperties"
+---
+**Default** `() => ({})` · Inline style for the caret icon on the button.
+::::
+:::
+::
 
 ### Slots
 
-| Slot | Bindings | Description |
-| --- | --- | --- |
-| `before-button` | — | Content before the button that opens the dropdown. |
-| `before-selected-locale` | — | Content before the active locale label inside the button. |
-| `after-selected-locale` | — | Content after the active locale label inside the button. |
-| `before-dropdown` | — | Content between the button and the dropdown panel. |
-| `before-dropdown-items` | — | Content at the top of the dropdown, above the locale list. |
-| `before-item` | `locale` | Content before each locale entry. |
-| `before-link-content` | `locale` | Content before a locale's label inside its link. |
-| `after-link-content` | `locale` | Content after a locale's label inside its link. |
-| `after-item` | `locale` | Content after each locale entry. |
-| `after-dropdown-items` | — | Content at the bottom of the dropdown, below the locale list. |
-| `after-dropdown` | — | Content after the dropdown panel. |
+::collapsible{name="11 slots"}
+:::field-group
+::::field
+---
+name: "before-button"
+---
+Content before the button that opens the dropdown.
+::::
+::::field
+---
+name: "before-selected-locale"
+---
+Content before the active locale label inside the button.
+::::
+::::field
+---
+name: "after-selected-locale"
+---
+Content after the active locale label inside the button.
+::::
+::::field
+---
+name: "before-dropdown"
+---
+Content between the button and the dropdown panel.
+::::
+::::field
+---
+name: "before-dropdown-items"
+---
+Content at the top of the dropdown, above the locale list.
+::::
+::::field
+---
+name: "before-item"
+---
+Content before each locale entry.
+
+**Bindings** `locale`
+::::
+::::field
+---
+name: "before-link-content"
+---
+Content before a locale's label inside its link.
+
+**Bindings** `locale`
+::::
+::::field
+---
+name: "after-link-content"
+---
+Content after a locale's label inside its link.
+
+**Bindings** `locale`
+::::
+::::field
+---
+name: "after-item"
+---
+Content after each locale entry.
+
+**Bindings** `locale`
+::::
+::::field
+---
+name: "after-dropdown-items"
+---
+Content at the bottom of the dropdown, below the locale list.
+::::
+::::field
+---
+name: "after-dropdown"
+---
+Content after the dropdown panel.
+::::
+:::
+::
 
 <!-- /generated:component:i18n-switcher -->
 

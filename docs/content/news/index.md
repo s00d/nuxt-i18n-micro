@@ -9,6 +9,7 @@ navigation:
 
 Release notes by version, newest first.
 
+- [v4.1.0](/news/v4.1.0) — Linked Messages, a Locale Switch Hook, Runtime Origins
 - [v4.0.0](/news/v4.0.0) — One Route Model, One Build for Every Domain
 - [v3.24.0](/news/v3.24.0) — Node SSR from `public/`, no Rollup `raw:`
 - [v3.22.0](/news/v3.22.0) — Formats, Cache & Translation Memory

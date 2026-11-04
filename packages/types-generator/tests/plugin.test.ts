@@ -124,6 +124,20 @@ describe('Nuxt module', () => {
     expect(await run(nuxtWith({ _layers: layers, i18n: { additionalTranslationDirs: ['extra'] } }))).toEqual(['fromApp', 'fromExtra', 'fromLayer'])
   })
 
+  test('a dir a later module adds (absolute, after setup) is typed and watched', async () => {
+    write('locales/en.json', { fromApp: 'x' })
+    write('vendor/en.json', { fromVendor: 'x' })
+    const nuxt = nuxtWith({ i18n: {} })
+    const { default: module } = await import('../src/nuxt')
+    ;(module as unknown as { setup(options: unknown, nuxt: unknown): void }).setup({}, nuxt)
+    // a module listed after both pushes its folder, as the i18n docs tell module authors
+    ;((nuxt.options as { i18n: { additionalTranslationDirs?: string[] } }).i18n.additionalTranslationDirs ??= []).push(join(root, 'vendor'))
+    expect(keysOf(kit.templates[0]!.getContents())).toEqual(['fromApp', 'fromVendor'])
+    const watch = nuxt.hook.mock.calls[0]![1] as (event: string, path: string) => Promise<void>
+    await watch('change', join(root, 'vendor/en.json'))
+    expect(nuxt.callHook).toHaveBeenCalledWith('builder:generateApp')
+  })
+
   test('a change under a translation folder regenerates, any other file does not', async () => {
     write('lang/en.json', { key: 'x' })
     const nuxt = nuxtWith({ i18n: { translationDir: 'lang' } })

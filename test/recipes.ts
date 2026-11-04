@@ -87,7 +87,14 @@ export const recipes = defineRecipes(
     'strategy-prefix-overrides': app(
       'strategy-prefix-overrides',
       'strategy',
-      { STRATEGY: 'prefix', LOCALE_COOKIE: 'user-locale', NUXT_I18N_DEFAULT_LOCALE: 'de' },
+      // a runtime SEO origin too, and locale domains, which a build without them ignores
+      {
+        STRATEGY: 'prefix',
+        LOCALE_COOKIE: 'user-locale',
+        NUXT_I18N_DEFAULT_LOCALE: 'de',
+        NUXT_I18N_META_BASE_URL: 'https://seo.example',
+        NUXT_I18N_LOCALE_BASE_URLS: 'de=https://example.at',
+      },
       { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['ru'] } } } },
     ),
     'strategy-prefix-and-default': app('strategy-prefix-and-default', 'strategy', {
@@ -173,6 +180,14 @@ export const recipes = defineRecipes(
       { STRATEGY: 'prefix', DOMAINS: '/', NUXT_I18N_DEFAULT_LOCALE: 'ru' },
       { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['de'] } } } },
     ),
+    // runtime origins: de moves to example.at and en to example.net with no rebuild, the SEO origin with en
+    'strategy-domains-runtime-urls': app('strategy-domains-runtime-urls', 'strategy', {
+      STRATEGY: 'prefix_except_default',
+      LOCALE_COOKIE: 'user-locale',
+      DOMAINS: '/',
+      NUXT_I18N_LOCALE_BASE_URLS: 'de=https://example.at,en=https://example.net',
+      NUXT_I18N_META_BASE_URL: 'https://example.net',
+    }),
     'strategy-domains-hash': app(
       'strategy-domains-hash',
       'strategy',
@@ -189,6 +204,8 @@ export const recipes = defineRecipes(
 
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),
+    // linkedMessages, premerged (rootDelta); the server merge of mode 'source' is unit-tested (shared-cache)
+    'translation-watcher-linked': app('translation-watcher-linked', 'translation-watcher', { LINKED_MESSAGES: '1' }),
 
     // Dev servers for the HMR journeys run from a temp copy, so they never write into the repo tree
     // (the prod recipe hashes and builds the pristine dir). Roots: translationWatcherTmpRoots.

@@ -1,6 +1,6 @@
 ---
 title: 'Hooks'
-description: 'The i18n:register runtime hook: add translations from a Nuxt plugin on load and on navigation.'
+description: 'The i18n:register and i18n:beforeLocaleSwitch runtime hooks: add translations, and confirm, redirect or cancel a locale switch.'
 outline: [2, 3]
 navigation:
   order: 50
@@ -8,7 +8,7 @@ navigation:
 
 # Hooks
 
-The module calls one runtime (app) hook, `i18n:register`. Use it when a plugin or a module adds translations that are not in your `locales/` files. Your callback gets a `register` function that merges translations into the page that is being shown.
+The module calls two runtime (app) hooks. `i18n:register` adds translations that are not in your `locales/` files. `i18n:beforeLocaleSwitch` runs before the page switches to another locale, and can send it to another locale or stop it.
 
 ## `i18n:register`
 
@@ -19,10 +19,14 @@ The module calls one runtime (app) hook, `i18n:register`. Use it when a plugin o
 ) => HookResult
 ```
 
-| Argument | Description |
-| --- | --- |
-| `register(translations, locale?)` | Deep-merges `translations` into the page chunk of the route being loaded, for `locale` (default: the hook's `locale`). Keys already there are overridden. |
-| `locale` | The locale of the route being loaded. |
+::field-group
+:::field{name="register" type="(translations: unknown, locale?: string) => void"}
+Deep-merges `translations` into the page chunk of the route being loaded, for `locale` (default: the hook's `locale`). Keys already there are overridden.
+:::
+:::field{name="locale" type="string"}
+The locale of the route being loaded.
+:::
+::
 
 The hook is typed through `RuntimeNuxtHooks`, so `nuxtApp.hook('i18n:register', …)` needs no cast.
 
@@ -35,7 +39,7 @@ The loader plugin (`i18n-plugin-loader`) calls it:
 
 Every callback and every `register` call is awaited before the app renders or the navigation goes on, so the page renders with the merged keys. With [`hooks: false`](/api/module-options#hooks) the hook is never called.
 
-## Example
+### Example
 
 ```ts
 // plugins/i18n-extra.ts
@@ -48,6 +52,56 @@ export default defineNuxtPlugin((nuxtApp) => {
 ```
 
 This is a runtime hook: register it with `nuxtApp.hook` in a plugin, not with `nuxt.hook` in `nuxt.config` or a module's `setup`. A module adds such a plugin with `addPlugin`.
+
+## `i18n:beforeLocaleSwitch`
+
+```ts
+'i18n:beforeLocaleSwitch': (ctx: { from: string; to: string; cancel: boolean }) => HookResult
+```
+
+::field-group
+:::field{name="from" type="string"}
+The locale the page shows now.
+:::
+:::field{name="to" type="string"}
+The locale it switches to. Set another enabled locale to switch there instead; a locale that is not enabled is ignored.
+:::
+:::field{name="cancel" type="boolean"}
+Set `true` to stay: the page, its dictionary and the stored preference do not change.
+:::
+::
+
+```ts
+// plugins/confirm-locale.client.ts
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.hook('i18n:beforeLocaleSwitch', async (ctx) => {
+    if (hasUnsavedChanges() && !confirm('Leave without saving?')) ctx.cancel = true
+    // a regional locale the app does not have yet
+    if (ctx.to === 'de-at') ctx.to = 'de'
+  })
+})
+```
+
+It is called once per switch, on the client, after the first load:
+
+- for a navigation into another locale: `$switchLocale`, `<i18n-switcher>`, a link or `router.push` to a page of another locale (prefix strategies). A cancel aborts the navigation, as a guard returning `false`; another `to` redirects to the same page in that locale, and that navigation is not asked again;
+- under `no_prefix` and in hash mode, by `$switchLocale` before the dictionary loads (there the dictionary moves first, and no guard could undo it).
+
+`$switchLocale` resolves `false` when the switch is cancelled, and `true` when the page switched, also to a locale the hook chose. A switch to a locale on another domain (`locales[].baseUrl`) leaves the app and is not asked. With nobody subscribed the hook costs one lookup per switch, and with [`hooks: false`](/api/module-options#hooks) it is never called.
+
+### After a switch
+
+There is no hook after a switch: watch the locale. A `watch` of `$getLocale()` fires once the new locale is applied, its dictionary loaded and in place:
+
+```ts
+// plugins/locale-analytics.client.ts
+export default defineNuxtPlugin((nuxtApp) => {
+  watch(
+    () => nuxtApp.$getLocale(),
+    (locale) => track('locale', locale),
+  )
+})
+```
 
 ## Related
 

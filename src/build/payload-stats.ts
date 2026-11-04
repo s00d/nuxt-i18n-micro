@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
-import { join, relative } from 'node:path'
+import { isAbsolute, join, relative } from 'node:path'
 import type { TranslationPayloadMode, TranslationPayloadStats } from './payload-config'
 
 /**
@@ -117,12 +117,16 @@ export function hashTranslationSources(
     hashFiles(dir, files)
   }
 
+  // relative extras per layer, as they always were (the hash of an app without absolute ones does not move)
+  const relativeExtras = additionalTranslationDirs.filter((extra) => !isAbsolute(extra))
   for (const rootDir of rootDirs) {
     hashDir(join(rootDir, translationDirName))
-    for (const extra of additionalTranslationDirs) {
+    for (const extra of relativeExtras) {
       hashAdditionalRootLocales(join(rootDir, extra))
     }
   }
+  // a module's own folder, once
+  for (const extra of new Set(additionalTranslationDirs.filter((dir) => isAbsolute(dir)))) hashAdditionalRootLocales(extra)
 
   return seen > 0 ? hash.digest('hex').slice(0, 16) : null
 }

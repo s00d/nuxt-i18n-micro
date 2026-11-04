@@ -1,3 +1,4 @@
 {
-  "aboutTitle": "About EN"
+  "aboutTitle": "About EN",
+  "linkedPage": "@:aboutTitle / @:sharedRoot"
 }

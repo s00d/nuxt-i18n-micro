@@ -37,7 +37,8 @@ export function useI18nLocale() {
   const localeCookieName = getLocaleCookieName(i18nConfig)
   const hashCookieName = getHashCookieName(i18nConfig)
 
-  const cookieRef = (name: string | null): CookieRef => (cookies && name ? useCookie<string | null>(name, getLocaleCookieOptions()) : { value: null })
+  const cookieRef = (name: string | null): CookieRef =>
+    cookies && name ? useCookie<string | null>(name, getLocaleCookieOptions(i18nConfig.localeCookieOptions)) : { value: null }
 
   const localeCookie = cookieRef(localeCookieName)
   const hashCookie = cookieRef(hashCookieName)

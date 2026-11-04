@@ -11,5 +11,6 @@
   "hello": "Hello World",
   "welcome": "Welcome to our site",
   "global": "global en",
-  "greeting": "Hello"
+  "greeting": "Hello",
+  "server_apples": "no apples | one apple | {count} apples"
 }

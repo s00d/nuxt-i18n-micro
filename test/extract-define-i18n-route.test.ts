@@ -189,3 +189,22 @@ describe('page paths across layers and groups', () => {
     expect(parentPagePaths(files, ['/app/layer', '/app/layer-2'])).toEqual(['blog'])
   })
 })
+
+describe('$defineI18nRoute(false) and localeRoutes: false', () => {
+  it('false: the page is no longer localized, as globalLocaleRoutes: { page: false }', () => {
+    const config = extractDefineI18nRouteData('<script setup>$defineI18nRoute(false)</script>', 'pages/raw.vue')
+    expect(config).toBe(false)
+    const merged = mergeDefineI18nRouteMeta([{ routePath: 'raw', config: config as never }], {})
+    expect(merged.globalLocaleRoutes).toEqual({ raw: false })
+  })
+
+  it('one way only: localeRoutes: false is no exclusion (globalLocaleRoutes or $defineI18nRoute(false))', () => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath: 'raw', config: { localeRoutes: false } as never }], {})
+    expect(merged.globalLocaleRoutes).toEqual({})
+  })
+
+  it('the config entry of the page still wins', () => {
+    const merged = mergeDefineI18nRouteMeta([{ routePath: 'raw', config: false as never }], { globalLocaleRoutes: { raw: { de: '/roh' } } })
+    expect(merged.globalLocaleRoutes).toEqual({ raw: { de: '/roh' } })
+  })
+})

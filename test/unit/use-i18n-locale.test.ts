@@ -1,17 +1,25 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { useI18nLocale } from '../../src/runtime/composables/useI18nLocale'
 
-const refs = vi.hoisted(() => ({ state: { value: null as string | null }, cookie: { value: null as string | null } }))
+const refs = vi.hoisted(() => ({
+  state: { value: null as string | null },
+  cookie: { value: null as string | null },
+  cookieCalls: [] as [string, Record<string, unknown>][],
+  config: { locales: [{ code: 'en' }, { code: 'de' }], localeCookie: 'user-locale' } as Record<string, unknown>,
+}))
 
 // every Nuxt path is one stub in unit tests, so one mock answers them all
 vi.mock('#app/nuxt', () => ({
   cookies: true,
-  useCookie: () => refs.cookie,
+  useCookie: (name: string, options: Record<string, unknown>) => {
+    refs.cookieCalls.push([name, options])
+    return refs.cookie
+  },
   useNuxtApp: () => ({}),
   useState: () => refs.state,
 }))
 vi.mock('../../src/runtime/utils/i18n-config', () => ({
-  useResolvedI18nConfig: () => ({ locales: [{ code: 'en' }, { code: 'de' }], localeCookie: 'user-locale' }),
+  useResolvedI18nConfig: () => refs.config,
 }))
 
 describe('useI18nLocale', () => {
@@ -50,5 +58,23 @@ describe('useI18nLocale', () => {
     refs.state.value = null
     expect(resolveInitialLocale({ route: {}, urlLocale: 'de', preference: 'en', getLocaleFromRoute: fromRoute })).toBe('de')
     expect(refs.state.value).toBe('en')
+  })
+})
+
+describe('useI18nLocale cookie options', () => {
+  test('the browser writes the cookie with localeCookieOptions, and with the defaults without them', () => {
+    refs.cookieCalls.length = 0
+    useI18nLocale()
+    expect(refs.cookieCalls[0]).toEqual(['user-locale', expect.objectContaining({ path: '/', sameSite: 'lax', maxAge: 31536000 })])
+    expect(refs.cookieCalls[0]![1].domain).toBeUndefined()
+    const config = refs.config
+    refs.config = { ...config, localeCookieOptions: { domain: '.example.com', secure: true, sameSite: 'none', maxAge: 60 } }
+    try {
+      refs.cookieCalls.length = 0
+      useI18nLocale()
+      expect(refs.cookieCalls[0]![1]).toMatchObject({ domain: '.example.com', secure: true, sameSite: 'none', maxAge: 60, path: '/' })
+    } finally {
+      refs.config = config
+    }
   })
 })

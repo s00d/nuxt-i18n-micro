@@ -1,4 +1,5 @@
 import { forwardSlashes } from '@i18n-micro/utils/app-path'
+import { additionalTranslationRoots } from '@i18n-micro/utils/load-dir'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -129,7 +130,7 @@ const layersOf = (config: ResolvedNuxtConfig, rootDir: string): LayerConfig[] =>
 /** Like the module: each additional directory is relative to every layer, and sits under the layers' own files. */
 function additionalDirsOf(roots: string[], i18n: I18nOptions): string[] {
   const names = (i18n.additionalTranslationDirs ?? []).map((entry) => (typeof entry === 'string' ? entry : entry.path)).filter(Boolean) as string[]
-  return [...new Set(names.flatMap((name) => roots.map((root) => resolve(root, name))))]
+  return additionalTranslationRoots(roots, names)
 }
 
 const ALIAS_PREFIX = /^(~~|@@|~|@)(?=\/)/

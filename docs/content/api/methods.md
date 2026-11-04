@@ -12,11 +12,9 @@ The module injects its runtime helpers into the Nuxt app: `$t`, `$tc`, `$localeP
 
 ## Access
 
-| Where | How |
-| --- | --- |
-| Template | <code v-pre>{{ $t('title') }}</code> — every helper, with the `$` |
-| `<script setup>` | `const { t, localePath } = useI18n()` — every helper in `PluginsInjections`, with and without the `$` |
-| Plugin, middleware, `<script setup>` | `const { $t, $defineI18nRoute } = useNuxtApp()` — everything, `$` only |
+- **Template** — <code v-pre>{{ $t('title') }}</code>: every helper, with the `$`.
+- **`<script setup>`** — `const { t, localePath } = useI18n()`: every helper in `PluginsInjections`, with and without the `$`.
+- **Plugin, middleware, `<script setup>`** — `const { $t, $defineI18nRoute } = useNuxtApp()`: everything, `$` only.
 
 `$defineI18nRoute` is typed on `useNuxtApp()` only. See [`useI18n`](/composables/useI18n).
 
@@ -32,39 +30,37 @@ const { t, localePath } = useI18n()
 
 <!-- generated:methods-index — do not edit; run `pnpm run docs:generate` -->
 
-| Helper | Signature | Purpose |
-| --- | --- | --- |
-| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
-| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<string>` | Bind `$ts` to a specific route. |
-| [`$clearCache`](#clearcache) | `() => void` | Drop every cached translation chunk and reload the current page's dictionary. |
-| [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
-| [`$getI18nConfig`](#geti18nconfig) | `() => ResolvedI18nConfig` | The resolved module configuration, as the runtime sees it. |
-| [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
-| [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
-| [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
-| [`$getRouteName`](#getroutename) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
-| [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale. |
-| `$i18nStrategy` | `PathStrategy` | The active routing strategy, resolving locales to and from paths. |
-| [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time. |
-| [`$localePath`](#localepath) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => string` | Resolve a path in the given locale, or the active one. |
-| [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
-| [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
-| `$pluralFunc` | `PluralFunc` | The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation. |
-| `$pluralLocale` | `() => string` | The tag `$tc` plurals by: the locale's `iso` when it has one, else its code. |
-| [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
-| [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
-| [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
-| [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => Promise<boolean>` | Navigate to the current page in another locale. |
-| [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
-| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating, or a URL string for a locale on its own `baseUrl`. |
-| [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => Promise<void>` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
-| [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
-| [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
-| [`$td`](#td) | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale. |
-| [`$tdr`](#tdr) | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`. |
-| [`$tn`](#tn) | `{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale. |
-| [`$ts`](#ts) | `TranslationFn<string>` | Like `$t`, but always returns a string: the value goes through `toString()`, so a nested object becomes `'[object Object]'`. |
+- [`$_t`](#_t) — Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example.
+- [`$_ts`](#_ts) — Bind `$ts` to a specific route.
+- [`$clearCache`](#clearcache) — Drop every cached translation chunk and reload the current page's dictionary.
+- [`$defaultLocale`](#defaultlocale) — Code of the configured default locale.
+- [`$getI18nConfig`](#geti18nconfig) — The resolved module configuration, as the runtime sees it.
+- [`$getLocale`](#getlocale) — Code of the active locale.
+- [`$getLocaleName`](#getlocalename) — The active locale's `displayName` from the config, or `null` when it has none.
+- [`$getLocales`](#getlocales) — Every configured locale, with its metadata.
+- [`$getRouteName`](#getroutename) — Route name with the locale prefix stripped — the name translations are keyed by.
+- [`$has`](#has) — Whether a key resolves in the active locale.
+- `$i18nStrategy` — The active routing strategy, resolving locales to and from paths.
+- [`$loadPageTranslations`](#loadpagetranslations) — Load translations for a page at runtime, for content whose keys are not known at build time.
+- [`$localePath`](#localepath) — Resolve a path in the given locale, or the active one.
+- [`$localeRoute`](#localeroute) — Resolve a route in the given locale, or the active one.
+- [`$mergeTranslations`](#mergetranslations) — Merge translations into the active locale at runtime, overriding what is loaded.
+- `$pluralFunc` — The plural rule `$tc` uses: `<i18n-t>` asks for it to pick a form from the raw translation.
+- `$pluralLocale` — The tag `$tc` plurals by: the locale's `iso` when it has one, else its code.
+- [`$resolveTranslations`](#resolvetranslations) — Every translation currently in memory for the active locale and route, as a tree.
+- [`$setI18nRouteParams`](#seti18nrouteparams) — Set per-locale params for the current route, so a dynamic segment can differ per language.
+- [`$setMissingHandler`](#setmissinghandler) — Install a callback invoked for every unresolved key.
+- [`$setTranslation`](#settranslation) — Replace the value at `key` in the active dictionary.
+- [`$switchLocale`](#switchlocale) — Navigate to the current page in another locale.
+- [`$switchLocalePath`](#switchlocalepath) — The path of the current page in another locale, without navigating.
+- [`$switchLocaleRoute`](#switchlocaleroute) — The route object for the current page in another locale, without navigating, or a URL string for a locale on its own `baseUrl`.
+- [`$switchRoute`](#switchroute) — Navigate to another route, keeping the active locale or switching to `toLocale`.
+- [`$t`](#t) — Translate a key, interpolating `params` into it.
+- [`$tc`](#tc) — Translate with pluralization.
+- [`$td`](#td) — Format a date with `Intl.DateTimeFormat` in the active locale.
+- [`$tdr`](#tdr) — Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`.
+- [`$tn`](#tn) — Format a number with `Intl.NumberFormat` in the active locale.
+- [`$ts`](#ts) — Like `$t`, but always returns a string: the value goes through `toString()`, so a nested object becomes `'[object Object]'`.
 
 <!-- /generated:methods-index -->
 
@@ -470,7 +466,7 @@ $getRouteName() // 'about' on /de/about
 <!-- generated:method:$defineI18nRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(routeDefinition: DefineI18nRouteConfig) => Promise<void>
+(routeDefinition: DefineI18nRouteConfig | false) => Promise<void>
 ```
 
 Register per-page locale configuration and translations from inside a component.

@@ -38,7 +38,8 @@ import { useI18nLocale } from '../composables/useI18nLocale'
 import { createI18nProvide, createNuxtI18nPluginApi, type NuxtI18nPluginProvide } from '../utils/i18n-api'
 import { useResolvedI18nConfig } from '../utils/i18n-config'
 import { setupI18nNavigation } from '../utils/i18n-navigation'
-import { formatterFor, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+import { formatterFor } from '../utils/formatter'
+import { NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
 import { ServerNuxtI18n } from '../utils/nuxt-i18n-server'
 
 export type { TranslationFn }
@@ -266,6 +267,7 @@ export default defineNuxtPlugin({
       },
       // a ref: a link rendered without the hash gets it back when hydration ends
       isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
+      nuxtApp,
     })
 
     if (import.meta.server) rewriteSwitcherLinks(nuxtApp, api.provide, i18nRouteParams, (path) => router.resolve(path).href)
@@ -442,5 +444,5 @@ export interface NuxtAppOnlyInjections {
    * Register per-page locale configuration and translations from inside a component.
    * Merges into the active locale and re-applies when the locale changes.
    */
-  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
+  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig | false) => Promise<void>
 }

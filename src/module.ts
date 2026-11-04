@@ -11,6 +11,7 @@ import { buildFullConfigSource, buildPrivateConfigSource } from './config-templa
 import type {
   Getter,
   GlobalLocaleRoutes,
+  I18nBeforeLocaleSwitchContext,
   Locale,
   LocaleCode,
   ModuleOptions,
@@ -103,6 +104,9 @@ declare module '#app' {
 export {}`
 }
 
+/** The statuses a browser follows to `Location`: 300, 304, 305 do not move a visitor. */
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
+
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 
 interface NormalizedApiConfig {
@@ -123,11 +127,10 @@ function buildFullConfig(params: {
   apiConfig: NormalizedApiConfig
   translationPayloadMode: TranslationPayloadMode
   locales: ModuleOptionsExtend['locales']
-  translationsHash: string | null
   publicPayloads: boolean
   rootDelta: boolean
 }): ResolvedI18nConfig {
-  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, translationsHash, publicPayloads, rootDelta } = params
+  const { options, nuxt, defaultLocale, apiConfig, translationPayloadMode, locales, publicPayloads, rootDelta } = params
   // as Nuxt reads it for `NUXT_NO_SCRIPTS`
   const noScripts = nuxt.options.features.noScripts
 
@@ -142,12 +145,16 @@ function buildFullConfig(params: {
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
+    // set only when it is not the default: 06.redirect reads it
+    redirectStatusCode: options.redirectStatusCode ?? undefined,
+    // only a build that writes a cookie ships its attributes
+    localeCookieOptions: options.localeCookie || nuxt.options?.router?.options?.hashMode ? options.localeCookieOptions : undefined,
     autoDetectLanguage: options.autoDetectLanguage,
     autoDetectPath: options.autoDetectPath || '/',
     strategy: options.strategy!,
-    // the `?v=` of payload URLs: a fingerprint of the translations, as a timestamp would make clients re-download
-    // what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
-    dateBuild: options.dateBuild ?? translationsHash ?? Date.now(),
+    // the `?v=` of payload URLs: a fingerprint of the translations (set at modules:done), as a timestamp would make
+    // clients re-download what never changed. `options.dateBuild` wins even when it is `0`/`''`: that opts out of busting.
+    dateBuild: options.dateBuild ?? Date.now(),
     hashMode: nuxt.options?.router?.options?.hashMode ?? false,
     trailingSlash:
       options.trailingSlash ??
@@ -195,6 +202,8 @@ function buildPrivateConfig(
     additionalTranslationDirs: options.additionalTranslationDirs ?? [],
     apiBaseServerHost: apiConfig.apiBaseServerHost,
     serverTranslationPreload: options.serverTranslationPreload ?? false,
+    // read where a server merges source files (mode 'source', dev): set only when on
+    linkedMessages: options.linkedMessages || undefined,
     cacheStorage: options.cacheStorage,
     cacheStorageBuild: nuxt.options.buildId,
     payloadFsDir,
@@ -350,6 +359,15 @@ export default defineNuxtModule<ModuleOptions>({
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }
+    // a code Nitro would send as no redirect (or not at all) breaks every redirect of the app
+    if (options.redirectStatusCode !== undefined && !REDIRECT_STATUSES.has(options.redirectStatusCode)) {
+      logger.warn(`redirectStatusCode ${options.redirectStatusCode} is none of 301, 302, 303, 307, 308; 302 is used.`)
+      options.redirectStatusCode = undefined
+    }
+    // browsers drop a `SameSite=None` cookie without `Secure`: the locale would never be remembered
+    if (options.localeCookieOptions?.sameSite === 'none' && !options.localeCookieOptions.secure) {
+      logger.warn("localeCookieOptions: sameSite 'none' needs secure: true, or browsers reject the locale cookie.")
+    }
     // info, not warn: this is the default configuration, so a warning fired for every app
     if (options.strategy !== 'no_prefix' && options.redirects !== false && !options.localeCookie) {
       logger.info(
@@ -366,14 +384,16 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const sourceLocalesDir = resolve(nuxt.options.buildDir, 'i18n-source')
     const translationDirName = options.translationDir || 'locales'
+    // one array for the whole build: the private config and devtools hold it, and modules:done adds to it
+    const extraDirs = (options.additionalTranslationDirs ??= [])
     // Fingerprint only when `dateBuild` is unset. Explicit `0`/`''` opts out of busting and
     // must not pay for a full JSON walk (`??` keeps those values).
-    const translationsHash =
+    const fingerprint = () =>
       options.dateBuild === undefined
         ? hashTranslationSources(
             rootDirs,
             translationDirName,
-            options.additionalTranslationDirs,
+            extraDirs,
             JSON.stringify([options.fallbackLocale, options.disablePageLocales, (options.locales ?? []).map((l) => [l.code, l.fallbackLocale])]),
           )
         : null
@@ -410,12 +430,13 @@ export default defineNuxtModule<ModuleOptions>({
       localeInfosByCode.set(locale.code, {
         code: locale.code,
         fallbackLocale: prev?.fallbackLocale ?? locale.fallbackLocale,
+        iso: prev?.iso ?? locale.iso,
         disabled: prev?.disabled ?? locale.disabled,
       })
     }
     const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]
       .filter((locale) => !locale.disabled)
-      .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
+      .map(({ code, fallbackLocale, iso }) => ({ code, fallbackLocale, iso }))
 
     /** Every named page, children too: each asks for a chunk under its own name. */
     let routeNames: string[] = []
@@ -438,6 +459,8 @@ export default defineNuxtModule<ModuleOptions>({
           routeNames,
           // dev reads live files, and a prerender merges what it reads like any server
           rootDelta: !nuxt.options.dev && translationPayloads.rootDelta,
+          linkedMessages: options.linkedMessages,
+          warn: (message) => logger.warn(message),
         })
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
@@ -504,7 +527,15 @@ export default defineNuxtModule<ModuleOptions>({
         !options.disablePageLocales &&
         (translationPayloads.publicAssets || Boolean(options.apiBaseClientHost)),
       locales: routeGenerator.locales ?? [],
-      translationsHash,
+    })
+
+    // A module listed after this one may add its own folder (`nuxt.options.i18n.additionalTranslationDirs.push(dir)`):
+    // once every module ran, the list is final. Same array, so the build and the servers read it; the `?v=` is
+    // fingerprinted here, once, over the final list.
+    nuxt.hook('modules:done', () => {
+      for (const dir of (nuxt.options as { i18n?: ModuleOptions }).i18n?.additionalTranslationDirs ?? [])
+        if (!extraDirs.includes(dir)) extraDirs.push(dir)
+      fullConfig.dateBuild = fingerprint() ?? fullConfig.dateBuild
     })
 
     // `nuxt generate` has no real request: this variable is the host of the run
@@ -622,16 +653,15 @@ export default defineNuxtPlugin(() => ({ provide: { defineI18nRoute: async () =>
       // A translation file is imported by nothing, so Vite would full-reload on every edit: swallow
       // the update and tell the client plugin to reload its dictionaries (the dev server reads the
       // live files). Same roots as the Nitro watcher: every layer's translationDir + additional dirs.
-      const translationDirs = resolveLiveTranslationDirs({
-        rootDirs,
-        translationDir: translationDirName,
-        additionalTranslationDirs: options.additionalTranslationDirs,
-      })
+      // read on the first edit: by then modules:done has the final list of folders
+      let translationDirs: ReturnType<typeof resolveLiveTranslationDirs> | undefined
+      const liveDirs = () =>
+        (translationDirs ??= resolveLiveTranslationDirs({ rootDirs, translationDir: translationDirName, additionalTranslationDirs: extraDirs }))
       addVitePlugin(
         {
           name: 'i18n-micro:translations-hmr',
           hotUpdate({ file }) {
-            if (this.environment.name !== 'client' || !translationRelativePath(file, translationDirs)) return
+            if (this.environment.name !== 'client' || !translationRelativePath(file, liveDirs())) return
             this.environment.hot.send({ type: 'custom', event: TRANSLATIONS_HMR_EVENT })
             return []
           },
@@ -955,6 +985,8 @@ declare module '#i18n-internal/payload-source' {
  */
 export interface ModuleRuntimeHooks {
   'i18n:register': (registerModule: (translations: unknown, locale?: string) => void, locale: string) => HookResult
+  /** Before the page switches to another locale: set `ctx.to` to switch to another one, `ctx.cancel = true` to stay. */
+  'i18n:beforeLocaleSwitch': (ctx: I18nBeforeLocaleSwitchContext) => HookResult
 }
 
 // for apps that load the module from source (playground, fixtures): no generated types.d.mts there
@@ -964,4 +996,14 @@ declare module '#app' {
   interface NuxtApp extends Pick<PluginsInjections, '$setI18nRouteParams'> {}
 }
 
-export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }
+export type {
+  Locale,
+  PluralFunc,
+  ModuleOptions,
+  GlobalLocaleRoutes,
+  Getter,
+  LocaleCode,
+  PluginsInjections,
+  Strategies,
+  I18nBeforeLocaleSwitchContext,
+}

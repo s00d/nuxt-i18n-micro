@@ -1,6 +1,8 @@
 import type { ModuleOptionsExtend, ResolvedI18nConfig } from '@i18n-micro/types'
 import {
   applyI18nRuntimeOverrides,
+  applyLocaleBaseUrls,
+  readLocaleBaseUrls,
   createI18nConfigResolver,
   readI18nRuntimeOverrides,
   type RuntimeI18nOverrides,
@@ -37,15 +39,35 @@ function overridesOf(config: ModuleOptionsExtend): Shipped {
  * Nitro and the app bundle each hold their own copy of the build config, so `config !== base` is always true.
  */
 export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOptionsExtend): Shipped | null {
-  const shipped = overridesOf(config)
+  // the build config itself (no override, no host): nothing to tell
+  if (config === base) return null
+  const shipped = Object.assign(overridesOf(config), originsOf(config, base))
   const built = overridesOf(base)
   const same =
     shipped.defaultLocale === built.defaultLocale &&
     shipped.fallbackLocale === built.fallbackLocale &&
     shipped.domain === built.domain &&
     shipped.dateBuild === built.dateBuild &&
-    String(shipped.disabledLocales) === String(built.disabledLocales)
+    String(shipped.disabledLocales) === String(built.disabledLocales) &&
+    !shipped.metaBaseUrl &&
+    !shipped.localeBaseUrls
   return same ? null : shipped
+}
+
+/**
+ * The runtime origins, only those that differ from the build. A host config's `metaBaseUrl` is the
+ * host's own, which the browser derives again from `domain`: it is no override.
+ */
+function originsOf(config: ModuleOptionsExtend, base: ModuleOptionsExtend): Pick<Shipped, 'metaBaseUrl' | 'localeBaseUrls'> {
+  const origins: Pick<Shipped, 'metaBaseUrl' | 'localeBaseUrls'> = {}
+  if (!config.domain && config.metaBaseUrl !== base.metaBaseUrl && config.metaBaseUrl) origins.metaBaseUrl = config.metaBaseUrl
+  const built = base.locales ?? []
+  // ponytail: a scan per locale, O(n²) over a locale list; nothing is allocated when no baseUrl moved
+  const moved = (config.linkLocales ?? config.locales ?? []).filter(
+    (locale) => locale.baseUrl && locale.baseUrl !== built.find((entry) => entry.code === locale.code)?.baseUrl,
+  )
+  if (moved.length) origins.localeBaseUrls = Object.fromEntries(moved.map((locale) => [locale.code, locale.baseUrl!]))
+  return origins
 }
 
 function resolve(nuxtApp: NuxtApp): ResolvedI18nConfig {
@@ -59,10 +81,15 @@ function resolve(nuxtApp: NuxtApp): ResolvedI18nConfig {
   }
   // a server-rendered page: exactly what the server applied (it already warned); a client-only one resolves itself
   if (nuxtApp.payload.serverRendered) {
-    const config = shipped.value ? applyI18nRuntimeOverrides(base, shipped.value, silent) : base
+    const applied = shipped.value ? applyI18nRuntimeOverrides(base, shipped.value, silent) : base
+    // a build with no locale domains has no baseUrl to move: `domains` drops the code
+    const config = domains && shipped.value ? applyLocaleBaseUrls(applied, shipped.value, silent) : applied
     return domains && shipped.value?.domain ? configForHost(config, shipped.value.domain) : config
   }
-  const config = applyI18nRuntimeOverrides(base, readI18nRuntimeOverrides(nuxtApp.$config.public as Record<string, unknown>))
+  const runtimePublic = nuxtApp.$config.public as Record<string, unknown>
+  const overrides = readI18nRuntimeOverrides(runtimePublic)
+  const applied = applyI18nRuntimeOverrides(base, overrides)
+  const config = domains ? applyLocaleBaseUrls(applied, { ...overrides, localeBaseUrls: readLocaleBaseUrls(runtimePublic) }) : applied
   return domains ? configForHost(config, location.host) : config
 }
 

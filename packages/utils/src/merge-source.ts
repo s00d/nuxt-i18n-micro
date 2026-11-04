@@ -1,10 +1,13 @@
 import type { Locale } from '@i18n-micro/types'
 import { forwardSlashes, trimLeadingSlashes, trimSlashes } from './app-path'
 import { deepMergeTranslationsRecursive } from './deep-merge'
+import { resolveLinkedMessages } from './linked-messages'
 
 export interface SourceLocaleInfo {
   code: string
   fallbackLocale?: string
+  /** BCP 47 tag of the locale: the case modifiers of linked messages go by it. */
+  iso?: string
 }
 
 export interface MergeSourceTranslationsInput {
@@ -14,6 +17,10 @@ export interface MergeSourceTranslationsInput {
   globalFallbackLocale?: string
   disablePageLocales?: boolean
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
+  /** Resolve `@:key` links in the merged chunk (`linkedMessages`). */
+  linkedMessages?: boolean
+  /** A link left as written (missing key, cycle, unknown modifier). */
+  warn?: (message: string) => void
 }
 
 /**
@@ -107,11 +114,18 @@ export async function mergeSourceTranslations(input: MergeSourceTranslationsInpu
   const files = chain.flatMap((localeCode) =>
     input.disablePageLocales ? [buildSourceRootPath(localeCode)] : [buildSourceRootPath(localeCode), buildSourcePagePath(pageName, localeCode)],
   )
-  return mergeTranslationsFromFallbackChainAsync(files, input.readLocaleFile, (file) => file)
+  const merged = await mergeTranslationsFromFallbackChainAsync(files, input.readLocaleFile, (file) => file)
+  if (!input.linkedMessages) return merged
+  // the whole chunk (fallbacks, root under page) is what a link may name; the locale's own case rules
+  const own = input.locales.find((entry) => entry.code === input.locale)
+  const warn = input.warn && ((message: string) => input.warn!(`[i18n] ${input.locale}: ${message}`))
+  return resolveLinkedMessages(merged, { locale: own?.iso ?? input.locale, warn })
 }
 
 export function normalizeConfiguredLocales(locales: Array<string | Locale> | undefined): SourceLocaleInfo[] {
   return (locales ?? []).map((locale) =>
-    typeof locale === 'string' ? { code: locale } : { code: locale.code, fallbackLocale: locale.fallbackLocale },
+    typeof locale === 'string'
+      ? { code: locale }
+      : { code: locale.code, fallbackLocale: locale.fallbackLocale, ...(locale.iso ? { iso: locale.iso } : {}) },
   )
 }

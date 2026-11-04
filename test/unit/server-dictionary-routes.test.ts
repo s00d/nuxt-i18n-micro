@@ -24,6 +24,8 @@ vi.mock('../../src/runtime/server/utils/locale-detector', () => ({
 // every `#...` alias is one stub, so one mock answers for all of them
 vi.mock('#i18n-internal/config', () => ({
   getI18nPrivateConfig: () => state.privateConfig,
+  // the server t's plural rule: none set, the default one
+  plural: undefined,
   get domains() {
     return state.domains
   },

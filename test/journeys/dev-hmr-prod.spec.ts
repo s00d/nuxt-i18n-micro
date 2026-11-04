@@ -18,6 +18,9 @@ describe('J10 additionalTranslationDirs (prod server)', () => {
       deep: { a: { x: 1, y: 99, z: 3 } },
     })
     expect(enIndex.leak).toBeUndefined()
+    // a module listed after i18n added its absolute folder: in the build, and in the `?v=` fingerprint
+    expect(enIndex.fromVendor).toBe('From Vendor EN')
+    expect((await readChunk(request, 'about', 'de')).fromVendor).toBe('From Vendor DE')
 
     // step 2: open /en → the merged texts render, leak falls back to its default
     await goto('/en', { waitUntil: 'hydration' })
@@ -27,6 +30,7 @@ describe('J10 additionalTranslationDirs (prod server)', () => {
     await expect(page.locator('#deep-y')).toHaveText('99')
     await expect(page.locator('#deep-z')).toHaveText('3')
     await expect(page.locator('#leak')).toHaveText('missing')
+    await expect(page.locator('#from-vendor')).toHaveText('From Vendor EN')
 
     // step 3: GET _locales/index/fr → only common/fr.json + global fallback en
     // was: translation-watcher › additionalTranslationDirs (prod server) › supports locale that exists only in additional dirs

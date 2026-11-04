@@ -3,58 +3,163 @@ title: '@i18n-micro/types-generator'
 description: 'Exported API of @i18n-micro/types-generator, generated from the source.'
 navigation:
   title: 'types-generator'
-outline: 'deep'
 ---
 
 # `@i18n-micro/types-generator`
 
-7 exports across 2 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
+Type generator for i18n-micro translation keys
+
+Entry points: `@i18n-micro/types-generator`, `@i18n-micro/types-generator/nuxt`.
 
 ## `@i18n-micro/types-generator`
 
+### Components
+
+#### `I18nTypesPlugin`
+
+A Vite (and Rollup) plugin: generates at build start, and again in dev after a locale file changes.
+
 ```ts
-import { /* … */ } from '@i18n-micro/types-generator'
+function I18nTypesPlugin(options: GeneratorOptions): Plugin
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `formatKeyProperty` | function | `(key: string) => string` |
-| `generateTypes` | function | `(options: GeneratorOptions) => string` |
-| `GeneratorOptions` | interface | 4 members |
-| `getTypesString` | function | `(options: GeneratorOptions) => string` |
-| `I18nTypesPlugin` | function | `(options: GeneratorOptions) => Plugin` |
+**See** [`GeneratorOptions`](#generatoroptions)
 
-<details>
-<summary><code>GeneratorOptions</code> — 4 members</summary>
+### Functions
 
-| Member | Type |
-| --- | --- |
-| `additionalDirs?` | `string[] \| undefined` |
-| `outputFile?` | `string \| undefined` |
-| `srcDir` | `string` |
-| `translationDir` | `string \| string[]` |
+#### `formatKeyProperty`
 
-</details>
+Emit a TS property name from a translation key.
+JSON.stringify covers quotes/newlines/null bytes; U+2028/U+2029 need an extra escape
+so the .d.ts stays safe when embedded in older JS tooling.
+
+```ts
+function formatKeyProperty(key: string): string
+```
+
+#### `generateTypes`
+
+Generates TypeScript types for translation keys from JSON files.
+Writes the result to a file.
+
+```ts
+function generateTypes(options: GeneratorOptions): string
+```
+
+::field-group
+:::field
+---
+name: "options"
+type: "GeneratorOptions"
+required: true
+---
+Generator options
+:::
+::
+
+**Returns** — Path to the generated file
+
+**See** [`GeneratorOptions`](#generatoroptions)
+
+#### `getTypesString`
+
+Generates a string with TypeScript types for translation keys.
+Does not write a file, only returns content.
+
+```ts
+function getTypesString(options: GeneratorOptions): string
+```
+
+::field-group
+:::field
+---
+name: "options"
+type: "GeneratorOptions"
+required: true
+---
+Generator options
+:::
+::
+
+**Returns** — String with .d.ts file content
+
+**See** [`GeneratorOptions`](#generatoroptions)
+
+### Types
+
+#### `GeneratorOptions`
+
+```ts
+interface GeneratorOptions
+```
+
+::field-group
+:::field
+---
+name: "srcDir"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "translationDir"
+type: "string | string[]"
+required: true
+---
+One folder or several (layers, additional dirs); each is resolved against `srcDir`.
+:::
+:::field
+---
+name: "additionalDirs"
+type: "string[]"
+---
+Folders of which only the top-level `{locale}.json` count, as `additionalTranslationDirs` of the module.
+:::
+:::field
+---
+name: "outputFile"
+type: "string"
+---
+
+:::
+::
+
 ## `@i18n-micro/types-generator/nuxt`
 
+### Functions
+
+#### `default`
+
 ```ts
-import { /* … */ } from '@i18n-micro/types-generator/nuxt'
+function default(
+  resolvedOptions: I18nTypesGeneratorOptions,
+  nuxt: Nuxt,
+): ModuleSetupReturn
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `default` | value | `import("@nuxt/schema").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>` |
-| `I18nTypesGeneratorOptions` | interface | 1 members |
+**See** [`I18nTypesGeneratorOptions`](#i18ntypesgeneratoroptions)
 
-<details>
-<summary><code>I18nTypesGeneratorOptions</code> — 1 members</summary>
+### Types
 
-| Member | Type |
-| --- | --- |
-| `translationDir?` | `string \| undefined` |
+#### `I18nTypesGeneratorOptions`
 
-</details>
+```ts
+interface I18nTypesGeneratorOptions
+```
 
+::field-group
+:::field
+---
+name: "translationDir"
+type: "string"
+---
+Translation directory relative to the project root. Defaults to where `nuxt-i18n-micro` reads translations.
+:::
+::
+
+---
+
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

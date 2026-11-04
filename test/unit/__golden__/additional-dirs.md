@@ -1,0 +1,20 @@
+- `listAdditionalRootLocales([])` → []
+- `mergeAdditionalRootLocaleFiles([], en)` → {"app":"A"}
+- `mergeAdditionalRootLocaleFiles([], fr)` → {}
+- `hashTranslationSources([])` → "194508271e29836e"
+- `resolveLiveTranslationDirs([])` → {"translationRoots":["<root>/layer/locales","<root>/app/locales"],"additionalRoots":[]}
+- `listAdditionalRootLocales(["common"])` → ["de","en"]
+- `mergeAdditionalRootLocaleFiles(["common"], en)` → {"common":"app common","shared":"layer","app":"A"}
+- `mergeAdditionalRootLocaleFiles(["common"], fr)` → {}
+- `hashTranslationSources(["common"])` → "edfd649528e4d4a3"
+- `resolveLiveTranslationDirs(["common"])` → {"translationRoots":["<root>/layer/locales","<root>/app/locales"],"additionalRoots":["<root>/layer/common","<root>/app/common"]}
+- `listAdditionalRootLocales(["<root>/vendor/locales"])` → ["en","fr"]
+- `mergeAdditionalRootLocaleFiles(["<root>/vendor/locales"], en)` → {"vendor":"V","shared":"vendor","app":"A"}
+- `mergeAdditionalRootLocaleFiles(["<root>/vendor/locales"], fr)` → {"vendor":"V fr"}
+- `hashTranslationSources(["<root>/vendor/locales"])` → "6fc291ab172f4281"
+- `resolveLiveTranslationDirs(["<root>/vendor/locales"])` → {"translationRoots":["<root>/layer/locales","<root>/app/locales"],"additionalRoots":["<root>/vendor/locales"]}
+- `listAdditionalRootLocales(["common","<root>/vendor/locales"])` → ["de","en","fr"]
+- `mergeAdditionalRootLocaleFiles(["common","<root>/vendor/locales"], en)` → {"common":"app common","shared":"vendor","vendor":"V","app":"A"}
+- `mergeAdditionalRootLocaleFiles(["common","<root>/vendor/locales"], fr)` → {"vendor":"V fr"}
+- `hashTranslationSources(["common","<root>/vendor/locales"])` → "f5d5c8deb9c0ff08"
+- `resolveLiveTranslationDirs(["common","<root>/vendor/locales"])` → {"translationRoots":["<root>/layer/locales","<root>/app/locales"],"additionalRoots":["<root>/layer/common","<root>/app/common","<root>/vendor/locales"]}

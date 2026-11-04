@@ -1,4 +1,4 @@
-import type { CleanTranslation, Getter, Params, PluralFunc, TranslationKey } from '@i18n-micro/types'
+import type { CleanTranslation, Getter, Params, PluralFunc, TranslateParams, TranslationKey } from '@i18n-micro/types'
 import { ownValue } from './tree'
 
 /** A placeholder: any run without braces or spaces (`{name}`, `{имя}`, `{first-name}`), so `{ a }` stays text. */
@@ -33,8 +33,8 @@ export function tokenize(template: string): readonly string[] {
   return parts
 }
 
-/** Replaces `{name}` with `params.name`; a token without an own param stays as written. */
-export function interpolate(template: string, params: Params): string {
+/** Replaces `{name}` with `params.name` (`{0}` with an item of a list); a token without an own param stays as written. */
+export function interpolate(template: string, params: TranslateParams): string {
   if (!params || template.indexOf('{') === -1) return template
   const parts = tokenize(template)
   let out = parts[0]!
@@ -219,7 +219,7 @@ export interface TextHost {
   pluralLocale?(): string
   /** Whether the key has a translation: tells a miss from a translation equal to what stands for one. */
   has?(key: TranslationKey): boolean
-  t(key: TranslationKey, params?: Params, defaultValue?: string | null): CleanTranslation
+  t(key: TranslationKey, params?: TranslateParams, defaultValue?: string | null): CleanTranslation
   tc(key: TranslationKey, count: number | Params, defaultValue?: string): string
   tn(value: number): string
   td(value: Date | number | string): string

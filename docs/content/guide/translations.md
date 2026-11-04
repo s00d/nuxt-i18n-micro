@@ -87,6 +87,41 @@ export default defineNuxtConfig({
 
 Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a warning in the browser console in dev ([`missingWarn`](/api/module-options#missingwarn)).
 
+### Parameters
+
+`{name}` takes `params.name`; `{0}`, `{1}` take the items of an array:
+
+```json [locales/en.json]
+{ "welcome": "Welcome, {name}!", "pair": "{0} and {1}" }
+```
+
+`$t('welcome', { name: 'Ada' })` reads `Welcome, Ada!` and `$t('pair', ['Ann', 'Bob'])` reads `Ann and Bob`. A placeholder with no param stays as written.
+
+### Linked messages
+
+With [`linkedMessages: true`](/api/module-options#linkedmessages) a message can reuse another one, with the vue-i18n syntax:
+
+```json [locales/en.json]
+{
+  "brand": "Acme",
+  "title": "Welcome to @:brand",
+  "shout": "@.upper:brand",
+  "intro": "@.capitalize:{'nav.home'}.",
+  "greet": "Hi @:withName",
+  "withName": "{name}!",
+  "nav": { "home": "home" }
+}
+```
+
+`title` reads `Welcome to Acme`, `shout` reads `ACME`, `intro` reads `Home.` and `$t('greet', { name: 'Ada' })` reads `Hi Ada!`.
+
+- `@:key` inserts the text of `key`; `@.upper:`, `@.lower:` and `@.capitalize:` change its case, by the locale's `iso` (so `@.upper:` of `i` is `İ` in Turkish).
+- A bare key runs to a space or one of `{ } @ % | ( )`, dots and other punctuation included: `@:nav.home`. A key followed by `.`, `,` or `!` goes in a literal: `@:{'nav.home'}.`.
+- Links are resolved when the dictionaries are built (and when a server merges them in `mode: 'source'` or in dev), in the page's whole dictionary: its root keys, its fallback locales. `$t` reads plain text, so this costs nothing at runtime. `{name}` params in a linked text stay, and `$t` interpolates them.
+- A link to a missing key, to an object, or in a cycle leaves the whole message as written, and the build warns once. So does an unknown modifier. Dynamic keys (`@:{name}`) and the old `@:(key)` form are not links.
+- Messages added at runtime (`$mergeTranslations`, `$setTranslation`, the `i18n:register` hook, inline `$defineI18nRoute` locales) are not resolved.
+- It is off by default: `@:` may already be plain text in your messages.
+
 ## Sharing and other sources
 
 | Need | Option |
@@ -94,6 +129,7 @@ Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a w
 | Only root files, no `pages/` folders | [`disablePageLocales: true`](/api/module-options#disablepagelocales) |
 | Two pages read one page folder | [`routesLocaleLinks`](/api/module-options#routeslocalelinks): `{ 'about-us': 'about' }` |
 | Shared root files in another folder | [`additionalTranslationDirs`](/api/module-options#additionaltranslationdirs): `['common']` (the main `translationDir` wins) |
+| Keys shipped by a Nuxt module | the module adds its absolute folder to `additionalTranslationDirs`, see [for module authors](/api/module-options#additionaltranslationdirs) |
 | Keys from a Nuxt layer | Layers' files merge, the project's own files win. See [Layers](/guide/layers) |
 | Keys added at runtime | the [`i18n:register`](/api/events) hook, `$mergeTranslations`, `$setTranslation` |
 | Keys inline in a page component | `$defineI18nRoute({ locales: { en: { … } } })`, see [Page config](/guide/per-component-translations) |

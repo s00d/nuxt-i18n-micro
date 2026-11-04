@@ -12,25 +12,23 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 
 <!-- generated:packages-index — do not edit; run `pnpm run docs:generate` -->
 
-| Package | Entry points | Exports |
-| --- | --- | --- |
-| [`@i18n-micro/astro`](/api/packages/astro) | `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue`, `@i18n-micro/astro/middleware`, `@i18n-micro/astro/node` | 50 |
-| [`@i18n-micro/cli`](/api/packages/cli) | `@i18n-micro/cli` | 6 |
-| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers`, `@i18n-micro/core/render` | 114 |
-| [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 26 |
-| [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 16 |
-| [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 20 |
-| [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact`, `@i18n-micro/preact/router` | 42 |
-| [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react`, `@i18n-micro/react/client`, `@i18n-micro/react/router`, `@i18n-micro/react/server` | 91 |
-| [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 14 |
-| [`@i18n-micro/runtime`](/api/packages/runtime) | `@i18n-micro/runtime` | 17 |
-| [`@i18n-micro/solid`](/api/packages/solid) | `@i18n-micro/solid`, `@i18n-micro/solid/router` | 39 |
-| [`@i18n-micro/test-utils`](/api/packages/test-utils) | `@i18n-micro/test-utils` | 52 |
-| [`@i18n-micro/types`](/api/packages/types) | `@i18n-micro/types` | 28 |
-| [`@i18n-micro/types-generator`](/api/packages/types-generator) | `@i18n-micro/types-generator`, `@i18n-micro/types-generator/nuxt` | 7 |
-| [`@i18n-micro/utils`](/api/packages/utils) | `@i18n-micro/utils/accept-language`, `@i18n-micro/utils/active-locales`, `@i18n-micro/utils/app-path`, `@i18n-micro/utils/auto-detect-path`, `@i18n-micro/utils/cache-control`, `@i18n-micro/utils/cookie`, `@i18n-micro/utils/deep-merge`, `@i18n-micro/utils/domains`, `@i18n-micro/utils/load-dir`, `@i18n-micro/utils/locale-head`, `@i18n-micro/utils/merge-i18n-head`, `@i18n-micro/utils/merge-source`, `@i18n-micro/utils/normalize`, `@i18n-micro/utils/parse-path`, `@i18n-micro/utils/payload-fetch`, `@i18n-micro/utils/payload-url`, `@i18n-micro/utils/resolve-hreflang`, `@i18n-micro/utils/resolve-locale`, `@i18n-micro/utils/resolve-og-locale`, `@i18n-micro/utils/runtime-config`, `@i18n-micro/utils/source-loader`, `@i18n-micro/utils/split-locale-routes` | 113 |
-| [`@i18n-micro/vitepress`](/api/packages/vitepress) | `@i18n-micro/vitepress`, `@i18n-micro/vitepress/config`, `@i18n-micro/vitepress/node`, `@i18n-micro/vitepress/theme` | 56 |
-| [`@i18n-micro/vue`](/api/packages/vue) | `@i18n-micro/vue`, `@i18n-micro/vue/router` | 30 |
+- [`@i18n-micro/astro`](/api/packages/astro) · 50 exports — also `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue`, `@i18n-micro/astro/middleware`, `@i18n-micro/astro/node`
+- [`@i18n-micro/cli`](/api/packages/cli) · 6 exports
+- [`@i18n-micro/core`](/api/packages/core) · 114 exports — also `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers`, `@i18n-micro/core/render`
+- [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) · 26 exports — also `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite`
+- [`@i18n-micro/node`](/api/packages/node) · 16 exports
+- [`@i18n-micro/path-strategy`](/api/packages/path-strategy) · 20 exports — also `@i18n-micro/path-strategy/types`
+- [`@i18n-micro/preact`](/api/packages/preact) · 42 exports — also `@i18n-micro/preact/router`
+- [`@i18n-micro/react`](/api/packages/react) · 91 exports — also `@i18n-micro/react/client`, `@i18n-micro/react/router`, `@i18n-micro/react/server`
+- [`@i18n-micro/route-strategy`](/api/packages/route-strategy) · 14 exports
+- [`@i18n-micro/runtime`](/api/packages/runtime) · 17 exports
+- [`@i18n-micro/solid`](/api/packages/solid) · 39 exports — also `@i18n-micro/solid/router`
+- [`@i18n-micro/test-utils`](/api/packages/test-utils) · 52 exports
+- [`@i18n-micro/types`](/api/packages/types) · 32 exports
+- [`@i18n-micro/types-generator`](/api/packages/types-generator) · 7 exports — also `@i18n-micro/types-generator/nuxt`
+- [`@i18n-micro/utils`](/api/packages/utils) · 116 exports — also `@i18n-micro/utils/active-locales`, `@i18n-micro/utils/app-path`, `@i18n-micro/utils/auto-detect-path`, `@i18n-micro/utils/cache-control`, `@i18n-micro/utils/cookie`, `@i18n-micro/utils/deep-merge`, `@i18n-micro/utils/domains`, `@i18n-micro/utils/load-dir`, `@i18n-micro/utils/locale-head`, `@i18n-micro/utils/merge-i18n-head`, `@i18n-micro/utils/merge-source`, `@i18n-micro/utils/normalize`, `@i18n-micro/utils/parse-path`, `@i18n-micro/utils/payload-fetch`, `@i18n-micro/utils/payload-url`, `@i18n-micro/utils/resolve-hreflang`, `@i18n-micro/utils/resolve-locale`, `@i18n-micro/utils/resolve-og-locale`, `@i18n-micro/utils/runtime-config`, `@i18n-micro/utils/source-loader`, `@i18n-micro/utils/split-locale-routes`
+- [`@i18n-micro/vitepress`](/api/packages/vitepress) · 56 exports — also `@i18n-micro/vitepress/config`, `@i18n-micro/vitepress/node`, `@i18n-micro/vitepress/theme`
+- [`@i18n-micro/vue`](/api/packages/vue) · 30 exports — also `@i18n-micro/vue/router`
 
 <!-- /generated:packages-index -->
 

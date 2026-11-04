@@ -5,7 +5,8 @@ import { extractDefineI18nRouteData, pageFilePathToRoutePath, resolveRootDir } f
 
 export interface DefineI18nRouteMeta {
   routePath: string
-  config: DefineI18nRouteConfig
+  /** `false`: the page is not localized, as `globalLocaleRoutes: { page: false }`. */
+  config: DefineI18nRouteConfig | false
 }
 
 export interface PageRouteConfig {
@@ -26,6 +27,11 @@ export function mergeDefineI18nRouteMeta(
   const routeDisableMeta = { ...config.routeDisableMeta }
   const fromPages: PageRouteConfig['globalLocaleRoutes'] = {}
   for (const { routePath, config: page } of entries) {
+    // one route, no locale: the same exclusion the config makes, and nothing else of the page counts
+    if (page === false) {
+      fromPages[routePath] = false
+      continue
+    }
     if (Array.isArray(page.locales)) routeLocales[routePath] = page.locales
     else if (page.locales) routeLocales[routePath] = Object.keys(page.locales)
     if (page.localeRoutes) fromPages[routePath] = page.localeRoutes
@@ -47,7 +53,7 @@ export function collectDefineI18nRouteMetaFromFiles(pageFiles: string[], rootDir
 
     try {
       const config = extractDefineI18nRouteData(readFileSync(pageFile, 'utf-8'), pageFile)
-      if (!config) continue
+      if (config === null) continue
       entries.push({
         routePath: pageFilePathToRoutePath(pageFile, rootDir),
         config,

@@ -131,6 +131,12 @@ export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 /** Interpolation parameters passed to the `t()` function. */
 export type Params = Record<string, string | number | boolean>
 
+/** A list for `{0}`, `{1}`: what `t()` takes besides `Params`. */
+export type ListParams = readonly (string | number | boolean)[]
+
+/** What `t()` and `interpolate` take: named params or a list. `PluralFunc` keeps `Params`. */
+export type TranslateParams = Params | ListParams
+
 /** Getter function signature used by pluralization to resolve nested keys. */
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 
@@ -157,6 +163,33 @@ export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'pre
  * Useful for logging, reporting, or providing dynamic fallbacks.
  */
 export type MissingHandler = (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
+
+/** Attributes of the locale cookie (`localeCookieOptions`). */
+export interface LocaleCookieOptions {
+  /** `Domain`: e.g. `.example.com` to share the cookie across subdomains. Unset: the host only. */
+  domain?: string
+  /** `Path`. @default '/' */
+  path?: string
+  /** `Secure`: sent over HTTPS only. Required by browsers with `sameSite: 'none'`. @default false */
+  secure?: boolean
+  /** `SameSite`. `'none'` (e.g. an app inside an iframe) needs `secure: true`. @default 'lax' */
+  sameSite?: 'lax' | 'strict' | 'none'
+  /** Lifetime in seconds (`Max-Age` and `Expires`). @default 31536000 (one year) */
+  maxAge?: number
+}
+
+/**
+ * The context of the `i18n:beforeLocaleSwitch` runtime hook. A subscriber may set `to` (another
+ * enabled locale) or `cancel: true`; an invalid `to` is ignored.
+ */
+export interface I18nBeforeLocaleSwitchContext {
+  /** The locale shown now. */
+  from: string
+  /** The locale the switch goes to. */
+  to: string
+  /** `true` stops the switch: the page and the stored preference stay. */
+  cancel: boolean
+}
 
 export interface ModuleOptions {
   /**
@@ -313,11 +346,13 @@ export interface ModuleOptions {
   translationDir?: string
 
   /**
-   * Extra directories (relative to the project root / each Nuxt layer root) whose top-level
-   * `{locale}.json` files are deep-merged into the global dictionary before `translationDir`.
+   * Extra directories whose top-level `{locale}.json` files are deep-merged into the global
+   * dictionary before `translationDir`. A relative path is read in the project root and in each
+   * Nuxt layer root; an absolute path (a Nuxt module's own folder) is read once.
    *
    * Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
    * Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+   * Entries other modules add to `nuxt.options.i18n.additionalTranslationDirs` count, whatever their order.
    *
    * Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
    * @default []
@@ -409,6 +444,26 @@ export interface ModuleOptions {
   fallbackLocale?: string
 
   /**
+   * HTTP status of every redirect the server answers for the module: the preferred locale (cookie,
+   * `Accept-Language`), a prefix in another case, and under `hashMode` + `prefix` the move into the
+   * hash. `301` and `308` are cached by browsers: a visitor who later changes the preference is still
+   * sent where the first answer said. One of 301, 302, 303, 307, 308; any other value warns at build
+   * and 302 is used.
+   * @default 302
+   */
+  redirectStatusCode?: number
+
+  /**
+   * Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`)
+   * in each built dictionary, so the runtime never parses them. A link to a missing key, or a
+   * cycle, leaves the message as written and warns at build. Translations added at runtime
+   * (`$mergeTranslations`, `i18n:register`, inline `$defineI18nRoute`) are not resolved.
+   * Off by default: `@:` may already be plain text in your messages.
+   * @default false
+   */
+  linkedMessages?: boolean
+
+  /**
    * Cookie name for persisting the user's locale preference across sessions.
    * Set to `null` to disable cookie-based persistence.
    * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
@@ -416,6 +471,14 @@ export interface ModuleOptions {
    * @default null
    */
   localeCookie?: string | null
+
+  /**
+   * Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and
+   * the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year,
+   * no `Domain`, no `Secure`. Build config only: no request decides them.
+   * @default {}
+   */
+  localeCookieOptions?: LocaleCookieOptions
 
   /**
    * Enable verbose debug logging for locale detection, route generation, and translation loading.

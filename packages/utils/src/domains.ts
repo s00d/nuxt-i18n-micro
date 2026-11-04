@@ -81,7 +81,9 @@ const hostConfigs = new WeakMap<ModuleOptionsExtend, Map<string, ModuleOptionsEx
 /**
  * `config` as `host` sees it: its default, its locales, its origin. Any other host gets `config`
  * itself and nothing of the request is kept or echoed: the table holds configured hosts only, one
- * per resolved config (immutable, so it cannot go stale).
+ * per resolved config. A runtime config is never written to, so its table cannot go stale; the build
+ * writes one field of its own config late (`dateBuild`, at modules:done), and no build-time caller of
+ * a host config reads it.
  */
 export function configForHost<T extends ModuleOptionsExtend>(config: T, host: string): T {
   let configs = hostConfigs.get(config)

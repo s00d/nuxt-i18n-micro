@@ -14,18 +14,36 @@ navigation:
 
 <!-- generated:component:i18n-group — do not edit; run `pnpm run docs:generate` -->
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `prefix` **\*** | `string` | — | Key prefix every lookup inside the slot is resolved against. |
-| `groupClass` | `string` | `''` | Extra class on the wrapper element. |
-
-**\*** required.
+::field-group
+:::field
+---
+name: "prefix"
+type: "string"
+required: true
+---
+Key prefix every lookup inside the slot is resolved against.
+:::
+:::field
+---
+name: "groupClass"
+type: "string"
+---
+**Default** `''` · Extra class on the wrapper element.
+:::
+::
 
 ### Slots
 
-| Slot | Bindings | Description |
-| --- | --- | --- |
-| `default` | `prefix`, `t` | Receives `prefix` and a `t` function scoped to it. |
+::field-group
+:::field
+---
+name: "default"
+---
+Receives `prefix` and a `t` function scoped to it.
+
+**Bindings** `prefix`, `t`
+:::
+::
 
 <!-- /generated:component:i18n-group -->
 

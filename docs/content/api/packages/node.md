@@ -3,148 +3,183 @@ title: '@i18n-micro/node'
 description: 'Exported API of @i18n-micro/node, generated from the source.'
 navigation:
   title: 'node'
-outline: 'deep'
 ---
 
 # `@i18n-micro/node`
 
-16 exports across 1 entry point.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
-
-## `@i18n-micro/node`
+Node.js utilities for loading translations and locale data in Nuxt I18n Micro.
 
 ```ts
-import { /* … */ } from '@i18n-micro/node'
+import { … } from '@i18n-micro/node'
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `createI18n` | function | `(options: I18nOptions) => I18n` |
-| `FormatService` | class | 21 members |
-| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 71 members |
-| `I18nOptions` | interface | 15 members |
-| `interpolate` | function | `(template: string, params: Params) => string` |
-| `LoadedTranslations` | interface | 2 members |
-| `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
-| `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
-| `Locale` | interface | 11 members |
-| `LocaleCode` | type | `string` |
-| `localeIsoMap` | const | `(locales: readonly { code: string; iso?: string; }[]) => Record<string, string>` |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `Translations` | interface | 1 members |
+## Functions
 
-<code>FormatService</code> — 21 members, identical to [`FormatService`](/api/packages/astro).
+### `createI18n`
 
-<details>
-<summary><code>I18n</code> — 71 members</summary>
+```ts
+function createI18n(options: I18nOptions): I18n
+```
 
-| Member | Type |
-| --- | --- |
-| `activeKey` | `private any` |
-| `activeRootKey` | `private any` |
-| `addFetched` | `private any` |
-| `addLocaleIso` | `(localeIso: Record<string, string>, notify?: boolean) => void` |
-| `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
-| `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
-| `borrowsLocaleIso` | `private any` |
-| `clear` | `() => void` |
-| `clearCache` | `() => void` |
-| `currentRoute` | `string` |
-| `disablePageLocales` | `private boolean` |
-| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<I18n & M>) => I18n & M` |
-| `fallbackKey` | `private any` |
-| `fallbackLocale` | `string` |
-| `fallbackRootKey` | `private any` |
-| `fork` | `(locale?: string) => I18n` |
-| `forked` | `private boolean` |
-| `formatArgs` | `private any` |
-| `formatter` | `FormatService` |
-| `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
-| `getFallbackLocale` | `() => string` |
-| `getLocale` | `() => string` |
-| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
-| `getRoute` | `() => string` |
-| `getSnapshot` | `() => string` |
-| `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `TranslationHelper` |
-| `isoTag` | `private any` |
-| `isReadable` | `private any` |
-| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
-| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
-| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
-| `loadTranslations` | `(dir?: string) => Promise<void>` |
-| `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
-| `locale` | `string` |
-| `localeIso` | `protected Record<string, string>` |
-| `lookupLocale` | `private any` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn` | `boolean` |
-| `new` | `(options: I18nOptions): I18n` |
-| `onTranslationsChanged` | `protected (locale?: string) => void` |
-| `ownLocaleIso` | `private any` |
-| `ownsFormatter` | `private any` |
-| `ownStore` | `protected ReactiveI18nStore` |
-| `pluralFunc` | `PluralFunc` |
-| `pluralLocale` | `() => string` |
-| `reload` | `() => Promise<void>` |
-| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
-| `run` | `<T>(locale: string, fn: (i18n: I18n) => T) => T` |
-| `scope` | `private AsyncLocalStorage<I18n>` |
-| `setRoute` | `(routeName: string) => void` |
-| `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
-| `storage` | `TranslationStorage` |
-| `store` | `protected ReactiveI18nStore` |
-| `subscribe` | `(listener: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
-| `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
-| `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
-| `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `protected () => void` |
-| `translationDir?` | `string \| undefined` |
-| `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `protected (message: string) => void` |
-| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
+**See** [`I18nOptions`](#i18noptions) · [`I18n`](#i18n)
 
-</details>
+### `loadRootTranslations`
 
-<details>
-<summary><code>I18nOptions</code> — 15 members</summary>
+Load only root-level translations from a directory
 
-| Member | Type |
-| --- | --- |
-| `datetimeFormats?` | `DateTimeFormatsConfig \| undefined` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `locale` | `string` |
-| `localeIso?` | `Record<string, string> \| undefined` |
-| `messages?` | `Record<string, Translations> \| undefined` |
-| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `now?` | `(() => number) \| undefined` |
-| `numberFormats?` | `NumberFormatsConfig \| undefined` |
-| `parent?` | `I18n \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
-| `timeZone?` | `string \| undefined` |
-| `translationDir?` | `string \| undefined` |
+```ts
+function loadRootTranslations(
+  dir: string,
+  disablePageLocales?: boolean,
+): Promise<Record<string, Translations>>
+```
 
-</details>
+::field-group
+:::field
+---
+name: "dir"
+type: "string"
+required: true
+---
+Directory path containing translation files
+:::
+:::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+If true, ignores pages/ folder and treats all files as root translations
+:::
+::
 
-<code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
+**See** [`Translations`](/api/packages/types#translations)
 
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+### `loadTranslations`
 
-<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+Load translations from a directory
+Supports both flat structure (locales/{lang}.json) and nested structure (locales/pages/{page}/{lang}.json)
 
+```ts
+function loadTranslations(
+  dir: string,
+  disablePageLocales?: boolean,
+): Promise<LoadedTranslations>
+```
+
+::field-group
+:::field
+---
+name: "dir"
+type: "string"
+required: true
+---
+Directory path containing translation files
+:::
+:::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+If true, ignores pages/ folder and treats all files as global translations
+:::
+::
+
+**Returns** — Object with global and route-specific translations
+
+**See** [`LoadedTranslations`](#loadedtranslations)
+
+## Classes
+
+### `I18n`
+
+```ts
+class I18n extends RuntimeI18n {
+  constructor(options: I18nOptions)
+}
+```
+
+::field-group
+:::field
+---
+name: "translationDir"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "protected store"
+type: "ReactiveI18nStore"
+---
+Inside `run`, the shared instance answers with the request's locale and route. A fork always answers with its own.
+:::
+:::field
+---
+name: "run"
+type: "<T>(locale: string, fn: (i18n: this) => T) => T"
+---
+Runs `fn` with a fork for `locale` as the current request: until `fn` and everything it awaits
+finish, this instance reads and sets that fork's locale and route. `fn` also gets the fork.
+:::
+:::field
+---
+name: "loadTranslations"
+type: "(dir?: string) => Promise<void>"
+---
+
+:::
+:::field
+---
+name: "reload"
+type: "() => Promise<void>"
+---
+Re-reads the directory. The old dictionaries answer until the new ones are in, so no request sees an empty instance.
+:::
+::
+
+**See** [`I18nOptions`](#i18noptions)
+
+## Types
+
+### `I18nOptions`
+
+```ts
+interface I18nOptions extends RuntimeI18nOptions
+```
+
+::field-group
+:::field
+---
+name: "translationDir"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+
+:::
+::
+
+### `LoadedTranslations`
+
+```ts
+interface LoadedTranslations extends TranslationFileBuckets<Translations>
+```
+
+**See** [`TranslationFileBuckets`](/api/packages/utils#translationfilebuckets) · [`Translations`](/api/packages/types#translations)
+
+## Re-exports
+
+Declared in another package of this repository and documented on its page.
+
+- From [`@i18n-micro/core`](/api/packages/core): [`interpolate`](/api/packages/core#interpolate) · [`localeIsoMap`](/api/packages/core#localeisomap) · [`FormatService`](/api/packages/core#formatservice)
+- From [`@i18n-micro/types`](/api/packages/types): [`CleanTranslation`](/api/packages/types#cleantranslation) · [`Getter`](/api/packages/types#getter) · [`Locale`](/api/packages/types#locale) · [`LocaleCode`](/api/packages/types#localecode) · [`Params`](/api/packages/types#params) · [`PluralFunc`](/api/packages/types#pluralfunc) · [`Translations`](/api/packages/types#translations)
+
+---
+
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

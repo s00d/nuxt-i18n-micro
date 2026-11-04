@@ -3,286 +3,659 @@ title: '@i18n-micro/path-strategy'
 description: 'Exported API of @i18n-micro/path-strategy, generated from the source.'
 navigation:
   title: 'path-strategy'
-outline: 'deep'
 ---
 
 # `@i18n-micro/path-strategy`
 
-20 exports across 2 entry points.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
+Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.
+
+Entry points: `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types`.
 
 ## `@i18n-micro/path-strategy`
 
+### Functions
+
+#### `createPathStrategy`
+
 ```ts
-import { /* … */ } from '@i18n-micro/path-strategy'
+function createPathStrategy(ctx: PathStrategyContext): PathStrategy
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `ClientRedirectOptions` | interface | 1 members |
-| `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `DomainPathStrategy` | class | 56 members |
-| `I18nPathStrategy` | class | 53 members |
-| `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
-| `PathStrategyContext` | interface | 11 members |
-| `ResolvedRouteLike` | interface | 8 members |
-| `RouteI18nMeta` | interface | 5 members |
-| `RouteLike` | interface | 7 members |
-| `RouterAdapter` | interface | 3 members |
-| `RouteRecordLike` | interface | 5 members |
-| `SwitchLocaleOptions` | interface | 2 members |
+**See** [`PathStrategyContext`](#pathstrategycontext) · [`PathStrategy`](#pathstrategy)
 
-<details>
-<summary><code>ClientRedirectOptions</code> — 1 members</summary>
+### Classes
 
-| Member | Type |
-| --- | --- |
-| `switchPrefixed?` | `boolean \| undefined` |
+#### `DomainPathStrategy`
 
-</details>
+The strategy of a build with locale domains (`baseUrl`). On a known host (`ctx.domain`) the
+locales of other domains are no URLs here, only link targets; on any other host the build config
+routes and every `baseUrl` locale is a link target. A class of its own: an app without domains
+does not ship it.
 
-<details>
-<summary><code>DomainPathStrategy</code> — 56 members</summary>
+```ts
+class DomainPathStrategy extends I18nPathStrategy {
+  constructor(ctx: PathStrategyContext)
+}
+```
 
-| Member | Type |
-| --- | --- |
-| `baseOf` | `private (name: string) => string \| null` |
-| `codes` | `protected Set<string>` |
-| `createIndex` | `protected (records: ReturnType<RouterAdapter["getRoutes"]>) => Index` |
-| `ctx` | `protected PathStrategyContext` |
-| `disabledCodes` | `private Set<string>` |
-| `external` | `protected (locale: string, route: Target) => string \| null` |
-| `findPage` | `private (path: string, anyHost?: boolean) => Page \| typeof UNLOCALIZED \| null` |
-| `foldedCodes` | `private Map<string, string>` |
-| `foreign` | `private Set<string>` |
-| `getClientRedirect` | `(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string \| null` |
-| `getCurrentLocale` | `(route: ResolvedRouteLike, defaultLocaleOverride?: string \| null) => string` |
-| `getCurrentLocaleName` | `(route: ResolvedRouteLike, defaultLocaleOverride?: string \| null) => string \| null` |
-| `getDefaultLocale` | `() => string` |
-| `getLocaleFromPath` | `(path: string) => string \| null` |
-| `getLocales` | `() => Locale[]` |
-| `getLocalizedRouteNamePrefix` | `() => string` |
-| `getPluginRouteName` | `(route: ResolvedRouteLike, locale: string) => string` |
-| `getRouteBaseName` | `(route: RouteLike) => string \| null` |
-| `getStrategy` | `() => Strategies` |
-| `hasPrefix` | `protected (locale: string) => boolean` |
-| `home` | `private (locale: string) => Target` |
-| `index` | `protected Index` |
-| `isDeclaredAlias` | `private (route: ResolvedRouteLike) => boolean` |
-| `isDisabledPrefix` | `private (path: string, segment: string) => boolean` |
-| `isMetaDisabled` | `(route: RouteLike, locale: string) => boolean` |
-| `isOwnPage` | `protected (path: string) => boolean` |
-| `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
-| `keepsAlias` | `private (page: Page, path: string, locale: string) => boolean` |
-| `linkCodes` | `private Set<string>` |
-| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `matchPage` | `private (path: string, anyHost: boolean) => Page \| typeof UNLOCALIZED \| null` |
-| `moved` | `private (path: string, locale: string) => string \| null` |
-| `new` | `(ctx: PathStrategyContext): DomainPathStrategy` |
-| `notFoundReason` | `protected (path: string) => string \| null` |
-| `originOf` | `private (url: string) => string \| undefined` |
-| `otherCodes` | `protected ReadonlySet<string>` |
-| `pageBase` | `private (route: RouteLike) => string \| null` |
-| `pageLocales` | `(route: RouteLike) => string[] \| null` |
-| `pathOnHost` | `private (locale: string, config: Locale, route: Target) => string` |
-| `prefix` | `private string` |
-| `prefixed` | `private (locale: string, path: string) => string` |
-| `probe` | `(to: RouteLike \| string) => ResolvedRouteLike \| null` |
-| `resolve` | `private (to: RouteLike \| string) => ResolvedRouteLike \| null` |
-| `resolveLocaleFromPath` | `(path: string) => string \| null` |
-| `respelled` | `private (path: string, segment: string) => string \| null` |
-| `routeTo` | `private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target \| null` |
-| `servedLocale` | `protected (route: ResolvedRouteLike, preferred: string) => string` |
-| `setRouter` | `(router: RouterAdapter) => void` |
-| `shared` | `private Shared` |
-| `shared_` | `private Shared \| undefined` |
-| `shouldReturn404` | `(currentPath: string) => string \| null` |
-| `switched` | `private (toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchLocaleRoute` | `(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
-| `unknownLocale` | `private RegExp \| null` |
+::field-group
+:::field
+---
+name: "protected otherCodes"
+type: "ReadonlySet<string>"
+---
+Locales whose URLs are no page here but name one (another domain's): `DomainPathStrategy`.
+:::
+:::field
+---
+name: "protected createIndex"
+type: "(records: ReturnType<RouterAdapter['getRoutes']>) => Index"
+---
+Records keep every locale's prefix (other hosts link there); the default of this host links to its unprefixed record.
+:::
+:::field
+---
+name: "protected external"
+type: "(locale: string, route: Target) => string | null"
+---
+A route in `locale` as an absolute URL on another domain: `DomainPathStrategy`.
+:::
+:::field
+---
+name: "protected notFoundReason"
+type: "(path: string) => string | null"
+---
 
-</details>
+:::
+:::field
+---
+name: "switchLocaleRoute"
+type: "(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string"
+---
+A link `localeRoute` made absolute reads as the page it shows, so it switches like any route.
+:::
+:::field
+---
+name: "localeRoute"
+type: "(locale: string, routeOrPath: RouteLike | string) => RouteLike"
+---
+An absolute link of a locale's own domain says where it goes (`<i18n-link :to="$localeRoute(x, 'de')">`).
+Any other absolute object stays a path: it can come from a request.
+:::
+:::field
+---
+name: "protected servedLocale"
+type: "(route: ResolvedRouteLike, preferred: string) => string"
+---
+A page restricted to some locales renders in one this host serves.
+:::
+:::field
+---
+name: "getClientRedirect"
+type: "(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null"
+---
+Where an unprefixed URL goes for the preferred locale (server plugin and client middleware),
+or null to stay. URLs with a locale prefix are never rewritten here.
+:::
+::
 
-<details>
-<summary><code>I18nPathStrategy</code> — 53 members</summary>
+**See** [`I18nPathStrategy`](#i18npathstrategy) · [`PathStrategyContext`](#pathstrategycontext)
 
-| Member | Type |
-| --- | --- |
-| `baseOf` | `private (name: string) => string \| null` |
-| `codes` | `protected Set<string>` |
-| `createIndex` | `protected (records: ReturnType<RouterAdapter["getRoutes"]>) => Index` |
-| `ctx` | `protected PathStrategyContext` |
-| `disabledCodes` | `private Set<string>` |
-| `external` | `protected (_locale: string, _route: Target) => string \| null` |
-| `findPage` | `private (path: string, anyHost?: boolean) => Page \| typeof UNLOCALIZED \| null` |
-| `foldedCodes` | `private Map<string, string>` |
-| `getClientRedirect` | `(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string \| null` |
-| `getCurrentLocale` | `(route: ResolvedRouteLike, defaultLocaleOverride?: string \| null) => string` |
-| `getCurrentLocaleName` | `(route: ResolvedRouteLike, defaultLocaleOverride?: string \| null) => string \| null` |
-| `getDefaultLocale` | `() => string` |
-| `getLocaleFromPath` | `(path: string) => string \| null` |
-| `getLocales` | `() => Locale[]` |
-| `getLocalizedRouteNamePrefix` | `() => string` |
-| `getPluginRouteName` | `(route: ResolvedRouteLike, locale: string) => string` |
-| `getRouteBaseName` | `(route: RouteLike) => string \| null` |
-| `getStrategy` | `() => Strategies` |
-| `hasPrefix` | `protected (locale: string) => boolean` |
-| `home` | `private (locale: string) => Target` |
-| `index` | `protected Index` |
-| `isDeclaredAlias` | `private (route: ResolvedRouteLike) => boolean` |
-| `isDisabledPrefix` | `private (path: string, segment: string) => boolean` |
-| `isMetaDisabled` | `(route: RouteLike, locale: string) => boolean` |
-| `isOwnPage` | `protected (path: string) => boolean` |
-| `isUnknownLocale` | `private (path: string, segment: string) => boolean` |
-| `keepsAlias` | `private (page: Page, path: string, locale: string) => boolean` |
-| `linkCodes` | `private Set<string>` |
-| `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `matchPage` | `private (path: string, anyHost: boolean) => Page \| typeof UNLOCALIZED \| null` |
-| `moved` | `private (path: string, locale: string) => string \| null` |
-| `new` | `(ctx: PathStrategyContext): I18nPathStrategy` |
-| `notFoundReason` | `protected (path: string) => string \| null` |
-| `otherCodes` | `protected ReadonlySet<string>` |
-| `pageBase` | `private (route: RouteLike) => string \| null` |
-| `pageLocales` | `(route: RouteLike) => string[] \| null` |
-| `prefix` | `private string` |
-| `prefixed` | `private (locale: string, path: string) => string` |
-| `probe` | `(to: RouteLike \| string) => ResolvedRouteLike \| null` |
-| `resolve` | `private (to: RouteLike \| string) => ResolvedRouteLike \| null` |
-| `resolveLocaleFromPath` | `(path: string) => string \| null` |
-| `respelled` | `private (path: string, segment: string) => string \| null` |
-| `routeTo` | `private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target \| null` |
-| `servedLocale` | `protected (route: ResolvedRouteLike, preferred: string) => string` |
-| `setRouter` | `(router: RouterAdapter) => void` |
-| `shared` | `private Shared` |
-| `shared_` | `private Shared \| undefined` |
-| `shouldReturn404` | `(currentPath: string) => string \| null` |
-| `switched` | `private (toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchedPage` | `private (toLocale: string, base: string, params: RouteLike["params"], route: RouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
-| `switchLocaleRoute` | `(toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike \| string` |
-| `unknownLocale` | `private RegExp \| null` |
+#### `I18nPathStrategy`
 
-</details>
+```ts
+class I18nPathStrategy {
+  constructor(ctx: PathStrategyContext)
+}
+```
 
-<details>
-<summary><code>PathStrategyContext</code> — 11 members</summary>
+::collapsible{name="28 members"}
+:::field-group
+::::field
+---
+name: "protected readonly ctx"
+type: "PathStrategyContext"
+---
 
-| Member | Type |
-| --- | --- |
-| `customRegexMatcher?` | `string \| undefined` |
-| `defaultLocale` | `string` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `domain?` | `string \| undefined` |
-| `hashMode?` | `boolean \| undefined` |
-| `linkLocales?` | `Locale[] \| undefined` |
-| `locales` | `Locale[]` |
-| `localizedRouteNamePrefix?` | `string \| undefined` |
-| `prefixCaseRedirect?` | `boolean \| undefined` |
-| `router` | `RouterAdapter` |
-| `strategy` | `Strategies` |
+::::
+::::field
+---
+name: "protected readonly codes"
+type: "Set<string>"
+---
 
-</details>
+::::
+::::field
+---
+name: "setRouter"
+type: "(router: RouterAdapter) => void"
+---
 
-<details>
-<summary><code>ResolvedRouteLike</code> — 8 members</summary>
+::::
+::::field
+---
+name: "getDefaultLocale"
+type: "() => string"
+---
 
-| Member | Type |
-| --- | --- |
-| `fullPath` | `string` |
-| `hash?` | `string \| undefined` |
-| `matched?` | `RouteRecordLike[] \| undefined` |
-| `meta?` | `Record<string, unknown> \| undefined` |
-| `name` | `string \| symbol \| null \| undefined` |
-| `params?` | `Record<string, unknown> \| undefined` |
-| `path` | `string` |
-| `query?` | `Record<string, unknown> \| undefined` |
+::::
+::::field
+---
+name: "getLocales"
+type: "() => Locale[]"
+---
 
-</details>
+::::
+::::field
+---
+name: "getStrategy"
+type: "() => Strategies"
+---
 
-<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/types).
+::::
+::::field
+---
+name: "getLocalizedRouteNamePrefix"
+type: "() => string"
+---
 
-<details>
-<summary><code>RouteLike</code> — 7 members</summary>
+::::
+::::field
+---
+name: "protected createIndex"
+type: "(records: ReturnType<RouterAdapter['getRoutes']>) => Index"
+---
 
-| Member | Type |
-| --- | --- |
-| `fullPath?` | `string \| undefined` |
-| `hash?` | `string \| undefined` |
-| `meta?` | `Record<string, unknown> \| undefined` |
-| `name?` | `string \| symbol \| null \| undefined` |
-| `params?` | `Record<string, unknown> \| undefined` |
-| `path?` | `string \| undefined` |
-| `query?` | `Record<string, unknown> \| undefined` |
+::::
+::::field
+---
+name: "protected index"
+type: "Index"
+---
 
-</details>
+::::
+::::field
+---
+name: "protected hasPrefix"
+type: "(locale: string) => boolean"
+---
+Whether URLs in `locale` carry the locale segment.
+::::
+::::field
+---
+name: "probe"
+type: "(to: RouteLike | string) => ResolvedRouteLike | null"
+---
+Resolves a URL that may match nothing, without vue-router's dev "No match found" warning.
+::::
+::::field
+---
+name: "protected otherCodes"
+type: "ReadonlySet<string>"
+---
+Locales whose URLs are no page here but name one (another domain's): `DomainPathStrategy`.
+::::
+::::field
+---
+name: "pageLocales"
+type: "(route: RouteLike) => string[] | null"
+---
+Locales the page of `route` is served in (every record of it), or null when it is not localized.
+::::
+::::field
+---
+name: "isMetaDisabled"
+type: "(route: RouteLike, locale: string) => boolean"
+---
+Whether `$defineI18nRoute({ disableMeta })` turns the SEO tags of this page off in `locale`.
+::::
+::::field
+---
+name: "protected external"
+type: "(_locale: string, _route: Target) => string | null"
+---
+A route in `locale` as an absolute URL on another domain: `DomainPathStrategy`.
+::::
+::::field
+---
+name: "switchLocaleRoute"
+type: "(toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}) => RouteLike | string"
+---
 
-<details>
-<summary><code>RouterAdapter</code> — 3 members</summary>
+::::
+::::field
+---
+name: "localeRoute"
+type: "(locale: string, routeOrPath: RouteLike | string) => RouteLike"
+---
 
-| Member | Type |
-| --- | --- |
-| `getRoutes` | `() => RouteRecordLike[]` |
-| `hasRoute` | `(name: string \| symbol) => boolean` |
-| `resolve` | `(to: RouteLike \| string) => ResolvedRouteLike` |
+::::
+::::field
+---
+name: "getRouteBaseName"
+type: "(route: RouteLike) => string | null"
+---
 
-</details>
+::::
+::::field
+---
+name: "getPluginRouteName"
+type: "(route: ResolvedRouteLike, locale: string) => string"
+---
+Translation key of the route: its base name (`index` when page translations are off).
+::::
+::::field
+---
+name: "getCurrentLocale"
+type: "(route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string"
+---
 
-<details>
-<summary><code>RouteRecordLike</code> — 5 members</summary>
+::::
+::::field
+---
+name: "protected servedLocale"
+type: "(route: ResolvedRouteLike, preferred: string) => string"
+---
+Under no_prefix the URL names no locale, but a record can: a custom path belongs to its locales,
+and a page restricted to some locales never renders in another one. The preference wins among them.
+::::
+::::field
+---
+name: "getCurrentLocaleName"
+type: "(route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null"
+---
 
-| Member | Type |
-| --- | --- |
-| `aliasOf?` | `{ path: string; } \| undefined` |
-| `meta?` | `Record<string, unknown> \| undefined` |
-| `name?` | `string \| symbol \| null \| undefined` |
-| `path` | `string` |
-| `redirect?` | `unknown` |
+::::
+::::field
+---
+name: "getLocaleFromPath"
+type: "(path: string) => string | null"
+---
+Locale code in the first path segment, or null.
+::::
+::::field
+---
+name: "resolveLocaleFromPath"
+type: "(path: string) => string | null"
+---
+Locale a URL is in: its prefix, or the default where an unprefixed URL is its page; null under no_prefix.
+::::
+::::field
+---
+name: "shouldReturn404"
+type: "(currentPath: string) => string | null"
+---
+Why a URL must be a 404 (a prefix that is wrong for it, an unknown locale-like segment), or null.
+::::
+::::field
+---
+name: "protected isOwnPage"
+type: "(path: string) => boolean"
+---
+Whether a page of its own answers the URL, in any form: no catch-all.
+::::
+::::field
+---
+name: "protected notFoundReason"
+type: "(path: string) => string | null"
+---
 
-</details>
+::::
+::::field
+---
+name: "getClientRedirect"
+type: "(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}) => string | null"
+---
+Where an unprefixed URL goes for the preferred locale (server plugin and client middleware),
+or null to stay. URLs with a locale prefix are never rewritten here.
+::::
+:::
+::
 
-<details>
-<summary><code>SwitchLocaleOptions</code> — 2 members</summary>
+**See** [`PathStrategyContext`](#pathstrategycontext)
 
-| Member | Type |
-| --- | --- |
-| `i18nRouteParams?` | `I18nRouteParams \| undefined` |
-| `named?` | `boolean \| undefined` |
+### Types
 
-</details>
+#### `ClientRedirectOptions`
+
+```ts
+interface ClientRedirectOptions
+```
+
+::field-group
+:::field
+---
+name: "switchPrefixed"
+type: "boolean"
+---
+`autoDetectPath: '*'`: a URL already in another locale moves to the preferred one too
+(the same page in that locale), not only unprefixed URLs.
+:::
+::
+
+#### `PathStrategy`
+
+The public surface, structural: the Nuxt template imports the built `.mjs` by path, and a
+class type with private members would not match the one TypeScript infers from that file.
+
+```ts
+type PathStrategy = {
+  [K in keyof I18nPathStrategy]: I18nPathStrategy[K];
+}
+```
+
+**See** [`I18nPathStrategy`](#i18npathstrategy)
+
+#### `PathStrategyContext`
+
+```ts
+interface PathStrategyContext
+```
+
+::collapsible{name="11 properties"}
+:::field-group
+::::field
+---
+name: "strategy"
+type: "Strategies"
+required: true
+---
+
+::::
+::::field
+---
+name: "defaultLocale"
+type: "string"
+required: true
+---
+
+::::
+::::field
+---
+name: "locales"
+type: "Locale[]"
+required: true
+---
+
+::::
+::::field
+---
+name: "localizedRouteNamePrefix"
+type: "string"
+---
+
+::::
+::::field
+---
+name: "router"
+type: "RouterAdapter"
+required: true
+---
+
+::::
+::::field
+---
+name: "hashMode"
+type: "boolean"
+---
+Hash mode: the locale is not read from the URL.
+::::
+::::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+All pages use the global translations only.
+::::
+::::field
+---
+name: "customRegexMatcher"
+type: "string"
+---
+Pattern of locale-like first segments (`customRegexMatcher`): one that is no known locale is a 404.
+::::
+::::field
+---
+name: "prefixCaseRedirect"
+type: "boolean"
+---
+A locale prefix in another case or encoding redirects to its own spelling (default); `false`: a 404.
+::::
+::::field
+---
+name: "domain"
+type: "string"
+---
+Host this strategy answers for (`DomainPathStrategy`); unset on a host no locale lives on.
+::::
+::::field
+---
+name: "linkLocales"
+type: "Locale[]"
+---
+With `domain`: every locale. Those missing from `locales` live on another domain.
+::::
+:::
+::
+
+#### `ResolvedRouteLike`
+
+Resolved route (path and fullPath required).
+
+```ts
+interface ResolvedRouteLike extends RouteLike
+```
+
+::field-group
+:::field
+---
+name: "name"
+type: "string | symbol | null | undefined"
+required: true
+---
+vue-router names may be symbols (`RouteRecordNameGeneric`).
+:::
+:::field
+---
+name: "path"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "fullPath"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "matched"
+type: "RouteRecordLike[]"
+---
+Matched records (vue-router routes have them): an unnamed route that matched is not a 404.
+:::
+::
+
+**See** [`RouteLike`](#routelike)
+
+#### `RouteLike`
+
+Route-like shape (compatible with vue-router).
+
+```ts
+interface RouteLike
+```
+
+::field-group
+:::field
+---
+name: "name"
+type: "string | symbol | null"
+---
+vue-router names may be symbols (`RouteRecordNameGeneric`).
+:::
+:::field
+---
+name: "path"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "params"
+type: "Record<string, unknown>"
+---
+
+:::
+:::field
+---
+name: "query"
+type: "Record<string, unknown>"
+---
+
+:::
+:::field
+---
+name: "hash"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "fullPath"
+type: "string"
+---
+
+:::
+:::field
+---
+name: "meta"
+type: "Record<string, unknown>"
+---
+Route meta (vue-router merges the matched records'): `i18nNoMeta` marks an unlocalized page's disableMeta.
+:::
+::
+
+#### `RouterAdapter`
+
+```ts
+interface RouterAdapter
+```
+
+::field-group
+:::field
+---
+name: "hasRoute"
+type: "(name: string | symbol) => boolean"
+required: true
+---
+
+:::
+:::field
+---
+name: "resolve"
+type: "(to: RouteLike | string) => ResolvedRouteLike"
+required: true
+---
+
+:::
+:::field
+---
+name: "getRoutes"
+type: "() => RouteRecordLike[]"
+required: true
+---
+
+:::
+::
+
+#### `RouteRecordLike`
+
+What path-strategy reads from a vue-router record (`router.getRoutes()`).
+
+```ts
+interface RouteRecordLike
+```
+
+::field-group
+:::field
+---
+name: "name"
+type: "string | symbol | null"
+---
+
+:::
+:::field
+---
+name: "path"
+type: "string"
+required: true
+---
+
+:::
+:::field
+---
+name: "meta"
+type: "Record<string, unknown>"
+---
+
+:::
+:::field
+---
+name: "redirect"
+type: "unknown"
+---
+
+:::
+:::field
+---
+name: "aliasOf"
+type: "{ path: string; }"
+---
+
+:::
+::
+
+#### `SwitchLocaleOptions`
+
+```ts
+interface SwitchLocaleOptions
+```
+
+::field-group
+:::field
+---
+name: "i18nRouteParams"
+type: "I18nRouteParams"
+---
+
+:::
+:::field
+---
+name: "named"
+type: "boolean"
+---
+Keep `name` and `params` on a route with an escape: for a caller that drops `path`, so the router encodes them.
+:::
+::
+
+### Re-exports
+
+Declared in another package of this repository and documented on its page.
+
+- From [`@i18n-micro/types`](/api/packages/types): [`RouteI18nMeta`](/api/packages/types#routei18nmeta)
+
 ## `@i18n-micro/path-strategy/types`
 
-```ts
-import { /* … */ } from '@i18n-micro/path-strategy/types'
-```
+Also exports, as `@i18n-micro/path-strategy` does: [`ClientRedirectOptions`](#clientredirectoptions) · [`PathStrategyContext`](#pathstrategycontext) · [`ResolvedRouteLike`](#resolvedroutelike) · [`RouteI18nMeta`](/api/packages/types#routei18nmeta) · [`RouteLike`](#routelike) · [`RouterAdapter`](#routeradapter) · [`RouteRecordLike`](#routerecordlike) · [`SwitchLocaleOptions`](#switchlocaleoptions).
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `ClientRedirectOptions` | interface | 1 members |
-| `PathStrategyContext` | interface | 11 members |
-| `ResolvedRouteLike` | interface | 8 members |
-| `RouteI18nMeta` | interface | 5 members |
-| `RouteLike` | interface | 7 members |
-| `RouterAdapter` | interface | 3 members |
-| `RouteRecordLike` | interface | 5 members |
-| `SwitchLocaleOptions` | interface | 2 members |
+---
 
-<code>ClientRedirectOptions</code> — 1 members, identical to `ClientRedirectOptions` above.
-
-<code>PathStrategyContext</code> — 11 members, identical to `PathStrategyContext` above.
-
-<code>ResolvedRouteLike</code> — 8 members, identical to `ResolvedRouteLike` above.
-
-<code>RouteI18nMeta</code> — 5 members, identical to [`RouteI18nMeta`](/api/packages/types).
-
-<code>RouteLike</code> — 7 members, identical to `RouteLike` above.
-
-<code>RouterAdapter</code> — 3 members, identical to `RouterAdapter` above.
-
-<code>RouteRecordLike</code> — 5 members, identical to `RouteRecordLike` above.
-
-<code>SwitchLocaleOptions</code> — 2 members, identical to `SwitchLocaleOptions` above.
-
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

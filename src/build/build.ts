@@ -1,14 +1,16 @@
 import { createHash } from 'node:crypto'
 import fs, { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { globby } from 'globby'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { additionalTranslationRoots } from '@i18n-micro/utils/load-dir'
 import { mergeOverRoot, mergeSourceTranslations, PREMERGED_ROOT_MARK, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 import { readTranslationFile } from '../runtime/server/internal/translation-watcher'
 
 export interface PreMergeLocaleInfo {
   code: string
   fallbackLocale?: string
+  iso?: string
 }
 
 /**
@@ -24,11 +26,8 @@ export function mergeAdditionalRootLocaleFiles(
   if (!additionalDirNames.length) return primaryContent
 
   let content: Record<string, unknown> = {}
-  for (const dirName of additionalDirNames) {
-    for (const rootDir of rootDirs) {
-      content = deepMergeTranslationsRecursive(content, readTranslationFile(join(rootDir, dirName, `${locale}.json`)))
-    }
-  }
+  for (const dir of additionalTranslationRoots(rootDirs, additionalDirNames))
+    content = deepMergeTranslationsRecursive(content, readTranslationFile(join(dir, `${locale}.json`)))
 
   return deepMergeTranslationsRecursive(content, primaryContent)
 }
@@ -36,16 +35,9 @@ export function mergeAdditionalRootLocaleFiles(
 /** Discover locale codes that only exist under additional root dirs (`{locale}.json`). */
 export function listAdditionalRootLocales(rootDirs: string[], additionalDirNames: string[]): string[] {
   const locales = new Set<string>()
-  for (const dirName of additionalDirNames) {
-    for (const rootDir of rootDirs) {
-      const dir = join(rootDir, dirName)
-      if (!existsSync(dir)) continue
-      for (const name of readdirSync(dir)) {
-        if (!name.endsWith('.json')) continue
-        // Only top-level files (readdir is non-recursive here)
-        locales.add(name.slice(0, -'.json'.length))
-      }
-    }
+  for (const dir of additionalTranslationRoots(rootDirs, additionalDirNames).filter((path) => existsSync(path))) {
+    // Only top-level files (readdir is non-recursive here)
+    for (const name of readdirSync(dir)) if (name.endsWith('.json')) locales.add(name.slice(0, -'.json'.length))
   }
   return [...locales]
 }
@@ -123,7 +115,7 @@ async function namingDeepFile(rootDirs: string[], dirNames: string[], step: () =
     await step()
   } catch (error) {
     if (!(error instanceof RangeError) || !error.message.includes('call stack')) throw error
-    const dirs = rootDirs.flatMap((root) => dirNames.map((name) => join(root, name))).filter((dir) => existsSync(dir))
+    const dirs = rootDirs.flatMap((root) => dirNames.map((name) => resolve(root, name))).filter((dir) => existsSync(dir))
     const files = (await Promise.all(dirs.map((cwd) => globby('**/*.json', { cwd, absolute: true })))).flat()
     const [deepest] = files.map((file) => ({ file, depth: depthOf(readTranslationFile(file)) })).sort((a, b) => b.depth - a.depth)
     if (!deepest) throw error
@@ -141,6 +133,9 @@ export interface PreMergeOptions {
   additionalTranslationDirs?: string[]
   routeNames?: string[]
   rootDelta?: boolean
+  /** Resolve `@:key` links in every chunk; each warning once per build. */
+  linkedMessages?: boolean
+  warn?: (message: string) => void
 }
 
 /**
@@ -155,7 +150,13 @@ export async function preMergeLocales(options: PreMergeOptions): Promise<void> {
 
 async function writeChunks(options: PreMergeOptions): Promise<void> {
   const { rootDirs, translationDirName, outputDir, locales, globalFallbackLocale, disablePageLocales, additionalTranslationDirs } = options
-  const { routeNames = [], rootDelta = false } = options
+  const { routeNames = [], rootDelta = false, linkedMessages = false } = options
+  const warned = new Set<string>()
+  const warn = (message: string) => {
+    if (warned.has(message)) return
+    warned.add(message)
+    options.warn?.(message)
+  }
   const merged = await mergedFiles(rootDirs, translationDirName, outputDir, additionalTranslationDirs)
 
   // the same read source mode and dev do (fallback chain, root under page): one model, three modes
@@ -170,6 +171,9 @@ async function writeChunks(options: PreMergeOptions): Promise<void> {
       globalFallbackLocale,
       disablePageLocales,
       readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
+      // the root and every page resolved alike: a delta is taken between the resolved trees
+      linkedMessages,
+      warn,
     })
   const write = (page: string, locale: string, data: Tree) => {
     const targetPath = join(outputDir, page, locale, 'data.json')

@@ -6,5 +6,6 @@
       "y": 99,
       "z": 3
     }
-  }
+  },
+  "linkedRoot": "@.upper:{'hello'}!"
 }

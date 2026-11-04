@@ -1,8 +1,15 @@
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { isInsideDir, listTranslationFiles, loadTranslationDir, loadTranslationDirAsync, resolveTranslationFile } from '../src/load-dir'
+import {
+  additionalTranslationRoots,
+  isInsideDir,
+  listTranslationFiles,
+  loadTranslationDir,
+  loadTranslationDirAsync,
+  resolveTranslationFile,
+} from '../src/load-dir'
 
 let dir: string
 const write = (file: string, data: string) => {
@@ -156,5 +163,19 @@ describe('resolveTranslationFile', () => {
       expect(resolveTranslationFile(base, file)).toBeNull()
     }
     expect(resolveTranslationFile(join(dir, 'no-such-dir'), 'en.json')).toBeNull()
+  })
+})
+
+describe('additionalTranslationRoots', () => {
+  test('a relative dir in every root, an absolute one once, dir order outer, nothing twice', () => {
+    const roots = ['/app/layer', '/app']
+    expect(additionalTranslationRoots(roots, [])).toEqual([])
+    expect(additionalTranslationRoots(roots)).toEqual([])
+    // platform paths: `D:\app\layer\common` on Windows
+    expect(additionalTranslationRoots(roots, ['common', '/vendor/locales', 'common', '/vendor/locales/'])).toEqual([
+      resolve('/app/layer', 'common'),
+      resolve('/app', 'common'),
+      resolve('/vendor/locales'),
+    ])
   })
 })

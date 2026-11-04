@@ -114,7 +114,7 @@ const title = t('nav.home') // 'Home'
 
 - In templates every helper is available with a `$` (`$t`, `$tc`, `$localePath`, …).
 - In `<script setup>`, `useI18n()` returns the same helpers, with and without the `$` (`t` and `$t` are one function). It is auto-imported.
-- `{name}` placeholders are filled from the params object. Plural forms are separated by `|`; the count picks the form (0, 1, then the last one for everything above).
+- `{name}` placeholders are filled from the params object; `{0}`, `{1}` from an array (`$t('pair', ['Ann', 'Bob'])` with `"pair": "{0} and {1}"`). Plural forms are separated by `|`; the count picks the form (0, 1, then the last one for everything above).
 
 All helpers are listed in [Methods](/api/methods).
 

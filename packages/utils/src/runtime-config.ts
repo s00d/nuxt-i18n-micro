@@ -7,6 +7,10 @@ export interface RuntimeI18nOverrides {
   strategy?: string
   /** A new `?v=` with no rebuild: for dictionaries replaced in place. Restart to apply, as for any env. */
   dateBuild?: string
+  /** SEO origin (canonical, hreflang) in place of the build's `metaBaseUrl`. */
+  metaBaseUrl?: string
+  /** `locales[].baseUrl` by locale code. Only in a build that has locale domains: routing for them is built in. */
+  localeBaseUrls?: Record<string, string>
 }
 
 function toNonEmptyString(value: unknown): string | undefined {
@@ -32,6 +36,24 @@ function parseLocalesList(value: unknown): string[] | undefined {
   return undefined
 }
 
+/** `code=url` → `[code, url]`; the URL keeps any `=` of its own. */
+function splitPair(entry: string): [string, string] {
+  const at = entry.indexOf('=')
+  return at < 0 ? [entry, ''] : [entry.slice(0, at), entry.slice(at + 1)]
+}
+
+/** `'de=https://de.example.com,fr=…'` or `{ de: 'https://de.example.com' }`. `__proto__` is no locale code. */
+function parseBaseUrls(value: unknown): Record<string, string> | undefined {
+  const pairs = typeof value === 'string' ? value.split(',').map(splitPair) : value && typeof value === 'object' ? Object.entries(value) : []
+  const urls: Record<string, string> = {}
+  for (const [rawCode, rawUrl] of pairs) {
+    const code = toNonEmptyString(rawCode)
+    const url = toNonEmptyString(rawUrl)
+    if (code && url && code !== '__proto__') urls[code] = url
+  }
+  return Object.keys(urls).length > 0 ? urls : undefined
+}
+
 /** Overrides from `NUXT_I18N_*` / `NUXT_PUBLIC_I18N_RUNTIME_*` env vars (server only: the browser has no env). */
 export function readI18nEnvOverrides(): RuntimeI18nOverrides {
   let env: Record<string, string | undefined>
@@ -46,6 +68,8 @@ export function readI18nEnvOverrides(): RuntimeI18nOverrides {
     disabledLocales: parseLocalesList(env.NUXT_I18N_DISABLED_LOCALES) ?? parseLocalesList(env.NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES),
     strategy: toNonEmptyString(env.NUXT_I18N_STRATEGY) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_STRATEGY),
     dateBuild: toNonEmptyString(env.NUXT_I18N_DATE_BUILD) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_DATE_BUILD),
+    metaBaseUrl: toNonEmptyString(env.NUXT_I18N_META_BASE_URL) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_META_BASE_URL),
+    localeBaseUrls: parseBaseUrls(env.NUXT_I18N_LOCALE_BASE_URLS) ?? parseBaseUrls(env.NUXT_PUBLIC_I18N_RUNTIME_LOCALE_BASE_URLS),
   }
 }
 
@@ -60,7 +84,17 @@ export function readI18nRuntimeOverrides(runtimePublic?: Record<string, unknown>
     disabledLocales: parseLocalesList(runtime.disabledLocales),
     strategy: toNonEmptyString(runtime.strategy),
     dateBuild: toNonEmptyString(runtime.dateBuild),
+    metaBaseUrl: toNonEmptyString(runtime.metaBaseUrl),
   }
+}
+
+/**
+ * `runtimeConfig.public.i18nRuntime.localeBaseUrls`. Apart from `readI18nRuntimeOverrides`: only a build with
+ * locale domains reads it, so a browser bundle without them drops the parser.
+ */
+export function readLocaleBaseUrls(runtimePublic?: Record<string, unknown>): Record<string, string> | undefined {
+  const raw = runtimePublic?.i18nRuntime
+  return raw && typeof raw === 'object' ? parseBaseUrls((raw as Record<string, unknown>).localeBaseUrls) : undefined
 }
 
 /** `primary`'s values, `secondary`'s where `primary` has none. */
@@ -71,12 +105,14 @@ export function mergeI18nOverrides(primary: RuntimeI18nOverrides, secondary: Run
     disabledLocales: primary.disabledLocales ?? secondary.disabledLocales,
     strategy: primary.strategy ?? secondary.strategy,
     dateBuild: primary.dateBuild ?? secondary.dateBuild,
+    metaBaseUrl: primary.metaBaseUrl ?? secondary.metaBaseUrl,
+    localeBaseUrls: primary.localeBaseUrls ?? secondary.localeBaseUrls,
   }
 }
 
 /** A stable string of the overrides: equal strings resolve to equal configs. */
 export function i18nOverridesKey(overrides: RuntimeI18nOverrides): string {
-  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}\0${overrides.dateBuild ?? ''}`
+  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}\0${overrides.dateBuild ?? ''}\0${overrides.metaBaseUrl ?? ''}\0${JSON.stringify(overrides.localeBaseUrls ?? null)}`
 }
 
 const defaultWarn = (message: string) => console.warn(message)
@@ -112,9 +148,50 @@ export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
   const dateBuild = overrides.dateBuild ?? baseConfig.dateBuild
-  const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale && dateBuild === baseConfig.dateBuild
+  const metaBaseUrl = overrides.metaBaseUrl ?? baseConfig.metaBaseUrl
+  const same =
+    defaultLocale === baseConfig.defaultLocale &&
+    fallbackLocale === baseConfig.fallbackLocale &&
+    dateBuild === baseConfig.dateBuild &&
+    metaBaseUrl === baseConfig.metaBaseUrl
   if (same && locales.every((locale, i) => locale === baseConfig.locales?.[i])) return baseConfig
-  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild } as T
+  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild, metaBaseUrl } as T
+}
+
+const isUrl = (value: string | undefined) => {
+  try {
+    return Boolean(value && new URL(value).host)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * `config` with the runtime `locales[].baseUrl`s, after `applyI18nRuntimeOverrides`. A build without
+ * locale domains has no routing for them (the path strategy is chosen at build): ignored there, like
+ * `strategy`. Apart, so that a browser bundle without domains drops it. `metaBaseUrl` stays: who moves the
+ * default locale's domain sets `NUXT_I18N_META_BASE_URL` too.
+ */
+export function applyLocaleBaseUrls<T extends ModuleOptionsExtend>(
+  config: T,
+  overrides: RuntimeI18nOverrides,
+  warn: (message: string) => void = defaultWarn,
+): T {
+  const urls = overrides.localeBaseUrls
+  const locales = config.locales ?? []
+  if (!urls) return config
+  if (!locales.some((locale) => locale.baseUrl)) {
+    warn('[nuxt-i18n-micro] runtime localeBaseUrls ignored: the build has no locales[].baseUrl.')
+    return config
+  }
+  const own = (code: string) => (Object.prototype.hasOwnProperty.call(urls, code) ? urls[code] : undefined)
+  const ignored = Object.keys(urls).filter((code) => !locales.some((locale) => locale.code === code) || !isUrl(urls[code]))
+  if (ignored.length) warn(`[nuxt-i18n-micro] runtime localeBaseUrls ignored for ${ignored.join(', ')}: no such locale, or no absolute URL.`)
+  const moved = locales.map((locale) => {
+    const url = own(locale.code)
+    return isUrl(url) && url !== locale.baseUrl ? Object.assign({}, locale, { baseUrl: url }) : locale
+  })
+  return moved.every((locale, i) => locale === locales[i]) ? config : { ...config, locales: moved }
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])
@@ -189,10 +266,10 @@ export function createI18nConfigResolver(
   let memo: { base: ModuleOptionsExtend; key: string; config: ModuleOptionsExtend } | undefined
   return <T extends ModuleOptionsExtend>(base: T, runtimePublic?: Record<string, unknown>): T => {
     env ??= readI18nEnvOverrides()
-    const overrides = mergeI18nOverrides(readI18nRuntimeOverrides(runtimePublic), env)
+    const overrides = mergeI18nOverrides({ ...readI18nRuntimeOverrides(runtimePublic), localeBaseUrls: readLocaleBaseUrls(runtimePublic) }, env)
     const key = i18nOverridesKey(overrides)
     if (memo && memo.base === base && memo.key === key) return memo.config as T
-    const config = applyI18nRuntimeOverrides(base, overrides, warn)
+    const config = applyLocaleBaseUrls(applyI18nRuntimeOverrides(base, overrides, warn), overrides, warn)
     memo = { base, key, config: isDev() ? deepFreeze(config) : config }
     return memo.config as T
   }

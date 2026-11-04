@@ -541,6 +541,20 @@ describe('journey: basic app', () => {
       expect(await res.json()).toEqual({ hello: `test_val_${code}`, helloEn: 'test_val_en' })
     }
 
+    // step 1b: the helpers on the server t answer as the page does, in the request's locale
+    const helpers = async (code: string) => (await request.get(`/api/server-helpers?locale=${code}`)).json()
+    expect(await helpers('en')).toEqual({
+      plural: ['no apples', 'one apple', '2 apples', '5 apples'],
+      number: '1,234.5',
+      date: 'January 2, 2026',
+      has: [true, false],
+    })
+    expect(await helpers('ru')).toMatchObject({
+      plural: ['нет яблок', '1 яблоко', '2 яблока', '5 яблок'],
+      number: new Intl.NumberFormat('ru').format(1234.5),
+      date: new Intl.DateTimeFormat('ru', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }).format(Date.UTC(2026, 0, 2)),
+    })
+
     // step 2: /api/locale-info → locale from query, Accept-Language, cookie, and the default fallback
     // was: locale-server-middleware › en, › ru, › Accept-Language, › cookie, › fallback, › structure (no `if (data.locale)` guard)
     const info = async (path: string, headers?: Record<string, string>) => {

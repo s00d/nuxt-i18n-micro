@@ -14,18 +14,34 @@ navigation:
 
 <!-- generated:component:i18n-link — do not edit; run `pnpm run docs:generate` -->
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `to` **\*** | `RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string` | — | Target route. Localized automatically; an external URL is passed through unchanged. |
-| `activeStyle` | `CSSProperties` | — | Inline style applied while the link points at the current route. |
-
-**\*** required.
+::field-group
+:::field
+---
+name: "to"
+type: "RouteLocationNamedRaw | RouteLocationResolvedGeneric | string"
+required: true
+---
+Target route. Localized automatically; an external URL is passed through unchanged.
+:::
+:::field
+---
+name: "activeStyle"
+type: "CSSProperties"
+---
+Inline style applied while the link points at the current route.
+:::
+::
 
 ### Slots
 
-| Slot | Bindings | Description |
-| --- | --- | --- |
-| `default` | — | Link content. |
+::field-group
+:::field
+---
+name: "default"
+---
+Link content.
+:::
+::
 
 <!-- /generated:component:i18n-link -->
 

@@ -126,6 +126,7 @@ export function normalizeConfiguredLocales(locales: Array<string | Locale> | und
   return (locales ?? []).map((locale) =>
     typeof locale === 'string'
       ? { code: locale }
-      : { code: locale.code, fallbackLocale: locale.fallbackLocale, ...(locale.iso ? { iso: locale.iso } : {}) },
+      : // an empty iso is none: case changes fall back to the code
+        { code: locale.code, fallbackLocale: locale.fallbackLocale, iso: locale.iso || undefined },
   )
 }

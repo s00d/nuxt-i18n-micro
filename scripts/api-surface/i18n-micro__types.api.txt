@@ -2,7 +2,7 @@
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
 interface DefineI18nRouteConfig
 member DefineI18nRouteConfig.disableMeta?: boolean | string[] | undefined
-member DefineI18nRouteConfig.localeRoutes?: false | Record<string, string> | undefined
+member DefineI18nRouteConfig.localeRoutes?: Record<string, string> | undefined
 member DefineI18nRouteConfig.locales?: string[] | Record<string, Translations> | undefined
 interface DefineLocaleMessage
 member DefineLocaleMessage.__augmentation?: undefined
@@ -28,6 +28,7 @@ interface I18nHeadMeta
 member I18nHeadMeta.[string]: string | undefined
 type I18nRouteParams: Record<LocaleCode, Record<string, string>> | null
 const init: () => void
+type ListParams: readonly (string | number | boolean)[]
 interface Locale
 member Locale.baseDefault?: boolean | undefined
 member Locale.baseUrl?: string | undefined
@@ -147,7 +148,6 @@ member ModuleOptionsExtend.locales?: Locale[] | undefined
 member ModuleOptionsExtend.localizedRouteNamePrefix?: string | undefined
 member ModuleOptionsExtend.meta?: boolean | undefined
 member ModuleOptionsExtend.metaBaseUrl?: string | undefined
-member ModuleOptionsExtend.metaBaseUrlFromLocale?: boolean | undefined
 member ModuleOptionsExtend.metaTrustForwardedHost?: boolean | undefined
 member ModuleOptionsExtend.metaTrustForwardedProto?: boolean | undefined
 member ModuleOptionsExtend.missingWarn?: boolean | undefined
@@ -236,8 +236,7 @@ member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOption
 member ModulePrivateOptionsExtend.trustForwardedHost?: boolean | undefined
 member ModulePrivateOptionsExtend.types?: boolean | undefined
 member ModulePrivateOptionsExtend.vueDevtools?: boolean | undefined
-type NamedParams: Record<string, string | number | boolean>
-type Params: NamedParams | readonly (string | number | boolean)[]
+type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface PluralTranslations
 member PluralTranslations.plural: string

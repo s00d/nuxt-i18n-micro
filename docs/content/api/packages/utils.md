@@ -8,7 +8,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-118 exports across 23 entry points.
+116 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -123,7 +123,7 @@ import { /* … */ } from '@i18n-micro/utils/cookie'
 | `DEFAULT_HASH_COOKIE_NAME` | const | `"hash-locale"` |
 | `getHashCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 | `getLocaleCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
-| `getLocaleCookieOptions` | function | `(options?: LocaleCookieOptions) => { decode: (value: string) => string; secure?: boolean \| undefined; domain?: string \| undefined; expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" \| "strict" \| "none"; }` |
+| `getLocaleCookieOptions` | function | `(options?: LocaleCookieOptions) => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" \| "strict" \| "none"; domain: string \| undefined; secure: boolean \| undefined; decode: (value: string) => string; }` |
 | `getPreferenceCookieName` | function | `(config: ModuleOptionsExtend) => string \| null` |
 
 
@@ -150,26 +150,6 @@ import { /* … */ } from '@i18n-micro/utils/domains'
 | `withHostDefaults` | function | `(locales: Locale[], defaultLocale: string) => Locale[]` |
 
 
-## `@i18n-micro/utils/linked-messages`
-
-```ts
-import { /* … */ } from '@i18n-micro/utils/linked-messages'
-```
-
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `LinkedMessagesOptions` | interface | 2 members |
-| `resolveLinkedMessages` | function | `(tree: Tree, options?: LinkedMessagesOptions) => Tree` |
-
-<details>
-<summary><code>LinkedMessagesOptions</code> — 2 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `locale?` | `string \| undefined` |
-| `warn?` | `((message: string) => void) \| undefined` |
-
-</details>
 ## `@i18n-micro/utils/load-dir`
 
 ```ts

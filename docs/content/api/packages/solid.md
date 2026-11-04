@@ -39,11 +39,11 @@ import { /* … */ } from '@i18n-micro/solid'
 | `I18nT` | const | `Component<I18nTProps>` |
 | `I18nTComponent` | type | `JSX.Element \| (() => JSX.Element)` |
 | `I18nTProps` | interface | 349 members |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 57 members |
-| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `RouteTarget` | type | `string \| { path?: string; }` |
 | `SolidI18n` | class | 70 members |
@@ -65,7 +65,7 @@ import { /* … */ } from '@i18n-micro/solid'
 
 | Member | Type |
 | --- | --- |
-| `api?` | `{ instance: SolidI18n; locale: import("solid-js").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: RouteTarget, code?: string) => RouteTarget; localePath: (to: RouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string \| null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").NamedParams, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; clearCache: () => void; } \| undefined` |
+| `api?` | `{ instance: SolidI18n; locale: import("solid-js").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: RouteTarget, code?: string) => RouteTarget; localePath: (to: RouteTarget, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params \| import("@i18n-micro/types").ListParams, defaultValue?: string \| null, routeContext?: unknown) => import("@i18n-micro/types").CleanTranslation; ts: (key: import("@i18n-micro/types").TranslationKey, params?: import("@i18n-micro/types").Params \| import("@i18n-micro/types").ListParams, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("@i18n-micro/types").TranslationKey, count: number \| import("@i18n-micro/types").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("@i18n-micro/types").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("@i18n-micro/types").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("@i18n-micro/types").Translations; setTranslation: (key: import("@i18n-micro/types").TranslationKey, value: unknown) => void; clearCache: () => void; } \| undefined` |
 | `defaultLocale` | `string \| undefined` |
 | `i18n` | `SolidI18n` |
 | `locales` | `Locale[] \| undefined` |
@@ -1598,13 +1598,13 @@ import { /* … */ } from '@i18n-micro/solid'
 | `storage` | `TranslationStorage` |
 | `store` | `protected ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
+| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
 | `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
+| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |

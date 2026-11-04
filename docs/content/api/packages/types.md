@@ -32,15 +32,15 @@ import { /* … */ } from '@i18n-micro/types'
 | `I18nHeadMeta` | interface | 1 members |
 | `I18nRouteParams` | type | `Record<LocaleCode, Record<string, string>> \| null` |
 | `init` | const | `() => void` |
+| `ListParams` | type | `readonly (string \| number \| boolean)[]` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `LocaleCookieOptions` | interface | 5 members |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 57 members |
-| `ModuleOptionsExtend` | interface | 67 members |
+| `ModuleOptionsExtend` | interface | 66 members |
 | `ModulePrivateOptionsExtend` | interface | 61 members |
-| `NamedParams` | type | `Record<string, string \| number \| boolean>` |
-| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
 | `ResolvedI18nConfig` | type | `Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>` |
@@ -58,7 +58,7 @@ import { /* … */ } from '@i18n-micro/types'
 | Member | Type |
 | --- | --- |
 | `disableMeta?` | `boolean \| string[] \| undefined` |
-| `localeRoutes?` | `false \| Record<string, string> \| undefined` |
+| `localeRoutes?` | `Record<string, string> \| undefined` |
 | `locales?` | `string[] \| Record<string, Translations> \| undefined` |
 
 </details>
@@ -215,7 +215,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 67 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 66 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -259,7 +259,6 @@ import { /* … */ } from '@i18n-micro/types'
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `meta?` | `boolean \| undefined` |
 | `metaBaseUrl?` | `string \| undefined` |
-| `metaBaseUrlFromLocale?` | `boolean \| undefined` |
 | `metaTrustForwardedHost?` | `boolean \| undefined` |
 | `metaTrustForwardedProto?` | `boolean \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |

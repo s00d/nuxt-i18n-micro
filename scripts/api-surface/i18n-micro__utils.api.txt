@@ -48,7 +48,7 @@ const DEFAULT_COOKIE_NAME: "user-locale"
 const DEFAULT_HASH_COOKIE_NAME: "hash-locale"
 function getHashCookieName: (config: ModuleOptionsExtend) => string | null
 function getLocaleCookieName: (config: ModuleOptionsExtend) => string | null
-function getLocaleCookieOptions: (options?: LocaleCookieOptions) => { decode: (value: string) => string; secure?: boolean | undefined; domain?: string | undefined; expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" | "strict" | "none"; }
+function getLocaleCookieOptions: (options?: LocaleCookieOptions) => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax" | "strict" | "none"; domain: string | undefined; secure: boolean | undefined; decode: (value: string) => string; }
 function getPreferenceCookieName: (config: ModuleOptionsExtend) => string | null
 
 # ./deep-merge (src/deep-merge.ts)
@@ -57,12 +57,6 @@ function deepMergeTranslationsRecursive: (target: Record<string, unknown>, sourc
 # ./domains (src/domains.ts)
 function configForHost: <T extends ModuleOptionsExtend>(config: T, host: string) => T
 function withHostDefaults: (locales: Locale[], defaultLocale: string) => Locale[]
-
-# ./linked-messages (src/linked-messages.ts)
-interface LinkedMessagesOptions
-member LinkedMessagesOptions.locale?: string | undefined
-member LinkedMessagesOptions.warn?: ((message: string) => void) | undefined
-function resolveLinkedMessages: (tree: Tree, options?: LinkedMessagesOptions) => Tree
 
 # ./load-dir (src/load-dir.ts)
 function additionalTranslationRoots: (rootDirs: string[], dirs?: readonly string[]) => string[]

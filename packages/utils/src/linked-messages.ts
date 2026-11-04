@@ -34,7 +34,11 @@ const MODIFIERS = new Map<string, Modifier>([
   ['upper', (text, tag) => outsidePlaceholders(text, (part) => part.toLocaleUpperCase(tag))],
   ['lower', (text, tag) => outsidePlaceholders(text, (part) => part.toLocaleLowerCase(tag))],
   // the first character only, when it is text: a leading `{name}` is filled as it comes
-  ['capitalize', (text, tag) => outsidePlaceholders(text, (part, index) => (index ? part : firstOf(part).toLocaleUpperCase(tag) + part.slice(firstOf(part).length)))],
+  [
+    'capitalize',
+    (text, tag) =>
+      outsidePlaceholders(text, (part, index) => (index ? part : firstOf(part).toLocaleUpperCase(tag) + part.slice(firstOf(part).length))),
+  ],
 ])
 
 /** A tag `toLocaleUpperCase` takes: an `iso` such as `en_EN` is no BCP 47 tag and would throw. */

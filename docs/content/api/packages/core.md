@@ -33,7 +33,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `FormatServiceOptions` | interface | 4 members |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `isActiveLink` | function | `(current: string, link: string, localeCodes: readonly string[]) => boolean` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
 | `isPlainClick` | function | `(event: MouseEvent) => boolean` |
@@ -110,13 +110,13 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
-| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
+| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
 | `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
+| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
@@ -258,8 +258,8 @@ import { /* … */ } from '@i18n-micro/core'
 | `has?` | `((key: TranslationKey) => boolean) \| undefined` |
 | `pluralFunc` | `PluralFunc` |
 | `pluralLocale?` | `(() => string) \| undefined` |
-| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
+| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `(value: Date \| number \| string) => string` |
 | `tdr` | `(value: Date \| number \| string) => string` |
 | `tn` | `(value: number) => string` |
@@ -370,7 +370,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `externalLinkHref` | function | `(to: unknown) => string \| undefined` |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `isActiveLink` | function | `(current: string, link: string, localeCodes: readonly string[]) => boolean` |
 | `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
 | `isPlainClick` | function | `(event: MouseEvent) => boolean` |
@@ -419,7 +419,7 @@ import { /* … */ } from '@i18n-micro/core/render'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `createLocaleSwitcher` | function | `(vue: SwitcherVue, adapter: SwitcherAdapter, props: SwitcherProps, slots: RenderSlots) => () => unknown` |
-| `foldTemplate` | function | `(renderSlot: (slot: RenderSlot, key: string) => unknown, template: string, params: object, slots: RenderSlots, textChild?: (text: string) => unknown) => unknown` |
+| `foldTemplate` | function | `(renderSlot: (slot: RenderSlot, key: string) => unknown, template: string, params: Record<string, unknown>, slots: RenderSlots, textChild?: (text: string) => unknown) => unknown` |
 | `I18nTRenderProps` | interface | 11 members |
 | `RenderApi` | interface | 4 members |
 | `renderI18nT` | function | `(api: RenderApi, i18n: TextHost, props: I18nTRenderProps, slots: RenderSlots, attrs: Record<string, unknown>) => unknown` |

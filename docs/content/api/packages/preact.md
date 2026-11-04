@@ -40,11 +40,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `I18nT` | const | `(props: I18nTProps) => HostElement` |
 | `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
 | `I18nTProps` | interface | 319 members |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 57 members |
-| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PreactI18n` | class | 64 members |
 | `PreactI18nOptions` | interface | 13 members |
@@ -1168,13 +1168,13 @@ import { /* … */ } from '@i18n-micro/preact'
 | `storage` | `TranslationStorage` |
 | `store` | `protected ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
-| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
+| `t` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
 | `touch` | `protected () => void` |
-| `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
+| `ts` | `(key: TranslationKey, params?: Params \| ListParams, defaultValue?: string, routeContext?: unknown) => string` |
 | `warnDev` | `protected (message: string) => void` |
 | `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
@@ -1236,7 +1236,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `setRoute` | `(routeName: string) => void` |
 | `switchLocale` | `(locale: string) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeName?: string) => CleanTranslation` |
-| `tc` | `(key: TranslationKey, count: number \| NamedParams, defaultValue?: string) => string` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `(value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `(value: number, options?: Intl.NumberFormatOptions) => string` |

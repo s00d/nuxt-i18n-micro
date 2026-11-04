@@ -929,7 +929,7 @@ member I18nTProps.translate?: "yes" | "no" | undefined
 member I18nTProps.typeof?: string | undefined
 member I18nTProps.unselectable?: "off" | "on" | undefined
 member I18nTProps.vocab?: string | undefined
-function interpolate: (template: string, params: Params) => string
+function interpolate: (template: string, params: Params | ListParams) => string
 interface Locale
 member Locale.baseDefault?: boolean | undefined
 member Locale.baseUrl?: string | undefined
@@ -1001,7 +1001,7 @@ member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
-type Params: NamedParams | readonly (string | number | boolean)[]
+type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class ReactI18n
 member ReactI18n.activeKey: private any
@@ -1057,13 +1057,13 @@ member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
-member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+member ReactI18n.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
 member ReactI18n.touch: protected () => void
-member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
+member ReactI18n.ts: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
@@ -1111,7 +1111,7 @@ member UseI18nReturn.setLocale: (locale: string) => void
 member UseI18nReturn.setRoute: (routeName: string) => void
 member UseI18nReturn.switchLocale: (locale: string) => void
 member UseI18nReturn.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-member UseI18nReturn.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+member UseI18nReturn.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member UseI18nReturn.td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
 member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
@@ -2051,7 +2051,7 @@ member I18nTProps.translate?: "yes" | "no" | undefined
 member I18nTProps.typeof?: string | undefined
 member I18nTProps.unselectable?: "off" | "on" | undefined
 member I18nTProps.vocab?: string | undefined
-function interpolate: (template: string, params: Params) => string
+function interpolate: (template: string, params: Params | ListParams) => string
 interface Locale
 member Locale.baseDefault?: boolean | undefined
 member Locale.baseUrl?: string | undefined
@@ -2123,7 +2123,7 @@ member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.trustForwardedHost?: boolean | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
-type Params: NamedParams | readonly (string | number | boolean)[]
+type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class ReactI18n
 member ReactI18n.activeKey: private any
@@ -2179,13 +2179,13 @@ member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
-member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+member ReactI18n.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
 member ReactI18n.touch: protected () => void
-member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
+member ReactI18n.ts: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
@@ -2233,7 +2233,7 @@ member UseI18nReturn.setLocale: (locale: string) => void
 member UseI18nReturn.setRoute: (routeName: string) => void
 member UseI18nReturn.switchLocale: (locale: string) => void
 member UseI18nReturn.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-member UseI18nReturn.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+member UseI18nReturn.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member UseI18nReturn.td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
 member UseI18nReturn.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member UseI18nReturn.tn: (value: number, options?: Intl.NumberFormatOptions) => string
@@ -2279,7 +2279,7 @@ member FormatService.timeZone?: private any
 member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 const I18nT: ({ i18n, ...props }: ServerI18nTProps) => HostElement
 type I18nTComponent: HostNode | (() => HostNode)
-function interpolate: (template: string, params: Params) => string
+function interpolate: (template: string, params: Params | ListParams) => string
 class ReactI18n
 member ReactI18n.activeKey: private any
 member ReactI18n.activeRootKey: private any
@@ -2334,13 +2334,13 @@ member ReactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member ReactI18n.storage: TranslationStorage
 member ReactI18n.store: protected ReactiveI18nStore
 member ReactI18n.subscribe: (listener: () => void) => () => void
-member ReactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
-member ReactI18n.tc: (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => string
+member ReactI18n.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member ReactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member ReactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member ReactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member ReactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
 member ReactI18n.touch: protected () => void
-member ReactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
+member ReactI18n.ts: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string
 member ReactI18n.warnDev: protected (message: string) => void
 member ReactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member ReactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void

@@ -40,11 +40,11 @@ import { /* … */ } from '@i18n-micro/react'
 | `I18nT` | const | `(props: I18nTProps) => HostElement` |
 | `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
 | `I18nTProps` | interface | 289 members |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 57 members |
-| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
@@ -1035,11 +1035,11 @@ import { /* … */ } from '@i18n-micro/react/client'
 | `I18nT` | const | `(props: I18nTProps) => HostElement` |
 | `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
 | `I18nTProps` | interface | 289 members |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 57 members |
-| `Params` | type | `NamedParams \| readonly (string \| number \| boolean)[]` |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
@@ -1108,7 +1108,7 @@ import { /* … */ } from '@i18n-micro/react/server'
 | `FormatService` | class | 21 members |
 | `I18nT` | const | `({ i18n, ...props }: ServerI18nTProps) => HostElement` |
 | `I18nTComponent` | type | `HostNode \| (() => HostNode)` |
-| `interpolate` | function | `(template: string, params: Params) => string` |
+| `interpolate` | function | `(template: string, params: Params \| ListParams) => string` |
 | `ReactI18n` | class | 64 members |
 | `ReactI18nOptions` | interface | 13 members |
 | `ServerI18nTProps` | interface | 290 members |

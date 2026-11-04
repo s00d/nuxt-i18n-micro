@@ -169,8 +169,8 @@ const isUrl = (value: string | undefined) => {
 /**
  * `config` with the runtime `locales[].baseUrl`s, after `applyI18nRuntimeOverrides`. A build without
  * locale domains has no routing for them (the path strategy is chosen at build): ignored there, like
- * `strategy`. Apart, so that a browser bundle without domains drops it. A `metaBaseUrl` the build took
- * from the default locale's `baseUrl` follows it, unless one is set at runtime.
+ * `strategy`. Apart, so that a browser bundle without domains drops it. `metaBaseUrl` stays: who moves the
+ * default locale's domain sets `NUXT_I18N_META_BASE_URL` too.
  */
 export function applyLocaleBaseUrls<T extends ModuleOptionsExtend>(
   config: T,
@@ -191,10 +191,7 @@ export function applyLocaleBaseUrls<T extends ModuleOptionsExtend>(
     const url = own(locale.code)
     return isUrl(url) && url !== locale.baseUrl ? Object.assign({}, locale, { baseUrl: url }) : locale
   })
-  if (moved.every((locale, i) => locale === locales[i])) return config
-  const derived = config.metaBaseUrlFromLocale && overrides.metaBaseUrl === undefined
-  const metaBaseUrl = derived ? (moved.find((locale) => locale.code === config.defaultLocale)?.baseUrl ?? config.metaBaseUrl) : config.metaBaseUrl
-  return { ...config, locales: moved, metaBaseUrl }
+  return moved.every((locale, i) => locale === locales[i]) ? config : { ...config, locales: moved }
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])

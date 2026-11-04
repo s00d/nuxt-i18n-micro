@@ -786,8 +786,6 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   rootDelta?: boolean
   /** Nuxt's `features.noScripts` is on: no page runs a script, so none preloads a dictionary. */
   noScripts?: boolean
-  /** `metaBaseUrl` was not set and the build took the default locale's `baseUrl`: a runtime `baseUrl` moves it too. */
-  metaBaseUrlFromLocale?: boolean
   /** Host this config was resolved for (`locales[].baseUrl`); unset on any other host. */
   domain?: string
   /** With `domain`: every locale, those of other domains included. `locales` holds what the host serves. */

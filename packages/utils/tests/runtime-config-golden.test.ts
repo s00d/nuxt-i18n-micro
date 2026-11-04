@@ -37,13 +37,6 @@ const bases: Record<string, () => ModuleOptionsExtend> = {
       locales: [{ code: 'en', baseUrl: 'https://example.com' }, { code: 'de', baseUrl: 'https://example.de' }, { code: 'ru' }],
       metaBaseUrl: 'https://example.com',
     }),
-  // the same, as the build marks it since metaBaseUrlFromLocale: a runtime baseUrl of the default moves it
-  'domains+derived': () =>
-    base({
-      locales: [{ code: 'en', baseUrl: 'https://example.com' }, { code: 'de', baseUrl: 'https://example.de' }, { code: 'ru' }],
-      metaBaseUrl: 'https://example.com',
-      metaBaseUrlFromLocale: true,
-    }),
   'domains+explicit': () =>
     base({
       locales: [{ code: 'en', baseUrl: 'https://example.com' }, { code: 'de', baseUrl: 'https://example.de' }, { code: 'ru' }],
@@ -161,7 +154,7 @@ function report(): string {
   for (const requested of domainOverrides) {
     for (const host of ['example.com', 'example.de', 'de.example.net', 'example.net', 'evil.test']) {
       run(`host(${show(requested)}, ${host})`, () => {
-        const applied = applyI18nRuntimeOverrides(bases['domains+derived']!(), requested as never, () => {})
+        const applied = applyI18nRuntimeOverrides(bases.domains!(), requested as never, () => {})
         const config = configForHost(
           applyLocaleBaseUrls(applied, requested as never, () => {}),
           host,

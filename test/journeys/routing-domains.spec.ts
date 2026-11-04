@@ -377,7 +377,7 @@ describe('journey: one build, two domains — app.baseURL', () => {
 describe('journey: one build, two domains — runtime locales[].baseUrl', () => {
   test.override({ harness: 'strategy-domains-runtime-urls' })
 
-  test('the env moves both domains: the new hosts serve, the build hosts are unknown, metaBaseUrl follows the default', async ({ baseURL }) => {
+  test('the env moves both domains: the new hosts serve, the build hosts are unknown, on the runtime SEO origin', async ({ baseURL }) => {
     // step 1: example.at is de's host now, with its own origin; en links to example.net
     const contact = await onHost(baseURL, '/kontakt', 'example.at')
     expect([contact.status, contentOn(contact.html)]).toEqual([200, 'contact'])
@@ -385,7 +385,7 @@ describe('journey: one build, two domains — runtime locales[].baseUrl', () => 
     expect(alternateOf(contact.html, 'en_EN')).toBe('https://example.net/contact')
     expect(contentOn((await onHost(baseURL, '/', 'example.net')).html)).toBe('en')
 
-    // step 2: the build's example.de is an unknown host: the build default, on the moved default's origin
+    // step 2: the build's example.de is an unknown host: the build default, on NUXT_I18N_META_BASE_URL
     const old = await onHost(baseURL, '/', DE)
     expect(contentOn(old.html)).toBe('en')
     expect(canonicalOf(old.html)).toBe('https://example.net')
@@ -408,7 +408,7 @@ describe('journey: one build, two domains — runtime locales[].baseUrl', () => 
 })
 
 describe('journey: runtime metaBaseUrl without domains', () => {
-  test.override({ harness: 'strategy-prefix-meta-override' })
+  test.override({ harness: 'strategy-prefix-overrides' })
 
   test('canonical and hreflang take the env origin; locale domains are ignored in a build without them', async ({ baseURL }) => {
     const { html } = await onHost(baseURL, '/de/kontakt', 'localhost')

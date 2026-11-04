@@ -89,10 +89,11 @@ One build can serve staging and production on different hosts:
 
 ```bash
 NUXT_I18N_LOCALE_BASE_URLS=en=https://staging.example.com,de=https://staging.example.de \
+NUXT_I18N_META_BASE_URL=https://staging.example.com \
 node .output/server/index.mjs
 ```
 
-The hosts of the build then are unknown hosts: they get the build config, as any other host. When `metaBaseUrl` was not set at build, it is the default locale's `baseUrl`, and it follows a runtime `baseUrl` of that locale; an explicit `metaBaseUrl` (in the build or at runtime) stays. The browser of a server-rendered page gets the changed origins with the page.
+The hosts of the build then are unknown hosts: they get the build config, as any other host. `metaBaseUrl` (the origin of an unknown host's canonical and hreflang) does not move with them: set `NUXT_I18N_META_BASE_URL` too when the default locale's domain moves. The browser of a server-rendered page gets the changed origins with the page.
 
 `nuxt generate` per host (`NUXT_I18N_DOMAIN`) is build time: the prerendered pages keep the origins of the build, and runtime `baseUrl`s do not reach them.
 

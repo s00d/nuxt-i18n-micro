@@ -39,6 +39,8 @@ function overridesOf(config: ModuleOptionsExtend): Shipped {
  * Nitro and the app bundle each hold their own copy of the build config, so `config !== base` is always true.
  */
 export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOptionsExtend): Shipped | null {
+  // the build config itself (no override, no host): nothing to tell
+  if (config === base) return null
   const shipped = Object.assign(overridesOf(config), originsOf(config, base))
   const built = overridesOf(base)
   const same =
@@ -59,8 +61,11 @@ export function shippedOverrides(config: ModuleOptionsExtend, base: ModuleOption
 function originsOf(config: ModuleOptionsExtend, base: ModuleOptionsExtend): Pick<Shipped, 'metaBaseUrl' | 'localeBaseUrls'> {
   const origins: Pick<Shipped, 'metaBaseUrl' | 'localeBaseUrls'> = {}
   if (!config.domain && config.metaBaseUrl !== base.metaBaseUrl && config.metaBaseUrl) origins.metaBaseUrl = config.metaBaseUrl
-  const built = new Map((base.locales ?? []).map((locale) => [locale.code, locale.baseUrl]))
-  const moved = (config.linkLocales ?? config.locales ?? []).filter((locale) => locale.baseUrl && locale.baseUrl !== built.get(locale.code))
+  const built = base.locales ?? []
+  // ponytail: a scan per locale, O(n²) over a locale list; nothing is allocated when no baseUrl moved
+  const moved = (config.linkLocales ?? config.locales ?? []).filter(
+    (locale) => locale.baseUrl && locale.baseUrl !== built.find((entry) => entry.code === locale.code)?.baseUrl,
+  )
   if (moved.length) origins.localeBaseUrls = Object.fromEntries(moved.map((locale) => [locale.code, locale.baseUrl!]))
   return origins
 }

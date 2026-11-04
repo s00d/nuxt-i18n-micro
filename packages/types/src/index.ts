@@ -240,6 +240,16 @@ export interface ModuleOptions {
   redirects?: boolean
 
   /**
+   * Redirect a locale prefix in another case or encoding to the page in its own spelling
+   * (`/DE/about` → `/de/about`, `/EN/about` → `/about` under `prefix_except_default`). The router
+   * matches the prefix case-insensitively, so without the redirect such a URL would show the page
+   * under a second address. When `false`, or when `redirects` is `false`, the URL is a 404. A URL
+   * with no page behind it in its own spelling is a 404 either way.
+   * @default true
+   */
+  prefixCaseRedirect?: boolean
+
+  /**
    * Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`,
    * `$switchLocale()`, and other runtime helpers.
    * @default true
@@ -706,6 +716,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   disablePageLocales: boolean
   /** Resolved flag: whether locale-based redirects are enabled. */
   redirects?: boolean
+  /** Resolved flag: whether a locale prefix in another case or encoding redirects to its own spelling. */
+  prefixCaseRedirect?: boolean
   /** Resolved translation payload loading strategy. */
   translationPayloadMode?: 'premerged' | 'source'
   /** Premerged files are in `public/`, so they can sit on `app.cdnURL`. */

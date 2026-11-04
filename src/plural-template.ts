@@ -3,7 +3,7 @@ import { defaultPlural } from '@i18n-micro/core'
 
 /**
  * Build contents of the virtual `i18n.plural.mjs` Nitro/Nuxt template.
- * `helpersImportPath` must be an absolute (or file URL) path so consumers resolve
+ * `helpersImportPath` must be an absolute path so consumers resolve
  * `@i18n-micro/core` without depending on their own node_modules layout.
  */
 export function buildI18nPluralTemplate(plural: PluralFunc | undefined, helpersImportPath: string): string {

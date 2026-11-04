@@ -12,13 +12,14 @@ describe('journey: a 404 page keeps the language', () => {
     expect(res.html).not.toContain('i18n-can')
   })
 
-  test('a case variant of a prefix is a 404, not the page in another language, not a redirect', async ({ baseURL }) => {
-    // `/ru/about` exists, `/de/about` has a custom path
-    for (const path of ['/RU/about', '/DE/about']) {
-      const res = await ssr(baseURL, path, { accept: 'text/html' })
-      expect(res.status, path).toBe(404)
-      expect(res.location, path).toBeNull()
-      expect(res.html, path).not.toContain('i18n-can')
-    }
+  test('a case variant of a prefix moves to the page in its own spelling, or is a 404 with none', async ({ baseURL }) => {
+    // `/ru/about` exists
+    const moved = await ssr(baseURL, '/RU/about', { accept: 'text/html' })
+    expect(moved.status).toBe(302)
+    expect(new URL(moved.location!, baseURL).pathname).toBe('/ru/about')
+    const missing = await ssr(baseURL, '/DE/nope', { accept: 'text/html' })
+    expect(missing.status).toBe(404)
+    expect(missing.location).toBeNull()
+    expect(missing.html).not.toContain('i18n-can')
   })
 })

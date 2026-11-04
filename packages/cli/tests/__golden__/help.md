@@ -5,7 +5,7 @@
 ## Output
 
 ```
-Command-line tools for nuxt-i18n-micro (i18n-micro v2.0.0)
+Command-line tools for nuxt-i18n-micro (i18n-micro v<version>)
 
 USAGE i18n-micro <command> [OPTIONS]
 

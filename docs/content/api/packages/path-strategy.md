@@ -22,10 +22,10 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `DomainPathStrategy` | class | 54 members |
-| `I18nPathStrategy` | class | 51 members |
+| `DomainPathStrategy` | class | 56 members |
+| `I18nPathStrategy` | class | 53 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K]; }` |
-| `PathStrategyContext` | interface | 10 members |
+| `PathStrategyContext` | interface | 11 members |
 | `ResolvedRouteLike` | interface | 8 members |
 | `RouteI18nMeta` | interface | 5 members |
 | `RouteLike` | interface | 7 members |
@@ -43,7 +43,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>DomainPathStrategy</code> — 54 members</summary>
+<summary><code>DomainPathStrategy</code> — 56 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -53,7 +53,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `ctx` | `protected PathStrategyContext` |
 | `disabledCodes` | `private Set<string>` |
 | `external` | `protected (locale: string, route: Target) => string \| null` |
-| `findPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
+| `findPage` | `private (path: string, anyHost?: boolean) => Page \| typeof UNLOCALIZED \| null` |
 | `foldedCodes` | `private Map<string, string>` |
 | `foreign` | `private Set<string>` |
 | `getClientRedirect` | `(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string \| null` |
@@ -78,11 +78,12 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `linkCodes` | `private Set<string>` |
 | `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
+| `matchPage` | `private (path: string, anyHost: boolean) => Page \| typeof UNLOCALIZED \| null` |
 | `moved` | `private (path: string, locale: string) => string \| null` |
 | `new` | `(ctx: PathStrategyContext): DomainPathStrategy` |
 | `notFoundReason` | `protected (path: string) => string \| null` |
 | `originOf` | `private (url: string) => string \| undefined` |
+| `otherCodes` | `protected ReadonlySet<string>` |
 | `pageBase` | `private (route: RouteLike) => string \| null` |
 | `pageLocales` | `(route: RouteLike) => string[] \| null` |
 | `pathOnHost` | `private (locale: string, config: Locale, route: Target) => string` |
@@ -91,6 +92,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `probe` | `(to: RouteLike \| string) => ResolvedRouteLike \| null` |
 | `resolve` | `private (to: RouteLike \| string) => ResolvedRouteLike \| null` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
+| `respelled` | `private (path: string, segment: string) => string \| null` |
 | `routeTo` | `private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target \| null` |
 | `servedLocale` | `protected (route: ResolvedRouteLike, preferred: string) => string` |
 | `setRouter` | `(router: RouterAdapter) => void` |
@@ -105,7 +107,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>I18nPathStrategy</code> — 51 members</summary>
+<summary><code>I18nPathStrategy</code> — 53 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -115,7 +117,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `ctx` | `protected PathStrategyContext` |
 | `disabledCodes` | `private Set<string>` |
 | `external` | `protected (_locale: string, _route: Target) => string \| null` |
-| `findPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
+| `findPage` | `private (path: string, anyHost?: boolean) => Page \| typeof UNLOCALIZED \| null` |
 | `foldedCodes` | `private Map<string, string>` |
 | `getClientRedirect` | `(currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string \| null` |
 | `getCurrentLocale` | `(route: ResolvedRouteLike, defaultLocaleOverride?: string \| null) => string` |
@@ -139,10 +141,11 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `linkCodes` | `private Set<string>` |
 | `localeRoute` | `(locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
 | `localized` | `private (locale: string, routeOrPath: RouteLike \| string) => RouteLike` |
-| `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
+| `matchPage` | `private (path: string, anyHost: boolean) => Page \| typeof UNLOCALIZED \| null` |
 | `moved` | `private (path: string, locale: string) => string \| null` |
 | `new` | `(ctx: PathStrategyContext): I18nPathStrategy` |
 | `notFoundReason` | `protected (path: string) => string \| null` |
+| `otherCodes` | `protected ReadonlySet<string>` |
 | `pageBase` | `private (route: RouteLike) => string \| null` |
 | `pageLocales` | `(route: RouteLike) => string[] \| null` |
 | `prefix` | `private string` |
@@ -150,6 +153,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `probe` | `(to: RouteLike \| string) => ResolvedRouteLike \| null` |
 | `resolve` | `private (to: RouteLike \| string) => ResolvedRouteLike \| null` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
+| `respelled` | `private (path: string, segment: string) => string \| null` |
 | `routeTo` | `private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target \| null` |
 | `servedLocale` | `protected (route: ResolvedRouteLike, preferred: string) => string` |
 | `setRouter` | `(router: RouterAdapter) => void` |
@@ -164,7 +168,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>PathStrategyContext</code> — 10 members</summary>
+<summary><code>PathStrategyContext</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -176,6 +180,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `linkLocales?` | `Locale[] \| undefined` |
 | `locales` | `Locale[]` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
+| `prefixCaseRedirect?` | `boolean \| undefined` |
 | `router` | `RouterAdapter` |
 | `strategy` | `Strategies` |
 
@@ -256,7 +261,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
-| `PathStrategyContext` | interface | 10 members |
+| `PathStrategyContext` | interface | 11 members |
 | `ResolvedRouteLike` | interface | 8 members |
 | `RouteI18nMeta` | interface | 5 members |
 | `RouteLike` | interface | 7 members |
@@ -266,7 +271,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 
 <code>ClientRedirectOptions</code> — 1 members, identical to `ClientRedirectOptions` above.
 
-<code>PathStrategyContext</code> — 10 members, identical to `PathStrategyContext` above.
+<code>PathStrategyContext</code> — 11 members, identical to `PathStrategyContext` above.
 
 <code>ResolvedRouteLike</code> — 8 members, identical to `ResolvedRouteLike` above.
 

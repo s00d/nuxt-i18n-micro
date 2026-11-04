@@ -1,6 +1,6 @@
 import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy } from '@i18n-micro/core'
 import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
@@ -87,7 +87,9 @@ async function resolveEntry(specifier: string): Promise<string> {
   } catch {
     absolutePath = await resolvePath(specifier)
   }
-  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : forwardSlashes(absolutePath)
+  // A plain path, which Vite and Nitro resolve on every platform (Nitro leaves a `file:///D:/...` URL
+  // unresolved and external). Node never reads it: Nitro bundles these templates in dev too (`nitro:config`).
+  return forwardSlashes(absolutePath)
 }
 
 function generateI18nTypes(): string {
@@ -157,6 +159,7 @@ function buildFullConfig(params: {
     excludePatterns: options.excludePatterns ?? [],
     missingWarn: options.missingWarn!,
     redirects: options.redirects !== false,
+    prefixCaseRedirect: options.prefixCaseRedirect !== false,
     localizedRouteNamePrefix: options.localizedRouteNamePrefix,
     routesLocaleLinks: options.routesLocaleLinks ?? {},
     debug: options.debug,
@@ -252,7 +255,9 @@ export function createI18nStrategy(router, config = __fullConfig) {
     router,
     hashMode: config.hashMode,
     disablePageLocales: config.disablePageLocales,
-    customRegexMatcher: config.customRegexMatcher,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
+    customRegexMatcher: config.customRegexMatcher,
+    // a prefix in another case is a 404 when nothing may redirect it
+    prefixCaseRedirect: config.redirects !== false && config.prefixCaseRedirect !== false,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
   })
 }
 `
@@ -285,6 +290,7 @@ export default defineNuxtModule<ModuleOptions>({
     debug: false,
     define: true,
     redirects: true,
+    prefixCaseRedirect: true,
     plugin: true,
     hooks: true,
     components: true,
@@ -766,6 +772,11 @@ declare module '#i18n-internal/payload-source' {
       nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
+      // Nuxt inlines its build dir into the server bundle for a build only: in dev Node would load these
+      // two as they are, and their absolute imports are no valid Node specifier on Windows (`D:/...`).
+      // Bundled, Nitro resolves those imports and writes its own externals as file URLs.
+      nitroConfig.externals = nitroConfig.externals || {}
+      nitroConfig.externals.inline = [...(nitroConfig.externals.inline || []), pluralTemplate.dst, strategyTemplate.dst]
 
       // Read public/ via fs (no Rollup raw:). Also what dev and the prerenderer use: it is rebuilt
       // from this config. `nitro:init` switches the deployed server once the preset is resolved.

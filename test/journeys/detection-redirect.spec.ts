@@ -7,11 +7,17 @@ describe('J5 detection: Accept-Language redirect (strategy-redirect)', () => {
   test.override({ harness: 'strategy-redirect' })
 
   test('an unknown URL stays a 404, with a preference too', async ({ baseURL }) => {
-    for (const path of ['/nonexistent', '/about%2F', '/DE']) {
+    for (const path of ['/nonexistent', '/about%2F', '/DE/nope']) {
       const res = await ssr(baseURL, path, { cookie: 'user-locale=de' })
       expect(res.status, path).toBe(404)
       expect(res.location, path).toBeNull()
     }
+  })
+
+  test('a prefix in another case moves to the page in its own spelling', async ({ baseURL }) => {
+    const res = await ssr(baseURL, '/DE', { cookie: 'user-locale=de' })
+    expect(res.status).toBe(302)
+    expect(new URL(res.location!, baseURL).pathname).toBe('/de')
   })
 
   // was: redirect › language detection redirects based on Accept-Language

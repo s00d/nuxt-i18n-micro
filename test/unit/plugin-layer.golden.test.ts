@@ -343,6 +343,21 @@ describe('$defineI18nRoute', () => {
     await vi.waitFor(() => expect(a.nuxtApp.$t('page')).toBe('de page'))
   })
 
+  test('`false` and `null` (no config) do nothing at runtime', async () => {
+    const a = await createApp({ side: 'client', strategy: 'prefix', url: '/en/about' })
+    await runPlugin(plugin)
+    await hydrate(a)
+    const define = a.nuxtApp.$defineI18nRoute as (config: unknown) => Promise<void>
+    const outcome = async (config: unknown) =>
+      define(config).then(
+        () => 'ok',
+        (error: Error) => `throws ${error.name}: ${error.message}`,
+      )
+    expect(await outcome(false)).toBe('ok')
+    expect(await outcome(null)).toBe('ok')
+    expect(await outcome(undefined)).toBe('ok')
+  })
+
   test('`define: false` provides nothing', async () => {
     stub.defineRoute = false
     try {

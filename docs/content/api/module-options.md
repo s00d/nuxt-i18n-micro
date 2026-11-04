@@ -764,6 +764,13 @@ the default. Under `no_prefix` detection never changes the URL (see `noPrefixRed
 
 With `false` the client redirect middleware is not registered. The server plugin still returns 404 for invalid locale URLs and writes the cookie for a prefixed URL.
 
+#### `redirectStatusCode`
+
+<!-- generated:option:redirectStatusCode — do not edit; run `pnpm run docs:generate` -->
+<!-- /generated:option:redirectStatusCode -->
+
+Keep `302` (or `307`) for redirects that depend on the visitor: a browser caches a `301` or `308` and goes straight to the first answer, even after the visitor switched the locale. The client redirects of a single-page navigation are router moves and have no status.
+
 #### `autoDetectLanguage`
 
 <!-- generated:option:autoDetectLanguage — do not edit; run `pnpm run docs:generate` -->

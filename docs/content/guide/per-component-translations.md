@@ -66,6 +66,14 @@ $defineI18nRoute({
 
 With `prefix_except_default` and `defaultLocale: 'en'` this produces `/welcome` and `/de/willkommen`. A `path` inside an inline locale object does the same: `locales: { de: { path: '/willkommen' } }`. Dynamic params, nested routes and the config-level alternative are covered in [Localized paths](/guide/custom-locale-routes).
 
+## Keep a page out of localization
+
+```ts
+$defineI18nRoute(false)
+```
+
+The page gets one route, with no locale prefix and no locale variants, as with [`globalLocaleRoutes: { page: false }`](/api/module-options#globallocaleroutes) (`localeRoutes: false` does the same). An entry for the page in `globalLocaleRoutes` still wins.
+
 ## Turn off SEO tags
 
 ```ts

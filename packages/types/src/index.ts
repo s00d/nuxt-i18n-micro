@@ -115,8 +115,11 @@ export interface DefineI18nRouteConfig {
    * - `Record<LocaleCode, Translations>` — allowed locales with inline translation overrides.
    */
   locales?: string[] | Record<LocaleCode, Translations>
-  /** Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`). */
-  localeRoutes?: Record<LocaleCode, string>
+  /**
+   * Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`).
+   * `false` keeps the page out of localization, as `globalLocaleRoutes: { page: false }` (so does `$defineI18nRoute(false)`).
+   */
+  localeRoutes?: Record<LocaleCode, string> | false
   /**
    * Disable SEO meta tag generation for this page.
    * - `true` — disable all meta tags.
@@ -128,8 +131,11 @@ export interface DefineI18nRouteConfig {
 /** Locale-specific route params for `$switchLocalePath` and `<i18n-link>`. */
 export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
-/** Interpolation parameters passed to the `t()` function. */
-export type Params = Record<string, string | number | boolean>
+/** Named interpolation parameters: `{name}` reads `params.name`. What `tc()` takes besides a count. */
+export type NamedParams = Record<string, string | number | boolean>
+
+/** Interpolation parameters passed to the `t()` function: named (`{name}`), or a list for `{0}`, `{1}`. */
+export type Params = NamedParams | readonly (string | number | boolean)[]
 
 /** Getter function signature used by pluralization to resolve nested keys. */
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
@@ -436,6 +442,15 @@ export interface ModuleOptions {
    * @default undefined (no fallback; returns the raw key)
    */
   fallbackLocale?: string
+
+  /**
+   * HTTP status of the server's locale redirects (the preferred locale from the cookie or
+   * `Accept-Language`, a prefix in another case). `301` and `308` are cached by browsers: a visitor
+   * who later changes the preference is still sent where the first answer said. A value that is
+   * no redirect status (300-399) is ignored with a warning at build.
+   * @default 302
+   */
+  redirectStatusCode?: number
 
   /**
    * Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`)

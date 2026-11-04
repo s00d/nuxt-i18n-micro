@@ -1,5 +1,5 @@
 import { localeIsoMap } from '@i18n-micro/core'
-import type { Locale, TranslationKey } from '@i18n-micro/types'
+import type { Locale, NamedParams, Params, TranslationKey } from '@i18n-micro/types'
 import type { App, Plugin } from 'vue'
 import { I18nGroup } from './components/i18n-group'
 import { I18nLink } from './components/i18n-link'
@@ -66,23 +66,13 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
 
       // 4. Global properties ($t, $tc, etc.)
       // Note: In templates, these may be called with string literals, so we use TranslationKey type
-      app.config.globalProperties.$t = (
-        key: TranslationKey,
-        params?: Record<string, string | number | boolean>,
-        defaultValue?: string | null,
-        routeName?: string,
-      ) => {
+      app.config.globalProperties.$t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => {
         return i18n.t(key, params, defaultValue, routeName)
       }
-      app.config.globalProperties.$ts = (
-        key: TranslationKey,
-        params?: Record<string, string | number | boolean>,
-        defaultValue?: string,
-        routeName?: string,
-      ) => {
+      app.config.globalProperties.$ts = (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => {
         return i18n.ts(key, params, defaultValue, routeName)
       }
-      app.config.globalProperties.$tc = (key: TranslationKey, count: number | Record<string, string | number | boolean>, defaultValue?: string) => {
+      app.config.globalProperties.$tc = (key: TranslationKey, count: number | NamedParams, defaultValue?: string) => {
         return i18n.tc(key, count, defaultValue)
       }
       app.config.globalProperties.$tn = i18n.tn.bind(i18n)

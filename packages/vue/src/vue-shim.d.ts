@@ -17,7 +17,7 @@ declare module '@vue/runtime-core' {
       defaultValue?: string,
       routeName?: string,
     ) => string
-    $tc: (key: import('@i18n-micro/types').TranslationKey, count: number | import('@i18n-micro/types').Params, defaultValue?: string) => string
+    $tc: (key: import('@i18n-micro/types').TranslationKey, count: number | import('@i18n-micro/types').NamedParams, defaultValue?: string) => string
     $tn: {
       (value: number, options?: Intl.NumberFormatOptions): string
       (value: number, key: string, overrides?: Intl.NumberFormatOptions): string

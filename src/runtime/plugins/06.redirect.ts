@@ -98,7 +98,9 @@ export default defineNuxtPlugin({
     if (!target) return
     if (anyPath && urlLocale) writeCookie(preferred)
     if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, target, preferred })
-    return navigateTo(applyTrailingSlash(target, i18nConfig.trailingSlash) + url.search + url.hash, { redirectCode: 302 }) as Promise<void>
+    return navigateTo(applyTrailingSlash(target, i18nConfig.trailingSlash) + url.search + url.hash, {
+      redirectCode: i18nConfig.redirectStatusCode ?? 302,
+    }) as Promise<void>
   },
 })
 

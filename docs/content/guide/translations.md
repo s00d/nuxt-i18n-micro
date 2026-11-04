@@ -87,6 +87,16 @@ export default defineNuxtConfig({
 
 Without a fallback, a missing key renders as the key (`'nav.home'`) and logs a warning in the browser console in dev ([`missingWarn`](/api/module-options#missingwarn)).
 
+### Parameters
+
+`{name}` takes `params.name`; `{0}`, `{1}` take the items of an array:
+
+```json [locales/en.json]
+{ "welcome": "Welcome, {name}!", "pair": "{0} and {1}" }
+```
+
+`$t('welcome', { name: 'Ada' })` reads `Welcome, Ada!` and `$t('pair', ['Ann', 'Bob'])` reads `Ann and Bob`. A placeholder with no param stays as written.
+
 ### Linked messages
 
 With [`linkedMessages: true`](/api/module-options#linkedmessages) a message can reuse another one, with the vue-i18n syntax:

@@ -444,5 +444,5 @@ export interface NuxtAppOnlyInjections {
    * Register per-page locale configuration and translations from inside a component.
    * Merges into the active locale and re-applies when the locale changes.
    */
-  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
+  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig | false) => Promise<void>
 }

@@ -55,3 +55,17 @@ describe('J5 detection: Accept-Language redirect (strategy-redirect)', () => {
     expect((await ssr(baseURL, '/de/administrator', { 'Accept-Language': 'de' })).status).toBe(200)
   })
 })
+
+describe('J5 detection: redirectStatusCode (strategy-redirect-301)', () => {
+  test.override({ harness: 'strategy-redirect-301' })
+
+  test('the locale redirects answer with the configured code; a page still answers 200', async ({ baseURL }) => {
+    const bare = await ssr(baseURL, '/de')
+    expect([bare.status, new URL(bare.location!, baseURL).pathname]).toEqual([301, '/'])
+    const preferred = await ssr(baseURL, '/ru/contact', { 'Accept-Language': 'de' })
+    expect([preferred.status, new URL(preferred.location!, baseURL).pathname]).toEqual([301, '/de/kontakt'])
+    const cased = await ssr(baseURL, '/DE', { cookie: 'user-locale=de' })
+    expect(cased.status).toBe(301)
+    expect((await ssr(baseURL, '/contact', { 'Accept-Language': 'en' })).status).toBe(200)
+  })
+})

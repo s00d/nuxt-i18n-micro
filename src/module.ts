@@ -104,6 +104,8 @@ declare module '#app' {
 export {}`
 }
 
+const isRedirectStatus = (code: unknown): code is number => Number.isInteger(code) && (code as number) >= 300 && (code as number) <= 399
+
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 
 interface NormalizedApiConfig {
@@ -145,6 +147,8 @@ function buildFullConfig(params: {
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
+    // set only when it is not the default: 06.redirect reads it
+    redirectStatusCode: options.redirectStatusCode ?? undefined,
     // only a build that writes a cookie ships its attributes
     localeCookieOptions: options.localeCookie || nuxt.options?.router?.options?.hashMode ? options.localeCookieOptions : undefined,
     autoDetectLanguage: options.autoDetectLanguage,
@@ -356,6 +360,11 @@ export default defineNuxtModule<ModuleOptions>({
     if (options.strategy === 'no_prefix' && !options.localeCookie && !cookieOptOut) {
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
+    }
+    // a code Nitro would send as no redirect (or not at all) breaks every redirect of the app
+    if (options.redirectStatusCode !== undefined && !isRedirectStatus(options.redirectStatusCode)) {
+      logger.warn(`redirectStatusCode ${options.redirectStatusCode} is no redirect status (300-399); 302 is used.`)
+      options.redirectStatusCode = undefined
     }
     // browsers drop a `SameSite=None` cookie without `Secure`: the locale would never be remembered
     if (options.localeCookieOptions?.sameSite === 'none' && !options.localeCookieOptions.secure) {

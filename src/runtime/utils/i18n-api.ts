@@ -271,7 +271,9 @@ export type NuxtI18nPluginProvide = NuxtI18nPluginApi['provide']
 
 /** The page's own translations: on the active locale, and again on each switch while the page lives. */
 function createDefineI18nRoute({ getLocale, mergeTranslations }: Pick<NuxtI18nPluginProvide, 'getLocale' | 'mergeTranslations'>) {
-  return async ({ locales }: DefineI18nRouteConfig) => {
+  // `false` (a page out of localization) and the build-time forms leave nothing to do here
+  return async (config: DefineI18nRouteConfig | false) => {
+    const locales = config ? config.locales : undefined
     if (!locales || Array.isArray(locales)) return
     const apply = () => {
       const translations = locales[getLocale()]

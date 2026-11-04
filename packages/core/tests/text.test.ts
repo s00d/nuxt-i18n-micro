@@ -1,5 +1,5 @@
-import type { PluralFunc } from '@i18n-micro/types'
-import { describe, expect, it, vi } from 'vitest'
+import type { Params, PluralFunc } from '@i18n-micro/types'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { BaseI18n, defaultPlural, escapeHtml, FormatService, interpolate, pluralForm, resolveText, tokenize } from '../src/index'
 
 class TestI18n extends BaseI18n {
@@ -555,5 +555,19 @@ describe('<i18n-t> with a translation equal to NUL', () => {
   it('a miss is still the key', () => {
     expect(text(i18n, { keypath: 'gone' })).toBe('gone')
     expect(text(i18n, { keypath: 'gone', plural: 2 })).toBe('gone')
+  })
+})
+
+describe('list params: `{0}` from an array', () => {
+  it('t, ts and interpolate read an array by index; the type takes it', () => {
+    const i18n = new TestI18n('en', { pair: '{0} and {1}', named: 'Hi {name}' })
+    const list: Params = ['Ann', 2]
+    expect(i18n.t('pair', list)).toBe('Ann and 2')
+    expect(i18n.ts('pair', ['x', true] as const)).toBe('x and true')
+    expect(interpolate('{0}/{1}/{2}', ['a', 'b'])).toBe('a/b/{2}')
+    expect(i18n.t('missing', ['x'], 'D {0}')).toBe('D x')
+    expect(resolveText(i18n, { keypath: 'pair', params: ['a', 'b'] }).template).toBe('{0} and {1}')
+    expectTypeOf<readonly ['a', 1]>().toMatchTypeOf<Params>()
+    expectTypeOf<string[]>().toMatchTypeOf<Params>()
   })
 })

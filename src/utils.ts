@@ -331,7 +331,7 @@ function warnUnextractable(filePath: string, error: string): void {
   )
 }
 
-export function extractDefineI18nRouteData(content: string, filePath: string): DefineI18nRouteConfig | null {
+export function extractDefineI18nRouteData(content: string, filePath: string): DefineI18nRouteConfig | false | null {
   try {
     const scriptContent = extractScriptContent(content)
     if (!scriptContent) {
@@ -353,6 +353,9 @@ export function extractDefineI18nRouteData(content: string, filePath: string): D
       return null
     }
 
+    // `$defineI18nRoute(false)`: the page opts out of localization; any other non-object is no config
+    if ((result.config as unknown) === false) return false
+    if (!result.config || typeof result.config !== 'object') return null
     return normalizeDefineConfig(result.config)
   } catch {
     return null

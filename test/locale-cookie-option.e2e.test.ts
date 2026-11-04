@@ -91,6 +91,18 @@ describe('localeCookie option', () => {
     }
   })
 
+  it('redirectStatusCode: shipped only when set, a code that is no redirect is dropped with a warning', async () => {
+    expect(await strategySource({})).not.toContain('redirectStatusCode')
+    expect(await strategySource({ redirectStatusCode: 301 })).toContain('"redirectStatusCode":301')
+    const warn = vi.spyOn(process.stderr, 'write')
+    try {
+      expect(await strategySource({ redirectStatusCode: 200 })).not.toContain('redirectStatusCode')
+      expect(warn.mock.calls.some((args) => String(args[0]).includes('redirectStatusCode 200 is no redirect status'))).toBe(true)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('keeps useCookie in the build only when a cookie can be used', async () => {
     expect(await strategySource({ strategy: 'prefix' })).toContain('export const cookies = false')
     expect(await strategySource({ strategy: 'prefix', localeCookie: 'x' })).toContain('export const cookies = true')

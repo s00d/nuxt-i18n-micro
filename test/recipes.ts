@@ -110,6 +110,13 @@ export const recipes = defineRecipes(
       AUTO_DETECT_PATH: '*',
       EXCLUDE_PATTERNS: '/admin',
     }),
+    // strategy-redirect with redirectStatusCode 301
+    'strategy-redirect-301': app(
+      'strategy-redirect-301',
+      'strategy',
+      { STRATEGY: 'prefix_except_default', LOCALE_COOKIE: 'user-locale', AUTO_DETECT_LANGUAGE: '1', AUTO_DETECT_PATH: '*' },
+      { i18n: { redirectStatusCode: 301 } },
+    ),
     // locale codes en-us / de-de / ru-ru behind customRegexMatcher
     'strategy-region-codes': app('strategy-region-codes', 'strategy', { STRATEGY: 'prefix_except_default', REGION_CODES: '1' }),
     // global URL shapes: each would break every other journey's URLs, so each is its own build

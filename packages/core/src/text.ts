@@ -1,4 +1,4 @@
-import type { CleanTranslation, Getter, Params, PluralFunc, TranslationKey } from '@i18n-micro/types'
+import type { CleanTranslation, Getter, NamedParams, Params, PluralFunc, TranslationKey } from '@i18n-micro/types'
 import { ownValue } from './tree'
 
 /** A placeholder: any run without braces or spaces (`{name}`, `{имя}`, `{first-name}`), so `{ a }` stays text. */
@@ -85,9 +85,10 @@ export function convertible<T extends object>(value: T): T {
 
 /** A copy of `params` safe inside markup: only the translation itself is trusted. */
 function escapeParams(params: Params): Params {
-  const safe: Params = {}
+  const safe: NamedParams = {}
+  // a list too: its indexes are its names (`{0}`)
   for (const name of Object.keys(params)) {
-    const value = params[name]
+    const value = (params as NamedParams)[name]
     // undefined stays out: the placeholder keeps showing, as without html
     if (value !== undefined) safe[name] = typeof value === 'number' || typeof value === 'boolean' ? value : escapeHtml(String(value))
   }
@@ -220,7 +221,7 @@ export interface TextHost {
   /** Whether the key has a translation: tells a miss from a translation equal to what stands for one. */
   has?(key: TranslationKey): boolean
   t(key: TranslationKey, params?: Params, defaultValue?: string | null): CleanTranslation
-  tc(key: TranslationKey, count: number | Params, defaultValue?: string): string
+  tc(key: TranslationKey, count: number | NamedParams, defaultValue?: string): string
   tn(value: number): string
   td(value: Date | number | string): string
   tdr(value: Date | number | string): string
@@ -286,7 +287,7 @@ function pluralText(i18n: TextHost, options: ResolveTextOptions, params: Params)
     return { template: String(customPluralRule(keypath, count, params, i18n.getLocale(), getter) ?? ''), params: {} }
   }
   if (i18n.pluralFunc !== defaultPlural) {
-    const text = i18n.tc(keypath, { ...params, count }, defaultValue || MISSING)
+    const text = i18n.tc(keypath, { ...(params as NamedParams), count }, defaultValue || MISSING)
     return { template: isMiss(i18n, keypath, text) ? keyText(keypath, html) : text, params: {} }
   }
   // as `tc`: a miss, a tree or a boolean has no forms, so the default or the key stands whole, pipes and all.

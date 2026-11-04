@@ -134,6 +134,9 @@ export type Params = Record<string, string | number | boolean>
 /** A list for `{0}`, `{1}`: what `t()` takes besides `Params`. */
 export type ListParams = readonly (string | number | boolean)[]
 
+/** What `t()` and `interpolate` take: named params or a list. `PluralFunc` keeps `Params`. */
+export type TranslateParams = Params | ListParams
+
 /** Getter function signature used by pluralization to resolve nested keys. */
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 

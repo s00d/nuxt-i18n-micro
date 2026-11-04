@@ -250,6 +250,7 @@ member RouteI18nMeta.original?: string | undefined
 member RouteI18nMeta.paths?: Record<string, string> | undefined
 type ScopedKey: <Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
 type Strategies: 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
+type TranslateParams: Params | ListParams
 type Translation: CleanTranslation | unknown
 type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface TranslationPayloadOptions

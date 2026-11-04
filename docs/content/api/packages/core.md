@@ -104,10 +104,10 @@ function hasTranslationValue(obj: Tree | null | undefined, key: string): boolean
 Replaces `{name}` with `params.name` (`{0}` with an item of a list); a token without an own param stays as written.
 
 ```ts
-function interpolate(template: string, params: Params | ListParams): string
+function interpolate(template: string, params: TranslateParams): string
 ```
 
-**See** [`Params`](/api/packages/types#params) · [`ListParams`](/api/packages/types#listparams)
+**See** [`TranslateParams`](/api/packages/types#translateparams)
 
 #### `isActiveLink`
 
@@ -561,14 +561,14 @@ type: "(kind: 'number' | 'datetime', key: string, locale: string) => void"
 ::::field
 ---
 name: "t"
-type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
+type: "(key: TranslationKey, params?: TranslateParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
 ---
 
 ::::
 ::::field
 ---
 name: "ts"
-type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string"
+type: "(key: TranslationKey, params?: TranslateParams, defaultValue?: string, routeContext?: unknown) => string"
 ---
 
 ::::
@@ -1295,7 +1295,7 @@ Whether the key has a translation: tells a miss from a translation equal to what
 ::::field
 ---
 name: "t"
-type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null) => CleanTranslation"
+type: "(key: TranslationKey, params?: TranslateParams, defaultValue?: string | null) => CleanTranslation"
 required: true
 ---
 

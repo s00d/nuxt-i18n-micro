@@ -79,13 +79,13 @@ member I18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member I18n.storage: TranslationStorage
 member I18n.store: protected ReactiveI18nStore
 member I18n.subscribe: (listener: () => void) => () => void
-member I18n.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member I18n.t: (key: TranslationKey, params?: TranslateParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member I18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member I18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member I18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member I18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
 member I18n.touch: protected () => void
-member I18n.ts: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string
+member I18n.ts: (key: TranslationKey, params?: TranslateParams, defaultValue?: string, routeContext?: unknown) => string
 member I18n.warnDev: protected (message: string) => void
 member I18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member I18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
@@ -104,7 +104,7 @@ member I18nOptions.parent?: I18n | undefined
 member I18nOptions.plural?: PluralFunc | undefined
 member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nOptions.timeZone?: string | undefined
-function interpolate: (template: string, params: Params | ListParams) => string
+function interpolate: (template: string, params: TranslateParams) => string
 interface LoadFromUrlEntry
 member LoadFromUrlEntry.init?: RequestInit | undefined
 member LoadFromUrlEntry.locale: string

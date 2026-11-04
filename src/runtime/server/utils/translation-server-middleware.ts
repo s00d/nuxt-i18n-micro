@@ -1,5 +1,5 @@
 import { BaseI18n, interpolate, localeIsoMap, resolveTranslation, translationCacheKey } from '@i18n-micro/core'
-import type { Params, ResolvedI18nConfig, Translations } from '@i18n-micro/types'
+import type { ResolvedI18nConfig, TranslateParams, Translations } from '@i18n-micro/types'
 import type { H3Event } from 'h3'
 import { plural } from '#i18n-internal/plural'
 import { formatterFor } from '../../utils/formatter'
@@ -68,7 +68,7 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
   const locale = currentLocale || getRequestLocale(event, config, defaultLocale)
   const translations = await dictionaryOf(event, locale)
 
-  function t(key: string, params?: Params, defaultValue?: string): string {
+  function t(key: string, params?: TranslateParams, defaultValue?: string): string {
     const value = resolveTranslation(translations, key)
 
     if (value === null) return defaultValue && params ? interpolate(defaultValue, params) : defaultValue || key

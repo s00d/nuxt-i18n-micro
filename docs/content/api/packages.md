@@ -24,7 +24,7 @@ The Nuxt module is built from small `@i18n-micro/*` packages, and most of them w
 - [`@i18n-micro/runtime`](/api/packages/runtime) · 17 exports
 - [`@i18n-micro/solid`](/api/packages/solid) · 39 exports — also `@i18n-micro/solid/router`
 - [`@i18n-micro/test-utils`](/api/packages/test-utils) · 52 exports
-- [`@i18n-micro/types`](/api/packages/types) · 31 exports
+- [`@i18n-micro/types`](/api/packages/types) · 32 exports
 - [`@i18n-micro/types-generator`](/api/packages/types-generator) · 7 exports — also `@i18n-micro/types-generator/nuxt`
 - [`@i18n-micro/utils`](/api/packages/utils) · 116 exports — also `@i18n-micro/utils/active-locales`, `@i18n-micro/utils/app-path`, `@i18n-micro/utils/auto-detect-path`, `@i18n-micro/utils/cache-control`, `@i18n-micro/utils/cookie`, `@i18n-micro/utils/deep-merge`, `@i18n-micro/utils/domains`, `@i18n-micro/utils/load-dir`, `@i18n-micro/utils/locale-head`, `@i18n-micro/utils/merge-i18n-head`, `@i18n-micro/utils/merge-source`, `@i18n-micro/utils/normalize`, `@i18n-micro/utils/parse-path`, `@i18n-micro/utils/payload-fetch`, `@i18n-micro/utils/payload-url`, `@i18n-micro/utils/resolve-hreflang`, `@i18n-micro/utils/resolve-locale`, `@i18n-micro/utils/resolve-og-locale`, `@i18n-micro/utils/runtime-config`, `@i18n-micro/utils/source-loader`, `@i18n-micro/utils/split-locale-routes`
 - [`@i18n-micro/vitepress`](/api/packages/vitepress) · 56 exports — also `@i18n-micro/vitepress/config`, `@i18n-micro/vitepress/node`, `@i18n-micro/vitepress/theme`

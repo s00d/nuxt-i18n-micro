@@ -53,7 +53,7 @@ required: true
 ::::field
 ---
 name: "t"
-type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
+type: "(key: TranslationKey, params?: TranslateParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation"
 required: true
 ---
 
@@ -61,7 +61,7 @@ required: true
 ::::field
 ---
 name: "ts"
-type: "(key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string"
+type: "(key: TranslationKey, params?: TranslateParams, defaultValue?: string, routeContext?: unknown) => string"
 required: true
 ---
 

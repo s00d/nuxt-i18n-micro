@@ -1363,6 +1363,16 @@ type Strategies =
   | 'prefix_and_default'
 ```
 
+### `TranslateParams`
+
+What `t()` and `interpolate` take: named params or a list. `PluralFunc` keeps `Params`.
+
+```ts
+type TranslateParams = Params | ListParams
+```
+
+**See** [`Params`](#params) · [`ListParams`](#listparams)
+
 ### `Translation`
 
 A single translation value — can be a primitive, nested object, plural pair, or `unknown`.

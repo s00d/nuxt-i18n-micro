@@ -32,13 +32,13 @@ member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member BaseI18n.resolveTranslations: (routeContext?: unknown) => Translations
 member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member BaseI18n.setTranslation: (key: TranslationKey, value: unknown) => void
-member BaseI18n.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member BaseI18n.t: (key: TranslationKey, params?: TranslateParams, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member BaseI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member BaseI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member BaseI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
 member BaseI18n.touch: protected () => void
-member BaseI18n.ts: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string, routeContext?: unknown) => string
+member BaseI18n.ts: (key: TranslationKey, params?: TranslateParams, defaultValue?: string, routeContext?: unknown) => string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
@@ -92,7 +92,7 @@ member FormatServiceOptions.numberFormats?: NumberFormatsConfig | undefined
 member FormatServiceOptions.timeZone?: string | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
-function interpolate: (template: string, params: Params | ListParams) => string
+function interpolate: (template: string, params: TranslateParams) => string
 function isActiveLink: (current: string, link: string, localeCodes: readonly string[]) => boolean
 const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
 function isPlainClick: (event: MouseEvent) => boolean
@@ -150,7 +150,7 @@ member TextHost.getLocale: () => string
 member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
-member TextHost.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null) => CleanTranslation
+member TextHost.t: (key: TranslationKey, params?: TranslateParams, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string
 member TextHost.tdr: (value: Date | number | string) => string
@@ -217,7 +217,7 @@ const escapeHtml: (text: string) => string
 function externalLinkHref: (to: unknown) => string | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
-function interpolate: (template: string, params: Params | ListParams) => string
+function interpolate: (template: string, params: TranslateParams) => string
 function isActiveLink: (current: string, link: string, localeCodes: readonly string[]) => boolean
 const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
 function isPlainClick: (event: MouseEvent) => boolean
@@ -259,7 +259,7 @@ member TextHost.getLocale: () => string
 member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
-member TextHost.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null) => CleanTranslation
+member TextHost.t: (key: TranslationKey, params?: TranslateParams, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string
 member TextHost.tdr: (value: Date | number | string) => string
@@ -339,7 +339,7 @@ member TextHost.getLocale: () => string
 member TextHost.has?: ((key: TranslationKey) => boolean) | undefined
 member TextHost.pluralFunc: PluralFunc
 member TextHost.pluralLocale?: (() => string) | undefined
-member TextHost.t: (key: TranslationKey, params?: Params | ListParams, defaultValue?: string | null) => CleanTranslation
+member TextHost.t: (key: TranslationKey, params?: TranslateParams, defaultValue?: string | null) => CleanTranslation
 member TextHost.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member TextHost.td: (value: Date | number | string) => string
 member TextHost.tdr: (value: Date | number | string) => string

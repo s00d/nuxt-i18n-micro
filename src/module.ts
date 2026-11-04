@@ -1,6 +1,6 @@
 import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy } from '@i18n-micro/core'
 import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
@@ -87,7 +87,9 @@ async function resolveEntry(specifier: string): Promise<string> {
   } catch {
     absolutePath = await resolvePath(specifier)
   }
-  return process.platform === 'win32' ? pathToFileURL(absolutePath).href : forwardSlashes(absolutePath)
+  // a plain path on every platform: Nitro's bundler leaves a `file:///D:/...` URL unresolved and the
+  // import external, so a Windows `.output` would point at the build machine's disk
+  return forwardSlashes(absolutePath)
 }
 
 function generateI18nTypes(): string {

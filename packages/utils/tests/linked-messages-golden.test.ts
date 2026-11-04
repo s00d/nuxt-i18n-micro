@@ -82,3 +82,17 @@ test('the source files are not mutated', async () => {
   await chunk('fr', 'about', true)
   expect(JSON.stringify(files)).toBe(before)
 })
+
+test('a case modifier leaves the placeholders of the linked text as they are', async () => {
+  const { resolveLinkedMessages } = await import('../src/linked-messages')
+  const out = resolveLinkedMessages({
+    greet: 'Hello {name}',
+    title: 'Count {Count} of {total}',
+    lead: '{name} is here',
+    shout: '@.upper:greet',
+    low: '@.lower:title',
+    cap: '@.capitalize:lead',
+    capWord: "@.capitalize:{'greet'}",
+  })
+  expect(out).toMatchObject({ shout: 'HELLO {name}', low: 'count {Count} of {total}', cap: '{name} is here', capWord: 'Hello {name}' })
+})

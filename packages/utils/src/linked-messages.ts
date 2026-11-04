@@ -20,10 +20,21 @@ type Modifier = (text: string, tag: string | undefined) => string
 
 const firstOf = (text: string) => (text ? String.fromCodePoint(text.codePointAt(0)!) : '')
 
+/** A placeholder, as `tokenize` in core reads it: `interpolate` fills it later, by its name as written. */
+const PLACEHOLDER = /(\{[^{}\s]+\})/
+
+/** `change` on the text between placeholders: `Hello {name}` → `HELLO {name}`, still filled from `params.name`. */
+const outsidePlaceholders = (text: string, change: (part: string, index: number) => string) =>
+  text
+    .split(PLACEHOLDER)
+    .map((part, index) => (index % 2 ? part : change(part, index)))
+    .join('')
+
 const MODIFIERS = new Map<string, Modifier>([
-  ['upper', (text, tag) => text.toLocaleUpperCase(tag)],
-  ['lower', (text, tag) => text.toLocaleLowerCase(tag)],
-  ['capitalize', (text, tag) => firstOf(text).toLocaleUpperCase(tag) + text.slice(firstOf(text).length)],
+  ['upper', (text, tag) => outsidePlaceholders(text, (part) => part.toLocaleUpperCase(tag))],
+  ['lower', (text, tag) => outsidePlaceholders(text, (part) => part.toLocaleLowerCase(tag))],
+  // the first character only, when it is text: a leading `{name}` is filled as it comes
+  ['capitalize', (text, tag) => outsidePlaceholders(text, (part, index) => (index ? part : firstOf(part).toLocaleUpperCase(tag) + part.slice(firstOf(part).length)))],
 ])
 
 /** A tag `toLocaleUpperCase` takes: an `iso` such as `en_EN` is no BCP 47 tag and would throw. */

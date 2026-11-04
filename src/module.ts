@@ -11,6 +11,7 @@ import { buildFullConfigSource, buildPrivateConfigSource } from './config-templa
 import type {
   Getter,
   GlobalLocaleRoutes,
+  I18nBeforeLocaleSwitchContext,
   Locale,
   LocaleCode,
   ModuleOptions,
@@ -980,6 +981,8 @@ declare module '#i18n-internal/payload-source' {
  */
 export interface ModuleRuntimeHooks {
   'i18n:register': (registerModule: (translations: unknown, locale?: string) => void, locale: string) => HookResult
+  /** Before the page switches to another locale: set `ctx.to` to switch to another one, `ctx.cancel = true` to stay. */
+  'i18n:beforeLocaleSwitch': (ctx: I18nBeforeLocaleSwitchContext) => HookResult
 }
 
 // for apps that load the module from source (playground, fixtures): no generated types.d.mts there
@@ -989,4 +992,14 @@ declare module '#app' {
   interface NuxtApp extends Pick<PluginsInjections, '$setI18nRouteParams'> {}
 }
 
-export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }
+export type {
+  Locale,
+  PluralFunc,
+  ModuleOptions,
+  GlobalLocaleRoutes,
+  Getter,
+  LocaleCode,
+  PluginsInjections,
+  Strategies,
+  I18nBeforeLocaleSwitchContext,
+}

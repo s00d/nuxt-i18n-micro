@@ -1,12 +1,13 @@
 import type { PathStrategy, RouteI18nMeta } from '@i18n-micro/path-strategy'
 import type { ResolvedI18nConfig, Translations } from '@i18n-micro/types'
 import type { ComponentPublicInstance } from 'vue'
-import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoaded, Router } from 'vue-router'
+import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric, Router } from 'vue-router'
 import type { NuxtApp } from 'nuxt/app'
 import { hooks } from '#build/i18n.strategy.mjs'
 import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18nPluginApi } from './i18n-api'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
+import { beforeLocaleSwitch, hasSubscriber } from './hooks'
 
 interface NavigationTarget {
   locale: string
@@ -68,13 +69,8 @@ function createOutgoingWatch(nuxtApp: NuxtApp, i18n: NuxtI18n) {
 
 /** `i18n:register`, for the chunk of one locale and page. Costs a lookup with no subscriber, who may come later. */
 function createRegister(nuxtApp: NuxtApp, { mergeTranslation }: NuxtI18nPluginApi['helper']) {
-  /** `_hooks` is hookable's own, so without it the hook just runs. */
-  const subscribed = () => {
-    const { _hooks: subscribers } = nuxtApp.hooks as unknown as { _hooks?: Record<string, unknown[] | undefined> }
-    return !subscribers || Boolean(subscribers['i18n:register']?.length)
-  }
   return async (locale: string, routeName: string) => {
-    if (!subscribed()) return
+    if (!hasSubscriber(nuxtApp, 'i18n:register')) return
     const merges: Promise<void>[] = []
     const register = (translations: unknown, selectedLocale?: string) => {
       merges.push(mergeTranslation(selectedLocale ?? locale, routeName, translations as Translations))
@@ -102,10 +98,33 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
   // After every plugin, as subscribers are plugins, and before the app renders. Nuxt awaits it.
   if (hooks) nuxtApp.hooks.hookOnce('app:created', () => register(i18n.getLocale(), i18n.getCurrentRouteName()))
 
+  const targetLocale = (to: RouteLocationNormalizedGeneric): string =>
+    (i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null) || api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)
+
+  /** The locale the hook sent a navigation to: that navigation is the same switch, and asks no one again. */
+  let redirectedTo: string | null = null
+  /**
+   * `i18n:beforeLocaleSwitch` for a navigation into another locale, on the client once the app runs (a first load
+   * shows its URL's locale, no switch). Under no_prefix and in hash mode `$switchLocale` asks first: the dictionary
+   * has moved before it navigates, so here the locales are the same and nothing is asked twice.
+   */
+  const switchVerdict = async (to: RouteLocationNormalizedGeneric) => {
+    const from = i18n.getLocale()
+    const locale = targetLocale(to)
+    const redirected = redirectedTo === locale
+    redirectedTo = null
+    if (!import.meta.client || nuxtApp.isHydrating || !from || locale === from || redirected) return undefined
+    const ctx = await beforeLocaleSwitch(nuxtApp, from, locale)
+    if (!ctx) return undefined
+    if (ctx.cancel) return false
+    if (ctx.to === locale || !isValidLocale(ctx.to)) return undefined
+    redirectedTo = ctx.to
+    return api.provide.localeRoute(to as unknown as RouteLocationResolvedGeneric, ctx.to)
+  }
+
   const loadTarget = async (to: RouteLocationNormalizedGeneric): Promise<NavigationTarget | undefined> => {
     try {
-      const hashLocale = i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null
-      const locale = hashLocale || api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)
+      const locale = targetLocale(to)
       const routeName = i18nStrategy.getPluginRouteName(to, locale)
       const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
       return { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null }
@@ -122,6 +141,11 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
     const paths = noPrefix ? (to.matched.at(-1)?.meta.i18n as RouteI18nMeta | undefined)?.paths : undefined
     const customPath = paths?.[api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)]
     if (customPath) return { path: customPath, query: to.query, hash: to.hash }
+
+    if (hooks) {
+      const verdict = await switchVerdict(to)
+      if (verdict !== undefined) return verdict
+    }
 
     // a navigation is newer than any `$switchLocale` still loading
     loader.invalidatePendingSwitches()

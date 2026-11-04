@@ -12,9 +12,10 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import { domains, defineRoute, serverPathFallback } from '#build/i18n.strategy.mjs'
+import { domains, defineRoute, hooks, serverPathFallback } from '#build/i18n.strategy.mjs'
 import type { useI18nLocale } from '../composables/useI18nLocale'
 import type { NuxtI18n, NuxtTranslationLoader } from './nuxt-i18n'
+import { beforeLocaleSwitch, type HookHost } from './hooks'
 import { usePageRoute } from './page-head'
 import { applyTrailingSlash } from './trailing-slash'
 
@@ -71,6 +72,8 @@ export interface NuxtI18nPluginApiDeps {
   navigateTo: (to: string, options?: { redirectCode?: number; external?: boolean }) => unknown
   setMissingHandler: (handler: MissingHandler | null) => void
   isHydrating: () => boolean
+  /** For `i18n:beforeLocaleSwitch`. */
+  nuxtApp?: HookHost
 }
 
 export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
@@ -86,6 +89,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     navigateTo,
     setMissingHandler,
     isHydrating,
+    nuxtApp,
   } = deps
   const { getEffectiveLocale, setLocale, isValidLocale } = localeState
   /** The locale state alone, with no cookie: what the page shows, not yet what the visitor chose. */
@@ -197,15 +201,21 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       void loader.reload()
     },
     switchLocalePath: (toLocale: string) => applyTrailingSlash(switchedPath(switchedLink(toLocale)), i18nConfig.trailingSlash),
-    switchLocale: async (toLocale: string) => {
-      if (!isValidLocale(toLocale)) {
-        if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] Invalid locale '${toLocale}'`)
+    switchLocale: async (requested: string) => {
+      if (!isValidLocale(requested)) {
+        if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] Invalid locale '${requested}'`)
         return false
       }
 
       // no URL to move: the dictionary is the switch. After a failed switch the URL already says
       // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
       const urlless = isNoPrefix || i18nConfig.hashMode
+      // Without a URL the dictionary moves before the navigation, which no guard can undo: ask here, once.
+      // With one, the router guard asks (i18n-navigation), as for a link.
+      const ctx =
+        hooks && urlless && nuxtApp && requested !== i18n.getLocale() ? await beforeLocaleSwitch(nuxtApp, i18n.getLocale(), requested) : null
+      if (ctx?.cancel) return false
+      const toLocale = ctx && isValidLocale(ctx.to) ? ctx.to : requested
       const retry = getCurrentLocale() === toLocale && i18n.getLocale() !== toLocale
       const route = router.currentRoute.value
       const loaded = urlless || retry ? await loader.switchContext(toLocale, i18nStrategy.getPluginRouteName(route, toLocale)) : null

@@ -267,6 +267,7 @@ export default defineNuxtPlugin({
       },
       // a ref: a link rendered without the hash gets it back when hydration ends
       isHydrating: () => !hydrated.value && nuxtApp.isHydrating === true,
+      nuxtApp,
     })
 
     if (import.meta.server) rewriteSwitcherLinks(nuxtApp, api.provide, i18nRouteParams, (path) => router.resolve(path).href)

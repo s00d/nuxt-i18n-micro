@@ -172,6 +172,19 @@ export interface LocaleCookieOptions {
   maxAge?: number
 }
 
+/**
+ * The context of the `i18n:beforeLocaleSwitch` runtime hook. A subscriber may set `to` (another
+ * enabled locale) or `cancel: true`; an invalid `to` is ignored.
+ */
+export interface I18nBeforeLocaleSwitchContext {
+  /** The locale shown now. */
+  from: string
+  /** The locale the switch goes to. */
+  to: string
+  /** `true` stops the switch: the page and the stored preference stay. */
+  cancel: boolean
+}
+
 export interface ModuleOptions {
   /**
    * List of supported locales.

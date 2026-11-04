@@ -70,7 +70,8 @@ for (const [harness, urls] of [
 
       // step 2: a redirect de → ru: the page shows ru and stores it
       await setRule(page, { redirect: { de: 'ru' } })
-      await switchTo(page, 'de')
+      // a switch happened, to the locale the hook chose: true, under every strategy
+      expect(await switchTo(page, 'de')).toBe(true)
       await expect.poll(() => contentLocale(page)).toBe('ru')
       await expect(page).toHaveURL(new RegExp(`${urls.ru}(\\?|$)`))
       await expect.poll(() => cookie(page)).toBe('ru')

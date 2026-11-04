@@ -210,6 +210,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       // no URL to move: the dictionary is the switch. After a failed switch the URL already says
       // `toLocale`, the navigation would be a no-op, and only the dictionary is left to retry.
       const urlless = isNoPrefix || i18nConfig.hashMode
+      const from = i18n.getLocale()
       // Without a URL the dictionary moves before the navigation, which no guard can undo: ask here, once.
       // With one, the router guard asks (i18n-navigation), as for a link. A block of its own: `hooks: false` drops it.
       if (hooks && urlless && nuxtApp && toLocale !== i18n.getLocale()) {
@@ -235,7 +236,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
         if (!urlless) setLocaleState(i18n.getLocale())
         throw error
       }
-      return loaded ?? i18n.getLocale() === toLocale
+      // a switch happened: to `toLocale`, or to the locale `i18n:beforeLocaleSwitch` sent the navigation to
+      return loaded ?? (i18n.getLocale() === toLocale || i18n.getLocale() !== from)
     },
     switchRoute: async (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return switchLocaleLogic(toLocale ?? getCurrentLocale(), i18nRouteParams.value, route)

@@ -77,7 +77,7 @@ It is called once per switch, on the client, after the first load:
 - for a navigation into another locale: `$switchLocale`, `<i18n-switcher>`, a link or `router.push` to a page of another locale (prefix strategies). A cancel aborts the navigation, as a guard returning `false`; another `to` redirects to the same page in that locale, and that navigation is not asked again;
 - under `no_prefix` and in hash mode, by `$switchLocale` before the dictionary loads (there the dictionary moves first, and no guard could undo it).
 
-`$switchLocale` resolves `false` when the switch is cancelled. A switch to a locale on another domain (`locales[].baseUrl`) leaves the app and is not asked. With nobody subscribed the hook costs one lookup per switch, and with [`hooks: false`](/api/module-options#hooks) it is never called.
+`$switchLocale` resolves `false` when the switch is cancelled, and `true` when the page switched, also to a locale the hook chose. A switch to a locale on another domain (`locales[].baseUrl`) leaves the app and is not asked. With nobody subscribed the hook costs one lookup per switch, and with [`hooks: false`](/api/module-options#hooks) it is never called.
 
 ### After a switch
 

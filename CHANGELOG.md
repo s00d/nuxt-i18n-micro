@@ -1,6 +1,75 @@
 # Changelog
 
 
+## v4.1.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.0.1...v4.1.0)
+
+### 🚀 Enhancements
+
+- **cookie:** Locale cookie options ([a4ab7d8d](https://github.com/s00d/nuxt-i18n-micro/commit/a4ab7d8d))
+- **runtime-config:** Runtime metaBaseUrl and locale baseUrl overrides ([83751104](https://github.com/s00d/nuxt-i18n-micro/commit/83751104))
+- **server:** Plurals, formats and has on the server t ([0889d9db](https://github.com/s00d/nuxt-i18n-micro/commit/0889d9db))
+- **translations:** Linked messages at build time ([74abc7eb](https://github.com/s00d/nuxt-i18n-micro/commit/74abc7eb))
+- **translations:** Absolute additionalTranslationDirs from other modules ([cec8ce0b](https://github.com/s00d/nuxt-i18n-micro/commit/cec8ce0b))
+- **navigation:** I18n:beforeLocaleSwitch hook ([db0480d9](https://github.com/s00d/nuxt-i18n-micro/commit/db0480d9))
+- RedirectStatusCode, $defineI18nRoute(false), list params ([60419d8f](https://github.com/s00d/nuxt-i18n-micro/commit/60419d8f))
+- **scripts:** API reference from JSDoc, fields instead of tables ([a4f60186](https://github.com/s00d/nuxt-i18n-micro/commit/a4f60186))
+
+### 🔥 Performance
+
+- Keep runtime domains and the switch hook out of bundles that cannot use them ([b4aa07ea](https://github.com/s00d/nuxt-i18n-micro/commit/b4aa07ea))
+
+### 🩹 Fixes
+
+- **translations:** Case modifiers leave placeholders as written ([d6b8fd09](https://github.com/s00d/nuxt-i18n-micro/commit/d6b8fd09))
+- **types:** Keep Params the named record; t takes ListParams too ([8679cc43](https://github.com/s00d/nuxt-i18n-micro/commit/8679cc43))
+- **routes:** One way to keep a page out: $defineI18nRoute(false) ([f54d712a](https://github.com/s00d/nuxt-i18n-micro/commit/f54d712a))
+- **redirect:** RedirectStatusCode takes 301/302/303/307/308, also for the hash move ([caa5cf99](https://github.com/s00d/nuxt-i18n-micro/commit/caa5cf99))
+- **types-generator:** Read the translation dirs when the types are written ([6c0e478a](https://github.com/s00d/nuxt-i18n-micro/commit/6c0e478a))
+- **navigation:** $switchLocale resolves true after a redirected switch ([795d3743](https://github.com/s00d/nuxt-i18n-micro/commit/795d3743))
+
+### 💅 Refactors
+
+- **cookie:** Plain domain and secure in the cookie options ([3f49e38b](https://github.com/s00d/nuxt-i18n-micro/commit/3f49e38b))
+- **runtime-config:** No metaBaseUrlFromLocale; set the SEO origin with its own env ([ee8ed272](https://github.com/s00d/nuxt-i18n-micro/commit/ee8ed272))
+- **translations:** Linked messages internal, one warning dedupe, source mode unit-tested ([d7611fd2](https://github.com/s00d/nuxt-i18n-micro/commit/d7611fd2))
+- **module:** Fingerprint the translations once, at modules:done ([6250c74f](https://github.com/s00d/nuxt-i18n-micro/commit/6250c74f))
+- **server:** The server t makes its BaseI18n on the first helper call ([e202384a](https://github.com/s00d/nuxt-i18n-micro/commit/e202384a))
+- **navigation:** Typed hook host, nuxtApp required, one targetLocale per navigation ([18964ed0](https://github.com/s00d/nuxt-i18n-micro/commit/18964ed0))
+- **types:** One TranslateParams in @i18n-micro/types ([bb2db59c](https://github.com/s00d/nuxt-i18n-micro/commit/bb2db59c))
+- **utils:** No spread in normalizeConfiguredLocales ([86288ec0](https://github.com/s00d/nuxt-i18n-micro/commit/86288ec0))
+
+### 📖 Documentation
+
+- Code bundle sizes on the landing benchmark card ([103911b4](https://github.com/s00d/nuxt-i18n-micro/commit/103911b4))
+- Readable API reference pages ([87282c77](https://github.com/s00d/nuxt-i18n-micro/commit/87282c77))
+- **news:** V4.1.0 release notes and banner ([49e60e75](https://github.com/s00d/nuxt-i18n-micro/commit/49e60e75))
+
+### 🏡 Chore
+
+- Bump changed packages and their dependents, regenerate API docs ([d2f849e6](https://github.com/s00d/nuxt-i18n-micro/commit/d2f849e6))
+- Regenerate API surface and docs after the review fixes ([74b2b3f0](https://github.com/s00d/nuxt-i18n-micro/commit/74b2b3f0))
+- @i18n-micro/* packages at 2.1.0 ([cec22ad3](https://github.com/s00d/nuxt-i18n-micro/commit/cec22ad3))
+- Ignore the local Claude preview config ([a0ac081d](https://github.com/s00d/nuxt-i18n-micro/commit/a0ac081d))
+
+### ✅ Tests
+
+- **utils:** Characterization of the locale cookie options ([e8e26be7](https://github.com/s00d/nuxt-i18n-micro/commit/e8e26be7))
+- **utils:** Characterization of the runtime overrides ([8093a29e](https://github.com/s00d/nuxt-i18n-micro/commit/8093a29e))
+- **server:** Characterization of the server t ([1527b99a](https://github.com/s00d/nuxt-i18n-micro/commit/1527b99a))
+- **utils:** Characterization of merged chunks with links ([3a0e3f18](https://github.com/s00d/nuxt-i18n-micro/commit/3a0e3f18))
+- **build:** Characterization of the additionalTranslationDirs readers ([7dd7183a](https://github.com/s00d/nuxt-i18n-micro/commit/7dd7183a))
+- **utils:** Linked messages golden with the final warning text ([48d5ccdc](https://github.com/s00d/nuxt-i18n-micro/commit/48d5ccdc))
+- **navigation:** Characterization of a locale watch on a switch ([2789eee6](https://github.com/s00d/nuxt-i18n-micro/commit/2789eee6))
+- Platform paths in the additional dirs tests ([2fe8bced](https://github.com/s00d/nuxt-i18n-micro/commit/2fe8bced))
+- **cli:** Read common flags from the field list of cli.md ([cb892090](https://github.com/s00d/nuxt-i18n-micro/commit/cb892090))
+- **astro:** Unmount the React island root inside act ([145ae0e9](https://github.com/s00d/nuxt-i18n-micro/commit/145ae0e9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.0.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.0.0...v4.0.1)

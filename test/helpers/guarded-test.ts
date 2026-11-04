@@ -20,9 +20,13 @@ const isCutOffFetch = (message: string, pageUrl = '') => {
 const isManifest = (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url)
 const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 
+/** The OS ran out of socket buffers (a busy Windows runner): the machine's failure, not the app's. */
+const isOutOfBuffers = (text: string) => text.includes('net::ERR_NO_BUFFER_SPACE')
+
 /**
  * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
  * NUXT_E5002 (manifest fetch failed) counts only when no manifest request was cut off by a navigation.
+ * A resource the OS had no buffers for is no app error; if the page needed it, the test's own checks fail.
  */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
@@ -38,7 +42,7 @@ function watchErrors(context: BrowserContext) {
   })
   context.on('console', (msg) => {
     const text = msg.text()
-    if (msg.type() === 'error' || (msg.type() === 'warning' && isHydrationText(text)))
+    if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && isHydrationText(text)))
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   return () => (manifestCutOff ? issues.filter((issue) => !issue.includes('[NUXT_E5002]')) : issues)

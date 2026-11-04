@@ -34,9 +34,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 53 members |
-| `ModuleOptionsExtend` | interface | 61 members |
-| `ModulePrivateOptionsExtend` | interface | 57 members |
+| `ModuleOptions` | interface | 54 members |
+| `ModuleOptionsExtend` | interface | 63 members |
+| `ModulePrivateOptionsExtend` | interface | 58 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -123,7 +123,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptions</code> — 53 members</summary>
+<summary><code>ModuleOptions</code> — 54 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -167,6 +167,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `prefixCaseRedirect?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
@@ -184,7 +185,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModuleOptionsExtend</code> — 61 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 63 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -219,6 +220,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `httpCacheControl?` | `string \| false \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `isSSG?` | `boolean \| undefined` |
+| `linkDefaultLocale?` | `string \| undefined` |
 | `linkLocales?` | `Locale[] \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -233,6 +235,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `prefixCaseRedirect?` | `boolean \| undefined` |
 | `publicPayloads?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `rootDelta?` | `boolean \| undefined` |
@@ -253,7 +256,7 @@ import { /* … */ } from '@i18n-micro/types'
 </details>
 
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 57 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 58 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -300,6 +303,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `payloadPublicRel` | `string` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `prefixCaseRedirect?` | `boolean \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `rootDirs` | `string[]` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |

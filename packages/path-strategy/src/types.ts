@@ -51,6 +51,8 @@ export interface PathStrategyContext {
   disablePageLocales?: boolean
   /** Pattern of locale-like first segments (`customRegexMatcher`): one that is no known locale is a 404. */
   customRegexMatcher?: string
+  /** A locale prefix in another case or encoding redirects to its own spelling (default); `false`: a 404. */
+  prefixCaseRedirect?: boolean
   /** Host this strategy answers for (`DomainPathStrategy`); unset on a host no locale lives on. */
   domain?: string
   /** With `domain`: every locale. Those missing from `locales` live on another domain. */

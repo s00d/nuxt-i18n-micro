@@ -157,6 +157,7 @@ function buildFullConfig(params: {
     excludePatterns: options.excludePatterns ?? [],
     missingWarn: options.missingWarn!,
     redirects: options.redirects !== false,
+    prefixCaseRedirect: options.prefixCaseRedirect !== false,
     localizedRouteNamePrefix: options.localizedRouteNamePrefix,
     routesLocaleLinks: options.routesLocaleLinks ?? {},
     debug: options.debug,
@@ -252,7 +253,9 @@ export function createI18nStrategy(router, config = __fullConfig) {
     router,
     hashMode: config.hashMode,
     disablePageLocales: config.disablePageLocales,
-    customRegexMatcher: config.customRegexMatcher,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
+    customRegexMatcher: config.customRegexMatcher,
+    // a prefix in another case is a 404 when nothing may redirect it
+    prefixCaseRedirect: config.redirects !== false && config.prefixCaseRedirect !== false,${domains ? '\n    domain: config.domain,\n    linkLocales: config.linkLocales,' : ''}
   })
 }
 `
@@ -285,6 +288,7 @@ export default defineNuxtModule<ModuleOptions>({
     debug: false,
     define: true,
     redirects: true,
+    prefixCaseRedirect: true,
     plugin: true,
     hooks: true,
     components: true,

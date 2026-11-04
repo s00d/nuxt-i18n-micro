@@ -908,37 +908,58 @@ describe('a hash in a string path', () => {
 
 describe('a case variant of the prefix', () => {
   describe.each(['prefix', 'prefix_except_default', 'prefix_and_default'] as const)('%s', (strategy) => {
-    test('is a 404, and its record reads in its own locale', () => {
+    test('moves to the page in its own spelling, and its record reads in its own locale', () => {
       const pages = PAGES.filter((page) => page.name !== 'slug')
       const { i18n, at } = setup(strategy, {}, LOCALES, { pages })
-      expect(i18n.shouldReturn404('/FR/about')).toBe('Unknown locale')
-      expect(i18n.getClientRedirect('/FR/about', 'en')).toBeNull()
+      expect(i18n.shouldReturn404('/FR/about')).toBeNull()
+      expect(i18n.getClientRedirect('/FR/about', 'en')).toBe('/fr/about')
+      expect(i18n.getClientRedirect('/Fr', 'en')).toBe('/fr')
+      expect(i18n.getClientRedirect('/DE/ueber-uns', 'en')).toBe('/de/ueber-uns')
       expect(i18n.getCurrentLocale(at('/FR/about'))).toBe('fr')
       expect(i18n.shouldReturn404('/fr/about')).toBeNull()
+      expect(i18n.getClientRedirect('/fr/about', 'en')).toBeNull()
+    })
+
+    test('with no page behind it, stays a 404', () => {
+      const pages = PAGES.filter((page) => page.name !== 'slug')
+      const { i18n } = setup(strategy, {}, LOCALES, { pages })
+      expect(i18n.shouldReturn404('/FR/nope')).toBe('Unknown locale')
+      expect(i18n.getClientRedirect('/FR/nope', 'en')).toBeNull()
     })
   })
 
-  test('a percent-encoded prefix with no page behind it is one too', () => {
+  test('the default locale under prefix_except_default moves to its unprefixed URL', () => {
+    const pages = PAGES.filter((page) => page.name !== 'slug')
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages })
+    expect(i18n.shouldReturn404('/EN/about-us')).toBeNull()
+    expect(i18n.getClientRedirect('/EN/about-us', 'en')).toBe('/about-us')
+    expect(i18n.getClientRedirect('/EN', 'en')).toBe('/')
+  })
+
+  test('a percent-encoded prefix is a spelling too', () => {
     const pages = PAGES.filter((page) => page.name !== 'slug')
     const { i18n } = setup('prefix', {}, LOCALES, { pages })
+    expect(i18n.getClientRedirect('/%64e/ueber-uns', 'en')).toBe('/de/ueber-uns')
     expect(i18n.shouldReturn404('/%64e/nope')).toBe('Unknown locale')
     expect(i18n.getClientRedirect('/%64e/nope', 'en')).toBeNull()
   })
 
-  test('a catch-all does not save it, a page of that name does', () => {
-    expect(setup('prefix').i18n.shouldReturn404('/FR/about')).toBe('Unknown locale')
+  test('a catch-all serves the respelled URL, a page of that very name stays', () => {
+    expect(setup('prefix').i18n.getClientRedirect('/FR/about', 'en')).toBe('/fr/about')
     const pages = [...PAGES, { path: '/FR/about', name: 'upper', file: 'pages/FR/about.vue' }]
-    expect(setup('prefix_except_default', {}, LOCALES, { pages }).i18n.shouldReturn404('/FR/about')).toBeNull()
+    const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages })
+    expect(i18n.shouldReturn404('/FR/about')).toBeNull()
+    expect(i18n.getClientRedirect('/FR/about', 'en')).toBeNull()
   })
 
-  test('a [slug] page does not save a bare prefix: the router shows the locale home there', () => {
+  test('a bare prefix beside a [slug] page goes to the locale home, which the router shows there', () => {
     const pages = [
       { path: '/', name: 'index', file: 'pages/index.vue' },
       { path: '/:slug()', name: 'slug', file: 'pages/[slug].vue' },
     ]
     const { i18n } = setup('prefix_except_default', {}, LOCALES, { pages })
-    expect(i18n.shouldReturn404('/DE')).toBe('Unknown locale')
-    expect(i18n.getClientRedirect('/DE', 'en')).toBeNull()
+    expect(i18n.shouldReturn404('/DE')).toBeNull()
+    expect(i18n.getClientRedirect('/DE', 'en')).toBe('/de')
     expect(i18n.shouldReturn404('/de')).toBeNull()
     expect(i18n.shouldReturn404('/other')).toBeNull()
   })
@@ -947,6 +968,19 @@ describe('a case variant of the prefix', () => {
     const { i18n } = setup('prefix_except_default')
     expect(i18n.shouldReturn404('/About')).toBeNull()
     expect(i18n.getClientRedirect('/About', 'de')).toBe('/de/ueber-uns')
+  })
+
+  test('prefixCaseRedirect: false keeps it a 404', () => {
+    const pages = PAGES.filter((page) => page.name !== 'slug')
+    const { i18n } = setup('prefix_except_default', { prefixCaseRedirect: false }, LOCALES, { pages })
+    expect(i18n.shouldReturn404('/FR/about')).toBe('Unknown locale')
+    expect(i18n.getClientRedirect('/FR/about', 'en')).toBeNull()
+    expect(i18n.shouldReturn404('/EN/about-us')).toBe('Unknown locale')
+  })
+
+  test('no_prefix has no prefix to respell', () => {
+    const { i18n } = setup('no_prefix')
+    expect(i18n.getClientRedirect('/DE/about', 'en')).toBeNull()
   })
 })
 

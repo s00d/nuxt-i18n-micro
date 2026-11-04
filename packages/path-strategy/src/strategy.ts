@@ -199,7 +199,8 @@ export class I18nPathStrategy {
     // strict / sensitive change what router.resolve answers, and the caches keep those answers
     const options = (this.ctx.router as { options?: { strict?: boolean; sensitive?: boolean } }).options
     const matching = `${options?.strict ? 1 : 0}${options?.sensitive ? 1 : 0}`
-    const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}\0${matching}`
+    const caseRedirect = this.ctx.prefixCaseRedirect === false ? 0 : 1
+    const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}\0${matching}\0${caseRedirect}`
     // vue-router keeps the route array it was created with: every SSR request's router has the
     // same one, so it keys the table without walking the records (a router without it: a signature)
     // (the record count guards a router that later called addRoute on the same array). A fresh
@@ -550,6 +551,8 @@ export class I18nPathStrategy {
     const code = this.foldedCodes.get((segment.includes('%') ? safeDecode(segment) : segment).toLowerCase())
     const variant = code !== undefined && code !== segment && this.ctx.strategy !== 'no_prefix'
     if (!custom && !variant) return false
+    // a prefix in another spelling in front of a page moves to the page (`getClientRedirect`)
+    if (variant && this.respelled(path, segment)) return false
     // a `/:locale` record in another spelling shows the locale's page, whatever else that URL could be (`/DE` beside `[slug]`)
     return !this.isOwnPage(path) || (variant && this.probe(path)?.params?.locale === segment)
   }
@@ -595,11 +598,32 @@ export class I18nPathStrategy {
     const path = splitUrl(currentPath).path || '/'
     // a runtime-disabled or unknown prefix is a 404 (`shouldReturn404`), not an unprefixed URL
     const segment = path.split('/')[1] ?? ''
+    // `/DE/about`, `/%64e/about`: the page in its own spelling first, then wherever that URL goes
+    const respelled = this.respelled(path, segment)
+    if (respelled) return this.getClientRedirect(respelled, preferredLocale, options) ?? sameOrigin(respelled)
     if (this.isDisabledPrefix(path, segment) || this.isUnknownLocale(path, segment)) return null
     const locale = this.getLocaleFromPath(path)
     if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
     if (this.ctx.strategy === 'prefix_and_default') return null
     return this.moved(path, preferredLocale)
+  }
+
+  /**
+   * `path` with its first segment, a served locale's code in another case or encoding, spelled as the
+   * code, when that URL is a page (catch-alls included); null otherwise. The router matches the prefix
+   * case-insensitively, so this is the page the visitor asked for. A record of the app spelled with
+   * that very segment (`pages/FR/about.vue`) is its own page and stays.
+   */
+  private respelled(path: string, segment: string): string | null {
+    if (this.ctx.strategy === 'no_prefix' || this.ctx.prefixCaseRedirect === false || !segment || this.codes.has(segment)) return null
+    const code = this.foldedCodes.get((segment.includes('%') ? safeDecode(segment) : segment).toLowerCase())
+    if (!code || !this.codes.has(code)) return null
+    const record = this.probe(path)?.matched?.at(-1)?.path
+    if (record === `/${segment}` || record?.startsWith(`/${segment}/`)) return null
+    const rest = path.slice(segment.length + 1) || '/'
+    const target = !this.hasPrefix(code) ? rest : rest === '/' ? `/${code}` : `/${code}${rest}`
+    const page = this.findPage(target)
+    return page && page !== UNLOCALIZED && !this.shouldReturn404(target) ? target : null
   }
 
   /** The URL of the page `path` shows, in `locale`; null to stay (same URL, unlocalized, not served in `locale`). */

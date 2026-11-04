@@ -9,7 +9,7 @@ member DomainPathStrategy.createIndex: protected (records: ReturnType<RouterAdap
 member DomainPathStrategy.ctx: protected PathStrategyContext
 member DomainPathStrategy.disabledCodes: private Set<string>
 member DomainPathStrategy.external: protected (locale: string, route: Target) => string | null
-member DomainPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member DomainPathStrategy.findPage: private (path: string, anyHost?: boolean) => Page | typeof UNLOCALIZED | null
 member DomainPathStrategy.foldedCodes: private Map<string, string>
 member DomainPathStrategy.foreign: private Set<string>
 member DomainPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
@@ -34,10 +34,11 @@ member DomainPathStrategy.keepsAlias: private (page: Page, path: string, locale:
 member DomainPathStrategy.linkCodes: private Set<string>
 member DomainPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member DomainPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
-member DomainPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member DomainPathStrategy.matchPage: private (path: string, anyHost: boolean) => Page | typeof UNLOCALIZED | null
 member DomainPathStrategy.moved: private (path: string, locale: string) => string | null
 member DomainPathStrategy.notFoundReason: protected (path: string) => string | null
 member DomainPathStrategy.originOf: private (url: string) => string | undefined
+member DomainPathStrategy.otherCodes: protected ReadonlySet<string>
 member DomainPathStrategy.pageBase: private (route: RouteLike) => string | null
 member DomainPathStrategy.pageLocales: (route: RouteLike) => string[] | null
 member DomainPathStrategy.pathOnHost: private (locale: string, config: Locale, route: Target) => string
@@ -46,6 +47,7 @@ member DomainPathStrategy.prefixed: private (locale: string, path: string) => st
 member DomainPathStrategy.probe: (to: RouteLike | string) => ResolvedRouteLike | null
 member DomainPathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
 member DomainPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member DomainPathStrategy.respelled: private (path: string, segment: string) => string | null
 member DomainPathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
 member DomainPathStrategy.servedLocale: protected (route: ResolvedRouteLike, preferred: string) => string
 member DomainPathStrategy.setRouter: (router: RouterAdapter) => void
@@ -64,7 +66,7 @@ member I18nPathStrategy.createIndex: protected (records: ReturnType<RouterAdapte
 member I18nPathStrategy.ctx: protected PathStrategyContext
 member I18nPathStrategy.disabledCodes: private Set<string>
 member I18nPathStrategy.external: protected (_locale: string, _route: Target) => string | null
-member I18nPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member I18nPathStrategy.findPage: private (path: string, anyHost?: boolean) => Page | typeof UNLOCALIZED | null
 member I18nPathStrategy.foldedCodes: private Map<string, string>
 member I18nPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string, options?: ClientRedirectOptions) => string | null
 member I18nPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
@@ -88,9 +90,10 @@ member I18nPathStrategy.keepsAlias: private (page: Page, path: string, locale: s
 member I18nPathStrategy.linkCodes: private Set<string>
 member I18nPathStrategy.localeRoute: (locale: string, routeOrPath: RouteLike | string) => RouteLike
 member I18nPathStrategy.localized: private (locale: string, routeOrPath: RouteLike | string) => RouteLike
-member I18nPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member I18nPathStrategy.matchPage: private (path: string, anyHost: boolean) => Page | typeof UNLOCALIZED | null
 member I18nPathStrategy.moved: private (path: string, locale: string) => string | null
 member I18nPathStrategy.notFoundReason: protected (path: string) => string | null
+member I18nPathStrategy.otherCodes: protected ReadonlySet<string>
 member I18nPathStrategy.pageBase: private (route: RouteLike) => string | null
 member I18nPathStrategy.pageLocales: (route: RouteLike) => string[] | null
 member I18nPathStrategy.prefix: private string
@@ -98,6 +101,7 @@ member I18nPathStrategy.prefixed: private (locale: string, path: string) => stri
 member I18nPathStrategy.probe: (to: RouteLike | string) => ResolvedRouteLike | null
 member I18nPathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
 member I18nPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member I18nPathStrategy.respelled: private (path: string, segment: string) => string | null
 member I18nPathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
 member I18nPathStrategy.servedLocale: protected (route: ResolvedRouteLike, preferred: string) => string
 member I18nPathStrategy.setRouter: (router: RouterAdapter) => void
@@ -119,6 +123,7 @@ member PathStrategyContext.hashMode?: boolean | undefined
 member PathStrategyContext.linkLocales?: Locale[] | undefined
 member PathStrategyContext.locales: Locale[]
 member PathStrategyContext.localizedRouteNamePrefix?: string | undefined
+member PathStrategyContext.prefixCaseRedirect?: boolean | undefined
 member PathStrategyContext.router: RouterAdapter
 member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike
@@ -170,6 +175,7 @@ member PathStrategyContext.hashMode?: boolean | undefined
 member PathStrategyContext.linkLocales?: Locale[] | undefined
 member PathStrategyContext.locales: Locale[]
 member PathStrategyContext.localizedRouteNamePrefix?: string | undefined
+member PathStrategyContext.prefixCaseRedirect?: boolean | undefined
 member PathStrategyContext.router: RouterAdapter
 member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike

@@ -55,6 +55,14 @@ export default defineAppConfig({
       ul: { base: 'my-4' },
       ol: { base: 'my-4' },
       li: { base: 'my-1' },
+      // API fields: a long type wraps under the name instead of pushing `required` off a phone screen.
+      field: {
+        slots: {
+          container: 'flex flex-wrap items-start gap-x-3 gap-y-1',
+          wrapper: 'flex-1 min-w-0 flex flex-wrap items-start gap-1.5',
+          type: 'min-w-0 wrap-anywhere',
+        },
+      },
       h2: { slots: { base: 'mt-12 mb-4' } },
       h3: { slots: { base: 'mt-8 mb-2' } },
       h4: { slots: { base: 'mt-6 mb-2' } },

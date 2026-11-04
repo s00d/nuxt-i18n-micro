@@ -14,21 +14,88 @@ navigation:
 
 <!-- generated:component:i18n-t — do not edit; run `pnpm run docs:generate` -->
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `keypath` **\*** | `string` | — | Translation key to render. |
-| `plural` | `number \| string \| null` | — | Count selecting the plural form. Set it to use `$tc` instead of `$t`. `null` means unset. |
-| `tag` | `string` | `'span'` | Element to render. |
-| `params` | `Record<string, string \| number \| boolean>` | — | Interpolation values substituted into the translation. |
-| `defaultValue` | `string` | `''` | Rendered instead of the component when `hideIfEmpty` suppresses an empty translation. |
-| `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for translations you control: `params` are escaped, the translation is not. |
-| `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
-| `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. Its answer is used as is; `null` renders empty. |
-| `number` | `number \| string \| null` | — | Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`. |
-| `date` | `Date \| string \| number \| null` | — | Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`. |
-| `relativeDate` | `Date \| string \| number \| null` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`. |
-
-**\*** required.
+::collapsible{name="11 props"}
+:::field-group
+::::field
+---
+name: "keypath"
+type: "string"
+required: true
+---
+Translation key to render.
+::::
+::::field
+---
+name: "plural"
+type: "number | string | null"
+---
+Count selecting the plural form. Set it to use `$tc` instead of `$t`. `null` means unset.
+::::
+::::field
+---
+name: "tag"
+type: "string"
+---
+**Default** `'span'` · Element to render.
+::::
+::::field
+---
+name: "params"
+type: "Record<string, string | number | boolean>"
+---
+Interpolation values substituted into the translation.
+::::
+::::field
+---
+name: "defaultValue"
+type: "string"
+---
+**Default** `''` · Rendered instead of the component when `hideIfEmpty` suppresses an empty translation.
+::::
+::::field
+---
+name: "html"
+type: "boolean"
+---
+**Default** `false` · Render the translation as HTML rather than text. Only for translations you control: `params` are escaped, the translation is not.
+::::
+::::field
+---
+name: "hideIfEmpty"
+type: "boolean"
+---
+**Default** `false` · Render nothing when the translation resolves to an empty string.
+::::
+::::field
+---
+name: "customPluralRule"
+type: "PluralFunc"
+---
+**Default** `null` · Plural rule for this element only, overriding the configured one. Its answer is used as is; `null` renders empty.
+::::
+::::field
+---
+name: "number"
+type: "number | string | null"
+---
+Formats the value with `$tn` and passes it to the translation as `{number}`, alongside `params`.
+::::
+::::field
+---
+name: "date"
+type: "Date | string | number | null"
+---
+Formats the value with `$td` and passes it to the translation as `{date}`, alongside `params`.
+::::
+::::field
+---
+name: "relativeDate"
+type: "Date | string | number | null"
+---
+Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`, alongside `params`.
+::::
+:::
+::
 
 <!-- /generated:component:i18n-t -->
 

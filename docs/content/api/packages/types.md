@@ -3,407 +3,1502 @@ title: '@i18n-micro/types'
 description: 'Exported API of @i18n-micro/types, generated from the source.'
 navigation:
   title: 'types'
-outline: 'deep'
 ---
 
 # `@i18n-micro/types`
 
-31 exports across 1 entry point.
-Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)
-checks against the TypeScript sources.
-
-## `@i18n-micro/types`
+TypeScript definitions for the Nuxt I18n Micro ecosystem.
 
 ```ts
-import { /* … */ } from '@i18n-micro/types'
+import { … } from '@i18n-micro/types'
 ```
 
-| Export | Kind | Signature |
-| --- | --- | --- |
-| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
-| `DefineI18nRouteConfig` | interface | 3 members |
-| `DefineLocaleMessage` | interface | 1 members |
-| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `GlobalLocaleRoutes` | type | `Record<string, Record<LocaleCode, string> \| false \| boolean> \| null \| undefined` |
-| `I18nBeforeLocaleSwitchContext` | interface | 3 members |
-| `I18nHeadDisableGroup` | type | `'hreflang' \| 'x-default' \| 'canonical' \| 'og' \| 'og-alternates' \| 'html'` |
-| `I18nHeadInput` | interface | 5 members |
-| `I18nHeadLink` | interface | 4 members |
-| `I18nHeadMeta` | interface | 1 members |
-| `I18nRouteParams` | type | `Record<LocaleCode, Record<string, string>> \| null` |
-| `init` | const | `() => void` |
-| `ListParams` | type | `readonly (string \| number \| boolean)[]` |
-| `Locale` | interface | 11 members |
-| `LocaleCode` | type | `string` |
-| `LocaleCookieOptions` | interface | 5 members |
-| `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 57 members |
-| `ModuleOptionsExtend` | interface | 66 members |
-| `ModulePrivateOptionsExtend` | interface | 61 members |
-| `Params` | type | `Record<string, string \| number \| boolean>` |
-| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PluralTranslations` | interface | 2 members |
-| `ResolvedI18nConfig` | type | `Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>` |
-| `RouteI18nMeta` | interface | 5 members |
-| `ScopedKey` | type | ``<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>`` |
-| `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
-| `Translation` | type | `CleanTranslation \| unknown` |
-| `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
-| `TranslationPayloadOptions` | interface | 9 members |
-| `Translations` | interface | 1 members |
+## Functions
 
-<details>
-<summary><code>DefineI18nRouteConfig</code> — 3 members</summary>
+### `init`
 
-| Member | Type |
-| --- | --- |
-| `disableMeta?` | `boolean \| string[] \| undefined` |
-| `localeRoutes?` | `Record<string, string> \| undefined` |
-| `locales?` | `string[] \| Record<string, Translations> \| undefined` |
+```ts
+function init(): void
+```
 
-</details>
+## Types
 
-<details>
-<summary><code>DefineLocaleMessage</code> — 1 members</summary>
+### `CleanTranslation`
 
-| Member | Type |
-| --- | --- |
-| `__augmentation?` | `undefined` |
+A translation value without the `unknown` escape hatch.
 
-</details>
+```ts
+type CleanTranslation =
+  | string
+  | number
+  | boolean
+  | Translations
+  | PluralTranslations
+  | null
+```
 
-<details>
-<summary><code>I18nBeforeLocaleSwitchContext</code> — 3 members</summary>
+**See** [`Translations`](#translations) · [`PluralTranslations`](#pluraltranslations)
 
-| Member | Type |
-| --- | --- |
-| `cancel` | `boolean` |
-| `from` | `string` |
-| `to` | `string` |
+### `DefineI18nRouteConfig`
 
-</details>
+Per-page i18n configuration declared via `$defineI18nRoute()` in page components.
 
-<details>
-<summary><code>I18nHeadInput</code> — 5 members</summary>
+```ts
+interface DefineI18nRouteConfig
+```
 
-| Member | Type |
-| --- | --- |
-| `disable?` | `I18nHeadDisableGroup[] \| undefined` |
-| `htmlAttrs?` | `Record<string, string> \| undefined` |
-| `link?` | `I18nHeadLink[] \| undefined` |
-| `meta?` | `I18nHeadMeta[] \| undefined` |
-| `replace?` | `{ canonical?: string \| false; hreflang?: I18nHeadLink[] \| false; xDefault?: I18nHeadLink \| false; ogLocale?: string \| false; ogUrl?: string \| false; ogAlternates?: string[] \| false; } \| undefined` |
+::field-group
+:::field
+---
+name: "locales"
+type: "string[] | Record<LocaleCode, Translations>"
+---
+Restrict which locales this page is available in.
 
-</details>
+- `string[]` — list of allowed locale codes.
+- `Record<LocaleCode, Translations>` — allowed locales with inline translation overrides.
+:::
+:::field
+---
+name: "localeRoutes"
+type: "Record<LocaleCode, string>"
+---
+Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`).
+:::
+:::field
+---
+name: "disableMeta"
+type: "boolean | string[]"
+---
+Disable SEO meta tag generation for this page.
 
-<details>
-<summary><code>I18nHeadLink</code> — 4 members</summary>
+- `true` — disable all meta tags.
+- `string[]` — disable only for the listed locale codes.
+:::
+::
 
-| Member | Type |
-| --- | --- |
-| `[string]` | `string \| undefined` |
-| `href` | `string` |
-| `hreflang?` | `string \| undefined` |
-| `rel` | `string` |
+### `DefineLocaleMessage`
 
-</details>
+Key registry for typed translation keys.
+Users (via `@i18n-micro/types-generator`) extend this interface through
+TypeScript module augmentation to get autocompletion for `$t()` calls.
 
-<details>
-<summary><code>I18nHeadMeta</code> — 1 members</summary>
+```ts
+interface DefineLocaleMessage
+```
 
-| Member | Type |
-| --- | --- |
-| `[string]` | `string \| undefined` |
+::field-group
+:::field
+---
+name: "readonly __augmentation"
+type: "never"
+---
 
-</details>
+:::
+::
 
-<details>
-<summary><code>Locale</code> — 11 members</summary>
+### `Getter`
 
-| Member | Type |
-| --- | --- |
-| `[string]` | `unknown` |
-| `baseDefault?` | `boolean \| undefined` |
-| `baseUrl?` | `string \| undefined` |
-| `code` | `string` |
-| `dir?` | `"ltr" \| "rtl" \| "auto" \| undefined` |
-| `disabled?` | `boolean \| undefined` |
-| `displayName?` | `string \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `iso?` | `string \| undefined` |
-| `og?` | `string \| undefined` |
-| `seo?` | `boolean \| undefined` |
+Getter function signature used by pluralization to resolve nested keys.
 
-</details>
+```ts
+type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+```
 
-<details>
-<summary><code>LocaleCookieOptions</code> — 5 members</summary>
+**See** [`TranslationKey`](#translationkey)
 
-| Member | Type |
-| --- | --- |
-| `domain?` | `string \| undefined` |
-| `maxAge?` | `number \| undefined` |
-| `path?` | `string \| undefined` |
-| `sameSite?` | `"lax" \| "strict" \| "none" \| undefined` |
-| `secure?` | `boolean \| undefined` |
+### `GlobalLocaleRoutes`
 
-</details>
+Global per-route locale configuration.
 
-<details>
-<summary><code>ModuleOptions</code> — 57 members</summary>
+- `Record<string, string>` — custom paths per locale for the route.
+- `false` — exclude the route from localization entirely.
+- `true` — include with default behavior.
 
-| Member | Type |
-| --- | --- |
-| `additionalTranslationDirs?` | `string[] \| undefined` |
-| `apiBaseClientHost?` | `string \| undefined` |
-| `apiBaseServerHost?` | `string \| undefined` |
-| `apiBaseUrl?` | `string \| undefined` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `autoDetectPath?` | `string \| undefined` |
-| `cacheMaxSize?` | `number \| undefined` |
-| `cacheStorage?` | `string \| undefined` |
-| `cacheTtl?` | `number \| undefined` |
-| `canonicalQueryWhitelist?` | `string[] \| undefined` |
-| `components?` | `boolean \| undefined` |
-| `customRegexMatcher?` | `string \| RegExp \| undefined` |
-| `dateBuild?` | `string \| number \| undefined` |
-| `datetimeFormats?` | `Record<string, Record<string, Intl.DateTimeFormatOptions>> \| undefined` |
-| `debug?` | `boolean \| undefined` |
-| `defaultLocale?` | `string \| undefined` |
-| `define?` | `boolean \| undefined` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `disableWatcher?` | `boolean \| undefined` |
-| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
-| `experimental?` | `Record<string, unknown> \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
-| `hmr?` | `boolean \| undefined` |
-| `hooks?` | `boolean \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-| `httpCacheControl?` | `string \| false \| undefined` |
-| `httpCacheDuration?` | `number \| undefined` |
-| `linkedMessages?` | `boolean \| undefined` |
-| `localeCookie?` | `string \| null \| undefined` |
-| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
-| `locales?` | `Locale[] \| undefined` |
-| `localizedRouteNamePrefix?` | `string \| undefined` |
-| `meta?` | `boolean \| undefined` |
-| `metaBaseUrl?` | `string \| undefined` |
-| `metaTrustForwardedHost?` | `boolean \| undefined` |
-| `metaTrustForwardedProto?` | `boolean \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `noPrefixRedirect?` | `boolean \| undefined` |
-| `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
-| `plugin?` | `boolean \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `prefixCaseRedirect?` | `boolean \| undefined` |
-| `redirects?` | `boolean \| undefined` |
-| `redirectStatusCode?` | `number \| undefined` |
-| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
-| `routeLocales?` | `Record<string, string[]> \| undefined` |
-| `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
-| `serverTranslationPreload?` | `boolean \| undefined` |
-| `strategy?` | `Strategies \| undefined` |
-| `timeZone?` | `string \| undefined` |
-| `trailingSlash?` | `"append" \| "remove" \| undefined` |
-| `translationDir?` | `string \| undefined` |
-| `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
-| `trustForwardedHost?` | `boolean \| undefined` |
-| `types?` | `boolean \| undefined` |
-| `vueDevtools?` | `boolean \| undefined` |
+```ts
+type GlobalLocaleRoutes =
+  | Record<string, Record<LocaleCode, string> | false | boolean>
+  | null
+  | undefined
+```
 
-</details>
+**See** [`LocaleCode`](#localecode)
 
-<details>
-<summary><code>ModuleOptionsExtend</code> — 66 members</summary>
+### `I18nBeforeLocaleSwitchContext`
 
-| Member | Type |
-| --- | --- |
-| `additionalTranslationDirs?` | `string[] \| undefined` |
-| `apiBaseClientHost?` | `string \| undefined` |
-| `apiBaseServerHost?` | `string \| undefined` |
-| `apiBaseUrl` | `string` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `autoDetectPath?` | `string \| undefined` |
-| `cacheMaxSize?` | `number \| undefined` |
-| `cacheStorage?` | `string \| undefined` |
-| `cacheTtl?` | `number \| undefined` |
-| `canonicalQueryWhitelist?` | `string[] \| undefined` |
-| `components?` | `boolean \| undefined` |
-| `customRegexMatcher?` | `string \| RegExp \| undefined` |
-| `dateBuild` | `string \| number` |
-| `datetimeFormats?` | `Record<string, Record<string, Intl.DateTimeFormatOptions>> \| undefined` |
-| `debug?` | `boolean \| undefined` |
-| `defaultLocale?` | `string \| undefined` |
-| `define?` | `boolean \| undefined` |
-| `disablePageLocales` | `boolean` |
-| `disableWatcher?` | `boolean \| undefined` |
-| `domain?` | `string \| undefined` |
-| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
-| `experimental?` | `Record<string, unknown> \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
-| `hashMode` | `boolean` |
-| `hmr?` | `boolean \| undefined` |
-| `hooks?` | `boolean \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-| `httpCacheControl?` | `string \| false \| undefined` |
-| `httpCacheDuration?` | `number \| undefined` |
-| `isSSG?` | `boolean \| undefined` |
-| `linkDefaultLocale?` | `string \| undefined` |
-| `linkedMessages?` | `boolean \| undefined` |
-| `linkLocales?` | `Locale[] \| undefined` |
-| `localeCookie?` | `string \| null \| undefined` |
-| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
-| `locales?` | `Locale[] \| undefined` |
-| `localizedRouteNamePrefix?` | `string \| undefined` |
-| `meta?` | `boolean \| undefined` |
-| `metaBaseUrl?` | `string \| undefined` |
-| `metaTrustForwardedHost?` | `boolean \| undefined` |
-| `metaTrustForwardedProto?` | `boolean \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `noPrefixRedirect?` | `boolean \| undefined` |
-| `noScripts?` | `boolean \| undefined` |
-| `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
-| `plugin?` | `boolean \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `prefixCaseRedirect?` | `boolean \| undefined` |
-| `publicPayloads?` | `boolean \| undefined` |
-| `redirects?` | `boolean \| undefined` |
-| `redirectStatusCode?` | `number \| undefined` |
-| `rootDelta?` | `boolean \| undefined` |
-| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
-| `routeLocales?` | `Record<string, string[]> \| undefined` |
-| `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
-| `serverTranslationPreload?` | `boolean \| undefined` |
-| `strategy?` | `Strategies \| undefined` |
-| `timeZone?` | `string \| undefined` |
-| `trailingSlash?` | `"append" \| "remove" \| undefined` |
-| `translationDir?` | `string \| undefined` |
-| `translationPayloadMode?` | `"premerged" \| "source" \| undefined` |
-| `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
-| `trustForwardedHost?` | `boolean \| undefined` |
-| `types?` | `boolean \| undefined` |
-| `vueDevtools?` | `boolean \| undefined` |
+The context of the `i18n:beforeLocaleSwitch` runtime hook. A subscriber may set `to` (another
+enabled locale) or `cancel: true`; an invalid `to` is ignored.
 
-</details>
+```ts
+interface I18nBeforeLocaleSwitchContext
+```
 
-<details>
-<summary><code>ModulePrivateOptionsExtend</code> — 61 members</summary>
+::field-group
+:::field
+---
+name: "from"
+type: "string"
+required: true
+---
+The locale shown now.
+:::
+:::field
+---
+name: "to"
+type: "string"
+required: true
+---
+The locale the switch goes to.
+:::
+:::field
+---
+name: "cancel"
+type: "boolean"
+required: true
+---
+`true` stops the switch: the page and the stored preference stay.
+:::
+::
 
-| Member | Type |
-| --- | --- |
-| `additionalTranslationDirs?` | `string[] \| undefined` |
-| `apiBaseClientHost?` | `string \| undefined` |
-| `apiBaseServerHost?` | `string \| undefined` |
-| `apiBaseUrl?` | `string \| undefined` |
-| `autoDetectLanguage?` | `boolean \| undefined` |
-| `autoDetectPath?` | `string \| undefined` |
-| `cacheMaxSize?` | `number \| undefined` |
-| `cacheStorage?` | `string \| undefined` |
-| `cacheStorageBuild?` | `string \| undefined` |
-| `cacheTtl?` | `number \| undefined` |
-| `canonicalQueryWhitelist?` | `string[] \| undefined` |
-| `components?` | `boolean \| undefined` |
-| `customRegexMatcher?` | `string \| RegExp \| undefined` |
-| `dateBuild?` | `string \| number \| undefined` |
-| `datetimeFormats?` | `Record<string, Record<string, Intl.DateTimeFormatOptions>> \| undefined` |
-| `debug` | `boolean` |
-| `defaultLocale?` | `string \| undefined` |
-| `define?` | `boolean \| undefined` |
-| `disablePageLocales?` | `boolean \| undefined` |
-| `disableWatcher?` | `boolean \| undefined` |
-| `excludePatterns?` | `(string \| RegExp)[] \| undefined` |
-| `experimental?` | `Record<string, unknown> \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
-| `hmr?` | `boolean \| undefined` |
-| `hooks?` | `boolean \| undefined` |
-| `hreflangBaseLanguage?` | `boolean \| undefined` |
-| `httpCacheControl?` | `string \| false \| undefined` |
-| `httpCacheDuration?` | `number \| undefined` |
-| `linkedMessages?` | `boolean \| undefined` |
-| `localeCookie?` | `string \| null \| undefined` |
-| `localeCookieOptions?` | `LocaleCookieOptions \| undefined` |
-| `locales?` | `Locale[] \| undefined` |
-| `localizedRouteNamePrefix?` | `string \| undefined` |
-| `meta?` | `boolean \| undefined` |
-| `metaBaseUrl?` | `string \| undefined` |
-| `metaTrustForwardedHost?` | `boolean \| undefined` |
-| `metaTrustForwardedProto?` | `boolean \| undefined` |
-| `missingWarn?` | `boolean \| undefined` |
-| `noPrefixRedirect?` | `boolean \| undefined` |
-| `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
-| `payloadFsDir` | `string` |
-| `payloadPublicRel` | `string` |
-| `plugin?` | `boolean \| undefined` |
-| `plural?` | `PluralFunc \| undefined` |
-| `prefixCaseRedirect?` | `boolean \| undefined` |
-| `redirects?` | `boolean \| undefined` |
-| `redirectStatusCode?` | `number \| undefined` |
-| `rootDirs` | `string[]` |
-| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
-| `routeLocales?` | `Record<string, string[]> \| undefined` |
-| `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
-| `serverTranslationPreload?` | `boolean \| undefined` |
-| `strategy?` | `Strategies \| undefined` |
-| `timeZone?` | `string \| undefined` |
-| `trailingSlash?` | `"append" \| "remove" \| undefined` |
-| `translationDir` | `string` |
-| `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
-| `trustForwardedHost?` | `boolean \| undefined` |
-| `types?` | `boolean \| undefined` |
-| `vueDevtools?` | `boolean \| undefined` |
+### `I18nHeadDisableGroup`
 
-</details>
+Groups of built-in i18n SEO tags that can be disabled per page.
 
-<details>
-<summary><code>PluralTranslations</code> — 2 members</summary>
+```ts
+type I18nHeadDisableGroup =
+  | 'hreflang'
+  | 'x-default'
+  | 'canonical'
+  | 'og'
+  | 'og-alternates'
+  | 'html'
+```
 
-| Member | Type |
-| --- | --- |
-| `plural` | `string` |
-| `singular` | `string` |
+### `I18nHeadInput`
 
-</details>
+Page-level overrides merged on top of `useLocaleHead` output.
 
-<details>
-<summary><code>RouteI18nMeta</code> — 5 members</summary>
+```ts
+interface I18nHeadInput
+```
 
-| Member | Type |
-| --- | --- |
-| `locales` | `string[]` |
-| `name` | `string` |
-| `noMeta?` | `boolean \| string[] \| undefined` |
-| `original?` | `string \| undefined` |
-| `paths?` | `Record<string, string> \| undefined` |
+::field-group
+:::field
+---
+name: "htmlAttrs"
+type: "Record<string, string>"
+---
+Extra or overriding `<html>` attributes.
+:::
+:::field
+---
+name: "meta"
+type: "I18nHeadMeta[]"
+---
+Meta tags appended after base i18n tags (deduped by `id` / `property` / `name`).
+:::
+:::field
+---
+name: "link"
+type: "I18nHeadLink[]"
+---
+Link tags appended after base i18n tags (deduped by `id` / `rel` + `hreflang`).
+:::
+:::field
+---
+name: "replace"
+type: "{ canonical?: string | false; hreflang?: I18nHeadLink[] | false; xDefault?: I18nHeadLink | false; ogLocale?: string | false; ogUrl?: string | false; ogAlternates?: string[] | false; }"
+---
+Replace or remove specific built-in i18n SEO tags.
+:::
+:::field
+---
+name: "disable"
+type: "I18nHeadDisableGroup[]"
+---
+Disable built-in i18n SEO tag groups for this page.
+:::
+::
 
-</details>
+### `I18nHeadLink`
 
-<details>
-<summary><code>TranslationPayloadOptions</code> — 9 members</summary>
+Link entry for page-level i18n head overrides (`useI18nHead`).
 
-| Member | Type |
-| --- | --- |
-| `mode?` | `"premerged" \| "source" \| undefined` |
-| `prerenderRoutes?` | `boolean \| undefined` |
-| `publicAssets?` | `boolean \| undefined` |
-| `publicDir?` | `string \| undefined` |
-| `rootDelta?` | `boolean \| undefined` |
-| `serverAssets?` | `boolean \| undefined` |
-| `serverHandler?` | `boolean \| undefined` |
-| `warnFileCount?` | `number \| undefined` |
-| `warnSizeBytes?` | `number \| undefined` |
+```ts
+interface I18nHeadLink
+```
 
-</details>
+::field-group
+:::field
+---
+name: "rel"
+type: "string"
+required: true
+---
 
-<details>
-<summary><code>Translations</code> — 1 members</summary>
+:::
+:::field
+---
+name: "href"
+type: "string"
+required: true
+---
 
-| Member | Type |
-| --- | --- |
-| `[string]` | `unknown` |
+:::
+:::field
+---
+name: "hreflang"
+type: "string"
+---
 
-</details>
+:::
+:::field
+---
+name: "[key: string]"
+type: "string | undefined"
+---
 
+:::
+::
+
+### `I18nHeadMeta`
+
+Meta entry for page-level i18n head overrides (`useI18nHead`).
+
+```ts
+interface I18nHeadMeta
+```
+
+::field-group
+:::field
+---
+name: "[key: string]"
+type: "string | undefined"
+---
+
+:::
+::
+
+### `I18nRouteParams`
+
+Locale-specific route params for `$switchLocalePath` and `<i18n-link>`.
+
+```ts
+type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
+```
+
+**See** [`LocaleCode`](#localecode)
+
+### `ListParams`
+
+A list for `{0}`, `{1}`: what `t()` takes besides `Params`.
+
+```ts
+type ListParams = readonly (string | number | boolean)[]
+```
+
+### `Locale`
+
+Locale configuration object.
+
+Supports arbitrary custom properties via the index signature `[key: string]: unknown`.
+To get full TypeScript support for your custom properties, use module augmentation:
+
+```typescript
+// app/i18n.d.ts (or any .d.ts file included in your tsconfig)
+declare module '@i18n-micro/types' {
+  interface Locale {
+    flag?: string
+    currency?: string
+  }
+}
+```
+
+Then access them with full typing:
+```typescript
+const locales = $getLocales()
+locales[0].flag     // string | undefined  (typed!)
+locales[0].currency // string | undefined  (typed!)
+```
+
+```ts
+interface Locale
+```
+
+::collapsible{name="11 properties"}
+:::field-group
+::::field
+---
+name: "code"
+type: "LocaleCode"
+required: true
+---
+BCP-47 locale code (e.g. `'en'`, `'de-DE'`, `'zh-Hans'`). Used in URLs and as file/key identifier.
+::::
+::::field
+---
+name: "disabled"
+type: "boolean"
+---
+When `true`, this locale is excluded from route generation and language switching.
+::::
+::::field
+---
+name: "iso"
+type: "string"
+---
+ISO 639-1 / BCP-47 tag for `<html lang>` and `hreflang` SEO attributes (e.g. `'en-US'`).
+::::
+::::field
+---
+name: "og"
+type: "string"
+---
+Open Graph locale for `og:locale` / `og:locale:alternate` meta `content` (e.g. `ar_AE`).
+When omitted, `iso` is converted to OG format when possible (`en-US` → `en_US`).
+If conversion is not possible, `og:locale` tags are not emitted (dev warning when `missingWarn` is enabled).
+::::
+::::field
+---
+name: "seo"
+type: "boolean"
+---
+**Default** `true when omitted.` · When `false`, this locale is omitted from cross-locale SEO tags (`hreflang`,
+`og:locale:alternate`). If the configured default locale has `seo: false`, the
+`x-default` hreflang link is not emitted. Routing and translations are unchanged.
+::::
+::::field
+---
+name: "dir"
+type: "'ltr' | 'rtl' | 'auto'"
+---
+Text direction. Reflected in `<html dir>` when the locale is active.
+::::
+::::field
+---
+name: "displayName"
+type: "string"
+---
+Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`).
+::::
+::::field
+---
+name: "baseUrl"
+type: "string"
+---
+Origin of this locale's own domain (e.g. `'https://de.example.com'`), plus `app.baseURL` when
+the app has one. One build then serves every domain: a request for that host gets this locale,
+the other locales of the host and the locales with no `baseUrl`. Links into a locale of another
+domain (`$localePath`, `$switchLocalePath`, the switcher, `hreflang`) become absolute URLs on
+its origin, and switching to it navigates there. Any other host gets the build config.
+::::
+::::field
+---
+name: "baseDefault"
+type: "boolean"
+---
+With `baseUrl`: this locale is the default of its host, unprefixed there, and links to it from
+other domains drop `/<code>`, because the domain already names the locale
+(`https://de.example.com/about`, not `…/de/about`). `prefix` keeps the prefix in both.
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+Locale code to fall back to when a translation key is missing in this locale.
+Overrides the global `fallbackLocale` for this specific locale.
+::::
+::::field
+---
+name: "[key: string]"
+type: "unknown"
+---
+
+::::
+:::
+::
+
+### `LocaleCode`
+
+BCP-47 locale code string (e.g. `'en'`, `'de-DE'`, `'zh-Hans'`).
+
+```ts
+type LocaleCode = string
+```
+
+### `LocaleCookieOptions`
+
+Attributes of the locale cookie (`localeCookieOptions`).
+
+```ts
+interface LocaleCookieOptions
+```
+
+::field-group
+:::field
+---
+name: "domain"
+type: "string"
+---
+`Domain`: e.g. `.example.com` to share the cookie across subdomains. Unset: the host only.
+:::
+:::field
+---
+name: "path"
+type: "string"
+---
+**Default** `'/'` · `Path`.
+:::
+:::field
+---
+name: "secure"
+type: "boolean"
+---
+**Default** `false` · `Secure`: sent over HTTPS only. Required by browsers with `sameSite: 'none'`.
+:::
+:::field
+---
+name: "sameSite"
+type: "'lax' | 'strict' | 'none'"
+---
+**Default** `'lax'` · `SameSite`. `'none'` (e.g. an app inside an iframe) needs `secure: true`.
+:::
+:::field
+---
+name: "maxAge"
+type: "number"
+---
+**Default** `31536000 (one year)` · Lifetime in seconds (`Max-Age` and `Expires`).
+:::
+::
+
+### `MissingHandler`
+
+Callback invoked when a translation key is missing.
+Useful for logging, reporting, or providing dynamic fallbacks.
+
+```ts
+type MissingHandler = (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
+```
+
+**See** [`TranslationKey`](#translationkey)
+
+### `ModuleOptions`
+
+```ts
+interface ModuleOptions
+```
+
+::collapsible{name="57 properties"}
+:::field-group
+::::field
+---
+name: "locales"
+type: "Locale[]"
+---
+**Default** `[]` · List of supported locales.
+Each entry defines a locale code plus optional metadata (ISO, direction, display name, etc.).
+::::
+::::field
+---
+name: "meta"
+type: "boolean"
+---
+**Default** `true` · Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automatically.
+::::
+::::field
+---
+name: "strategy"
+type: "Strategies"
+---
+**Default** `'prefix_except_default'` · URL routing strategy for locale prefixes.
+
+- `'no_prefix'` — no locale in URL; locale stored in cookie.
+- `'prefix_except_default'` — prefix all locales except the default.
+- `'prefix'` — always prefix, including the default locale.
+- `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix.
+::::
+::::field
+---
+name: "metaBaseUrl"
+type: "string"
+---
+**Default** `undefined` · Base URL for SEO meta tags (canonical, og:url, hreflang).
+
+- A concrete URL string (e.g. `'https://example.com'`) — used as-is (highest priority).
+- `undefined` — falls back to `site.url` from `nuxt-site-config` when that module is
+  present, otherwise the current request origin
+  (`useRequestURL().origin` on server, `window.location.origin` on client).
+::::
+::::field
+---
+name: "metaTrustForwardedHost"
+type: "boolean"
+---
+**Default** `true` · Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags.
+Enable when the app runs behind a reverse proxy (nginx, Cloudflare, AWS ALB, etc.)
+that sets this header to the real client-facing hostname.
+::::
+::::field
+---
+name: "metaTrustForwardedProto"
+type: "boolean"
+---
+**Default** `true` · Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags.
+Enable when the app runs behind a TLS-terminating proxy so that
+canonical URLs use `https://` even though the app itself listens on HTTP.
+::::
+::::field
+---
+name: "trustForwardedHost"
+type: "boolean"
+---
+**Default** `false` · Choose the domain of a request (`locales[].baseUrl`) from `X-Forwarded-Host` instead of
+`Host`. Enable it only behind a proxy that overwrites that header.
+::::
+::::field
+---
+name: "hreflangBaseLanguage"
+type: "boolean"
+---
+**Default** `false` · Also emit a bare-language `hreflang` derived from each locale's `iso`
+(e.g. `es-ES` → also `es`). The first regional locale in `locales` claims
+the bare tag for that language. Routing `code` is never used — only `iso || code`.
+::::
+::::field
+---
+name: "define"
+type: "boolean"
+---
+**Default** `true` · Provide `$defineI18nRoute()` at runtime. The build reads `$defineI18nRoute()` calls in pages
+either way.
+::::
+::::field
+---
+name: "redirects"
+type: "boolean"
+---
+**Default** `true` · Enable automatic locale redirects (server plugin and client route middleware).
+When `true`, the prefix strategies redirect an unprefixed URL to its localized form. The locale
+comes from the app state, the cookie or `Accept-Language` where `autoDetectPath` allows, otherwise
+the default. Under `no_prefix` detection never changes the URL (see `noPrefixRedirect` for custom paths).
+::::
+::::field
+---
+name: "prefixCaseRedirect"
+type: "boolean"
+---
+**Default** `true` · Redirect a locale prefix in another case or encoding to the page in its own spelling
+(`/DE/about` → `/de/about`, `/EN/about` → `/about` under `prefix_except_default`). The router
+matches the prefix case-insensitively, so without the redirect such a URL would show the page
+under a second address. When `false`, or when `redirects` is `false`, the URL is a 404. A URL
+with no page behind it in its own spelling is a 404 either way.
+::::
+::::field
+---
+name: "plugin"
+type: "boolean"
+---
+**Default** `true` · Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`,
+`$switchLocale()`, and other runtime helpers.
+::::
+::::field
+---
+name: "hooks"
+type: "boolean"
+---
+**Default** `true` · Call the `i18n:register` app hook on load and on navigation so plugins can add translations.
+::::
+::::field
+---
+name: "components"
+type: "boolean"
+---
+**Default** `true` · Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`).
+Set to `false` to disable automatic component registration (e.g. if you don't use them
+and want to reduce the module footprint).
+::::
+::::field
+---
+name: "serverTranslationPreload"
+type: "boolean"
+---
+**Default** `false` · Preload index-page translations in Nitro global middleware (server-only, private config).
+::::
+::::field
+---
+name: "defaultLocale"
+type: "string"
+---
+**Default** `'en'` · The locale to use when no locale can be determined from URL or user preferences.
+It is not a translation fallback: set `fallbackLocale` for that.
+::::
+::::field
+---
+name: "apiBaseUrl"
+type: "string"
+---
+**Default** `'_locales'` · Base URL path segment for the translations API route (used in SSR/SSG data fetching).
+Can also be set via `NUXT_I18N_APP_BASE_URL` environment variable.
+::::
+::::field
+---
+name: "apiBaseClientHost"
+type: "string"
+---
+**Default** `undefined` · Override the host used for client-side translation fetch requests.
+Useful when the client reaches the server via a different hostname than the one Nuxt sees.
+Can also be set via `NUXT_I18N_APP_BASE_CLIENT_HOST` environment variable.
+::::
+::::field
+---
+name: "apiBaseServerHost"
+type: "string"
+---
+**Default** `undefined` · Override the host used for server-side translation fetch requests.
+Useful in container/microservice setups where the server reaches itself via an internal hostname.
+Can also be set via `NUXT_I18N_APP_BASE_SERVER_HOST` environment variable.
+::::
+::::field
+---
+name: "translationDir"
+type: "string"
+---
+**Default** `'locales'` · Path to the directory containing translation JSON files, relative to the project root.
+::::
+::::field
+---
+name: "additionalTranslationDirs"
+type: "string[]"
+---
+**Default** `[]` · Extra directories whose top-level `{locale}.json` files are deep-merged into the global
+dictionary before `translationDir`. A relative path is read in the project root and in each
+Nuxt layer root; an absolute path (a Nuxt module's own folder) is read once. Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
+Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+Entries other modules add to `nuxt.options.i18n.additionalTranslationDirs` count, whatever their order. Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
+::::
+::::field
+---
+name: "translationPayloads"
+type: "TranslationPayloadOptions"
+---
+Controls how translation payloads are emitted (Node server: `public/<apiBaseUrl>`; Edge / function / inline: Nitro `serverAssets`).
+
+- **Node server** (`node-server`, `node-cluster`, disk `serveStatic`): `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
+- **Edge, function presets, and `serveStatic: "inline"`** (`vercel`, `netlify`, `aws-lambda`, winterjs, …): `serverAssets` registers Nitro `serverAssets` (`assets:i18n`),
+  because `public/` is not available to SSR on disk. Does not force a public copy — set `publicAssets: true` for CDN/static. Keep the defaults for the usual all-in-one setup. For large Edge catalogs prefer `mode: 'source'`.
+For CDN-backed deployments, disable local outputs and set `apiBaseClientHost` / `apiBaseServerHost`.
+::::
+::::field
+---
+name: "autoDetectLanguage"
+type: "boolean"
+---
+**Default** `true` · Automatically detect the user's preferred language from the `Accept-Language` HTTP header.
+Used in combination with `autoDetectPath` to decide when detection occurs.
+::::
+::::field
+---
+name: "autoDetectPath"
+type: "string"
+---
+**Default** `'/'` · Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled).
+
+- `'/'` — only `/` (deep links in the default locale stay reachable; default)
+- `'no_prefix'` — only paths without a locale prefix
+- `'*'` — every path, including rewriting an explicit locale prefix
+  (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
+
+- any other string — that path, trailing slashes ignored (e.g. `'/welcome'`)
+
+Under `prefix`, an unprefixed URL outside the allowed paths still redirects to the default
+locale's form (`/about` → `/en/about`). The default locale with a prefix under
+`prefix_except_default` (`/en`) is a 404, not a redirect.
+::::
+::::field
+---
+name: "disableWatcher"
+type: "boolean"
+---
+**Default** `false` · Disable the file watcher that auto-creates missing translation files in development mode.
+::::
+::::field
+---
+name: "types"
+type: "boolean"
+---
+**Default** `true` · Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers
+based on the translation keys in your default locale files.
+::::
+::::field
+---
+name: "routesLocaleLinks"
+type: "{ [key: string]: string; }"
+---
+**Default** `{}` · Map route names to other route names to share the same translation files.
+For example, `{ 'about-us': 'about' }` means the `about-us` page will use
+translations from the `about` page instead of its own.
+::::
+::::field
+---
+name: "plural"
+type: "PluralFunc"
+---
+**Default** ``built-in pluralization (a non-negative integer count picks the form at that index, clamped to the last; negative, fractional and `NaN` counts take the last; `=0 ` opens a template of `Intl.PluralRules` categories)`` · Custom pluralization function.
+Receives `(key, count, params, locale, getter)` and should return the selected
+plural form as a string, or `null`/`undefined` to fall back to the built-in
+`defaultPlural` logic (so you can override only some locales). For the Nuxt module the function is serialized with `.toString()` into
+`.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
+A file path string is **not** supported.
+::::
+::::field
+---
+name: "disablePageLocales"
+type: "boolean"
+---
+**Default** `false` · Disable per-page translation files.
+When `true`, only global translations (`{locale}.json`) are loaded;
+page-specific files (`pages/{page}/{locale}.json`) are not generated or loaded.
+::::
+::::field
+---
+name: "fallbackLocale"
+type: "string"
+---
+**Default** `undefined (no fallback; returns the raw key)` · Global fallback locale code.
+Keys missing in a locale are taken from this locale (merged into each payload when it is
+built or loaded); without it a missing key renders as the key itself.
+::::
+::::field
+---
+name: "redirectStatusCode"
+type: "number"
+---
+**Default** `302` · HTTP status of every redirect the server answers for the module: the preferred locale (cookie,
+`Accept-Language`), a prefix in another case, and under `hashMode` + `prefix` the move into the
+hash. `301` and `308` are cached by browsers: a visitor who later changes the preference is still
+sent where the first answer said. One of 301, 302, 303, 307, 308; any other value warns at build
+and 302 is used.
+::::
+::::field
+---
+name: "linkedMessages"
+type: "boolean"
+---
+**Default** `false` · Resolve linked messages (`@:key`, `@.upper:key`, `@.lower:key`, `@.capitalize:key`, `@:{'key'}`)
+in each built dictionary, so the runtime never parses them. A link to a missing key, or a
+cycle, leaves the message as written and warns at build. Translations added at runtime
+(`$mergeTranslations`, `i18n:register`, inline `$defineI18nRoute`) are not resolved.
+Off by default: `@:` may already be plain text in your messages.
+::::
+::::field
+---
+name: "localeCookie"
+type: "string | null"
+---
+**Default** `null` · Cookie name for persisting the user's locale preference across sessions.
+Set to `null` to disable cookie-based persistence.
+Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided; an explicit
+`null` in the `i18n` config block keeps it off there too.
+::::
+::::field
+---
+name: "localeCookieOptions"
+type: "LocaleCookieOptions"
+---
+**Default** `{}` · Attributes of the locale cookie (and of the hash cookie under `hashMode`), as the server and
+the browser write it. Unset fields keep the defaults: `path: '/'`, `sameSite: 'lax'`, a year,
+no `Domain`, no `Secure`. Build config only: no request decides them.
+::::
+::::field
+---
+name: "debug"
+type: "boolean"
+---
+**Default** `false` · Enable verbose debug logging for locale detection, route generation, and translation loading.
+::::
+::::field
+---
+name: "vueDevtools"
+type: "boolean"
+---
+**Default** `true` · Register Vue DevTools inspector and timeline in dev (browser extension).
+Separate from the Nuxt DevTools custom tab.
+::::
+::::field
+---
+name: "globalLocaleRoutes"
+type: "GlobalLocaleRoutes"
+---
+**Default** `{}` · Global route-level locale configuration.
+Allows restricting or customizing locale routes for specific pages without
+modifying their components.
+
+- `false` — exclude the route from localization.
+- `Record<LocaleCode, string>` — custom per-locale paths.
+::::
+::::field
+---
+name: "customRegexMatcher"
+type: "string | RegExp"
+---
+**Default** `undefined (uses built-in pattern based on locale codes)` · Custom regular expression (or its string source) for matching locale codes in URL segments.
+Every locale code in `locales` must match the whole pattern, without its flags, or the build fails.
+::::
+::::field
+---
+name: "noPrefixRedirect"
+type: "boolean"
+---
+**Default** `false` · For `no_prefix` strategy: when the default locale has a custom path for a page
+(`localeRoutes` / `globalLocaleRoutes`), redirect the page's original path to the custom
+path of the visitor's locale, the default locale's otherwise (e.g. `/about` → `/about-us`).
+A locale with no custom path of its own stays on the original path. Pages with dynamic
+segments are not redirected.
+::::
+::::field
+---
+name: "canonicalQueryWhitelist"
+type: "string[]"
+---
+**Default** `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']` · List of query parameter names preserved in canonical and `og:url` meta tags.
+Parameters not in this list are stripped from the canonical URL.
+::::
+::::field
+---
+name: "trailingSlash"
+type: "'append' | 'remove'"
+---
+**Default** `undefined (inherit from Nuxt)` · Trailing slash for `$localePath` / `$switchLocalePath` (NuxtLink parity).
+Defaults to `experimental.defaults.nuxtLink.trailingSlash` when unset.
+Set explicitly to override Nuxt's link default for i18n path helpers.
+::::
+::::field
+---
+name: "excludePatterns"
+type: "(string | RegExp)[]"
+---
+**Default** `undefined` · Paths to leave out of i18n routing: a string is a path prefix (`/admin` covers `/admin/x`)
+or a `*` / `?` glob; a RegExp is tested against the path. Matching pages get no locale
+variants, no locale redirect or 404, and are dropped from prerender; they still render with
+translations. `/api`, `/_nuxt`, `/__*`, the translations route and common static files
+(sitemap, robots.txt, favicon, assets by extension) are always excluded.
+::::
+::::field
+---
+name: "localizedRouteNamePrefix"
+type: "string"
+---
+**Default** `'localized-'` · Prefix prepended to localized route names (e.g. `'localized-index'`).
+Used internally to distinguish original routes from generated locale variants.
+::::
+::::field
+---
+name: "routeLocales"
+type: "Record<string, string[]>"
+---
+Per-route locale restrictions, extracted at build time from `$defineI18nRoute()` calls.
+Maps a route path (e.g. `'/about'`) to an array of allowed locale codes.
+Routes not listed have no restrictions (all locales allowed).
+::::
+::::field
+---
+name: "routeDisableMeta"
+type: "Record<string, boolean | string[]>"
+---
+Per-route meta tag disabling. Maps a route name or path to `true` (disable all meta) or an array
+of locale codes for which meta should be disabled. Entries found in `$defineI18nRoute()`
+calls at build time are added to it.
+::::
+::::field
+---
+name: "missingWarn"
+type: "boolean"
+---
+**Default** `true` · Show console warnings when a translation key is missing (development build, in the browser).
+::::
+::::field
+---
+name: "hmr"
+type: "boolean"
+---
+**Default** `true` · Enable Hot Module Replacement for translation files in development.
+When `true`, changes to JSON translation files trigger an automatic reload
+without a full page refresh.
+::::
+::::field
+---
+name: "cacheMaxSize"
+type: "number"
+---
+**Default** `0` · Maximum number of entries in the in-memory translation caches. The fetch and server caches
+drop the least recently used entry; the browser's dictionary map drops the oldest one (FIFO).
+`0` means no limit in the browser; server caches keep at most 1000 entries then, so request
+URLs naming made-up pages cannot grow server memory.
+::::
+::::field
+---
+name: "cacheTtl"
+type: "number"
+---
+**Default** `0` · Time-to-live (in seconds) of the fetch and server translation caches, counted from when an
+entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at
+least that often. The browser's active dictionaries are not expired by it. `0` means entries
+never expire.
+::::
+::::field
+---
+name: "cacheStorage"
+type: "string"
+---
+Name of a Nitro storage mount (`nitro.storage`, e.g. `'redis'`) that several server instances
+share as a dictionary cache, read after the in-process cache and before the source. Pays off
+mostly with `apiBaseServerHost`: one fetch from the backend instead of one per instance.
+Entries are keyed by build and expire after `cacheTtl`, or after one day when it is `0`.
+Off in dev and prerender. A failing storage falls back to the source. Unset: no shared cache.
+::::
+::::field
+---
+name: "numberFormats"
+type: "Record<string, Record<string, Intl.NumberFormatOptions>>"
+---
+Named number formats per locale (Vue I18n-compatible).
+Enables `$tn(1000, 'currency')` style calls.
+::::
+::::field
+---
+name: "timeZone"
+type: "string"
+---
+**Default** `the runtime's zone` · IANA time zone for `$td` and `<i18n-t date>` (`Europe/Berlin`). Set it to render one date on
+the server and in every browser; a named format's own `timeZone` wins.
+::::
+::::field
+---
+name: "datetimeFormats"
+type: "Record<string, Record<string, Intl.DateTimeFormatOptions>>"
+---
+Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
+Enables `$td(date, 'short')` style calls.
+::::
+::::field
+---
+name: "httpCacheDuration"
+type: "number"
+---
+**Default** `31536000` · HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default:
+the response is then `private, max-age=…, immutable`: a browser pins it, and a CDN that ignores the query cannot
+(`public` with `httpCacheControl: false`).
+
+- `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the
+  response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an
+  unchanging URL pins the first payload a browser ever saw.
+
+- `0` — do not set `Cache-Control` at all (useful in local debugging)
+- Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache
+- Reaches only responses served through Nitro. Payloads copied into `public/` and served
+  by the hosting platform take that platform's headers — see the Performance guide. Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an
+explicit response header rather than Nitro `defineCachedEventHandler` maxAge.
+::::
+::::field
+---
+name: "httpCacheControl"
+type: "string | false"
+---
+**Default** `'public, max-age=60'` · `Cache-Control` of a payload file answered by a host or by a path-wide rule, which cannot see `?v=`.
+On a Node server a response to the current `?v=` is pinned for `httpCacheDuration` and any other revalidates;
+with `source`, `cacheTtl` or `apiBaseServerHost`, where a dictionary changes with no build, every response takes this header.
+`false` keeps every file on `max-age=0, must-revalidate`.
+::::
+::::field
+---
+name: "dateBuild"
+type: "string | number"
+---
+Value used for cache-busting translation requests (`?v=...`). When not provided, the module uses a hash of the translation files, so the value changes
+only when translations do (`Date.now()` when no hash can be computed). `0` or `''` turns
+cache-busting off. Set a stable value (a git SHA, a build number) to pin it yourself.
+`NUXT_I18N_DATE_BUILD` or `runtimeConfig.public.i18nRuntime.dateBuild` replaces it at runtime, after a dictionary
+was replaced in place: pinned URLs are left behind, with no rebuild.
+::::
+::::field
+---
+name: "experimental"
+type: "Record<string, unknown>"
+---
+Bucket for experimental/unstable options.
+Contents may change or be removed without notice between minor versions.
+::::
+:::
+::
+
+### `ModuleOptionsExtend`
+
+Extended module options injected into the Nuxt runtime config.
+Includes resolved values and build-time metadata.
+
+```ts
+interface ModuleOptionsExtend extends ModuleOptions
+```
+
+::collapsible{name="14 properties"}
+:::field-group
+::::field
+---
+name: "dateBuild"
+type: "string | number"
+required: true
+---
+Value used for cache-busting translation requests (`?v=...`).
+::::
+::::field
+---
+name: "hashMode"
+type: "boolean"
+required: true
+---
+Whether the Nuxt app uses hash-based routing (`router.options.hashMode`).
+::::
+::::field
+---
+name: "isSSG"
+type: "boolean"
+---
+**Deprecated** — No longer set at runtime. Kept so code typed against the released module still compiles.
+::::
+::::field
+---
+name: "apiBaseUrl"
+type: "string"
+required: true
+---
+**Default** `'_locales'` · Resolved translations API base URL (after env variable / config merging).
+::::
+::::field
+---
+name: "disablePageLocales"
+type: "boolean"
+required: true
+---
+**Default** `false` · Resolved flag: whether per-page translations are disabled.
+::::
+::::field
+---
+name: "redirects"
+type: "boolean"
+---
+**Default** `true` · Resolved flag: whether locale-based redirects are enabled.
+::::
+::::field
+---
+name: "prefixCaseRedirect"
+type: "boolean"
+---
+**Default** `true` · Resolved flag: whether a locale prefix in another case or encoding redirects to its own spelling.
+::::
+::::field
+---
+name: "translationPayloadMode"
+type: "'premerged' | 'source'"
+---
+Resolved translation payload loading strategy.
+::::
+::::field
+---
+name: "publicPayloads"
+type: "boolean"
+---
+Premerged files are in `public/`, so they can sit on `app.cdnURL`.
+::::
+::::field
+---
+name: "rootDelta"
+type: "boolean"
+---
+A page's file needs its root: the browser loads the two together.
+::::
+::::field
+---
+name: "noScripts"
+type: "boolean"
+---
+Nuxt's `features.noScripts` is on: no page runs a script, so none preloads a dictionary.
+::::
+::::field
+---
+name: "domain"
+type: "string"
+---
+Host this config was resolved for (`locales[].baseUrl`); unset on any other host.
+::::
+::::field
+---
+name: "linkLocales"
+type: "Locale[]"
+---
+With `domain`: every locale, those of other domains included. `locales` holds what the host serves.
+::::
+::::field
+---
+name: "linkDefaultLocale"
+type: "string"
+---
+With `domain`: the build's `defaultLocale`, the same on every host (`x-default`). `defaultLocale` is the host's.
+::::
+:::
+::
+
+**See** [`ModuleOptions`](#moduleoptions)
+
+### `ModulePrivateOptionsExtend`
+
+Private (server-only) module options passed to Nitro plugins and server middleware.
+Extends `ModuleOptions` with resolved root paths and directory info.
+
+```ts
+interface ModulePrivateOptionsExtend extends ModuleOptions
+```
+
+::field-group
+:::field
+---
+name: "cacheStorageBuild"
+type: "string"
+---
+Nuxt's `buildId`: `cacheStorage` keys of two builds never meet.
+:::
+:::field
+---
+name: "rootDirs"
+type: "string[]"
+required: true
+---
+Absolute Nuxt layer roots in merge order (extends first, project last).
+Used by live/HMR translation reads so layers match build-time merge.
+:::
+:::field
+---
+name: "debug"
+type: "boolean"
+required: true
+---
+**Default** `false` · Resolved debug flag.
+:::
+:::field
+---
+name: "translationDir"
+type: "string"
+required: true
+---
+**Default** `'locales'` · Resolved path to the translations directory.
+:::
+:::field
+---
+name: "apiBaseServerHost"
+type: "string"
+---
+**Default** `undefined` · Resolved server-side host override.
+:::
+:::field
+---
+name: "serverTranslationPreload"
+type: "boolean"
+---
+**Default** `false` · Preload index translations in Nitro global middleware.
+:::
+:::field
+---
+name: "payloadFsDir"
+type: "string"
+required: true
+---
+Absolute buildDir path to payload files (`.nuxt/i18n-merged` or `.nuxt/i18n-source`).
+Used by the Node fs reader in `import.meta.dev` / `import.meta.prerender`.
+:::
+:::field
+---
+name: "payloadPublicRel"
+type: "string"
+required: true
+---
+Directory under Nitro `public/` for prod payload files (defaults to `translationDir`).
+:::
+::
+
+**See** [`ModuleOptions`](#moduleoptions)
+
+### `Params`
+
+Interpolation parameters passed to the `t()` function.
+
+```ts
+type Params = Record<string, string | number | boolean>
+```
+
+### `PluralFunc`
+
+Custom pluralization function.
+Called when `tc()` / `$tc()` is used. Receives the key, count, params, locale,
+and a getter to fetch the singular/plural forms from translations.
+
+```ts
+type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+```
+
+**See** [`TranslationKey`](#translationkey) · [`Params`](#params) · [`Getter`](#getter)
+
+### `PluralTranslations`
+
+Object shape for a translation value that contains singular/plural forms.
+
+```ts
+interface PluralTranslations
+```
+
+::field-group
+:::field
+---
+name: "singular"
+type: "string"
+required: true
+---
+Singular form of the translation (count === 1).
+:::
+:::field
+---
+name: "plural"
+type: "string"
+required: true
+---
+Plural form of the translation (count !== 1).
+:::
+::
+
+### `ResolvedI18nConfig`
+
+The config the build writes, as `getI18nConfig()` and `$getI18nConfig()` give it.
+
+```ts
+type ResolvedI18nConfig = Omit<ModuleOptionsExtend, ResolvedI18nConfigKey> & Required<Pick<ModuleOptionsExtend, ResolvedI18nConfigKey>>
+```
+
+**See** [`ModuleOptionsExtend`](#moduleoptionsextend)
+
+### `RouteI18nMeta`
+
+`meta.i18n` that route-strategy puts on every localized record, and path-strategy reads at runtime.
+
+```ts
+interface RouteI18nMeta
+```
+
+::field-group
+:::field
+---
+name: "name"
+type: "string"
+required: true
+---
+Base route name of the page (its translation key and the name `localeRoute({ name })` takes).
+:::
+:::field
+---
+name: "locales"
+type: "string[]"
+required: true
+---
+Locales this record serves.
+:::
+:::field
+---
+name: "noMeta"
+type: "boolean | string[]"
+---
+`disableMeta` of the page: SEO tags off in every locale (`true`) or in the listed ones.
+:::
+:::field
+---
+name: "original"
+type: "string"
+---
+On the default locale's record: the path of a page with a custom default path, where it is no record of its own. A link can still name the page by it.
+:::
+:::field
+---
+name: "paths"
+type: "Record<string, string>"
+---
+`noPrefixRedirect`, on the page's original path: the custom path of each locale. The locale is the visitor's, so the runtime redirects.
+:::
+::
+
+### `ScopedKey`
+
+Helper for creating typed prefixes.
+Allows safe usage of dynamic keys.
+
+```ts
+type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
+```
+
+```ts
+// Assuming keys: 'errors.404', 'errors.500', 'btn.save'
+function getErrorText(code: string) {
+  return t(`errors.${code}` as ScopedKey<'errors'>)
+}
+```
+
+**See** [`TranslationKey`](#translationkey)
+
+### `Strategies`
+
+URL routing strategy for locale handling.
+
+```ts
+type Strategies =
+  | 'no_prefix'
+  | 'prefix_except_default'
+  | 'prefix'
+  | 'prefix_and_default'
+```
+
+### `Translation`
+
+A single translation value — can be a primitive, nested object, plural pair, or `unknown`.
+
+```ts
+type Translation = CleanTranslation | unknown
+```
+
+**See** [`CleanTranslation`](#cleantranslation)
+
+### `TranslationKey`
+
+Resolved translation key type.
+
+- When `DefineLocaleMessage` is empty (generator not connected) — resolves to `string`.
+- When `DefineLocaleMessage` has keys — resolves to a union of those keys **and**
+  `(string & {})`, providing autocompletion while still allowing dynamic keys
+  (plain `| string` would collapse the union to `string`).
+
+```ts
+type TranslationKey = Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never
+  ? string
+  : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
+```
+
+**See** [`DefineLocaleMessage`](#definelocalemessage)
+
+### `TranslationPayloadOptions`
+
+```ts
+interface TranslationPayloadOptions
+```
+
+::collapsible{name="9 properties"}
+:::field-group
+::::field
+---
+name: "mode"
+type: "'premerged' | 'source'"
+---
+**Default** `'premerged'` · Translation payload strategy.
+
+- `premerged`: build-time `{page}/{locale}/data.json` matrix (default)
+- `source`: compact source files merged at runtime (prefer on Edge / large catalogs)
+::::
+::::field
+---
+name: "serverAssets"
+type: "boolean"
+---
+**Default** `true` · Local SSR payloads: a Node server that serves `public/` from disk reads that tree (forces public copy);
+Edge, function presets, and `serveStatic: "inline"` embed via Nitro `serverAssets`.
+
+- **Node server** (preset serves `public/` itself, e.g. `node-server`): no Nitro `serverAssets` (avoids Rollup `raw:`). SSR reads
+  `public/<apiBaseUrl|publicDir>` as `{page}/{locale}/data.json`; when this is `true`,
+  a public copy is forced even if `publicAssets` is false.
+
+- **Edge, function presets, and inline** (`nitro.node === false`, no disk `serveStatic` such as `vercel` /
+  `netlify` / `aws-lambda`, or `serveStatic: "inline"` e.g. winterjs): Nitro `serverAssets` (`assets:i18n`)
+  with the same layout as `mode`. Does **not** force a public copy — set `publicAssets: true` for CDN/static.
+::::
+::::field
+---
+name: "serverHandler"
+type: "boolean"
+---
+**Default** `true` · Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`.
+Disable this when translation payloads are served from an external host/CDN.
+::::
+::::field
+---
+name: "publicAssets"
+type: "boolean"
+---
+**Default** `true in premerged mode, false in source mode` · Copy payloads into Nitro public output. Premerged → `{page}/{locale}/data.json` under `apiBaseUrl`; source → compact tree. When SSR reads `public/` (`node-server` and similar), `serverAssets: true` also forces this copy.
+On Edge / function / `serveStatic: "inline"` presets, copy only when this is `true` (SSR uses the Nitro embed).
+::::
+::::field
+---
+name: "prerenderRoutes"
+type: "boolean"
+---
+**Default** `false` · Opt in to Nitro-prerender `/{apiBaseUrl}/.../data.json`. Usually redundant when premerged `publicAssets` already wrote those files.
+::::
+::::field
+---
+name: "publicDir"
+type: "string"
+---
+Public output folder relative to Nitro public root. Defaults to `apiBaseUrl` (`_locales`). So static files match client fetch URLs (`/{apiBaseUrl}/{page}/{locale}/data.json`).
+::::
+::::field
+---
+name: "rootDelta"
+type: "boolean"
+---
+**Default** `true` · Write one root file per locale, and in each page file only what differs from it. The client and SSR merge them;
+a whole chunk still works wherever a file is read. `false` keeps a whole dictionary in every page file.
+`premerged` only, and off with `disablePageLocales`.
+::::
+::::field
+---
+name: "warnFileCount"
+type: "number"
+---
+**Default** `500` · Warn during build when generated payload file count exceeds this threshold.
+::::
+::::field
+---
+name: "warnSizeBytes"
+type: "number"
+---
+**Default** `10485760 (10 MB)` · Warn during build when generated payload total size exceeds this threshold in bytes.
+::::
+:::
+::
+
+### `Translations`
+
+A flat or nested dictionary of translation key-value pairs.
+
+```ts
+interface Translations
+```
+
+::field-group
+:::field
+---
+name: "[key: string]"
+type: "Translation"
+---
+
+:::
+::
+
+---
+
+Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

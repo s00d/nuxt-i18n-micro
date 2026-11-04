@@ -152,7 +152,7 @@ A static host applies its own headers to these files; set caching in the host's 
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Node server or route, `?v=` equal to the current `dateBuild`, a non-empty dictionary     | `private, max-age=<httpCacheDuration>, immutable`                                                               |
 | Node server or route, without `?v=`, with an old one, or an empty dictionary             | `public, max-age=0, must-revalidate`                                                                            |
-| A host's copy of `public/`, any `?v=`                                                    | `public, max-age=60` ([`httpCacheControl`](/api/module-options#other)) |
+| A host's copy of `public/`, any `?v=`                                                    | `public, max-age=60` ([`httpCacheControl`](/api/module-options#httpcachecontrol)) |
 | `source` mode, `cacheTtl`, or `apiBaseServerHost`: a dictionary can change with no build | the `httpCacheControl` header, always                                                                           |
 | Server route, the dictionary could not be read                                           | `503`, `no-store`                                                                                               |
 | dev server                                                                               | none                                                                                                            |

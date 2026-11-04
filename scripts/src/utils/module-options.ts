@@ -26,6 +26,8 @@ export interface ModuleOption {
   optional: boolean
   /** Reason from `@deprecated`, or null when the option is current. */
   deprecated: string | null
+  /** Bodies of the `@example` tags, fences removed. */
+  examples: string[]
 }
 
 const MAX_DEPTH = 2
@@ -39,22 +41,34 @@ function tagText(tag: ts.JSDocTag): string {
   return ''
 }
 
+/** An example keeps its lines; a fence written around it in the comment is dropped. */
+function exampleText(tag: ts.JSDocTag): string {
+  const comment = tag.comment
+  const text = typeof comment === 'string' ? comment : Array.isArray(comment) ? comment.map((part) => part.text).join('') : ''
+  return text
+    .replace(/^\s*```\w*\n?/, '')
+    .replace(/\n?```\s*$/, '')
+    .trim()
+}
+
 interface JsDocInfo {
   description: string
   default: string | null
   deprecated: string | null
+  examples: string[]
 }
 
 function readJsDoc(member: ts.PropertySignature): JsDocInfo {
   // `ts.getJSDocTags` walks the same nodes the compiler does, so a tag written in an
   // unusual position is still found — a hand-rolled comment scan misses those.
-  const info: JsDocInfo = { description: '', default: null, deprecated: null }
+  const info: JsDocInfo = { description: '', default: null, deprecated: null, examples: [] }
 
   for (const tag of ts.getJSDocTags(member)) {
     const name = tag.tagName.text
     if (name === 'default') info.default = tagText(tag)
     // An empty `@deprecated` still marks the option; the empty string would read as absent.
     else if (name === 'deprecated') info.deprecated = tagText(tag) || 'deprecated'
+    else if (name === 'example') info.examples.push(exampleText(tag))
   }
 
   // Every block, not just the last: a declaration preceded by two JSDoc comments would
@@ -102,6 +116,7 @@ export function readModuleOptions(interfaceName = 'ModuleOptions', file = join(r
         description: doc.description,
         optional: Boolean(member.questionToken),
         deprecated: doc.deprecated,
+        examples: doc.examples,
       })
 
       if (depth >= MAX_DEPTH || !member.type) continue

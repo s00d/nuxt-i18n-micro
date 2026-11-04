@@ -31,6 +31,49 @@ export function table(headers: string[], rows: string[][]): string {
   return [`| ${headers.join(' | ')} |`, `| ${headers.map(() => '---').join(' | ')} |`, ...rows.map((row) => `| ${row.join(' | ')} |`)].join('\n')
 }
 
+/** One entry of a `::field-group`: Nuxt UI's prose `Field` (name, type, required, text). */
+export interface Field {
+  name: string
+  type?: string
+  required?: boolean
+  /** Markdown; lists and code blocks are fine, it is the field's slot. */
+  text?: string
+}
+
+/** Above this many fields a group starts collapsed: the signature above already lists the names. */
+const COLLAPSE_AFTER = 8
+
+/**
+ * Fields instead of a table: a table squeezes a long type and a paragraph of text into one
+ * row, a field gives each its own line and keeps the text's Markdown.
+ *
+ * Props go in a YAML block rather than `{name="…"}` attributes: a type carries quotes,
+ * braces and pipes, and JSON is valid YAML whatever it holds.
+ *
+ * @param depth how many components this group sits inside (each adds a colon)
+ */
+export function fieldGroup(fields: Field[], options: { depth?: number; label?: string; collapse?: boolean } = {}): string {
+  if (fields.length === 0) return ''
+  const base = options.depth ?? 0
+  // A reference list (exit codes, flags) is the content itself; only member lists fold.
+  const collapse = (options.collapse ?? true) && fields.length > COLLAPSE_AFTER
+  const depth = base + (collapse ? 1 : 0)
+  const outer = ':'.repeat(depth + 2)
+  const inner = ':'.repeat(depth + 3)
+
+  const body = fields.map((field) => {
+    const props = [`name: ${JSON.stringify(field.name)}`]
+    if (field.type) props.push(`type: ${JSON.stringify(field.type)}`)
+    if (field.required) props.push('required: true')
+    return [`${inner}field`, '---', ...props, '---', field.text?.trim() ?? '', inner].join('\n')
+  })
+  const group = [`${outer}field-group`, ...body, outer].join('\n')
+  if (!collapse) return group
+
+  const wrapper = ':'.repeat(base + 2)
+  return [`${wrapper}collapsible{name=${JSON.stringify(`${fields.length} ${options.label ?? 'fields'}`)}}`, group, wrapper].join('\n')
+}
+
 /**
  * First sentence of a description, for an index table.
  *

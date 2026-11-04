@@ -4,8 +4,10 @@ import { pathToFileURL } from 'node:url'
 import { defineCommand } from 'citty'
 import { indexSnapshot } from '../utils/api-surface'
 import { parseComponent } from '../utils/component-docs'
-import { BLOCK_START, MissingBlockError, cell, code, replaceBlock, summarise, table } from '../utils/markdown'
+import { BLOCK_END, BLOCK_START, type Field, MissingBlockError, cell, code, fieldGroup, replaceBlock, summarise, table } from '../utils/markdown'
+import { listWorkspacePackages } from '../utils/git-baseline'
 import { type ModuleOption, readModuleOptions } from '../utils/module-options'
+import { type EntryDoc, type ExportDoc, type ExportGroup, GROUP_ORDER, readPackageDocs } from '../utils/package-docs'
 import { type DocSymbol, readInterface, readModules } from '../utils/typedoc-model'
 import { repoRoot } from '../utils/workspace'
 
@@ -18,74 +20,6 @@ const formatSize = (bytes: number): string => (bytes >= 1024 * 1024 ? `${(bytes 
 
 /* ------------------------------------------------------------------------ module options */
 
-/** Options are shown in named groups; anything unlisted falls into "Other". */
-const OPTION_GROUPS: { title: string; blurb: string; match: (path: string) => boolean }[] = [
-  {
-    title: 'Locales and routing',
-    blurb: 'Which languages exist and how they appear in the URL.',
-    match: (path) =>
-      [
-        'locales',
-        'defaultLocale',
-        'strategy',
-        'globalLocaleRoutes',
-        'routeLocales',
-        'noPrefixRedirect',
-        'customRegexMatcher',
-        'excludePatterns',
-        'localeCookie',
-      ].includes(path),
-  },
-  {
-    title: 'Translations',
-    blurb: 'Where translation files live and how keys are resolved.',
-    match: (path) =>
-      path.startsWith('translationDir') || ['disablePageLocales', 'fallbackLocale', 'plural', 'routesLocaleLinks', 'disableWatcher'].includes(path),
-  },
-  {
-    title: 'Payloads and caching',
-    blurb: 'How translations reach the browser. [Performance](/guide/performance) explains what these change at runtime.',
-    match: (path) => path.startsWith('translationPayloads') || path.startsWith('api') || path === 'serverTranslationPreload',
-  },
-  {
-    title: 'SEO',
-    blurb: 'Meta tags generated for each localized page.',
-    match: (path) => path.startsWith('meta') || path === 'canonicalQueryWhitelist',
-  },
-  {
-    title: 'Detection and redirects',
-    blurb: 'Choosing a locale for a visitor who has not picked one.',
-    match: (path) => path.startsWith('autoDetect') || path === 'redirects',
-  },
-  {
-    title: 'Registration',
-    blurb: 'Parts of the module you can switch off.',
-    match: (path) => ['define', 'plugin', 'hooks', 'components', 'types', 'debug'].includes(path),
-  },
-]
-
-function optionRow(option: ModuleOption): string[] {
-  const description = option.deprecated ? `**Deprecated** — ${option.deprecated}. ${option.description}` : option.description
-  return [code(option.path), code(option.type), code(option.default), cell(description)]
-}
-
-function groupedOptions(options: ModuleOption[]): string {
-  const claimed = new Set<string>()
-  const sections: string[] = []
-
-  for (const group of OPTION_GROUPS) {
-    const matched = options.filter((option) => group.match(option.path))
-    if (matched.length === 0) continue
-    for (const option of matched) claimed.add(option.path)
-    sections.push(`## ${group.title}\n\n${group.blurb}\n\n${table(['Option', 'Type', 'Default', 'Description'], matched.map(optionRow))}`)
-  }
-
-  const rest = options.filter((option) => !claimed.has(option.path))
-  if (rest.length > 0) sections.push(`## Other\n\n${table(['Option', 'Type', 'Default', 'Description'], rest.map(optionRow))}`)
-
-  return sections.join('\n\n')
-}
-
 /**
  * Type, default and description of one option, for the detail section that explains it.
  *
@@ -93,15 +27,67 @@ function groupedOptions(options: ModuleOption[]): string {
  * takes the facts from the type, so a renamed or retyped option cannot be described
  * correctly on the reference page and wrongly two pages away.
  */
-function optionFacts(option: ModuleOption): string {
-  const facts = [`**Type** ${code(option.type)}`, `**Default** ${code(option.default)}`]
+/** `code` escapes `|` for a table cell; in a paragraph the backslash would show. */
+const inlineCode = (value: string | null): string => code(value).replaceAll('\\|', '|')
+
+function optionFacts(option: ModuleOption, options: ModuleOption[]): string {
+  const facts = [`**Type** ${inlineCode(option.type)}`, `**Default** ${inlineCode(option.default)}`]
   if (!option.optional) facts.push('**Required**')
 
   const lines = [facts.join(' · ')]
-  if (option.deprecated) lines.push('', `**Deprecated** — ${cell(option.deprecated)}`)
+  if (option.deprecated) lines.push('', `::warning\n**Deprecated** — ${cell(option.deprecated)}\n::`)
   if (option.description) lines.push('', openListsWithABlankLine(option.description))
+  for (const example of option.examples) lines.push('', '```ts', example, '```')
+
+  // A nested option is a key of this one: its fields read under the parent.
+  const children = options.filter((entry) => entry.path.startsWith(`${option.path}.`) && !entry.path.slice(option.path.length + 1).includes('.'))
+  const fields = children.map((child) => ({
+    name: child.path.slice(option.path.length + 1),
+    type: child.type,
+    required: !child.optional,
+    text: fieldText(child.description, child),
+  }))
+  if (fields.length > 0) lines.push('', fieldGroup(fields, { collapse: false }))
 
   return lines.join('\n')
+}
+
+interface OptionGroup {
+  title: string
+  options: string[]
+}
+
+/**
+ * The groups and option headings the page itself declares, below the index: the page's
+ * prose decides the grouping, the index only mirrors it.
+ */
+function optionGroups(page: string): OptionGroup[] {
+  const groups: OptionGroup[] = []
+  const body = page.slice(page.indexOf(BLOCK_END('module-options')))
+  for (const line of body.split('\n')) {
+    const group = /^## (.+)$/.exec(line)
+    if (group) groups.push({ title: group[1]!, options: [] })
+    const option = /^### `([^`]+)`$/.exec(line)
+    if (option) groups.at(-1)?.options.push(option[1]!)
+  }
+  return groups.filter((group) => group.options.length > 0)
+}
+
+const headingAnchor = (text: string): string =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+
+/** One line per group: the group, then its options, each a link to its section. */
+function optionsIndex(groups: OptionGroup[]): string {
+  return groups
+    .map(
+      (group) =>
+        `- [${group.title}](#${headingAnchor(group.title)}) — ${group.options.map((name) => `[\`${name}\`](#${name.toLowerCase()})`).join(' · ')}`,
+    )
+    .join('\n')
 }
 
 /**
@@ -135,12 +121,42 @@ const anchorOf = (name: string): string => name.replace(/^\$/, '').toLowerCase()
  * and `$_ts` share one hand-written section under a combined heading.
  */
 function methodsIndex(methods: DocSymbol[], documented: Set<string>): string {
-  const rows = methods.map((method) => [
-    documented.has(method.name) ? `[\`${method.name}\`](#${anchorOf(method.name)})` : `\`${method.name}\``,
-    code(method.signature),
-    summarise(method.description),
-  ])
-  return table(['Helper', 'Signature', 'Purpose'], rows)
+  return methods
+    .map((method) => {
+      const name = documented.has(method.name) ? `[\`${method.name}\`](#${anchorOf(method.name)})` : `\`${method.name}\``
+      return `- ${name} — ${summarise(method.description)}`
+    })
+    .join('\n')
+}
+
+const isBlockStart = (line: string): boolean => /^\s*(?:[-*] |\d+\. |```)/.test(line)
+
+/**
+ * `**Default** x · **Deprecated** — why`, then the description, as one field's text.
+ *
+ * The field renders its slot with `mdc-unwrap="p"`: two paragraphs run together with no
+ * space between them ("Path.Default '/'"). So the facts lead the first paragraph, and
+ * plain paragraphs are joined into one; lists and code blocks keep their own lines.
+ */
+function fieldText(description: string, extra: { default?: string | null; deprecated?: string | null } = {}): string {
+  const facts: string[] = []
+  if (extra.default !== undefined && extra.default !== null && extra.default !== '') facts.push(`**Default** ${inlineCode(extra.default)}`)
+  if (extra.deprecated) facts.push(`**Deprecated** — ${extra.deprecated}`)
+
+  const paragraphs = openListsWithABlankLine(description)
+    .split(/\n{2,}/)
+    .filter(Boolean)
+  const joined: string[] = []
+  for (const paragraph of paragraphs) {
+    const previous = joined.at(-1)
+    if (previous === undefined || isBlockStart(paragraph) || isBlockStart(previous.split('\n').at(-1)!)) joined.push(paragraph)
+    else joined[joined.length - 1] = `${previous} ${paragraph}`
+  }
+
+  const lead = facts.join(' · ')
+  if (joined.length === 0) return lead
+  if (!lead) return joined.join('\n\n')
+  return isBlockStart(joined[0]!) ? [lead, ...joined].join('\n\n') : [`${lead} · ${joined[0]}`, ...joined.slice(1)].join('\n\n')
 }
 
 /** Signature, description, parameters and examples of one symbol. */
@@ -152,10 +168,7 @@ function symbolBlock(symbol: DocSymbol): string {
 
   if (symbol.params.length > 0) {
     parts.push(
-      table(
-        ['Parameter', 'Type', 'Description'],
-        symbol.params.map((param) => [`${code(param.name)}${param.optional ? ' *(optional)*' : ''}`, code(param.type), cell(param.description)]),
-      ),
+      fieldGroup(symbol.params.map((param) => ({ name: param.name, type: param.type, required: !param.optional, text: param.description }))),
       '',
     )
   }
@@ -190,26 +203,22 @@ async function componentBlock(file: string): Promise<string> {
   const parsed = await parseComponent(file)
   const parts: string[] = []
 
-  const props = (parsed.props ?? []).map((prop) => [
-    code(prop.name) + (prop.required ? ' **\\***' : ''),
-    code(typeText(prop.type)),
-    code(prop.defaultValue?.value ?? null),
-    cell(prop.description ?? ''),
-  ])
-  if (props.length > 0) {
-    parts.push(table(['Prop', 'Type', 'Default', 'Description'], props))
-    if ((parsed.props ?? []).some((prop) => prop.required)) parts.push('', '**\\*** required.')
-  }
+  const props = (parsed.props ?? []).map((prop) => ({
+    name: prop.name,
+    type: typeText(prop.type),
+    required: Boolean(prop.required),
+    text: fieldText(prop.description ?? '', { default: prop.defaultValue?.value ?? null }),
+  }))
+  if (props.length > 0) parts.push(fieldGroup(props, { label: 'props' }))
 
-  const slots = (parsed.slots ?? []).map((slot) => [
-    code(slot.name),
-    (slot.bindings ?? []).map((binding) => `\`${binding.name}\``).join(', ') || '—',
-    cell(slot.description ?? ''),
-  ])
-  if (slots.length > 0) parts.push('', '### Slots', '', table(['Slot', 'Bindings', 'Description'], slots))
+  const slots = (parsed.slots ?? []).map((slot) => {
+    const bindings = (slot.bindings ?? []).map((binding) => `\`${binding.name}\``).join(', ')
+    return { name: slot.name, text: [slot.description ?? '', bindings ? `**Bindings** ${bindings}` : ''].filter(Boolean).join('\n\n') }
+  })
+  if (slots.length > 0) parts.push('', '### Slots', '', fieldGroup(slots, { label: 'slots' }))
 
-  const events = (parsed.events ?? []).map((event) => [code(event.name), cell(event.description ?? '')])
-  if (events.length > 0) parts.push('', '### Events', '', table(['Event', 'Description'], events))
+  const events = (parsed.events ?? []).map((event) => ({ name: event.name, text: event.description ?? '' }))
+  if (events.length > 0) parts.push('', '### Events', '', fieldGroup(events, { label: 'events' }))
 
   return parts.join('\n')
 }
@@ -277,66 +286,228 @@ function readPackages(): ApiPackage[] {
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/* ------------------------------------------------------------------------- package pages */
+
+interface PackageDocs {
+  name: string
+  slug: string
+  description: string
+  entries: EntryDoc[]
+}
+
+/** Where a declaration is documented: one section on one page, whatever re-exports it. */
+interface Home {
+  href: string
+  name: string
+}
+
+const GROUP_TITLES: Record<ExportGroup, string> = {
+  component: 'Components',
+  composable: 'Composables',
+  function: 'Functions',
+  class: 'Classes',
+  constant: 'Constants',
+  type: 'Types',
+}
+
+/** React, Preact and Solid readers call a `use*` function a hook. */
+const HOOK_PACKAGES = new Set(['react', 'preact', 'solid'])
+
+const MEMBER_LABELS: Record<ExportGroup, string> = {
+  component: 'props',
+  composable: 'properties',
+  function: 'properties',
+  class: 'members',
+  constant: 'properties',
+  type: 'properties',
+}
+
+function readPackageDocsAll(names: Set<string>): PackageDocs[] {
+  const workspace = listWorkspacePackages()
+  const owners = new Map(workspace.map((entry) => [entry.relDir.replace(/^packages\//, ''), entry.name]))
+  return workspace
+    .filter((entry) => names.has(entry.name))
+    .map((entry) => ({
+      name: entry.name,
+      slug: entry.name.replace('@i18n-micro/', ''),
+      description: entry.pkg.description ?? '',
+      entries: readPackageDocs(entry.dir, entry.pkg, owners),
+    }))
+}
+
 /**
- * Where a member list was first documented, keyed by its contents.
- *
- * The packages re-export each other's types, so `ModuleOptions` and `FormatService` carry
- * the same forty-line table on six pages, and a page can repeat one three times under
- * different aliases. Rendering it once and linking to it keeps the reference readable —
- * and keeps the `llms-full.txt` bundle from spending a quarter of its tokens on copies.
+ * The page that owns each declaration: the package that declares it, at the first entry
+ * point exporting it. Every other page links there instead of repeating it — `ModuleOptions`
+ * used to carry the same table on six pages.
  */
-interface MemberIndex {
-  seen: Map<string, { pkg: ApiPackage; symbol: string }>
+function homesOf(packages: PackageDocs[]): Map<string, Home> {
+  const homes = new Map<string, Home>()
+  for (const pkg of packages) {
+    for (const item of pkg.entries.flatMap((entry) => entry.exports)) {
+      if (item.owner !== pkg.name || homes.has(item.key)) continue
+      homes.set(item.key, { href: `/api/packages/${pkg.slug}#${anchorOf(item.name)}`, name: item.name })
+    }
+  }
+  return homes
 }
 
-function memberKey(members: { name: string; signature: string }[]): string {
-  return members.map((member) => `${member.name}:${member.signature}`).join('\n')
+const linkTo = (name: string, href: string): string => `[\`${name}\`](${href})`
+
+/** Types a signature names that have a section somewhere, in the order it names them. */
+function referencedTypes(item: ExportDoc, known: Map<string, string>): string {
+  const names = [...new Set(item.signature.match(/\b[A-Z]\w*\b/g) ?? [])].filter((name) => name !== item.name && known.has(name))
+  return names.length === 0 ? '' : `**See** ${names.map((name) => linkTo(name, known.get(name)!)).join(' · ')}`
 }
 
-function packagePage(pkg: ApiPackage, index: MemberIndex): string {
-  const sections = pkg.entryPoints.map((entry) => {
-    const rows = entry.exports.map((item) => [
-      code(item.name),
-      item.kind,
-      item.signature ? code(item.signature) : item.members.length > 0 ? `${item.members.length} members` : '—',
-    ])
-
-    const details = entry.exports
-      .filter((item) => item.members.length > 0)
-      .map((item) => {
-        const key = memberKey(item.members)
-        const first = index.seen.get(key)
-
-        // Any repeat links back, including the same symbol re-exported from a second
-        // entry point of the same package — that was the largest source of duplication.
-        if (first) {
-          const samePage = first.pkg.slug === pkg.slug
-          // No `#symbol` anchors exist on these pages — only entry-point headings — so a
-          // same-page repeat says where to look instead of linking somewhere dead.
-          const where = samePage ? `\`${first.symbol}\` above` : `[\`${first.symbol}\`](/api/packages/${first.pkg.slug})`
-          return `<code>${item.name}</code> — ${item.members.length} members, identical to ${where}.`
-        }
-
-        index.seen.set(key, { pkg, symbol: item.name })
-        return `<details>\n<summary><code>${item.name}</code> — ${item.members.length} members</summary>\n\n${table(
-          ['Member', 'Type'],
-          item.members.map((member) => [code(member.name), code(member.signature)]),
-        )}\n\n</details>`
-      })
-
-    return [
-      `## \`${entry.specifier}\``,
-      '',
-      '```ts',
-      `import { /* … */ } from '${entry.specifier}'`,
-      '```',
-      '',
-      table(['Export', 'Kind', 'Signature'], rows),
-      '',
-      // a blank line between blocks: a line right after `</details>` is parsed as raw HTML
-      details.join('\n\n'),
-    ].join('\n')
+/**
+ * Members as fields. An optional member is the usual case for props and options, so the
+ * mark goes on the required ones; a class member is neither.
+ */
+function memberFields(item: ExportDoc): string {
+  const fields = item.members.map((member, index) => {
+    // The overloads of one method share their JSDoc; saying it once is enough.
+    const overload = item.members[index - 1]?.name === member.name
+    const optional = member.name.endsWith('?')
+    return {
+      name: optional ? member.name.slice(0, -1) : member.name,
+      type: member.type,
+      required: item.group !== 'class' && !optional && !member.name.startsWith('['),
+      text: overload ? '' : fieldText(member.description, member),
+    }
   })
+  return fieldGroup(fields, { label: MEMBER_LABELS[item.group] })
+}
+
+function paramFields(item: ExportDoc): string {
+  if (!item.params.some((param) => param.description)) return ''
+  return fieldGroup(
+    item.params.map((param) => ({ name: param.name, type: param.type, required: param.optional === false, text: param.description })),
+    { label: 'parameters' },
+  )
+}
+
+/** One export: what it is, how it is called, what it takes and gives back. */
+function exportSection(item: ExportDoc, level: number, known: Map<string, string>): string {
+  const parts = [`${'#'.repeat(level)} \`${item.name}\``]
+  if (item.deprecated) parts.push(`::warning\n**Deprecated** — ${item.deprecated}\n::`)
+  if (item.description) parts.push(openListsWithABlankLine(item.description))
+  parts.push(['```ts', item.signature, '```'].join('\n'))
+  parts.push(paramFields(item))
+  if (item.returns) parts.push(`**Returns** — ${item.returns}`)
+  if (item.members.length > 0) parts.push(memberFields(item))
+  for (const example of item.examples) parts.push(['```ts', example, '```'].join('\n'))
+  parts.push(referencedTypes(item, known))
+  return parts.filter(Boolean).join('\n\n')
+}
+
+/** `ReactI18n` is `I18n` under another name: say which section the link opens. */
+const reexportLink = (item: ExportDoc, home: Home): string =>
+  home.name === item.name ? linkTo(item.name, home.href) : `${linkTo(item.name, home.href)} (as \`${home.name}\`)`
+
+/** Re-exports, one line per package that documents them. */
+function reexportList(items: ExportDoc[], homes: Map<string, Home>, packages: PackageDocs[]): string {
+  const byOwner = new Map<string, ExportDoc[]>()
+  for (const item of items) byOwner.set(item.owner, [...(byOwner.get(item.owner) ?? []), item])
+
+  return [...byOwner]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([owner, list]) => {
+      const slug = packages.find((pkg) => pkg.name === owner)!.slug
+      const links = list.map((item) => reexportLink(item, homes.get(item.key)!)).join(' · ')
+      return `- From [\`${owner}\`](/api/packages/${slug}): ${links}`
+    })
+    .join('\n')
+}
+
+interface PageContext {
+  pkg: PackageDocs
+  packages: PackageDocs[]
+  homes: Map<string, Home>
+  /** Name → link for every type a signature on this page may mention. */
+  known: Map<string, string>
+  /** Declarations already documented on this page, by an earlier entry point. */
+  seen: Map<string, string>
+  /** Export headings so far, by anchor: two `useAstroI18n` sections are `#useastroi18n` and `#useastroi18n-1`. */
+  anchors: Map<string, number>
+}
+
+/** The id the site gives the next heading of this name: repeats get `-1`, `-2`, … */
+function nextAnchor(anchors: Map<string, number>, name: string): string {
+  const anchor = anchorOf(name)
+  const count = anchors.get(anchor) ?? 0
+  anchors.set(anchor, count + 1)
+  return count === 0 ? anchor : `${anchor}-${count}`
+}
+
+/**
+ * What an entry point shares with one above it, said once: `@i18n-micro/react/client` is
+ * the root entry again, and forty links would only hide that.
+ */
+function repeatedLine(entry: EntryDoc, repeated: ExportDoc[], earlier: EntryDoc[], seen: Map<string, string>): string {
+  if (repeated.length === 0) return ''
+  const source = earlier.find((candidate) => repeated.every((item) => candidate.exports.some((other) => other.id === item.id)))
+  if (source && repeated.length === entry.exports.length && repeated.length === source.exports.length) {
+    return `The same exports as \`${source.specifier}\` above.`
+  }
+  const from = source ? `\`${source.specifier}\`` : 'an entry point above'
+  return `Also exports, as ${from} does: ${repeated.map((item) => linkTo(item.name, seen.get(item.id)!)).join(' · ')}.`
+}
+
+function entrySection(entry: EntryDoc, context: PageContext, level: number): string {
+  const { pkg, homes, seen } = context
+  const isHere = (item: ExportDoc): boolean => {
+    const home = homes.get(item.key)
+    return !home || home.href.startsWith(`/api/packages/${pkg.slug}#`)
+  }
+
+  const repeated = entry.exports.filter((item) => seen.has(item.id))
+  const local = entry.exports.filter((item) => !seen.has(item.id) && isHere(item))
+  const elsewhere = entry.exports.filter((item) => !seen.has(item.id) && !isHere(item))
+  for (const item of local) seen.set(item.id, `#${nextAnchor(context.anchors, item.name)}`)
+  for (const item of elsewhere) seen.set(item.id, homes.get(item.key)!.href)
+
+  const parts = [repeatedLine(entry, repeated, pkg.entries.slice(0, pkg.entries.indexOf(entry)), seen)].filter(Boolean)
+
+  const hooks = HOOK_PACKAGES.has(pkg.slug)
+  for (const group of GROUP_ORDER) {
+    const items = local.filter((item) => item.group === group)
+    if (items.length === 0) continue
+    const title = group === 'composable' && hooks ? 'Hooks' : GROUP_TITLES[group]
+    parts.push(`${'#'.repeat(level)} ${title}`, ...items.map((item) => exportSection(item, level + 1, context.known)))
+  }
+
+  if (elsewhere.length > 0) {
+    parts.push(
+      `${'#'.repeat(level)} Re-exports`,
+      'Declared in another package of this repository and documented on its page.',
+      reexportList(elsewhere, homes, context.packages),
+    )
+  }
+  return parts.join('\n\n')
+}
+
+function packagePage(pkg: PackageDocs, packages: PackageDocs[], homes: Map<string, Home>): string {
+  // Links for the "See" lines: what this page exports, by where it is documented, then any
+  // type with a section on another page — `interpolate` takes `Params` without re-exporting it.
+  const known = new Map<string, string>()
+  for (const item of pkg.entries.flatMap((entry) => entry.exports)) {
+    const home = homes.get(item.key)
+    if (!known.has(item.name))
+      known.set(item.name, home && !home.href.startsWith(`/api/packages/${pkg.slug}#`) ? home.href : `#${anchorOf(item.name)}`)
+  }
+  for (const home of homes.values()) {
+    if (!known.has(home.name)) known.set(home.name, home.href)
+  }
+  const context: PageContext = { pkg, packages, homes, known, seen: new Map(), anchors: new Map() }
+  const multi = pkg.entries.length > 1
+
+  const body = multi
+    ? pkg.entries.map((entry) => [`## \`${entry.specifier}\``, entrySection(entry, context, 3)].join('\n\n'))
+    : pkg.entries.map((entry) => entrySection(entry, context, 2))
+
+  const intro = multi
+    ? `Entry points: ${pkg.entries.map((entry) => `\`${entry.specifier}\``).join(', ')}.`
+    : ['```ts', `import { … } from '${pkg.name}'`, '```'].join('\n')
 
   return [
     '---',
@@ -345,29 +516,36 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
     // The sidebar group is already "Package APIs": drop the scope so long names fit.
     'navigation:',
     `  title: '${pkg.name.replace(/^@i18n-micro\//, '')}'`,
-    "outline: 'deep'",
     '---',
     '',
     `# \`${pkg.name}\``,
     '',
-    `${pkg.exportCount} exports across ${pkg.entryPoints.length} entry point${pkg.entryPoints.length === 1 ? '' : 's'}.`,
-    'Generated from the API snapshot that [`pnpm run api:surface`](/contributing/maintenance-commands#api-surface)',
-    'checks against the TypeScript sources.',
+    pkg.description,
     '',
-    ...sections,
+    intro,
     '',
+    ...body.flatMap((section) => [section, '']),
+    '---',
+    '',
+    'Generated from the TypeScript sources and their JSDoc by `pnpm run docs:generate`.',
     'Back to [all packages](/api/packages) · [Integration guides](/integrations/)',
     '',
   ].join('\n')
 }
 
 function packagesIndex(packages: ApiPackage[]): string {
-  const rows = packages.map((pkg) => [
-    `[\`${pkg.name}\`](/api/packages/${pkg.slug})`,
-    pkg.entryPoints.map((entry) => `\`${entry.specifier}\``).join(', '),
-    String(pkg.exportCount),
-  ])
-  return table(['Package', 'Entry points', 'Exports'], rows)
+  return packages
+    .map((pkg) => {
+      const entries =
+        pkg.entryPoints.length > 1
+          ? ` — also ${pkg.entryPoints
+              .slice(1)
+              .map((entry) => `\`${entry.specifier}\``)
+              .join(', ')}`
+          : ''
+      return `- [\`${pkg.name}\`](/api/packages/${pkg.slug}) · ${pkg.exportCount} exports${entries}`
+    })
+    .join('\n')
 }
 
 /* ------------------------------------------------------------------------------- CLI */
@@ -402,27 +580,30 @@ interface CliSpec {
 /** On every command, so the reference states them once. */
 const CLI_COMMON_FLAGS = new Set(['cwd', 'logLevel', 'debug'])
 
-const cliFlag = (name: string, arg: CliArg): string => code(arg.type === 'positional' ? `<${name}>` : `--${name}`) + (arg.required ? ' **\\***' : '')
-
 function cliDefault(arg: CliArg): string {
-  if (arg.defaultHint) return cell(arg.defaultHint)
-  if (arg.default === undefined || arg.default === '') return '—'
-  return code(String(arg.default))
+  if (arg.defaultHint) return `**Default** ${arg.defaultHint}`
+  if (arg.default === undefined || arg.default === '') return ''
+  return `**Default** ${inlineCode(String(arg.default))}`
 }
 
-const cliDescription = (arg: CliArg): string => cell(arg.values ? `${arg.description}: ${arg.values.join(', ')}` : arg.description)
+const cliDescription = (arg: CliArg): string =>
+  arg.values ? `${arg.description}: ${arg.values.map((value) => `\`${value}\``).join(', ')}` : arg.description
 
-const cliFlagTable = (args: [string, CliArg][]): string =>
-  table(
-    ['Flag', 'Default', 'Description'],
-    args.map(([name, arg]) => [cliFlag(name, arg), cliDefault(arg), cliDescription(arg)]),
+const cliFlagFields = (args: [string, CliArg][]): string =>
+  fieldGroup(
+    args.map(([name, arg]) => ({
+      name: arg.type === 'positional' ? `<${name}>` : `--${name}`,
+      type: arg.type === 'positional' ? 'string' : arg.type,
+      required: arg.required,
+      text: [cliDescription(arg), cliDefault(arg)].filter(Boolean).join('\n\n'),
+    })),
+    { label: 'flags', collapse: false },
   )
 
 function cliCommandBlock(name: string, command: CliCommand): string {
   const flags = Object.entries(command.args).filter(([flag]) => !CLI_COMMON_FLAGS.has(flag))
   const parts = [`### \`${name}\``, '', command.description, '']
-  if (flags.length > 0) parts.push(cliFlagTable(flags), '')
-  if (flags.some(([, arg]) => arg.required)) parts.push('**\\*** required.', '')
+  if (flags.length > 0) parts.push(cliFlagFields(flags), '')
   if (command.examples?.length) parts.push('```bash', ...command.examples, '```', '')
   return parts.join('\n').trim()
 }
@@ -445,20 +626,26 @@ export async function cliReference(): Promise<string> {
     return [`## ${group}`, '', ...members.flatMap(([name, command]) => [cliCommandBlock(name, command), ''])].join('\n').trim()
   })
 
-  const reference: Array<[string, string[], string[][]]> = [
+  const reference: Array<[string, Field[]]> = [
     [
       'Lint rules',
-      ['Rule', 'Finds', 'Fixed by `--fix`'],
-      LINT_RULES.map(({ name, description, fixable }) => [code(name), description, fixable ? 'yes' : 'no']),
+      LINT_RULES.map(({ name, description, fixable }) => ({ name, text: fixable ? `${description}\n\nFixed by \`--fix\`.` : description })),
     ],
-    ['Exit codes', ['Code', 'Meaning'], EXIT_CODES.map(([exit, meaning]) => [code(String(exit)), meaning])],
-    ['Configuration files', ['File', 'Used by'], CONFIG_FILES.map(([file, purpose]) => [code(file), purpose])],
-    ['Environment variables', ['Name', 'Used for'], ENVIRONMENT.map(([name, purpose]) => [code(name), purpose])],
-    ['Removed commands', ['Command', 'Instead'], Object.entries(REMOVED_COMMANDS).map(([name, replacement]) => [code(name), replacement])],
+    ['Exit codes', EXIT_CODES.map(([exit, meaning]) => ({ name: String(exit), text: meaning }))],
+    ['Configuration files', CONFIG_FILES.map(([file, purpose]) => ({ name: file, text: purpose }))],
+    ['Environment variables', ENVIRONMENT.map(([name, purpose]) => ({ name, text: purpose }))],
+    ['Removed commands', Object.entries(REMOVED_COMMANDS).map(([name, replacement]) => ({ name, text: `Instead: ${replacement}` }))],
   ]
-  const tables = reference.map(([title, head, rows]) => [`## ${title}`, '', table(head, rows)].join('\n'))
+  const blocks = reference.map(([title, fields]) => [`## ${title}`, '', fieldGroup(fields, { collapse: false })].join('\n'))
 
-  return ['## Common flags', '', cliFlagTable(uniqueCommon), '', ...groups.flatMap((group) => [group, '']), ...tables.flatMap((block) => [block, ''])]
+  return [
+    '## Common flags',
+    '',
+    cliFlagFields(uniqueCommon),
+    '',
+    ...groups.flatMap((group) => [group, '']),
+    ...blocks.flatMap((block) => [block, '']),
+  ]
     .join('\n')
     .trim()
 }
@@ -553,7 +740,16 @@ export const docsGenerateCommand = defineCommand({
 
     // --- module options ---------------------------------------------------------------
     const options = readModuleOptions()
-    inBlock('docs/content/api/module-options.md', 'module-options', groupedOptions(options))
+    const optionsPage = readFileSync(join(repoRoot, 'docs/content/api/module-options.md'), 'utf8')
+    // Every top-level option gets a section (its nested keys render inside it): an option
+    // with none would be missing from the reference altogether.
+    const homeless = options.filter((option) => !option.path.includes('.') && !optionsPage.includes(BLOCK_START(`option:${option.path}`)))
+    if (homeless.length > 0) {
+      console.error(`docs/content/api/module-options.md has no section for: ${homeless.map((option) => option.path).join(', ')}.`)
+      console.error('Add a `### `name`` heading with a generated:option:<name> region to the group it belongs to.')
+      process.exit(1)
+    }
+    inBlock('docs/content/api/module-options.md', 'module-options', optionsIndex(optionGroups(optionsPage)))
     // Any page may give an option a section of its own — the option details on the
     // reference page do for most, the Strategy guide for `strategy` — and each takes its
     // facts from the type.
@@ -562,7 +758,7 @@ export const docsGenerateCommand = defineCommand({
       const body = readFileSync(join(repoRoot, page), 'utf8')
       for (const option of options) {
         const id = `option:${option.path}`
-        if (body.includes(BLOCK_START(id))) inBlock(page, id, optionFacts(option))
+        if (body.includes(BLOCK_START(id))) inBlock(page, id, optionFacts(option, options))
       }
     }
 
@@ -607,16 +803,9 @@ export const docsGenerateCommand = defineCommand({
     inBlock('docs/content/api/packages.md', 'packages-index', packagesIndex(packages))
 
     const packagesDir = join(repoRoot, 'docs/content/api/packages')
-    // Ordered so the package that owns a type documents it: types first, then core,
-    // then the rest — a later page links back rather than repeating the table.
-    const ownership = ['types', 'core', 'utils']
-    const byOwnership = [...packages].sort((a, b) => {
-      const rank = (slug: string) => (ownership.indexOf(slug) === -1 ? ownership.length : ownership.indexOf(slug))
-      return rank(a.slug) - rank(b.slug) || a.slug.localeCompare(b.slug)
-    })
-
-    const memberIndex: MemberIndex = { seen: new Map() }
-    for (const pkg of byOwnership) emit(`docs/content/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
+    const packageDocs = readPackageDocsAll(new Set(packages.map((pkg) => pkg.name)))
+    const homes = homesOf(packageDocs)
+    for (const pkg of packageDocs) emit(`docs/content/api/packages/${pkg.slug}.md`, packagePage(pkg, packageDocs, homes))
 
     // A package removed from the workspace must lose its page too — and `--check` has to
     // say so, or a stale page passes CI forever.

@@ -102,6 +102,7 @@ test/deploy-smoke/pnpm-lock.yaml
 # `vercel link` writes the project ids here; CI reads them from secrets instead
 .vercel
 .claude/worktrees
+.claude/launch.json
 
 # Playwright MCP screenshots and snapshots
 .playwright-mcp/

@@ -2,7 +2,7 @@ import { readChunk } from '../helpers/chunk.ts'
 import { describe, expect, test } from '../helpers/guarded-test.ts'
 
 // translation-watcher fixture: en.json `linkedRoot: "@.upper:{'hello'}!"`, about/en.json `linkedPage: "@:aboutTitle / @:sharedRoot"`
-for (const harness of ['translation-watcher-linked', 'translation-watcher-linked-source'] as const) {
+for (const harness of ['translation-watcher-linked'] as const) {
   describe(`journey: linkedMessages (${harness})`, () => {
     test.override({ harness })
 

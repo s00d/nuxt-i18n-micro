@@ -361,21 +361,6 @@
       },
       "default": "./dist/load-dir.mjs"
     },
-    "./linked-messages": {
-      "production": {
-        "types": "./dist/linked-messages.d.ts",
-        "default": "./dist/linked-messages.mjs"
-      },
-      "import": {
-        "types": "./dist/linked-messages.d.ts",
-        "default": "./dist/linked-messages.mjs"
-      },
-      "require": {
-        "types": "./dist/linked-messages.d.cts",
-        "default": "./dist/linked-messages.cjs"
-      },
-      "default": "./dist/linked-messages.mjs"
-    },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },

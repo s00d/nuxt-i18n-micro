@@ -204,12 +204,8 @@ export const recipes = defineRecipes(
 
     // translation-watcher fixture, production server build — read-only checks for additionalTranslationDirs.
     'translation-watcher-prod': app('translation-watcher-prod', 'translation-watcher'),
-    // linkedMessages, premerged (rootDelta) and merged by the server route
+    // linkedMessages, premerged (rootDelta); the server merge of mode 'source' is unit-tested (shared-cache)
     'translation-watcher-linked': app('translation-watcher-linked', 'translation-watcher', { LINKED_MESSAGES: '1' }),
-    'translation-watcher-linked-source': app('translation-watcher-linked-source', 'translation-watcher', {
-      LINKED_MESSAGES: '1',
-      TRANSLATION_PAYLOADS: 'source',
-    }),
 
     // Dev servers for the HMR journeys run from a temp copy, so they never write into the repo tree
     // (the prod recipe hashes and builds the pristine dir). Roots: translationWatcherTmpRoots.

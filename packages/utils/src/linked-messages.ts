@@ -9,7 +9,7 @@ type Tree = Record<string, unknown>
 export interface LinkedMessagesOptions {
   /** BCP 47 tag the case modifiers go by (`toLocaleUpperCase`): the locale's `iso`, else its code. */
   locale?: string
-  /** A message left as written, once per message and reason: a missing key, a cycle, an unknown modifier. */
+  /** A message left as written: a missing key, a cycle, an unknown modifier. */
   warn?: (message: string) => void
 }
 
@@ -78,12 +78,8 @@ const textOfValue = (value: unknown): string | null => (typeof value === 'string
  */
 export function resolveLinkedMessages(tree: Tree, options: LinkedMessagesOptions = {}): Tree {
   const tag = caseTag(options.locale)
-  const warned = new Set<string>()
-  const warn = (message: string) => {
-    if (warned.has(message)) return
-    warned.add(message)
-    options.warn?.(message)
-  }
+  // each message is resolved once (`resolved`), so it warns once; across chunks the caller dedupes
+  const warn = (message: string) => options.warn?.(message)
   const resolved = new Map<string, string | Failure>()
   const active = new Set<string>()
 
@@ -122,7 +118,11 @@ export function resolveLinkedMessages(tree: Tree, options: LinkedMessagesOptions
   }
 
   const walk = (node: unknown, path: string): unknown => {
-    if (typeof node === 'string') return message(path, node) ?? node
+    if (typeof node === 'string') {
+      // as a link reads it, so one result serves both; a flat key that hides this path is resolved apart
+      const own = valueAt(tree, path) === node ? target(path) : (message(path, node) ?? BROKEN)
+      return typeof own === 'string' ? own : node
+    }
     if (!isObject(node)) return node
     let copy: Tree | unknown[] | null = null
     for (const key of Object.keys(node)) {

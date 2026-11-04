@@ -376,6 +376,22 @@ describe('made-up pages add no keys', () => {
     expect(mount.values.size).toBe(2)
   })
 
+  test('source + linkedMessages: the server resolves links over the merged page, as the build does', async () => {
+    state.config = { ...state.config, translationPayloadMode: 'source', locales: [{ code: 'en', iso: 'en-US' }] }
+    state.privateConfig = { ...state.privateConfig, linkedMessages: true }
+    state.files = { 'en.json': { name: 'Ada', shout: '@.upper:name' }, 'pages/about/en.json': { about: 'About @:name and {x}' } }
+    try {
+      const load = await instance()
+      expect((await load('en', 'about')).data).toEqual({ name: 'Ada', shout: 'ADA', about: 'About Ada and {x}' })
+      // off: the text as written (a fresh process and shared cache)
+      state.privateConfig = { ...state.privateConfig, linkedMessages: undefined }
+      mount = fakeMount()
+      expect((await (await instance())('en', 'about')).data).toMatchObject({ shout: '@.upper:name' })
+    } finally {
+      state.privateConfig = { ...state.privateConfig, linkedMessages: undefined }
+    }
+  })
+
   describe('remote', () => {
     const keys = () => [...mount.values.keys()].map((key) => key.split(':').at(-1)).sort()
 

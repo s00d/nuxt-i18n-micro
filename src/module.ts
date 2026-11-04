@@ -1,6 +1,6 @@
 import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy } from '@i18n-micro/core'
 import { forwardSlashes, isInternalPath } from '@i18n-micro/utils/app-path'
 import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from './hmr-plugin'
@@ -78,7 +78,7 @@ import { parentPagePaths } from './utils'
 export type { TranslationPayloadMode } from './build/payload-config'
 
 /** Absolute path of an entry a generated template imports. */
-async function resolveEntry(specifier: string): Promise<string> {
+async function resolveEntry(specifier: string, dev: boolean): Promise<string> {
   let absolutePath: string
   try {
     // Resolve relative to this module first, so pnpm layouts that nest
@@ -87,9 +87,10 @@ async function resolveEntry(specifier: string): Promise<string> {
   } catch {
     absolutePath = await resolvePath(specifier)
   }
-  // a plain path on every platform: Nitro's bundler leaves a `file:///D:/...` URL unresolved and the
-  // import external, so a Windows `.output` would point at the build machine's disk
-  return forwardSlashes(absolutePath)
+  // Windows: the dev server hands a dependency to Node's own import, which takes no `D:/...` path, only
+  // a `file:` URL; a build bundles it, and Nitro's bundler leaves that URL unresolved and external
+  // (the `.output` would point at the build machine's disk), so a build gets the plain path
+  return dev && process.platform === 'win32' ? pathToFileURL(absolutePath).href : forwardSlashes(absolutePath)
 }
 
 function generateI18nTypes(): string {
@@ -457,8 +458,8 @@ export default defineNuxtModule<ModuleOptions>({
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
     } = mergeDefineI18nRouteMeta(collectDefineI18nRouteMetaFromFiles(pageFiles, rootDirs), options)
 
-    const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
-    const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
+    const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy', nuxt.options.dev)
+    const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers', nuxt.options.dev)
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
     if (apiBaseClientHost?.endsWith('/')) {

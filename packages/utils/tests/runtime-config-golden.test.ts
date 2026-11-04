@@ -4,7 +4,13 @@
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { expect, test } from 'vitest'
-import { applyI18nRuntimeOverrides, i18nOverridesKey, mergeI18nOverrides, readI18nEnvOverrides, readI18nRuntimeOverrides } from '../src/runtime-config'
+import {
+  applyI18nRuntimeOverrides,
+  i18nOverridesKey,
+  mergeI18nOverrides,
+  readI18nEnvOverrides,
+  readI18nRuntimeOverrides,
+} from '../src/runtime-config'
 import { configForHost } from '../src/domains'
 
 const show = (value: unknown) => (value === undefined ? 'undefined' : JSON.stringify(value))
@@ -28,6 +34,13 @@ const bases: Record<string, () => ModuleOptionsExtend> = {
     base({
       locales: [{ code: 'en', baseUrl: 'https://example.com' }, { code: 'de', baseUrl: 'https://example.de' }, { code: 'ru' }],
       metaBaseUrl: 'https://example.com',
+    }),
+  // the same, as the build marks it since metaBaseUrlFromLocale: a runtime baseUrl of the default moves it
+  'domains+derived': () =>
+    base({
+      locales: [{ code: 'en', baseUrl: 'https://example.com' }, { code: 'de', baseUrl: 'https://example.de' }, { code: 'ru' }],
+      metaBaseUrl: 'https://example.com',
+      metaBaseUrlFromLocale: true,
     }),
   'domains+explicit': () =>
     base({
@@ -134,11 +147,18 @@ function report(): string {
   }
 
   section('configForHost after overrides')
-  const domainOverrides: Record<string, unknown>[] = [{}, { localeBaseUrls: { de: 'https://de.example.net' } }, { localeBaseUrls: { en: 'https://example.net' } }]
+  const domainOverrides: Record<string, unknown>[] = [
+    {},
+    { localeBaseUrls: { de: 'https://de.example.net' } },
+    { localeBaseUrls: { en: 'https://example.net' } },
+  ]
   for (const requested of domainOverrides) {
     for (const host of ['example.com', 'example.de', 'de.example.net', 'example.net', 'evil.test']) {
       run(`host(${show(requested)}, ${host})`, () => {
-        const config = configForHost(applyI18nRuntimeOverrides(bases.domains!(), requested as never, () => {}), host)
+        const config = configForHost(
+          applyI18nRuntimeOverrides(bases['domains+derived']!(), requested as never, () => {}),
+          host,
+        )
         return { domain: config.domain, defaultLocale: config.defaultLocale, metaBaseUrl: config.metaBaseUrl }
       })
     }

@@ -180,6 +180,19 @@ export const recipes = defineRecipes(
       { STRATEGY: 'prefix', DOMAINS: '/', NUXT_I18N_DEFAULT_LOCALE: 'ru' },
       { runtimeConfig: { public: { i18nRuntime: { disabledLocales: ['de'] } } } },
     ),
+    // runtime origins: de moves to example.at and en to example.net with no rebuild; metaBaseUrl follows en
+    'strategy-domains-runtime-urls': app('strategy-domains-runtime-urls', 'strategy', {
+      STRATEGY: 'prefix_except_default',
+      LOCALE_COOKIE: 'user-locale',
+      DOMAINS: '/',
+      NUXT_I18N_LOCALE_BASE_URLS: 'de=https://example.at,en=https://example.net',
+    }),
+    // a runtime SEO origin with no domains; locale domains are ignored there (the build has none)
+    'strategy-prefix-meta-override': app('strategy-prefix-meta-override', 'strategy', {
+      STRATEGY: 'prefix',
+      NUXT_I18N_META_BASE_URL: 'https://seo.example',
+      NUXT_I18N_LOCALE_BASE_URLS: 'de=https://example.at',
+    }),
     'strategy-domains-hash': app(
       'strategy-domains-hash',
       'strategy',

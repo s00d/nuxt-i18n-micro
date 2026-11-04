@@ -373,3 +373,46 @@ describe('journey: one build, two domains — app.baseURL', () => {
     expect((await onHost(baseURL, '/shop/de', DE)).status).toBe(404)
   })
 })
+
+describe('journey: one build, two domains — runtime locales[].baseUrl', () => {
+  test.override({ harness: 'strategy-domains-runtime-urls' })
+
+  test('the env moves both domains: the new hosts serve, the build hosts are unknown, metaBaseUrl follows the default', async ({ baseURL }) => {
+    // step 1: example.at is de's host now, with its own origin; en links to example.net
+    const contact = await onHost(baseURL, '/kontakt', 'example.at')
+    expect([contact.status, contentOn(contact.html)]).toEqual([200, 'contact'])
+    expect(canonicalOf(contact.html)).toBe('https://example.at/kontakt')
+    expect(alternateOf(contact.html, 'en_EN')).toBe('https://example.net/contact')
+    expect(contentOn((await onHost(baseURL, '/', 'example.net')).html)).toBe('en')
+
+    // step 2: the build's example.de is an unknown host: the build default, on the moved default's origin
+    const old = await onHost(baseURL, '/', DE)
+    expect(contentOn(old.html)).toBe('en')
+    expect(canonicalOf(old.html)).toBe('https://example.net')
+  })
+
+  test('browser: hydrates on a runtime domain and the switcher leaves for the other one', async ({ page, baseURL }) => {
+    await page.route(/^https:\/\/example\.(?:at|net)\//, async (route) => {
+      const url = new URL(route.request().url())
+      await route
+        .fetch({ url: new URL(url.pathname + url.search, baseURL).href, headers: { ...route.request().headers(), host: url.host }, maxRedirects: 0 })
+        .then((response) => route.fulfill({ response }))
+        .catch(() => route.abort().catch(() => {}))
+    })
+    await page.goto('https://example.at/')
+    await expect(page.locator('#content')).toHaveText('de')
+    await hydrated(page)
+    await openSwitcher(page, '.switcher-locale-en')
+    await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', 'https://example.net')
+  })
+})
+
+describe('journey: runtime metaBaseUrl without domains', () => {
+  test.override({ harness: 'strategy-prefix-meta-override' })
+
+  test('canonical and hreflang take the env origin; locale domains are ignored in a build without them', async ({ baseURL }) => {
+    const { html } = await onHost(baseURL, '/de/kontakt', 'localhost')
+    expect(canonicalOf(html)).toBe('https://seo.example/de/kontakt')
+    expect(alternateOf(html, 'en_EN')).toBe('https://seo.example/en/contact')
+  })
+})

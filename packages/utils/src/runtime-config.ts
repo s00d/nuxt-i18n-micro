@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 
 export interface RuntimeI18nOverrides {
   defaultLocale?: string
@@ -7,6 +7,10 @@ export interface RuntimeI18nOverrides {
   strategy?: string
   /** A new `?v=` with no rebuild: for dictionaries replaced in place. Restart to apply, as for any env. */
   dateBuild?: string
+  /** SEO origin (canonical, hreflang) in place of the build's `metaBaseUrl`. */
+  metaBaseUrl?: string
+  /** `locales[].baseUrl` by locale code. Only in a build that has locale domains: routing for them is built in. */
+  localeBaseUrls?: Record<string, string>
 }
 
 function toNonEmptyString(value: unknown): string | undefined {
@@ -32,6 +36,24 @@ function parseLocalesList(value: unknown): string[] | undefined {
   return undefined
 }
 
+/** `code=url` → `[code, url]`; the URL keeps any `=` of its own. */
+function splitPair(entry: string): [string, string] {
+  const at = entry.indexOf('=')
+  return at < 0 ? [entry, ''] : [entry.slice(0, at), entry.slice(at + 1)]
+}
+
+/** `'de=https://de.example.com,fr=…'` or `{ de: 'https://de.example.com' }`. `__proto__` is no locale code. */
+function parseBaseUrls(value: unknown): Record<string, string> | undefined {
+  const pairs = typeof value === 'string' ? value.split(',').map(splitPair) : value && typeof value === 'object' ? Object.entries(value) : []
+  const urls: Record<string, string> = {}
+  for (const [rawCode, rawUrl] of pairs) {
+    const code = toNonEmptyString(rawCode)
+    const url = toNonEmptyString(rawUrl)
+    if (code && url && code !== '__proto__') urls[code] = url
+  }
+  return Object.keys(urls).length > 0 ? urls : undefined
+}
+
 /** Overrides from `NUXT_I18N_*` / `NUXT_PUBLIC_I18N_RUNTIME_*` env vars (server only: the browser has no env). */
 export function readI18nEnvOverrides(): RuntimeI18nOverrides {
   let env: Record<string, string | undefined>
@@ -46,6 +68,8 @@ export function readI18nEnvOverrides(): RuntimeI18nOverrides {
     disabledLocales: parseLocalesList(env.NUXT_I18N_DISABLED_LOCALES) ?? parseLocalesList(env.NUXT_PUBLIC_I18N_RUNTIME_DISABLED_LOCALES),
     strategy: toNonEmptyString(env.NUXT_I18N_STRATEGY) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_STRATEGY),
     dateBuild: toNonEmptyString(env.NUXT_I18N_DATE_BUILD) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_DATE_BUILD),
+    metaBaseUrl: toNonEmptyString(env.NUXT_I18N_META_BASE_URL) ?? toNonEmptyString(env.NUXT_PUBLIC_I18N_RUNTIME_META_BASE_URL),
+    localeBaseUrls: parseBaseUrls(env.NUXT_I18N_LOCALE_BASE_URLS) ?? parseBaseUrls(env.NUXT_PUBLIC_I18N_RUNTIME_LOCALE_BASE_URLS),
   }
 }
 
@@ -60,6 +84,8 @@ export function readI18nRuntimeOverrides(runtimePublic?: Record<string, unknown>
     disabledLocales: parseLocalesList(runtime.disabledLocales),
     strategy: toNonEmptyString(runtime.strategy),
     dateBuild: toNonEmptyString(runtime.dateBuild),
+    metaBaseUrl: toNonEmptyString(runtime.metaBaseUrl),
+    localeBaseUrls: parseBaseUrls(runtime.localeBaseUrls),
   }
 }
 
@@ -71,12 +97,14 @@ export function mergeI18nOverrides(primary: RuntimeI18nOverrides, secondary: Run
     disabledLocales: primary.disabledLocales ?? secondary.disabledLocales,
     strategy: primary.strategy ?? secondary.strategy,
     dateBuild: primary.dateBuild ?? secondary.dateBuild,
+    metaBaseUrl: primary.metaBaseUrl ?? secondary.metaBaseUrl,
+    localeBaseUrls: primary.localeBaseUrls ?? secondary.localeBaseUrls,
   }
 }
 
 /** A stable string of the overrides: equal strings resolve to equal configs. */
 export function i18nOverridesKey(overrides: RuntimeI18nOverrides): string {
-  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}\0${overrides.dateBuild ?? ''}`
+  return `${overrides.defaultLocale ?? ''}\0${overrides.fallbackLocale ?? ''}\0${overrides.disabledLocales?.join(',') ?? ''}\0${overrides.strategy ?? ''}\0${overrides.dateBuild ?? ''}\0${overrides.metaBaseUrl ?? ''}\0${JSON.stringify(overrides.localeBaseUrls ?? null)}`
 }
 
 const defaultWarn = (message: string) => console.warn(message)
@@ -102,19 +130,61 @@ export function applyI18nRuntimeOverrides<T extends ModuleOptionsExtend>(
 
   const overrides = pinDefault(baseConfig, requested, warn)
   const disabledSet = new Set(overrides.disabledLocales ?? [])
-  let locales = (baseConfig.locales ?? []).map((locale) => (disabledSet.has(locale.code) ? Object.assign({}, locale, { disabled: true }) : locale))
+  const located = withBaseUrls(baseConfig.locales ?? [], overrides.localeBaseUrls, warn)
+  let locales = located.map((locale) => (disabledSet.has(locale.code) ? Object.assign({}, locale, { disabled: true }) : locale))
   if (disabledSet.size > 0 && !locales.some((locale) => !locale.disabled)) {
     warn('[nuxt-i18n-micro] runtime disabledLocales override would disable all locales; override ignored.')
-    locales = baseConfig.locales ?? []
+    locales = located
   }
 
   const enabledCodes = new Set(locales.filter((locale) => !locale.disabled).map((locale) => locale.code))
   const defaultLocale = enabledDefault(baseConfig, overrides, enabledCodes, warn)
   const fallbackLocale = enabledFallback(baseConfig, overrides, enabledCodes, warn)
   const dateBuild = overrides.dateBuild ?? baseConfig.dateBuild
-  const same = defaultLocale === baseConfig.defaultLocale && fallbackLocale === baseConfig.fallbackLocale && dateBuild === baseConfig.dateBuild
+  const metaBaseUrl = overrides.metaBaseUrl ?? derivedMetaBaseUrl(baseConfig, located)
+  const same =
+    defaultLocale === baseConfig.defaultLocale &&
+    fallbackLocale === baseConfig.fallbackLocale &&
+    dateBuild === baseConfig.dateBuild &&
+    metaBaseUrl === baseConfig.metaBaseUrl
   if (same && locales.every((locale, i) => locale === baseConfig.locales?.[i])) return baseConfig
-  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild } as T
+  return { ...baseConfig, locales, defaultLocale, fallbackLocale, dateBuild, metaBaseUrl } as T
+}
+
+const isUrl = (value: string) => {
+  try {
+    return Boolean(new URL(value).host)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * `locales` with the runtime `baseUrl`s. A build without locale domains has no routing for them
+ * (the path strategy is chosen at build), so there they are ignored, like `strategy`.
+ */
+function withBaseUrls(locales: Locale[], urls: Record<string, string> | undefined, warn: (m: string) => void): Locale[] {
+  if (!urls) return locales
+  if (!locales.some((locale) => locale.baseUrl)) {
+    warn('[nuxt-i18n-micro] runtime localeBaseUrls override is ignored: the build has no locales[].baseUrl. Build with locale domains.')
+    return locales
+  }
+  const codes = new Set(locales.map((locale) => locale.code))
+  const unknown = Object.keys(urls).filter((code) => !codes.has(code))
+  if (unknown.length) warn(`[nuxt-i18n-micro] runtime localeBaseUrls: no locale ${unknown.map((code) => `"${code}"`).join(', ')}; ignored.`)
+  const invalid = Object.keys(urls).filter((code) => codes.has(code) && !isUrl(urls[code]!))
+  if (invalid.length)
+    warn(`[nuxt-i18n-micro] runtime localeBaseUrls: not an absolute URL for ${invalid.map((code) => `"${code}"`).join(', ')}; ignored.`)
+  return locales.map((locale) => {
+    const url = Object.prototype.hasOwnProperty.call(urls, locale.code) ? urls[locale.code] : undefined
+    return url && url !== locale.baseUrl && isUrl(url) ? Object.assign({}, locale, { baseUrl: url }) : locale
+  })
+}
+
+/** The build took `metaBaseUrl` from the default locale's `baseUrl` (none was set): it follows that `baseUrl`. */
+function derivedMetaBaseUrl(base: ModuleOptionsExtend, locales: Locale[]): string | undefined {
+  if (!base.metaBaseUrlFromLocale) return base.metaBaseUrl
+  return locales.find((locale) => locale.code === base.defaultLocale)?.baseUrl ?? base.metaBaseUrl
 }
 
 const PINNED_DEFAULT = new Set(['prefix_except_default', 'prefix_and_default'])

@@ -73,7 +73,7 @@ export interface NuxtI18nPluginApiDeps {
   setMissingHandler: (handler: MissingHandler | null) => void
   isHydrating: () => boolean
   /** For `i18n:beforeLocaleSwitch`. */
-  nuxtApp?: HookHost
+  nuxtApp: HookHost
 }
 
 export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
@@ -213,7 +213,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const from = i18n.getLocale()
       // Without a URL the dictionary moves before the navigation, which no guard can undo: ask here, once.
       // With one, the router guard asks (i18n-navigation), as for a link. A block of its own: `hooks: false` drops it.
-      if (hooks && urlless && nuxtApp && toLocale !== i18n.getLocale()) {
+      if (hooks && urlless && toLocale !== i18n.getLocale()) {
         const ctx = await beforeLocaleSwitch(nuxtApp, i18n.getLocale(), toLocale)
         if (ctx?.cancel) return false
         if (ctx && isValidLocale(ctx.to)) toLocale = ctx.to

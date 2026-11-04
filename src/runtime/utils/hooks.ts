@@ -1,10 +1,8 @@
 import type { I18nBeforeLocaleSwitchContext } from '@i18n-micro/types'
+import type { NuxtApp } from 'nuxt/app'
 
-/** What of the NuxtApp a hook needs. Structural: the plugin types are inferred from the API that takes it. */
-export interface HookHost {
-  hooks: unknown
-  callHook: unknown
-}
+/** What of the NuxtApp a hook needs. */
+export type HookHost = Pick<NuxtApp, 'hooks' | 'callHook'>
 
 /** Has `name` a subscriber? `_hooks` is hookable's own, so without it the hook just runs. */
 export function hasSubscriber(nuxtApp: HookHost, name: string): boolean {
@@ -16,6 +14,6 @@ export function hasSubscriber(nuxtApp: HookHost, name: string): boolean {
 export async function beforeLocaleSwitch(nuxtApp: HookHost, from: string, to: string): Promise<I18nBeforeLocaleSwitchContext | null> {
   if (!hasSubscriber(nuxtApp, 'i18n:beforeLocaleSwitch')) return null
   const ctx: I18nBeforeLocaleSwitchContext = { from, to, cancel: false }
-  await (nuxtApp as { callHook: (name: string, ctx: I18nBeforeLocaleSwitchContext) => Promise<unknown> }).callHook('i18n:beforeLocaleSwitch', ctx)
+  await nuxtApp.callHook('i18n:beforeLocaleSwitch', ctx)
   return ctx
 }

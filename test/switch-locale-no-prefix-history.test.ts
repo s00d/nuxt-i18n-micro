@@ -59,6 +59,8 @@ function makeApi(strategy: ResolvedI18nConfig['strategy'], switchApplies = true,
   } as unknown as PathStrategy
 
   const { provide } = createNuxtI18nPluginApi({
+    // no subscriber: the switch asks nobody
+    nuxtApp: { hooks: { _hooks: {} }, callHook: async () => {} } as never,
     i18n,
     loader,
     i18nStrategy,

@@ -85,15 +85,11 @@ function createRegister(nuxtApp: NuxtApp, { mergeTranslation }: NuxtI18nPluginAp
  * shows its URL's locale, no switch). Under no_prefix and in hash mode `$switchLocale` asks first: the dictionary
  * has moved before it navigates, so here the locales are the same and nothing is asked twice.
  */
-function createSwitchVerdict(
-  { nuxtApp, i18n, api, locale: { isValidLocale } }: I18nNavigationDeps,
-  targetLocale: (to: RouteLocationNormalizedGeneric) => string,
-) {
+function createSwitchVerdict({ nuxtApp, i18n, api, locale: { isValidLocale } }: I18nNavigationDeps) {
   /** The locale the hook sent a navigation to: that navigation is the same switch, and asks no one again. */
   let redirectedTo: string | null = null
-  return async (to: RouteLocationNormalizedGeneric) => {
+  return async (to: RouteLocationNormalizedGeneric, locale: string) => {
     const from = i18n.getLocale()
-    const locale = targetLocale(to)
     const redirected = redirectedTo === locale
     redirectedTo = null
     if (!import.meta.client || nuxtApp.isHydrating || !from || locale === from || redirected) return undefined
@@ -128,11 +124,10 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
     (i18nConfig.hashMode ? i18nStrategy.getLocaleFromPath(to.path) : null) || api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)
 
   // a function of its own, made only under `hooks`: a build with `hooks: false` drops it
-  const switchVerdict = hooks ? createSwitchVerdict(deps, targetLocale) : undefined
+  const switchVerdict = hooks ? createSwitchVerdict(deps) : undefined
 
-  const loadTarget = async (to: RouteLocationNormalizedGeneric): Promise<NavigationTarget | undefined> => {
+  const loadTarget = async (to: RouteLocationNormalizedGeneric, locale: string): Promise<NavigationTarget | undefined> => {
     try {
-      const locale = targetLocale(to)
       const routeName = i18nStrategy.getPluginRouteName(to, locale)
       const changed = locale !== i18n.getLocale() || routeName !== i18n.getCurrentRouteName()
       return { locale, routeName, changed, data: changed ? await loader.fetchContext(locale, routeName) : null }
@@ -150,12 +145,20 @@ export function setupI18nNavigation(deps: I18nNavigationDeps): void {
     const customPath = paths?.[api.provide.getLocale(to as unknown as RouteLocationNormalizedLoaded)]
     if (customPath) return { path: customPath, query: to.query, hash: to.hash }
 
-    const verdict = switchVerdict && (await switchVerdict(to))
+    // once per navigation: the hook and the load read the same locale
+    let locale: string
+    try {
+      locale = targetLocale(to)
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') console.error('[i18n] Navigation error:', e)
+      return
+    }
+    const verdict = switchVerdict && (await switchVerdict(to, locale))
     if (verdict !== undefined) return verdict
 
     // a navigation is newer than any `$switchLocale` still loading
     loader.invalidatePendingSwitches()
-    const target = await loadTarget(to)
+    const target = await loadTarget(to, locale)
     if (!target) return
     targets.set(to, target)
     // into the chunk just loaded. A subscriber that throws stops the navigation, as any guard does

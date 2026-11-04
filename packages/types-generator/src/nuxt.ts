@@ -39,7 +39,8 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     configKey: 'i18nTypes',
   },
   setup(options, nuxt) {
-    const { dirs, additionalDirs } = translationDirs(nuxt, options.translationDir)
+    // read when used, not here: a module listed later may still add a folder (i18n reads the list at modules:done)
+    const dirsNow = () => translationDirs(nuxt, options.translationDir)
 
     // Legacy key from older docs — not part of the public Nuxt options type.
     const legacyOutputFile = (options as Record<string, unknown>).outputFile
@@ -56,6 +57,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     addTypeTemplate({
       filename: 'types/i18n-micro.d.ts',
       getContents: () => {
+        const { dirs, additionalDirs } = dirsNow()
         try {
           return getTypesString({ srcDir: nuxt.options.rootDir, translationDir: dirs, additionalDirs })
         } catch (error) {
@@ -68,7 +70,9 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     // `builder:generateApp` runs `getContents` again
     nuxt.hook('builder:watch', async (_event, path) => {
       const file = isAbsolute(path) ? path : join(nuxt.options.srcDir, path)
-      if (file.endsWith('.json') && [...dirs, ...additionalDirs].some((dir) => isInsideDir(file, dir))) await nuxt.callHook('builder:generateApp')
+      if (!file.endsWith('.json')) return
+      const { dirs, additionalDirs } = dirsNow()
+      if ([...dirs, ...additionalDirs].some((dir) => isInsideDir(file, dir))) await nuxt.callHook('builder:generateApp')
     })
   },
 })

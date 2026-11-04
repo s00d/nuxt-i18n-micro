@@ -3,12 +3,13 @@ import { tv } from '~/utils/tv'
 
 /**
  * Landing benchmark preview: the same fixture app built and load-tested with three setups.
- * Numbers are the means of three runs in guide/performance-results.md (`pnpm test:performance --load full`).
+ * Numbers are the means of three runs in guide/performance-results.md (`pnpm test:performance --load full`);
+ * `code` is its Code Bundle column: the built `.output` without translations and source maps.
  */
 const fixtures = [
-  { id: 'plain', label: 'Plain Nuxt', note: 'no i18n', build: 5.92, rps: 115, latency: 11585, win: false },
-  { id: 'nuxtjs', label: '@nuxtjs/i18n', note: 'v10', build: 6.18, rps: 178, latency: 6074, win: false },
-  { id: 'micro', label: 'nuxt-i18n-micro', note: 'v4', build: 4.74, rps: 415, latency: 102, win: true },
+  { id: 'plain', label: 'Plain Nuxt', note: 'no i18n', build: 5.92, code: 1.11, rps: 115, latency: 11585, win: false },
+  { id: 'nuxtjs', label: '@nuxtjs/i18n', note: 'v10', build: 6.18, code: 1.75, rps: 178, latency: 6074, win: false },
+  { id: 'micro', label: 'nuxt-i18n-micro', note: 'v4', build: 4.74, code: 1.29, rps: 415, latency: 102, win: true },
 ] as const
 
 /** p95 under saturation reaches seconds: show those as seconds. */
@@ -64,6 +65,13 @@ const sceneTv = tv({
     rps: 'text-base font-semibold tabular-nums text-toned',
     rpsWin: 'text-base font-semibold tabular-nums text-primary',
     unit: 'text-xs font-normal text-muted',
+    sizes: 'border-t border-default px-4 py-3',
+    sizesTitle: 'mb-2 text-xs text-muted',
+    sizesGrid: 'grid grid-cols-3 gap-3',
+    sizeCell: 'min-w-0',
+    sizeLabel: 'truncate text-xs text-muted',
+    size: 'text-sm font-semibold tabular-nums text-toned',
+    sizeWin: 'text-sm font-semibold tabular-nums text-primary',
     footer: 'flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-default bg-elevated/40 px-4 py-2.5 text-xs text-muted',
     link: 'inline-flex items-center gap-1 rounded-sm font-medium text-primary hover:underline focus-visible:outline-2 outline-primary',
     linkIcon: 'size-3.5',
@@ -172,6 +180,16 @@ const phaseLabel = computed(() => (phase.value === 'build' ? 'Building…' : 'Lo
         <div :class="ui.value()">
           <p :class="f.win ? ui.rpsWin() : ui.rps()">{{ rowPhase[i] === 'build' ? '—' : displayRps[i] }} <span :class="ui.unit()">req/s</span></p>
           <p :class="ui.meta()">p95 {{ formatLatency(f.latency) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div :class="ui.sizes()">
+      <p :class="ui.sizesTitle()">Code bundle, without translations</p>
+      <div :class="ui.sizesGrid()">
+        <div v-for="f in fixtures" :key="f.id" :class="ui.sizeCell()">
+          <p :class="ui.sizeLabel()">{{ f.label }}</p>
+          <p :class="f.win ? ui.sizeWin() : ui.size()">{{ f.code.toFixed(2) }} MB</p>
         </div>
       </div>
     </div>

@@ -130,6 +130,7 @@ const LOGO = readFileSync(new URL('logo.svg', PUBLIC), 'utf-8')
 
 /** [subtitle, chips, art]: `art` is a file in scripts/art/ drawn behind the text (generated, no text in it). */
 const banners = {
+  '4.1.0': ['Linked messages, a locale switch hook, runtime origins', ['Server plurals and formats', 'Cookie attributes', '+280 B gzip'], '4.1.0.svg'],
   '4.0.0': ['One route model, one build for every domain', ['1.5× requests/s', 'p95 −35%', 'Dictionaries up to −89%'], '4.0.0.jpg'],
   '3.24.0': ['Node SSR from public/, no Rollup raw:', ['Node SSR', 'public/ payloads', 'Smaller server']],
   '3.22.0': ['Formats, cache and translation memory', ['$tn / $td', 'Smart cache', 'resolveTranslations']],
@@ -147,7 +148,7 @@ const banners = {
 function card({ eyebrow, title, subtitle, chips = [], art }) {
   // the art fades out under the text, so the left side reads as on the plain cards
   const glow = art
-    ? `linear-gradient(90deg,${INK.bg} 0%,${INK.bg} 30%,transparent 72%),url(data:image/jpeg;base64,${readFileSync(new URL(`art/${art}`, import.meta.url)).toString('base64')}) center/cover`
+    ? `linear-gradient(90deg,${INK.bg} 0%,${INK.bg} 30%,transparent 72%),url(data:image/${art.endsWith('.svg') ? 'svg+xml' : 'jpeg'};base64,${readFileSync(new URL(`art/${art}`, import.meta.url)).toString('base64')}) center/cover`
     : 'radial-gradient(620px 460px at 88% 110%,rgba(50,186,140,.22),transparent 70%)'
   return `<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0}

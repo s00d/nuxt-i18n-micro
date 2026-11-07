@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://s00d.github.io/nuxt-i18n-micro/sitemap.xml

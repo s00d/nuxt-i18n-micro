@@ -1,0 +1,96 @@
+# Nuxt I18n Micro
+
+> Fast, lightweight i18n for Nuxt with strategy-based routing and minimal overhead.
+
+## Documentation Sets
+
+- [Nuxt I18n Micro — full docs](https://s00d.github.io/nuxt-i18n-micro/llms-full.txt): Complete documentation for nuxt-i18n-micro and @i18n-micro/* packages.
+
+## Documentation
+
+- [CLI commands](https://s00d.github.io/nuxt-i18n-micro/raw/api/cli.md): Every command and flag of the i18n-micro CLI, generated from its command table.
+- [Hooks](https://s00d.github.io/nuxt-i18n-micro/raw/api/events.md): The i18n:register and i18n:beforeLocaleSwitch runtime hooks: add translations, and confirm, redirect or cancel a locale switch.
+- [API reference](https://s00d.github.io/nuxt-i18n-micro/raw/api.md): Map of the nuxt-i18n-micro reference: module options, helpers, hooks, composables, components and package APIs.
+- [Helpers](https://s00d.github.io/nuxt-i18n-micro/raw/api/methods.md): Every runtime helper the module injects — $t, $tc, $localePath, $switchLocale and the rest — with its signature.
+- [Module options](https://s00d.github.io/nuxt-i18n-micro/raw/api/module-options.md): Every option of the i18n key in nuxt.config, with its type, default and description, generated from the ModuleOptions type.
+- [Package APIs](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages.md): The exported API of every @i18n-micro/* package, generated from the API snapshots CI checks against the source.
+- [@i18n-micro/astro](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/astro.md): Exported API of @i18n-micro/astro, generated from the source.
+- [@i18n-micro/cli](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/cli.md): Exported API of @i18n-micro/cli, generated from the source.
+- [@i18n-micro/core](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/core.md): Exported API of @i18n-micro/core, generated from the source.
+- [@i18n-micro/devtools-ui](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/devtools-ui.md): Exported API of @i18n-micro/devtools-ui, generated from the source.
+- [@i18n-micro/node](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/node.md): Exported API of @i18n-micro/node, generated from the source.
+- [@i18n-micro/path-strategy](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/path-strategy.md): Exported API of @i18n-micro/path-strategy, generated from the source.
+- [@i18n-micro/preact](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/preact.md): Exported API of @i18n-micro/preact, generated from the source.
+- [@i18n-micro/react](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/react.md): Exported API of @i18n-micro/react, generated from the source.
+- [@i18n-micro/route-strategy](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/route-strategy.md): Exported API of @i18n-micro/route-strategy, generated from the source.
+- [@i18n-micro/runtime](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/runtime.md): Exported API of @i18n-micro/runtime, generated from the source.
+- [@i18n-micro/solid](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/solid.md): Exported API of @i18n-micro/solid, generated from the source.
+- [@i18n-micro/test-utils](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/test-utils.md): Exported API of @i18n-micro/test-utils, generated from the source.
+- [@i18n-micro/types](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/types.md): Exported API of @i18n-micro/types, generated from the source.
+- [@i18n-micro/types-generator](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/types-generator.md): Exported API of @i18n-micro/types-generator, generated from the source.
+- [@i18n-micro/utils](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/utils.md): Exported API of @i18n-micro/utils, generated from the source.
+- [@i18n-micro/vitepress](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/vitepress.md): Exported API of @i18n-micro/vitepress, generated from the source.
+- [@i18n-micro/vue](https://s00d.github.io/nuxt-i18n-micro/raw/api/packages/vue.md): Exported API of @i18n-micro/vue, generated from the source.
+- [<i18n-group>](https://s00d.github.io/nuxt-i18n-micro/raw/components/i18n-group.md): The <i18n-group> component gives its slot a t function scoped to a key prefix.
+- [<i18n-link>](https://s00d.github.io/nuxt-i18n-micro/raw/components/i18n-link.md): The <i18n-link> component is a NuxtLink to the route in the active locale; external URLs open in a new tab.
+- [<i18n-switcher>](https://s00d.github.io/nuxt-i18n-micro/raw/components/i18n-switcher.md): The <i18n-switcher> component is a dropdown of the enabled locales, each linking to the current page in that locale.
+- [<i18n-t>](https://s00d.github.io/nuxt-i18n-micro/raw/components/i18n-t.md): The <i18n-t> component renders one translation, with plural forms, number and date formatting, HTML and slot interpolation.
+- [useI18n](https://s00d.github.io/nuxt-i18n-micro/raw/composables/useI18n.md): useI18n returns the runtime helpers ($t, $tc, $localePath, …) as a plain object, with and without the $ prefix.
+- [useI18nHead](https://s00d.github.io/nuxt-i18n-micro/raw/composables/useI18nHead.md): useI18nHead overrides the generated i18n SEO tags for one page: replace or drop canonical, hreflang and og tags, or add your own.
+- [useI18nLocale](https://s00d.github.io/nuxt-i18n-micro/raw/composables/useI18nLocale.md): useI18nLocale reads and writes the locale state and the locale cookie — the entry point for custom locale detection.
+- [useLocaleHead](https://s00d.github.io/nuxt-i18n-micro/raw/composables/useLocaleHead.md): useLocaleHead builds the i18n SEO tags (lang, dir, canonical, hreflang, og:locale) as an object you pass to useHead.
+- [Architecture](https://s00d.github.io/nuxt-i18n-micro/raw/contributing/architecture.md): How the Nuxt module builds, stores, serves and loads translation payloads, and where each part lives in the source.
+- [Contributing](https://s00d.github.io/nuxt-i18n-micro/raw/contributing.md): Set up the nuxt-i18n-micro monorepo, run the playground and the checks, version packages and open a pull request.
+- [Maintenance commands](https://s00d.github.io/nuxt-i18n-micro/raw/contributing/maintenance-commands.md): Repository checks of the scripts CLI: generated docs, API surface, payload budget, dependency and fixture audits, versions and the release preflight.
+- [Benchmark methodology](https://s00d.github.io/nuxt-i18n-micro/raw/contributing/performance-methodology.md): How the performance suite compares a plain Nuxt app, @nuxtjs/i18n and nuxt-i18n-micro, and which load profile to use.
+- [Release smoke checks](https://s00d.github.io/nuxt-i18n-micro/raw/contributing/release-smoke.md): Build a real Nuxt app against the packed or published module, run it locally or on serverless presets, and verify SSR, payloads and SEO.
+- [Testing the module](https://s00d.github.io/nuxt-i18n-micro/raw/contributing/testing.md): How the nuxt-i18n-micro repo is tested: unit, integration and e2e projects, shared fixtures, recipes, isolated builds and mutation testing.
+- [CLI](https://s00d.github.io/nuxt-i18n-micro/raw/guide/cli.md): Check translations in CI, find unused keys, fill gaps through a translation service and exchange files with translators from the command line.
+- [Crowdin](https://s00d.github.io/nuxt-i18n-micro/raw/guide/crowdin.md): Sync locales/ with a Crowdin project using the Crowdin CLI and a crowdin.yml that matches the module's file layout.
+- [Custom locale detection](https://s00d.github.io/nuxt-i18n-micro/raw/guide/custom-auto-detect.md): Pick the locale yourself — by domain, header or user profile — with a server plugin and useI18nLocale().setLocale().
+- [Localized paths](https://s00d.github.io/nuxt-i18n-micro/raw/guide/custom-locale-routes.md): Give a page a different URL per locale with localeRoutes or globalLocaleRoutes, including dynamic params and per-locale slugs.
+- [Deployment](https://s00d.github.io/nuxt-i18n-micro/raw/guide/deployment.md): Deploy to a Node server, serverless or Edge, or as a static site — where translation payloads go, what each platform needs, proxies, and caching.
+- [DevTools](https://s00d.github.io/nuxt-i18n-micro/raw/guide/devtools.md): Edit translation files in the Nuxt DevTools tab and inspect locale state in Vue DevTools during development.
+- [Excluding paths](https://s00d.github.io/nuxt-i18n-micro/raw/guide/excluding-static-files.md): Keep pages and files out of locale routing with excludePatterns, and see which paths are excluded already.
+- [FAQ](https://s00d.github.io/nuxt-i18n-micro/raw/guide/faq.md): Short answers to common nuxt-i18n-micro problems, each with a link to the page that covers it.
+- [Getting started](https://s00d.github.io/nuxt-i18n-micro/raw/guide/getting-started.md): Install nuxt-i18n-micro, add two locales and render the first translated page with a language switcher.
+- [Layers and domains](https://s00d.github.io/nuxt-i18n-micro/raw/guide/layers.md): Share i18n config and translation files through Nuxt layers, and serve locales on their own domains.
+- [Locale detection](https://s00d.github.io/nuxt-i18n-micro/raw/guide/locale-detection.md): How the locale is chosen for a page or an API request: URL, query, state, cookie, Accept-Language and default, and when a visitor is redirected.
+- [Migrating from @nuxtjs/i18n](https://s00d.github.io/nuxt-i18n-micro/raw/guide/migration.md): Map @nuxtjs/i18n options, composables and translation files to nuxt-i18n-micro.
+- [Page config](https://s00d.github.io/nuxt-i18n-micro/raw/guide/per-component-translations.md): Restrict a page to some locales, give it custom paths, inline translations or no SEO tags with $defineI18nRoute.
+- [Performance tuning](https://s00d.github.io/nuxt-i18n-micro/raw/guide/performance.md): The settings that change memory, payload size and caching, and how to measure what your app ships.
+- [Performance Test Results](https://s00d.github.io/nuxt-i18n-micro/raw/guide/performance-results.md): Benchmarks vs nuxt-i18n on real fixtures.
+- [Runtime overrides](https://s00d.github.io/nuxt-i18n-micro/raw/guide/runtime-overrides.md): Change the default locale, fallback locale, disabled locales or the public origins per instance of one build, with environment variables or runtimeConfig.
+- [SEO](https://s00d.github.io/nuxt-i18n-micro/raw/guide/seo.md): The lang, hreflang, canonical and og:locale tags the module adds, how their base URL is chosen, and how to override them per page.
+- [Server routes and API](https://s00d.github.io/nuxt-i18n-micro/raw/guide/server-side-translations.md): Translate strings and read the request locale inside Nitro server routes and API handlers.
+- [Storybook](https://s00d.github.io/nuxt-i18n-micro/raw/guide/storybook.md): Render components that use $t in Storybook for Nuxt by serving pre-merged translation payloads as static files.
+- [Routing strategies](https://s00d.github.io/nuxt-i18n-micro/raw/guide/strategy.md): The four URL strategies, the localized routes they generate, and how to link to a page in any locale.
+- [Testing your app](https://s00d.github.io/nuxt-i18n-micro/raw/guide/testing.md): Unit-test components that use $t with @i18n-micro/test-utils and Vitest, and check localized pages end to end.
+- [Translation files](https://s00d.github.io/nuxt-i18n-micro/raw/guide/translations.md): Where translation keys live, how root and page files combine with fallbacks, and how a page loads its dictionary.
+- [Upgrading](https://s00d.github.io/nuxt-i18n-micro/raw/guide/upgrade.md): What to do when you upgrade nuxt-i18n-micro: the major release after 3.30.3, and v2 to v3.
+- [Astro islands](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/astro-islands.md): Translations inside Vue, React, Preact and Svelte islands with @i18n-micro/astro.
+- [Astro](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/astro-package.md): Server-side translations, locale-prefixed routes, home-page detection and SEO tags for Astro with @i18n-micro/astro.
+- [DevTools UI](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/devtools-ui-package.md): A translation editor for Vite dev servers, and a bridge that connects it to any @i18n-micro instance.
+- [Frameworks](https://s00d.github.io/nuxt-i18n-micro/raw/integrations.md): Which @i18n-micro package to use outside Nuxt, and the instance, router adapter and component model they share.
+- [Node.js](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/nodejs-package.md): Load translation files from disk and translate in Node.js servers, scripts and CLIs with @i18n-micro/node.
+- [React and Preact](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/react-package.md): Translations, locale switching and router integration for React and Preact apps with @i18n-micro/react and @i18n-micro/preact.
+- [Runtime](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/runtime-package.md): Framework-agnostic createI18n for browsers, workers and edge runtimes with @i18n-micro/runtime.
+- [Solid](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/solid-package.md): Translations, locale switching and @solidjs/router integration for SolidJS apps with @i18n-micro/solid.
+- [Types generator](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/types-generator.md): Generate TypeScript autocomplete for translation keys from your JSON files, in Nuxt or any Vite project.
+- [VitePress](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/vitepress-package.md): Runtime translations, $t in markdown, locale sync and SEO tags for VitePress sites with @i18n-micro/vitepress.
+- [Vue](https://s00d.github.io/nuxt-i18n-micro/raw/integrations/vue-package.md): Translations, locale switching and vue-router integration for Vue 3 apps with @i18n-micro/vue.
+- [News & Releases](https://s00d.github.io/nuxt-i18n-micro/raw/news.md): Release notes and project updates.
+- [v1.1.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v1.1.0.md): Release notes: New CLI Feature: text-to-i18n
+- [v1.58.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v1.58.0.md): Release notes: Optimized Translation Loading Algorithm Released
+- [v1.65.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v1.65.0.md): Release notes: v1.65.0
+- [v1.73.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v1.73.0.md): Release notes: Redesigned DevTools in Nuxt I18n Micro v1.73.0
+- [v2.0.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v2.0.0.md): Release notes: v2.0.0 — Dev HMR for Translations
+- [v2.14.1](https://s00d.github.io/nuxt-i18n-micro/raw/news/v2.14.1.md): Release notes: v2.14.1 — New Integrations for Node.js, Vue, and Astro
+- [v3.0.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.0.0.md): Release notes: v3.0.0 — Performance Optimization, Route & Path Strategy Packages
+- [v3.19.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.19.0.md): Release notes: v3.19.0 — Utils & HMR Packages, Source Payload Mode
+- [v3.20.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.20.0.md): Release notes: v3.20.0 — Runtime Layer Refactor & Redirect Split
+- [v3.21.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.21.0.md): Release notes: v3.21.0 — useI18nHead for Per-Page SEO
+- [v3.22.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.22.0.md): Release notes: v3.22.0 — Formats, Cache & Translation Memory
+- [v3.24.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v3.24.0.md): Release notes: v3.24.0 — Node SSR from public/, no Rollup raw:
+- [v4.0.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v4.0.0.md): Release notes: v4.0.0 — One route model, one build for every domain, rewritten packages
+- [v4.1.0](https://s00d.github.io/nuxt-i18n-micro/raw/news/v4.1.0.md): Release notes: v4.1.0 — linked messages, a locale switch hook, runtime origins, server plurals and formats

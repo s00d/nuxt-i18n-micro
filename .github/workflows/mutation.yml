@@ -5,8 +5,7 @@ name: mutation
 # Stryker is a root dev dependency, so the frozen install below is all it needs.
 
 on:
-  schedule:
-    - cron: '0 5 * * *'
+  # manual only: gh workflow run mutation.yml
   workflow_dispatch:
 
 concurrency:

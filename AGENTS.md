@@ -90,7 +90,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Packages / e2e | `pnpm run test:packages` · `pnpm run test:e2e` |
 | E2E browser | `pnpm exec playwright install chromium` (once, before e2e) |
 | Published types | `pnpm run check:consumer` (tarballs, ATTW, `tsc` with `skipLibCheck: false`; needs a built root) |
-| Peer floors | `pnpm run check:oldest` (weekly in CI) |
+| Peer floors | `pnpm run check:oldest` (manual workflow in CI) |
 | HTTP fuzz | `pnpm run test:fuzz` (release checks, not CI) |
 | Build one package | `pnpm --filter @i18n-micro/<name> build` |
 | Build packages (no playgrounds) | `pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |

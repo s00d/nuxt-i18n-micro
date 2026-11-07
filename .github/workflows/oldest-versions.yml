@@ -7,8 +7,7 @@ name: oldest versions
 # `[unstorage] Invalid key: "/"`, and plain Nuxt 3.18.0 fails the same way: upstream, not this module.
 
 on:
-  schedule:
-    - cron: '0 4 * * 1'
+  # manual only: gh workflow run oldest-versions.yml
   workflow_dispatch:
 
 concurrency:

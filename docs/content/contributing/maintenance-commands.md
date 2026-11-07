@@ -189,10 +189,10 @@ pnpm run release:major --skip-tests
 | Workflow | Starts on | Publishes |
 | --- | --- | --- |
 | `ci.yml` | Push to `main`, pull requests | Nothing |
-| `release-smoke.yml` | Manual, plus a nightly preset run on the checkout | Nothing to npm. The manual `deploy` input deploys the smoke app |
+| `release-smoke.yml` | Manual; `presets: true` builds every preset on the checkout | Nothing to npm. The manual `deploy` input deploys the smoke app |
 | `docs.yml` | Push to `main` that changes `docs/`, a published GitHub release, manual | The docs site only |
-| `oldest-versions.yml` | Weekly, manual | Nothing |
-| `mutation.yml` | Nightly, manual | Nothing. A report to read, not a gate |
+| `oldest-versions.yml` | Manual | Nothing |
+| `mutation.yml` | Manual | Nothing. A report to read, not a gate |
 
 ## Related
 

@@ -3,13 +3,11 @@ name: release smoke
 # Builds a real Nuxt app against the module and checks it actually works, either
 # from this checkout (pre-release) or from npm (post-release).
 #
-# Manual: run after a publish lands on npm (give the registry a few minutes).
-# Nightly: only the `presets` job, on this checkout, because a Nitro or wrangler
-# release can break a preset with no commit here.
+# Manual only: run after a publish lands on npm (give the registry a few minutes).
+# `presets: true` runs only the `presets` job on this checkout instead: a Nitro or
+# wrangler release can break a preset with no commit here.
 
 on:
-  schedule:
-    - cron: '30 3 * * *'
   workflow_dispatch:
     inputs:
       source:
@@ -25,6 +23,10 @@ on:
         description: Deploy to Cloudflare Pages and Vercel and verify the live URLs
         type: boolean
         default: false
+      presets:
+        description: Only build every preset target on this checkout (no smoke app)
+        type: boolean
+        default: false
 
 concurrency:
   group: release-smoke-${{ github.ref }}
@@ -36,7 +38,7 @@ env:
 jobs:
   smoke:
     name: ${{ matrix.source }}
-    if: github.event_name == 'workflow_dispatch'
+    if: ${{ !inputs.presets }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -137,7 +139,7 @@ jobs:
 
   presets-build:
     name: presets (build only)
-    if: github.event_name == 'schedule'
+    if: ${{ inputs.presets }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

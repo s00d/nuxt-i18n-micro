@@ -244,6 +244,14 @@ export default defineNuxtConfig({
 - The host must serve the same `<apiBaseUrl>/<page>/<locale>/data.json` layout.
 - The build warns when every local output is off and a host is missing.
 
+**With [`baseUrl` on locales](/guide/layers#multiple-domains)** one build has one payload host, shared by every domain:
+
+- **CORS.** The host must allow the origin of each domain, not only one.
+- **A CDN that pulls from the app.** On a known host, `/_locales/...` answers only the locales that host serves. So if the CDN forwards one site's `Host` (say `example.com`), it gets a 404 for every locale of `example.de`, and may cache it. To avoid that:
+  - upload `.output/public/_locales/` to the CDN; with one `nuxt generate` per domain, upload every output to the same path, since a locale on two domains has the same file;
+  - or forward a `Host` that is not one of the locales' `baseUrl`, such as the CDN's own: the route then answers every locale.
+- **A host per domain.** One build can't set one. Build once per domain instead, with `NUXT_I18N_DOMAIN` and `NUXT_I18N_APP_BASE_CLIENT_HOST` for each.
+
 The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. An empty variable (`NUXT_I18N_APP_BASE_CLIENT_HOST=` in a `.env`) counts as unset, as does an empty option. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
 
 ## Platforms

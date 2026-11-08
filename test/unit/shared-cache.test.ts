@@ -548,6 +548,16 @@ describe('remote host', () => {
     expect(mount.values.size).toBe(first.length + 1)
   })
 
+  test('an empty runtime host is unset: the build host applies', async () => {
+    const fetcher = vi.fn(async () => ({ hello: 'Hello' }))
+    vi.stubGlobal('$fetch', fetcher)
+    vi.stubEnv('NUXT_I18N_APP_BASE_SERVER_HOST', '')
+    await (
+      await instance()
+    )('en', '__root')
+    expect(fetcher.mock.calls.at(-1)).toMatchObject([expect.anything(), { baseURL: HOST }])
+  })
+
   test('a host set only at runtime is read and shared too', async () => {
     state.privateConfig = { cacheStorage: 'shared', cacheStorageBuild: 'build-a' }
     vi.stubEnv('NUXT_I18N_APP_BASE_SERVER_HOST', 'https://runtime.test')

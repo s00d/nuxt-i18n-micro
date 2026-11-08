@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v4.1.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.0...v4.1.1)
+
+### 🩹 Fixes
+
+- An empty payload env variable counts as unset ([8e1752df](https://github.com/s00d/nuxt-i18n-micro/commit/8e1752df))
+- A project's locales entry beats a layer's with the same code ([d810b5d3](https://github.com/s00d/nuxt-i18n-micro/commit/d810b5d3))
+
+### 📖 Documentation
+
+- **deployment:** A payload host with locale domains: CORS, origin pull Host, one host per build ([723a14e9](https://github.com/s00d/nuxt-i18n-micro/commit/723a14e9))
+
+### 📦 Build
+
+- Drop lib.formats where rolldown output sets them, JSON import attribute ([f224d41e](https://github.com/s00d/nuxt-i18n-micro/commit/f224d41e))
+
+### 🏡 Chore
+
+- **scripts:** Check:versions ignores vite.config changes ([cd39de69](https://github.com/s00d/nuxt-i18n-micro/commit/cd39de69))
+
+### ✅ Tests
+
+- The e2e guard skips resources the OS had no buffers for ([fc11ef5f](https://github.com/s00d/nuxt-i18n-micro/commit/fc11ef5f))
+
+### 🤖 CI
+
+- No scheduled runs, the three extra workflows are manual ([5a99c8b7](https://github.com/s00d/nuxt-i18n-micro/commit/5a99c8b7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.1.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.0.1...v4.1.0)

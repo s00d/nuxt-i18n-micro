@@ -244,7 +244,7 @@ export default defineNuxtConfig({
 - The host must serve the same `<apiBaseUrl>/<page>/<locale>/data.json` layout.
 - The build warns when every local output is off and a host is missing.
 
-The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
+The same values can come from `NUXT_I18N_APP_BASE_URL`, `NUXT_I18N_APP_BASE_CLIENT_HOST` and `NUXT_I18N_APP_BASE_SERVER_HOST` at build time. `NUXT_I18N_APP_BASE_SERVER_HOST` also works at runtime and wins over the build value. An empty variable (`NUXT_I18N_APP_BASE_CLIENT_HOST=` in a `.env`) counts as unset, as does an empty option. See [`apiBaseServerHost`](/api/module-options#apibaseserverhost) for the details.
 
 ## Platforms
 

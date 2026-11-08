@@ -6,6 +6,7 @@ import {
   getStaticPayloadWarning,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
+  resolvePayloadHostSources,
   resolveTranslationPayloadOptions,
   resolveTranslationPayloadPublicDir,
   resolveTranslationPayloadPublicRel,
@@ -132,5 +133,30 @@ describe('translationPayloads build options', () => {
     expect(getTranslationPayloadSizeWarning({ fileCount: 100, totalBytes: 1024 * 1024 })).toBeNull()
     expect(getTranslationPayloadSizeWarning({ fileCount: 600, totalBytes: 1024 }, { warnFileCount: 500 })).toMatch(/600/)
     expect(getTranslationPayloadSizeWarning({ fileCount: 10, totalBytes: tenMb + 1 }, { warnSizeBytes: tenMb })).toMatch(/10\.0 MB/)
+  })
+})
+
+describe('resolvePayloadHostSources', () => {
+  test('an env variable beats the option', () => {
+    const env = { NUXT_I18N_APP_BASE_CLIENT_HOST: 'https://cdn.test', NUXT_I18N_APP_BASE_URL: 'dict' }
+    expect(resolvePayloadHostSources({ apiBaseClientHost: 'https://old.test', apiBaseUrl: '_locales' }, env)).toEqual({
+      apiBaseClientHost: 'https://cdn.test',
+      apiBaseServerHost: undefined,
+      apiBaseUrl: 'dict',
+    })
+  })
+
+  test('an empty env variable or option is unset: `VAR=` keeps app.baseURL in dictionary URLs', () => {
+    const env = { NUXT_I18N_APP_BASE_CLIENT_HOST: '', NUXT_I18N_APP_BASE_SERVER_HOST: '', NUXT_I18N_APP_BASE_URL: '' }
+    expect(resolvePayloadHostSources({ apiBaseServerHost: 'https://ssr.test' }, env)).toEqual({
+      apiBaseClientHost: undefined,
+      apiBaseServerHost: 'https://ssr.test',
+      apiBaseUrl: '_locales',
+    })
+    expect(resolvePayloadHostSources({ apiBaseClientHost: '', apiBaseUrl: '' }, {})).toEqual({
+      apiBaseClientHost: undefined,
+      apiBaseServerHost: undefined,
+      apiBaseUrl: '_locales',
+    })
   })
 })

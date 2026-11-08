@@ -46,7 +46,8 @@ const requestBoundIo = typeof navigator !== 'undefined' && navigator.userAgent =
 
 function runtimeHost(): string | undefined {
   try {
-    return process.env.NUXT_I18N_APP_BASE_SERVER_HOST
+    // `VAR=` is no host: the build's one applies
+    return process.env.NUXT_I18N_APP_BASE_SERVER_HOST || undefined
   } catch {
     return undefined
   }

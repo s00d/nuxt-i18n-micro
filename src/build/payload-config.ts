@@ -29,6 +29,27 @@ export interface TranslationPayloadSizeThresholds {
   warnSizeBytes?: number
 }
 
+export interface PayloadHostSources {
+  apiBaseClientHost?: string
+  apiBaseServerHost?: string
+  apiBaseUrl: string
+}
+
+/**
+ * Payload hosts and path: the env variable, else the option. An empty value (`VAR=` in a `.env`, `''` in the config)
+ * is no value and falls through: as a host, `''` would drop `app.baseURL` from every dictionary URL.
+ */
+export function resolvePayloadHostSources(
+  options: Pick<ModuleOptions, 'apiBaseClientHost' | 'apiBaseServerHost' | 'apiBaseUrl'>,
+  env: Record<string, string | undefined> = process.env,
+): PayloadHostSources {
+  return {
+    apiBaseClientHost: env.NUXT_I18N_APP_BASE_CLIENT_HOST || options.apiBaseClientHost || undefined,
+    apiBaseServerHost: env.NUXT_I18N_APP_BASE_SERVER_HOST || options.apiBaseServerHost || undefined,
+    apiBaseUrl: env.NUXT_I18N_APP_BASE_URL || options.apiBaseUrl || '_locales',
+  }
+}
+
 const DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT = 500
 const DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES = 10 * 1024 * 1024
 

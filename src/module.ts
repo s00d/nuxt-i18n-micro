@@ -27,6 +27,7 @@ import {
   getStaticPayloadWarning,
   getTranslationPayloadMisconfigurationWarnings,
   getTranslationPayloadSizeWarning,
+  resolvePayloadHostSources,
   resolveTranslationPayloadOptions,
   resolveTranslationPayloadPublicDir,
   resolveTranslationPayloadPublicRel,
@@ -409,7 +410,8 @@ export default defineNuxtModule<ModuleOptions>({
       logger.warn(warning)
     }
 
-    const rawServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
+    const payloadSources = resolvePayloadHostSources(options)
+    const rawServerHost = payloadSources.apiBaseServerHost
     if (!translationPayloads.serverAssets && !translationPayloads.publicAssets && !rawServerHost) {
       throw new Error(
         'nuxt-i18n-micro: local SSR payloads are disabled (serverAssets/publicAssets false) and apiBaseServerHost is not set. ' +
@@ -483,12 +485,12 @@ export default defineNuxtModule<ModuleOptions>({
     const resolvedStrategyPath = await resolveEntry('@i18n-micro/path-strategy')
     const resolvedHelpersPath = await resolveEntry('@i18n-micro/core/helpers')
 
-    let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
+    let apiBaseClientHost = payloadSources.apiBaseClientHost
     if (apiBaseClientHost?.endsWith('/')) {
       apiBaseClientHost = apiBaseClientHost.slice(0, -1)
     }
     const apiBaseServerHost = rawServerHost?.endsWith('/') ? rawServerHost.slice(0, -1) : rawServerHost
-    const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales'
+    const rawUrl = payloadSources.apiBaseUrl
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
       throw new Error('Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.')
     }

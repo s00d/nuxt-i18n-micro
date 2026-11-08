@@ -29,8 +29,8 @@ export interface RouteGeneratorOptions {
 }
 
 /**
- * Merges locales by code and drops disabled ones. Nuxt concatenates a project's and its layers'
- * `locales` project first, so earlier entries win: a layer only fills the fields left unset.
+ * Merges locales by code and drops disabled ones. The module passes them in layer priority, the project's
+ * first, so earlier entries win: a layer only fills the fields left unset.
  */
 function resolveLocales(locales: Locale[], defaultLocaleCode: string): { locales: Locale[]; disabledLocales: Locale[]; defaultLocale: Locale } {
   const byCode = new Map<string, Locale>()

@@ -43,6 +43,7 @@ interface I18nOptions {
 
 interface LayerConfig {
   rootDir?: string
+  i18n?: Pick<I18nOptions, 'locales'>
   srcDir?: string
   dir?: { pages?: string }
 }
@@ -112,7 +113,7 @@ function inlineOptions(modules: unknown[] = []): I18nOptions | undefined {
   return entry?.[1]
 }
 
-/** Layers concatenate `locales`, project first, so the first entry of a code wins, as in the module. */
+/** The first entry of a code wins, as in the module: pass `locales` in layer priority, the project's first. */
 function normalizeLocales(locales: I18nOptions['locales'] = []): LocaleEntry[] {
   const byCode = new Map<string, LocaleEntry & { disabled?: boolean }>()
   for (const locale of locales) {
@@ -205,7 +206,9 @@ export async function loadProjectConfig(cwd: string): Promise<ProjectConfig> {
     })
   }
 
-  const locales = normalizeLocales(i18n.locales)
+  // Nuxt concatenates the layers' `locales` with the project's last: read them by layer, the project's first
+  const layerLocales = (config._layers ?? []).flatMap((layer) => layer.config?.i18n?.locales ?? [])
+  const locales = normalizeLocales([...layerLocales, ...(i18n.locales ?? [])])
   if (locales.length === 0) {
     throw new CliError('i18n configuration has no locales.', {
       code: 'NO_LOCALES',

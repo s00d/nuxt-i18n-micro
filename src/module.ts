@@ -37,6 +37,7 @@ import {
   type TranslationPayloadMode,
   pathSegments,
 } from './build/payload-config'
+import { localesByLayerPriority } from './build/layer-locales'
 import {
   compressTranslationPayloads,
   getEmbeddedPayloadSizeWarning,
@@ -337,6 +338,8 @@ export default defineNuxtModule<ModuleOptions>({
     httpCacheDuration: 31536000,
   },
   async setup(options, nuxt) {
+    // the project's entry of a code beats a layer's: every reader below keeps the first one
+    options.locales = localesByLayerPriority(nuxt.options._layers as never, options.locales) as ModuleOptions['locales']
     // an empty value is none: routes and the runtime must agree on the default
     const defaultLocale = process.env.DEFAULT_LOCALE || options.defaultLocale || 'en'
     /** Static output, set in `nitro:init`: `nuxt build --preset static` is only known once the preset is resolved. */
@@ -420,7 +423,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Skip build-time disabled locales — do not emit public/{apiBaseUrl}/…/data.json for them.
-    // Nuxt/defu concatenates `locales` arrays project first, so dedupe by code: the first value wins (as in RouteGenerator).
+    // `locales` is in layer priority (see localesByLayerPriority), so dedupe by code: the first value wins (as in RouteGenerator).
     // Runtime disabledLocales cannot un-publish files already copied to public/.
     const localeInfosByCode = new Map<string, PreMergeLocaleInfo & { disabled?: boolean }>()
     for (const locale of options.locales ?? []) {

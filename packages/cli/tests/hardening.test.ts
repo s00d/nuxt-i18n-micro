@@ -335,6 +335,19 @@ describe('rename', () => {
     expect(read(dir, 'pages/i.vue')).toBe(sfc)
   })
 
+  it("a project's locale entry beats a layer's: a layer cannot disable it", async () => {
+    project(
+      { 'locales/en.json': { a: 'A' }, 'locales/de.json': {}, 'pages/a.vue': `<template>{{ $t('a') }}</template>\n` },
+      `{ locales: [{ code: 'en' }, { code: 'de' }], defaultLocale: 'en' }`,
+      `extends: ['../locale-layer'],`,
+    )
+    const layer = join(dir, '../locale-layer')
+    write(dir, '../locale-layer/nuxt.config.ts', `export default { i18n: { locales: [{ code: 'de', disabled: true }] } }\n`)
+    const report = JSON.parse((await runCli(['check', '--only', 'missing', '--json'], { cwd: dir })).stdout)
+    expect(report.findings).toMatchObject([{ locale: 'de', key: 'a' }])
+    removeProject(layer)
+  })
+
   it('sources of a layer or an alias outside the project stay, with a warning', async () => {
     project(
       { 'locales/en.json': { base: { key: 'x' } }, 'pages/a.vue': `<template>{{ $t('base.key') }}</template>\n` },

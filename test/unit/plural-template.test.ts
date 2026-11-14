@@ -22,6 +22,20 @@ describe('buildI18nPluralTemplate', () => {
     expect(out).toContain('getter(key)')
     expect(out).toContain('interpolate')
   })
+
+  it('the interpolate import is re-exported, so a rule that does not call it leaves no unused import (#317)', () => {
+    // the rule from the issue: the bundler warned "interpolate is imported but never used" on every build
+    const viaT = ((
+      key: string,
+      count: number,
+      params: Record<string, unknown>,
+      _locale: string,
+      t: (k: string, p?: Record<string, unknown>) => unknown,
+    ) => t(key, { ...params, count })?.toString() ?? key) as unknown as PluralFunc
+    expect(buildI18nPluralTemplate(viaT, helpersPath)).toBe(
+      `import { interpolate } from '${helpersPath}'\nexport { interpolate }\nexport const plural = ${viaT.toString()}\n`,
+    )
+  })
 })
 
 declare function interpolate(template: string, params: Record<string, unknown>): string

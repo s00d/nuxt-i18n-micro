@@ -12,6 +12,7 @@ export function buildI18nPluralTemplate(plural: PluralFunc | undefined, helpersI
   if (!plural || plural === defaultPlural) {
     return `export { defaultPlural as plural } from '${helpersImportPath}'\n`
   }
-  // Custom rules that call interpolate (same pattern as default) need the import in scope.
-  return `import { interpolate } from '${helpersImportPath}'\nexport const plural = ${plural.toString()}\n`
+  // A rule may call interpolate, as the default does, so it is in scope. The re-export makes the import count as used:
+  // a rule that doesn't call it would get an "imported but never used" warning. Nothing imports it, so it is shaken out.
+  return `import { interpolate } from '${helpersImportPath}'\nexport { interpolate }\nexport const plural = ${plural.toString()}\n`
 }

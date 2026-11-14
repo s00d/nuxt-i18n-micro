@@ -65,6 +65,9 @@ export function createTranslationWatcherFiles(fixtureRoot: string, localesDirNam
  */
 const HMR_POLL_TIMEOUT_MS = 60_000
 
+/** One request of a poll: bounded, so a request the dev server never answers is a retry, not the whole test's budget. */
+const POLL_REQUEST_TIMEOUT_MS = 10_000
+
 export async function waitForTranslationPayloadValue(
   baseURL: string,
   page: string,
@@ -75,15 +78,26 @@ export async function waitForTranslationPayloadValue(
 ): Promise<void> {
   const normalizedBase = baseURL.endsWith('/') ? baseURL : `${baseURL}/`
   const url = new URL(`_locales/${page}/${locale}/data.json`, normalizedBase)
+  // what the last attempt saw, for the failure message: an old value (the edit never reached the server) or an error
+  let last = 'nothing yet'
 
   await pollUntil(
     async () => {
-      const response = await fetch(url)
-      if (!response.ok) return false
-      const data = (await response.json()) as Record<string, string>
-      return data[key] === expected
+      try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(POLL_REQUEST_TIMEOUT_MS) })
+        if (!response.ok) {
+          last = `status ${response.status}`
+          return false
+        }
+        const data = (await response.json()) as Record<string, string>
+        last = `"${data[key]}"`
+        return data[key] === expected
+      } catch (error) {
+        last = `error ${(error as Error).name}: ${(error as Error).message}`
+        return false
+      }
     },
-    { timeoutMs, message: `Timed out waiting for ${url.toString()} key "${key}" to become "${expected}"` },
+    { timeoutMs, message: () => `Timed out waiting for ${url.toString()} key "${key}" to become "${expected}" (last: ${last})` },
   )
 }
 
@@ -96,13 +110,21 @@ export async function waitForTranslationHtmlValue(
   const elementId = selector.startsWith('#') ? selector.slice(1) : selector
   const escaped = expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = new RegExp(`id="${elementId}"[^>]*>\\s*${escaped}\\s*<`)
+  let last = 'nothing yet'
 
   await pollUntil(
     async () => {
-      const html = await fetch(pageUrl).then((response) => response.text())
-      return pattern.test(html)
+      try {
+        const response = await fetch(pageUrl, { signal: AbortSignal.timeout(POLL_REQUEST_TIMEOUT_MS) })
+        const html = await response.text()
+        last = `status ${response.status}, ${selector} = ${JSON.stringify(new RegExp(`id="${elementId}"[^>]*>([^<]*)<`).exec(html)?.[1]?.trim() ?? null)}`
+        return pattern.test(html)
+      } catch (error) {
+        last = `error ${(error as Error).name}: ${(error as Error).message}`
+        return false
+      }
     },
-    { timeoutMs, message: `Timed out waiting for SSR ${pageUrl} ${selector}="${expected}"` },
+    { timeoutMs, message: () => `Timed out waiting for SSR ${pageUrl} ${selector}="${expected}" (last: ${last})` },
   )
 }
 

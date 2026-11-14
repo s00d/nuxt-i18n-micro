@@ -9,7 +9,7 @@ export async function runSequential<T>(items: readonly T[], fn: (item: T) => Pro
 /** Poll until `check` returns true or the deadline is reached. */
 export async function pollUntil(
   check: () => Promise<boolean>,
-  options: { intervalMs?: number; timeoutMs?: number; message?: string } = {},
+  options: { intervalMs?: number; timeoutMs?: number; message?: string | (() => string) } = {},
 ): Promise<void> {
   const intervalMs = options.intervalMs ?? 250
   const deadline = Date.now() + (options.timeoutMs ?? 20_000)
@@ -17,7 +17,8 @@ export async function pollUntil(
   async function attempt(): Promise<void> {
     if (await check()) return
     if (Date.now() >= deadline) {
-      throw new Error(options.message ?? 'Timed out while polling')
+      const message = typeof options.message === 'function' ? options.message() : options.message
+      throw new Error(message ?? 'Timed out while polling')
     }
     await new Promise((resolve) => setTimeout(resolve, intervalMs))
     return attempt()

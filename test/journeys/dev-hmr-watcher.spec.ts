@@ -35,8 +35,12 @@ describe('J10 dev HMR: translation watcher (premerged)', () => {
 
     // step 2: patch pages/about/en.json → text updates in place, no reload, payload serves it
     // was: translation-watcher › applies a page locale edit in place; › updates page translations after a page locale file change
-    files.patchFile('pages/about/en.json', (current) => ({ ...current, aboutTitle: 'About EN live' }))
-    await expect(page.locator('#about-title')).toHaveText('About EN live')
+    // macOS FSEvents can deliver a file event seconds late or drop it, so Vite never calls hotUpdate: write again until
+    // the page has it. A broken HMR path still fails: no write updates the page, and a reload clears __noReload.
+    await expect(async () => {
+      files.patchFile('pages/about/en.json', (current) => ({ ...current, aboutTitle: 'About EN live' }))
+      await expect(page.locator('#about-title')).toHaveText('About EN live', { timeout: 2_000 })
+    }).toPass({ timeout: 30_000 })
     expect(await page.evaluate(() => (window as { __noReload?: boolean }).__noReload)).toBe(true)
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN live')
     await gotoSettled(page, goto, baseURL!, '/en/about', '#about-title', 'About EN live')

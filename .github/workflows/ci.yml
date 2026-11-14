@@ -25,15 +25,12 @@ env:
   CI_SUMMARY_MAX_TOTAL_CHARS: '28000'
 
 jobs:
-  ci:
+  # Each group runs on its own runner (free on a public repository); `ci` gathers their logs and
+  # outcomes into the Job Summary and the sticky PR comment. Soft checks keep `continue-on-error`,
+  # so every group reports all of its checks; a group that cannot even prepare fails `ci` too.
+  checks:
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    env:
-      FIXTURE_BUILD_CONCURRENCY: ${{ matrix.os == 'windows-latest' && 2 || 4 }}
+    runs-on: ubuntu-latest
     # `cmd | tee log` must fail the step when cmd fails (bash default uses tee's 0).
     defaults:
       run:
@@ -43,28 +40,12 @@ jobs:
         with:
           # Full history: check:versions diffs against the PR merge-base / last tag.
           fetch-depth: 0
-      - uses: actions/cache@v6
-        with:
-          # builds only: the run registry and locks (test/.untestutils/run) are per run
-          path: |
-            test/.untestutils/builds
-          # Source-only globs: broad test/fixtures/** also matches .output-shared
-          # after e2e and hashFiles fails when saving the cache at job end.
-          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
-          restore-keys: |
-            e2e-shared-${{ runner.os }}-
-
       - uses: ./.github/actions/setup
+      # also the log dir every check below writes to
+      - uses: ./.github/actions/prepare
 
-      - name: Prepare CI log dir
-        run: |
-          echo "CI_LOG_DIR=${RUNNER_TEMP}/ci-logs" >> "$GITHUB_ENV"
-          mkdir -p "${RUNNER_TEMP}/ci-logs"
-
-      # Sticky PR comment: diff audit only (no deploy / test-run commands).
-      # Same-repo only: fork PRs get a read-only token and must not hard-fail before checks.
       - name: PR diff comment
-        if: runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -122,7 +103,6 @@ jobs:
       # changed package whose version was not bumped), so it runs early.
       - name: Check versions
         id: versions
-        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
@@ -142,7 +122,6 @@ jobs:
       # `release:*` runs format:check before publishing: an unformatted file stops the release
       - name: Lint and format
         id: lint
-        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
@@ -152,20 +131,8 @@ jobs:
           format="${PIPESTATUS[0]}"
           exit $(( lint || format ))
 
-      # Monorepo (pinia / nuxt-devtools style): packages build before root
-      # `dev:prepare` because prepare loads @i18n-micro/* from package dist.
-      # Root `tsconfig.json` extends `.nuxt/tsconfig.json` (after prepare) with monorepo
-      # excludes. `typecheck:root` uses `tsconfig.nuxt.json` (thin alias of root).
-      # Vue package tsconfigs must include `*.vue` explicitly so Vite/oxc does not
-      # walk to the root config before `.nuxt` exists (see packages/devtools-ui).
-      # Hard fail: later soft checks need dist + .nuxt.
-      - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
-      - run: pnpm run dev:prepare
-      - run: pnpm --filter "./packages/*/playground" run build
-
       - name: Typecheck
         id: typecheck
-        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
@@ -174,70 +141,12 @@ jobs:
           { pnpm run typecheck; a=$?; pnpm run test:unit:types; b=$?; exit $((a || b)); } 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
           exit "${PIPESTATUS[0]}"
 
-      # integration + e2e both drive a real browser (chromium.launch / createPage)
-      # Windows runs Chromium only: the three engines run on Linux, and Windows is there for paths, builds and files
-      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps chromium firefox webkit' || 'chromium' }}
-
-      - name: Test packages
-        id: test-packages
-        continue-on-error: true
-        run: |
-          set +e
-          pnpm run test:packages 2>&1 | tee "$CI_LOG_DIR/test-packages.log"
-          exit "${PIPESTATUS[0]}"
-
-      - name: Test unit
-        id: test-unit
-        continue-on-error: true
-        run: |
-          set +e
-          pnpm run test:unit --typecheck.enabled=false 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
-          exit "${PIPESTATUS[0]}"
-
-      - name: Test integration
-        id: test-integration
-        continue-on-error: true
-        run: |
-          set +e
-          pnpm run test:integration 2>&1 | tee "$CI_LOG_DIR/test-integration.log"
-          exit "${PIPESTATUS[0]}"
-
-      - name: Test e2e
-        id: test-e2e
-        continue-on-error: true
-        run: |
-          set +e
-          if [ "$RUNNER_OS" != Windows ]; then
-            pnpm run test:e2e:browsers 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
-            exit "${PIPESTATUS[0]}"
-          fi
-          # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
-          # heap of that one process in bounds, it passed 4 GB on the whole set. The retry is for the runner: a socket out of
-          # buffers (`ERR_NO_BUFFER_SPACE`), an aborted manifest fetch. Each hit one test in 552, never the same one.
-          # Chromium only here (Firefox and WebKit run on Linux): the three engines in a row took 28 of Windows' 42 minutes.
-          rc=0
-          for shard in 1 2 3; do
-            echo "== chromium $shard/3"
-            E2E_BROWSER=chromium pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=$shard/3 2>&1 | tee -a "$CI_LOG_DIR/test-e2e.log"
-            [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
-          done
-          exit $rc
-
       - name: Verify packages
         id: verify-packages
-        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
           { pnpm verify:packages && pnpm verify:packages:publint; } 2>&1 | tee "$CI_LOG_DIR/verify-packages.log"
-          exit "${PIPESTATUS[0]}"
-
-      - name: Test dist packages
-        id: test-dist
-        continue-on-error: true
-        run: |
-          set +e
-          pnpm run test:dist:packages 2>&1 | tee "$CI_LOG_DIR/test-dist.log"
           exit "${PIPESTATUS[0]}"
 
       # --local-only keeps both packaging gates (hashed chunks, astro client CJS),
@@ -245,7 +154,6 @@ jobs:
       # download that only feeds informational diffs. Full comparison runs on release.
       - name: Compare published
         id: compare-published
-        if: runner.os == 'Linux'
         continue-on-error: true
         run: |
           set +e
@@ -256,7 +164,6 @@ jobs:
       # The root needs a real build for this, so it replaces the dev stub: keep this step last.
       - name: Consumer types
         id: consumer-types
-        if: runner.os == 'Linux'
         continue-on-error: true
         timeout-minutes: 10
         run: |
@@ -264,20 +171,219 @@ jobs:
           { pnpm exec nuxt-module-build build && pnpm run check:consumer; } 2>&1 | tee "$CI_LOG_DIR/consumer-types.log"
           exit "${PIPESTATUS[0]}"
 
-      - name: CI summary
+      - name: Record outcomes
         if: always()
+        run: |
+          d="${RUNNER_TEMP}/ci-logs/outcomes"; mkdir -p "$d"
+          echo "${{ steps.versions.outcome }}" > "$d/VERSIONS_OUTCOME.checks"
+          echo "${{ steps.lint.outcome }}" > "$d/LINT_OUTCOME.checks"
+          echo "${{ steps.typecheck.outcome }}" > "$d/TYPECHECK_OUTCOME.checks"
+          echo "${{ steps.verify-packages.outcome }}" > "$d/VERIFY_PACKAGES_OUTCOME.checks"
+          echo "${{ steps.compare-published.outcome }}" > "$d/COMPARE_PUBLISHED_OUTCOME.checks"
+          echo "${{ steps.consumer-types.outcome }}" > "$d/CONSUMER_TYPES_OUTCOME.checks"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-logs-checks
+          path: ${{ runner.temp }}/ci-logs
+          include-hidden-files: true
+
+  tests:
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        suite: [packages, unit, integration]
+    env:
+      FIXTURE_BUILD_CONCURRENCY: ${{ matrix.os == 'windows-latest' && 2 || 4 }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # scripts' tests read git history (baselines, merge-base)
+          fetch-depth: 0
+      - uses: actions/cache@v6
+        if: matrix.suite == 'integration'
+        with:
+          # builds only: the run registry and locks (test/.untestutils/run) are per run
+          path: |
+            test/.untestutils/builds
+          # Source-only globs: broad test/fixtures/** also matches .output-shared
+          # after e2e and hashFiles fails when saving the cache at job end.
+          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
+          restore-keys: |
+            e2e-shared-${{ runner.os }}-
+
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/prepare
+
+      # integration drives a real browser (chromium.launch / createPage)
+      - if: matrix.suite == 'integration'
+        run: pnpm exec playwright install ${{ runner.os == 'Linux' && '--with-deps chromium' || 'chromium' }}
+
+      - name: Test packages
+        id: test-packages
+        if: matrix.suite == 'packages'
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:packages 2>&1 | tee "$CI_LOG_DIR/test-packages.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test unit
+        id: test-unit
+        if: matrix.suite == 'unit'
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:unit --typecheck.enabled=false 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test dist packages
+        id: test-dist
+        if: matrix.suite == 'unit'
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:dist:packages 2>&1 | tee "$CI_LOG_DIR/test-dist.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test integration
+        id: test-integration
+        if: matrix.suite == 'integration'
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:integration 2>&1 | tee "$CI_LOG_DIR/test-integration.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Record outcomes
+        if: always()
+        run: |
+          d="${RUNNER_TEMP}/ci-logs/outcomes"; mkdir -p "$d"; tag="${{ matrix.os }}-${{ matrix.suite }}"
+          echo "${{ steps.test-packages.outcome }}" > "$d/TEST_PACKAGES_OUTCOME.$tag"
+          echo "${{ steps.test-unit.outcome }}" > "$d/TEST_UNIT_OUTCOME.$tag"
+          echo "${{ steps.test-dist.outcome }}" > "$d/TEST_DIST_OUTCOME.$tag"
+          echo "${{ steps.test-integration.outcome }}" > "$d/TEST_INTEGRATION_OUTCOME.$tag"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-logs-tests-${{ matrix.os }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/ci-logs
+          include-hidden-files: true
+
+  e2e:
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The three engines on Linux. Windows is there for paths, builds and files: Chromium only.
+          - { os: ubuntu-latest, browser: chromium, shard: 1, shards: 1 }
+          - { os: ubuntu-latest, browser: firefox, shard: 1, shards: 1 }
+          - { os: ubuntu-latest, browser: webkit, shard: 1, shards: 1 }
+          - { os: windows-latest, browser: chromium, shard: 1, shards: 3 }
+          - { os: windows-latest, browser: chromium, shard: 2, shards: 3 }
+          - { os: windows-latest, browser: chromium, shard: 3, shards: 3 }
+    env:
+      FIXTURE_BUILD_CONCURRENCY: ${{ matrix.os == 'windows-latest' && 2 || 4 }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          # builds only: the run registry and locks (test/.untestutils/run) are per run
+          path: |
+            test/.untestutils/builds
+          # Source-only globs: broad test/fixtures/** also matches .output-shared
+          # after e2e and hashFiles fails when saving the cache at job end.
+          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
+          restore-keys: |
+            e2e-shared-${{ runner.os }}-
+
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/prepare
+      - run: pnpm exec playwright install ${{ runner.os == 'Linux' && format('--with-deps {0}', matrix.browser) || matrix.browser }}
+
+      - name: Test e2e
+        id: test-e2e
+        continue-on-error: true
         env:
-          VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          TEST_PACKAGES_OUTCOME: ${{ steps.test-packages.outcome }}
-          TEST_UNIT_OUTCOME: ${{ steps.test-unit.outcome }}
-          TEST_INTEGRATION_OUTCOME: ${{ steps.test-integration.outcome }}
-          TEST_E2E_OUTCOME: ${{ steps.test-e2e.outcome }}
-          VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
-          TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
-          COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
-          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
+          E2E_BROWSER: ${{ matrix.browser }}
+        run: |
+          set +e
+          if [ "$RUNNER_OS" != Windows ]; then
+            pnpm exec vitest run --config vitest.e2e.config.ts 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
+            exit "${PIPESTATUS[0]}"
+          fi
+          # One worker with no isolation: on Windows a shared server dies with the fork that started it. Shards keep the
+          # heap of that one process in bounds, it passed 4 GB on the whole set. The retry is for the runner: a socket out of
+          # buffers (`ERR_NO_BUFFER_SPACE`), an aborted manifest fetch. Each hit one test in 552, never the same one.
+          pnpm exec vitest run --config vitest.e2e.config.ts --maxWorkers=1 --no-isolate --retry=1 --shard=${{ matrix.shard }}/${{ matrix.shards }} 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Record outcomes
+        if: always()
+        run: |
+          d="${RUNNER_TEMP}/ci-logs/outcomes"; mkdir -p "$d"
+          echo "${{ steps.test-e2e.outcome }}" > "$d/TEST_E2E_OUTCOME.${{ matrix.os }}-${{ matrix.browser }}-${{ matrix.shard }}"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-logs-e2e-${{ matrix.os }}-${{ matrix.browser }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/ci-logs
+          include-hidden-files: true
+
+  # The one job `publish --ci-passed` reads (`TEST_JOB = 'ci'`): green only when every group passed.
+  ci:
+    if: always() && (github.event_name != 'pull_request' || github.event.action != 'closed')
+    needs: [checks, tests, e2e]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: ci-logs-*
+          path: ${{ runner.temp }}/artifacts
+
+      # One log per check (a check that ran on several runners gets each part under a header), one outcome per check:
+      # any failure wins, then success; a check no runner reached stays skipped.
+      - name: Merge logs and outcomes
+        env:
+          NEEDS_RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          log_dir="${RUNNER_TEMP}/ci-logs"
+          mkdir -p "$log_dir"
+          echo "CI_LOG_DIR=$log_dir" >> "$GITHUB_ENV"
+          for dir in "${RUNNER_TEMP}"/artifacts/*/; do
+            part="$(basename "$dir")"
+            for file in "$dir"*.log; do
+              [ -e "$file" ] || continue
+              { echo "== ${part#ci-logs-}"; cat "$file"; } >> "$log_dir/$(basename "$file")"
+            done
+          done
+          for check in VERSIONS LINT TYPECHECK TEST_PACKAGES TEST_UNIT TEST_INTEGRATION TEST_E2E VERIFY_PACKAGES TEST_DIST COMPARE_PUBLISHED CONSUMER_TYPES; do
+            values="$(cat "${RUNNER_TEMP}"/artifacts/*/outcomes/"${check}_OUTCOME".* 2>/dev/null | grep -v '^$' | sort -u || true)"
+            if [ -z "$values" ]; then outcome=skipped
+            elif grep -qvE '^(success|skipped)$' <<<"$values"; then outcome=failure
+            elif grep -q '^success$' <<<"$values"; then outcome=success
+            else outcome=skipped; fi
+            echo "${check}_OUTCOME=$outcome" >> "$GITHUB_ENV"
+          done
+          echo "Groups: $NEEDS_RESULTS"
+
+      - name: CI summary
         run: |
           set +e
           out="$(mktemp)"
@@ -294,24 +400,23 @@ jobs:
           exit "$code"
 
       - name: CI PR comment
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
-          VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          TEST_PACKAGES_OUTCOME: ${{ steps.test-packages.outcome }}
-          TEST_UNIT_OUTCOME: ${{ steps.test-unit.outcome }}
-          TEST_INTEGRATION_OUTCOME: ${{ steps.test-integration.outcome }}
-          TEST_E2E_OUTCOME: ${{ steps.test-e2e.outcome }}
-          VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
-          TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
-          COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
-          CONSUMER_TYPES_OUTCOME: ${{ steps.consumer-types.outcome }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: pnpm -C scripts exec tsx ./src/run.ts ci-pr-report comment
+
+      # A group that failed outside its soft checks (install, build, a cancelled runner) reported nothing for them.
+      - name: Every group finished
+        if: always()
+        env:
+          NEEDS_RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for result in $NEEDS_RESULTS; do
+            [ "$result" = success ] || { echo "::error::a CI group ended with '$result': see its job log"; exit 1; }
+          done
 
   # Same workflow file: drop sticky comments when the PR is closed/merged.
   cleanup-sticky:

@@ -1,0 +1,19 @@
+name: Prepare
+description: After setup, the log dir for the CI report, then packages, `.nuxt` and the package playgrounds, in the order checks and tests need them.
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare CI log dir
+      shell: bash
+      run: |
+        echo "CI_LOG_DIR=${RUNNER_TEMP}/ci-logs" >> "$GITHUB_ENV"
+        mkdir -p "${RUNNER_TEMP}/ci-logs/outcomes"
+    # Root `dev:prepare` loads @i18n-micro/* from package dist, so packages build first.
+    # The Astro playground build generates `virtual:i18n-micro/config` for unit tests and typecheck.
+    - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
+      shell: bash
+    - run: pnpm run dev:prepare
+      shell: bash
+    - run: pnpm --filter "./packages/*/playground" run build
+      shell: bash

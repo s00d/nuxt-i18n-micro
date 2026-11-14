@@ -1,0 +1,141 @@
+name: e2e-hunt
+
+# Hunts a rare e2e case by numbers: many runners, each running e2e several times per browser. It reports; it does not gate.
+# What it collects: the guard's `[cut-off evidence]` blocks (a NUXT_E5002 / NUXT_E7002 it let through, with the request
+# timeline) and every failed test, in the Job Summary and the `hunt-*` artifacts.
+#   gh workflow run e2e-hunt.yml
+#   gh workflow run e2e-hunt.yml -f runners=30 -f iterations=4 -f browsers="firefox" -f specs="test/journeys/page-head-define-route.spec.ts"
+
+on:
+  # manual only
+  workflow_dispatch:
+    inputs:
+      runners:
+        description: Parallel runners
+        type: number
+        default: 20
+      iterations:
+        description: Runs per browser on each runner
+        type: number
+        default: 3
+      browsers:
+        description: Space-separated engines
+        type: string
+        default: firefox webkit
+      specs:
+        description: Spec files (space-separated); empty runs the whole e2e set, the load the case was seen under
+        type: string
+        default: ''
+
+concurrency:
+  group: e2e-hunt-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      runners: ${{ steps.plan.outputs.runners }}
+    steps:
+      - id: plan
+        run: echo "runners=$(jq -nc --argjson n '${{ inputs.runners }}' '[range(1; $n + 1)]')" >> "$GITHUB_OUTPUT"
+
+  hunt:
+    needs: plan
+    name: hunt ${{ matrix.runner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: ${{ fromJSON(needs.plan.outputs.runners) }}
+    env:
+      FIXTURE_BUILD_CONCURRENCY: 4
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache/restore@v6
+        with:
+          path: test/.untestutils/builds
+          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/recipes.ts', 'vitest.e2e.config.ts', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
+          restore-keys: |
+            e2e-shared-${{ runner.os }}-
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/prepare
+      - run: pnpm exec playwright install --with-deps ${{ inputs.browsers }}
+
+      # Every run keeps its own log; the test exit code is recorded, not raised: a failed test is a catch too.
+      - name: Hunt
+        env:
+          BROWSERS: ${{ inputs.browsers }}
+          ITERATIONS: ${{ inputs.iterations }}
+          SPECS: ${{ inputs.specs }}
+        run: |
+          out="${RUNNER_TEMP}/hunt"; mkdir -p "$out"
+          for i in $(seq 1 "$ITERATIONS"); do
+            for browser in $BROWSERS; do
+              log="$out/${browser}-${i}.log"
+              set +e
+              # shellcheck disable=SC2086 # SPECS is a list of files
+              E2E_BROWSER="$browser" pnpm exec vitest run --config vitest.e2e.config.ts $SPECS > "$log" 2>&1
+              code=$?
+              set -e
+              echo "${browser} run ${i}: exit ${code}, $(grep -c '\[cut-off evidence\]' "$log" || true) evidence block(s)"
+            done
+          done
+
+      # The blocks without ANSI, one file per runner: `allowed:` and `timeline` lines follow the header.
+      - name: Collect
+        if: always()
+        run: |
+          out="${RUNNER_TEMP}/hunt"
+          : > "$out/evidence.txt"; : > "$out/failures.txt"
+          for log in "$out"/*.log; do
+            [ -e "$log" ] || continue
+            run="$(basename "$log" .log)"
+            sed 's/\x1b\[[0-9;]*m//g' "$log" | awk -v run="$run" '
+              /\[cut-off evidence\]/ { print "== " run; keep = 1; print; next }
+              keep && (/^allowed: / || /^timeline / || /^  \+[0-9]+ms /) { print; next }
+              keep { keep = 0; print "" }
+            ' >> "$out/evidence.txt"
+            sed 's/\x1b\[[0-9;]*m//g' "$log" | grep -E '^ FAIL ' | sed "s|^|${run}: |" >> "$out/failures.txt" || true
+          done
+          echo "evidence blocks: $(grep -c '\[cut-off evidence\]' "$out/evidence.txt" || true), failed tests: $(wc -l < "$out/failures.txt")"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: hunt-${{ matrix.runner }}
+          path: ${{ runner.temp }}/hunt
+
+  report:
+    needs: hunt
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: hunt-*
+          path: hunt
+      - name: Summary
+        run: |
+          runs=$(find hunt -name '*.log' | wc -l)
+          blocks=$(cat hunt/*/evidence.txt 2>/dev/null | grep -c '\[cut-off evidence\]' || true)
+          fails=$(cat hunt/*/failures.txt 2>/dev/null | grep -c . || true)
+          {
+            echo "## e2e hunt"
+            echo
+            echo "- runs: **${runs}** (${{ inputs.runners }} runners × ${{ inputs.iterations }} × \`${{ inputs.browsers }}\`)"
+            echo "- cut-off evidence blocks: **${blocks}**"
+            echo "- failed tests: **${fails}**"
+            if [ "$fails" -gt 0 ]; then echo; echo '### Failed tests'; echo '```'; cat hunt/*/failures.txt | sort | uniq -c | sort -rn | head -50; echo '```'; fi
+            if [ "$blocks" -gt 0 ]; then echo; echo '### Evidence (first blocks, all in the `hunt-*` artifacts)'; echo '```'; cat hunt/*/evidence.txt | head -200; echo '```'; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"

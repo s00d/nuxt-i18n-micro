@@ -22,6 +22,18 @@ describe('buildI18nPluralTemplate', () => {
     expect(out).toContain('getter(key)')
     expect(out).toContain('interpolate')
   })
+
+  it('a custom rule that does not call interpolate gets no import (#317)', () => {
+    // the rule from the issue: Nitro's Rollup warned "interpolate is imported but never used" on every build
+    const viaT = ((
+      key: string,
+      count: number,
+      params: Record<string, unknown>,
+      _locale: string,
+      t: (k: string, p?: Record<string, unknown>) => unknown,
+    ) => t(key, { ...params, count })?.toString() ?? key) as unknown as PluralFunc
+    expect(buildI18nPluralTemplate(viaT, helpersPath)).toBe(`export const plural = ${viaT.toString()}\n`)
+  })
 })
 
 declare function interpolate(template: string, params: Record<string, unknown>): string

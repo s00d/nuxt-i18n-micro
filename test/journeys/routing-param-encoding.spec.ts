@@ -45,7 +45,8 @@ describe('journey: a route object keeps its encoding (prefix_except_default)', (
       // Nitro decodes the path and Nuxt 4.5 encodes it again for SSR: on any app `%25` comes back as `%2525` and `%3F` as a query
       if (/[%?]/.test(id)) continue
       await page.reload()
-      await page.waitForFunction(() => useNuxtApp().$router.currentRoute.value.path.length > 0)
+      // right after the reload the app may not exist yet: undefined is "not yet", a throw would end the wait
+      await page.waitForFunction(() => (useNuxtApp()?.$router?.currentRoute.value.path.length ?? 0) > 0)
       await expect(page.locator('#echo')).toHaveText(id)
       expect(await current(page)).toEqual(pushed)
     }

@@ -17,8 +17,8 @@ const PRISTINE: PayloadValue[] = [
 
 // above the 60 s of one HMR poll: a stuck step fails with its own message, not the test's timeout
 describe('J10 dev HMR: translation watcher (premerged)', { timeout: 240_000 }, () => {
-  // an HMR reload cuts a dictionary fetch off, and WebKit logs that as a load error of the leaving page
-  test.override({ harness: 'translation-watcher-tmp', guardAllow: [/\[i18n\] Load error: (.*Load failed|JSHandle@object)/] })
+  // a dictionary fetch an HMR reload cuts off is a cut-off fetch for the guard: let through with evidence, not by pattern
+  test.override({ harness: 'translation-watcher-tmp' })
 
   afterAll(() => {
     files.restoreAll()

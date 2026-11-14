@@ -23,10 +23,13 @@ const isCutOffFetch = (message: string, pageUrl = '') => {
  * - NUXT_E5002: the app manifest, fetched after hydration from an idle callback.
  * - NUXT_E7002: a page payload (`_payload.json`), fetched for a link or a navigation. In production Nuxt logs it only
  *   for a rejected fetch: a 404 payload is skipped silently.
+ * - `[i18n] Load error` (dev): a dictionary (`/_locales/.../data.json`), refetched on an HMR update just as the next
+ *   page load starts.
  */
 const CUT_OFF_FETCHES = [
   { code: '[NUXT_E5002]', matches: (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url) },
   { code: '[NUXT_E7002]', matches: (url: string) => /\/_payload\.json(\?|$)/.test(url) },
+  { code: '[i18n] Load error', matches: (url: string) => /\/_locales\/.+\/data\.json(\?|$)/.test(url) },
 ]
 const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 

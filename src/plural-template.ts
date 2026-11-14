@@ -12,7 +12,9 @@ export function buildI18nPluralTemplate(plural: PluralFunc | undefined, helpersI
   if (!plural || plural === defaultPlural) {
     return `export { defaultPlural as plural } from '${helpersImportPath}'\n`
   }
-  // A rule may call interpolate, as the default does, so it is in scope. The re-export makes the import count as used:
-  // a rule that doesn't call it would get an "imported but never used" warning. Nothing imports it, so it is shaken out.
-  return `import { interpolate } from '${helpersImportPath}'\nexport { interpolate }\nexport const plural = ${plural.toString()}\n`
+  // A rule that calls interpolate, as the default does, needs it in scope. Only then: Nitro's Rollup warns about an
+  // unused import (a re-export doesn't count, it is shaken out). A mention in a comment or a string only adds the import.
+  const source = plural.toString()
+  const imports = /\binterpolate\b/.test(source) ? `import { interpolate } from '${helpersImportPath}'\n` : ''
+  return `${imports}export const plural = ${source}\n`
 }

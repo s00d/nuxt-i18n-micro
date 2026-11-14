@@ -17,10 +17,17 @@ const isCutOffFetch = (message: string, pageUrl = '') => {
 }
 
 /**
- * Nuxt fetches the app manifest after hydration, from an idle callback. A navigation cuts that fetch off: as a cancelled
- * request, or, on Linux WebKit when the callback runs while the page unloads, before any request is sent.
+ * Nuxt logs these when a fetch of its own rejects. A navigation cuts such a fetch off: usually as a cancelled request,
+ * but CI logs also show it with no request event at all (the manifest on Linux WebKit, a payload on Linux Firefox).
+ * So each counts only with a real failure of its URL.
+ * - NUXT_E5002: the app manifest, fetched after hydration from an idle callback.
+ * - NUXT_E7002: a page payload (`_payload.json`), fetched for a link or a navigation. In production Nuxt logs it only
+ *   for a rejected fetch: a 404 payload is skipped silently.
  */
-const isManifest = (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url)
+const CUT_OFF_FETCHES = [
+  { code: '[NUXT_E5002]', matches: (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url) },
+  { code: '[NUXT_E7002]', matches: (url: string) => /\/_payload\.json(\?|$)/.test(url) },
+]
 const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 
 /** The OS ran out of socket buffers (a busy Windows runner): the machine's failure, not the app's. */
@@ -28,18 +35,19 @@ const isOutOfBuffers = (text: string) => text.includes('net::ERR_NO_BUFFER_SPACE
 
 /**
  * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
- * NUXT_E5002 (manifest fetch failed) counts only with a real manifest failure: a response >= 400 or a request that
- * failed other than by being cancelled. A fetch a navigation cut off leaves neither.
+ * A cut-off fetch diagnostic (see CUT_OFF_FETCHES) counts only with a real failure of its URL: a response >= 400 or a
+ * request that failed other than by being cancelled. A fetch a navigation cut off leaves neither.
  * A resource the OS had no buffers for is no app error; if the page needed it, the test's own checks fail.
  */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
-  let manifestFailed = false
+  const failed = new Set<string>()
+  const markFailed = (url: string) => CUT_OFF_FETCHES.forEach((fetch) => fetch.matches(url) && failed.add(fetch.code))
   context.on('requestfailed', (req) => {
-    if (isManifest(req.url()) && !isAborted(req.failure()?.errorText)) manifestFailed = true
+    if (!isAborted(req.failure()?.errorText)) markFailed(req.url())
   })
   context.on('response', (res) => {
-    if (isManifest(res.url()) && res.status() >= 400) manifestFailed = true
+    if (res.status() >= 400) markFailed(res.url())
     if (res.request().resourceType() === 'document' && res.status() >= 500) issues.push(`document ${res.status()}: ${res.url()}`)
   })
   context.on('weberror', (err) => {
@@ -50,7 +58,8 @@ function watchErrors(context: BrowserContext) {
     if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && isHydrationText(text)))
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
-  return () => (manifestFailed ? issues : issues.filter((issue) => !issue.includes('[NUXT_E5002]')))
+  const cutOff = (issue: string) => CUT_OFF_FETCHES.some(({ code }) => issue.includes(code) && !failed.has(code))
+  return () => issues.filter((issue) => !cutOff(issue))
 }
 
 /** The last console messages and the failed or non-2xx requests, for the report of a failed test. */

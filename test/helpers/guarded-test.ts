@@ -59,7 +59,40 @@ function watchErrors(context: BrowserContext) {
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   const cutOff = (issue: string) => CUT_OFF_FETCHES.some(({ code }) => issue.includes(code) && !failed.has(code))
-  return () => issues.filter((issue) => !cutOff(issue))
+  return { unexpected: () => issues.filter((issue) => !cutOff(issue)), allowed: () => issues.filter(cutOff) }
+}
+
+/**
+ * The evidence a let-through cut-off diagnostic leaves, so a real bug behind one shows in the log instead of hiding:
+ * every request for a CUT_OFF_FETCHES URL (start, response, service worker, end with its timing, where -1 marks a
+ * phase the browser skipped, as for a cache hit, or failure), each document request (a navigation) and the console
+ * line, in ms since the test started.
+ */
+function watchCutOffTimeline(context: BrowserContext, keep = 80) {
+  const t0 = Date.now()
+  const lines: string[] = []
+  const log = (line: string) => lines.push(`+${Date.now() - t0}ms ${line}`) > keep && lines.shift()
+  const watched = (url: string) => CUT_OFF_FETCHES.some((fetch) => fetch.matches(url))
+  context.on('request', (req) => {
+    if (watched(req.url())) log(`request ${req.method()} ${req.url()} (${req.resourceType()})`)
+    else if (req.isNavigationRequest()) log(`navigation ${req.method()} ${req.url()}`)
+  })
+  context.on('response', (res) => {
+    if (watched(res.url())) log(`response ${res.status()} ${res.url()}${res.fromServiceWorker() ? ' (service worker)' : ''}`)
+  })
+  context.on('requestfinished', (req) => {
+    if (!watched(req.url())) return
+    const { requestStart, responseStart, responseEnd } = req.timing()
+    log(`finished ${req.url()} requestStart=${requestStart} responseStart=${responseStart} responseEnd=${responseEnd}`)
+  })
+  context.on('requestfailed', (req) => {
+    if (watched(req.url())) log(`failed (${req.failure()?.errorText}) ${req.url()}`)
+  })
+  context.on('console', (msg) => {
+    const text = msg.text()
+    if (CUT_OFF_FETCHES.some(({ code }) => text.includes(code))) log(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
+  })
+  return lines
 }
 
 /** The last console messages and the failed or non-2xx requests, for the report of a failed test. */
@@ -89,8 +122,23 @@ export const test = base
   .extend('page', ({ page, guard, task }, { onCleanup }) => {
     const issuesOf = watchErrors(page.context())
     const trail = watchTrail(page.context())
+    const timeline = watchCutOffTimeline(page.context())
     onCleanup(async () => {
-      const unexpected = issuesOf().filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))
+      const allowed = issuesOf.allowed()
+      if (allowed.length) {
+        // an annotation on the run page: the evidence below would sink in thousands of log lines
+        if (process.env.GITHUB_ACTIONS)
+          console.log(`::warning title=cut-off evidence::${task.name}: ${allowed.length} let through, see [cut-off evidence] in the log`)
+        console.warn(
+          [
+            `[cut-off evidence] ${task.name}`,
+            ...allowed.map((issue) => `allowed: ${issue}`),
+            `timeline (last ${timeline.length}):`,
+            ...timeline.map((line) => `  ${line}`),
+          ].join('\n'),
+        )
+      }
+      const unexpected = issuesOf.unexpected().filter((issue) => !guard.patterns.some((pattern) => pattern.test(issue)))
       // runs before the page closes, and only when the test failed: a passing test prints nothing
       if (task.result?.state === 'fail' || unexpected.length) {
         const locale = page.isClosed()

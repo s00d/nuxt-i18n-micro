@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v4.1.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.1...v4.1.2)
+
+### 🩹 Fixes
+
+- A custom plural rule leaves no unused interpolate import ([5d21031e](https://github.com/s00d/nuxt-i18n-micro/commit/5d21031e))
+- Import interpolate only when the custom plural rule calls it ([ff32da66](https://github.com/s00d/nuxt-i18n-micro/commit/ff32da66))
+
+### ✅ Tests
+
+- The e2e guard counts NUXT_E5002 only with a real manifest failure ([d715931a](https://github.com/s00d/nuxt-i18n-micro/commit/d715931a))
+- J10 writes the locale file again when the file event is lost ([90d26a66](https://github.com/s00d/nuxt-i18n-micro/commit/90d26a66))
+- The e2e guard treats a cut-off payload fetch (NUXT_E7002) like the manifest ([8dc96f11](https://github.com/s00d/nuxt-i18n-micro/commit/8dc96f11))
+- The e2e guard logs evidence for every cut-off diagnostic it lets through ([2902848f](https://github.com/s00d/nuxt-i18n-micro/commit/2902848f))
+- J10 polls bound each request and say what they saw last ([a61ab59a](https://github.com/s00d/nuxt-i18n-micro/commit/a61ab59a))
+- Two rare e2e failures e2e-hunt caught, fixed at the cause ([8d1a8de6](https://github.com/s00d/nuxt-i18n-micro/commit/8d1a8de6))
+
+### 🤖 CI
+
+- Checks, tests and e2e on parallel runners, one ci job for the report ([fac5dcae](https://github.com/s00d/nuxt-i18n-micro/commit/fac5dcae))
+- E2e-hunt, a manual workflow that runs e2e many times to catch a rare case ([c2cbeb9d](https://github.com/s00d/nuxt-i18n-micro/commit/c2cbeb9d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.1.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.0...v4.1.1)

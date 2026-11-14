@@ -16,7 +16,10 @@ const isCutOffFetch = (message: string, pageUrl = '') => {
   return host !== undefined && pageUrl.includes(`//${host}/`)
 }
 
-/** Nuxt fetches the app manifest after hydration; a navigation while it loads cuts the request off. */
+/**
+ * Nuxt fetches the app manifest after hydration, from an idle callback. A navigation cuts that fetch off: as a cancelled
+ * request, or, on Linux WebKit when the callback runs while the page unloads, before any request is sent.
+ */
 const isManifest = (url: string) => /\/_nuxt\/builds\/meta\/[^/]+\.json$/.test(url)
 const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 
@@ -25,16 +28,18 @@ const isOutOfBuffers = (text: string) => text.includes('net::ERR_NO_BUFFER_SPACE
 
 /**
  * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
- * NUXT_E5002 (manifest fetch failed) counts only when no manifest request was cut off by a navigation.
+ * NUXT_E5002 (manifest fetch failed) counts only with a real manifest failure: a response >= 400 or a request that
+ * failed other than by being cancelled. A fetch a navigation cut off leaves neither.
  * A resource the OS had no buffers for is no app error; if the page needed it, the test's own checks fail.
  */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
-  let manifestCutOff = false
+  let manifestFailed = false
   context.on('requestfailed', (req) => {
-    if (isManifest(req.url()) && isAborted(req.failure()?.errorText)) manifestCutOff = true
+    if (isManifest(req.url()) && !isAborted(req.failure()?.errorText)) manifestFailed = true
   })
   context.on('response', (res) => {
+    if (isManifest(res.url()) && res.status() >= 400) manifestFailed = true
     if (res.request().resourceType() === 'document' && res.status() >= 500) issues.push(`document ${res.status()}: ${res.url()}`)
   })
   context.on('weberror', (err) => {
@@ -45,7 +50,7 @@ function watchErrors(context: BrowserContext) {
     if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && isHydrationText(text)))
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
-  return () => (manifestCutOff ? issues.filter((issue) => !issue.includes('[NUXT_E5002]')) : issues)
+  return () => (manifestFailed ? issues : issues.filter((issue) => !issue.includes('[NUXT_E5002]')))
 }
 
 /** The last console messages and the failed or non-2xx requests, for the report of a failed test. */

@@ -86,6 +86,9 @@ class TranslationStorage {
       params: request.params,
       // after a clear a browser's copy may be what the clear is for: `max-age` would answer with it
       cache: import.meta.client && this.cc.clears ? 'no-cache' : undefined,
+      // a page left mid-load would have WebKit and Firefox cancel and reject the fetch, and the load error logged for it
+      // would report a failure that is none; kept alive, the request finishes (as Nuxt does for its manifest, nuxt#36842)
+      keepalive: import.meta.client || undefined,
     })
   }
 

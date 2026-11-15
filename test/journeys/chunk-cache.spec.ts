@@ -80,16 +80,18 @@ describe('dictionaries: app.cdnURL', () => {
   test('files come from the CDN, as the hint says', async ({ page, request, baseURL }) => {
     expect(await (await request.get('/en')).text()).toMatch(/<link[^>]*href="https:\/\/cdn\.test\/_locales\/index\/en\/data\.json/)
     const seen: string[] = []
+    // stays until the page closes: a chunk the page prefetches after the checks would otherwise go to the real cdn.test
+    // and fail as a CORS error. An answer still in flight when the page closes goes nowhere, so its error is dropped.
     await page.route('https://cdn.test/**', async (route) => {
       const { pathname, search } = new URL(route.request().url())
       seen.push(pathname)
-      const response = await route.fetch({ url: `${baseURL}${pathname.slice(1)}${search}` })
-      await route.fulfill({ response, headers: { ...response.headers(), 'access-control-allow-origin': '*' } })
+      try {
+        const response = await route.fetch({ url: `${baseURL}${pathname.slice(1)}${search}` })
+        await route.fulfill({ response, headers: { ...response.headers(), 'access-control-allow-origin': '*' } })
+      } catch {}
     })
     await page.goto(`${baseURL}en`)
     await expect(page.locator('#content')).not.toHaveText('key0')
     await expect.poll(() => seen).toContainEqual(expect.stringMatching(/^\/_locales\/index\/en\//))
-    // a handler still answering when the test ends rejects after it, on a page that is gone
-    await page.unrouteAll({ behavior: 'wait' })
   })
 })

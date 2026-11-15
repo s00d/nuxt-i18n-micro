@@ -4,7 +4,7 @@ import { buildTranslationPayloadFetchRequest } from './payload-url'
 
 export type TranslationPayloadFetcher = <T>(
   path: string,
-  options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache; timeout?: number },
+  options: { baseURL: string; params?: Record<string, string | number>; cache?: RequestCache; timeout?: number; keepalive?: boolean },
 ) => Promise<T>
 
 /**

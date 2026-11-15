@@ -142,11 +142,11 @@ describe('a browser', () => {
   const mark = PREMERGED_ROOT_MARK
   /** `$fetch` over a map of `page` to a file, or a function; each answer waits for its gate when one is set. */
   function host(files: Record<string, unknown>, gates: Record<string, Promise<void>> = {}) {
-    const calls: { path: string; params?: Tree; cache?: string }[] = []
+    const calls: { path: string; params?: Tree; cache?: string; keepalive?: boolean }[] = []
     vi.stubGlobal(
       '$fetch',
-      vi.fn(async (path: string, init: { params?: Tree; cache?: string }) => {
-        calls.push({ path, params: init.params, cache: init.cache })
+      vi.fn(async (path: string, init: { params?: Tree; cache?: string; keepalive?: boolean }) => {
+        calls.push({ path, params: init.params, cache: init.cache, keepalive: init.keepalive })
         const name = path.split('/')[2]!
         await gates[name]
         const file = files[name]
@@ -249,6 +249,21 @@ describe('a browser', () => {
     await translationStorage.load('de', 'a', options)
     expect(await translationStorage.load('de', 'b', options)).toEqual({ nav: 'old', y: 2 })
     expect(calls.filter((call) => call.path.includes('__root'))).toHaveLength(2)
+  })
+
+  test('a browser keeps each dictionary request alive: leaving the page mid-load rejects nothing', async () => {
+    // WebKit and Firefox cancel and reject a plain fetch of a page being left, and the loader logs that as a load error
+    const files = { __root: { nav: 'root', [mark]: 'r' }, about: { title: 'page', [mark]: 'r' } }
+    let calls = host(files)
+    await translationStorage.load('de', 'about', options)
+    expect(calls.map((call) => call.keepalive)).toEqual([undefined, undefined])
+
+    translationStorage.clear()
+    ;(globalThis as { __i18nSide?: string }).__i18nSide = 'client'
+    calls = host(files)
+    await translationStorage.load('de', 'about', options)
+    expect(calls.map((call) => call.keepalive)).toEqual([true, true])
+    delete (globalThis as { __i18nSide?: string }).__i18nSide
   })
 
   test('a clear revalidates what comes next, root and delta', async () => {

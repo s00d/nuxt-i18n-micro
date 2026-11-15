@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v4.1.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.2...v4.1.3)
+
+### 🩹 Fixes
+
+- Keep the browser's dictionary requests alive, so leaving a page logs no load error ([2311773e](https://github.com/s00d/nuxt-i18n-micro/commit/2311773e))
+
+### ✅ Tests
+
+- Chunk-cache keeps its CDN route until the page closes ([2ea3c751](https://github.com/s00d/nuxt-i18n-micro/commit/2ea3c751))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.1.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.1...v4.1.2)

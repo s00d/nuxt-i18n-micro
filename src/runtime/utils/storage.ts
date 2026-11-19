@@ -54,6 +54,8 @@ class TranslationStorage {
   private readonly rootLoads = new Map<string, Promise<Record<string, unknown>>>()
   /** The mark of each root held, to tell a delta made against another one. */
   private readonly rootMarks = new Map<string, string | undefined>()
+  /** URLs whose SSR preload a fetch already took: a later fetch of one is a new download, and may be kept alive. */
+  private readonly preloadsTaken = new Set<string>()
 
   constructor() {
     this.cc = getStorageCacheControl()
@@ -87,9 +89,23 @@ class TranslationStorage {
       // after a clear a browser's copy may be what the clear is for: `max-age` would answer with it
       cache: import.meta.client && this.cc.clears ? 'no-cache' : undefined,
       // a page left mid-load would have WebKit and Firefox cancel and reject the fetch, and the load error logged for it
-      // would report a failure that is none; kept alive, the request finishes (as Nuxt does for its manifest, nuxt#36842)
-      keepalive: import.meta.client || undefined,
+      // would report a failure that is none; kept alive, the request finishes (as Nuxt does for its manifest, nuxt#36842).
+      // Not for the fetch that takes the SSR preload: the browser never hands a preload to a keepalive request, so the
+      // file would download twice and Chrome would warn about both (#322).
+      keepalive: (import.meta.client && !this.takesPreload(this.urlOf(request))) || undefined,
     })
+  }
+
+  /** The first fetch of a URL the server page preloaded (`<link rel="preload" as="fetch">`): only the first page has one. */
+  private takesPreload(url: string): boolean {
+    if (this.preloadsTaken.has(url)) return false
+    const preloaded = [...document.querySelectorAll('link[rel="preload"][as="fetch"]')].some((link) => link.getAttribute('href') === url)
+    if (preloaded) this.preloadsTaken.add(url)
+    return preloaded
+  }
+
+  private urlOf(request: { baseURL: string; path: string; params?: Record<string, string | number> }): string {
+    return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
   }
 
   /**
@@ -124,8 +140,7 @@ class TranslationStorage {
 
   /** The URL the browser fetches a chunk from: what SSR preloads for the first page. */
   clientUrl(locale: string, routeName: string | undefined, options: LoadOptions): string {
-    const request = this.request(locale, routeName, options, false)
-    return withQuery(joinURL(request.baseURL, request.path), request.params ?? {})
+    return this.urlOf(this.request(locale, routeName, options, false))
   }
 
   /** The cached chunk (not expired), or null. */

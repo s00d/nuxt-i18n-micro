@@ -9,6 +9,8 @@ export interface BrowserGuard {
 }
 
 const isHydrationText = (text: string) => /hydration|mismatch/i.test(text)
+/** A preload the page never used: the hint and the request disagree (the file downloads twice), as with #322. */
+const isUnusedPreload = (text: string) => /preload/i.test(text) && /not used/i.test(text)
 
 /** WebKit words a same-origin fetch cut off by leaving the page as a CORS failure: same origin has no CORS to fail. */
 const isCutOffFetch = (message: string, pageUrl = '') => {
@@ -34,7 +36,7 @@ const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 const isOutOfBuffers = (text: string) => text.includes('net::ERR_NO_BUFFER_SPACE')
 
 /**
- * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
+ * Every document >= 500, uncaught error, console error, hydration warning and unused-preload warning of a test's browser context.
  * A cut-off fetch diagnostic (see CUT_OFF_FETCHES) counts only with a real failure of its URL: a response >= 400 or a
  * request that failed other than by being cancelled. A fetch a navigation cut off leaves neither.
  * A resource the OS had no buffers for is no app error; if the page needed it, the test's own checks fail.
@@ -55,7 +57,7 @@ function watchErrors(context: BrowserContext) {
   })
   context.on('console', (msg) => {
     const text = msg.text()
-    if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && isHydrationText(text)))
+    if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && (isHydrationText(text) || isUnusedPreload(text))))
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   const cutOff = (issue: string) => CUT_OFF_FETCHES.some(({ code }) => issue.includes(code) && !failed.has(code))

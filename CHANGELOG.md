@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v4.1.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.3...v4.1.4)
+
+### 🩹 Fixes
+
+- The fetch that takes the SSR preload is no keepalive request ([1b138825](https://github.com/s00d/nuxt-i18n-micro/commit/1b138825))
+- Reading preload hints needs no document ([e03e3b4a](https://github.com/s00d/nuxt-i18n-micro/commit/e03e3b4a))
+
+### ✅ Tests
+
+- The unused-preload check skips WebKit, whose fetch never takes a preload ([d9277f6a](https://github.com/s00d/nuxt-i18n-micro/commit/d9277f6a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v4.1.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v4.1.2...v4.1.3)

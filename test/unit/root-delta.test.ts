@@ -266,6 +266,26 @@ describe('a browser', () => {
     delete (globalThis as { __i18nSide?: string }).__i18nSide
   })
 
+  test('the first fetch of a file the server page preloaded is no keepalive: the browser would download it again (#322)', async () => {
+    ;(globalThis as { __i18nSide?: string }).__i18nSide = 'client'
+    // the SSR page preloads the page file only; the root has no hint here
+    const preload = { getAttribute: (name: string) => (name === 'href' ? '/_locales/about/fr/data.json' : null) }
+    vi.stubGlobal('document', { querySelectorAll: (selector: string) => (selector === 'link[rel="preload"][as="fetch"]' ? [preload] : []) })
+    const files = { __root: { nav: 'root', [mark]: 'r' }, about: { title: 'page', [mark]: 'r' } }
+    const keepaliveOf = (calls: { path: string; keepalive?: boolean }[]) => Object.fromEntries(calls.map((call) => [call.path, call.keepalive]))
+
+    let calls = host(files)
+    await translationStorage.load('fr', 'about', options)
+    expect(keepaliveOf(calls)).toEqual({ '/_locales/__root/fr/data.json': true, '/_locales/about/fr/data.json': undefined })
+
+    // the preload is taken: a later fetch of the same file, as after a clear, is a new download again
+    translationStorage.clear()
+    calls = host(files)
+    await translationStorage.load('fr', 'about', options)
+    expect(keepaliveOf(calls)).toEqual({ '/_locales/__root/fr/data.json': true, '/_locales/about/fr/data.json': true })
+    delete (globalThis as { __i18nSide?: string }).__i18nSide
+  })
+
   test('a clear revalidates what comes next, root and delta', async () => {
     ;(globalThis as { __i18nSide?: string }).__i18nSide = 'client'
     const calls = host({ __root: { nav: 'root', [mark]: 'r' }, about: { title: 'page', [mark]: 'r' } })

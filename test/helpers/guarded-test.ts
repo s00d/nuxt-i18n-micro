@@ -1,4 +1,4 @@
-import type { BrowserContext } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test as base } from 'untestutils/vitest'
 
 export { afterAll, beforeAll, describe, expect }
@@ -9,6 +9,12 @@ export interface BrowserGuard {
 }
 
 const isHydrationText = (text: string) => /hydration|mismatch/i.test(text)
+/**
+ * A preload the page never used: the hint and the request disagree (the file downloads twice), as with #322.
+ * Not in WebKit: it hands a `<link rel="preload" as="fetch">` to no readable fetch at all (any credentials mode, with or
+ * without `crossorigin`; only a `no-cors` fetch, whose response can't be read), so every hinted file warns there.
+ */
+const isUnusedPreload = (text: string) => /preload/i.test(text) && /not used/i.test(text)
 
 /** WebKit words a same-origin fetch cut off by leaving the page as a CORS failure: same origin has no CORS to fail. */
 const isCutOffFetch = (message: string, pageUrl = '') => {
@@ -34,13 +40,14 @@ const isAborted = (errorText = '') => /abort|cancel/i.test(errorText)
 const isOutOfBuffers = (text: string) => text.includes('net::ERR_NO_BUFFER_SPACE')
 
 /**
- * Every document >= 500, uncaught error, console error and hydration warning of a test's browser context.
+ * Every document >= 500, uncaught error, console error, hydration warning and unused-preload warning of a test's browser context.
  * A cut-off fetch diagnostic (see CUT_OFF_FETCHES) counts only with a real failure of its URL: a response >= 400 or a
  * request that failed other than by being cancelled. A fetch a navigation cut off leaves neither.
  * A resource the OS had no buffers for is no app error; if the page needed it, the test's own checks fail.
  */
 function watchErrors(context: BrowserContext) {
   const issues: string[] = []
+  const checksPreloads = context.browser()?.browserType().name() !== 'webkit'
   const failed = new Set<string>()
   const markFailed = (url: string) => CUT_OFF_FETCHES.forEach((fetch) => fetch.matches(url) && failed.add(fetch.code))
   context.on('requestfailed', (req) => {
@@ -55,7 +62,10 @@ function watchErrors(context: BrowserContext) {
   })
   context.on('console', (msg) => {
     const text = msg.text()
-    if ((msg.type() === 'error' && !isOutOfBuffers(text)) || (msg.type() === 'warning' && isHydrationText(text)))
+    if (
+      (msg.type() === 'error' && !isOutOfBuffers(text)) ||
+      (msg.type() === 'warning' && (isHydrationText(text) || (checksPreloads && isUnusedPreload(text))))
+    )
       issues.push(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   const cutOff = (issue: string) => CUT_OFF_FETCHES.some(({ code }) => issue.includes(code) && !failed.has(code))
@@ -72,7 +82,14 @@ function watchCutOffTimeline(context: BrowserContext, keep = 80) {
   const t0 = Date.now()
   const lines: string[] = []
   const log = (line: string) => lines.push(`+${Date.now() - t0}ms ${line}`) > keep && lines.shift()
-  const watched = (url: string) => CUT_OFF_FETCHES.some((fetch) => fetch.matches(url))
+  // dictionaries too: their preload and fetch, to tell from the log whether the one took the other
+  const watched = (url: string) => CUT_OFF_FETCHES.some((fetch) => fetch.matches(url)) || /\/_locales\/.+\/data\.json(\?|$)/.test(url)
+  const watchPage = (page: Page) => {
+    page.on('domcontentloaded', () => log(`domcontentloaded ${page.url()}`))
+    page.on('load', () => log(`load ${page.url()}`))
+  }
+  context.pages().forEach(watchPage)
+  context.on('page', watchPage)
   context.on('request', (req) => {
     if (watched(req.url())) log(`request ${req.method()} ${req.url()} (${req.resourceType()})`)
     else if (req.isNavigationRequest()) log(`navigation ${req.method()} ${req.url()}`)
@@ -90,7 +107,8 @@ function watchCutOffTimeline(context: BrowserContext, keep = 80) {
   })
   context.on('console', (msg) => {
     const text = msg.text()
-    if (CUT_OFF_FETCHES.some(({ code }) => text.includes(code))) log(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
+    if (CUT_OFF_FETCHES.some(({ code }) => text.includes(code)) || isUnusedPreload(text))
+      log(`console ${msg.type()}: ${text} @ ${msg.location().url}`)
   })
   return lines
 }
@@ -157,6 +175,8 @@ export const test = base
             ...trail.requests.map((line) => `  ${line}`),
             `console (last ${trail.consoleLines.length}):`,
             ...trail.consoleLines.map((line) => `  ${line}`),
+            `timeline (last ${timeline.length}):`,
+            ...timeline.map((line) => `  ${line}`),
           ].join('\n'),
         )
       }

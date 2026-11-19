@@ -1,0 +1,1 @@
+import{S as e,m as t}from"./VB4sRY0D.js";var n=Object.assign(e({__name:`H1`,setup(e){return(e,n)=>t(``,!0)}}),{__name:`ProseH1`});export{n as default};

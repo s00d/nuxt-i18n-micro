@@ -99,7 +99,9 @@ class TranslationStorage {
   /** The first fetch of a URL the server page preloaded (`<link rel="preload" as="fetch">`): only the first page has one. */
   private takesPreload(url: string): boolean {
     if (this.preloadsTaken.has(url)) return false
-    const preloaded = [...document.querySelectorAll('link[rel="preload"][as="fetch"]')].some((link) => link.getAttribute('href') === url)
+    // no document (a client bundle run without a DOM): no preload to take, and a load must not fail on it
+    const links = globalThis.document?.querySelectorAll('link[rel="preload"][as="fetch"]') ?? []
+    const preloaded = [...links].some((link) => link.getAttribute('href') === url)
     if (preloaded) this.preloadsTaken.add(url)
     return preloaded
   }

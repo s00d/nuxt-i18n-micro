@@ -260,7 +260,6 @@ describe('a browser', () => {
 
     translationStorage.clear()
     ;(globalThis as { __i18nSide?: string }).__i18nSide = 'client'
-    vi.stubGlobal('document', { querySelectorAll: () => [] })
     calls = host(files)
     await translationStorage.load('de', 'about', options)
     expect(calls.map((call) => call.keepalive)).toEqual([true, true])
@@ -289,7 +288,6 @@ describe('a browser', () => {
 
   test('a clear revalidates what comes next, root and delta', async () => {
     ;(globalThis as { __i18nSide?: string }).__i18nSide = 'client'
-    vi.stubGlobal('document', { querySelectorAll: () => [] })
     const calls = host({ __root: { nav: 'root', [mark]: 'r' }, about: { title: 'page', [mark]: 'r' } })
     await translationStorage.load('de', 'about', options)
     translationStorage.clear()

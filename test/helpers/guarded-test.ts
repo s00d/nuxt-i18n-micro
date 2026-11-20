@@ -180,7 +180,9 @@ export const test = base
           ].join('\n'),
         )
       }
-      expect(unexpected).toEqual([])
+      // A failed attempt has failed already, and the report above lists its issues. Vitest keeps a cleanup error on the
+      // task across `--retry`, so throwing here would fail a retry that passes (an attempt cut short by the runner).
+      if (task.result?.state !== 'fail') expect(unexpected).toEqual([])
     })
     return page
   })
